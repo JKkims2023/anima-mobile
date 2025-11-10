@@ -12,7 +12,8 @@
     "menu": "node scripts/menu.js",
     "kill": "node scripts/kill-servers.js",
     "logs": "node scripts/show-logs.js",
-    "dev:logs": "node scripts/dev-with-logs.js"
+    "dev:logs": "node scripts/dev-with-logs.js",
+    "devtools": "node scripts/open-devtools.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
