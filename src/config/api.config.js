@@ -1,0 +1,212 @@
+/**
+ * 🔧 API Configuration
+ * 
+ * All API endpoints and configuration for idol-companion backend
+ * 
+ * IMPORTANT:
+ * - DO NOT hardcode API URLs in components!
+ * - Always use these constants
+ * - Environment-specific URLs should use .env files
+ */
+
+// ==================== Base URL ====================
+
+/**
+ * API Base URL
+ * Production: idol-companion backend URL
+ * Development: Can be overridden with environment variable
+ */
+export const API_BASE_URL = process.env.API_BASE_URL || 'https://idol-companion.com';
+
+// ==================== API Endpoints ====================
+
+/**
+ * Authentication Endpoints
+ */
+export const AUTH_ENDPOINTS = {
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/auth/register',
+  VERIFY_TOKEN: '/api/auth/verify-token',
+  SEND_VERIFICATION_EMAIL: '/api/auth/send-verification-email',
+  VERIFY_EMAIL_CODE: '/api/auth/verify-email-code',
+  APPROVE_TERMS: '/api/auth/approve-terms',
+  WITHDRAW: '/api/auth/withdraw',
+};
+
+/**
+ * Persona Endpoints
+ */
+export const PERSONA_ENDPOINTS = {
+  LIST: '/api/persona/persona-list',
+  CREATE: '/api/persona/create',
+  DASHBOARD: '/api/persona/dashboard',
+  CHECK_STATUS: '/api/persona/check-status',
+  CHECK_STATUS_FIRST: '/api/persona/check-status-first',
+  UPDATE_SETTINGS: '/api/persona/update-settings',
+  UPDATE_STATUS: '/api/persona/update-status',
+  REMOVE: '/api/persona/remove-persona',
+  DRESS_LIST: '/api/persona/dress-list',
+  UPDATE_DRESS_CODE: '/api/persona/update-dress-code',
+  HASHTAGS: '/api/persona/hashtags',
+  NOTIFICATION_STREAM: '/api/persona/notification-stream',
+  UPGRADE: '/api/persona/upgrade',
+  UPGRADE_MEMORY: '/api/persona/upgrade-memory',
+  CREATE_MEMORY: '/api/persona/create-memory',
+  CREATE_FOOD_MEMORY: '/api/persona/create-food-memory',
+};
+
+/**
+ * Chat Endpoints
+ */
+export const CHAT_ENDPOINTS = {
+  MANAGER_QUESTION: '/api/chat/manager-question',
+  PERSONA_CHAT: '/api/chat/persona-chat',
+  MEMORY_CHAT: '/api/chat/memory-chat',
+  PUBLIC: '/api/chat/public',
+  PUBLIC_AI: '/api/chat/public-ai',
+};
+
+/**
+ * Memory Endpoints
+ */
+export const MEMORY_ENDPOINTS = {
+  STORY: '/api/memory/story',
+  CHECK_STATUS: '/api/memory/check-status',
+  CONVERT_TO_VIDEO: '/api/memory/convert-to-video',
+  PUBLIC: '/api/memory/public',
+  REMOVE: '/api/memory/remove-memory',
+  SETTINGS: '/api/memory/settings',
+  SHARE: '/api/memory/share',
+  TOGGLE_PUBLIC: '/api/memory/toggle-public',
+};
+
+/**
+ * Diary Endpoints
+ */
+export const DIARY_ENDPOINTS = {
+  LIST: '/api/diary/list',
+  READ: '/api/diary/read',
+  REACTION: '/api/diary/reaction',
+  TIMELINE: '/api/diary/timeline',
+};
+
+/**
+ * Peek Endpoints (Public Personas)
+ */
+export const PEEK_ENDPOINTS = {
+  LIST: '/api/peek/list',
+  OWNER_INFO: '/api/peek/owner-info',
+  FAVORITES: '/api/peek/favorites',
+  RECOMMEND: '/api/peek/recommend',
+  REVIEW: '/api/peek/review',
+  REVIEW_CHECK: '/api/peek/review-check',
+};
+
+/**
+ * Profile Endpoints
+ */
+export const PROFILE_ENDPOINTS = {
+  CHECK_STATUS: '/api/profile/check-status',
+  UPDATE_NAME: '/api/profile/update-name',
+  UPLOAD_IMAGE: '/api/profile/upload-image',
+};
+
+/**
+ * Learning Endpoints
+ */
+export const LEARNING_ENDPOINTS = {
+  LIST: '/api/learning/list',
+  SAVE: '/api/learning/save',
+  DELETE: '/api/learning/delete',
+  EXTRACT_URL: '/api/learning/extract-url',
+  EXTRACT_FILE: '/api/learning/extract-file',
+  SEARCH_GOOGLE: '/api/learning/search-google',
+  SEARCH_WIKI: '/api/learning/search-wiki',
+};
+
+/**
+ * Mission Endpoints
+ */
+export const MISSION_ENDPOINTS = {
+  DAILY_STATUS: '/api/mission/daily-status',
+  UPDATE: '/api/mission/update',
+};
+
+/**
+ * User Endpoints
+ */
+export const USER_ENDPOINTS = {
+  UPDATE_PROFILE: '/api/user/update-profile',
+};
+
+/**
+ * Payment Endpoints
+ */
+export const PAYMENT_ENDPOINTS = {
+  CHARGE: '/api/payment/charge',
+};
+
+/**
+ * Study Endpoints
+ */
+export const STUDY_ENDPOINTS = {
+  LIST: '/api/study/list',
+  DETAIL: '/api/study/detail',
+  VIEW: '/api/study/view',
+  FAVORITE: '/api/study/favorite',
+  STATS: '/api/study/stats',
+};
+
+/**
+ * Health Check
+ */
+export const HEALTH_ENDPOINT = '/api/health';
+
+// ==================== API Configuration ====================
+
+/**
+ * HTTP Request Timeout (milliseconds)
+ */
+export const API_TIMEOUT = 30000; // 30 seconds
+
+/**
+ * Retry Configuration
+ */
+export const API_RETRY_CONFIG = {
+  maxRetries: 3,
+  retryDelay: 1000, // 1 second
+  retryOn: [408, 429, 500, 502, 503, 504], // HTTP status codes to retry
+};
+
+/**
+ * Request Headers
+ */
+export const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+};
+
+// ==================== Export All ====================
+
+export default {
+  API_BASE_URL,
+  API_TIMEOUT,
+  API_RETRY_CONFIG,
+  DEFAULT_HEADERS,
+  
+  // Endpoints
+  AUTH_ENDPOINTS,
+  PERSONA_ENDPOINTS,
+  CHAT_ENDPOINTS,
+  MEMORY_ENDPOINTS,
+  DIARY_ENDPOINTS,
+  PEEK_ENDPOINTS,
+  PROFILE_ENDPOINTS,
+  LEARNING_ENDPOINTS,
+  MISSION_ENDPOINTS,
+  USER_ENDPOINTS,
+  PAYMENT_ENDPOINTS,
+  STUDY_ENDPOINTS,
+  HEALTH_ENDPOINT,
+};
+

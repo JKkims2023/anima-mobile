@@ -41,6 +41,7 @@
     "required": "Required",
     "optional": "Optional",
     "error": "An error occurred. Please try again.",
+    "success": "Success",
     "login": "Move to Login",
     "login_guide": {
       "title": "Oops! Still not logged in?",
@@ -200,6 +201,14 @@
     },
     "account": {
       "title": "🔐 Account Settings",
+      "user_id": "User ID",
+      "email": "Email",
+      "points": "Points",
+      "logout": "Logout",
+      "logout_confirm_title": "Are you sure you want to logout?",
+      "logout_confirm_message": "You will need to login again with your ID and password.",
+      "logout_success": "Logged out successfully",
+      "not_logged_in": "Please login",
       "email_change": "Change Email",
       "email_change_desc": "Change your account email address",
       "password_change": "Change Password",
@@ -248,6 +257,12 @@
     "messages": {
       "coming_soon": "Coming soon"
     }
+  },
+  "error": {
+    "title": "Error",
+    "generic_message": "An error occurred. Please try again.",
+    "network_title": "Network Error",
+    "network_message": "Please check your internet connection."
   },
   "auth": {
     "login_required": "Login required. Please login first! 💫",

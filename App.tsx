@@ -18,6 +18,9 @@ import './src/i18n/i18n.config';
 // Import Theme Provider
 import { ThemeProvider } from './src/contexts/ThemeContext';
 
+// Import User Provider
+import { UserProvider } from './src/contexts/UserContext';
+
 // Import Navigation
 import TabNavigator from './src/navigation/TabNavigator';
 
@@ -25,10 +28,12 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <NavigationContainer>
-          <StatusBar barStyle="light-content" />
-          <TabNavigator />
-        </NavigationContainer>
+        <UserProvider>
+          <NavigationContainer>
+            <StatusBar barStyle="light-content" />
+            <TabNavigator />
+          </NavigationContainer>
+        </UserProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
