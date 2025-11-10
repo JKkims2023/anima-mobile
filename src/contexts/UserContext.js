@@ -13,7 +13,7 @@
  */
 
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import authService from '@/services/api/authService';
+import authService from '../services/api/authService';
 
 // ==================== Create Context ====================
 
