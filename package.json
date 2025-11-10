@@ -10,7 +10,9 @@
     "test": "jest",
     "dev": "node scripts/dev.js",
     "menu": "node scripts/menu.js",
-    "kill": "node scripts/kill-servers.js"
+    "kill": "node scripts/kill-servers.js",
+    "logs": "node scripts/show-logs.js",
+    "dev:logs": "node scripts/dev-with-logs.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
