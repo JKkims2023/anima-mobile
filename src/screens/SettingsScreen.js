@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import CustomText from '../components/CustomText';
@@ -15,6 +15,16 @@ const SettingsScreen = () => {
   const { user, isAuthenticated, loading: userLoading, logout } = useUser();
   
   const [logoutLoading, setLogoutLoading] = useState(false);
+  
+  // Log user state changes
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('⚙️  [SettingsScreen] User state changed');
+    console.log('📊 [SettingsScreen] isAuthenticated:', isAuthenticated);
+    console.log('📊 [SettingsScreen] loading:', userLoading);
+    console.log('📊 [SettingsScreen] user:', user ? user.user_id : 'null');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  }, [user, isAuthenticated, userLoading]);
   
   // Change language
   const changeLanguage = () => {

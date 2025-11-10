@@ -380,29 +380,37 @@ export const logout = async () => {
  */
 export const autoLogin = async () => {
   try {
+    console.log('🔑 [AuthService] Starting auto-login check...');
+    
     const token = await getToken();
     
     if (!token) {
-      if (__DEV__) {
-        console.log('[AuthService] No token found for auto-login');
-      }
+      console.log('⚠️  [AuthService] No token found in AsyncStorage');
+      console.log('🔓 [AuthService] Auto-login: FAILED (no token)');
       return null;
     }
+    
+    console.log('✅ [AuthService] Token found! Verifying with server...');
+    console.log('🔑 [AuthService] Token preview:', token.substring(0, 20) + '...');
     
     // Verify token
     const response = await verifyToken();
     
     if (response.success && response.data && response.data.user) {
-      if (__DEV__) {
-        console.log('[AuthService] Auto-login successful for user:', response.data.user.user_id);
-      }
+      console.log('✅ [AuthService] Token verified successfully!');
+      console.log('👤 [AuthService] User ID:', response.data.user.user_id);
+      console.log('📧 [AuthService] Email:', response.data.user.user_email);
+      console.log('🎉 [AuthService] Auto-login: SUCCESS');
       
       return response.data.user;
     }
     
+    console.log('❌ [AuthService] Token verification failed');
+    console.log('🔓 [AuthService] Auto-login: FAILED (invalid token)');
     return null;
   } catch (error) {
-    console.error('[AuthService] Auto-login error:', error);
+    console.error('❌ [AuthService] Auto-login error:', error.message);
+    console.log('🔓 [AuthService] Auto-login: FAILED (exception)');
     return null;
   }
 };

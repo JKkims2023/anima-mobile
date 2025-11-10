@@ -33,36 +33,46 @@ export const UserProvider = ({ children }) => {
    */
   useEffect(() => {
     const checkAutoLogin = async () => {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('💙 [ANIMA] UserContext initialized');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       setLoading(true);
       
+      let authResult = false;
+      
       try {
-        if (__DEV__) {
-          console.log('[UserContext] Checking auto-login...');
-        }
+        console.log('🔍 [ANIMA] Checking for saved token...');
         
         const userData = await authService.autoLogin();
         
         if (userData) {
           setUser(userData);
           setIsAuthenticated(true);
+          authResult = true;
           
-          if (__DEV__) {
-            console.log('[UserContext] Auto-login successful:', userData.user_id);
-          }
+          console.log('✅ [ANIMA] Auto-login SUCCESSFUL');
+          console.log('👤 [ANIMA] User:', userData.user_id);
+          console.log('📧 [ANIMA] Email:', userData.user_email);
+          console.log('💰 [ANIMA] Points:', userData.point);
         } else {
           setUser(null);
           setIsAuthenticated(false);
+          authResult = false;
           
-          if (__DEV__) {
-            console.log('[UserContext] Auto-login failed - no valid token');
-          }
+          console.log('⚠️  [ANIMA] No saved token found');
+          console.log('🔓 [ANIMA] User needs to login');
         }
       } catch (error) {
-        console.error('[UserContext] Auto-login error:', error);
+        console.error('❌ [ANIMA] Auto-login error:', error.message);
         setUser(null);
         setIsAuthenticated(false);
+        authResult = false;
       } finally {
         setLoading(false);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('💙 [ANIMA] Auth check complete');
+        console.log('📊 [ANIMA] isAuthenticated:', authResult ? 'YES ✅' : 'NO 🔓');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       }
     };
     

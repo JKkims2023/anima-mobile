@@ -188,13 +188,12 @@ apiClient.interceptors.response.use(
  */
 export const saveToken = async (token) => {
   try {
+    console.log('💾 [API Client] Saving token to AsyncStorage...');
     await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
-    
-    if (__DEV__) {
-      console.log('[API Client] Token saved');
-    }
+    console.log('✅ [API Client] Token saved successfully');
+    console.log('🔑 [API Client] Token preview:', token.substring(0, 20) + '...');
   } catch (error) {
-    console.error('[API Client] Failed to save token:', error);
+    console.error('❌ [API Client] Failed to save token:', error);
     throw error;
   }
 };
@@ -205,10 +204,19 @@ export const saveToken = async (token) => {
  */
 export const getToken = async () => {
   try {
+    console.log('🔍 [API Client] Reading token from AsyncStorage...');
     const token = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
+    
+    if (token) {
+      console.log('✅ [API Client] Token found!');
+      console.log('🔑 [API Client] Token preview:', token.substring(0, 20) + '...');
+    } else {
+      console.log('⚠️  [API Client] No token found in AsyncStorage');
+    }
+    
     return token;
   } catch (error) {
-    console.error('[API Client] Failed to get token:', error);
+    console.error('❌ [API Client] Failed to get token:', error);
     return null;
   }
 };
@@ -218,13 +226,11 @@ export const getToken = async () => {
  */
 export const removeToken = async () => {
   try {
+    console.log('🗑️  [API Client] Removing token from AsyncStorage...');
     await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
-    
-    if (__DEV__) {
-      console.log('[API Client] Token removed');
-    }
+    console.log('✅ [API Client] Token removed successfully');
   } catch (error) {
-    console.error('[API Client] Failed to remove token:', error);
+    console.error('❌ [API Client] Failed to remove token:', error);
     throw error;
   }
 };
