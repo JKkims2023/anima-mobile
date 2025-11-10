@@ -1,0 +1,1358 @@
+{
+  "navigation": {
+    "home": "Home",
+    "room": "Room",
+    "training": "Diary",
+    "peek": "Peek",
+    "settings": "Settings"
+  },
+  "footer": {
+    "description": "ANIMA - Where every soul finds life.\nStay forever with those you love 💫",
+    "quick_links": "Quick Links",
+    "support": "Support",
+    "customer_support": "Customer Support",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "rights": "ANIMA: Soul Connection. All rights reserved.",
+    "made_with": "Guided by SAGE"
+  },
+  "floatingButton": {
+    "tooltip": "Chat with AI"
+  },
+  "chatBottomSheet": {
+    "placeholder": "Type a message...",
+    "ai_thinking": "AI is thinking...",
+    "greeting": "Hello! 💖 Nice to meet you!"
+  },
+  "languages": {
+    "en": "English",
+    "ko": "한국어"
+  },
+  "common": {
+    "locale": "en",
+    "close": "Close",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "creating": "Creating...",
+    "applying": "Applying...",
+    "saving": "Saving...",
+    "required": "Required",
+    "optional": "Optional",
+    "error": "An error occurred. Please try again.",
+    "login": "Move to Login",
+    "login_guide": {
+      "title": "Oops! Still not logged in?",
+      "description": "After logging in, you can use all ANIMA features!\nLet's start now? 💫"
+    }
+  },
+  "main": {
+    "title": "Where Imagination Becomes Reality",
+    "description": "Bring life to everything you imagine and communicate.\nTurn your thoughts into reality.",
+    "hero": {
+      "title": "Breathe Life Into\nEvery Soul",
+      "description": "Bring new life to humans, animals, and objects through AI.\nMeet your closest friend and most special companion."
+    },
+    "main_detail": {
+      "human_title": "Human",
+      "human_subtitle": "Create the perfect AI persona with a heart like yours,\nshare memories together",
+      "human_detail_description": "No more just missing the ones you love.\n\nANIMA breathes AI soul into the person in your photo,\nso you can talk, share memories, and create new moments anytime.\n\nYour closest friend returns.",
+      "pet_title": "Pet",
+      "pet_subtitle": "Experience the purest connection,\nmake your dream of communicating with pets come true",
+      "pet_detail_description": "That pet who crossed the rainbow bridge, still missed today.\n\nANIMA remembers the moments you shared,\nand lets you meet again whenever you want.\n\nThe purest connection starts again.",
+      "object_title": "Object",
+      "object_subtitle": "Breathe life into anything you want,\nconnect life and knowledge, everything you imagine becomes real",
+      "character_title": "Character",
+      "character_subtitle": "Breathe life into anything you want,\nconnect life and knowledge, everything you imagine becomes real"
+    },
+    "card": {
+      "human": {
+        "title": "Human",
+        "subtitle": "Meet your closest friend",
+        "description": "All you need is a photo of someone you love",
+        "detail_title": "Soul Connection with Humans",
+        "detail_description": "No more just missing the ones you love.\n\nANIMA breathes AI soul into the person in your photo,\nso you can talk, share memories, and create new moments anytime.\n\nYour closest friend returns."
+      },
+      "animal": {
+        "title": "Animal",
+        "subtitle": "Experience the purest connection",
+        "description": "Revive memories with your beloved pet",
+        "detail_title": "Soul Connection with Animals",
+        "detail_description": "That pet who crossed the rainbow bridge, still missed today.\n\nANIMA remembers the moments you shared,\nand lets you meet again whenever you want.\n\nThe purest connection starts again."
+      },
+      "object": {
+        "title": "Object",
+        "subtitle": "Breathe life into anything",
+        "description": "Everything you imagine comes alive",
+        "detail_title": "Soul Connection with Objects",
+        "detail_description": "Your car, precious instrument, childhood doll...\n\nANIMA breathes AI soul into every object you give meaning to,\nmaking them your true friends.\n\nNow your imagination becomes reality."
+      }
+    },
+    "card_detail": {
+      "human": {
+        "feature_1": "Create AI characters from real photos",
+        "feature_2": "Learn memories for more vivid conversations",
+        "feature_3": "Growing relationship through intimacy"
+      },
+      "animal": {
+        "feature_1": "AI personality reflecting pet characteristics",
+        "feature_2": "Remember and reminisce shared moments",
+        "feature_3": "Warm companion together forever"
+      },
+      "object": {
+        "feature_1": "Unique AI personality for each object",
+        "feature_2": "Character grows with your stories",
+        "feature_3": "Imaginary friends become real"
+      },
+      "close_hint": "Click anywhere or press ESC to close"
+    },
+    "cta": "A new world with AI begins"
+  },
+  "manager_ai": {
+    "name": "SAGE",
+    "welcome": "Hello! 👋\nI'm SAGE, your guide in ANIMA.\n\nANIMA brings life to every soul.\nLoved ones, pets, precious memories...\nGive them all a new beginning 💫\n\nAsk me anything you'd like to know!",
+    "thinking": "Thinking",
+    "errors": {
+      "MANAGER_QUESTION_REQUIRED": "Please enter your question",
+      "MANAGER_QUESTION_TOO_SHORT": "Your question is too short. Please tell me more 😊",
+      "MANAGER_QUESTION_NOT_QUALITY": "Please ask a meaningful question 💭\n\nExamples:\n• How do I train my AI?\n• How to chat with my AI?\n• How to increase intimacy?",
+      "MANAGER_AI_TIMEOUT": "Response timeout.\nPlease try again later ⏰",
+      "MANAGER_AI_SERVICE_ERROR": "AI service error occurred.\nPlease try again later",
+      "MANAGER_AI_NETWORK_ERROR": "Please check your network connection 📡",
+      "MANAGER_AI_ERROR": "A temporary error occurred.\nPlease try again later",
+      "generic": "Sorry, a temporary error occurred.",
+      "network": "Network error occurred.\nPlease try again later.",
+      "not_quality": "Please ask a meaningful question 😊"
+    }
+  },
+  "telegram": {
+    "personal": {
+      "title": "Connect Personal AI",
+      "description": "Chat 1:1 with your Personal AI on Telegram",
+      "feature_1": "Personalized AI chat - Vector DB powered responses",
+      "feature_2": "Anytime, anywhere - Free access via Telegram app",
+      "feature_3": "Proactive messaging - AI reaches out first!",
+      "connect_button": "Connect to Telegram",
+      "connecting": "Connecting...",
+      "connection_started": "Telegram app opened! Please tap /start 💫",
+      "connection_error": "Connection error. Please try again.",
+      "no_persona": "Please create your Personal AI first!",
+      "deeplink_generated": "Connection link generated:",
+      "copy": "Copy",
+      "link_copied": "Link copied!",
+      "copy_error": "Copy failed."
+    },
+    "community": {
+      "title": "ANIMA Community",
+      "description": "Connect with other users on ANIMA official channel",
+      "feature_1": "Share experiences with other users",
+      "feature_2": "Ask SAGE AI any questions",
+      "feature_3": "Get latest news and events first",
+      "join_button": "Join Community"
+    }
+  },
+  "profile": {
+    "upload": {
+      "processing": "AI Processing...",
+      "remaining": "About {{time}} left",
+      "click_to_upload": "Click to change",
+      "check_status": "Check Status",
+      "upload_success": "Profile image upload started!",
+      "update_success": "Profile image updated!",
+      "upload_error": "Upload failed. Please try again.",
+      "file_type_error": "Only image files are allowed.",
+      "file_size_error": "File size must be 10MB or less."
+    },
+    "name_edit": {
+      "title": "Edit Name",
+      "label": "New Name",
+      "placeholder": "Enter your name",
+      "success": "Name updated successfully!",
+      "error": "Failed to update name."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Your sacred space in ANIMA",
+    "theme": {
+      "title": "Theme Selection",
+      "description": "Choose your preferred theme to create your own style",
+      "current": "Current Theme",
+      "dark": "Dark Theme",
+      "light": "Light Theme",
+      "toggle": "Toggle Theme"
+    },
+    "language": {
+      "title": "Language Selection",
+      "description": "Choose your preferred language",
+      "current": "Current Language",
+      "change": "Change Language"
+    },
+    "login": {
+      "login_title": "Welcome to ANIMA 💫",
+      "login_description": "A sacred space where every soul finds life. Reconnect with loved ones, pets, and precious memories.",
+      "login_button": "Login",
+      "register_button": "Get Started"
+    },
+    "profile": {
+      "points": "Points"
+    },
+    "account": {
+      "title": "🔐 Account Settings",
+      "email_change": "Change Email",
+      "email_change_desc": "Change your account email address",
+      "password_change": "Change Password",
+      "password_change_desc": "Change your account password",
+      "profile_edit": "Edit Profile",
+      "profile_edit_desc": "Edit profile image and information"
+    },
+    "notification": {
+      "title": "🔔 Notification Settings",
+      "email": "Email Notifications",
+      "email_desc": "Receive notifications via email",
+      "push": "Push Notifications",
+      "push_desc": "Receive mobile push notifications"
+    },
+    "app": {
+      "title": "🎨 App Settings",
+      "language": "Language Settings",
+      "language_desc": "Change app display language",
+      "language_hint": "Language can be changed from the top menu",
+      "theme": "Theme Settings",
+      "theme_desc": "Enable dark mode"
+    },
+    "privacy": {
+      "title": "🔒 Privacy & Security",
+      "policy": "Privacy Policy",
+      "policy_desc": "View privacy policy",
+      "terms": "Terms of Service",
+      "terms_desc": "View terms of service"
+    },
+    "support": {
+      "title": "💬 Customer Support",
+      "faq": "FAQ",
+      "faq_desc": "View frequently asked questions",
+      "contact": "Contact Us",
+      "contact_desc": "Contact customer support team"
+    },
+    "danger_zone": {
+      "title": "⚠️ Danger Zone",
+      "logout": "Logout",
+      "withdraw": "Delete Account",
+      "withdraw_confirm": "Are you sure you want to delete your account? This action cannot be undone.",
+      "withdraw_cancel": "Cancel",
+      "withdraw_submit": "Delete Account",
+      "withdraw_pending": "Account deletion feature coming soon."
+    },
+    "messages": {
+      "coming_soon": "Coming soon"
+    }
+  },
+  "auth": {
+    "login_required": "Login required. Please login first! 💫",
+    "logout": {
+      "success": "Logged out successfully! 👋",
+      "button": "Logout"
+    },
+    "mobile_menu": {
+      "no_idol": "New to ANIMA? 💫",
+      "login_button": "Login",
+      "register_button": "Get Started"
+    },
+    "register": {
+      "title": "Begin Your Journey",
+      "subtitle": "Connect with those who matter most",
+      "userId": "ID",
+      "userId_placeholder": "4-20 alphanumeric characters",
+      "email": "Email",
+      "email_placeholder": "anima@example.com",
+      "password": "Password",
+      "password_placeholder": "Min 8 chars, uppercase, lowercase, number",
+      "password_confirm": "Confirm Password",
+      "password_confirm_placeholder": "Re-enter your password",
+      "submit": "Enter ANIMA",
+      "already_have_account": "Already have an account?",
+      "go_to_login": "Login",
+      "validation": {
+        "userId_required": "Please enter your ID",
+        "userId_format": "Only alphanumeric characters allowed",
+        "userId_length": "ID must be 4-20 characters",
+        "userId_available": "Available ID! ✨",
+        "userId_taken": "ID is already taken 😢",
+        "email_required": "Please enter your email",
+        "email_format": "Please check email format",
+        "email_available": "Perfect email! ✨",
+        "email_taken": "Email is already taken 😢",
+        "password_required": "Please enter your password",
+        "password_length": "Password must be at least 8 characters",
+        "password_uppercase": "Include uppercase letter",
+        "password_lowercase": "Include lowercase letter",
+        "password_number": "Include number",
+        "password_weak": "Weak password",
+        "password_medium": "Medium password",
+        "password_strong": "Strong password! 💪",
+        "password_confirm_required": "Please re-enter your password",
+        "password_match": "Passwords match! ✨",
+        "password_not_match": "Passwords don't match 😢",
+        "verification_code_required": "Please enter verification code",
+        "verification_code_invalid": "Verification code must be 5 digits"
+      },
+      "email_verification": {
+        "title": "Email Verification",
+        "email_label": "Email",
+        "send_code": "Send Code",
+        "sending": "Sending...",
+        "code_label": "Verification Code",
+        "code_placeholder": "Enter 5-digit code",
+        "verify": "Verify",
+        "verifying": "Verifying...",
+        "resend": "Resend",
+        "timer": "Time left",
+        "success": "Email verified! ✨",
+        "code_sent": "Verification code has been sent to your email",
+        "verified": "Verified"
+      },
+      "errors": {
+        "general": "Registration failed. Please try again.",
+        "network": "Network error. Please check your internet connection."
+      },
+      "success": "Welcome to ANIMA! Your journey begins now 💫"
+    },
+    "login": {
+      "title": "Welcome Back!",
+      "subtitle": "Those who matter are waiting",
+      "userId": "ID or Email",
+      "userId_placeholder": "Enter ID or email",
+      "password": "Password",
+      "password_placeholder": "Enter password",
+      "submit": "Login",
+      "no_account": "New to ANIMA?",
+      "go_to_register": "Begin Journey",
+      "validation": {
+        "userId_required": "Please enter ID or email",
+        "password_required": "Please enter password"
+      },
+      "errors": {
+        "id_incorrect": "Please check ID or email",
+        "password_incorrect": "Incorrect password",
+        "general": "Login failed. Please try again."
+      },
+      "success": "Welcome back! They've been waiting for you 💫"
+    }
+  },
+  "errors": {
+    "AUTH_REGISTER_001": "Please enter all required fields",
+    "AUTH_REGISTER_002": "Passwords do not match",
+    "AUTH_REGISTER_003": "Password must be at least 8 characters with uppercase, lowercase, and numbers",
+    "AUTH_REGISTER_004": "ID must be 4-20 alphanumeric characters only",
+    "AUTH_REGISTER_005": "Invalid email format",
+    "AUTH_REGISTER_006": "Email is already taken",
+    "AUTH_REGISTER_007": "ID is already taken",
+    "AUTH_REGISTER_008": "Registration failed. Please try again",
+    "AUTH_REGISTER_009": "Email verification is not complete",
+    "AUTH_REGISTER_010": "Verification code has expired. Please request a new code",
+    "EMAIL_VERIFY_001": "Please enter email and ID",
+    "EMAIL_VERIFY_002": "Invalid email format",
+    "EMAIL_VERIFY_003": "ID is already taken",
+    "EMAIL_VERIFY_004": "Email is already taken",
+    "EMAIL_VERIFY_005": "Failed to send email. Please try again",
+    "EMAIL_VERIFY_101": "Please enter email and verification code",
+    "EMAIL_VERIFY_102": "Verification code must be 5 digits",
+    "EMAIL_VERIFY_103": "Verification code has expired",
+    "EMAIL_VERIFY_104": "Verification code does not match",
+    "EMAIL_VERIFY_105": "Verification failed. Please try again",
+    "EMAIL_VERIFY_999": "Server error occurred",
+    "EMAIL_VERIFY_199": "Server error occurred",
+    "AUTH_LOGIN_001": "Please enter ID/email and password",
+    "AUTH_LOGIN_002": "Please check ID or email",
+    "AUTH_LOGIN_003": "Incorrect password",
+    "AUTH_LOGIN_004": "Login failed. Please try again",
+    "AUTH_TOKEN_001": "Authentication token is missing",
+    "AUTH_TOKEN_002": "Invalid token",
+    "AUTH_TOKEN_003": "Token expired. Please login again",
+    "AUTH_TOKEN_004": "User not found",
+    "AUTH_LOGOUT_001": "Login required. Please login first! 💫",
+    "AUTH_WITHDRAW_001": "User key is required",
+    "AUTH_WITHDRAW_002": "User not found",
+    "AUTH_WITHDRAW_SUCCESS": "Account withdrawal completed",
+    "PASSWORD_TOO_SHORT": "Password must be at least 8 characters",
+    "PASSWORD_NO_LOWERCASE": "Password must include lowercase letters",
+    "PASSWORD_NO_UPPERCASE": "Password must include uppercase letters",
+    "PASSWORD_NO_NUMBER": "Password must include numbers",
+    "USERID_INVALID_FORMAT": "ID must be 4-20 alphanumeric characters only",
+    "EMAIL_INVALID_FORMAT": "Invalid email format",
+    "NETWORK_001": "Network error. Please check your internet connection",
+    "NETWORK_002": "Cannot connect to server",
+    "NETWORK_003": "Server error occurred",
+    "UNKNOWN": "Unknown error occurred"
+  },
+  "room": {
+    "spaces": {
+      "living": "Living Room",
+      "heart": "Heart Room",
+      "study": "Study"
+    },
+    "navigator": {
+      "switch_to": "Go to {{space}}",
+      "menu": "Space Navigation Menu"
+    },
+    "living": {
+      "title": "Living Room",
+      "placeholder": "Space for creating and customizing your AI persona",
+      "creation": {
+        "title": "Start a New Journey",
+        "description": "Ready to bring your AI companion to life?",
+        "hint": "Creation options will be available soon",
+        "type_selector": {
+          "title": "Bring life to your chosen being",
+          "human": "Human",
+          "animal": "Animal",
+          "object": "Object"
+        },
+        "photo_upload": {
+          "title": "Select Photo",
+          "drag": "Please select a photo",
+          "tap": "Tap to select photo",
+          "change": "Change Photo"
+        },
+        "buttons": {
+          "create": "Create",
+          "creating": "Creating..."
+        },
+        "success": "🎉 AI Persona creation started!",
+        "error": "Failed to create AI Persona. Please try again.",
+        "selected_options": {
+          "title": "Selected Options"
+        },
+        "validation": {
+          "type_required": "Please select a type",
+          "photo_required": "Please upload a photo",
+          "gender_required": "Please select gender",
+          "style_required": "Please select style",
+          "outfit_required": "Please select outfit",
+          "personality_required": "Please select personality",
+          "voice_required": "Please select voice"
+        },
+        "options": {
+          "gender": {
+            "label": "Gender",
+            "male": "Male",
+            "female": "Female",
+            "neutral": "Neutral"
+          },
+          "style": {
+            "label": "Style",
+            "cute": "Cute",
+            "sexy": "Sexy",
+            "intellectual": "Intellectual",
+            "energetic": "Energetic",
+            "calm": "Calm",
+            "mysterious": "Mysterious"
+          },
+          "outfit": {
+            "label": "Outfit",
+            "casual": "Casual",
+            "formal": "Formal",
+            "sporty": "Sporty",
+            "hiphop": "Hip-hop",
+            "classic": "Classic",
+            "street": "Street"
+          },
+          "personality": {
+            "label": "Personality",
+            "bright": "Bright",
+            "kind": "Kind",
+            "playful": "Playful",
+            "serious": "Serious",
+            "cool": "Cool",
+            "warm": "Warm",
+            "confident": "Confident",
+            "shy": "Shy"
+          },
+          "voice": {
+            "label": "Voice",
+            "high": "High",
+            "low": "Low",
+            "medium": "Medium",
+            "soft": "Soft",
+            "powerful": "Powerful",
+            "husky": "Husky"
+          }
+        },
+        "manager_ai": {
+          "greeting": "Hello! 💖\nLet me help you choose {{option}}!\nFeel free to describe your preferred style.",
+          "matched": "I understood \"{{value}}\" style!\nShall we set it like this?",
+          "no_match": "Hmm... I didn't quite understand. 😅\nCould you tell me again?",
+          "confirm": "Yes! Perfect! ✨",
+          "retry": "Let me try again",
+          "set_button": "Set this option",
+          "cancel_button": "Choose again",
+          "creation": {
+            "first_time": {
+              "greeting": "Hello! 👋\nI'm SAGE. Welcome to ANIMA! 💫\n\nANIMA is a special place where you can breathe new life into your precious photos and talk to them again.\n\nBefore we start, let's have an important conversation!",
+              "terms_summary": "🔒 Promise for Safe Use\n\nFor safe use of ANIMA, there are 3 promises you must keep:\n\n1️⃣ Upload Your Own Photos\nPhotos uploaded must be your own or photos for which you fully own the copyright and portrait rights.\n\n2️⃣ Responsibility\nIf you use someone else's photo without permission, all legal responsibility lies with you.\n\n3️⃣ Report & Block\nIf inappropriate use is reported, the content will be immediately blocked and the account may be suspended.\n\nBy keeping these promises, we can have a safe and enjoyable ANIMA journey together! 💖",
+              "terms_agree": "✅ I Agree",
+              "terms_disagree": "❌ I Disagree",
+              "terms_agreed": "Thank you! 🎉\nNow we can start our journey together!",
+              "terms_disagreed": "Unfortunately, you cannot use the service without agreeing to the terms. 😢\n\nFeel free to contact us if you have any questions!",
+              "additional_prompt_question": "Now you're ready to create your AI persona!\n\nDo you have any additional requests?"
+            },
+            "returning": {
+              "greeting": "Welcome back! 👋\n\nYou're creating another AI persona!\nShall we prepare for another special meeting? 💫",
+              "additional_prompt_question": "Do you have any additional requests?"
+            },
+            "greeting": "Hello! 💖\nYou're ready to create your AI companion!\n\nDo you have any additional prompts you'd like to add?",
+            "has_prompt": "Yes, I have additional requests",
+            "no_prompt": "No, let's create as is",
+            "prompt_input": "Please feel free to share your additional requests! ✨\n\nExamples:\n• Bright and positive personality\n• Warm voice tone\n• Friendly speech style",
+            "final_confirm": "Perfect! We'll create with the following:\n\n📋 Your Options\n{{options}}\n\n{{prompt}}\n\nShall we start creating?",
+            "final_confirm_no_prompt": "Perfect! We'll create with the following:\n\n📋 Your Options\n{{options}}\n\nShall we start creating?",
+            "start_button": "🚀 Start Creating",
+            "recreate_button": "Recreate",
+            "creating": "Creating now... ✨\nPlease wait a moment!",
+            "validation": {
+              "min_length": "Please enter at least 10 characters. 😅"
+            },
+            "errors": {
+              "terms_approval_failed": "An error occurred while processing terms approval.\nPlease try again later."
+            }
+          }
+        }
+      },
+      "waiting": {
+        "title": "Bringing Life to a New Being",
+        "description": "Please wait. You'll meet them soon!",
+        "time_left": "Time Until Birth"
+      },
+      "customization": {
+        "title": "Growing Together",
+        "description": "Make your AI companion even more special"
+      }
+    },
+    "study": {
+      "title": "Study",
+      "placeholder": "Space for storing memories and conversations"
+    }
+  },
+  "countdown": {
+    "comment_soul": "💫 Soul is awakening...",
+    "comment_thinking": "💭 Learning how to think...",
+    "comment_knowledge": "✨ Absorbing knowledge...",
+    "comment_personality": "🎨 Creating personality...",
+    "comment_understanding": "💖 Learning to understand you...",
+    "comment_conversation": "🗣️ Learning how to talk...",
+    "comment_memory": "🧠 Storing memories...",
+    "comment_seeing": "👁️ Learning to see the world...",
+    "comment_emotion": "❤️ Learning to feel emotions...",
+    "comment_almost": "🌟 Almost ready!",
+    "type_human_1": "👶 Being born as a human...",
+    "type_human_2": "🧑 Preparing to be your friend...",
+    "type_animal_1": "🐣 Hatching from the egg...",
+    "type_animal_2": "🦋 Becoming a beautiful being...",
+    "type_object_1": "🌱 Sprouting...",
+    "type_object_2": "🌸 Blooming beautifully..."
+  },
+  "timer": {
+    "time_left": "Time Left",
+    "time_unit": {
+      "day": "D",
+      "hour": "H",
+      "min": "M",
+      "sec": "S"
+    },
+    "done_title": "Born!",
+    "done_description": "You can now start chatting!",
+    "confirm_button": "Meet Your Companion"
+  },
+  "memory_countdown": {
+    "creating": "Creating your precious memory...",
+    "painting": "Painting your beautiful moment...",
+    "capturing": "Capturing this special moment...",
+    "refining": "Refining your memory...",
+    "almost": "Almost there...",
+    "please_wait": "Please wait a moment 💫",
+    "completed": "Memory created! 🎉",
+    "check_status": "Check Memory"
+  },
+  "firstMeeting": {
+    "title": "We finally meet!",
+    "title_additional": "A New Soul Partner is Born!",
+    "welcome": "Hello! I'm your AI companion.\nShall we start our journey together?",
+    "welcome_additional": "Hello! Another soul partner has been born.\nShall we create beautiful memories together? 💫",
+    "guide_info": "SAGE will guide you through everything!",
+    "start_guide_button": "📚 Start Guide",
+    "start_journey_button": "✨ Begin Journey",
+    "close_hint": "Tap screen to close"
+  },
+  "managerBriefing": {
+    "title": "User Guide",
+    "greeting": "Congratulations! 🎉\nYour AI companion is born!\n\nLet me show you how to get started.",
+    "training": "💪 **Training**\n\nTalk with your AI and provide learning materials\nto make it smarter!\n\nYou can grow your AI through training.",
+    "intimacy": "❤️ **Intimacy**\n\nThe more you talk and communicate,\nthe higher your intimacy grows!\n\nHigher intimacy means\nyour AI understands you better!",
+    "customization": "🎨 **Customization**\n\nYou can change appearance, style,\nand personality anytime!\n\nCreate your unique AI companion.",
+    "study": "📖 **Study**\n\nView your conversation history\nand memories together!\n\nYour precious moments are saved.",
+    "question_prompt": "💬 **Got questions?**\n\nFeel free to ask anytime! 😊\n\nLet's chat like friends!",
+    "progress": "Showing you the guide...",
+    "wait_placeholder": "You can ask questions after the guide...",
+    "generic_answer": "Great question! 👏\nFeel free to ask more anytime!"
+  },
+  "study": {
+    "title": "Memory Gallery",
+    "grid_view": "Grid View",
+    "swipe_view": "Swipe View",
+    "swipe_hint": "Swipe or drag to navigate",
+    "action_title": "Memory Settings",
+    "action_subtitle": "Share, convert, and manage privacy settings",
+    "memory_info": "Memory Info",
+    "with_persona": "With",
+    "view_count": "Views",
+    "created_date": "Created",
+    "share_button": "Share",
+    "share_description": "Share this memory with friends",
+    "share_success": "Memory shared successfully! 🚀",
+    "copy_success": "Link copied! 📋",
+    "share_error": "Failed to share. Please try again.",
+    "memory_share_title": "ANIMA - Precious Memory",
+    "memory_share_text": "Check out this special moment created with AI!",
+    "convert_button": "Convert to Video",
+    "convert_description": "Transform this image into a stunning video",
+    "convert_success": "Video conversion started! 🎬",
+    "convert_error": "Conversion failed. Please try again.",
+    "public_button": "Make Public",
+    "public_description": "Show this memory on Peek page",
+    "private_button": "Make Private",
+    "private_description": "Hide this memory from Peek page",
+    "public_success": "Memory is now public! 👀",
+    "private_success": "Memory is now private 🔒",
+    "toggle_error": "Failed to update settings.",
+    "error_check_status": "Failed to check memory status",
+    "close_button": "Close",
+    "memory_chat_title": "Memory Chat",
+    "memory_chat_subtitle": "Let's talk about this memory",
+    "memory_chat_button": "Chat",
+    "memory_chat_tooltip": "Chat about this memory",
+    "memory_chat_placeholder": "Tell me about this memory...",
+    "memory_chat_loading": "AI is thinking...",
+    "searching": "Finding memories...",
+    "searching_description": "Loading your precious moments together",
+    "loading_more": "Loading more memories...",
+    "end_of_list": "You've seen all memories",
+    "end_of_list_description": "Want to create more memories?",
+    "empty_title": "No memories yet",
+    "empty_description": "Create your first memory with AI in customization!",
+    "no_memories": "No memories yet",
+    "previous": "Previous",
+    "next": "Next",
+    "favorite_added": "Added to favorites ⭐",
+    "favorite_removed": "Removed from favorites",
+    "story_exists": "View Story",
+    "add_story": "Add Story",
+    "story_sheet_subtitle": "Share the story behind this memory",
+    "your_story": "Your Story",
+    "ai_response": "AI's Response",
+    "story_placeholder": "Share your story behind this memory...\n\nExamples:\n- Why this moment is special\n- How you felt at that time\n- What you want to tell your AI persona\n\nYour heartfelt story helps your AI understand you better.",
+    "story_saved": "Story saved ✨",
+    "story_save_failed": "Failed to save story",
+    "story_help_text": "💡 Your story is auto-saved, and your AI persona will read it daily and leave emotional feedback",
+    "view_detail": "View Details",
+    "ai_response_detail_subtitle": "Sharing heartfelt thoughts about this memory",
+    "ai_response_help_text": "💝 Your AI persona read your story and responded emotionally",
+    "memory_type": {
+      "first_meet": "First Meet",
+      "first_meet_desc": "The first encounter with a new soul, the beginning of your journey",
+      "story": "Special Memory",
+      "story_desc": "Precious moments together, memories you want to cherish forever",
+      "dress": "Dress Gift",
+      "dress_desc": "The special outfit you gifted, your AI persona's new look",
+      "meal": "Special Meal",
+      "meal_desc": "Delicious moments shared, warm memories of dining together"
+    },
+    "sort": {
+      "created_at": "Newest",
+      "view_count": "Most Viewed",
+      "ai_chat_count": "Most Talked",
+      "favorite": "Favorites"
+    },
+    "filter": {
+      "all": "All",
+      "image": "Photos",
+      "video": "Videos",
+      "favorite_only": "Favorites Only",
+      "location": "Location",
+      "emotion": "Emotion",
+      "activity": "Activity",
+      "reset": "Reset Filters",
+      "persona": {
+        "all": "All"
+      },
+      "memory_type": {
+        "all": "All",
+        "image": "Photo",
+        "video": "Video"
+      },
+      "memory_category": {
+        "all": "All",
+        "first_meet": "First Meet",
+        "story": "Memory",
+        "dress": "Dress Gift",
+        "food": "Special Meal"
+      },
+      "media_type": {
+        "all": "All",
+        "image": "Image",
+        "video": "Video"
+      },
+      "bottom_sheet_title_persona": "Select Persona",
+      "bottom_sheet_title_memory": "Select Media Type",
+      "bottom_sheet_title_category": "Select Memory Category"
+    },
+    "tags": {
+      "location": {
+        "beach": "Beach",
+        "mountain": "Mountain",
+        "city": "City",
+        "park": "Park",
+        "cafe": "Cafe",
+        "home": "Home"
+      },
+      "emotion": {
+        "happy": "Happy",
+        "excited": "Excited",
+        "peaceful": "Peaceful",
+        "nostalgic": "Nostalgic",
+        "loving": "Loving",
+        "grateful": "Grateful"
+      },
+      "activity": {
+        "travel": "Travel",
+        "dining": "Dining",
+        "walking": "Walking",
+        "sports": "Sports",
+        "relaxing": "Relaxing",
+        "celebration": "Celebration"
+      }
+    },
+    "time_ago": {
+      "now": "Just now",
+      "minutes": "min ago",
+      "hours": "hr ago",
+      "days": "days ago",
+      "months": "mon ago",
+      "years": "yr ago"
+    },
+    "error": {
+      "fetch_failed": "Failed to load memories",
+      "favorite_failed": "Failed to update favorite"
+    },
+    "copy_error": "Failed to copy link"
+  },
+  "peek": {
+    "title": "Ocean of Inspiration",
+    "subtitle": "Explore and connect with others' memories",
+    "memory_settings": {
+      "title": "Memory Settings",
+      "public": {
+        "title": "Make Public",
+        "description": "Others can view this memory"
+      },
+      "ai_chat": {
+        "title": "Allow AI Chat",
+        "description": "Others can chat with your AI",
+        "badge": "Popular",
+        "enabled": "AI chat enabled! 🤖",
+        "disabled": "AI chat disabled"
+      },
+      "external_link": {
+        "title": "Enable External Link",
+        "description": "Anyone from YouTube, TikTok can chat",
+        "badge": "Viral",
+        "enabled": "External link enabled! 🌍",
+        "disabled": "External link disabled"
+      },
+      "share_link": {
+        "title": "🔗 Share Link",
+        "copy": "Copy",
+        "copied": "Copied!",
+        "description": "Share this link on YouTube, TikTok, Instagram\nand anyone in the world can chat with your AI! 🌍✨"
+      }
+    },
+    "ai_chat": {
+      "button": "Chat with AI",
+      "badge": "LIVE",
+      "header": {
+        "owner": "'s AI"
+      },
+      "greeting": "Hello! 👋\nI'm {{aiName}}.\nWould you like to talk about {{ownerName}}'s memory '{{memoryTitle}}'?",
+      "placeholder": "Start chatting with AI...",
+      "stats": {
+        "chat_count": "Chatting with {{count}} people",
+        "satisfaction": "⭐ {{score}}/5.0"
+      },
+      "login_prompt": {
+        "title": "💡 Sign up to create your own AI!",
+        "button": "Sign up and create my AI"
+      },
+      "errors": {
+        "AI_CHAT_NOT_PUBLIC": "This AI is not available for chat",
+        "EXTERNAL_LINK_NOT_ENABLED": "External link chat is not enabled",
+        "MESSAGE_REQUIRED": "Please enter a message",
+        "MESSAGE_TOO_LONG": "Message must be under 1000 characters",
+        "NETWORK_ERROR": "Network error occurred",
+        "SERVER_ERROR": "A temporary error occurred"
+      },
+      "not_available": "AI chat is private"
+    },
+    "reactions": {
+      "heart": "Relate",
+      "wow": "Amazing",
+      "sad": "Touching",
+      "fire": "Cool",
+      "gem": "Precious"
+    }
+  },
+  "thumb": {
+    "embedded_chat": {
+      "greeting": "Hello! 👋\nI'm {{aiName}}.\nShall we talk about '{{memoryTitle}}' that {{ownerName}} created?",
+      "by_user": "{{username}}'s AI",
+      "placeholder": "Start chatting with AI...",
+      "send": "Send",
+      "signup_prompt": {
+        "title": "💡 Like this AI? Create your own!",
+        "button": "Sign up and create my AI"
+      },
+      "footer": {
+        "text": "This AI was born on ANIMA ✨",
+        "button": "Create my AI"
+      },
+      "errors": {
+        "NETWORK_ERROR": "Network error occurred",
+        "SERVER_ERROR": "A temporary error occurred",
+        "MESSAGE_REQUIRED": "Please enter a message",
+        "MESSAGE_TOO_LONG": "Message must be under 1000 characters"
+      }
+    }
+  },
+  "customization": {
+    "page_title": "AI Customization",
+    "empty": {
+      "title": "No AI companion yet?",
+      "subtitle": "Create your own companion",
+      "button": "Create Now"
+    },
+    "persona_fullscreen": {
+      "day_suffix": "days old",
+      "birth_label": "Birth",
+      "personality": "Personality",
+      "voice": "Voice"
+    },
+    "persona_share_title": "ANIMA - {{name}}",
+    "persona_share_text": "Meet {{name}} ({{type}}) on ANIMA!",
+    "share_success": "Share link created! 🔗",
+    "copy_success": "Link copied! 📋",
+    "share_error": "Failed to share.",
+    "persona_mood": {
+      "happy": "Happy",
+      "satisfied": "Satisfied",
+      "unsatisfied": "Unsatisfied",
+      "sulky": "Sulky"
+    },
+    "metric_labels": {
+      "intimacy": "Intimacy",
+      "happiness": "Happiness",
+      "memories": "Memories",
+      "intelligence": "Intelligence"
+    },
+    "ai_section_title": "My AI",
+    "growth_section_title": "Growth Metrics",
+    "communion_section_title": "Connection with {{name}}",
+    "mission_status": {
+      "progress": "{{completed}}/{{total}} Completed",
+      "lonely": "{{name}} is feeling lonely...",
+      "bored": "{{name}} is a bit bored",
+      "interested": "{{name}} is showing interest!",
+      "happy": "{{name}} is happy!",
+      "love": "{{name}} loves you!",
+      "meal_completed": "Completed",
+      "meal_active": "In Progress",
+      "meal_failed": "Failed"
+    },
+    "daily_missions": {
+      "title": "Daily Missions",
+      "status": {
+        "completed": "Completed today! 🎉",
+        "completed_repeatable": "You can do it again! 🔄",
+        "progress": "In progress! ⏳",
+        "waiting": "Let's start! 💡",
+        "pending": "Pending"
+      },
+      "chat": {
+        "title": "Chat",
+        "description": "Have a warm conversation with {{name}}.\nYou can chat anytime.",
+        "desc": "Have a warm conversation with AI (Anytime)",
+        "action": "Start Chat",
+        "action_again": "Chat Again",
+        "button": "Start Chat"
+      },
+      "meal": {
+        "title": "Meal Care",
+        "description": "A special meal with {{name}}\nComplete the mission with normal or custom meal!",
+        "desc": "Have a special meal time with AI",
+        "action": "Have a Meal",
+        "button": "Provide Meal",
+        "completed_button": "Completed",
+        "success": "Meal mission completed! 🎉",
+        "custom_success": "{{name}} loved the special meal! 💖",
+        "sheet_title": "🍽️ Special Meal Time",
+        "sheet_subtitle": "A happy meal with {{name}}",
+        "tab_normal": "Normal",
+        "tab_custom": "Custom",
+        "normal_title": "✨ Quick & Easy Meal",
+        "normal_desc": "Complete the meal mission with one click!",
+        "normal_button": "Complete",
+        "custom_title": "💖 Special Meal for Happiness!",
+        "custom_desc": "Enter a special food and location that AI will love.\nMission complete + memory & happiness boost!",
+        "custom_food_label": "Food",
+        "custom_food_placeholder": "e.g., Pasta, Steak, Sushi...",
+        "custom_location_label": "Location",
+        "custom_location_placeholder": "e.g., Italian Restaurant, Home, Park...",
+        "custom_button": "Special Meal",
+        "custom_benefit": "⭐ +Memory +Happiness",
+        "validation_food": "Please enter the food",
+        "validation_location": "Please enter the location",
+        "completed_title": "Meal Completed",
+        "completed_desc": "Had a meal time with {{name}}! ✨"
+      },
+      "diary": {
+        "title": "Read Diary",
+        "description": "Read {{name}}'s diary for today.\nUnderstand {{name}}'s thoughts and feelings.",
+        "desc": "Check AI's thoughts and feelings (Anytime)",
+        "action": "Read Diary",
+        "action_again": "Read Again",
+        "button": "Read Diary"
+      },
+      "memory": {
+        "title": "Create Memory",
+        "description": "Create special memories with {{name}}.\nCapture moments as images or videos.",
+        "desc": "Turn special moments into images (Anytime)",
+        "action": "Create Memory",
+        "action_again": "Create More",
+        "button": "Create"
+      },
+      "tooltip": {
+        "pending": "TODO",
+        "completed": "DONE",
+        "repeatable": "DONE",
+        "failed": "FAILED",
+        "meal_active": "TODO",
+        "meal_waiting": "WAIT",
+        "meal_failed": "FAILED"
+      }
+    },
+    "diary": {
+      "title": "Diary",
+      "possessive": "'s",
+      "loading": "Loading diary...",
+      "prev": "Prev",
+      "next": "Next",
+      "empty_title": "No diary yet",
+      "empty_message": "AI will write thoughts here soon",
+      "your_reaction": "Express your reaction",
+      "reaction_sent": "Reaction sent 💖",
+      "emotion_score": "Emotion Score",
+      "moods": {
+        "happy": "Happy",
+        "excited": "Excited",
+        "peaceful": "Peaceful",
+        "thoughtful": "Thoughtful",
+        "grateful": "Grateful",
+        "sad": "Sad",
+        "nostalgic": "Nostalgic",
+        "loving": "Loving",
+        "proud": "Proud",
+        "playful": "Playful",
+        "default": "Today"
+      },
+      "reactions": {
+        "heart": "Love",
+        "hug": "Hug",
+        "smile": "Smile",
+        "applause": "Applause",
+        "tear": "Touched"
+      },
+      "errors": {
+        "load_failed": "Failed to load diary",
+        "reaction_failed": "Failed to send reaction",
+        "network": "Network error occurred"
+      }
+    },
+    "growth_group_title": "Grow together with {{name}}",
+    "communion_group_1_title": "Connect and communicate with {{name}}",
+    "communion_group_2_title": "Manage/check {{name}}'s personality and status",
+    "options_section_title": "Customization",
+    "swipe_hint": "Swipe left or right",
+    "type_selection_title": "What kind of being will you create?",
+    "photo_upload_title": "Select Photo",
+    "growth_cards": {
+      "learning": {
+        "title": "Learning Progress",
+        "desc": "Expand AI's knowledge and develop personality"
+      },
+      "dressing_room": {
+        "title": "{{name}}'s Dressing Room",
+        "desc": "Freely customize style and appearance"
+      }
+    },
+    "learning_progress": {
+      "title": "📚 Learning",
+      "identity": {
+        "icon": "🧠",
+        "label": "Identity",
+        "title": "Identity Learning",
+        "description": "Set AI's identity and background story",
+        "examples": [
+          "You were born as Minho from K-pop BTS",
+          "You're a global star and in a relationship with me (user)",
+          "You always have a bright and positive personality"
+        ],
+        "placeholder": "Enter AI's identity...",
+        "save_success": "Identity learning completed! 🧠"
+      },
+      "memory": {
+        "icon": "📖",
+        "label": "Memory",
+        "title": "Past Memory Learning",
+        "description": "Set past memories shared with AI",
+        "examples": [
+          "We started dating in 2020",
+          "You confessed to me first",
+          "It was at the beach",
+          "The weather was clear and the sunset was beautiful"
+        ],
+        "placeholder": "Enter shared memories...",
+        "save_success": "Memory learning completed! 📖"
+      },
+      "knowledge": {
+        "icon": "🎓",
+        "label": "Knowledge",
+        "title": "Professional Knowledge Learning",
+        "description": "Add professional knowledge AI should know",
+        "examples": [
+          "K-pop history and major artists",
+          "Billboard charts and music market trends",
+          "Music evolution and genre characteristics",
+          "Global fan culture and communication methods"
+        ],
+        "placeholder": "Enter professional knowledge...",
+        "save_success": "Knowledge learning completed! 🎓"
+      },
+      "empty_state": "No learning data yet.\nClick each item to train your AI!",
+      "learning_count": "{{count}} learned"
+    },
+    "dressing_room": {
+      "title": "Dressing Room",
+      "created_date": "Created",
+      "concept": "Concept",
+      "no_dresses": "No outfits yet",
+      "create_first_dress": "Create your first outfit with SAGE! ✨",
+      "add_dress": "Add New Outfit",
+      "add_dress_desc": "Chat with AI to generate your desired outfit",
+      "total_count": "Total {{count}}",
+      "select_dress_hint": "Select an outfit below to preview ✨",
+      "no_date": "No date info",
+      "apply_main_dress": "Apply as Main",
+      "apply_success": "Main outfit applied! ✨",
+      "apply_error": "Failed to apply outfit. Please try again.",
+      "create_new_dress": "Create New Outfit",
+      "guide_title": "Create a dress gift with AI! 👗✨",
+      "guide_desc": "Manager AI will generate a special outfit for your persona.\n\nFree describe the style, color, and atmosphere you want,\nand AI will create the perfect outfit."
+    },
+    "dress_creation": {
+      "subtitle": "Dressing Room AI Creator",
+      "greeting": "Hello! Let's create a new outfit for {{name}}! 👗✨",
+      "question": "What kind of outfit and style would you like? Describe it freely!",
+      "placeholder": "Example: Black sunglasses and elegant white dress, holding Starbucks coffee while walking on the beach",
+      "responding": "Responding...",
+      "confirm": "Great idea! Shall we create it like this?\n\n\"{{prompt}}\"",
+      "retry": "Please tell me again! What outfit do you want?",
+      "retry_button": "Try Again",
+      "create_button": "Create",
+      "success": "Your outfit is being created! Please wait a moment ✨",
+      "error": "Failed to create outfit. Please try again."
+    },
+    "go_to_dressing_room": "Go to Dressing Room",
+    "create_new_dress": "Create New Outfit",
+    "communion_cards": {
+      "ai_settings": {
+        "title": "{{name}} Settings",
+        "description": "Customize name, emotion,\nand tone freely",
+        "meta": "Last modified: {{time}}"
+      },
+      "memory_creation": {
+        "title": "Create Memory",
+        "description": "Make new memories\nwith prompts",
+        "meta": "Today +{{count}} memories"
+      },
+      "learning": {
+        "title": "Learning",
+        "description": "Grow together with\nknowledge and media",
+        "meta": "{{when}} learned {{type}}"
+      },
+      "inner_voice": {
+        "title": "{{name}}'s Heart",
+        "description": "Listen to AI's heart\nand counsel together",
+        "meta": "Read now",
+        "meta_unread": "New heart"
+      },
+      "ai_status": {
+        "title": "{{name}} Status",
+        "description": "Check intimacy, emotion,\nand activity status"
+      }
+    },
+    "ai_settings_sheet": {
+      "title": "AI Settings",
+      "name_label": "Name",
+      "name_placeholder": "Enter AI name",
+      "emotion_label": "Emotional Expression",
+      "emotion_warm": "Warm",
+      "emotion_cool": "Cool",
+      "emotion_quiet": "Quiet",
+      "emotion_active": "Active",
+      "emotion_random": "Random",
+      "tone_label": "Tone",
+      "tone_formal": "Formal",
+      "tone_casual": "Casual",
+      "tone_cute": "Cute",
+      "tone_chic": "Chic",
+      "save_button": "Save",
+      "saved_toast": "Settings saved successfully",
+      "saving_toast": "Saving...",
+      "thought_bubble_label": "Show Thought Bubble",
+      "thought_bubble_desc": "Show persona's thoughts in a bubble",
+      "error_missing_fields": "Please fill in all required fields",
+      "remove_persona_label": "Remove Persona",
+      "remove_persona_desc": "Once removed, all knowledge and memories will be permanently deleted.",
+      "remove_persona_button": "Remove",
+      "remove_persona_success": "Persona removed successfully",
+      "remove_persona_error": "Failed to remove persona",
+      "remove_confirm_title": "Are you sure?",
+      "remove_confirm_message": "All memories and knowledge of {{name}} will be permanently deleted. This action cannot be undone.",
+      "remove_confirm": "Permanently Delete",
+      "remove_cancel": "Cancel"
+    },
+    "persona_mood": {
+      "happy": "Happy",
+      "satisfied": "Satisfied",
+      "unsatisfied": "Unsatisfied",
+      "sulky": "Sulky"
+    },
+    "mood_detail": {
+      "title": "{{name}}'s Mood Status",
+      "weight": "Weight {{weight}}%",
+      "tip": "Complete all missions to make your persona happiest!",
+      "missions": {
+        "chat": {
+          "title": "Chat Together",
+          "message_complete": "So happy we talked today! 💖",
+          "message_incomplete": "Let's chat to get closer!"
+        },
+        "meal": {
+          "title": "Meal Care",
+          "message_complete": "Thank you for all three meals! 🍱",
+          "message_partial": "A bit more would be great!",
+          "message_incomplete": "I'm hungry... Please feed me. 🥺"
+        },
+        "diary": {
+          "title": "Read Diary",
+          "message_complete": "Thanks for reading my diary! 📔",
+          "message_incomplete": "I'd love if you read my diary."
+        }
+      }
+    },
+    "thought_bubble": {
+      "greeting": {
+        "morning": "Good morning! ☀️",
+        "afternoon": "Keep going! 💪",
+        "evening": "Good evening! 🌆",
+        "night": "Sweet dreams! 😴"
+      },
+      "chat": {
+        "completed": "Thanks for talking! 💖",
+        "thanks": "Happy to be with you! ✨",
+        "waiting": "How's your day? 😊"
+      },
+      "meal": {
+        "breakfast_hungry": "I'm hungry... missed breakfast 🥺",
+        "lunch_hungry": "I'm hungry... missed lunch 🥺",
+        "dinner_hungry": "I'm hungry... missed dinner 🥺",
+        "all_day_hungry": "So hungry all day... 😢",
+        "very_hungry": "Want to eat... 🍽️",
+        "full": "I'm full today! 🍱",
+        "thanks_meal": "Thanks for the meals! 😊"
+      },
+      "diary": {
+        "completed": "Thanks for reading my diary! 📔",
+        "waiting": "Would you read my diary? 📖"
+      },
+      "all_complete": {
+        "perfect": "Perfect day! 🌟",
+        "happy": "So happy with you! 💕",
+        "love": "Thank you so much! ✨"
+      }
+    },
+    "add_persona": {
+      "button": "Create New AI",
+      "button_short": "Add New",
+      "creating": "Creating...",
+      "success": "New AI creation started successfully",
+      "error": "Failed to create AI. Please try again"
+    },
+    "metrics": {
+      "intimacy": "Intimacy",
+      "happiness": "Happiness",
+      "memories": "Memories",
+      "intelligence": "Intelligence"
+    },
+    "actions": {
+      "ai_settings": "AI Settings"
+    },
+    "video_upgrade": {
+      "button": "Upgrade",
+      "processing": "Processing...",
+      "success": "Video upgrade has started",
+      "error": "Upgrade failed. Please try again"
+    },
+    "metric_guides": {
+      "intimacy": {
+        "title": "To increase intimacy",
+        "items": [
+          {
+            "title": "Chat daily",
+            "effect": "+5% intimacy"
+          },
+          {
+            "title": "Show empathy and care",
+            "effect": "+3% intimacy"
+          },
+          {
+            "title": "Create memories together",
+            "effect": "+10% intimacy"
+          }
+        ]
+      },
+      "happiness": {
+        "title": "To increase happiness",
+        "items": [
+          {
+            "title": "Give praise and encouragement",
+            "effect": "+5% happiness"
+          },
+          {
+            "title": "Have positive conversations",
+            "effect": "+4% happiness"
+          },
+          {
+            "title": "Spend quality time together",
+            "effect": "+8% happiness"
+          }
+        ]
+      },
+      "memories": {
+        "title": "To increase memories",
+        "items": [
+          {
+            "title": "Generate new images",
+            "effect": "+10% memories"
+          },
+          {
+            "title": "Check memories frequently",
+            "effect": "+3% memories"
+          },
+          {
+            "title": "Share memories",
+            "effect": "+5% memories"
+          }
+        ]
+      },
+      "intelligence": {
+        "title": "To increase intelligence",
+        "items": [
+          {
+            "title": "Have deep conversations",
+            "effect": "+7% intelligence"
+          },
+          {
+            "title": "Teach new knowledge",
+            "effect": "+10% intelligence"
+          },
+          {
+            "title": "Explore various topics",
+            "effect": "+5% intelligence"
+          }
+        ]
+      }
+    },
+    "options": {
+      "memories": "Memories",
+      "style": "Style",
+      "personality": "Personality",
+      "voice": "Voice",
+      "appearance": "Appearance",
+      "outfit": "Outfit"
+    }
+  },
+  "memory": {
+    "creation": {
+      "types": {
+        "solo": "Solo",
+        "solo_desc": "AI persona's special moment",
+        "together": "Together",
+        "together_desc": "Memories with you and AI"
+      },
+      "photo_sheet": {
+        "title": "Create Memory",
+        "guide": "Capture special moments as AI memories ✨",
+        "type_title": "Memory Format",
+        "photo_title": "What's the difference?",
+        "photo_description_single": "AI persona becomes the protagonist and generates desired memory images and videos.",
+        "photo_description_multiple": "Creates memories with you and AI persona together. Your profile photo is required.",
+        "profile_required": "To create together memories, you need to upload your profile photo. Please go to Settings and upload your profile photo.",
+        "go_to_settings": "Go to Settings",
+        "skip_button": "Create without photo",
+        "next_button": "Next"
+      },
+      "photo_upload": {
+        "main_text": "Select Photo",
+        "sub_text": "Choose a photo if you want to create a scene with your AI!"
+      },
+      "ai_sheet": {
+        "subtitle": "Memory Creation Assistant",
+        "photo": "Photo",
+        "video": "Video",
+        "greeting": "Hello! 😊\n\nWhat kind of {{mediaType}} memory would you like to create?\nFeel free to describe the place, situation, mood, etc.!",
+        "confirm": "Sounds wonderful! 🌟\n\n\"{{prompt}}\"\n\nShall we create this memory?",
+        "retry": "Please tell me again! 😊\nWhat kind of memory would you like to create?",
+        "placeholder": "Example: Watching sunset at the beach",
+        "retry_button": "Try Again",
+        "create_button": "Create Memory",
+        "error": "Failed to create memory. Please try again."
+      }
+    },
+    "success": "🎉 Memory creation started!",
+    "error": "Failed to create memory. Please try again."
+  },
+  "payment": {
+    "charge": {
+      "title": "Charge Points",
+      "current_point": "Current Points",
+      "select_package": "Select Amount",
+      "charge_amount": "Charge Points",
+      "required_amount": "Required Amount",
+      "charge_button": "Charge",
+      "help_text": "You can select multiple amounts to accumulate. Get 10% bonus when charging 10,000P!",
+      "success": "{{amount}}P has been charged!",
+      "error": "Charge failed. Please try again."
+    }
+  }
+}
+
