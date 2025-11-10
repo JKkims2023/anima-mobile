@@ -20,7 +20,7 @@ import {
   API_TIMEOUT,
   API_RETRY_CONFIG,
   DEFAULT_HEADERS,
-} from '@/config/api.config';
+} from '../../config/api.config';
 
 // ==================== Constants ====================
 

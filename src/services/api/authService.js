@@ -15,7 +15,7 @@
 
 import { post } from './client';
 import { saveToken, removeToken, getToken } from './client';
-import { AUTH_ENDPOINTS } from '@/config/api.config';
+import { AUTH_ENDPOINTS } from '../../config/api.config';
 
 // ==================== Login ====================
 
