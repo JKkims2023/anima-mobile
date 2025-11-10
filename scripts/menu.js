@@ -117,11 +117,14 @@ r - 앱 새로고침
 i - iOS 앱 실행
 a - Android 앱 실행
 d - 개발자 메뉴 열기
-j - DevTools 열기
+\x1b[33mj - DevTools 열기 (🔥 여기서 모든 console.log 확인!)\x1b[0m
 s - 현재 상태 확인
 h/? - 도움말 표시
 q - 종료
 Ctrl+C - 종료
+
+\x1b[32m💡 로그 확인: j 키를 누르면 Chrome/Edge에서 DevTools가 열립니다!\x1b[0m
+\x1b[32m💡 [ANIMA] 접두사가 붙은 로그를 찾으세요!\x1b[0m
   `);
 }
 
@@ -353,10 +356,16 @@ function startMetro() {
   // Start server after 1 second wait
   setTimeout(() => {
     showStatus('Metro 서버 시작 중...');
+    showStatus('💡 영어 locale으로 시작 (DevTools ko.json 에러 방지)');
     
     metroProcess = spawn('npx', ['react-native', 'start', '--reset-cache'], { 
       stdio: 'inherit',
-      shell: true
+      shell: true,
+      env: {
+        ...process.env,
+        LANG: 'en_US.UTF-8',
+        LC_ALL: 'en_US.UTF-8',
+      }
     });
     
     metroProcess.on('close', (code) => {

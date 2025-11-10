@@ -5,6 +5,7 @@ const path = require('path');
 
 console.log('\x1b[36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
 console.log('\x1b[36m   ANIMA Mobile 개발 환경을 시작합니다\x1b[0m');
+console.log('\x1b[36m   (English Locale - DevTools 지원)\x1b[0m');
 console.log('\x1b[36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\n');
 
 // First, run kill-servers.js to clean up all processes
