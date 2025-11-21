@@ -10,23 +10,35 @@
     "test": "jest",
     "dev": "node scripts/dev.js",
     "menu": "node scripts/menu.js",
-    "kill": "node scripts/kill-servers.js"
+    "kill": "node scripts/kill-servers.js",
+    "setup:icons": "node scripts/setup-icons.js",
+    "setup:splash": "node scripts/setup-splash.js",
+    "setup:all": "node scripts/setup-icons.js && node scripts/setup-splash.js",
+    "postinstall": "cd ios && pod install && cd ..",
+    "fix:xcode": "rm -rf ~/Library/Developer/Xcode/DerivedData && cd ios && xcodebuild clean -workspace AnimaMobile.xcworkspace -scheme AnimaMobile && cd ..",
+    "fix:pod": "cd ios && rm -rf Pods Podfile.lock && pod install && cd ..",
+    "fix:all": "yarn fix:xcode && yarn fix:pod && yarn start --reset-cache",
+    "fix:complete": "bash scripts/fix-all.sh"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.8.4",
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/stack": "^7.6.3",
+    "@shopify/flash-list": "^2.2.0",
     "axios": "^1.13.2",
     "i18next": "^25.6.1",
     "react": "19.0.0",
     "react-i18next": "^15.7.4",
     "react-native": "0.79.2",
+    "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-localize": "^3.6.0",
+    "react-native-reanimated": "^3.6.3",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "^4.18.0",
-    "react-native-vector-icons": "^10.3.0"
+    "react-native-vector-icons": "^10.3.0",
+    "react-native-video": "^6.14.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -7,7 +7,7 @@ import {
   View,
   Pressable
 } from 'react-native';
-import { moderateScale, getShadowStyle } from '../utils/responsive-utils';
+import { moderateScale, getShadowStyle, platformPadding, platformMargin } from '../utils/responsive-utils';
 import CustomText from './CustomText';
 const commonstyles = require('../styles/commonstyles');
 
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...getShadowStyle(2),
-    paddingHorizontal: moderateScale(20),
+    paddingHorizontal: platformPadding(20),  // Platform-aware padding
     overflow: 'hidden', // Limit ripple effect to inside button on Android
   },
   buttonPressed: {
@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
   disabledButtonText: {
     color: '#868e96',
   },
-  // Icon styling
+  // Icon styling (platform-aware margins)
   iconLeft: {
-    marginRight: moderateScale(8),
+    marginRight: platformMargin(8),
   },
   iconRight: {
-    marginLeft: moderateScale(8),
+    marginLeft: platformMargin(8),
   },
 });
 

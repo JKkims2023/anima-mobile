@@ -59,11 +59,11 @@ export const PERSONA_ENDPOINTS = {
  * Chat Endpoints
  */
 export const CHAT_ENDPOINTS = {
-  MANAGER_QUESTION: '/api/chat/manager-question',
-  PERSONA_CHAT: '/api/chat/persona-chat',
-  MEMORY_CHAT: '/api/chat/memory-chat',
-  PUBLIC: '/api/chat/public',
-  PUBLIC_AI: '/api/chat/public-ai',
+  MANAGER_QUESTION: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/manager-question',
+  PERSONA_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/persona-chat',
+  MEMORY_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/memory-chat',
+  PUBLIC: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/public',
+  PUBLIC_AI: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/public-ai',
 };
 
 /**

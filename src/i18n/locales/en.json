@@ -24,6 +24,16 @@
     "ai_thinking": "AI is thinking...",
     "greeting": "Hello! 💖 Nice to meet you!"
   },
+  "manager_ai": {
+    "greeting": "Hello! I'm SAGE. 🌟\nI'll help you find the perfect AI persona!",
+    "welcome_message": "Hello! I'm SAGE. How can I help you today?",
+    "subtitle": "Your AI Manager",
+    "input_placeholder": "Type a message...",
+    "typing": "SAGE is thinking...",
+    "empty_messages": "Start a conversation with SAGE",
+    "send": "Send",
+    "error_send": "Failed to send message"
+  },
   "languages": {
     "en": "English",
     "ko": "한국어"
@@ -110,8 +120,15 @@
     },
     "cta": "A new world with AI begins"
   },
+  "persona": {
+    "no_persona": "No persona available",
+    "regular_persona_coming_soon": "Regular persona feature coming soon"
+  },
   "manager_ai": {
     "name": "SAGE",
+    "subtitle": "Guide AI of ANIMA",
+    "welcome_message": "Hello! 👋\nI'm SAGE.\n\nWelcome to where imagination becomes reality! 💫\n\nFeel free to ask me anything!",
+    "input_placeholder": "Type your message...",
     "welcome": "Hello! 👋\nI'm SAGE, your guide in ANIMA.\n\nANIMA brings life to every soul.\nLoved ones, pets, precious memories...\nGive them all a new beginning 💫\n\nAsk me anything you'd like to know!",
     "thinking": "Thinking",
     "errors": {
@@ -357,6 +374,17 @@
     }
   },
   "errors": {
+    "bad_request": "Invalid request",
+    "unauthorized": "Please login again",
+    "forbidden": "Access denied",
+    "not_found": "Resource not found",
+    "server_error": "Server error occurred",
+    "generic": "An unexpected error occurred",
+    "network": "Please check your network connection",
+    "MANAGER_AI_ERROR": "AI response error occurred",
+    "PERSONA_CHAT_ERROR": "Persona chat error occurred",
+    "MEMORY_CHAT_ERROR": "Memory chat error occurred",
+    "PUBLIC_AI_ERROR": "AI chat error occurred",
     "AUTH_REGISTER_001": "Please enter all required fields",
     "AUTH_REGISTER_002": "Passwords do not match",
     "AUTH_REGISTER_003": "Password must be at least 8 characters with uppercase, lowercase, and numbers",

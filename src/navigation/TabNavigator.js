@@ -1,8 +1,6 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/Feather';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -11,120 +9,76 @@ import TrainingScreen from '../screens/TrainingScreen';
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-// Import theme
-import { useTheme } from '../contexts/ThemeContext';
-import CustomText from '../components/CustomText';
+// Import Custom TabBar
+import CustomTabBar from '../components/navigation/CustomTabBar';
 
 const Tab = createBottomTabNavigator();
 
 /**
- * TabNavigator - Bottom Tab Navigation
- * 5 Tabs: Home, Room, Training, Peek, Settings
+ * TabNavigator - Bottom Tab Navigation with CenterAIButton
+ * 5 Tabs: Home, Explore (Room), AI (Center), Training (Peek), Settings
+ * 
+ * Features:
+ * - Custom TabBar with elevated center AI button
+ * - Safe Area aware
+ * - Dark theme support
+ * 
+ * @author JK & Hero AI
+ * @date 2024-11-21
  */
 const TabNavigator = () => {
-  const { t, i18n } = useTranslation();
-  const { currentTheme } = useTheme();
+  const { t } = useTranslation();
   
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        // Header settings
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
         headerShown: false,
-        
-        // Tab bar style
-        tabBarStyle: {
-          backgroundColor: currentTheme.backgroundColor,
-          borderTopWidth: 1,
-          borderTopColor: currentTheme.borderColor,
-          height: Platform.OS === 'ios' ? 80 : 60,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
-          paddingTop: 8,
-        },
-        
-        // Tab bar label style
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontFamily: i18n.language === 'ko' 
-            ? 'NotoSansKR-Regular' 
-            : 'InterDisplay-Regular',
-        },
-        
-        // Active tab color
-        tabBarActiveTintColor: currentTheme.mainColor,
-        
-        // Inactive tab color
-        tabBarInactiveTintColor: currentTheme.menuIconColor,
-        
-        // Tab bar icon
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          
-          switch (route.name) {
-            case 'Home':
-              iconName = 'home';
-              break;
-            case 'Room':
-              iconName = 'heart';
-              break;
-            case 'Training':
-              iconName = 'book';
-              break;
-            case 'Peek':
-              iconName = 'eye';
-              break;
-            case 'Settings':
-              iconName = 'settings';
-              break;
-            default:
-              iconName = 'circle';
-          }
-          
-          return (
-            <Icon 
-              name={iconName} 
-              size={22} 
-              color={color}
-              style={{
-                strokeWidth: focused ? 2.5 : 2,
-              }}
-            />
-          );
-        },
-      })}
+      }}
     >
+      {/* Tab 1: Home */}
       <Tab.Screen 
         name="Home" 
         component={HomeScreen}
         options={{ 
-          title: t('navigation.home'), // "홈"
+          title: t('navigation.home') || '홈',
         }}
       />
+      
+      {/* Tab 2: Explore (Room) */}
       <Tab.Screen 
-        name="Room" 
+        name="Explore" 
         component={RoomScreen}
         options={{ 
-          title: t('navigation.room'), // "룸"
+          title: t('navigation.room') || '탐색',
         }}
       />
+      
+      {/* Tab 3: AI (Center) - Placeholder */}
       <Tab.Screen 
-        name="Training" 
-        component={TrainingScreen}
+        name="AI" 
+        component={HomeScreen} // Temporary placeholder
         options={{ 
-          title: t('navigation.training'), // "다이어리"
+          title: '',
+          tabBarButton: () => null, // Hide default button (handled by CenterAIButton)
         }}
       />
+      
+      {/* Tab 4: Room (Training/Peek) */}
       <Tab.Screen 
-        name="Peek" 
+        name="Room" 
         component={PeekScreen}
         options={{ 
-          title: t('navigation.peek'), // "엿보기"
+          title: t('navigation.peek') || '방',
         }}
       />
+      
+      {/* Tab 5: Settings */}
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen}
         options={{ 
-          title: t('navigation.settings'), // "설정"
+          title: t('navigation.settings') || '설정',
         }}
       />
     </Tab.Navigator>

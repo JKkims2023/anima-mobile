@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       in: window,
       launchOptions: launchOptions
     )
-
+    
     return true
   }
 }
@@ -45,4 +45,10 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
     Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
+  // BootSplash는 Objective-C 라이브러리라서 Swift에서 직접 사용이 어렵습니다
+  // 대신 JS의 AnimatedSplashScreen (Lottie)를 사용합니다
+  // override func customize(_ rootView: RCTRootView) {
+  //   super.customize(rootView)
+  //   RNBootSplash.initWithStoryboard("BootSplash", rootView: rootView)
+  // }
 }

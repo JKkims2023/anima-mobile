@@ -14,6 +14,16 @@
     "ai_thinking": "AI가 생각 중...",
     "greeting": "안녕하세요! 💖 만나서 반가워요!"
   },
+  "manager_ai": {
+    "greeting": "안녕하세요! 저는 SAGE입니다. 🌟\n당신의 완벽한 AI 페르소나를 찾아드릴게요!",
+    "welcome_message": "안녕하세요! 저는 SAGE입니다. 무엇을 도와드릴까요?",
+    "subtitle": "당신의 AI 관리자",
+    "input_placeholder": "메시지를 입력하세요...",
+    "typing": "SAGE가 생각 중...",
+    "empty_messages": "SAGE와 대화를 시작해보세요",
+    "send": "전송",
+    "error_send": "메시지 전송에 실패했습니다"
+  },
   "languages": {
     "en": "English",
     "ko": "한국어"
@@ -123,8 +133,15 @@
   },
     "cta": "Chat GPT? 재미없는 AI는 이제 그만! 나만의 AI 페르소나를 만들고 육성하세요! 💫"
   },
+  "persona": {
+    "no_persona": "페르소나가 없습니다",
+    "regular_persona_coming_soon": "일반 페르소나 기능이 곧 제공됩니다"
+  },
   "manager_ai": {
     "name": "SAGE",
+    "subtitle": "ANIMA의 가이드 AI",
+    "welcome_message": "안녕하세요! 👋\n저는 SAGE입니다.\n\n상상이 현실이 되는 세계에 오신것을 환영합니다! 💫\n\n궁금한 점이 있으시면 무엇이든 알려드릴게요!",
+    "input_placeholder": "메시지를 입력하세요...",
     "welcome": "안녕하세요! 👋\n저는 SAGE입니다. ANIMA - Soul Connection 의 안내자죠.\n\n상상이 현실이 되는 세계에 오신것을 환영헤요! 💫\n\n궁금한 점이 있으시면 무엇이든 저 SAGE가 알려드릴께요!",
     "welcome_again": "ANIMA - Soul Connection 의 세계를 잘 즐기고 계신가요? 💫\n\n궁금한 점이 있으시면 무엇이든 저 SAGE가 알려드릴께요!",
     "thinking": "생각 중",
@@ -438,6 +455,17 @@
     "made_with": "Made by Team 9D & JK"
   },
   "errors": {
+    "bad_request": "잘못된 요청입니다",
+    "unauthorized": "다시 로그인해주세요",
+    "forbidden": "접근 권한이 없습니다",
+    "not_found": "요청하신 리소스를 찾을 수 없습니다",
+    "server_error": "서버 오류가 발생했습니다",
+    "generic": "일시적인 오류가 발생했습니다",
+    "network": "네트워크 연결을 확인해주세요",
+    "MANAGER_AI_ERROR": "AI 응답 오류가 발생했습니다",
+    "PERSONA_CHAT_ERROR": "페르소나 채팅 오류가 발생했습니다",
+    "MEMORY_CHAT_ERROR": "메모리 채팅 오류가 발생했습니다",
+    "PUBLIC_AI_ERROR": "AI 채팅 오류가 발생했습니다",
     "AUTH_REGISTER_001": "모든 필수 항목을 입력해주세요",
     "AUTH_REGISTER_002": "비밀번호가 일치하지 않습니다",
     "AUTH_REGISTER_003": "비밀번호는 8자 이상이며 대문자, 소문자, 숫자를 포함해야 합니다",

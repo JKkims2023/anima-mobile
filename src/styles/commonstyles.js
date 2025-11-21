@@ -1,8 +1,9 @@
 import { StyleSheet, Platform } from 'react-native';
-import { moderateScale, adaptiveFontSize } from '../utils/responsive-utils';
+import { moderateScale, adaptiveFontSize, platformLineHeight } from '../utils/responsive-utils';
 
 // Android font rendering adjustment for consistency with iOS
-const ANDROID_FONT_ADJUSTMENT = 1;
+// Android renders fonts 5-8% larger than iOS, so we reduce by 5%
+const ANDROID_FONT_ADJUSTMENT = 0.95;
 
 // Font size calculation function (platform consistency)
 const getFontSize = (size) => {
@@ -33,40 +34,40 @@ const textStyles = {
     letterSpacing: 0.3,        // Letter spacing for readability
   },
   
-  // Font size-specific styles
+  // Font size-specific styles (with platform-aware lineHeight)
   veryBig: {
     fontSize: getFontSize(FONT_SIZES.veryBig),
-    lineHeight: getFontSize(FONT_SIZES.veryBig * 1.3),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.veryBig), 1.3),
     fontWeight: '800',
   },
   big: {
     fontSize: getFontSize(FONT_SIZES.big),
-    lineHeight: getFontSize(FONT_SIZES.big * 1.3),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.big), 1.3),
     fontWeight: '700',
   },
   title: {
     fontSize: getFontSize(FONT_SIZES.title),
-    lineHeight: getFontSize(FONT_SIZES.title * 1.3),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.title), 1.3),
     fontWeight: '600',
   },
   middle: {
     fontSize: getFontSize(FONT_SIZES.middle),
-    lineHeight: getFontSize(FONT_SIZES.middle * 1.35),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.middle), 1.35),
     fontWeight: '500',
   },
   normal: {
     fontSize: getFontSize(FONT_SIZES.normal),
-    lineHeight: getFontSize(FONT_SIZES.normal * 1.35),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.normal), 1.35),
     fontWeight: '400',
   },
   small: {
     fontSize: getFontSize(FONT_SIZES.small),
-    lineHeight: getFontSize(FONT_SIZES.small * 1.4),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.small), 1.4),
     fontWeight: '400',
   },
   verySmall: {
     fontSize: getFontSize(FONT_SIZES.verySmall),
-    lineHeight: getFontSize(FONT_SIZES.verySmall * 1.4),
+    lineHeight: platformLineHeight(getFontSize(FONT_SIZES.verySmall), 1.4),
     fontWeight: '400',
   },
 };

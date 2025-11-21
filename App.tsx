@@ -7,7 +7,7 @@
  * Created by JK & Hero AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -24,7 +24,26 @@ import { UserProvider } from './src/contexts/UserContext';
 // Import Navigation
 import TabNavigator from './src/navigation/TabNavigator';
 
+// Import Animated Splash Screen
+import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
+
 function App(): React.JSX.Element {
+  const [showSplash, setShowSplash] = useState(true);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
+
+  // Show splash screen first, then show the main app
+  if (showSplash) {
+    return (
+      <AnimatedSplashScreen 
+        visible={showSplash} 
+        onFinish={handleSplashFinish} 
+      />
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

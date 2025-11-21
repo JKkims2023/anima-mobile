@@ -12,6 +12,13 @@ const widthScale = SCREEN_WIDTH / BASE_WIDTH;
 const heightScale = SCREEN_HEIGHT / BASE_HEIGHT;
 
 /**
+ * ✅ Android font size adjustment factor
+ * Android tends to render fonts slightly larger than iOS
+ * Applying 0.95 factor ensures visual consistency across platforms
+ */
+const ANDROID_FONT_ADJUSTMENT = 0.95;
+
+/**
  * Calculate responsive width
  * @param {number} size - Base width value
  * @returns {number} - Width adjusted for device
@@ -19,6 +26,13 @@ const heightScale = SCREEN_HEIGHT / BASE_HEIGHT;
 export const horizontalScale = (size) => {
   return Math.round(widthScale * size);
 };
+
+/**
+ * Alias for horizontalScale (commonly used as 'scale')
+ * @param {number} size - Base width value
+ * @returns {number} - Width adjusted for device
+ */
+export const scale = horizontalScale;
 
 /**
  * Calculate responsive height
@@ -31,13 +45,21 @@ export const verticalScale = (size) => {
 
 /**
  * Calculate responsive font size (with limiting factor to prevent excessive scaling)
+ * ✅ Platform-aware: Android fonts are adjusted by 0.95 factor
  * @param {number} size - Base font size
  * @param {number} factor - Adjustment factor (default: 0.5)
- * @returns {number} - Font size adjusted for device
+ * @returns {number} - Font size adjusted for device and platform
  */
 export const moderateScale = (size, factor = 0.5) => {
   const scale = widthScale >= 1 ? widthScale : widthScale + (1 - widthScale) * factor;
-  return Math.round(size * scale);
+  const scaledSize = size * scale;
+  
+  // ✅ Apply Android font adjustment for consistency
+  if (Platform.OS === 'android') {
+    return Math.round(scaledSize * ANDROID_FONT_ADJUSTMENT);
+  }
+  
+  return Math.round(scaledSize);
 };
 
 /**
@@ -104,6 +126,71 @@ export const getShadowStyle = (elevation = 2) => {
     return {
       elevation: elevation,
     };
+  }
+};
+
+/**
+ * Platform-aware spacing utility
+ * Android needs slightly more generous spacing than iOS
+ * @param {number} size - Base spacing value
+ * @returns {number} - Platform-adjusted spacing
+ */
+export const platformSpacing = (size) => {
+  if (Platform.OS === 'android') {
+    // Android: 2% increase (fine-tuning for rendering engine differences)
+    return Math.round(moderateScale(size) * 1.02);
+  }
+  return moderateScale(size);
+};
+
+/**
+ * Platform-aware padding utility
+ * @param {number} size - Base padding value
+ * @returns {number} - Platform-adjusted padding
+ */
+export const platformPadding = (size) => {
+  return platformSpacing(size);
+};
+
+/**
+ * Platform-aware margin utility
+ * @param {number} size - Base margin value
+ * @returns {number} - Platform-adjusted margin
+ */
+export const platformMargin = (size) => {
+  return platformSpacing(size);
+};
+
+/**
+ * Platform-aware lineHeight utility
+ * Android needs slightly more line spacing for better readability
+ * @param {number} fontSize - Base font size
+ * @param {number} multiplier - Line height multiplier (default: 1.3)
+ * @returns {number} - Platform-adjusted lineHeight
+ */
+export const platformLineHeight = (fontSize, multiplier = 1.3) => {
+  if (Platform.OS === 'android') {
+    // Android: 5% more generous for better Korean font rendering
+    return Math.round(fontSize * (multiplier * 1.05));
+  }
+  return Math.round(fontSize * multiplier);
+};
+
+/**
+ * Debug utility: Log platform-specific metrics (development only)
+ * Useful for comparing iOS and Android rendering differences
+ */
+export const logPlatformMetrics = () => {
+  if (__DEV__) {
+    console.log('📱 Platform Metrics:', {
+      platform: Platform.OS,
+      screenWidth: SCREEN_WIDTH,
+      screenHeight: SCREEN_HEIGHT,
+      widthScale: widthScale.toFixed(2),
+      heightScale: heightScale.toFixed(2),
+      fontScaleFactor: getFontScaleFactor().toFixed(2),
+      pixelRatio: PixelRatio.get(),
+    });
   }
 };
 
