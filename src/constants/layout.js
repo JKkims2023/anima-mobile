@@ -157,11 +157,26 @@ export const calculateChatInputBottom = (
   safeBottomInset
 ) => {
   if (isKeyboardVisible && keyboardHeight > 0) {
-    // ✅ Keyboard is visible: position InputBar lower (subtract input height to go down)
-    return keyboardHeight - CHAT_INPUT.MIN_HEIGHT;
+    // ✅ Keyboard is visible: position InputBar directly on top of keyboard
+    // 
+    // CRITICAL FIX based on user feedback:
+    // - Original: keyboardHeight - CHAT_INPUT.MIN_HEIGHT → had gaps (iOS: 56px, Android: 8px)
+    // - Need to subtract these gaps IN ADDITION to the original subtraction
+    // 
+    // Platform-specific gap elimination:
+    // - iOS: keyboardHeight - CHAT_INPUT.MIN_HEIGHT had 56px gap
+    //        → subtract CHAT_INPUT.MIN_HEIGHT again = keyboardHeight - (2 * CHAT_INPUT.MIN_HEIGHT)
+    // - Android: keyboardHeight - CHAT_INPUT.MIN_HEIGHT had 8px gap
+    //           → subtract 8 more = keyboardHeight - CHAT_INPUT.MIN_HEIGHT - 8
+    // 
+    // DEVICE-AGNOSTIC solution:
+    const additionalGapAdjustment = Platform.OS === 'ios' ? CHAT_INPUT.MIN_HEIGHT : 8;
+    return keyboardHeight - CHAT_INPUT.MIN_HEIGHT - additionalGapAdjustment;
   } else {
     // ✅ Normal state: position InputBar lower (subtract input height to go down)
-    return TAB_BAR.BASE_HEIGHT + safeBottomInset - CHAT_INPUT.MIN_HEIGHT;
+    // Platform-specific adjustment for perfect positioning
+    const platformAdjustment = Platform.OS === 'android' ? 30 : 10; // Android: 30px down, iOS: 10px down
+    return TAB_BAR.BASE_HEIGHT + safeBottomInset - CHAT_INPUT.MIN_HEIGHT - platformAdjustment;
   }
 };
 

@@ -87,7 +87,9 @@ const ManagerAIChatView = ({ videoUrl }) => {
   
   // ✅ Animated value for smooth position transitions
   // Initialize lower: Tab Bar height - InputBar height
-  const initialBottom = TAB_BAR.BASE_HEIGHT + insets.bottom - CHAT_INPUT.MIN_HEIGHT;
+  // Platform-specific adjustment for perfect positioning
+  const platformAdjustment = Platform.OS === 'android' ? 30 : 10; // Android: 30px down, iOS: 10px down
+  const initialBottom = TAB_BAR.BASE_HEIGHT + insets.bottom - CHAT_INPUT.MIN_HEIGHT - platformAdjustment;
   const inputBottomAnim = useRef(new Animated.Value(initialBottom)).current;
 
   // ✅ Calculate chat top position dynamically (MEMOIZED to prevent re-renders)
