@@ -22,31 +22,35 @@
  * @date 2024-11-21
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   Image,
   StyleSheet,
   Platform,
   Animated,
 } from 'react-native';
+import Video from 'react-native-video';
 import { useTheme } from '../../contexts/ThemeContext';
 import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
+import HapticService from '../../utils/HapticService';
 
 /**
  * CenterAIButton Component
  * @param {Object} props
  * @param {string} props.state - 'empty' | 'sage' | 'persona'
  * @param {string} props.personaImageUrl - Persona image URL (if state is 'persona')
+ * @param {string} props.personaVideoUrl - Persona video URL (if state is 'persona')
  * @param {string} props.personaName - Persona name (if state is 'persona')
  * @param {Function} props.onPress - Press handler
  */
 const CenterAIButton = ({ 
   state = 'sage', // 'empty' | 'sage' | 'persona'
   personaImageUrl = null,
+  personaVideoUrl = null,
   personaName = '',
   onPress = () => {},
 }) => {
@@ -80,6 +84,25 @@ const CenterAIButton = ({
       pulseAnim.setValue(1);
     }
   }, [state, pulseAnim]);
+  
+  // ✅ Handle press IN (touch down) - Stage 1: Focus
+  const handlePressIn = () => {
+    // 📸 Stage 1: Half-press (Focus)
+    // Light "tick" feedback when finger touches the button
+    // Like a camera half-shutter: "I'm ready!"
+    HapticService.cameraHalfPress();
+  };
+  
+  // ✅ Handle press (touch up) - Stage 2: Capture
+  const handlePress = () => {
+    // 📸 Stage 2: Full-press (Capture)
+    // Heavy "CLACK" feedback when finger releases
+    // Like a camera full-shutter: "Captured!"
+    HapticService.cameraFullPress();
+    
+    // Execute the provided onPress handler
+    onPress();
+  };
   
   // ✅ Render content based on state
   const renderContent = () => {
@@ -128,13 +151,30 @@ const CenterAIButton = ({
             <View style={[styles.personaIcon, {
               borderColor: '#FFFFFF', // ✅ White border for contrast
             }]}>
-              {personaImageUrl ? (
+              {personaVideoUrl ? (
+                // ✅ Video (if available)
+                <Video
+                  source={{ uri: personaVideoUrl }}
+                  style={styles.personaVideo}
+                  resizeMode="cover"
+                  repeat
+                  muted
+                  paused={false}
+                  onError={(error) => {
+                    if (__DEV__) {
+                      console.error('[CenterAIButton] Video Error:', error);
+                    }
+                  }}
+                />
+              ) : personaImageUrl ? (
+                // ✅ Image (fallback)
                 <Image
                   source={{ uri: personaImageUrl }}
                   style={styles.personaImage}
                   resizeMode="cover"
                 />
               ) : (
+                // ✅ Placeholder (no image or video)
                 <CustomText style={styles.personaPlaceholder}>🎭</CustomText>
               )}
             </View>
@@ -153,13 +193,16 @@ const CenterAIButton = ({
   };
   
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
-      activeOpacity={0.7}
+    <Pressable
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed,
+      ]}
+      onPressIn={handlePressIn}
+      onPress={handlePress}
     >
       {renderContent()}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -176,6 +219,11 @@ const styles = StyleSheet.create({
     // No background, no border, no shadow
     // Only the icon circle will have visual presence
     backgroundColor: 'transparent',
+  },
+  
+  pressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
   },
   
   contentContainer: {
@@ -252,6 +300,12 @@ const styles = StyleSheet.create({
     borderRadius: TAB_BAR.CENTER_BUTTON_ICON_SIZE / 2,
   },
   
+  personaVideo: {
+    width: '100%',
+    height: '100%',
+    borderRadius: TAB_BAR.CENTER_BUTTON_ICON_SIZE / 2,
+  },
+  
   personaPlaceholder: {
     fontSize: scale(28),
     lineHeight: scale(28),
@@ -269,5 +323,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CenterAIButton;
+// ✅ Memoize to prevent unnecessary re-renders
+export default memo(CenterAIButton, (prevProps, nextProps) => {
+  return (
+    prevProps.state === nextProps.state &&
+    prevProps.personaImageUrl === nextProps.personaImageUrl &&
+    prevProps.personaVideoUrl === nextProps.personaVideoUrl &&
+    prevProps.personaName === nextProps.personaName
+  );
+});
 

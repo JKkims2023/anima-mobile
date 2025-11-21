@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { moderateScale, verticalScale, platformLineHeight, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
+import HapticService from '../../utils/HapticService';
 
 const ChatInputBar = memo(({ 
   onSend, 
@@ -45,6 +46,11 @@ const ChatInputBar = memo(({
   const handleSend = useCallback(() => {
     const trimmedText = text.trim();
     if (trimmedText && !disabled) {
+      // 🎯 Haptic feedback for message send
+      // Medium impact - satisfying confirmation of important action
+      // Like pressing "send" on a letter - meaningful and decisive
+      HapticService.medium();
+      
       onSend(trimmedText);
       setText('');
       // ✅ Reset to minimum height/content after send
@@ -111,7 +117,7 @@ const ChatInputBar = memo(({
       )}
 
       {/* Input Container */}
-      <View style={[styles.container, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}>
+      <View style={[styles.container, { backgroundColor: 'rgba(255, 255, 255, 0.15)'}]}>
         {/* TextInput with auto-grow */}
         <TextInput
         style={[
@@ -120,7 +126,7 @@ const ChatInputBar = memo(({
             // ✅ CRITICAL: iOS - Do NOT set height (use minHeight/maxHeight only)
             // ✅ Android - Use dynamic height
             ...(Platform.OS === 'android' && { height: inputHeight }),
-            backgroundColor: 'rgba(255, 255, 255, 0.15)', // ✅ 투명 배경
+            backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.15)', // ✅ 투명 배경
             color: '#FFF',
             // ✅ Android only: lineHeight for proper text alignment
             ...(Platform.OS === 'android' && { lineHeight: platformLineHeight(20) }),
@@ -182,7 +188,7 @@ const ChatInputBar = memo(({
             styles.sendButton,
             {
               opacity: disabled || !text.trim() ? 0.5 : 1,
-              backgroundColor: text.trim() ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: currentTheme.backgroundColor,
             },
           ]}
           onPress={handleSend}
@@ -199,7 +205,7 @@ const ChatInputBar = memo(({
             {
               backgroundColor: isSettingsMenuOpen 
                 ? 'rgba(59, 130, 246, 0.3)' 
-                : 'rgba(255, 255, 255, 0.1)',
+                : currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
             },
           ]}
           onPress={handleToggleSettings}

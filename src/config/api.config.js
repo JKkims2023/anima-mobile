@@ -37,7 +37,7 @@ export const AUTH_ENDPOINTS = {
  * Persona Endpoints
  */
 export const PERSONA_ENDPOINTS = {
-  LIST: '/api/persona/persona-list',
+  LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/persona-list',
   CREATE: '/api/persona/create',
   DASHBOARD: '/api/persona/dashboard',
   CHECK_STATUS: '/api/persona/check-status',

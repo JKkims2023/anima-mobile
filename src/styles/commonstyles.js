@@ -186,6 +186,11 @@ module.exports = StyleSheet.create({
       right: 0,
       backgroundColor: '#0F172A',    // Slate 900
     },
+
+    chatStyles: {
+      userBubbleColor: '#93C5FD',
+      aiBubbleColor: '#1E293B',
+    },
   },
 
   // White Theme (Deep Blue Light) 🌞

@@ -53,8 +53,8 @@ const MessageItem = memo(({ message }) => {
           isUser ? styles.userBubble : styles.aiBubble,
           {
             backgroundColor: isUser 
-              ? currentTheme.userBubbleColor || '#3B82F6'
-              : currentTheme.aiBubbleColor || 'rgba(255, 255, 255, 0.15)',
+              ? currentTheme.chatStyles.userBubbleColor || '#3B82F6'
+              : currentTheme.chatStyles.aiBubbleColor || '#1E293B',
           },
         ]}
       >
@@ -334,5 +334,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatMessageList;
+// ✅ Memoize to prevent unnecessary re-renders
+export default memo(ChatMessageList, (prevProps, nextProps) => {
+  return (
+    prevProps.messages.length === nextProps.messages.length &&
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.isTyping === nextProps.isTyping
+  );
+});
 

@@ -23,10 +23,12 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { usePersona } from '../../contexts/PersonaContext';
 import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
+import HapticService from '../../utils/HapticService';
 
 /**
  * CustomTabBar Component
@@ -34,11 +36,18 @@ import CenterAIButton from './CenterAIButton';
  */
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { currentTheme } = useTheme();
+  const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const insets = useSafeAreaInsets();
   
-  // ✅ Tab configuration
+  // ✅ Tab configuration (Dynamic first tab based on mode)
   const tabs = [
-    { key: 'Home', icon: 'home', label: '홈' },
+    { 
+      key: mode === 'sage' ? 'SAGE' : 'Persona',
+      icon: mode === 'sage' ? 'flash' : 'people',
+      label: mode === 'sage' ? 'SAGE' : '페르소나',
+      isActive: mode === 'persona', // Active color when in persona mode
+      onPress: switchMode, // Toggle mode
+    },
     { key: 'Explore', icon: 'compass', label: '탐색' },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { key: 'Room', icon: 'chatbubbles', label: '방' },
@@ -63,10 +72,26 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       {/* Center AI Button (elevated, positioned absolutely) */}
       <View style={styles.centerButtonContainer}>
         <CenterAIButton
-          state="sage" // Default to SAGE (Manager AI)
+          state={selectedPersona?.isManager ? 'sage' : 'persona'}
+          personaVideoUrl={
+            selectedPersona?.selected_dress_video_url && 
+            selectedPersona?.selected_dress_video_convert_yn === 'Y' 
+              ? selectedPersona.selected_dress_video_url 
+              : null
+          }
+          personaImageUrl={selectedPersona?.selected_dress_image_url || selectedPersona?.original_url}
+          personaName={selectedPersona?.persona_name}
           onPress={() => {
-            // TODO: Open PersonaBottomSheet
-            console.log('💙 [CenterAIButton] Pressed');
+            // 🎯 Always navigate to Manager SAGE (Index 0)
+            // Regardless of current persona
+            setSelectedIndex(0);
+            
+            if (__DEV__) {
+              console.log('💙 [CenterAIButton] Pressed → Manager SAGE (Index 0)');
+            }
+            
+            // TODO: Future - Open Manager Functions Bottom Sheet
+            // openManagerFunctionsSheet();
           }}
         />
       </View>
@@ -82,7 +107,18 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             return <View key={tab.key} style={styles.centerPlaceholder} />;
           }
           
+          // ✅ First tab (Mode Toggle) has custom onPress
           const onPress = () => {
+            // 🎯 Haptic feedback for tab navigation
+            HapticService.light();
+            
+            // First tab: Mode toggle (SAGE ↔ Persona)
+            if (index === 0 && tab.onPress) {
+              tab.onPress();
+              return;
+            }
+            
+            // Other tabs: Normal navigation
             const event = navigation.emit({
               type: 'tabPress',
               target: state.routes[index].key,
@@ -94,6 +130,9 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
           
+          // ✅ First tab uses tab.isActive instead of isFocused
+          const isActive = index === 0 ? tab.isActive : isFocused;
+          
           return (
             <TouchableOpacity
               key={tab.key}
@@ -104,13 +143,13 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
               <Icon
                 name={tab.icon}
                 size={TAB_BAR.REGULAR_ICON_SIZE}
-                color={isFocused ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
+                color={isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
               />
               <CustomText
                 style={[
                   styles.tabLabel,
                   {
-                    color: isFocused ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888'),
+                    color: isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888'),
                   },
                 ]}
               >

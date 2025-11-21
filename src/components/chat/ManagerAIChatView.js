@@ -32,6 +32,7 @@ import ChatInputBar from './ChatInputBar';
 import ChatHeightToggle from './ChatHeightToggle';
 import { verticalScale } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
+import { usePersona } from '../../contexts/PersonaContext';
 import { 
   TAB_BAR, 
   CHAT_INPUT, 
@@ -45,14 +46,24 @@ import {
  * ✅ Memoized Video Background Component
  * Prevents re-render during typing effect
  */
-const VideoBackground = memo(({ videoUrl }) => {
+const VideoBackground = memo(({ videoUrl, modeOpacityValue = 1 }) => {
   return (
     <Video
+      key={`manager-sage-video`}
       source={{ uri: videoUrl }}
       style={styles.videoBackground}
       resizeMode="cover"
       repeat
       muted
+      paused={modeOpacityValue === 0}
+      playInBackground={false}
+      playWhenInactive={false}
+      ignoreSilentSwitch="ignore"
+      onLoad={() => {
+        if (__DEV__) {
+          console.log('[VideoBackground] Video Loaded: SAGE');
+        }
+      }}
       onError={(error) => {
         if (__DEV__) {
           console.error('[VideoBackground] Error:', error);
@@ -64,12 +75,31 @@ const VideoBackground = memo(({ videoUrl }) => {
 
 VideoBackground.displayName = 'VideoBackground';
 
-const ManagerAIChatView = ({ videoUrl }) => {
+const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
   const insets = useSafeAreaInsets(); // ✅ Get safe area insets
+  const { mode, personas } = usePersona(); // ✅ Get mode and personas for dynamic greeting
+  const [modeOpacityValue, setModeOpacityValue] = useState(1);
   
+  // ✅ Listen to modeOpacity changes
+  useEffect(() => {
+    if (!modeOpacity) {
+      setModeOpacityValue(1); // Default to visible if no modeOpacity
+      return;
+    }
+    
+    const listenerId = modeOpacity.addListener(({ value }) => {
+      setModeOpacityValue(value);
+    });
+    
+    return () => {
+      modeOpacity.removeListener(listenerId);
+    };
+  }, [modeOpacity]);
+  
+  // ✅ All hooks must be called before any return statement
   // Chat State
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +136,15 @@ const ManagerAIChatView = ({ videoUrl }) => {
 
   // ✅ Initialize with greeting message (with typing effect)
   useEffect(() => {
-    const greetingText = t('manager_ai.greeting') || 'Hello! I\'m SAGE, your AI companion. How can I help you today?';
+    // ✅ Dynamic greeting based on mode and personas count
+    let greetingText;
+    if (mode === 'sage' && personas.length === 1) {
+      // SAGE mode with no personas
+      greetingText = '안녕하세요! SAGE입니다. 아직 페르소나가 없으시네요. 중앙 버튼을 눌러 첫 페르소나를 생성해보세요! ✨';
+    } else {
+      // Default greeting
+      greetingText = t('manager_ai.greeting') || '안녕하세요! SAGE입니다. 무엇을 도와드릴까요?';
+    }
     
     // 1. Add empty message
     const greetingMessage = {
@@ -124,7 +162,7 @@ const ManagerAIChatView = ({ videoUrl }) => {
       setCurrentTypingIndex(0);
       setCurrentTypingText('');
     }, 300);
-  }, [t]);
+  }, [t, mode, personas.length]);
 
   // ✅ Typing Effect (Web peek page style: 15ms per character)
   useEffect(() => {
@@ -266,66 +304,72 @@ const ManagerAIChatView = ({ videoUrl }) => {
     };
   }, []);
 
+  // ✅ Conditional rendering: Preview mode vs Full mode
   return (
     <View style={styles.container}>
-      {/* 1. Video Background (Memoized - No re-render during typing) */}
-      <VideoBackground videoUrl={videoUrl} />
-
-      {/* 2. Chat Overlay (Messages Only) */}
-      {isChatVisible && (
-        <View
-          style={[
-            styles.chatOverlay,
-            {
-              top: chatTopPosition, // ✅ Memoized value
-              // ✅ Reserve space for InputBar
-              // chatInputBottom already accounts for position, add InputBar height + small padding
-              bottom: chatInputBottom + (CHAT_INPUT.MIN_HEIGHT * 2) + CHAT_INPUT.BOTTOM_PADDING,
-              backgroundColor: currentTheme.chatOverlayBackground || 'rgba(0, 0, 0, 0.3)',
-            },
-          ]}
-        >
-          {/* 2-1. Messages (FlashList) */}
-          <View style={styles.messagesContainer}>
-            <ChatMessageList
-              messages={messages}
-              isLoading={isLoading}
-              isTyping={isTyping}
-            />
-          </View>
-        </View>
+      {/* 1. Video Background (Always shown) */}
+      {modeOpacityValue > 0 && (
+        <VideoBackground videoUrl={videoUrl} modeOpacityValue={modeOpacityValue} />
       )}
 
-      {/* 2-2. Input Bar (Separate Animated View for Keyboard + Tab Bar aware) */}
-      <Animated.View
-        style={[
-          styles.inputBarContainer, 
-          {
-            // ✅ PERFECT: Dynamic positioning with smooth animation
-            // Normal: bottom = TAB_BAR.TOTAL_HEIGHT + safeBottom + padding
-            // Keyboard: bottom = keyboardHeight + padding
-            // Animated transition between states
-            bottom: inputBottomAnim,
-          },
-        ]}
-      >
-        <ChatInputBar
-          onSend={handleSendMessage}
-          disabled={isLoading}
-          placeholder={t('manager_ai.input_placeholder')}
-          onToggleChatHeight={handleToggleChatHeight}
-          onToggleChatVisibility={handleToggleChatVisibility}
-          chatHeight={chatHeight}
-          isChatVisible={isChatVisible}
-        />
-      </Animated.View>
+      {/* 2. Chat UI (Only when NOT preview) */}
+      {!isPreview && (
+        <>
+          {/* 2-1. Chat Overlay (Messages Only) */}
+          {isChatVisible && (
+            <View
+              style={[
+                styles.chatOverlay,
+                {
+                  top: chatTopPosition, // ✅ Memoized value
+                  // ✅ Reserve space for InputBar
+                  // chatInputBottom already accounts for position, add InputBar height + small padding
+                  bottom: chatInputBottom + (CHAT_INPUT.MIN_HEIGHT * 2) + CHAT_INPUT.BOTTOM_PADDING,
+             //     backgroundColor: currentTheme.chatOverlayBackground || 'rgba(0, 0, 0, 0.3)',
+                },
+              ]}
+              pointerEvents="box-none"
+            >
+              {/* Messages (FlashList) */}
+              <View style={styles.messagesContainer} pointerEvents="auto">
+                <ChatMessageList
+                  messages={messages}
+                  isLoading={isLoading}
+                  isTyping={isTyping}
+                />
+              </View>
+            </View>
+          )}
 
-      {/* 3. Height Toggle Button (only when chat is visible) */}
-      {isChatVisible && (
-        <ChatHeightToggle
-          height={chatHeight}
-          onToggle={handleToggleChatHeight}
-        />
+          {/* 2-2. Input Bar (Separate Animated View for Keyboard + Tab Bar aware) */}
+          <Animated.View
+            style={[
+              styles.inputBarContainer, 
+              {
+                // ✅ PERFECT: Dynamic positioning with smooth animation
+                // Normal: bottom = TAB_BAR.TOTAL_HEIGHT + safeBottom + padding
+                // Keyboard: bottom = keyboardHeight + padding
+                // Animated transition between states
+                bottom: inputBottomAnim,
+              },
+            ]}
+            pointerEvents="box-none"
+          >
+            <View pointerEvents="auto">
+              <ChatInputBar
+                onSend={handleSendMessage}
+                disabled={isLoading}
+                placeholder={t('manager_ai.input_placeholder')}
+                onToggleChatHeight={handleToggleChatHeight}
+                onToggleChatVisibility={handleToggleChatVisibility}
+                chatHeight={chatHeight}
+                isChatVisible={isChatVisible}
+              />
+            </View>
+          </Animated.View>
+
+         
+        </>
       )}
     </View>
   );
@@ -343,6 +387,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 0,
+    ...(Platform.OS === 'android' && {
+      elevation: 0,
+    }),
   },
   chatOverlay: {
     position: 'absolute',
@@ -353,6 +400,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: verticalScale(20),
     overflow: 'hidden',
     zIndex: 10,
+    ...(Platform.OS === 'android' && {
+      elevation: 10,
+    }),
   },
   messagesContainer: {
     flex: 1,
@@ -363,6 +413,9 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 20, // ✅ Above chat overlay
     // ✅ bottom is controlled by Animated.Value (keyboardHeight)
+    ...(Platform.OS === 'android' && {
+      elevation: 20,
+    }),
   },
 });
 
