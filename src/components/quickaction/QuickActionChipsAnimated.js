@@ -115,7 +115,7 @@ const QuickActionChipsAnimated = ({
   };
   
   return (
-    <View style={[styles.container, { bottom: insets.bottom + verticalScale(20) }]}>
+    <View style={[styles.container, { bottom: insets.bottom + verticalScale(100) }]}>
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         

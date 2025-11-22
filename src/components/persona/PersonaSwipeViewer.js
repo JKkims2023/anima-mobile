@@ -25,11 +25,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useChat } from '../../contexts/ChatContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import PersonaCardView from './PersonaCardView';
-import PersonaChatView from '../chat/PersonaChatView';
+import PersonaInfoCard from './PersonaInfoCard';
 import HapticService from '../../utils/HapticService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -37,29 +36,21 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 /**
  * PersonaSwipeViewer Component
  * @param {Object} props
- * @param {Array} props.personas - Personas to display (WITHOUT SAGE)
+ * @param {Array} props.personas - 자아 목록 (SAGE 제외)
  * @param {boolean} props.isModeActive - Whether persona mode is active
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
+ * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
  */
-const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity, chatOpacity }) => {
+const PersonaSwipeViewer = ({ 
+  personas, 
+  isModeActive = true, 
+  modeOpacity, 
+  onChatWithPersona,
+}) => {
   const { currentTheme } = useTheme();
-  const { switchPersona } = useChat();
   
   const flatListRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-
-  // ✅ Switch to first persona on mount (if available)
-  useEffect(() => {
-    if (personas && personas.length > 0 && isModeActive) {
-      const firstPersona = personas[0];
-      if (firstPersona && firstPersona.persona_key) {
-        switchPersona(firstPersona.persona_key, firstPersona.persona_name); // ✅ Pass persona name
-        if (__DEV__) {
-          console.log('[PersonaSwipeViewer] 🎯 Initial persona switched:', firstPersona.persona_name);
-        }
-      }
-    }
-  }, [personas, isModeActive, switchPersona]);
 
   // ✅ Handle swipe (change persona) - VERTICAL
   const handleMomentumScrollEnd = useCallback((event) => {
@@ -70,17 +61,11 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity, chatOp
       HapticService.selection();
       setSelectedIndex(index);
 
-      if (personas && personas[index]) {
-        const newPersona = personas[index];
-        if (newPersona && newPersona.persona_key) {
-          switchPersona(newPersona.persona_key, newPersona.persona_name); // ✅ Pass persona name
-          if (__DEV__) {
-            console.log('[PersonaSwipeViewer] 📱 Swiped to:', newPersona.persona_name);
-          }
-        }
+      if (__DEV__ && personas && personas[index]) {
+        console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
       }
     }
-  }, [selectedIndex, personas, switchPersona]);
+  }, [selectedIndex, personas]);
 
   // ✅ Current persona
   const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
@@ -111,7 +96,7 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity, chatOp
           🎭
         </CustomText>
         <CustomText type="normal" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
-          페르소나가 없습니다
+          자아가 없습니다
         </CustomText>
         <CustomText type="small" style={{ color: currentTheme.textSecondary, marginTop: 8 }}>
           중앙 버튼을 눌러 생성하세요
@@ -167,13 +152,11 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity, chatOp
         </View>
       )}
 
-      {/* ✅ PersonaChatView - OUTSIDE FlatList (like SAGE) */}
+      {/* ✅ PersonaInfoCard - 자아 정보 카드 */}
       {currentPersona && (
-        <PersonaChatView 
+        <PersonaInfoCard 
           persona={currentPersona} 
-          isPreview={!isModeActive}
-          modeOpacity={modeOpacity}
-          chatOpacity={chatOpacity}
+          onChatPress={onChatWithPersona}
         />
       )}
     </View>
@@ -195,7 +178,7 @@ const styles = StyleSheet.create({
   paginationContainer: {
     position: 'absolute',
     right: scale(16),
-    top: '50%',
+    top: '10%',
     transform: [{ translateY: -50 }],
     flexDirection: 'column',
     justifyContent: 'center',
