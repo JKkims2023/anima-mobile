@@ -28,8 +28,9 @@ import ManagerAIChatView from '../chat/ManagerAIChatView';
  * @param {Object} props.persona - Persona data
  * @param {boolean} props.isActive - Whether this view is currently active
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
+ * @param {Animated.Value} props.chatOpacity - Opacity animation value for chat UI (for quick mode transition)
  */
-const ManagerAIView = ({ persona, isActive = false, modeOpacity }) => {
+const ManagerAIView = ({ persona, isActive = false, modeOpacity, chatOpacity }) => {
   // ✅ Use persona's video URL or fallback to default SAGE video
   const videoUrl = 'https://babi-cdn.logbrix.ai/babi/real/babi/46fb3532-e41a-4b96-8105-a39e64f39407_00001_.mp4';
 
@@ -39,6 +40,7 @@ const ManagerAIView = ({ persona, isActive = false, modeOpacity }) => {
       videoUrl={videoUrl} 
       isPreview={!isActive}
       modeOpacity={modeOpacity}
+      chatOpacity={chatOpacity}
     />
   );
 };

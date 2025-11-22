@@ -41,7 +41,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {boolean} props.isModeActive - Whether persona mode is active
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
  */
-const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
+const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity, chatOpacity }) => {
   const { currentTheme } = useTheme();
   const { switchPersona } = useChat();
   
@@ -53,7 +53,7 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
     if (personas && personas.length > 0 && isModeActive) {
       const firstPersona = personas[0];
       if (firstPersona && firstPersona.persona_key) {
-        switchPersona(firstPersona.persona_key);
+        switchPersona(firstPersona.persona_key, firstPersona.persona_name); // ✅ Pass persona name
         if (__DEV__) {
           console.log('[PersonaSwipeViewer] 🎯 Initial persona switched:', firstPersona.persona_name);
         }
@@ -61,10 +61,10 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
     }
   }, [personas, isModeActive, switchPersona]);
 
-  // ✅ Handle swipe (change persona)
+  // ✅ Handle swipe (change persona) - VERTICAL
   const handleMomentumScrollEnd = useCallback((event) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / SCREEN_WIDTH);
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / SCREEN_HEIGHT);
 
     if (index !== selectedIndex) {
       HapticService.selection();
@@ -73,7 +73,7 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
       if (personas && personas[index]) {
         const newPersona = personas[index];
         if (newPersona && newPersona.persona_key) {
-          switchPersona(newPersona.persona_key);
+          switchPersona(newPersona.persona_key, newPersona.persona_name); // ✅ Pass persona name
           if (__DEV__) {
             console.log('[PersonaSwipeViewer] 📱 Swiped to:', newPersona.persona_name);
           }
@@ -122,27 +122,27 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
 
   return (
     <View style={styles.container}>
-      {/* ✅ FlatList - Optimized for horizontal paging */}
+      {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
       <FlatList
         ref={flatListRef}
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        horizontal
+        vertical
         pagingEnabled
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         decelerationRate="fast"
         snapToAlignment="start"
-        snapToInterval={SCREEN_WIDTH}
+        snapToInterval={SCREEN_HEIGHT}
         scrollEventThrottle={16}
         removeClippedSubviews={true}
         maxToRenderPerBatch={1}
         initialNumToRender={1}
         windowSize={3}
         getItemLayout={(data, index) => ({
-          length: SCREEN_WIDTH,
-          offset: SCREEN_WIDTH * index,
+          length: SCREEN_HEIGHT,
+          offset: SCREEN_HEIGHT * index,
           index,
         })}
       />
@@ -173,6 +173,7 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
           persona={currentPersona} 
           isPreview={!isModeActive}
           modeOpacity={modeOpacity}
+          chatOpacity={chatOpacity}
         />
       )}
     </View>
@@ -193,10 +194,10 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     position: 'absolute',
-    bottom: verticalScale(100),
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
+    right: scale(16),
+    top: '50%',
+    transform: [{ translateY: -50 }],
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     width: scale(8),
     height: scale(8),
     borderRadius: scale(4),
-    marginHorizontal: scale(4),
+    marginVertical: scale(6),
     opacity: 0.5,
   },
   paginationDotActive: {

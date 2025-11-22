@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
+import PersonaScreen from '../screens/PersonaScreen';
 import RoomScreen from '../screens/RoomScreen';
 import TrainingScreen from '../screens/TrainingScreen';
 import PeekScreen from '../screens/PeekScreen';
@@ -16,15 +17,16 @@ const Tab = createBottomTabNavigator();
 
 /**
  * TabNavigator - Bottom Tab Navigation with CenterAIButton
- * 5 Tabs: Home, Explore (Room), AI (Center), Training (Peek), Settings
+ * 5 Tabs: SAGE (Home), Persona, AI (Center), Quick Action Toggle, Settings
  * 
  * Features:
  * - Custom TabBar with elevated center AI button
+ * - Separate SAGE and Persona tabs for intuitive UX
  * - Safe Area aware
  * - Dark theme support
  * 
  * @author JK & Hero AI
- * @date 2024-11-21
+ * @date 2024-11-22
  */
 const TabNavigator = () => {
   const { t } = useTranslation();
@@ -36,21 +38,21 @@ const TabNavigator = () => {
         headerShown: false,
       }}
     >
-      {/* Tab 1: Home */}
+      {/* Tab 1: SAGE (Manager AI) */}
       <Tab.Screen 
         name="Home" 
         component={HomeScreen}
         options={{ 
-          title: t('navigation.home') || '홈',
+          title: 'SAGE',
         }}
       />
       
-      {/* Tab 2: Explore (Room) */}
+      {/* Tab 2: Persona */}
       <Tab.Screen 
-        name="Explore" 
-        component={RoomScreen}
+        name="Persona" 
+        component={PersonaScreen}
         options={{ 
-          title: t('navigation.room') || '탐색',
+          title: '페르소나',
         }}
       />
       

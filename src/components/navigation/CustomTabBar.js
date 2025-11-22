@@ -41,16 +41,20 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const insets = useSafeAreaInsets();
   
-  // ✅ Tab configuration (Dynamic tabs based on mode and quick action)
+  // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
   const tabs = [
     { 
-      key: mode === 'sage' ? 'SAGE' : 'Persona',
-      icon: mode === 'sage' ? 'flash' : 'people',
-      label: mode === 'sage' ? 'SAGE' : '페르소나',
-      isActive: mode === 'persona', // Active color when in persona mode
-      onPress: switchMode, // Toggle mode
+      key: 'SAGE',
+      icon: 'flash',
+      label: 'SAGE',
+      route: 'Home', // Navigate to Home (SAGE)
     },
-    { key: 'Explore', icon: 'compass', label: '탐색' },
+    { 
+      key: 'Persona',
+      icon: 'people',
+      label: '페르소나',
+      route: 'Persona', // Navigate to Persona screen
+    },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
       key: 'QuickAction',
@@ -59,7 +63,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       isActive: !isQuickMode, // Active when in chat mode (반전)
       onPress: toggleQuickMode, // Toggle quick action mode
     },
-    { key: 'Settings', icon: 'settings', label: '설정' },
+    { 
+      key: 'Settings',
+      icon: 'settings',
+      label: '설정',
+      route: 'Settings',
+    },
   ];
   
   // ✅ Calculate tab bar height with Safe Area
@@ -115,16 +124,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             return <View key={tab.key} style={styles.centerPlaceholder} />;
           }
           
-          // ✅ Custom onPress for special tabs (Mode Toggle, Quick Action)
+          // ✅ Custom onPress for tabs
           const onPress = () => {
             // 🎯 Haptic feedback for tab navigation
             HapticService.medium();
-            
-            // First tab: Mode toggle (SAGE ↔ Persona)
-            if (index === 0 && tab.onPress) {
-              tab.onPress();
-              return;
-            }
             
             // Fourth tab: Quick Action toggle (Chat ↔ Quick)
             if (index === 3 && tab.onPress) {
@@ -132,7 +135,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
               return;
             }
             
-            // Other tabs: Normal navigation
+            // Normal tabs: Navigate to route
             const event = navigation.emit({
               type: 'tabPress',
               target: state.routes[index].key,
@@ -144,8 +147,8 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
           
-          // ✅ Special tabs use tab.isActive instead of isFocused
-          const isActive = (index === 0 || index === 3) ? tab.isActive : isFocused;
+          // ✅ Fourth tab (Quick Action) uses tab.isActive, others use isFocused
+          const isActive = index === 3 ? tab.isActive : isFocused;
           
           return (
             <TouchableOpacity

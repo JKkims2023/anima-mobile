@@ -46,6 +46,7 @@ const PersonaChatView = ({
   persona, 
   isPreview = false, 
   modeOpacity,
+  chatOpacity,
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -56,9 +57,11 @@ const PersonaChatView = ({
     currentPersonaChat,
     addPersonaMessage,
     setPersonaTypingMessage,
+    setPersonaState, // ✅ Get AI state setter for persona
   } = useChat();
   
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
+  const [chatOpacityValue, setChatOpacityValue] = useState(1);
   
   // ✅ Listen to modeOpacity changes
   useEffect(() => {
@@ -75,6 +78,22 @@ const PersonaChatView = ({
       modeOpacity.removeListener(listenerId);
     };
   }, [modeOpacity]);
+  
+  // ✅ Listen to chatOpacity changes
+  useEffect(() => {
+    if (!chatOpacity) {
+      setChatOpacityValue(1);
+      return;
+    }
+    
+    const listenerId = chatOpacity.addListener(({ value }) => {
+      setChatOpacityValue(value);
+    });
+    
+    return () => {
+      chatOpacity.removeListener(listenerId);
+    };
+  }, [chatOpacity]);
   
   // ✅ Typing message: isolated state (SAME AS SAGE)
   const [typingFullText, setTypingFullText] = useState(null);
@@ -184,6 +203,9 @@ const PersonaChatView = ({
             role: 'ai',
             text: fullText,
           });
+          
+          // ✅ Reset AI state to 'greeting' after typing completes
+          setPersonaState(persona.persona_key, 'greeting');
         }
       }
     };
@@ -197,7 +219,7 @@ const PersonaChatView = ({
       }
       typingStartTimeRef.current = null;
     };
-  }, [typingFullText, persona, addPersonaMessage]);
+  }, [typingFullText, persona, addPersonaMessage, setPersonaState]);
 
   // ✅ Update typing message in context (for display)
   useEffect(() => {
@@ -227,6 +249,8 @@ const PersonaChatView = ({
       text: text.trim(),
     });
     
+    // ✅ Set AI state to 'thinking'
+    setPersonaState(persona.persona_key, 'thinking');
     setIsLoading(true);
 
     try {
@@ -241,6 +265,9 @@ const PersonaChatView = ({
       if (response.success) {
         const aiResponse = response.data?.data || response.data?.message || 'I understand your question.';
         
+        // ✅ Set AI state to 'talking'
+        setPersonaState(persona.persona_key, 'talking');
+        
         // Start typing effect
         setTimeout(() => {
           typingStartTimeRef.current = null;
@@ -249,21 +276,35 @@ const PersonaChatView = ({
         }, 500);
       } else {
         const errorMessage = errorHandler.getErrorMessage(response.error, t);
+        
+        // ✅ Set AI state to 'error'
+        setPersonaState(persona.persona_key, 'error');
+        
         addPersonaMessage(persona.persona_key, {
           role: 'ai',
           text: errorMessage,
         });
+        
+        // ✅ Reset to greeting after 3 seconds
+        setTimeout(() => setPersonaState(persona.persona_key, 'greeting'), 3000);
       }
     } catch (error) {
       console.error('❌ [PersonaChatView] Error:', error);
+      
+      // ✅ Set AI state to 'error'
+      setPersonaState(persona.persona_key, 'error');
+      
       addPersonaMessage(persona.persona_key, {
         role: 'ai',
         text: t('errors.generic') || 'An unexpected error occurred.',
       });
+      
+      // ✅ Reset to greeting after 3 seconds
+      setTimeout(() => setPersonaState(persona.persona_key, 'greeting'), 3000);
     } finally {
       setIsLoading(false);
     }
-  }, [t, isLoading, typingFullText, persona, addPersonaMessage]);
+  }, [t, isLoading, typingFullText, persona, addPersonaMessage, setPersonaState]);
 
   // ✅ Handle chat height toggle (SAME AS SAGE)
   const handleToggleChatHeight = useCallback((newHeight) => {
@@ -282,9 +323,18 @@ const PersonaChatView = ({
   
   return (
     <View style={styles.container}>
-      {/* Chat Overlay (Messages + Input) - SAME AS SAGE */}
-      {isChatVisible && (
-        <View
+      <Animated.View
+        style={[
+          styles.chatUIContainer,
+          {
+            opacity: chatOpacityValue, // ✅ Apply chat opacity value
+          },
+        ]}
+        pointerEvents="box-none"
+      >
+        {/* Chat Overlay (Messages + Input) - SAME AS SAGE */}
+        {isChatVisible && (
+          <View
           style={[
             styles.chatOverlay,
             {
@@ -329,6 +379,7 @@ const PersonaChatView = ({
           />
         </Animated.View>
       )}
+      </Animated.View>
 
       {/* Height Toggle Button - SAME AS SAGE */}
       {isChatVisible && (
@@ -347,6 +398,14 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 100,
     pointerEvents: 'box-none',
+  },
+  chatUIContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
   chatOverlay: {
     position: 'absolute',

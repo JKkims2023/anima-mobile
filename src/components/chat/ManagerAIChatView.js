@@ -34,6 +34,7 @@ import { verticalScale } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useQuickAction } from '../../contexts/QuickActionContext';
+import { useChat } from '../../contexts/ChatContext';
 import { 
   TAB_BAR, 
   CHAT_INPUT, 
@@ -76,14 +77,16 @@ const VideoBackground = memo(({ videoUrl, modeOpacityValue = 1 }) => {
 
 VideoBackground.displayName = 'VideoBackground';
 
-const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
+const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpacity }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
   const insets = useSafeAreaInsets(); // ✅ Get safe area insets
   const { mode, personas } = usePersona(); // ✅ Get mode and personas for dynamic greeting
   const { isQuickMode } = useQuickAction(); // ✅ Get quick mode state
+  const { setSageState } = useChat(); // ✅ Get AI state setter
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
+  const [chatOpacityValue, setChatOpacityValue] = useState(1);
   
   // ✅ Listen to modeOpacity changes
   useEffect(() => {
@@ -100,6 +103,22 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       modeOpacity.removeListener(listenerId);
     };
   }, [modeOpacity]);
+  
+  // ✅ Listen to chatOpacity changes
+  useEffect(() => {
+    if (!chatOpacity) {
+      setChatOpacityValue(1); // Default to visible if no chatOpacity
+      return;
+    }
+    
+    const listenerId = chatOpacity.addListener(({ value }) => {
+      setChatOpacityValue(value);
+    });
+    
+    return () => {
+      chatOpacity.removeListener(listenerId);
+    };
+  }, [chatOpacity]);
   
   // ✅ All hooks must be called before any return statement
   // Chat State (OPTIMIZED: Isolated typing message to prevent re-renders)
@@ -254,6 +273,9 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
         // ✅ Trigger FlashList re-render (only once)
         setMessageVersion(v => v + 1);
         
+        // ✅ Reset AI state to 'greeting' after typing completes
+        setSageState('greeting');
+        
         // ✅ Clear typing state
         setTypingFullText(null);
         setTypingCurrentText('');
@@ -303,6 +325,8 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
     // ✅ Trigger FlashList re-render (only once)
     setMessageVersion(v => v + 1);
     
+    // ✅ Set AI state to 'thinking'
+    setSageState('thinking');
     setIsLoading(true);
 
     try {
@@ -318,6 +342,9 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       if (response.success) {
         const aiResponse = response.data?.data || response.data?.message || 'I understand your question. Let me help you with that.';
         
+        // ✅ Set AI state to 'talking'
+        setSageState('talking');
+        
         // 4. Start typing effect after brief delay (isolated state)
         setTimeout(() => {
           setTypingFullText(aiResponse);
@@ -326,6 +353,9 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       } else {
         // Handle API error (add to completed messages immediately)
         const errorMessage = errorHandler.getErrorMessage(response.error, t);
+        
+        // ✅ Set AI state to 'error'
+        setSageState('error');
         
         const errorAiMessage = {
           id: `error-${Date.now()}`,
@@ -341,9 +371,16 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
         
         // ✅ Trigger FlashList re-render
         setMessageVersion(v => v + 1);
+        
+        // ✅ Reset to greeting after 3 seconds
+        setTimeout(() => setSageState('greeting'), 3000);
       }
     } catch (error) {
       console.error('❌ [Manager AI] Error:', error);
+      
+      // ✅ Set AI state to 'error'
+      setSageState('error');
+      
       const errorAiMessage = {
         id: `error-${Date.now()}`,
         role: 'ai',
@@ -358,10 +395,13 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       
       // ✅ Trigger FlashList re-render
       setMessageVersion(v => v + 1);
+      
+      // ✅ Reset to greeting after 3 seconds
+      setTimeout(() => setSageState('greeting'), 3000);
     } finally {
       setIsLoading(false);
     }
-  }, [t, isLoading, typingFullText]);
+  }, [t, isLoading, typingFullText, setSageState]);
 
   // ✅ Toggle chat height (tall ⇄ medium)
   const handleToggleChatHeight = useCallback(() => {
@@ -392,7 +432,15 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
 
       {/* 2. Chat UI (Only when NOT preview AND in Chat Mode - isQuickMode=true) */}
       {!isPreview && isQuickMode && (
-        <>
+        <Animated.View
+          style={[
+            styles.chatUIContainer,
+            {
+              opacity: chatOpacityValue, // ✅ Apply chat opacity value
+            },
+          ]}
+          pointerEvents="box-none"
+        >
           {/* 2-1. Chat Overlay (Messages Only) */}
           {isChatVisible && (
             <View
@@ -446,9 +494,7 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
               />
             </View>
           </Animated.View>
-
-         
-        </>
+        </Animated.View>
       )}
     </View>
   );
@@ -458,6 +504,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
+  },
+  chatUIContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
   videoBackground: {
     position: 'absolute',

@@ -21,6 +21,17 @@ import React, { createContext, useState, useContext, useRef, useCallback, useMem
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+  // ==================== AI State Management ====================
+  // ✅ SAGE AI state: greeting, thinking, talking, error
+  const [sageAiState, setSageAiState] = useState('greeting');
+  
+  // ✅ Persona AI states: { 'persona_key': 'greeting' | 'thinking' | 'talking' | 'error' }
+  const personaAiStatesRef = useRef({});
+  const [activePersonaAiState, setActivePersonaAiState] = useState('greeting');
+  
+  // ✅ Active persona name (for StatusIndicator)
+  const [activePersonaName, setActivePersonaName] = useState(null);
+  
   // ==================== SAGE Chat State ====================
   // ✅ SAGE completed messages: useRef for immutable data (no re-render)
   const sageCompletedMessagesRef = useRef([]);
@@ -103,9 +114,10 @@ export const ChatProvider = ({ children }) => {
    * Switch active persona (instant, no DB call)
    * This is called when user swipes to a different persona
    */
-  const switchPersona = useCallback((personaKey) => {
+  const switchPersona = useCallback((personaKey, personaName = null) => {
     if (!personaKey) {
       setActivePersonaKey(null);
+      setActivePersonaName(null);
       return;
     }
     
@@ -114,11 +126,18 @@ export const ChatProvider = ({ children }) => {
       initializePersonaChat(personaKey);
     }
     
+    // Initialize AI state if not exists
+    if (!personaAiStatesRef.current[personaKey]) {
+      personaAiStatesRef.current[personaKey] = 'greeting';
+    }
+    
     setActivePersonaKey(personaKey);
+    setActivePersonaName(personaName);
+    setActivePersonaAiState(personaAiStatesRef.current[personaKey] || 'greeting');
     setPersonaChatVersion(v => v + 1); // Trigger re-render
     
     if (__DEV__) {
-      console.log('[ChatContext] 🔄 Switched to persona:', personaKey);
+      console.log('[ChatContext] 🔄 Switched to persona:', personaKey, personaName);
     }
   }, [initializePersonaChat]);
   
@@ -226,10 +245,45 @@ export const ChatProvider = ({ children }) => {
       console.log('[ChatContext] 📥 Loaded chat histories for', Object.keys(histories).length, 'personas');
     }
   }, []);
+  
+  // ==================== AI State Functions ====================
+  
+  /**
+   * Set SAGE AI state (greeting, thinking, talking, error)
+   */
+  const setSageState = useCallback((state) => {
+    setSageAiState(state);
+    if (__DEV__) {
+      console.log('[ChatContext] 🤖 SAGE state:', state);
+    }
+  }, []);
+  
+  /**
+   * Set Persona AI state (greeting, thinking, talking, error)
+   */
+  const setPersonaState = useCallback((personaKey, state) => {
+    personaAiStatesRef.current[personaKey] = state;
+    
+    // Update active state if this is the active persona
+    if (personaKey === activePersonaKey) {
+      setActivePersonaAiState(state);
+    }
+    
+    if (__DEV__) {
+      console.log('[ChatContext] 🤖 Persona state:', personaKey, state);
+    }
+  }, [activePersonaKey]);
 
   // ==================== Context Value ====================
   
   const value = useMemo(() => ({
+    // ==================== AI State ====================
+    sageAiState,
+    setSageState,
+    activePersonaAiState,
+    setPersonaState,
+    activePersonaName,
+    
     // ==================== SAGE Chat ====================
     sageCompletedMessages: sageCompletedMessagesRef.current,
     sageTypingMessage,
@@ -257,6 +311,11 @@ export const ChatProvider = ({ children }) => {
     addCompletedMessage: addSageMessage,
     clearMessages: clearSageMessages,
   }), [
+    sageAiState,
+    setSageState,
+    activePersonaAiState,
+    setPersonaState,
+    activePersonaName,
     sageTypingMessage,
     sageMessageVersion,
     activePersonaKey,
