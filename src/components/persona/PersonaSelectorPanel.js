@@ -87,7 +87,7 @@ const PersonaSelectorPanel = ({
   
   // ✅ Handle persona selection
   const handleSelectPersona = (persona) => {
-    HapticService.impact('medium');
+    HapticService.medium();
     if (onSelectPersona) {
       onSelectPersona(persona);
     }

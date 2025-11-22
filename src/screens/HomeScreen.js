@@ -82,7 +82,11 @@ const HomeScreenContent = ({ route }) => {
     setSelectedPersona(persona);
     setIsPanelVisible(false);
     if (__DEV__) {
-      console.log('[HomeScreen] ✨ Persona selected:', persona.persona_name);
+      console.log('[HomeScreen] ✨ Persona selected:', {
+        name: persona.persona_name,
+        videoUrl: persona.selected_dress_video_url?.substring(0, 50) + '...',
+        isManager: persona.isManager,
+      });
     }
   };
   
@@ -100,6 +104,14 @@ const HomeScreenContent = ({ route }) => {
   // ✅ Filter personas (exclude SAGE)
   const availablePersonas = personas.filter(p => !p.isManager);
   
+  // ✅ Default SAGE persona with video URL
+  const DEFAULT_SAGE_PERSONA = {
+    isManager: true,
+    persona_name: 'SAGE',
+    persona_key: 'SAGE',
+    selected_dress_video_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/46fb3532-e41a-4b96-8105-a39e64f39407_00001_.mp4',
+  };
+  
   return (
     <SafeScreen 
       backgroundColor={currentTheme.backgroundColor}
@@ -113,7 +125,7 @@ const HomeScreenContent = ({ route }) => {
       <View style={styles.container}>
         {/* ✅ SAGE or Persona View */}
         <ManagerAIView 
-          persona={selectedPersona || { isManager: true, persona_name: 'SAGE' }}
+          persona={selectedPersona || DEFAULT_SAGE_PERSONA}
           isActive={true}
           modeOpacity={null}
           chatOpacity={chatOpacity}
@@ -121,7 +133,11 @@ const HomeScreenContent = ({ route }) => {
         
         {/* ✅ Status Indicator (Top-Left) - Dynamic state */}
         <StatusIndicator 
-          name={selectedPersona ? selectedPersona.persona_name : 'Manager AI - SAGE'}
+          name={
+            selectedPersona 
+              ? `${selectedPersona.persona_name} (Persona)` 
+              : 'Manager AI - SAGE'
+          }
           state={sageAiState}
         />
         

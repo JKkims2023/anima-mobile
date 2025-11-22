@@ -47,31 +47,84 @@ import {
 /**
  * ✅ Memoized Video Background Component
  * Prevents re-render during typing effect
+ * - Dynamic key based on videoUrl to force re-render on URL change
+ * - Pauses when mode is hidden (modeOpacityValue === 0)
+ * - Fade animation on videoUrl change
  */
 const VideoBackground = memo(({ videoUrl, modeOpacityValue = 1 }) => {
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [currentVideoUrl, setCurrentVideoUrl] = useState(videoUrl);
+  
+  // ✅ Fade animation on videoUrl change
+  useEffect(() => {
+    if (currentVideoUrl === videoUrl) return;
+    
+    if (__DEV__) {
+      console.log('[VideoBackground] URL changed, starting fade animation:', {
+        from: currentVideoUrl.substring(0, 30) + '...',
+        to: videoUrl.substring(0, 30) + '...',
+      });
+    }
+    
+    // Fade Out → Change URL → Fade In
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    
+    // Change URL after fade out
+    setTimeout(() => {
+      setCurrentVideoUrl(videoUrl);
+    }, 300);
+  }, [videoUrl, currentVideoUrl, fadeAnim]);
+  
+  if (__DEV__) {
+    console.log('[VideoBackground] Rendering with:', {
+      videoUrl: currentVideoUrl.substring(0, 50) + '...',
+      modeOpacityValue,
+      paused: modeOpacityValue === 0,
+    });
+  }
+  
   return (
-    <Video
-      key={`manager-sage-video`}
-      source={{ uri: videoUrl }}
-      style={styles.videoBackground}
-      resizeMode="cover"
-      repeat
-      muted
-      paused={modeOpacityValue === 0}
-      playInBackground={false}
-      playWhenInactive={false}
-      ignoreSilentSwitch="ignore"
-      onLoad={() => {
-        if (__DEV__) {
-          console.log('[VideoBackground] Video Loaded: SAGE');
-        }
-      }}
-      onError={(error) => {
-        if (__DEV__) {
-          console.error('[VideoBackground] Error:', error);
-        }
-      }}
-    />
+    <Animated.View style={[styles.videoBackground, { opacity: fadeAnim }]}>
+      <Video
+        key={`manager-video-${currentVideoUrl}`}
+        source={{ uri: currentVideoUrl }}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+        repeat
+        muted
+        paused={modeOpacityValue === 0}
+        playInBackground={false}
+        playWhenInactive={false}
+        ignoreSilentSwitch="ignore"
+        onLoad={() => {
+          if (__DEV__) {
+            console.log('[VideoBackground] Video Loaded:', currentVideoUrl.substring(0, 50) + '...');
+          }
+        }}
+        onError={(error) => {
+          if (__DEV__) {
+            console.error('[VideoBackground] Error:', error);
+          }
+        }}
+      />
+    </Animated.View>
+  );
+}, (prevProps, nextProps) => {
+  // Only re-render if videoUrl or modeOpacityValue changes
+  return (
+    prevProps.videoUrl === nextProps.videoUrl &&
+    prevProps.modeOpacityValue === nextProps.modeOpacityValue
   );
 });
 
@@ -122,8 +175,25 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
   
   // ✅ All hooks must be called before any return statement
   // Chat State (OPTIMIZED: Isolated typing message to prevent re-renders)
-  // ✅ Completed messages: useRef for immutable management
-  const completedMessagesRef = useRef([]);
+  // ✅ Completed messages: Map structure for per-persona history
+  // Key: videoUrl (unique per persona), Value: messages array
+  const completedMessagesMapRef = useRef(new Map());
+  
+  // ✅ Current persona's messages (derived from Map)
+  const [currentMessages, setCurrentMessages] = useState([]);
+  
+  // ✅ Load messages for current videoUrl
+  useEffect(() => {
+    const messages = completedMessagesMapRef.current.get(videoUrl) || [];
+    setCurrentMessages(messages);
+    
+    if (__DEV__) {
+      console.log('[ManagerAIChatView] 📝 Loaded messages for:', {
+        videoUrl: videoUrl.substring(0, 50) + '...',
+        messageCount: messages.length,
+      });
+    }
+  }, [videoUrl]);
   
   // ✅ Typing message: isolated state (only TypingMessage component re-renders)
   const [typingFullText, setTypingFullText] = useState(null); // Full text to type
@@ -265,10 +335,13 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
           timestamp: Date.now(),
         };
         
-        completedMessagesRef.current = [
-          ...completedMessagesRef.current,
-          completedMessage,
-        ];
+        // ✅ Update messages for current videoUrl
+        const currentMessages = completedMessagesMapRef.current.get(videoUrl) || [];
+        const updatedMessages = [...currentMessages, completedMessage];
+        completedMessagesMapRef.current.set(videoUrl, updatedMessages);
+        
+        // ✅ Update current messages state
+        setCurrentMessages(updatedMessages);
         
         // ✅ Trigger FlashList re-render (only once)
         setMessageVersion(v => v + 1);
@@ -317,10 +390,13 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
       timestamp: Date.now(),
     };
     
-    completedMessagesRef.current = [
-      ...completedMessagesRef.current,
-      userMessage,
-    ];
+    // ✅ Update messages for current videoUrl
+    const currentMessages = completedMessagesMapRef.current.get(videoUrl) || [];
+    const updatedMessages = [...currentMessages, userMessage];
+    completedMessagesMapRef.current.set(videoUrl, updatedMessages);
+    
+    // ✅ Update current messages state
+    setCurrentMessages(updatedMessages);
     
     // ✅ Trigger FlashList re-render (only once)
     setMessageVersion(v => v + 1);
@@ -364,10 +440,11 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
           timestamp: Date.now(),
         };
         
-        completedMessagesRef.current = [
-          ...completedMessagesRef.current,
-          errorAiMessage,
-        ];
+        // ✅ Update messages for current videoUrl
+        const currentMessages = completedMessagesMapRef.current.get(videoUrl) || [];
+        const updatedMessages = [...currentMessages, errorAiMessage];
+        completedMessagesMapRef.current.set(videoUrl, updatedMessages);
+        setCurrentMessages(updatedMessages);
         
         // ✅ Trigger FlashList re-render
         setMessageVersion(v => v + 1);
@@ -388,10 +465,11 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
         timestamp: Date.now(),
       };
       
-      completedMessagesRef.current = [
-        ...completedMessagesRef.current,
-        errorAiMessage,
-      ];
+      // ✅ Update messages for current videoUrl
+      const currentMessages = completedMessagesMapRef.current.get(videoUrl) || [];
+      const updatedMessages = [...currentMessages, errorAiMessage];
+      completedMessagesMapRef.current.set(videoUrl, updatedMessages);
+      setCurrentMessages(updatedMessages);
       
       // ✅ Trigger FlashList re-render
       setMessageVersion(v => v + 1);
@@ -401,7 +479,7 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
     } finally {
       setIsLoading(false);
     }
-  }, [t, isLoading, typingFullText, setSageState]);
+  }, [t, isLoading, typingFullText, setSageState, videoUrl]);
 
   // ✅ Toggle chat height (tall ⇄ medium)
   const handleToggleChatHeight = useCallback(() => {
@@ -459,7 +537,7 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
               {/* Messages (FlashList) */}
               <View style={styles.messagesContainer} pointerEvents="auto">
                 <ChatMessageList
-                  completedMessages={completedMessagesRef.current}
+                  completedMessages={currentMessages}
                   typingMessage={typingCurrentText}
                   messageVersion={messageVersion}
                   isLoading={isLoading}

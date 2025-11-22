@@ -36,7 +36,7 @@ const PersonaInfoCard = ({ persona, onChatPress }) => {
   
   // ✅ Handle chat button press
   const handleChatPress = () => {
-    HapticService.impact('medium');
+    HapticService.medium();
     if (onChatPress) {
       onChatPress(persona);
     }
