@@ -100,16 +100,22 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   }, [modeOpacity]);
   
   // ✅ All hooks must be called before any return statement
-  // Chat State
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  // Chat State (OPTIMIZED: Isolated typing message to prevent re-renders)
+  // ✅ Completed messages: useRef for immutable management
+  const completedMessagesRef = useRef([]);
   
-  // Typing Effect States (Web peek page style)
-  const [currentTypingMessage, setCurrentTypingMessage] = useState('');
-  const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
-  const [currentTypingText, setCurrentTypingText] = useState('');
-  const typingTimerRef = useRef(null);
+  // ✅ Typing message: isolated state (only TypingMessage component re-renders)
+  const [typingFullText, setTypingFullText] = useState(null); // Full text to type
+  const [typingCurrentText, setTypingCurrentText] = useState(''); // Current typing text (updates frequently)
+  
+  // ✅ Render trigger (incremented only when message is completed)
+  const [messageVersion, setMessageVersion] = useState(0);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Typing Effect Refs (requestAnimationFrame for 60fps)
+  const animationFrameRef = useRef(null);
+  const typingStartTimeRef = useRef(null);
   
   // UI State
   const [chatHeight, setChatHeight] = useState('medium'); // 'tall' | 'medium'
@@ -135,7 +141,33 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   }, [isKeyboardVisible, keyboardHeight, insets.bottom]);
 
   // ✅ Initialize with greeting message (with typing effect)
+  const hasInitialized = useRef(false);
+  const lastPreviewState = useRef(isPreview);
+  
   useEffect(() => {
+    // ✅ Skip if in preview mode
+    if (isPreview) {
+      hasInitialized.current = false; // Reset when going to preview
+      return;
+    }
+    
+    // ✅ Initialize only once when not in preview, or when coming back from preview
+    const wasInPreview = lastPreviewState.current && !isPreview;
+    if (hasInitialized.current && !wasInPreview) return;
+    
+    hasInitialized.current = true;
+    lastPreviewState.current = isPreview;
+    
+    // ✅ Clear any existing typing state
+    setTypingFullText(null);
+    setTypingCurrentText('');
+    
+    // ✅ Clear existing animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
     // ✅ Dynamic greeting based on mode and personas count
     let greetingText;
     if (mode === 'sage' && personas.length === 1) {
@@ -146,64 +178,87 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       greetingText = t('manager_ai.greeting') || '안녕하세요! SAGE입니다. 무엇을 도와드릴까요?';
     }
     
-    // 1. Add empty message
-    const greetingMessage = {
-      id: 'greeting-1',
-      role: 'ai',
-      text: '',
-      timestamp: Date.now(),
-    };
-    setMessages([greetingMessage]);
-    
-    // 2. Start typing effect after 300ms
-    setTimeout(() => {
-      setIsTyping(true);
-      setCurrentTypingMessage(greetingText);
-      setCurrentTypingIndex(0);
-      setCurrentTypingText('');
+    // ✅ Start typing effect after 300ms
+    const typingTimer = setTimeout(() => {
+      typingStartTimeRef.current = null; // Will be set in useEffect
+      setTypingFullText(greetingText);
+      setTypingCurrentText('');
     }, 300);
-  }, [t, mode, personas.length]);
+    
+    return () => {
+      clearTimeout(typingTimer);
+    };
+  }, [t, mode, personas.length, isPreview]);
 
-  // ✅ Typing Effect (Web peek page style: 15ms per character)
+  // ✅ Typing Effect (OPTIMIZED: requestAnimationFrame for 60fps, isolated state)
   useEffect(() => {
-    if (!isTyping || currentTypingMessage === '') return;
+    if (!typingFullText) {
+      // Reset when not typing
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      typingStartTimeRef.current = null;
+      setTypingCurrentText('');
+      return;
+    }
     
     const TYPING_SPEED = 15; // 15ms per character (SAGE style)
+    const fullText = typingFullText;
     
-    if (currentTypingIndex < currentTypingMessage.length) {
-      typingTimerRef.current = setTimeout(() => {
-        const nextChar = currentTypingMessage[currentTypingIndex];
-        const newText = currentTypingText + nextChar;
-        
-        setCurrentTypingText(newText);
-        setCurrentTypingIndex(prev => prev + 1);
-        
-        // Update last message with new text
-        setMessages(prev => {
-          const updated = [...prev];
-          if (updated.length > 0) {
-            updated[updated.length - 1] = {
-              ...updated[updated.length - 1],
-              text: newText,
-            };
-          }
-          return updated;
-        });
-      }, TYPING_SPEED);
+    // ✅ requestAnimationFrame for 60fps typing effect
+    const typeNextChar = (timestamp) => {
+      // ✅ Initialize start time on first frame
+      if (!typingStartTimeRef.current) {
+        typingStartTimeRef.current = timestamp;
+      }
       
-      return () => {
-        if (typingTimerRef.current) {
-          clearTimeout(typingTimerRef.current);
-        }
-      };
-    } else {
-      // Typing complete
-      setIsTyping(false);
-      setCurrentTypingMessage('');
-      setCurrentTypingIndex(0);
-      setCurrentTypingText('');
-    }
-  }, [isTyping, currentTypingMessage, currentTypingIndex, currentTypingText]);
+      const elapsed = timestamp - typingStartTimeRef.current;
+      const targetIndex = Math.floor(elapsed / TYPING_SPEED);
+      
+      if (targetIndex < fullText.length) {
+        // ✅ Update typing current text (only TypingMessage component re-renders)
+        const currentText = fullText.substring(0, targetIndex + 1);
+        setTypingCurrentText(currentText); // ✅ This triggers only TypingMessage re-render
+        
+        // Schedule next frame
+        animationFrameRef.current = requestAnimationFrame(typeNextChar);
+      } else {
+        // ✅ Typing complete: add to completed messages
+        const completedMessage = {
+          id: `ai-${Date.now()}`,
+          role: 'ai',
+          text: fullText,
+          timestamp: Date.now(),
+        };
+        
+        completedMessagesRef.current = [
+          ...completedMessagesRef.current,
+          completedMessage,
+        ];
+        
+        // ✅ Trigger FlashList re-render (only once)
+        setMessageVersion(v => v + 1);
+        
+        // ✅ Clear typing state
+        setTypingFullText(null);
+        setTypingCurrentText('');
+        typingStartTimeRef.current = null;
+        animationFrameRef.current = null;
+      }
+    };
+    
+    // Start typing animation
+    animationFrameRef.current = requestAnimationFrame(typeNextChar);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      typingStartTimeRef.current = null;
+    };
+  }, [typingFullText]); // ✅ Only depend on typingFullText (not typingCurrentText)
   
   // ✅ Animate input bar position smoothly (keyboard-aware + tab bar-aware)
   useEffect(() => {
@@ -214,18 +269,25 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
     }).start();
   }, [chatInputBottom, inputBottomAnim]);
 
-  // ✅ Send message to Manager AI (with typing effect)
+  // ✅ Send message to Manager AI (with typing effect - OPTIMIZED)
   const handleSendMessage = useCallback(async (text) => {
-    if (!text.trim() || isLoading || isTyping) return;
+    if (!text.trim() || isLoading || typingFullText) return;
     
-    // 1. Add user message immediately
+    // 1. Add user message immediately to completed messages
     const userMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       text: text.trim(),
       timestamp: Date.now(),
     };
-    setMessages((prev) => [...prev, userMessage]);
+    
+    completedMessagesRef.current = [
+      ...completedMessagesRef.current,
+      userMessage,
+    ];
+    
+    // ✅ Trigger FlashList re-render (only once)
+    setMessageVersion(v => v + 1);
     
     setIsLoading(true);
 
@@ -242,25 +304,13 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
       if (response.success) {
         const aiResponse = response.data?.data || response.data?.message || 'I understand your question. Let me help you with that.';
         
-        // 4. Add empty AI message
-        const aiMessageId = `ai-${Date.now()}`;
-        const emptyAiMessage = {
-          id: aiMessageId,
-          role: 'ai',
-          text: '',
-          timestamp: Date.now(),
-        };
-        setMessages((prev) => [...prev, emptyAiMessage]);
-        
-        // 5. Start typing effect after brief delay
+        // 4. Start typing effect after brief delay (isolated state)
         setTimeout(() => {
-          setIsTyping(true);
-          setCurrentTypingMessage(aiResponse);
-          setCurrentTypingIndex(0);
-          setCurrentTypingText('');
+          setTypingFullText(aiResponse);
+          setTypingCurrentText('');
         }, 500);
       } else {
-        // Handle API error
+        // Handle API error (add to completed messages immediately)
         const errorMessage = errorHandler.getErrorMessage(response.error, t);
         
         const errorAiMessage = {
@@ -269,7 +319,14 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
           text: errorMessage,
           timestamp: Date.now(),
         };
-        setMessages((prev) => [...prev, errorAiMessage]);
+        
+        completedMessagesRef.current = [
+          ...completedMessagesRef.current,
+          errorAiMessage,
+        ];
+        
+        // ✅ Trigger FlashList re-render
+        setMessageVersion(v => v + 1);
       }
     } catch (error) {
       console.error('❌ [Manager AI] Error:', error);
@@ -279,11 +336,18 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
         text: t('errors.generic') || 'An unexpected error occurred. Please try again.',
         timestamp: Date.now(),
       };
-      setMessages((prev) => [...prev, errorAiMessage]);
+      
+      completedMessagesRef.current = [
+        ...completedMessagesRef.current,
+        errorAiMessage,
+      ];
+      
+      // ✅ Trigger FlashList re-render
+      setMessageVersion(v => v + 1);
     } finally {
       setIsLoading(false);
     }
-  }, [t, isLoading, isTyping]);
+  }, [t, isLoading, typingFullText]);
 
   // ✅ Toggle chat height (tall ⇄ medium)
   const handleToggleChatHeight = useCallback(() => {
@@ -298,8 +362,8 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   // ✅ Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
   }, []);
@@ -333,9 +397,10 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
               {/* Messages (FlashList) */}
               <View style={styles.messagesContainer} pointerEvents="auto">
                 <ChatMessageList
-                  messages={messages}
+                  completedMessages={completedMessagesRef.current}
+                  typingMessage={typingCurrentText}
+                  messageVersion={messageVersion}
                   isLoading={isLoading}
-                  isTyping={isTyping}
                 />
               </View>
             </View>

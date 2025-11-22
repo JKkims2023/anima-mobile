@@ -5,13 +5,14 @@
  * - High-performance message list (FlashList)
  * - Auto-scroll to bottom on new message
  * - User/AI message bubbles
- * - Typing indicator
+ * - Typing message (isolated component for performance)
  * - Loading state
  * 
  * Optimizations:
  * - FlashList for 60fps scrolling
  * - Memoized message items
  * - Estimated item size for performance
+ * - Isolated typing message (prevents full list re-render)
  * 
  * @author JK & Hero AI
  * @date 2024-11-21
@@ -85,6 +86,52 @@ const MessageItem = memo(({ message }) => {
 });
 
 MessageItem.displayName = 'MessageItem';
+
+/**
+ * Typing Message Component (ISOLATED for performance)
+ * Only this component re-renders during typing, not the entire list
+ */
+const TypingMessage = memo(({ text }) => {
+  const { currentTheme } = useTheme();
+  const isUser = false; // Typing messages are always from AI
+
+  return (
+    <View style={[styles.messageRow]}>
+      {/* AI Avatar */}
+      <View style={styles.avatarContainer}>
+        <Image
+          source={{ uri: SAGE_AVATAR_URL }}
+          style={styles.avatar}
+        />
+      </View>
+
+      {/* Message Bubble */}
+      <View
+        style={[
+          styles.messageBubble,
+          styles.aiBubble,
+          {
+            backgroundColor: currentTheme.chatStyles.aiBubbleColor || '#1E293B',
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.messageText,
+            {
+              color: currentTheme.textColor,
+              lineHeight: platformLineHeight(22),
+            },
+          ]}
+        >
+          {text}
+        </Text>
+      </View>
+    </View>
+  );
+});
+
+TypingMessage.displayName = 'TypingMessage';
 
 /**
  * Typing Indicator Component (Web peek page style with wave animation)
@@ -181,21 +228,26 @@ const TypingIndicator = () => {
 };
 
 /**
- * ChatMessageList Component
+ * ChatMessageList Component (OPTIMIZED: Isolated typing message)
  */
-const ChatMessageList = ({ messages = [], isLoading = false, isTyping = false }) => {
+const ChatMessageList = ({ 
+  completedMessages = [], 
+  typingMessage = null, 
+  messageVersion = 0,
+  isLoading = false 
+}) => {
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
 
-  // ✅ Auto-scroll to bottom on new message (including during typing)
+  // ✅ Auto-scroll to bottom on new message or typing update
   useEffect(() => {
-    if (messages.length > 0 && flashListRef.current) {
+    if (flashListRef.current) {
       setTimeout(() => {
         flashListRef.current?.scrollToEnd({ animated: true });
-      }, 50); // Faster scroll for typing effect
+      }, 50);
     }
-  }, [messages.length, messages]);
+  }, [completedMessages.length, messageVersion, typingMessage]);
 
   // Render message item
   const renderItem = ({ item }) => <MessageItem message={item} />;
@@ -212,10 +264,10 @@ const ChatMessageList = ({ messages = [], isLoading = false, isTyping = false })
     </View>
   );
 
-  // ✅ Add typing indicator as a message if loading
-  const messagesWithIndicator = isLoading && !isTyping
-    ? [...messages, { id: 'typing-indicator', role: 'typing', text: 'typing', timestamp: Date.now() }]
-    : messages;
+  // ✅ Add typing indicator as a message if loading (but not typing)
+  const messagesWithIndicator = isLoading && !typingMessage
+    ? [...completedMessages, { id: 'typing-indicator', role: 'typing', text: 'typing', timestamp: Date.now() }]
+    : completedMessages;
 
   return (
     <View style={styles.container}>
@@ -230,6 +282,7 @@ const ChatMessageList = ({ messages = [], isLoading = false, isTyping = false })
         }}
         keyExtractor={(item, index) => item.id || `message-${index}`}
         estimatedItemSize={verticalScale(80)} // ✅ Performance optimization
+        extraData={messageVersion} // ✅ Only re-render when messageVersion changes
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
@@ -242,6 +295,13 @@ const ChatMessageList = ({ messages = [], isLoading = false, isTyping = false })
         updateCellsBatchingPeriod={50}
         windowSize={10}
       />
+      
+      {/* ✅ Typing Message (ISOLATED: Only this re-renders during typing) */}
+      {typingMessage && (
+        <View style={styles.typingMessageContainer}>
+          <TypingMessage text={typingMessage} />
+        </View>
+      )}
     </View>
   );
 };
@@ -332,14 +392,19 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: 'center',
   },
+  typingMessageContainer: {
+    paddingHorizontal: moderateScale(15),
+    paddingBottom: verticalScale(10),
+  },
 });
 
 // ✅ Memoize to prevent unnecessary re-renders
 export default memo(ChatMessageList, (prevProps, nextProps) => {
   return (
-    prevProps.messages.length === nextProps.messages.length &&
-    prevProps.isLoading === nextProps.isLoading &&
-    prevProps.isTyping === nextProps.isTyping
+    prevProps.completedMessages.length === nextProps.completedMessages.length &&
+    prevProps.messageVersion === nextProps.messageVersion &&
+    prevProps.typingMessage === nextProps.typingMessage &&
+    prevProps.isLoading === nextProps.isLoading
   );
 });
 
