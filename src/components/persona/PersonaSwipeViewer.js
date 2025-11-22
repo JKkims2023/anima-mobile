@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎯 PersonaSwipeViewer Component
+ * 🎯 PersonaSwipeViewer Component (SIMPLIFIED - SWIPE ONLY)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Swipeable persona viewer (PERSONAS ONLY - NO SAGE)
@@ -11,12 +11,13 @@
  * - Pagination indicators
  * - Haptic feedback on swipe
  * - Smooth animations
+ * - ✅ NO CHAT LOGIC (handled by PersonaChatView inside each card)
  * 
  * @author JK & Hero AI
- * @date 2024-11-21
+ * @date 2024-11-22
  */
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   View,
   FlatList,
@@ -24,9 +25,11 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useChat } from '../../contexts/ChatContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import PersonaCardView from './PersonaCardView';
+import PersonaChatView from '../chat/PersonaChatView';
 import HapticService from '../../utils/HapticService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -40,26 +43,49 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  */
 const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
   const { currentTheme } = useTheme();
+  const { switchPersona } = useChat();
+  
   const flatListRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // ✅ Handle scroll end - update selectedIndex
+  // ✅ Switch to first persona on mount (if available)
+  useEffect(() => {
+    if (personas && personas.length > 0 && isModeActive) {
+      const firstPersona = personas[0];
+      if (firstPersona && firstPersona.persona_key) {
+        switchPersona(firstPersona.persona_key);
+        if (__DEV__) {
+          console.log('[PersonaSwipeViewer] 🎯 Initial persona switched:', firstPersona.persona_name);
+        }
+      }
+    }
+  }, [personas, isModeActive, switchPersona]);
+
+  // ✅ Handle swipe (change persona)
   const handleMomentumScrollEnd = useCallback((event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / SCREEN_WIDTH);
 
     if (index !== selectedIndex) {
-      // 🎯 Haptic feedback on swipe
       HapticService.selection();
       setSelectedIndex(index);
 
-      if (__DEV__) {
-        console.log('[PersonaSwipeViewer] 📱 Swiped to index:', index);
+      if (personas && personas[index]) {
+        const newPersona = personas[index];
+        if (newPersona && newPersona.persona_key) {
+          switchPersona(newPersona.persona_key);
+          if (__DEV__) {
+            console.log('[PersonaSwipeViewer] 📱 Swiped to:', newPersona.persona_name);
+          }
+        }
       }
     }
-  }, [selectedIndex]);
+  }, [selectedIndex, personas, switchPersona]);
 
-  // ✅ Render persona item (Personas only, no SAGE)
+  // ✅ Current persona
+  const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
+
+  // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
     const isActive = index === selectedIndex && isModeActive;
     
@@ -141,6 +167,14 @@ const PersonaSwipeViewer = ({ personas, isModeActive = true, modeOpacity }) => {
         </View>
       )}
 
+      {/* ✅ PersonaChatView - OUTSIDE FlatList (like SAGE) */}
+      {currentPersona && (
+        <PersonaChatView 
+          persona={currentPersona} 
+          isPreview={!isModeActive}
+          modeOpacity={modeOpacity}
+        />
+      )}
     </View>
   );
 };
@@ -149,19 +183,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // ✅ Persona item container - Full screen size for FlatList item
   personaItemContainer: {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
   },
-
-  // ✅ Pagination indicator
   paginationContainer: {
     position: 'absolute',
     bottom: verticalScale(100),
@@ -171,7 +200,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   paginationDot: {
     width: scale(8),
     height: scale(8),
@@ -179,7 +207,6 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(4),
     opacity: 0.5,
   },
-
   paginationDotActive: {
     width: scale(12),
     height: scale(12),
@@ -189,4 +216,3 @@ const styles = StyleSheet.create({
 });
 
 export default PersonaSwipeViewer;
-

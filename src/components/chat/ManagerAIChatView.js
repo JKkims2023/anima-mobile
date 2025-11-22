@@ -33,6 +33,7 @@ import ChatHeightToggle from './ChatHeightToggle';
 import { verticalScale } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
+import { useQuickAction } from '../../contexts/QuickActionContext';
 import { 
   TAB_BAR, 
   CHAT_INPUT, 
@@ -81,6 +82,7 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
   const insets = useSafeAreaInsets(); // ✅ Get safe area insets
   const { mode, personas } = usePersona(); // ✅ Get mode and personas for dynamic greeting
+  const { isQuickMode } = useQuickAction(); // ✅ Get quick mode state
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
   
   // ✅ Listen to modeOpacity changes
@@ -137,8 +139,20 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
   
   // ✅ Calculate chat input bottom position (NEW: Pure keyboard height aware)
   const chatInputBottom = useMemo(() => {
-    return calculateChatInputBottom(isKeyboardVisible, keyboardHeight, insets.bottom);
+    const result = calculateChatInputBottom(isKeyboardVisible, keyboardHeight, insets.bottom);
+    if (__DEV__) {
+      console.log('[ManagerAIChatView] 📏 chatInputBottom:', result);
+    }
+    return result;
   }, [isKeyboardVisible, keyboardHeight, insets.bottom]);
+  
+  // ✅ Calculate chatOverlayBottom (for comparison with Persona)
+  const chatOverlayBottom = chatInputBottom + (CHAT_INPUT.MIN_HEIGHT * 2) + CHAT_INPUT.BOTTOM_PADDING;
+  
+  if (__DEV__) {
+    console.log('[ManagerAIChatView] 📏 chatOverlayBottom:', chatOverlayBottom);
+    console.log('[ManagerAIChatView] 📏 Calculation:', `${chatInputBottom} + (${CHAT_INPUT.MIN_HEIGHT} * 2) + ${CHAT_INPUT.BOTTOM_PADDING} = ${chatOverlayBottom}`);
+  }
 
   // ✅ Initialize with greeting message (with typing effect)
   const hasInitialized = useRef(false);
@@ -376,8 +390,8 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
         <VideoBackground videoUrl={videoUrl} modeOpacityValue={modeOpacityValue} />
       )}
 
-      {/* 2. Chat UI (Only when NOT preview) */}
-      {!isPreview && (
+      {/* 2. Chat UI (Only when NOT preview AND in Chat Mode - isQuickMode=true) */}
+      {!isPreview && isQuickMode && (
         <>
           {/* 2-1. Chat Overlay (Messages Only) */}
           {isChatVisible && (
@@ -388,7 +402,7 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity }) => {
                   top: chatTopPosition, // ✅ Memoized value
                   // ✅ Reserve space for InputBar
                   // chatInputBottom already accounts for position, add InputBar height + small padding
-                  bottom: chatInputBottom + (CHAT_INPUT.MIN_HEIGHT * 2) + CHAT_INPUT.BOTTOM_PADDING,
+                  bottom: chatOverlayBottom, // ✅ Use calculated value for comparison
              //     backgroundColor: currentTheme.chatOverlayBackground || 'rgba(0, 0, 0, 0.3)',
                 },
               ]}

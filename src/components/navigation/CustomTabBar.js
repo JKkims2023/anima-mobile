@@ -24,6 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
+import { useQuickAction } from '../../contexts/QuickActionContext';
 import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -37,9 +38,10 @@ import HapticService from '../../utils/HapticService';
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
+  const { isQuickMode, toggleQuickMode } = useQuickAction();
   const insets = useSafeAreaInsets();
   
-  // ✅ Tab configuration (Dynamic first tab based on mode)
+  // ✅ Tab configuration (Dynamic tabs based on mode and quick action)
   const tabs = [
     { 
       key: mode === 'sage' ? 'SAGE' : 'Persona',
@@ -50,7 +52,13 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     },
     { key: 'Explore', icon: 'compass', label: '탐색' },
     { key: 'AI', icon: null, label: '' }, // Center AI button
-    { key: 'Room', icon: 'chatbubbles', label: '방' },
+    { 
+      key: 'QuickAction',
+      icon: isQuickMode ? 'apps' : 'chatbubbles', // Toggle icon (반전: true=선택, false=채팅)
+      label: isQuickMode ? '선택' : '채팅',
+      isActive: !isQuickMode, // Active when in chat mode (반전)
+      onPress: toggleQuickMode, // Toggle quick action mode
+    },
     { key: 'Settings', icon: 'settings', label: '설정' },
   ];
   
@@ -107,13 +115,19 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             return <View key={tab.key} style={styles.centerPlaceholder} />;
           }
           
-          // ✅ First tab (Mode Toggle) has custom onPress
+          // ✅ Custom onPress for special tabs (Mode Toggle, Quick Action)
           const onPress = () => {
             // 🎯 Haptic feedback for tab navigation
-            HapticService.light();
+            HapticService.medium();
             
             // First tab: Mode toggle (SAGE ↔ Persona)
             if (index === 0 && tab.onPress) {
+              tab.onPress();
+              return;
+            }
+            
+            // Fourth tab: Quick Action toggle (Chat ↔ Quick)
+            if (index === 3 && tab.onPress) {
               tab.onPress();
               return;
             }
@@ -130,8 +144,8 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
           
-          // ✅ First tab uses tab.isActive instead of isFocused
-          const isActive = index === 0 ? tab.isActive : isFocused;
+          // ✅ Special tabs use tab.isActive instead of isFocused
+          const isActive = (index === 0 || index === 3) ? tab.isActive : isFocused;
           
           return (
             <TouchableOpacity

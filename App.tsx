@@ -24,6 +24,9 @@ import { UserProvider } from './src/contexts/UserContext';
 // Import Persona Provider
 import { PersonaProvider } from './src/contexts/PersonaContext';
 
+// Import QuickAction Provider
+import { QuickActionProvider } from './src/contexts/QuickActionContext';
+
 // Import Navigation
 import TabNavigator from './src/navigation/TabNavigator';
 
@@ -52,10 +55,12 @@ function App(): React.JSX.Element {
       <ThemeProvider>
         <UserProvider>
           <PersonaProvider>
-            <NavigationContainer>
-              <StatusBar barStyle="light-content" />
-              <TabNavigator />
-            </NavigationContainer>
+            <QuickActionProvider>
+              <NavigationContainer>
+                <StatusBar barStyle="light-content" />
+                <TabNavigator />
+              </NavigationContainer>
+            </QuickActionProvider>
           </PersonaProvider>
         </UserProvider>
       </ThemeProvider>

@@ -116,6 +116,8 @@ export const sendMemoryMessage = async ({ history_key, persona_key, question, us
  */
 export const sendPublicAIMessage = async ({ persona_key, question, session_id }) => {
   try {
+
+    console.log('sendPublicAIMessage', { persona_key, question, session_id });
     const response = await apiClient.post(CHAT_ENDPOINTS.PUBLIC_AI, {
       persona_key,
       question,

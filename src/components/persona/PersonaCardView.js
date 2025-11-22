@@ -32,6 +32,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
+// PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -42,7 +43,14 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {boolean} props.isActive - Whether this persona is currently active/selected
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
  */
-const PersonaCardView = ({ persona, isActive = false, modeOpacity }) => {
+const PersonaCardView = ({ 
+  persona, 
+  isActive = false, 
+  modeOpacity,
+  typingMessage = null, // ✅ Receive from PersonaSwipeViewer
+  isLoading = false, // ✅ Receive from PersonaSwipeViewer
+  chatInputBottom = 0, // ✅ Receive from PersonaSwipeViewer (SAME AS SAGE)
+}) => {
   const { currentTheme } = useTheme();
   const [isFlipped, setIsFlipped] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -153,7 +161,7 @@ const PersonaCardView = ({ persona, isActive = false, modeOpacity }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       {/* 1. Background Image (FastImage) - Always visible for smooth loading */}
       <FastImage
         source={{ 
@@ -163,11 +171,12 @@ const PersonaCardView = ({ persona, isActive = false, modeOpacity }) => {
         }}
         style={styles.backgroundMedia}
         resizeMode={FastImage.resizeMode.cover}
+        pointerEvents="none"
       />
 
       {/* 2. Video Layer (Only when active and has video) - Fades in over image */}
       {isActive && hasVideo && modeOpacityValue > 0 && (
-        <Animated.View style={[styles.videoContainer, { opacity: videoOpacity }]}>
+        <Animated.View style={[styles.videoContainer, { opacity: videoOpacity }]} pointerEvents="none">
           <Video
             key={`video-${persona.persona_key}`}
             source={{ uri: videoUrl }}
@@ -191,93 +200,7 @@ const PersonaCardView = ({ persona, isActive = false, modeOpacity }) => {
         </Animated.View>
       )}
 
-      {/* 2. Overlay Info Container (Flip-able) */}
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={handleFlip}
-        style={styles.overlayContainer}
-      >
-        {/* Front Side - Persona Info */}
-        <Animated.View
-          style={[
-            styles.infoCard,
-            {
-              transform: [{ rotateY: frontRotation }],
-              opacity: frontOpacity,
-            },
-          ]}
-        >
-          {/* Gradient Overlay for readability */}
-          <View style={styles.gradientOverlay} />
-          
-          {/* Info Content */}
-          <View style={styles.infoContent}>
-            <CustomText type="big" bold style={[styles.nameText, { color: '#FFFFFF' }]}>
-              {persona.persona_name}
-            </CustomText>
-            
-            {persona.persona_description && (
-              <CustomText type="normal" style={[styles.descriptionText, { color: '#E0E0E0' }]}>
-                {persona.persona_description}
-              </CustomText>
-            )}
-
-            {/* Stats */}
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <CustomText style={styles.statLabel}>친밀도</CustomText>
-                <CustomText style={styles.statValue}>{persona.intimacy || 0}</CustomText>
-              </View>
-              <View style={styles.statItem}>
-                <CustomText style={styles.statLabel}>행복도</CustomText>
-                <CustomText style={styles.statValue}>{persona.happiness || 0}</CustomText>
-              </View>
-              <View style={styles.statItem}>
-                <CustomText style={styles.statLabel}>추억</CustomText>
-                <CustomText style={styles.statValue}>{persona.memories || 0}</CustomText>
-              </View>
-            </View>
-
-            {/* Flip Hint */}
-            <CustomText style={styles.flipHint}>
-              탭하여 뒤집기 →
-            </CustomText>
-          </View>
-        </Animated.View>
-
-        {/* Back Side - Memories */}
-        <Animated.View
-          style={[
-            styles.infoCard,
-            styles.backCard,
-            {
-              transform: [{ rotateY: backRotation }],
-              opacity: backOpacity,
-            },
-          ]}
-        >
-          {/* Gradient Overlay for readability */}
-          <View style={styles.gradientOverlay} />
-          
-          {/* Back Content */}
-          <View style={styles.backContent}>
-            <CustomText type="big" bold style={[styles.backTitle, { color: '#FFFFFF' }]}>
-              추억 영역
-            </CustomText>
-            <CustomText type="normal" style={[styles.backSubtitle, { color: '#E0E0E0' }]}>
-              함께한 특별한 순간들
-            </CustomText>
-            <CustomText style={[styles.comingSoon, { color: '#B0B0B0' }]}>
-              Coming Soon...
-            </CustomText>
-
-            {/* Flip Back Hint */}
-            <CustomText style={styles.flipHint}>
-              ← 탭하여 뒤집기
-            </CustomText>
-          </View>
-        </Animated.View>
-      </TouchableOpacity>
+      {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
     </View>
   );
 };
@@ -289,7 +212,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    // ✅ Removed height: SCREEN_HEIGHT to match SAGE behavior
+    // This allows chatOverlay bottom positioning to work correctly
     backgroundColor: '#000000',
   },
 

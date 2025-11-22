@@ -5,9 +5,14 @@ import SafeScreen from '../components/SafeScreen';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
+import { useQuickAction } from '../contexts/QuickActionContext';
 import { ChatProvider } from '../contexts/ChatContext';
 import ManagerAIView from '../components/persona/ManagerAIView';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
+// import QuickActionChips from '../components/quickaction/QuickActionChips';
+// import QuickActionChipsSage from '../components/quickaction/QuickActionChipsSage';
+import QuickActionChips from '../components/quickaction/QuickActionChipsSimple';
+import QuickActionChipsSage from '../components/quickaction/QuickActionChipsSageSimple';
 import { moderateScale, verticalScale } from '../utils/responsive-utils';
 
 /**
@@ -23,6 +28,7 @@ import { moderateScale, verticalScale } from '../utils/responsive-utils';
 const HomeScreen = () => {
   const { currentTheme } = useTheme();
   const { mode, personas } = usePersona();
+  const { isQuickMode, getBadgeData } = useQuickAction();
   
   // ✅ Animation values for smooth mode transition
   const sageOpacity = useRef(new Animated.Value(mode === 'sage' ? 1 : 0)).current;
@@ -148,6 +154,23 @@ const HomeScreen = () => {
               modeOpacity={personaOpacity}
             />
           </Animated.View>
+          
+          {/* ✅ Quick Action Chips (Only when Quick Action Mode is active - isQuickMode=false) */}
+          {!isQuickMode && mode === 'persona' && (
+            <QuickActionChips
+              onSettingsClick={() => console.log('Settings clicked')}
+              onStudioClick={() => console.log('Studio clicked')}
+              onDiaryClick={() => console.log('Diary clicked')}
+              onGiftClick={() => console.log('Gift clicked')}
+            />
+          )}
+          
+          {!isQuickMode && mode === 'sage' && (
+            <QuickActionChipsSage
+              onSettingsClick={() => console.log('Settings clicked')}
+              onNotificationClick={() => console.log('Notification clicked')}
+            />
+          )}
         </View>
       </SafeScreen>
     </ChatProvider>
