@@ -36,7 +36,11 @@ const TabNavigator = () => {
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
+        // ✅ Keep screens mounted when switching tabs (prevents video pause)
+        unmountOnBlur: false,
       }}
+      // ✅ Prevent detaching inactive screens (for video playback control)
+      detachInactiveScreens={false}
     >
       {/* Tab 1: SAGE (Manager AI) */}
       <Tab.Screen 

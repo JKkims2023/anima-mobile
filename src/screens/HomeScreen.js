@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import SafeScreen from '../components/SafeScreen';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
@@ -26,6 +26,28 @@ const HomeScreenContent = ({ route }) => {
   // ✅ Persona selection state
   const [selectedPersona, setSelectedPersona] = useState(null); // null = SAGE mode
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [isScreenFocused, setIsScreenFocused] = useState(true); // ✅ Track screen focus
+  
+  // ✅ Handle screen focus/blur (for video playback control)
+  useFocusEffect(
+    useCallback(() => {
+      // Screen is focused
+      setIsScreenFocused(true);
+      
+      if (__DEV__) {
+        console.log('🎯 [HomeScreen] Screen FOCUSED');
+      }
+      
+      return () => {
+        // Screen is blurred (navigated away)
+        setIsScreenFocused(false);
+        
+        if (__DEV__) {
+          console.log('🎯 [HomeScreen] Screen BLURRED');
+        }
+      };
+    }, [])
+  );
   
   // ✅ Handle navigation params (from Persona tab)
   useEffect(() => {
@@ -110,6 +132,7 @@ const HomeScreenContent = ({ route }) => {
     persona_name: 'SAGE',
     persona_key: 'SAGE',
     selected_dress_video_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/46fb3532-e41a-4b96-8105-a39e64f39407_00001_.mp4',
+    selected_dress_video_convert_done: 'Y', // ✅ Mark as video ready
   };
   
   return (
@@ -127,6 +150,7 @@ const HomeScreenContent = ({ route }) => {
         <ManagerAIView 
           persona={selectedPersona || DEFAULT_SAGE_PERSONA}
           isActive={true}
+          isScreenFocused={isScreenFocused}
           modeOpacity={null}
           chatOpacity={chatOpacity}
         />

@@ -20,7 +20,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
-import { View, Animated, Dimensions, StyleSheet, Platform } from 'react-native';
+import { View, Animated, Dimensions, StyleSheet, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 import { useTranslation } from 'react-i18next';
@@ -45,28 +45,65 @@ import {
 } from '../../constants/layout';
 
 /**
- * ✅ Memoized Video Background Component
+ * ✅ Memoized Video/Image Background Component
  * Prevents re-render during typing effect
  * - Dynamic key based on videoUrl to force re-render on URL change
- * - Pauses when mode is hidden (modeOpacityValue === 0)
+ * - Pauses when in preview mode (isPreview = true)
  * - Fade animation on videoUrl change
+ * - Falls back to Image if video is not available
  */
-const VideoBackground = memo(({ videoUrl, modeOpacityValue = 1 }) => {
+const VideoBackground = memo(({ videoUrl, imageUrl, hasVideo, isPreview = false, isScreenFocused = true }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const [currentVideoUrl, setCurrentVideoUrl] = useState(videoUrl);
+  const [currentImageUrl, setCurrentImageUrl] = useState(imageUrl);
+  const [currentHasVideo, setCurrentHasVideo] = useState(hasVideo);
+  const videoRef = useRef(null); // ✅ Video ref for manual control
   
-  // ✅ Fade animation on videoUrl change
+  // ✅ DEBUG: Log component mount/unmount
   useEffect(() => {
-    if (currentVideoUrl === videoUrl) return;
-    
     if (__DEV__) {
-      console.log('[VideoBackground] URL changed, starting fade animation:', {
-        from: currentVideoUrl.substring(0, 30) + '...',
-        to: videoUrl.substring(0, 30) + '...',
+      console.log('🎥 [VideoBackground] MOUNTED:', {
+        videoUrl: videoUrl?.substring(0, 50) + '...',
+        imageUrl: imageUrl?.substring(0, 50) + '...',
+        hasVideo,
+        isPreview,
+        isScreenFocused,
       });
     }
     
-    // Fade Out → Change URL → Fade In
+    return () => {
+      if (__DEV__) {
+        console.log('🎥 [VideoBackground] UNMOUNTED');
+      }
+    };
+  }, []);
+  
+  // ✅ Handle screen focus changes (resume/pause video)
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('🎥 [VideoBackground] Screen focus changed:', {
+        isScreenFocused,
+        hasVideo: currentHasVideo,
+      });
+    }
+    
+    // Note: We control playback via 'paused' prop, not ref
+    // This is just for logging
+  }, [isScreenFocused, currentHasVideo]);
+  
+  // ✅ Fade animation on videoUrl or imageUrl change
+  useEffect(() => {
+    if (currentVideoUrl === videoUrl && currentImageUrl === imageUrl && currentHasVideo === hasVideo) return;
+    
+    if (__DEV__) {
+      console.log('[VideoBackground] Media changed, starting fade animation:', {
+        hasVideo,
+        videoUrl: videoUrl?.substring(0, 30) + '...',
+        imageUrl: imageUrl?.substring(0, 30) + '...',
+      });
+    }
+    
+    // Fade Out → Change Media → Fade In
     Animated.sequence([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -80,57 +117,101 @@ const VideoBackground = memo(({ videoUrl, modeOpacityValue = 1 }) => {
       }),
     ]).start();
     
-    // Change URL after fade out
+    // Change media after fade out
     setTimeout(() => {
       setCurrentVideoUrl(videoUrl);
+      setCurrentImageUrl(imageUrl);
+      setCurrentHasVideo(hasVideo);
     }, 300);
-  }, [videoUrl, currentVideoUrl, fadeAnim]);
+  }, [videoUrl, imageUrl, hasVideo, currentVideoUrl, currentImageUrl, currentHasVideo, fadeAnim]);
+  
+  // ✅ Calculate paused state: pause only when screen is not focused
+  const shouldPause = !isScreenFocused;
   
   if (__DEV__) {
-    console.log('[VideoBackground] Rendering with:', {
-      videoUrl: currentVideoUrl.substring(0, 50) + '...',
-      modeOpacityValue,
-      paused: modeOpacityValue === 0,
+    console.log('🎥 [VideoBackground] Rendering with:', {
+      hasVideo: currentHasVideo,
+      videoUrl: currentVideoUrl?.substring(0, 50) + '...',
+      imageUrl: currentImageUrl?.substring(0, 50) + '...',
+      isPreview,
+      isScreenFocused,
+      paused: shouldPause,
+      key: `manager-video-${currentVideoUrl}`,
     });
   }
   
   return (
     <Animated.View style={[styles.videoBackground, { opacity: fadeAnim }]}>
-      <Video
-        key={`manager-video-${currentVideoUrl}`}
-        source={{ uri: currentVideoUrl }}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-        repeat
-        muted
-        paused={modeOpacityValue === 0}
-        playInBackground={false}
-        playWhenInactive={false}
-        ignoreSilentSwitch="ignore"
-        onLoad={() => {
-          if (__DEV__) {
-            console.log('[VideoBackground] Video Loaded:', currentVideoUrl.substring(0, 50) + '...');
-          }
-        }}
-        onError={(error) => {
-          if (__DEV__) {
-            console.error('[VideoBackground] Error:', error);
-          }
-        }}
-      />
+      {currentHasVideo ? (
+        // ✅ Video Background (when video is available)
+        <Video
+          ref={videoRef}
+          key={`manager-video-${currentVideoUrl}`}
+          source={{ uri: currentVideoUrl }}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          repeat
+          muted
+          paused={shouldPause}
+          playInBackground={true}
+          playWhenInactive={true}
+          ignoreSilentSwitch="ignore"
+          onLoad={() => {
+            if (__DEV__) {
+              console.log('✅ [VideoBackground] Video Loaded:', currentVideoUrl?.substring(0, 50) + '...');
+            }
+          }}
+          onLoadStart={() => {
+            if (__DEV__) {
+              console.log('⏳ [VideoBackground] Video Load Start:', currentVideoUrl?.substring(0, 50) + '...');
+            }
+          }}
+          onReadyForDisplay={() => {
+            if (__DEV__) {
+              console.log('🎬 [VideoBackground] Video Ready for Display:', currentVideoUrl?.substring(0, 50) + '...');
+            }
+          }}
+          onError={(error) => {
+            if (__DEV__) {
+              console.error('❌ [VideoBackground] Video Error:', error);
+            }
+          }}
+        />
+      ) : (
+        // ✅ Image Background (fallback when video is not available)
+        <Image
+          key={`manager-image-${currentImageUrl}`}
+          source={{ uri: currentImageUrl }}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          onLoad={() => {
+            if (__DEV__) {
+              console.log('[VideoBackground] Image Loaded:', currentImageUrl?.substring(0, 50) + '...');
+            }
+          }}
+          onError={(error) => {
+            if (__DEV__) {
+              console.error('[VideoBackground] Image Error:', error);
+            }
+          }}
+        />
+      )}
     </Animated.View>
   );
 }, (prevProps, nextProps) => {
-  // Only re-render if videoUrl or modeOpacityValue changes
+  // Only re-render if videoUrl, imageUrl, hasVideo, isPreview, or isScreenFocused changes
   return (
     prevProps.videoUrl === nextProps.videoUrl &&
-    prevProps.modeOpacityValue === nextProps.modeOpacityValue
+    prevProps.imageUrl === nextProps.imageUrl &&
+    prevProps.hasVideo === nextProps.hasVideo &&
+    prevProps.isPreview === nextProps.isPreview &&
+    prevProps.isScreenFocused === nextProps.isScreenFocused
   );
 });
 
 VideoBackground.displayName = 'VideoBackground';
 
-const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpacity }) => {
+const ManagerAIChatView = ({ videoUrl, imageUrl, hasVideo, isPreview = false, isScreenFocused = true, modeOpacity, chatOpacity }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
@@ -140,6 +221,24 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
   const { setSageState } = useChat(); // ✅ Get AI state setter
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
   const [chatOpacityValue, setChatOpacityValue] = useState(1);
+  
+  // ✅ DEBUG: Log component mount/unmount
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('🎬 [ManagerAIChatView] MOUNTED:', {
+        videoUrl: videoUrl?.substring(0, 50) + '...',
+        imageUrl: imageUrl?.substring(0, 50) + '...',
+        hasVideo,
+        isPreview,
+      });
+    }
+    
+    return () => {
+      if (__DEV__) {
+        console.log('🎬 [ManagerAIChatView] UNMOUNTED');
+      }
+    };
+  }, []);
   
   // ✅ Listen to modeOpacity changes
   useEffect(() => {
@@ -503,10 +602,14 @@ const ManagerAIChatView = ({ videoUrl, isPreview = false, modeOpacity, chatOpaci
   // ✅ Conditional rendering: Preview mode vs Full mode
   return (
     <View style={styles.container}>
-      {/* 1. Video Background (Always shown) */}
-      {modeOpacityValue > 0 && (
-        <VideoBackground videoUrl={videoUrl} modeOpacityValue={modeOpacityValue} />
-      )}
+      {/* 1. Video/Image Background (Always shown) */}
+      <VideoBackground 
+        videoUrl={videoUrl} 
+        imageUrl={imageUrl}
+        hasVideo={hasVideo}
+        isPreview={isPreview}
+        isScreenFocused={isScreenFocused}
+      />
 
       {/* 2. Chat UI (Only when NOT preview AND in Chat Mode - isQuickMode=true) */}
       {!isPreview && isQuickMode && (

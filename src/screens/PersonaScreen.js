@@ -13,9 +13,9 @@
  * @date 2024-11-22
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import SafeScreen from '../components/SafeScreen';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
@@ -28,6 +28,38 @@ const PersonaScreen = () => {
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
   const { personas } = usePersona();
+  const [isScreenFocused, setIsScreenFocused] = useState(true); // ✅ Track screen focus
+  const savedIndexRef = useRef(0); // ✅ Remember last selected index
+  
+  // ✅ Handle screen focus/blur (for video playback control)
+  useFocusEffect(
+    useCallback(() => {
+      // Screen is focused
+      setIsScreenFocused(true);
+      
+      if (__DEV__) {
+        console.log('🎯 [PersonaScreen] Screen FOCUSED, restoring index:', savedIndexRef.current);
+      }
+      
+      return () => {
+        // Screen is blurred (navigated away)
+        setIsScreenFocused(false);
+        
+        if (__DEV__) {
+          console.log('🎯 [PersonaScreen] Screen BLURRED, saved index:', savedIndexRef.current);
+        }
+      };
+    }, [])
+  );
+  
+  // ✅ Handle index change from PersonaSwipeViewer
+  const handleIndexChange = useCallback((newIndex) => {
+    savedIndexRef.current = newIndex;
+    
+    if (__DEV__) {
+      console.log('🎯 [PersonaScreen] Index changed:', newIndex);
+    }
+  }, []);
   
   const handleSettingsPress = () => {
     console.log('Settings pressed');
@@ -63,8 +95,12 @@ const PersonaScreen = () => {
       <View style={styles.container}>
         {/* ✅ 자아 Swipe Viewer (Info cards only - NO CHAT) */}
         <PersonaSwipeViewer 
+          key={`persona-swipe-${isScreenFocused}`}
           personas={personasOnly} 
           isModeActive={true}
+          isScreenFocused={isScreenFocused}
+          initialIndex={savedIndexRef.current}
+          onIndexChange={handleIndexChange}
           modeOpacity={null}
           onChatWithPersona={handleChatWithPersona}
         />

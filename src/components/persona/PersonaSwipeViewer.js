@@ -38,19 +38,45 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Object} props
  * @param {Array} props.personas - 자아 목록 (SAGE 제외)
  * @param {boolean} props.isModeActive - Whether persona mode is active
+ * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
+ * @param {number} props.initialIndex - Initial selected index (for restoration)
+ * @param {Function} props.onIndexChange - Callback when index changes
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
  * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
  */
 const PersonaSwipeViewer = ({ 
   personas, 
   isModeActive = true, 
+  isScreenFocused = true,
+  initialIndex = 0,
+  onIndexChange = () => {},
   modeOpacity, 
   onChatWithPersona,
 }) => {
   const { currentTheme } = useTheme();
   
   const flatListRef = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const isInitialMount = useRef(true);
+
+  // ✅ Restore saved index on mount (after remount from screen focus)
+  useEffect(() => {
+    if (isInitialMount.current && initialIndex > 0 && flatListRef.current) {
+      // Delay to ensure FlatList is fully rendered
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: initialIndex,
+          animated: false, // No animation for restoration
+        });
+        
+        if (__DEV__) {
+          console.log('[PersonaSwipeViewer] 🔄 Restored index:', initialIndex);
+        }
+      }, 100);
+      
+      isInitialMount.current = false;
+    }
+  }, [initialIndex]);
 
   // ✅ Handle swipe (change persona) - VERTICAL
   const handleMomentumScrollEnd = useCallback((event) => {
@@ -60,12 +86,13 @@ const PersonaSwipeViewer = ({
     if (index !== selectedIndex) {
       HapticService.selection();
       setSelectedIndex(index);
+      onIndexChange(index); // ✅ Notify parent
 
       if (__DEV__ && personas && personas[index]) {
         console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
       }
     }
-  }, [selectedIndex, personas]);
+  }, [selectedIndex, personas, onIndexChange]);
 
   // ✅ Current persona
   const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
@@ -79,11 +106,12 @@ const PersonaSwipeViewer = ({
         <PersonaCardView 
           persona={item} 
           isActive={isActive}
+          isScreenFocused={isScreenFocused}
           modeOpacity={modeOpacity}
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, modeOpacity]);
+  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity]);
 
   // ✅ Key extractor (optimized)
   const keyExtractor = useCallback((item) => item.persona_key, []);
@@ -117,6 +145,18 @@ const PersonaSwipeViewer = ({
         pagingEnabled
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
+        onScrollToIndexFailed={(info) => {
+          // Handle scrollToIndex failure (item not rendered yet)
+          if (__DEV__) {
+            console.warn('[PersonaSwipeViewer] ⚠️ scrollToIndex failed:', info);
+          }
+          
+          // Fallback: scroll to offset
+          flatListRef.current?.scrollToOffset({
+            offset: info.index * SCREEN_HEIGHT,
+            animated: false,
+          });
+        }}
         decelerationRate="fast"
         snapToAlignment="start"
         snapToInterval={SCREEN_HEIGHT}

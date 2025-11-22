@@ -41,11 +41,13 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Object} props
  * @param {Object} props.persona - Persona data
  * @param {boolean} props.isActive - Whether this persona is currently active/selected
+ * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
  */
 const PersonaCardView = ({ 
   persona, 
   isActive = false, 
+  isScreenFocused = true,
   modeOpacity,
   typingMessage = null, // ✅ Receive from PersonaSwipeViewer
   isLoading = false, // ✅ Receive from PersonaSwipeViewer
@@ -57,6 +59,7 @@ const PersonaCardView = ({
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
   const flipAnim = useRef(new Animated.Value(0)).current;
   const videoOpacity = useRef(new Animated.Value(0)).current;
+  const containerOpacity = useRef(new Animated.Value(0)).current;
   
   // ✅ Listen to modeOpacity changes to pause video when mode is switching
   useEffect(() => {
@@ -91,13 +94,21 @@ const PersonaCardView = ({
     persona?.original_url,
   ]);
 
-  // ✅ Reset video state when becoming inactive
+  // ✅ Control container opacity based on isActive and isScreenFocused
   useEffect(() => {
-    if (!isActive) {
-      setVideoLoaded(false);
-      videoOpacity.setValue(0);
+    const shouldShow = isActive && isScreenFocused && modeOpacityValue > 0;
+    containerOpacity.setValue(shouldShow ? 1 : 0);
+    
+    if (__DEV__) {
+      console.log('[PersonaCardView] 🎨 Container Opacity:', persona.persona_name, {
+        shouldShow,
+        isActive,
+        isScreenFocused,
+        modeOpacityValue,
+        containerOpacity: shouldShow ? 1 : 0,
+      });
     }
-  }, [isActive, videoOpacity]);
+  }, [isActive, isScreenFocused, modeOpacityValue, containerOpacity, persona.persona_name]);
 
   // ✅ Handle video load
   const handleVideoLoad = () => {
@@ -105,13 +116,25 @@ const PersonaCardView = ({
       console.log('[PersonaCardView] 🎬 Video Loaded:', persona.persona_name);
     }
     setVideoLoaded(true);
-    // Fade in video
-    Animated.timing(videoOpacity, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    // Fade in video (instant for now to debug)
+    videoOpacity.setValue(1);
+    
+    if (__DEV__) {
+      console.log('[PersonaCardView] 🎥 Video Opacity Set to 1:', persona.persona_name);
+    }
   };
+
+  // ✅ Log screen focus changes (for debugging video playback)
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[PersonaCardView] 🎥 Screen focus changed:', persona.persona_name, {
+        isScreenFocused,
+        isActive,
+        hasVideo,
+        paused: !isScreenFocused || !isActive,
+      });
+    }
+  }, [isScreenFocused, isActive, persona.persona_name, hasVideo]);
 
   // ✅ Only log when actually rendering (isActive = true)
   if (__DEV__ && isActive) {
@@ -119,6 +142,12 @@ const PersonaCardView = ({
       hasVideo,
       videoUrl: videoUrl ? '✅ Yes' : '❌ No',
       convert_done: persona?.selected_dress_video_convert_done,
+      isScreenFocused,
+      paused: !isScreenFocused || !isActive,
+      modeOpacityValue,
+      videoOpacity: videoOpacity._value,
+      videoLoaded,
+      willRenderVideo: isActive && hasVideo && modeOpacityValue > 0,
     });
   }
 
@@ -174,9 +203,17 @@ const PersonaCardView = ({
         pointerEvents="none"
       />
 
-      {/* 2. Video Layer (Only when active and has video) - Fades in over image */}
-      {isActive && hasVideo && modeOpacityValue > 0 && (
-        <Animated.View style={[styles.videoContainer, { opacity: videoOpacity }]} pointerEvents="none">
+      {/* 2. Video Layer (Always render if hasVideo, control with opacity and paused) */}
+      {hasVideo && (
+        <Animated.View 
+          style={[
+            styles.videoContainer, 
+            { 
+              opacity: Animated.multiply(containerOpacity, videoOpacity)
+            }
+          ]} 
+          pointerEvents="none"
+        >
           <Video
             key={`video-${persona.persona_key}`}
             source={{ uri: videoUrl }}
@@ -186,9 +223,9 @@ const PersonaCardView = ({
             resizeMode="cover"
             repeat
             muted
-            paused={modeOpacityValue === 0 || !isActive}
-            playInBackground={false}
-            playWhenInactive={false}
+            paused={!isScreenFocused || !isActive}
+            playInBackground={true}
+            playWhenInactive={true}
             ignoreSilentSwitch="ignore"
             onLoad={handleVideoLoad}
             onError={(error) => {
