@@ -23,10 +23,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, moderateScale } from '../../utils/responsive-utils';
+import { useTranslation } from 'react-i18next';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const SocialLoginButton = ({ provider, onPress, disabled = false }) => {
+  const { t } = useTranslation();
   const scaleValue = useSharedValue(1);
   const glowOpacity = useSharedValue(0);
 
@@ -34,14 +36,14 @@ const SocialLoginButton = ({ provider, onPress, disabled = false }) => {
   const config = {
     google: {
       icon: 'google',
-      text: 'Continue with Google',
+      text: t('auth.continue_with_google'),
       backgroundColor: '#FFFFFF',
       textColor: '#1F2937',
       iconColor: '#DB4437',
     },
     apple: {
       icon: 'apple',
-      text: 'Continue with Apple',
+      text: t('auth.continue_with_apple'),
       backgroundColor: '#000000',
       textColor: '#FFFFFF',
       iconColor: '#FFFFFF',

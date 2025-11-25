@@ -91,21 +91,22 @@ export const UserProvider = ({ children }) => {
   const login = useCallback(async (userId, password) => {
     try {
       const response = await authService.login(userId, password);
-      
-      if (response.success && response.data && response.data.user) {
-        setUser(response.data.user);
+
+      console.log('🔐 [UserContext] login response:', response);
+
+      if (response.success && response.user) {
+        setUser(response.user);
         setIsAuthenticated(true);
         
-        if (__DEV__) {
-          console.log('[UserContext] Login successful:', response.data.user.user_id);
-        }
+        console.log('✅ [UserContext] Login successful:', response.user.user_id);
+        console.log('🔑 [UserContext] Token saved to AsyncStorage');
         
         return response;
       } else {
         throw new Error(response.message || 'Login failed');
       }
     } catch (error) {
-      console.error('[UserContext] Login error:', error);
+      console.error('❌ [UserContext] Login error:', error);
       throw error;
     }
   }, []);

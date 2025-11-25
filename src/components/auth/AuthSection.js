@@ -137,12 +137,40 @@ const AuthSection = () => {
   const handleEmailLogin = async ({ email, password }) => {
     setIsLoading(true);
     try {
-      await login(email, password);
-      HapticService.success();
-      Alert.alert('Success', 'Login successful!');
+      const response = await login(email, password);
+      
+      if (response.success) {
+        HapticService.success();
+        Alert.alert(
+          t('auth.login.title'),
+          t('auth.login.success'),
+          [
+            {
+              text: t('common.confirm'),
+              onPress: () => {
+                // Flip back to initial view (will show profile)
+                handleFlipBack();
+              },
+            },
+          ]
+        );
+      } else {
+        HapticService.error();
+        const errorMessage = t(`errors.${response.errorCode || 'AUTH_LOGIN_004'}`);
+        Alert.alert(
+          t('error.title'),
+          errorMessage,
+          [{ text: t('common.confirm') }]
+        );
+      }
     } catch (error) {
+      console.error('[Email Login] Error:', error);
       HapticService.error();
-      Alert.alert('Login Failed', error.message || 'Please try again');
+      Alert.alert(
+        t('error.title'),
+        t('errors.NETWORK_001'),
+        [{ text: t('common.confirm') }]
+      );
     } finally {
       setIsLoading(false);
     }

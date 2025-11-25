@@ -24,6 +24,7 @@ import NeonInput from './NeonInput';
 import CustomButton from '../CustomButton';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+
 const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -35,11 +36,11 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
   const validateEmail = (text) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!text) {
-      setEmailError('Email is required');
+      setEmailError(t('auth.register.validation.email_required'));
       return false;
     }
     if (!emailRegex.test(text)) {
-      setEmailError('Invalid email format');
+      setEmailError(t('auth.register.validation.email_invalid'));
       return false;
     }
     setEmailError(null);
@@ -49,11 +50,11 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
   // ✅ Password validation
   const validatePassword = (text) => {
     if (!text) {
-      setPasswordError('Password is required');
+      setPasswordError(t('auth.register.validation.password_required'));
       return false;
     }
     if (text.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+      setPasswordError(t('auth.register.validation.password_length'));
       return false;
     }
     setPasswordError(null);

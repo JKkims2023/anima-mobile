@@ -29,8 +29,12 @@ import AuthCard from './AuthCard';
 import SocialLoginButton from './SocialLoginButton';
 import NeonInput from './NeonInput';
 import CustomButton from '../CustomButton';
+import { login } from '../../services/api/authService';
+import { useTranslation } from 'react-i18next';
 
 const LoginView = ({ onLoginSuccess, onSwitchToSignUp }) => {
+
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState(null);
@@ -100,11 +104,21 @@ const LoginView = ({ onLoginSuccess, onSwitchToSignUp }) => {
       // TODO: Call API endpoint
       // const response = await fetch('/api/auth/login', { ... });
       
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      console.log('✅ [LoginView] Email login success');
-      onLoginSuccess?.();
+      console.log('🔐 [LoginView] email:', email);
+      console.log('🔐 [LoginView] password:', password);
+
+      const result = await login(email, password);
+      console.log('🔐 [LoginView] result:', result);
+      console.log('🔐 [LoginView] result.success:', result.success);
+      console.log('🔐 [LoginView] result.errorCode:', result.errorCode);
+
+      if (result.success) {
+        console.log('✅ [LoginView] Email login success');
+        onLoginSuccess?.();
+      } else {
+        console.log('❌ [LoginView] Email login error:', result.errorCode);
+        setPasswordError('Login failed. Please check your credentials.');
+      }
     } catch (error) {
       console.error('❌ [LoginView] Email login error:', error);
       setPasswordError('Login failed. Please check your credentials.');
@@ -155,9 +169,9 @@ const LoginView = ({ onLoginSuccess, onSwitchToSignUp }) => {
         </Animated.View>
 
         {/* ✅ Welcome message */}
-        <Text style={styles.welcomeText}>Welcome Back</Text>
+        <Text style={styles.welcomeText}>{t('auth.welcome_back')}</Text>
         <Text style={styles.subtitleText}>
-          Your AI personas are waiting for you
+          {t('auth.welcome_message')}
         </Text>
 
         {/* ✅ Social login buttons */}
@@ -317,6 +331,8 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginBottom: scale(16),
+    fontSize: moderateScale(18),
+
   },
   signUpContainer: {
     flexDirection: 'row',

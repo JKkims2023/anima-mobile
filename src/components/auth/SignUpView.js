@@ -152,8 +152,13 @@ const SignUpView = ({ onSignUp, onBack, isLoading = false }) => {
     try {
       const result = await sendVerificationEmail(email, t('common.locale'));
 
+      let errorMessage = '';
+
       console.log('🔐 [SignUpView] result:', result);
+
       if (result.success) {
+
+        console.log('what the...??')
         setCodeSent(true);
         setTimer(600); // Start 10-minute timer
         Alert.alert(
@@ -162,16 +167,34 @@ const SignUpView = ({ onSignUp, onBack, isLoading = false }) => {
           [{ text: t('common.confirm') }]
         );
 
-        // Show code in development mode
-        if (result.code) {
-          Alert.alert(
-            '🔑 개발 모드',
-            `인증 코드: ${result.code}`,
-            [{ text: t('common.confirm') }]
-          );
-        }
+
       } else {
-        const errorMessage = t(`errors.${result.errorCode}`);
+
+        console.log('🔐 [SignUpView] result:', result);
+        console.log('🔐 [SignUpView] result.errorCode:', result.errorCode);
+        switch (result.errorCode) {
+          case 'EMAIL_VERIFY_001':
+            errorMessage = t('errors.EMAIL_VERIFY_001');
+            break;
+          case 'EMAIL_VERIFY_002':
+            errorMessage = t('errors.EMAIL_VERIFY_002');
+            break;
+          case 'EMAIL_VERIFY_003':
+            errorMessage = t('errors.EMAIL_VERIFY_003');
+            break;
+          case 'EMAIL_VERIFY_004':
+            errorMessage = t('errors.EMAIL_VERIFY_004');
+            break;
+          case 'EMAIL_VERIFY_005':
+            errorMessage = t('errors.EMAIL_VERIFY_005');
+            break;
+          default:
+            errorMessage = t('errors.UNKNOWN');
+            break;
+        }
+
+        console.log('🔐 [SignUpView] errorMessage:', errorMessage);
+
         Alert.alert(
           t('error.title'),
           errorMessage,
@@ -201,6 +224,9 @@ const SignUpView = ({ onSignUp, onBack, isLoading = false }) => {
     try {
       const result = await verifyEmailCode(email, verificationCode);
 
+      console.log('🔐 [SignUpView] result:', result);
+      console.log('🔐 [SignUpView] result.success:', result.success);
+      console.log('🔐 [SignUpView] result.errorCode:', result.errorCode);
       if (result.success) {
         setIsVerified(true);
         Alert.alert(

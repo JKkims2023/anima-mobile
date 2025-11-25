@@ -93,7 +93,8 @@ const InitialAuthView = ({
           title={t('auth.email_login')}
           onPress={onEmailLogin}
           variant="outline"
-          style={styles.emailButton}
+
+          style={[styles.emailButton, { fontSize: moderateScale(22) }]}
         />
 
         {/* ✅ Sign up link */}
@@ -175,6 +176,8 @@ const styles = StyleSheet.create({
   },
   emailButton: {
     marginBottom: scale(16),
+    fontSize: moderateScale(22),
+
   },
   signUpContainer: {
     flexDirection: 'row',

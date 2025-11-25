@@ -92,8 +92,8 @@ const CustomButton = (props) => {
             {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
             <CustomText 
               type={textType}
-              bold 
-              style={[textTypeStyle, disabledTextStyle, textStyle]}
+//              bold 
+              style={[textTypeStyle, disabledTextStyle, textStyle, { fontSize: moderateScale(18) }]}
             >
               {title}
             </CustomText>
