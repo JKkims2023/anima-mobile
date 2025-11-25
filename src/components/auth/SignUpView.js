@@ -152,6 +152,7 @@ const SignUpView = ({ onSignUp, onBack, isLoading = false }) => {
     try {
       const result = await sendVerificationEmail(email, t('common.locale'));
 
+      console.log('🔐 [SignUpView] result:', result);
       if (result.success) {
         setCodeSent(true);
         setTimer(600); // Start 10-minute timer

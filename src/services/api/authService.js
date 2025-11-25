@@ -30,11 +30,10 @@ async function apiFetch(endpoint, options = {}) {
     });
 
     const data = await response.json();
-    
+    console.log('🔐 [authService] data:', data);
     return {
-      success: response.ok,
-      data,
-      status: response.status,
+      success: data.success,
+      status: data.errorCode,
     };
   } catch (error) {
     console.error('[API Fetch Error]', error);
