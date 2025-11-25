@@ -219,6 +219,9 @@ const styles = StyleSheet.create({
     // No background, no border, no shadow
     // Only the icon circle will have visual presence
     backgroundColor: 'transparent',
+    
+    // ✅ elevation 제거 (BottomSheet가 위로 올라가도록)
+    // zIndex와 elevation 없음
   },
   
   pressed: {

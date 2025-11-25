@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     top: -TAB_BAR.CENTER_BUTTON_ELEVATION, // Elevate above tab bar
     left: '50%',
     marginLeft: -(TAB_BAR.CENTER_BUTTON_SIZE / 2), // Center horizontally
-    zIndex: 10,
+    // ✅ zIndex, elevation 제거 (BottomSheet가 위로 올라가도록)
   },
   
   centerPlaceholder: {

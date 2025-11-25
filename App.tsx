@@ -11,6 +11,8 @@ import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 // Import i18n
 import './src/i18n/i18n.config';
@@ -51,20 +53,24 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <UserProvider>
-          <PersonaProvider>
-            <QuickActionProvider>
-              <NavigationContainer>
-                <StatusBar barStyle="light-content" />
-                <TabNavigator />
-              </NavigationContainer>
-            </QuickActionProvider>
-          </PersonaProvider>
-        </UserProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <PersonaProvider>
+              <QuickActionProvider>
+                <BottomSheetModalProvider>
+                  <NavigationContainer>
+                    <StatusBar barStyle="light-content" />
+                    <TabNavigator />
+                  </NavigationContainer>
+                </BottomSheetModalProvider>
+              </QuickActionProvider>
+            </PersonaProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
