@@ -72,7 +72,14 @@ const textStyles = {
   },
 };
 
-module.exports = StyleSheet.create({
+// ✅ COLORS constant for auth components
+const COLORS = {
+  DEEP_BLUE: '#3B82F6', // Blue 500 - ANIMA brand color
+  DEEP_BLUE_LIGHT: '#60A5FA', // Blue 400
+  DEEP_BLUE_DARK: '#1E40AF', // Blue 700
+};
+
+const styles = StyleSheet.create({
   overall: {
     flex: 1,
     backgroundColor: '#0F172A', // Dark theme primary background (Slate 900)
@@ -330,5 +337,9 @@ module.exports = StyleSheet.create({
     textAlignVertical: 'center',
   },
 });
+
+// ✅ Export both styles and COLORS
+module.exports = styles;
+module.exports.COLORS = COLORS;
 
 

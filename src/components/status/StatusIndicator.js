@@ -82,18 +82,18 @@ const StatusIndicator = ({ name = 'Manager AI - SAGE', state = 'greeting' }) => 
   const getStateText = () => {
     switch (state) {
       case 'thinking':
-        return '생각 중...';
+        return 'Thinking...';
       case 'talking':
-        return '대화 중...';
+        return 'Talking...';
       case 'error':
-        return '오류';
+        return 'Error';
       default:
         return '';
     }
   };
   
   return (
-    <View style={[styles.container, { top: insets.top + verticalScale(20) }]}>
+    <View style={[styles.container, { top: verticalScale(20) }]}>
       {/* Animated Status Dot */}
       <Animated.View
         style={[
@@ -108,7 +108,7 @@ const StatusIndicator = ({ name = 'Manager AI - SAGE', state = 'greeting' }) => 
       />
       
       {/* AI Name */}
-      <Text style={styles.name}>{name}</Text>
+      <Text style={[styles.name, { display: state === 'thinking' || state === 'talking' ? 'none' : 'flex' }]}>{name}</Text>
       
       {/* State Text (optional) */}
       {getStateText() && (

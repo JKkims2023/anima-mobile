@@ -56,7 +56,7 @@ const TabNavigator = () => {
         name="Persona" 
         component={PersonaScreen}
         options={{ 
-          title: '페르소나',
+          title: t('navigation.persona') || '자아',
         }}
       />
       
@@ -75,7 +75,7 @@ const TabNavigator = () => {
         name="Room" 
         component={PeekScreen}
         options={{ 
-          title: t('navigation.peek') || '방',
+          title: t('navigation.training') || '선택모드',
         }}
       />
       

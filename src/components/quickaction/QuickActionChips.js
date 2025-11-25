@@ -67,6 +67,7 @@ const QuickActionChips = ({
       onClick: onStudioClick,
       badge: badgeData.studioCount > 0 ? { type: 'COUNT', count: badgeData.studioCount } : null,
     },
+    /*
     {
       id: 'diary',
       icon: 'book-open-variant',
@@ -81,6 +82,7 @@ const QuickActionChips = ({
       onClick: onGiftClick,
       badge: badgeData.giftHasNew ? { type: 'NEW' } : null,
     },
+    */
   ];
   
   // ✅ Animation values (fixed count: 4 chips)

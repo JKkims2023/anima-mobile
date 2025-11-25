@@ -25,18 +25,24 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
+import { useTranslation } from 'react-i18next';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const QuickActionChipsSageAnimated = ({
   onSettingsClick,
   onNotificationClick,
+  onHistoryClick,
+  onDiaryClick,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   
   const actions = [
-    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'notification', icon: 'bell', label: '알림', onClick: onNotificationClick },
+    { id: 'settings', icon: 'cog', label: t('common.settings'), onClick: onSettingsClick },
+    { id: 'notification', icon: 'bell', label: t('common.notification'), onClick: onNotificationClick },
+    { id: 'messageHistory', icon: 'history', label: t('common.messageHistory'), onClick: onHistoryClick },
+    { id: 'diary', icon: 'book-open-variant', label: t('common.diary'), onClick: onDiaryClick },
   ];
   
   // ✅ Animation values (individual for each chip)

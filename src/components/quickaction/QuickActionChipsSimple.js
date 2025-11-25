@@ -27,8 +27,8 @@ const QuickActionChipsSimple = ({
   const actions = [
     { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
     { id: 'studio', icon: 'palette', label: '스튜디오', onClick: onStudioClick },
-    { id: 'diary', icon: 'book-open-variant', label: '다이어리', onClick: onDiaryClick },
-    { id: 'gift', icon: 'gift', label: '선물함', onClick: onGiftClick },
+  //  { id: 'diary', icon: 'book-open-variant', label: '다이어리', onClick: onDiaryClick },
+  //  { id: 'gift', icon: 'gift', label: '선물함', onClick: onGiftClick },
   ];
   
   const handlePress = (action) => {

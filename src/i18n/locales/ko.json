@@ -1,9 +1,9 @@
 {
   "navigation": {
-    "home": "홈",
-    "room": "룸",
-    "training": "다이어리",
-    "peek": "엿보기",
+    "home": "SAGE",
+    "room": "자아",
+    "training": "선택모드",
+    "training_chat": "채팅모드",
     "settings": "설정"
   },
   "floatingButton": {
@@ -14,21 +14,14 @@
     "ai_thinking": "AI가 생각 중...",
     "greeting": "안녕하세요! 💖 만나서 반가워요!"
   },
-  "manager_ai": {
-    "greeting": "안녕하세요! 저는 SAGE입니다. 🌟\n당신의 완벽한 AI 페르소나를 찾아드릴게요!",
-    "welcome_message": "안녕하세요! 저는 SAGE입니다. 무엇을 도와드릴까요?",
-    "subtitle": "당신의 AI 관리자",
-    "input_placeholder": "메시지를 입력하세요...",
-    "typing": "SAGE가 생각 중...",
-    "empty_messages": "SAGE와 대화를 시작해보세요",
-    "send": "전송",
-    "error_send": "메시지 전송에 실패했습니다"
-  },
   "languages": {
     "en": "English",
     "ko": "한국어"
   },
   "common": {
+    "notification": "알림",
+    "messageHistory": "메시지 기록",
+    "diary": "다이어리",
     "food": "특별한 식사",
     "memory": "추억 선물",
     "meet": "첫만남",
@@ -145,6 +138,8 @@
     "welcome": "안녕하세요! 👋\n저는 SAGE입니다. ANIMA - Soul Connection 의 안내자죠.\n\n상상이 현실이 되는 세계에 오신것을 환영헤요! 💫\n\n궁금한 점이 있으시면 무엇이든 저 SAGE가 알려드릴께요!",
     "welcome_again": "ANIMA - Soul Connection 의 세계를 잘 즐기고 계신가요? 💫\n\n궁금한 점이 있으시면 무엇이든 저 SAGE가 알려드릴께요!",
     "thinking": "생각 중",
+    "greeting": "안녕하세요! 👋\n저는 SAGE입니다. ANIMA - Soul Connection 의 안내자죠.\n\n상상이 현실이 되는 세계에 오신것을 환영헤요! 💫\n\n궁금한 점이 있으시면 무엇이든 저 SAGE가 알려드릴께요!",
+    "empty_messages": "SAGE와 대화를 시작해보세요",
     "errors": {
       "MANAGER_QUESTION_REQUIRED": "질문을 입력해주세요",
       "MANAGER_QUESTION_TOO_SHORT": "질문이 너무 짧습니다. 조금 더 자세히 말씀해주세요 😊",
@@ -331,6 +326,25 @@
   },
   "auth": {
     "login_required": "로그인이 필요합니다. 먼저 로그인해주세요! 💫",
+    "welcome_back": "Welcome Back",
+    "welcome_message": "Your AI personas are waiting for you",
+    "continue_with_google": "Continue with Google",
+    "continue_with_apple": "Continue with Apple",
+    "or": "or",
+    "email_login": "Email Login",
+    "email_login_title": "Email Login",
+    "email_login_subtitle": "Sign in with your email and password",
+    "sign_up": "Sign Up",
+    "sign_up_title": "Sign Up",
+    "sign_up_subtitle": "Create your ANIMA account",
+    "dont_have_account": "Don't have an account?",
+    "already_have_account": "Already have an account?",
+    "email_placeholder": "your@email.com",
+    "password_placeholder": "••••••••",
+    "name_placeholder": "Your name",
+    "forgot_password": "Forgot password?",
+    "login_button": "Login",
+    "signup_button": "Sign Up",
     "login": {
       "title": "망설이지 마세요!",
       "subtitle": "당신만의 AI 페르소나를 육성하세요!",

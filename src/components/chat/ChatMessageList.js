@@ -244,7 +244,7 @@ const ChatMessageList = ({
   useEffect(() => {
     if (flashListRef.current) {
       setTimeout(() => {
-        flashListRef.current?.scrollToEnd({ animated: true });
+        flashListRef.current?.scrollToEnd({ animated: false });
       }, 50);
     }
   }, [completedMessages.length, messageVersion, typingMessage]);
@@ -257,7 +257,7 @@ const ChatMessageList = ({
 
   // Empty state
   const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
+    <View style={[styles.messageBubble, styles.aiBubble, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
       <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
         {t('manager_ai.empty_messages') || 'Start a conversation with SAGE'}
       </Text>
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: moderateScale(15),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(100), // ✅ Space for input bar
+    paddingBottom: verticalScale(0), // ✅ Space for input bar
   },
   messageRow: {
     flexDirection: 'row',
@@ -325,9 +325,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   avatarContainer: {
-    width: moderateScale(32),
-    height: moderateScale(32),
-    borderRadius: moderateScale(16),
+    width: moderateScale(52),
+    height: moderateScale(52),
+    borderRadius: moderateScale(26),
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(59, 130, 246, 0.5)',

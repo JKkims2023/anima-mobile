@@ -34,7 +34,7 @@ const PersonaSelectorButton = ({ isPersonaMode = false, onPress }) => {
   // ✅ Rotate animation on mode change
   useEffect(() => {
     Animated.spring(rotateAnim, {
-      toValue: isPersonaMode ? 1 : 0,
+      toValue: isPersonaMode ? 0 : 0,
       friction: 8,
       tension: 40,
       useNativeDriver: true,
@@ -76,7 +76,7 @@ const PersonaSelectorButton = ({ isPersonaMode = false, onPress }) => {
       style={[
         styles.container,
         {
-          top: insets.top + verticalScale(20),
+          top: verticalScale(20),
           transform: [{ rotate }, { scale: scaleAnim }],
         },
       ]}

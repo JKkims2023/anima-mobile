@@ -19,7 +19,7 @@ const PeekScreen = () => {
           bold
           style={{ color: currentTheme.textColor }}
         >
-          {t('navigation.peek')}
+          {t('navigation.training_chat')}
         </CustomText>
       </View>
     </SafeAreaView>

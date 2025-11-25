@@ -118,7 +118,7 @@ const PersonaSelectorPanel = ({
       style={[
         styles.container,
         {
-          top: insets.top + verticalScale(80),
+          top: verticalScale(80),
           opacity: fadeAnim,
           transform: [{ translateX: slideAnim }],
         },

@@ -12,6 +12,7 @@ import QuickActionChipsSage from '../components/quickaction/QuickActionChipsSage
 import StatusIndicator from '../components/status/StatusIndicator';
 import PersonaSelectorButton from '../components/persona/PersonaSelectorButton';
 import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel';
+import OverlayChangeView from '../components/OverlayChangeView';
 
 /**
  * HomeScreen Content (needs to be inside ChatProvider)
@@ -22,7 +23,9 @@ const HomeScreenContent = ({ route }) => {
   const { isQuickMode, getBadgeData } = useQuickAction();
   const { personas } = usePersona();
   const { sageAiState } = useChat(); // ✅ Get SAGE AI state
-  
+  const [isShowOverlayChangeView, setIsShowOverlayChangeView] = useState(false);
+  const [overlayMode, setOverlayMode] = useState('toPersona'); // 'toPersona' | 'toSage'
+  const [overlayPersonaName, setOverlayPersonaName] = useState('');
   // ✅ Persona selection state
   const [selectedPersona, setSelectedPersona] = useState(null); // null = SAGE mode
   const [isPanelVisible, setIsPanelVisible] = useState(false);
@@ -90,6 +93,20 @@ const HomeScreenContent = ({ route }) => {
       if (__DEV__) {
         console.log('[HomeScreen] 🏠 Returning to SAGE');
       }
+      
+      // ✅ Show overlay (toSage mode)
+      setOverlayMode('toSage');
+      setOverlayPersonaName('');
+      setIsShowOverlayChangeView(true);
+      
+      if (__DEV__) {
+        console.log('[HomeScreen] 🎬 Overlay state:', {
+          isShowOverlayChangeView: true,
+          overlayMode: 'toSage',
+          overlayPersonaName: '',
+        });
+      }
+      
     } else {
       // SAGE mode → Toggle persona selector panel
       setIsPanelVisible(prev => !prev);
@@ -97,17 +114,29 @@ const HomeScreenContent = ({ route }) => {
         console.log('[HomeScreen] 👥 Toggling persona selector:', !isPanelVisible);
       }
     }
+
   };
   
   // ✅ Handle persona selection
   const handleSelectPersona = (persona) => {
     setSelectedPersona(persona);
     setIsPanelVisible(false);
+
+    // ✅ Show overlay (toPersona mode)
+    setOverlayMode('toPersona');
+    setOverlayPersonaName(persona.persona_name);
+    setIsShowOverlayChangeView(true);
+
     if (__DEV__) {
       console.log('[HomeScreen] ✨ Persona selected:', {
         name: persona.persona_name,
         videoUrl: persona.selected_dress_video_url?.substring(0, 50) + '...',
         isManager: persona.isManager,
+      });
+      console.log('[HomeScreen] 🎬 Overlay state:', {
+        isShowOverlayChangeView: true,
+        overlayMode: 'toPersona',
+        overlayPersonaName: persona.persona_name,
       });
     }
   };
@@ -187,7 +216,18 @@ const HomeScreenContent = ({ route }) => {
             onNotificationClick={() => console.log('Notification clicked')}
           />
         )}
+
       </View>
+      
+      {/* ✅ Overlay Change View (Outside container for proper z-index) */}
+      {isShowOverlayChangeView && (
+        <OverlayChangeView
+          visible={isShowOverlayChangeView}
+          mode={overlayMode}
+          personaName={overlayPersonaName}
+          onFinish={() => { setIsShowOverlayChangeView(false); }}
+        />
+      )}
     </SafeScreen>
   );
 };
