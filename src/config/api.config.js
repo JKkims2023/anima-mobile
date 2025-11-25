@@ -24,13 +24,13 @@ export const API_BASE_URL = process.env.API_BASE_URL || 'https://idol-companion.
  * Authentication Endpoints
  */
 export const AUTH_ENDPOINTS = {
-  LOGIN: '/api/auth/login',
-  REGISTER: '/api/auth/register',
-  VERIFY_TOKEN: '/api/auth/verify-token',
-  SEND_VERIFICATION_EMAIL: '/api/auth/send-verification-email',
-  VERIFY_EMAIL_CODE: '/api/auth/verify-email-code',
-  APPROVE_TERMS: '/api/auth/approve-terms',
-  WITHDRAW: '/api/auth/withdraw',
+  LOGIN: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/login',
+  REGISTER: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/register',
+  VERIFY_TOKEN: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/verify-token',
+  SEND_VERIFICATION_EMAIL: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/send-verification-email',
+  VERIFY_EMAIL_CODE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/verify-email-code',
+  APPROVE_TERMS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/approve-terms',
+  WITHDRAW: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/withdraw',
 };
 
 /**

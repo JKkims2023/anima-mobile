@@ -24,6 +24,7 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../../contexts/UserContext';
 import InitialAuthView from './InitialAuthView';
 import EmailLoginView from './EmailLoginView';
@@ -31,8 +32,10 @@ import SignUpView from './SignUpView';
 import UserProfileView from './UserProfileView';
 import HapticService from '../../utils/HapticService';
 import { verticalScale } from '../../utils/responsive-utils';
+import { register } from '../../services/api/authService';
 
 const AuthSection = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, loading, login } = useUser();
   const [viewState, setViewState] = useState('initial'); // 'initial', 'email', 'signup'
   const [isLoading, setIsLoading] = useState(false);
@@ -146,15 +149,43 @@ const AuthSection = () => {
   };
 
   // ✅ Handle sign up
-  const handleSignUp = async ({ name, email, password }) => {
+  const handleSignUp = async (userData) => {
     setIsLoading(true);
     try {
-      // TODO: Implement sign up API
-      HapticService.success();
-      Alert.alert('Success', 'Sign up will be implemented in Phase 2');
+      const result = await register(userData);
+
+      if (result.success) {
+        HapticService.success();
+        Alert.alert(
+          t('auth.register.title'),
+          t('auth.register.success'),
+          [
+            {
+              text: t('common.confirm'),
+              onPress: () => {
+                // Flip back to initial view
+                handleFlipBack();
+              },
+            },
+          ]
+        );
+      } else {
+        HapticService.error();
+        const errorMessage = t(`errors.${result.errorCode}`);
+        Alert.alert(
+          t('error.title'),
+          errorMessage,
+          [{ text: t('common.confirm') }]
+        );
+      }
     } catch (error) {
+      console.error('[Sign Up] Error:', error);
       HapticService.error();
-      Alert.alert('Sign Up Failed', error.message || 'Please try again');
+      Alert.alert(
+        t('error.title'),
+        t('errors.NETWORK_001'),
+        [{ text: t('common.confirm') }]
+      );
     } finally {
       setIsLoading(false);
     }
