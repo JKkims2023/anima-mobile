@@ -61,7 +61,8 @@
     },
     "tap_to_edit": "Tap to edit",
     "password_set": "Password set",
-    "no_password": "No password"
+    "no_password": "No password",
+    "seconds": "sec"
   },
   "main": {
     "title": "Where Imagination Becomes Reality",
@@ -1596,6 +1597,51 @@
     "url_copied_toast": "Link copied! 🎉",
     "generate_url_button": "Generate URL",
     "edit_button": "Edit"
+  },
+  "persona": {
+    "creation": {
+      "title": "New Persona",
+      "photo_title": "Select Photo",
+      "photo_hint": "Choose a photo to create your persona",
+      "photo_placeholder": "Select Photo",
+      "name_title": "Name",
+      "name_hint": "Enter your persona's name (max 20 characters)",
+      "name_placeholder": "e.g., Minji, Alex",
+      "name_error_required": "Please enter a name",
+      "name_error_too_long": "Name must be 20 characters or less",
+      "gender_title": "Gender",
+      "gender_hint": "Select your persona's gender",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "point_title": "Point Information",
+      "point_cost": "Creation Cost",
+      "point_time": "Estimated Time",
+      "create_button": "Create",
+      "errors": {
+        "photo_required": "Please select a photo",
+        "name_required": "Please enter a name",
+        "name_too_long": "Name must be 20 characters or less",
+        "gender_required": "Please select a gender",
+        "creation_failed": "Persona creation failed",
+        "creation_timeout": "Persona creation timed out. Please check again later"
+      }
+    },
+    "loading": {
+      "title": "Creating your persona",
+      "analyzing": "Analyzing the photo...",
+      "processing": "AI is generating the image...",
+      "generating": "Refining your persona...",
+      "finalizing": "Almost there!",
+      "almost_done": "Just a moment more!",
+      "elapsed_time": "Elapsed time: {{time}}s",
+      "tip": "💡 You can change your persona's dress anytime!"
+    },
+    "success": {
+      "title": "Persona Created! 🎉",
+      "description": "Your new persona is born!\nLet's create special moments together.",
+      "go_to_studio": "Go to Studio",
+      "tip": "💡 Chat with your persona to become closer!"
+    }
   }
 }
 

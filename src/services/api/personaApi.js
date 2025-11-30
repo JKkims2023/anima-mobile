@@ -87,6 +87,61 @@ export const getPersonaDashboard = async (personaKey) => {
 };
 
 /**
+ * Create a new persona
+ * @param {string} userKey - User's unique key
+ * @param {Object} personaData - Persona creation data
+ * @param {string} personaData.name - Persona name
+ * @param {string} personaData.gender - Gender ('male' or 'female')
+ * @param {Object} personaData.photo - Photo object { uri, type, name }
+ * @returns {Promise<Object>} Creation result with persona_key and estimate_time
+ */
+export const createPersona = async (userKey, personaData) => {
+  try {
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] Creating persona:', {
+        userKey,
+        name: personaData.name,
+        gender: personaData.gender,
+        hasPhoto: !!personaData.photo,
+      });
+    }
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append('user_key', userKey);
+    formData.append('name', personaData.name);
+    formData.append('selectedType', personaData.gender); // 'male' or 'female'
+    
+    // Append photo file
+    if (personaData.photo) {
+      formData.append('photo', {
+        uri: personaData.photo.uri,
+        type: personaData.photo.type || 'image/jpeg',
+        name: personaData.photo.name || 'photo.jpg',
+      });
+    }
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.CREATE, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] Persona created:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    if (__DEV__) {
+      console.error('🎭 [PersonaAPI] Error creating persona:', error);
+    }
+    logError('Persona Creation', error);
+    throw error;
+  }
+};
+
+/**
  * Check persona creation status
  * @param {string} personaKey - Persona's unique key
  * @returns {Promise<Object>} Status information
@@ -145,6 +200,7 @@ export const updatePersonaDressCode = async (personaKey, historyKey) => {
 export default {
   getPersonaList,
   getPersonaDashboard,
+  createPersona,
   checkPersonaStatus,
   getPersonaDressList,
   updatePersonaDressCode,

@@ -178,8 +178,15 @@ const AddPersonaChip = memo(({ onPress, isCreating, hasWaitingPersona }) => {
   });
 
   const handlePress = () => {
-    if (isCreating || hasWaitingPersona) return;
+    console.log('[AddPersonaChip] 🖱️ Button pressed!', { isCreating, hasWaitingPersona });
+    
+    if (isCreating || hasWaitingPersona) {
+      console.log('[AddPersonaChip] ⚠️ Button disabled');
+      return;
+    }
+    
     HapticService.light();
+    console.log('[AddPersonaChip] ✅ Calling onPress()');
     onPress();
   };
 

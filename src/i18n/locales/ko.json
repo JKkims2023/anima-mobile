@@ -45,6 +45,7 @@
     "success": "성공",
     "login": "로그인으로 이동",
     "settings": "설정",
+    "seconds": "초",
     "login_guide": {
       "title": "앗! 아직 로그인 전이신가요?",
       "description": "로그인 후, ANIMA의 모든 기능을 이용할 수 있어요!\n지금바로 시작해볼까요?! 💫"
@@ -2033,5 +2034,50 @@
     "url_copied_toast": "링크가 복사되었습니다! 🎉",
     "generate_url_button": "URL 생성하기",
     "edit_button": "수정하기"
+  },
+  "persona": {
+    "creation": {
+      "title": "새로운 페르소나",
+      "photo_title": "사진 선택",
+      "photo_hint": "페르소나로 만들 사진을 선택해주세요",
+      "photo_placeholder": "사진 선택하기",
+      "name_title": "이름",
+      "name_hint": "페르소나의 이름을 입력해주세요 (최대 20자)",
+      "name_placeholder": "예: 민지, Alex",
+      "name_error_required": "이름을 입력해주세요",
+      "name_error_too_long": "이름은 20자 이하로 입력해주세요",
+      "gender_title": "성별",
+      "gender_hint": "페르소나의 성별을 선택해주세요",
+      "gender_male": "남성",
+      "gender_female": "여성",
+      "point_title": "포인트 안내",
+      "point_cost": "생성 비용",
+      "point_time": "예상 시간",
+      "create_button": "생성하기",
+      "errors": {
+        "photo_required": "사진을 선택해주세요",
+        "name_required": "이름을 입력해주세요",
+        "name_too_long": "이름은 20자 이내로 입력해주세요",
+        "gender_required": "성별을 선택해주세요",
+        "creation_failed": "페르소나 생성에 실패했습니다",
+        "creation_timeout": "페르소나 생성 시간이 초과되었습니다. 나중에 다시 확인해주세요"
+      }
+    },
+    "loading": {
+      "title": "당신의 페르소나를 만들고 있어요",
+      "analyzing": "사진을 분석하고 있어요...",
+      "processing": "AI가 이미지를 생성하고 있어요...",
+      "generating": "페르소나의 모습을 다듬고 있어요...",
+      "finalizing": "거의 다 됐어요!",
+      "almost_done": "조금만 더 기다려주세요!",
+      "elapsed_time": "경과 시간: {{time}}초",
+      "tip": "💡 생성된 페르소나는 언제든지 드레스를 바꿀 수 있어요!"
+    },
+    "success": {
+      "title": "페르소나 생성 완료! 🎉",
+      "description": "당신의 새로운 페르소나가 태어났어요!\n이제 함께 특별한 순간을 만들어가요.",
+      "go_to_studio": "스튜디오로 이동",
+      "tip": "💡 페르소나와 대화하면서 더 친밀해질 수 있어요!"
+    }
   }
 }

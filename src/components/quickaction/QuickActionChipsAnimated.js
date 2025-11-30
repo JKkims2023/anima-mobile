@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     // ⭐ FIX: Remove position absolute (handled by parent)
     gap: verticalScale(12),
     alignItems: 'flex-end',
+
   },
   chipWrapper: {
     alignItems: 'flex-end',

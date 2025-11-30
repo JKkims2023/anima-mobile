@@ -40,10 +40,10 @@ export const AUTH_ENDPOINTS = {
  */
 export const PERSONA_ENDPOINTS = {
   LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/persona-list',
-  CREATE: '/api/persona/create',
+  CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/create',
   DASHBOARD: '/api/persona/dashboard',
-  CHECK_STATUS: '/api/persona/check-status',
-  CHECK_STATUS_FIRST: '/api/persona/check-status-first',
+  CHECK_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status',
+  CHECK_STATUS_FIRST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status-first',
   UPDATE_SETTINGS: '/api/persona/update-settings',
   UPDATE_STATUS: '/api/persona/update-status',
   REMOVE: '/api/persona/remove-persona',

@@ -30,18 +30,26 @@ import SafeScreen from '../components/SafeScreen';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
+import { useUser } from '../contexts/UserContext';
+import { useAnima } from '../contexts/AnimaContext';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
 import MessageCreatorView from '../components/message/MessageCreatorView';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
 import PersonaSelectorHorizontal from '../components/message/PersonaSelectorHorizontal';
+import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
+import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
+import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
 import { scale, verticalScale } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
+import { createPersona, checkPersonaStatus, getPersonaList } from '../services/api/personaApi';
 
 const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
   const { personas } = usePersona();
+  const { user } = useUser();
+  const { showToast } = useAnima();
   
   // ═══════════════════════════════════════════════════════════════════════
   // STATE MANAGEMENT
@@ -50,7 +58,12 @@ const PersonaStudioScreen = () => {
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
   const [isMessageAreaVisible, setIsMessageAreaVisible] = useState(true);
+  const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
+  const [isLoadingPersona, setIsLoadingPersona] = useState(false);
+  const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
+  const [createdPersona, setCreatedPersona] = useState(null);
   const savedIndexRef = useRef(0);
+  const personaCreationDataRef = useRef(null);
   
   // ═══════════════════════════════════════════════════════════════════════
   // SCREEN FOCUS HANDLER
@@ -169,12 +182,153 @@ const PersonaStudioScreen = () => {
   
   // Handle add persona
   const handleAddPersona = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📸 Add persona requested');
+    console.log('[PersonaStudioScreen] 📸 Add persona requested');
+    
+    // ⭐ Check if user is logged in
+    if (!user || !user.user_key) {
+      console.log('[PersonaStudioScreen] ⚠️ User not logged in, redirecting to Settings');
+      showToast({
+        type: 'warning',
+        message: t('errors.login_required'),
+        emoji: '🔐',
+      });
+      HapticService.warning();
+      navigation.navigate('Settings');
+      return;
     }
     
-    // TODO: Implement persona creation flow
-    // navigation.navigate('PersonaCreation');
+    console.log('[PersonaStudioScreen] ✅ User logged in, opening persona creation sheet');
+    HapticService.light();
+    setIsPersonaCreationOpen(true);
+  }, [user, showToast, t, navigation]);
+  
+  // Handle persona creation start
+  const handlePersonaCreationStart = useCallback(async (data) => {
+    console.log('[PersonaStudioScreen] ✨ Persona creation started:', {
+      name: data.name,
+      gender: data.gender,
+      hasFile: !!data.file,
+    });
+    
+    // Close creation sheet
+    setIsPersonaCreationOpen(false);
+    
+    // Store data for reference
+    personaCreationDataRef.current = data;
+    
+    try {
+      // Show loading overlay
+      setIsLoadingPersona(true);
+      
+      // Call API to create persona
+      const response = await createPersona(user.user_key, {
+        name: data.name,
+        gender: data.gender,
+        photo: data.file,
+      });
+      
+      if (!response.success) {
+        throw new Error(response.error || 'Persona creation failed');
+      }
+      
+      const { persona_key, estimate_time, persona_url } = response.data;
+      
+      console.log('[PersonaStudioScreen] ✅ Persona creation initiated:', {
+        persona_key,
+        estimate_time,
+        persona_url,
+      });
+      
+      // Start polling for persona status
+      const checkInterval = Math.max(estimate_time * 1000 / 10, 3000); // Check every 10% of estimate_time, min 3s
+      let checkCount = 0;
+      const maxChecks = Math.ceil((estimate_time + 30) / (checkInterval / 1000)); // estimate_time + 30s buffer
+      
+      const pollingInterval = setInterval(async () => {
+        checkCount++;
+        
+        try {
+          const statusResponse = await checkPersonaStatus(persona_key);
+          
+          console.log('[PersonaStudioScreen] 📊 Status check:', {
+            checkCount,
+            maxChecks,
+            done_yn: statusResponse.data?.done_yn,
+          });
+          
+          if (statusResponse.data?.done_yn === 'Y') {
+            // Persona creation complete!
+            clearInterval(pollingInterval);
+            setIsLoadingPersona(false);
+            
+            // Set created persona data
+            setCreatedPersona({
+              persona_key,
+              persona_name: data.name,
+              persona_url: statusResponse.data.persona_url || persona_url,
+            });
+            
+            // Show success card
+            setIsSuccessCardVisible(true);
+            
+            HapticService.success();
+            
+            // Refresh persona list
+            // PersonaContext will handle this automatically on screen focus
+          } else if (checkCount >= maxChecks) {
+            // Timeout
+            clearInterval(pollingInterval);
+            setIsLoadingPersona(false);
+            
+            showToast({
+              type: 'warning',
+              message: t('persona.creation.errors.creation_timeout'),
+              emoji: '⏰',
+            });
+          }
+        } catch (error) {
+          console.error('[PersonaStudioScreen] ❌ Status check error:', error);
+          // Continue polling on error (might be temporary)
+        }
+      }, checkInterval);
+      
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Persona creation error:', error);
+      setIsLoadingPersona(false);
+      
+      showToast({
+        type: 'error',
+        message: t('persona.creation.errors.creation_failed'),
+        emoji: '⚠️',
+      });
+      HapticService.warning();
+    }
+  }, [user, showToast, t]);
+  
+  // Handle persona creation close
+  const handlePersonaCreationClose = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📪 Persona creation closed');
+    }
+    
+    HapticService.light();
+    setIsPersonaCreationOpen(false);
+  }, []);
+  
+  // Handle success card close
+  const handleSuccessCardClose = useCallback(() => {
+    console.log('[PersonaStudioScreen] 🎉 Success card closed');
+    setIsSuccessCardVisible(false);
+    setCreatedPersona(null);
+  }, []);
+  
+  // Handle go to studio (after success)
+  const handleGoToStudio = useCallback(() => {
+    console.log('[PersonaStudioScreen] 🏠 Going to studio');
+    setIsSuccessCardVisible(false);
+    setCreatedPersona(null);
+    // Already on studio screen, just refresh
+    HapticService.success();
   }, []);
   
   // Handle message preview
@@ -249,6 +403,7 @@ const PersonaStudioScreen = () => {
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
   return (
+    <>
     <SafeScreen 
       backgroundColor={currentTheme.backgroundColor}
       statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
@@ -311,13 +466,47 @@ const PersonaStudioScreen = () => {
         <View style={styles.selectorOverlay}>
           <PersonaSelectorHorizontal
             personas={personasWithDefaults}
-            selectedPersona={currentPersona}
+            selectedIndex={currentPersonaIndex}
             onSelectPersona={handlePersonaSelect}
             onAddPersona={handleAddPersona}
+            isCreating={false}
+            hasWaitingPersona={false}
           />
         </View>
       </View>
+      
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Persona Creation Sheet (Absolute positioning with max z-index) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <View style={styles.sheetContainer}>
+        <ChoicePersonaSheet
+          isOpen={isPersonaCreationOpen}
+          onClose={handlePersonaCreationClose}
+          onCreateStart={handlePersonaCreationStart}
+        />
+      </View>
     </SafeScreen>
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Loading Overlay (Outside SafeScreen for highest z-index)         */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <AnimaLoadingOverlay
+      visible={isLoadingPersona}
+      personaName={personaCreationDataRef.current?.name || ''}
+      estimateTime={60}
+    />
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Success Card (Outside SafeScreen for highest z-index)            */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <AnimaSuccessCard
+      visible={isSuccessCardVisible}
+      personaName={createdPersona?.persona_name || ''}
+      personaImageUrl={createdPersona?.persona_url || ''}
+      onClose={handleSuccessCardClose}
+      onGoToStudio={handleGoToStudio}
+    />
+    </>
   );
 };
 
@@ -355,7 +544,7 @@ const styles = StyleSheet.create({
   // ⭐ Z-INDEX: 100 - Quick Action Chips (Right) - HIGHEST
   quickChipsOverlay: {
     position: 'absolute',
-    top: verticalScale(80), // Below AppHeader
+    bottom: verticalScale(20), // Below AppHeader
     right: scale(16),
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
@@ -371,6 +560,18 @@ const styles = StyleSheet.create({
     zIndex: 50,
     elevation: 50, // ⭐ Android shadow
     // ⭐ SafeArea top is handled inside PersonaSelectorHorizontal
+  },
+  
+  // ⭐ Z-INDEX: 999999 - Bottom Sheet Container (HIGHEST PRIORITY)
+  sheetContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999999,
+    elevation: 999, // ⭐ Android maximum elevation
+    pointerEvents: 'box-none', // ⭐ Allow touches to pass through when sheet is closed
   },
 });
 
