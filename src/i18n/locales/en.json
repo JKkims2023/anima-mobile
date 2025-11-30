@@ -1574,6 +1574,7 @@
       "create_new": "Create New"
     },
     "errors": {
+      "login_required": "Login required",
       "title_required": "Please enter a message title",
       "content_required": "Please enter message content",
       "persona_required": "Please select a persona",

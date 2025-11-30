@@ -46,6 +46,7 @@ const MessageCreatorView = ({
   const { t } = useTranslation();
   const { showToast, showAlert } = useAnima();
   const { user } = useUser();
+  const navigation = useNavigation();
 
   // Refs for bottom sheets
   const titleSheetRef = useRef(null);
@@ -149,7 +150,23 @@ const MessageCreatorView = ({
 
   // Handle preview
   const handlePreview = useCallback(() => {
-    // Validation
+    // ✅ 1. Login check (highest priority)
+    if (!user || !user.user_key) {
+      showToast({
+        type: 'warning',
+        message: t('message_creator.errors.login_required'),
+        emoji: '🔐',
+      });
+      
+      // Navigate to Settings screen for login
+      setTimeout(() => {
+        navigation.navigate('Settings');
+      }, 500);
+      
+      return;
+    }
+
+    // 2. Validation
     if (!selectedPersona) {
       showToast({
         type: 'error',
@@ -177,7 +194,7 @@ const MessageCreatorView = ({
       return;
     }
 
-    // Show preview with flip animation
+    // 3. Show preview with flip animation
     HapticService.success();
     
     flipAnim.value = withTiming(1, {
@@ -186,7 +203,7 @@ const MessageCreatorView = ({
     });
     
     setShowPreview(true);
-  }, [selectedPersona, messageTitle, messageContent, showToast, t, flipAnim]);
+  }, [user, navigation, selectedPersona, messageTitle, messageContent, showToast, t, flipAnim]);
   
   // Handle back from preview
   const handleBackFromPreview = useCallback(() => {
