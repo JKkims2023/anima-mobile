@@ -29,18 +29,20 @@ import HapticService from '../../utils/HapticService';
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const QuickActionChipsAnimated = ({
-  onSettingsClick,
-  onStudioClick,
-  onDiaryClick,
-  onGiftClick,
+  onDressClick,      // ⭐ 1. Dressing Room
+  onHistoryClick,    // ⭐ 2. Memory History
+  onVideoClick,      // ⭐ 3. Video Conversion
+  onMessageClick,    // ⭐ 4. Message Toggle
+  onSettingsClick,   // ⭐ 5. Settings
 }) => {
   const insets = useSafeAreaInsets();
   
   const actions = [
+    { id: 'dress', icon: 'hanger', label: '드레스', onClick: onDressClick },
+    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
+    { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
+    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
     { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'studio', icon: 'palette', label: '스튜디오', onClick: onStudioClick },
-//    { id: 'diary', icon: 'book-open-variant', label: '다이어리', onClick: onDiaryClick },
-//    { id: 'gift', icon: 'gift', label: '선물함', onClick: onGiftClick },
   ];
   
   // ✅ Animation values (individual for each chip)
@@ -48,6 +50,7 @@ const QuickActionChipsAnimated = ({
   const opacity1 = useSharedValue(0);
   const opacity2 = useSharedValue(0);
   const opacity3 = useSharedValue(0);
+  const opacity4 = useSharedValue(0);
   
   // ✅ Animated styles (must be at top level)
   const animatedStyle0 = useAnimatedStyle(() => ({
@@ -66,8 +69,12 @@ const QuickActionChipsAnimated = ({
     opacity: opacity3.value,
   }));
   
-  const animatedStyles = [animatedStyle0, animatedStyle1, animatedStyle2, animatedStyle3];
-  const opacityValues = [opacity0, opacity1, opacity2, opacity3];
+  const animatedStyle4 = useAnimatedStyle(() => ({
+    opacity: opacity4.value,
+  }));
+  
+  const animatedStyles = [animatedStyle0, animatedStyle1, animatedStyle2, animatedStyle3, animatedStyle4];
+  const opacityValues = [opacity0, opacity1, opacity2, opacity3, opacity4];
   
   // ✅ Entry animation (fade in)
   useEffect(() => {
@@ -115,7 +122,7 @@ const QuickActionChipsAnimated = ({
   };
   
   return (
-    <View style={[styles.container, { bottom: insets.bottom + verticalScale(100) }]}>
+    <View style={styles.container}>
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         
@@ -138,10 +145,9 @@ const QuickActionChipsAnimated = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    right: scale(16),
-    zIndex: 1000,
+    // ⭐ FIX: Remove position absolute (handled by parent)
     gap: verticalScale(12),
+    alignItems: 'flex-end',
   },
   chipWrapper: {
     alignItems: 'flex-end',

@@ -40,8 +40,10 @@ import { getUserKey } from '../../utils/storage';
 
 const MessageCreatorView = ({
   personas = [],
+  selectedPersona = null, // ⭐ NEW: Selected persona from parent
   onAddPersona,
   isScreenFocused = true,
+  showPersonaSelector = true, // ⭐ NEW: Control persona selector visibility
 }) => {
   const { t } = useTranslation();
   const { showToast, showAlert } = useAnima();
@@ -102,12 +104,14 @@ const MessageCreatorView = ({
   // Flip animation
   const flipAnim = useSharedValue(0);
 
-  const selectedPersona = displayPersonas[selectedPersonaIndex] || displayPersonas[0] || null;
+  // ⭐ Use prop's selectedPersona if provided, otherwise use internal state
+  const currentPersona = selectedPersona || displayPersonas[selectedPersonaIndex] || displayPersonas[0] || null;
 
   console.log('[MessageCreatorView] Selected:', {
     selectedIndex: selectedPersonaIndex,
-    selectedPersonaKey: selectedPersona?.persona_key,
-    selectedPersonaName: selectedPersona?.persona_name,
+    selectedPersonaKey: currentPersona?.persona_key,
+    selectedPersonaName: currentPersona?.persona_name,
+    fromProp: !!selectedPersona, // ⭐ Track if persona came from prop
   });
 
   // Handle field tap - open bottom sheet
@@ -167,7 +171,7 @@ const MessageCreatorView = ({
     }
 
     // 2. Validation
-    if (!selectedPersona) {
+    if (!currentPersona) {
       showToast({
         type: 'error',
         message: t('message_creator.errors.persona_required'),
@@ -203,7 +207,7 @@ const MessageCreatorView = ({
     });
     
     setShowPreview(true);
-  }, [user, navigation, selectedPersona, messageTitle, messageContent, showToast, t, flipAnim]);
+  }, [user, navigation, currentPersona, messageTitle, messageContent, showToast, t, flipAnim]);
   
   // Handle back from preview
   const handleBackFromPreview = useCallback(() => {
@@ -234,13 +238,13 @@ const MessageCreatorView = ({
       // Prepare API params
       const params = {
         user_key: userKey,
-        persona_key: selectedPersona.persona_key,
-        memory_key: selectedPersona.memory_key || null,
+        persona_key: currentPersona.persona_key,
+        memory_key: currentPersona.memory_key || null,
         message_title: messageTitle.trim(),
         message_content: messageContent.trim(),
-        persona_name: selectedPersona.persona_name,
-        persona_image_url: selectedPersona.selected_dress_image_url || selectedPersona.original_url,
-        persona_video_url: selectedPersona.selected_dress_video_url || null,
+        persona_name: currentPersona.persona_name,
+        persona_image_url: currentPersona.selected_dress_image_url || currentPersona.original_url,
+        persona_video_url: currentPersona.selected_dress_video_url || null,
         message_password: hasPassword ? password : null,
         has_password: hasPassword ? 'Y' : 'N',
       };
@@ -293,7 +297,7 @@ const MessageCreatorView = ({
     } finally {
       setIsCreating(false);
     }
-  }, [selectedPersona, messageTitle, messageContent, hasPassword, password, showToast, showAlert, t, handleBackFromPreview]);
+  }, [currentPersona, messageTitle, messageContent, hasPassword, password, showToast, showAlert, t, handleBackFromPreview]);
 
   // Animated styles for flip
   const frontAnimStyle = useAnimatedStyle(() => {
@@ -329,29 +333,34 @@ const MessageCreatorView = ({
       {/* Front Side: Message Creator */}
       <Animated.View style={[StyleSheet.absoluteFill, frontAnimStyle]}>
         {/* Background: Persona Image/Video */}
-        <PersonaBackgroundView
-          persona={selectedPersona}
-          isScreenFocused={isScreenFocused && !showPreview}
-          opacity={1}
-        />
+        {/* ⭐ REMOVED: PersonaBackgroundView (handled by PersonaStudioScreen's PersonaSwipeViewer) */}
+        {showPersonaSelector && (
+          <PersonaBackgroundView
+            persona={currentPersona}
+            isScreenFocused={isScreenFocused && !showPreview}
+            opacity={1}
+          />
+        )}
 
         {/* Content: Persona Selector + Message Overlay */}
-        <View style={styles.contentContainer}>
-        {/* Persona Selector (Top) */}
-        <View style={styles.selectorContainer}>
-          <PersonaSelectorHorizontal
-            personas={displayPersonas}
-            selectedIndex={selectedPersonaIndex}
-            onSelectPersona={setSelectedPersonaIndex}
-            onAddPersona={onAddPersona}
-            isCreating={isCreating}
-            hasWaitingPersona={false}
-            showDefaultPersonas={personas.length === 0}
-          />
-        </View>
+        <View style={[styles.contentContainer, !showPersonaSelector && styles.contentContainerCompact]}>
+        {/* Persona Selector (Top) - ⭐ Conditional rendering */}
+        {showPersonaSelector && (
+          <View style={styles.selectorContainer}>
+            <PersonaSelectorHorizontal
+              personas={displayPersonas}
+              selectedIndex={selectedPersonaIndex}
+              onSelectPersona={setSelectedPersonaIndex}
+              onAddPersona={onAddPersona}
+              isCreating={isCreating}
+              hasWaitingPersona={false}
+              showDefaultPersonas={personas.length === 0}
+            />
+          </View>
+        )}
 
-        {/* Spacer */}
-        <View style={styles.spacer} />
+        {/* Spacer - ⭐ Only show when persona selector is visible */}
+        {showPersonaSelector && <View style={styles.spacer} />}
 
         {/* Message Overlay (Bottom) */}
         <View style={styles.messageOverlayContainer}>
@@ -478,7 +487,7 @@ const MessageCreatorView = ({
       {showPreview && (
         <Animated.View style={[StyleSheet.absoluteFill, backAnimStyle]}>
           <MessagePreviewView
-            persona={selectedPersona}
+            persona={currentPersona}
             messageTitle={messageTitle}
             messageContent={messageContent}
             onGenerateURL={handleGenerateURL}
@@ -495,11 +504,16 @@ const MessageCreatorView = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BG_PRIMARY,
+    backgroundColor: 'transparent', // ⭐ Transparent container (background handled by PersonaBackgroundView or parent)
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'space-between',
+    backgroundColor: 'transparent', // ⭐ FIX: Transparent to show PersonaSwipeViewer
+  },
+  contentContainerCompact: {
+    flex: 0, // ⭐ FIX: No flex when used as overlay in PersonaStudioScreen
+    justifyContent: 'flex-end',
   },
   selectorContainer: {
     marginTop: platformPadding(10),

@@ -35,6 +35,7 @@ import MessageCreatorView from '../components/message/MessageCreatorView';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
 import PersonaSelectorHorizontal from '../components/message/PersonaSelectorHorizontal';
 import { scale, verticalScale } from '../utils/responsive-utils';
+import HapticService from '../utils/HapticService';
 
 const PersonaStudioScreen = () => {
   const { t } = useTranslation();
@@ -194,38 +195,55 @@ const PersonaStudioScreen = () => {
     navigation.navigate('Settings');
   }, [navigation]);
   
-  // Handle quick action chips
+  // ═══════════════════════════════════════════════════════════════════════
+  // QUICK ACTION CHIP HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // 1. Dressing Room (드레스 선택)
+  const handleQuickDress = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 👗 Dressing room clicked');
+    }
+    
+    // TODO: Open DressingRoomSheet for horizontal dress swipe
+  }, []);
+  
+  // 2. Memory History (추억/히스토리)
+  const handleQuickHistory = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📚 Memory history clicked');
+    }
+    
+    // TODO: Navigate to memory history view
+  }, []);
+  
+  // 3. Video Conversion (비디오 변환)
+  const handleQuickVideo = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🎬 Video conversion clicked');
+    }
+    
+    // TODO: Trigger video conversion for current persona
+  }, []);
+  
+  // 4. Message Toggle (메시지 생성 영역 토글)
+  const handleQuickMessage = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 💌 Message toggle clicked');
+    }
+    
+    setIsMessageAreaVisible(prev => !prev);
+    HapticService.light();
+  }, []);
+  
+  // 5. Settings (설정)
   const handleQuickSettings = useCallback(() => {
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎨 Quick settings clicked');
+      console.log('[PersonaStudioScreen] ⚙️ Settings clicked');
     }
     
-    // TODO: Implement persona-specific settings
-  }, []);
-  
-  const handleQuickStudio = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎨 Studio clicked');
-    }
-    
-    // TODO: Implement studio (dressing room)
-  }, []);
-  
-  const handleQuickDiary = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📓 Diary clicked');
-    }
-    
-    // TODO: Implement diary
-  }, []);
-  
-  const handleQuickGift = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎁 Gift clicked');
-    }
-    
-    // TODO: Implement gift
-  }, []);
+    navigation.navigate('Settings');
+  }, [navigation]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
@@ -244,16 +262,18 @@ const PersonaStudioScreen = () => {
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <PersonaSwipeViewer 
-          key={`persona-swipe-${isScreenFocused}`}
-          personas={personasWithDefaults}
-          isModeActive={true}
-          isScreenFocused={isScreenFocused}
-          initialIndex={currentPersonaIndex}
-          onIndexChange={handlePersonaChange}
-          modeOpacity={null}
-          onChatWithPersona={null} // Not used in studio mode
-        />
+        <View style={styles.baseLayer}>
+          <PersonaSwipeViewer 
+            key={`persona-swipe-${isScreenFocused}`}
+            personas={personasWithDefaults}
+            isModeActive={true}
+            isScreenFocused={isScreenFocused}
+            initialIndex={currentPersonaIndex}
+            onIndexChange={handlePersonaChange}
+            modeOpacity={null}
+            onChatWithPersona={null} // Not used in studio mode
+          />
+        </View>
         
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* LAYER 2 (Z-INDEX: 10) - MessageCreatorView (Bottom Overlay)      */}
@@ -267,6 +287,7 @@ const PersonaStudioScreen = () => {
               onPreview={handleMessagePreview}
               isCreating={false}
               isScreenFocused={isScreenFocused}
+              showPersonaSelector={false}
             />
           </View>
         )}
@@ -276,10 +297,11 @@ const PersonaStudioScreen = () => {
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.quickChipsOverlay}>
           <QuickActionChipsAnimated
+            onDressClick={handleQuickDress}
+            onHistoryClick={handleQuickHistory}
+            onVideoClick={handleQuickVideo}
+            onMessageClick={handleQuickMessage}
             onSettingsClick={handleQuickSettings}
-            onStudioClick={handleQuickStudio}
-            onDiaryClick={handleQuickDiary}
-            onGiftClick={handleQuickGift}
           />
         </View>
         
@@ -308,32 +330,46 @@ const styles = StyleSheet.create({
     position: 'relative', // ⭐ Enable absolute positioning for overlays
   },
   
+  // ⭐ Z-INDEX: 1 - Base Layer (PersonaSwipeViewer)
+  baseLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  
   // ⭐ Z-INDEX: 10 - Message Creator Overlay (Bottom)
   messageOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    height: verticalScale(200), // ⭐ FIX: Explicit height for absolute positioning
     zIndex: 10,
+    elevation: 10, // ⭐ Android shadow (helps with layering)
     // ⭐ SafeArea bottom is handled inside MessageCreatorView
   },
   
-  // ⭐ Z-INDEX: 20 - Quick Action Chips (Right)
+  // ⭐ Z-INDEX: 100 - Quick Action Chips (Right) - HIGHEST
   quickChipsOverlay: {
     position: 'absolute',
     top: verticalScale(80), // Below AppHeader
     right: scale(16),
     zIndex: 100,
+    elevation: 100, // ⭐ Android shadow
     // ⭐ SafeArea is handled inside QuickActionChipsAnimated
   },
   
-  // ⭐ Z-INDEX: 30 - Persona Selector (Top)
+  // ⭐ Z-INDEX: 50 - Persona Selector (Top)
   selectorOverlay: {
     position: 'absolute',
     top: verticalScale(10), // Just below AppHeader
     left: 0,
     right: 0,
-    zIndex: 30,
+    zIndex: 50,
+    elevation: 50, // ⭐ Android shadow
     // ⭐ SafeArea top is handled inside PersonaSelectorHorizontal
   },
 });
