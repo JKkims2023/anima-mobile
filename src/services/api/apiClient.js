@@ -76,6 +76,8 @@ apiClient.interceptors.response.use(
   (error) => {
     // Log error
     if (__DEV__) {
+
+      console.log('💌 [API Response Error]', error);
       console.error('[API Response Error]', {
         url: error.config?.url,
         method: error.config?.method,

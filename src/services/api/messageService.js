@@ -43,14 +43,24 @@ export async function createMessage(params) {
   console.log('💌 [messageService] Creating message:', params);
   
   try {
-    const response = await apiClient(MESSAGE_ENDPOINTS.CREATE, {
-      method: 'POST',
-      body: JSON.stringify(params),
+    
+    console.log('💌 [messageService] Creating message:', MESSAGE_ENDPOINTS.CREATE);
+
+    const response = await apiClient.post(MESSAGE_ENDPOINTS.CREATE, {
+      user_key: params.user_key,
+      persona_key: params.persona_key,
+      memory_key: params.memory_key || null,
+      message_title: params.message_title,
+      message_content: params.message_content,
+      message_password: params.message_password || null,
+      public_yn: params.public_yn || 'Y'
     });
+
+    
 
     console.log('💌 [messageService] Create message result:', response);
 
-    if (response.success) {
+    if (response.data.success) {
       return {
         success: true,
         data: response.data,
