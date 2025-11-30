@@ -31,6 +31,8 @@ export const AUTH_ENDPOINTS = {
   VERIFY_EMAIL_CODE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/verify-email-code',
   APPROVE_TERMS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/approve-terms',
   WITHDRAW: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/withdraw',
+  SEND_PASSWORD_RESET_EMAIL: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/send-password-reset-email',
+  RESET_PASSWORD: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/reset-password',
 };
 
 /**
@@ -158,6 +160,19 @@ export const STUDY_ENDPOINTS = {
 };
 
 /**
+ * Message Endpoints
+ */
+export const MESSAGE_ENDPOINTS = {
+  CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/create',
+  LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/list',
+  PUBLIC: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/public',
+  VERIFY_PASSWORD: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/verify-password',
+  REUSE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/reuse',
+  DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/delete',
+  SHARE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/share',
+};
+
+/**
  * Health Check
  */
 export const HEALTH_ENDPOINT = '/api/health';
@@ -207,6 +222,7 @@ export default {
   USER_ENDPOINTS,
   PAYMENT_ENDPOINTS,
   STUDY_ENDPOINTS,
+  MESSAGE_ENDPOINTS,
   HEALTH_ENDPOINT,
 };
 

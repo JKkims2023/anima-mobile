@@ -2,6 +2,8 @@
   "navigation": {
     "home": "Home",
     "room": "Room",
+    "persona": "Persona",
+    "music": "Music",
     "training": "Diary",
     "peek": "Peek",
     "settings": "Settings"
@@ -302,6 +304,57 @@
     "forgot_password": "Forgot password?",
     "login_button": "Login",
     "signup_button": "Sign Up",
+    "forgot_password": {
+      "title": "Reset Password",
+      "subtitle": "Verify your email and set a new password",
+      "step1_title": "Email Verification",
+      "step1_subtitle": "Enter your registered email",
+      "step2_title": "Verify Code",
+      "step2_subtitle": "Enter the code sent to your email",
+      "step3_title": "New Password",
+      "step3_subtitle": "Create a secure password",
+      "success_title": "Done!",
+      "success_message": "Password has been reset\nLogin with your new password 💫",
+      "email_label": "Email",
+      "email_placeholder": "Enter your email",
+      "code_label": "Verification Code",
+      "code_placeholder": "5-digit code",
+      "new_password_label": "New Password",
+      "new_password_placeholder": "New password",
+      "confirm_password_label": "Confirm Password",
+      "confirm_password_placeholder": "Re-enter password",
+      "send_code": "Send Code",
+      "sending": "Sending...",
+      "verify_code": "Verify & Continue",
+      "verifying": "Verifying...",
+      "reset_password": "Reset Password",
+      "resetting": "Resetting...",
+      "reset_success": "Password has been reset! 🎉",
+      "back_to_login": "Back to Login",
+      "resend_code": "Resend Code",
+      "timer": "Time left",
+      "code_sent": "Verification code sent to your email",
+      "validation": {
+        "email_required": "Please enter your email",
+        "email_invalid": "Invalid email format",
+        "code_required": "Please enter the verification code",
+        "code_invalid": "Code must be 5 digits",
+        "password_required": "Please enter a new password",
+        "password_length": "Password must be at least 6 characters",
+        "confirm_required": "Please confirm your password",
+        "password_not_match": "Passwords do not match"
+      },
+      "errors": {
+        "email_not_found": "Email not registered",
+        "account_deleted": "Account has been deleted",
+        "send_failed": "Failed to send email. Please try again",
+        "code_expired": "Code expired. Please resend",
+        "code_invalid": "Invalid verification code",
+        "reset_failed": "Failed to reset password. Please try again",
+        "network": "Network error occurred",
+        "general": "An error occurred. Please try again"
+      }
+    },
     "logout": {
       "success": "Logged out successfully! 👋",
       "button": "Logout"
@@ -897,6 +950,7 @@
   },
   "customization": {
     "page_title": "AI Customization",
+    "waiting_persona_alert": "Your AI is waiting to meet you!\nWould you like to meet them first?",
     "empty": {
       "title": "No AI companion yet?",
       "subtitle": "Create your own companion",
@@ -1414,6 +1468,124 @@
       "help_text": "You can select multiple amounts to accumulate. Get 10% bonus when charging 10,000P!",
       "success": "{{amount}}P has been charged!",
       "error": "Charge failed. Please try again."
+    }
+  },
+  "music": {
+    "title": "AI Music",
+    "subtitle": "Your AI-generated music collection",
+    "empty": {
+      "title": "No music yet",
+      "description": "Tap the center AI button to\ncreate your special music!",
+      "cta": "💫 Start now"
+    }
+  },
+  "centerAI": {
+    "title": "Select AI Feature",
+    "message_creator": "🎁 Create Message",
+    "message_creator_desc": "Create a special message",
+    "persona_creator": "🎨 Create Persona",
+    "persona_creator_desc": "Create your own AI persona",
+    "music_generator": "🎵 Generate Music",
+    "music_generator_desc": "AI creates music for you",
+    "manager_sage": "🤖 MANAGER SAGE",
+    "manager_sage_desc": "Chat with AI Manager"
+  },
+  "settings": {
+    "title": "Settings",
+    "service": {
+      "title": "⚙️ Service Settings",
+      "push_notification": "Push Notifications",
+      "push_description": "Receive notifications for new messages and updates",
+      "haptic": "Haptic Feedback",
+      "haptic_description": "Provide vibration feedback on touch"
+    },
+    "terms": {
+      "title": "📋 Terms & Policies",
+      "service_terms": "Terms of Service",
+      "service_terms_description": "Review ANIMA's terms of service",
+      "privacy_policy": "Privacy Policy",
+      "privacy_policy_description": "Review our privacy and data protection policy",
+      "coming_soon": "Coming soon!"
+    },
+    "danger": {
+      "title": "⚠️ Danger Zone"
+    },
+    "logout": {
+      "button": "Logout",
+      "confirm_title": "Logout?",
+      "confirm_message": "You will need to login again after logging out.",
+      "success": "You have been logged out. 👋"
+    },
+    "withdrawal": {
+      "button": "Delete Account",
+      "confirm_message": "⚠️ Are you sure you want to delete your account? This action cannot be undone.",
+      "confirm": "Delete Account",
+      "final_confirm_title": "Final Confirmation",
+      "final_confirm_message": "All your data will be permanently deleted.\nAre you absolutely sure?",
+      "pending": "Account deletion is coming soon."
+    }
+  },
+  "message": {
+    "title": "Create Message",
+    "subtitle": "Create a special message",
+    "persona_selector_title": "Sender",
+    "create_new_persona": "Create New",
+    "select_default_male": "👨 Male",
+    "select_default_female": "👩 Female",
+    "cta_title": "💡 Make it more special with your own persona!",
+    "input": {
+      "persona_select": "Select Sender",
+      "persona_placeholder": "Choose a persona",
+      "dress_select": "Select Concept (Optional)",
+      "dress_placeholder": "Default image",
+      "title_label": "Message Title",
+      "title_placeholder": "Happy Birthday!",
+      "content_label": "Message Content",
+      "content_placeholder": "Today is your birthday!\nHave a wonderful day!",
+      "password_label": "Password Protection (Optional)",
+      "password_placeholder": "Enter password",
+      "password_confirm_placeholder": "Confirm password",
+      "password_hint": "Password will be required to view this message"
+    },
+    "preview": {
+      "title": "Preview",
+      "share_title": "Share",
+      "copy_link": "Copy Link",
+      "share_sns": "Share on SNS"
+    },
+    "buttons": {
+      "preview": "Preview",
+      "edit": "Edit",
+      "create": "Create Message",
+      "creating": "Creating..."
+    },
+    "empty": {
+      "title": "Persona Required",
+      "description": "You need to create a persona first to send a message",
+      "create_persona": "Create Persona"
+    },
+    "success": {
+      "title": "Message Created!",
+      "description": "Link copied to clipboard",
+      "view_history": "Recent Messages",
+      "create_new": "Create New"
+    },
+    "errors": {
+      "title_required": "Please enter a message title",
+      "content_required": "Please enter message content",
+      "persona_required": "Please select a persona",
+      "password_required": "Please enter a password",
+      "password_mismatch": "Passwords do not match",
+      "creation_failed": "Failed to create message",
+      "network_error": "Network error occurred"
+    },
+    "history": {
+      "title": "Recent Messages",
+      "empty": "No messages created yet",
+      "reuse": "Reuse",
+      "share": "Share",
+      "delete": "Delete",
+      "delete_confirm": "Are you sure you want to delete this message?"
     }
   }
 }

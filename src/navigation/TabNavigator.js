@@ -3,10 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 
 // Import screens
+import MainScreen from '../screens/MainScreen';
 import HomeScreen from '../screens/HomeScreen';
 import PersonaScreen from '../screens/PersonaScreen';
-import RoomScreen from '../screens/RoomScreen';
-import TrainingScreen from '../screens/TrainingScreen';
+import MusicScreen from '../screens/MusicScreen';
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -42,6 +42,7 @@ const TabNavigator = () => {
       // ✅ Prevent detaching inactive screens (for video playback control)
       detachInactiveScreens={false}
     >
+
       {/* Tab 1: SAGE (Manager AI) */}
       <Tab.Screen 
         name="Home" 
@@ -70,12 +71,12 @@ const TabNavigator = () => {
         }}
       />
       
-      {/* Tab 4: Room (Training/Peek) */}
+      {/* Tab 4: Music (AI Music) */}
       <Tab.Screen 
-        name="Room" 
-        component={PeekScreen}
+        name="Music" 
+        component={MusicScreen}
         options={{ 
-          title: t('navigation.training') || '선택모드',
+          title: t('navigation.music') || '뮤직',
         }}
       />
       

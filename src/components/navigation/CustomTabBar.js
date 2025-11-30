@@ -18,7 +18,7 @@
  * @date 2024-11-21
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -29,6 +29,7 @@ import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
+import CenterAIActionSheet from '../CenterAIActionSheet';
 import HapticService from '../../utils/HapticService';
 
 /**
@@ -40,6 +41,9 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const insets = useSafeAreaInsets();
+  
+  // ✅ CenterAIActionSheet ref
+  const actionSheetRef = useRef(null);
   
   // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
   const tabs = [
@@ -57,11 +61,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
-      key: 'QuickAction',
-      icon: isQuickMode ? 'apps' : 'chatbubbles', // Toggle icon (반전: true=선택, false=채팅)
-      label: isQuickMode ? '선택' : '채팅',
-      isActive: !isQuickMode, // Active when in chat mode (반전)
-      onPress: toggleQuickMode, // Toggle quick action mode
+      key: 'Music',
+      icon: 'musical-notes',
+      label: '뮤직',
+      route: 'Music', // Navigate to Music screen
     },
     { 
       key: 'Settings',
@@ -99,16 +102,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           personaImageUrl={selectedPersona?.selected_dress_image_url || selectedPersona?.original_url}
           personaName={selectedPersona?.persona_name}
           onPress={() => {
-            // 🎯 Always navigate to Manager SAGE (Index 0)
-            // Regardless of current persona
-            setSelectedIndex(0);
+            // ✅ Open CenterAIActionSheet
+            actionSheetRef.current?.present();
             
             if (__DEV__) {
-              console.log('💙 [CenterAIButton] Pressed → Manager SAGE (Index 0)');
+              console.log('💙 [CenterAIButton] Pressed → Opening ActionSheet');
             }
-            
-            // TODO: Future - Open Manager Functions Bottom Sheet
-            // openManagerFunctionsSheet();
           }}
         />
       </View>
@@ -176,6 +175,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           );
         })}
       </View>
+      
+      {/* ✅ CenterAIActionSheet */}
+      <CenterAIActionSheet
+        ref={actionSheetRef}
+        onClose={() => actionSheetRef.current?.dismiss()}
+      />
     </View>
   );
 };

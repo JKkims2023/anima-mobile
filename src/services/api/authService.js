@@ -121,6 +121,8 @@ async function apiFetch(endpoint, options = {}) {
       ...options,
     });
 
+    console.log('🔐 [authService] response:', response);
+
     const data = await response.json();
     console.log('🔐 [authService] data:', data);
     return {
@@ -380,6 +382,79 @@ export async function logout() {
   }
 }
 
+// ==================== Password Reset ====================
+
+/**
+ * Send password reset email
+ * @param {string} email - User email
+ * @param {string} language - Language code ('ko' or 'en')
+ * @returns {Promise<{success: boolean, errorCode: string, code?: string}>}
+ */
+export async function sendPasswordResetEmail(email, language = 'ko') {
+  console.log('🔐 [authService] Sending password reset email to:', email);
+  
+  const result = await apiFetch(AUTH_ENDPOINTS.SEND_PASSWORD_RESET_EMAIL, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      language,
+    }),
+  });
+
+  console.log('🔐 [authService] Password reset email result:', result);
+  console.log('🔐 [authService] Password reset email result.errorCode:', result.errorCode);
+
+  if (result.success) {
+    return {
+      success: true,
+      errorCode: '',
+      code: result.code, // Development mode only
+    };
+  }
+
+  return {
+    success: false,
+    errorCode: result.status || 'UNKNOWN_ERROR',
+  };
+}
+
+/**
+ * Reset password with verification code
+ * @param {string} email - User email
+ * @param {string} code - 5-digit verification code
+ * @param {string} newPassword - New password
+ * @returns {Promise<{success: boolean, errorCode: string}>}
+ */
+export async function resetPassword(email, code, newPassword) {
+  console.log('🔐 [authService] Resetting password for:', email);
+  
+  const result = await apiFetch(AUTH_ENDPOINTS.RESET_PASSWORD, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      code,
+      newPassword,
+    }),
+  });
+
+  console.log('🔐 [authService] Reset password result:', result);
+  console.log('🔐 [authService] Reset password result.status:', result.status);
+
+  if (result.success) {
+    return {
+      success: true,
+      errorCode: '',
+    };
+  }
+
+  console.log('JK logger: result.status:', result.status);
+
+  return {
+    success: false,
+    errorCode: result.status || 'UNKNOWN_ERROR',
+  };
+}
+
 // ==================== Export All ====================
 
 export default {
@@ -393,6 +468,10 @@ export default {
   logout,
   verifyToken,
   autoLogin,
+  
+  // Password reset
+  sendPasswordResetEmail,
+  resetPassword,
   
   // Token management
   saveToken,

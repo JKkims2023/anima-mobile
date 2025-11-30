@@ -23,7 +23,7 @@ const STORAGE_KEYS = {
 
 export const QuickActionProvider = ({ children }) => {
   // ✅ Quick Mode state (default: true = Chat Mode, false = Quick Action Mode)
-  const [isQuickMode, setIsQuickMode] = useState(true);
+  const [isQuickMode, setIsQuickMode] = useState(false);
   
   // ✅ Tooltip preference (default: true for first-time users)
   const [showTooltips, setShowTooltips] = useState(true);

@@ -77,6 +77,11 @@ const COLORS = {
   DEEP_BLUE: '#3B82F6', // Blue 500 - ANIMA brand color
   DEEP_BLUE_LIGHT: '#60A5FA', // Blue 400
   DEEP_BLUE_DARK: '#1E40AF', // Blue 700
+  
+  // Text colors for Dark Theme
+  TEXT_PRIMARY: '#F1F5F9', // Slate 100 - Primary text
+  TEXT_SECONDARY: '#94A3B8', // Slate 400 - Secondary text
+  TEXT_TERTIARY: '#64748B', // Slate 500 - Tertiary text
 };
 
 const styles = StyleSheet.create({

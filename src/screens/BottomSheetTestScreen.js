@@ -19,6 +19,7 @@ import CustomBottomSheet from '../components/CustomBottomSheet';
 import CustomButton from '../components/CustomButton';
 import CustomText from '../components/CustomText';
 import NeonInputBottomSheet from '../components/auth/NeonInputBottomSheet'; // ✅ BottomSheet용
+import ForgotPasswordSheet from '../components/auth/ForgotPasswordSheet'; // ✅ ForgotPasswordSheet
 import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
 const commonstyles = require('../styles/commonstyles');
 
@@ -40,6 +41,9 @@ const BottomSheetTestScreen = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  
+  // ✅ Forgot password sheet state
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   // ==================== Handlers ====================
 
@@ -180,6 +184,13 @@ const BottomSheetTestScreen = () => {
             title="6️⃣ Form with Inputs"
             type="primary"
             onPress={handleFormOpen}
+            style={styles.testButton}
+          />
+
+          <CustomButton
+            title="🔐 Forgot Password"
+            type="primary"
+            onPress={() => setIsForgotPasswordOpen(true)}
             style={styles.testButton}
           />
         </View>
@@ -329,6 +340,15 @@ const BottomSheetTestScreen = () => {
           </CustomText>
         </View>
       </CustomBottomSheet>
+
+      {/* 🔐 Forgot Password Sheet */}
+      <ForgotPasswordSheet
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+        onSuccess={() => {
+          Alert.alert('성공', '비밀번호가 변경되었습니다!');
+        }}
+      />
     </View>
   );
 };

@@ -22,7 +22,9 @@ import { COLORS } from '../../styles/commonstyles';
 import AuthCard from './AuthCard';
 import NeonInput from './NeonInput';
 import CustomButton from '../CustomButton';
+import ForgotPasswordSheet from './ForgotPasswordSheet';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useAnima } from '../../contexts/AnimaContext';
 
 
 const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
@@ -31,6 +33,9 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
+  
+  // ✅ Forgot password sheet state
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   // ✅ Email validation
   const validateEmail = (text) => {
@@ -72,9 +77,10 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.cardWrapper}>
-        <AuthCard style={styles.card}>
+    <>
+      <View style={styles.container}>
+        <View style={styles.cardWrapper}>
+          <AuthCard style={styles.card}>
         {/* ✅ Back button */}
         <TouchableOpacity 
           style={styles.backButton}
@@ -126,9 +132,10 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
         {/* ✅ Forgot password */}
         <TouchableOpacity 
           style={styles.forgotPassword}
+          onPress={() => setIsForgotPasswordOpen(true)}
           disabled={isLoading}
         >
-          <Text style={styles.forgotPasswordText}>{t('auth.forgot_password')}</Text>
+          <Text style={styles.forgotPasswordText}>{t('auth.forgot_password.forgot_password_title')}</Text>
         </TouchableOpacity>
 
         {/* ✅ Login button */}
@@ -139,9 +146,20 @@ const EmailLoginView = ({ onLogin, onBack, isLoading = false }) => {
           disabled={isLoading}
           style={styles.loginButton}
         />
-      </AuthCard>
+        </AuthCard>
+        </View>
       </View>
-    </View>
+
+      {/* ✅ Forgot Password Bottom Sheet */}
+      <ForgotPasswordSheet
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+        onSuccess={() => {
+          // Optional: Show success message or auto-fill email
+          console.log('Password reset successful!');
+        }}
+      />
+    </>
   );
 };
 

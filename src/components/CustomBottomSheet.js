@@ -199,8 +199,8 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         {/* Title & Subtitle */}
         <View style={styles.headerTextContainer}>
           <CustomText 
-            type="large" 
-            bold 
+            type="big" 
+            bold={true} 
             style={[styles.title, { color: theme.textPrimary }]}
           >
             {title}
@@ -208,7 +208,7 @@ const CustomBottomSheet = forwardRef((props, ref) => {
           
           {subtitle && (
             <CustomText 
-              type="small" 
+              type="middle" 
               style={[styles.subtitle, { color: theme.textSecondary }]}
             >
               {subtitle}

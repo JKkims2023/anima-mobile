@@ -33,9 +33,11 @@ import UserProfileView from './UserProfileView';
 import HapticService from '../../utils/HapticService';
 import { verticalScale } from '../../utils/responsive-utils';
 import { register } from '../../services/api/authService';
+import { useAnima } from '../../contexts/AnimaContext';
 
 const AuthSection = () => {
   const { t } = useTranslation();
+  const { showAlert } = useAnima();
   const { user, isAuthenticated, loading, login } = useUser();
   const [viewState, setViewState] = useState('initial'); // 'initial', 'email', 'signup'
   const [isLoading, setIsLoading] = useState(false);
@@ -141,6 +143,7 @@ const AuthSection = () => {
       
       if (response.success) {
         HapticService.success();
+        /*
         Alert.alert(
           t('auth.login.title'),
           t('auth.login.success'),
@@ -154,26 +157,64 @@ const AuthSection = () => {
             },
           ]
         );
+        */
+
+        showAlert({
+          title: t('auth.login.title'),
+          message: t('auth.login.success'),
+          emoji: '🎉',
+          buttons: [
+            {
+              text: t('common.confirm'),
+              onPress: () => {
+                handleFlipBack();
+              },
+            },
+          ],
+        });
+        
       } else {
-        HapticService.error();
-        const errorMessage = t(`errors.${response.errorCode || 'AUTH_LOGIN_004'}`);
-        Alert.alert(
-          t('error.title'),
-          errorMessage,
-          [{ text: t('common.confirm') }]
-        );
+     //   HapticService.error();
+
+        let errorMessage = '';
+        switch (response.errorCode) {
+          case 'AUTH_LOGIN_001':
+            errorMessage = t('errors.AUTH_LOGIN_001');
+            break;
+          case 'AUTH_LOGIN_002':
+            errorMessage = t('errors.AUTH_LOGIN_002');
+            break;
+          case 'AUTH_LOGIN_003':
+            errorMessage = t('errors.AUTH_LOGIN_003');
+            break;
+          case 'AUTH_LOGIN_004':
+            errorMessage = t('errors.AUTH_LOGIN_004');
+            break;
+          default:
+            errorMessage = t('errors.AUTH_LOGIN_004');
+            break;
+        }
+
       }
     } catch (error) {
       console.error('[Email Login] Error:', error);
-      HapticService.error();
-      Alert.alert(
-        t('error.title'),
-        t('errors.NETWORK_001'),
-        [{ text: t('common.confirm') }]
-      );
+  //    HapticService.error();
+      showAlert({
+        title: t('error.title'),
+        message: t('errors.NETWORK_001'),
+        emoji: '❌',
+        buttons: [
+          {
+            text: t('common.confirm'),
+            onPress: () => {
+              setIsLoading(false);
+            },
+          },
+        ],  
+      });
     } finally {
       setIsLoading(false);
-    }
+    } 
   };
 
   // ✅ Handle sign up
