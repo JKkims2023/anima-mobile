@@ -58,6 +58,7 @@ const PersonaSwipeViewer = ({
   const flatListRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
+  const lastScrolledIndex = useRef(initialIndex);
 
   // ✅ Restore saved index on mount (after remount from screen focus)
   useEffect(() => {
@@ -75,6 +76,26 @@ const PersonaSwipeViewer = ({
       }, 100);
       
       isInitialMount.current = false;
+    }
+  }, [initialIndex]);
+
+  // ⭐ NEW: Listen to external index changes (from PersonaSelectorHorizontal)
+  useEffect(() => {
+    if (!isInitialMount.current && initialIndex !== lastScrolledIndex.current && flatListRef.current) {
+      if (__DEV__) {
+        console.log('[PersonaSwipeViewer] 🎯 External index change detected:', initialIndex);
+      }
+      
+      // Scroll to new index with animation
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: initialIndex,
+          animated: true, // Smooth animation for user-triggered changes
+        });
+        
+        setSelectedIndex(initialIndex);
+        lastScrolledIndex.current = initialIndex;
+      }, 50);
     }
   }, [initialIndex]);
 
@@ -193,7 +214,7 @@ const PersonaSwipeViewer = ({
       )}
 
       {/* ✅ PersonaInfoCard - 자아 정보 카드 */}
-      {currentPersona && (
+      {false && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}
@@ -217,8 +238,8 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     position: 'absolute',
-    right: scale(16),
-    top: '10%',
+    left: scale(16),
+    top: '50%',
     transform: [{ translateY: -50 }],
     flexDirection: 'column',
     justifyContent: 'center',

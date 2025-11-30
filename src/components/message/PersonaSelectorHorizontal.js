@@ -299,7 +299,7 @@ const PersonaSelectorHorizontal = ({
               console.log('[PersonaSelectorHorizontal] Rendering PersonaChip:', index, persona.persona_name);
               return (
                 <PersonaChip
-                  key={persona.persona_key || `persona-${index}`}
+                  key={`${persona.persona_key}-${index}`}
                   persona={persona}
                   isActive={index === selectedIndex}
                   onPress={() => onSelectPersona(index)}

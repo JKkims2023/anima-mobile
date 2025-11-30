@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import MainScreen from '../screens/MainScreen';
 import HomeScreen from '../screens/HomeScreen';
 import PersonaScreen from '../screens/PersonaScreen';
+import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ NEW: Unified Persona Studio
 import MusicScreen from '../screens/MusicScreen';
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -43,12 +44,12 @@ const TabNavigator = () => {
       detachInactiveScreens={false}
     >
 
-      {/* Tab 1: SAGE (Manager AI) */}
+      {/* Tab 1: Studio (Unified Persona & Message Creation Hub) */}
       <Tab.Screen 
         name="Home" 
-        component={HomeScreen}
+        component={PersonaStudioScreen}
         options={{ 
-          title: 'SAGE',
+          title: 'Studio',
         }}
       />
       
