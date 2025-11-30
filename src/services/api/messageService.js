@@ -1,228 +1,294 @@
 /**
  * 💌 Message Service
  * 
- * API functions for message creation and management
+ * Handles all message-related API calls
+ * - Create message
+ * - List messages
+ * - Public message retrieval
+ * - Verify password
+ * - Reuse/Delete/Share
+ * 
+ * API Endpoints:
+ * - POST /api/message/create
+ * - POST /api/message/list
+ * - GET /api/message/public/[persona_key]/[short_code]
+ * - POST /api/message/verify-password
+ * - POST /api/message/reuse
+ * - POST /api/message/delete
+ * - POST /api/message/share
+ * 
+ * @author JK & Hero AI
  */
 
 import { MESSAGE_ENDPOINTS } from '../../config/api.config';
 import { apiFetch } from '../../utils/api-utils';
 
 /**
- * Create a new message
- * @param {Object} data
- * @param {string} data.user_key
- * @param {string} data.persona_key
- * @param {string} data.memory_key (optional)
- * @param {string} data.message_title
- * @param {string} data.message_content
- * @param {string} data.message_password (optional)
- * @param {string} data.public_yn (optional, default: 'Y')
- * @returns {Promise<{success: boolean, data?: object, errorCode?: string}>}
+ * 🎁 Create Message
+ * @param {Object} params
+ * @param {string} params.user_key
+ * @param {string} params.persona_key
+ * @param {string} params.memory_key - Optional: specific dress/memory
+ * @param {string} params.message_title
+ * @param {string} params.message_content
+ * @param {string} params.persona_name - Snapshot
+ * @param {string} params.persona_image_url - Snapshot
+ * @param {string} params.persona_video_url - Snapshot
+ * @param {string} params.message_password - Optional
+ * @param {string} params.has_password - 'Y' | 'N'
+ * @returns {Promise<{success: boolean, data?: {message_key, share_url, short_code}, errorCode?: string}>}
  */
-export async function createMessage(data) {
-  console.log('📤 [messageService] Creating message:', {
-    persona_key: data.persona_key,
-    memory_key: data.memory_key,
-    has_password: !!data.message_password,
-  });
-
+export async function createMessage(params) {
+  console.log('💌 [messageService] Creating message:', params);
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.CREATE, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(params),
     });
 
-    console.log('✅ [messageService] Message created:', response);
-    return response;
+    console.log('💌 [messageService] Create message result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_CREATE_ERROR',
+      };
+    }
   } catch (error) {
     console.error('❌ [messageService] createMessage error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Get user's message list
- * @param {Object} params
- * @param {string} params.user_key
- * @param {number} params.page (optional, default: 1)
- * @param {number} params.limit (optional, default: 20)
- * @param {string} params.persona_key (optional) - Filter by persona
- * @returns {Promise<{success: boolean, data?: array, pagination?: object, errorCode?: string}>}
+ * 📋 List Messages
+ * @param {string} user_key
+ * @param {number} page - Default: 1
+ * @param {number} limit - Default: 10
+ * @returns {Promise<{success: boolean, data?: {messages, total, page, limit}, errorCode?: string}>}
  */
-export async function getMessageList(params) {
-  console.log('📜 [messageService] Fetching message list:', params);
-
+export async function listMessages(user_key, page = 1, limit = 10) {
+  console.log('📋 [messageService] Listing messages for user:', user_key);
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.LIST, {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({ user_key, page, limit }),
     });
 
-    console.log('✅ [messageService] Message list fetched:', response.data?.length || 0, 'messages');
-    return response;
+    console.log('📋 [messageService] List messages result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_LIST_ERROR',
+      };
+    }
   } catch (error) {
-    console.error('❌ [messageService] getMessageList error:', error);
+    console.error('❌ [messageService] listMessages error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Get public message
+ * 🔓 Get Public Message
  * @param {string} persona_key
  * @param {string} short_code
- * @param {string} password (optional)
- * @returns {Promise<{success: boolean, data?: object, requiresPassword?: boolean, errorCode?: string}>}
+ * @returns {Promise<{success: boolean, data?: Object, errorCode?: string}>}
  */
-export async function getPublicMessage(persona_key, short_code, password = null) {
-  console.log('🌐 [messageService] Fetching public message:', { persona_key, short_code, has_password: !!password });
-
+export async function getPublicMessage(persona_key, short_code) {
+  console.log('🔓 [messageService] Getting public message:', persona_key, short_code);
+  
   try {
-    let url = `${MESSAGE_ENDPOINTS.PUBLIC}/${persona_key}/${short_code}`;
-    if (password) {
-      url += `?password=${encodeURIComponent(password)}`;
-    }
-
+    const url = `${MESSAGE_ENDPOINTS.PUBLIC}/${persona_key}/${short_code}`;
     const response = await apiFetch(url, {
       method: 'GET',
     });
 
-    console.log('✅ [messageService] Public message fetched:', response);
-    return response;
+    console.log('🔓 [messageService] Get public message result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_PUBLIC_ERROR',
+      };
+    }
   } catch (error) {
     console.error('❌ [messageService] getPublicMessage error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Verify message password
- * @param {string} persona_key
- * @param {string} short_code
+ * 🔐 Verify Password
+ * @param {string} message_key
  * @param {string} password
- * @returns {Promise<{success: boolean, valid?: boolean, errorCode?: string}>}
+ * @returns {Promise<{success: boolean, data?: Object, errorCode?: string}>}
  */
-export async function verifyMessagePassword(persona_key, short_code, password) {
-  console.log('🔐 [messageService] Verifying message password');
-
+export async function verifyPassword(message_key, password) {
+  console.log('🔐 [messageService] Verifying password for message:', message_key);
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.VERIFY_PASSWORD, {
       method: 'POST',
-      body: JSON.stringify({ persona_key, short_code, password }),
+      body: JSON.stringify({ message_key, password }),
     });
 
-    console.log('✅ [messageService] Password verification result:', response.valid);
-    return response;
+    console.log('🔐 [messageService] Verify password result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'PASSWORD_VERIFY_ERROR',
+      };
+    }
   } catch (error) {
-    console.error('❌ [messageService] verifyMessagePassword error:', error);
+    console.error('❌ [messageService] verifyPassword error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Reuse existing message (create duplicate with new URL)
- * @param {Object} data
- * @param {string} data.user_key
- * @param {string} data.message_key
- * @param {string} data.message_password (optional) - New password
- * @returns {Promise<{success: boolean, data?: object, errorCode?: string}>}
+ * 🔄 Reuse Message
+ * @param {string} message_key
+ * @returns {Promise<{success: boolean, data?: {new_message_key, share_url}, errorCode?: string}>}
  */
-export async function reuseMessage(data) {
-  console.log('🔄 [messageService] Reusing message:', data.message_key);
-
+export async function reuseMessage(message_key) {
+  console.log('🔄 [messageService] Reusing message:', message_key);
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.REUSE, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ message_key }),
     });
 
-    console.log('✅ [messageService] Message reused:', response);
-    return response;
+    console.log('🔄 [messageService] Reuse message result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_REUSE_ERROR',
+      };
+    }
   } catch (error) {
     console.error('❌ [messageService] reuseMessage error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Delete message
- * @param {string} user_key
+ * 🗑️ Delete Message
  * @param {string} message_key
  * @returns {Promise<{success: boolean, errorCode?: string}>}
  */
-export async function deleteMessage(user_key, message_key) {
+export async function deleteMessage(message_key) {
   console.log('🗑️ [messageService] Deleting message:', message_key);
-
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.DELETE, {
       method: 'POST',
-      body: JSON.stringify({ user_key, message_key }),
+      body: JSON.stringify({ message_key }),
     });
 
-    console.log('✅ [messageService] Message deleted');
-    return response;
+    console.log('🗑️ [messageService] Delete message result:', response);
+
+    if (response.success) {
+      return { success: true };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_DELETE_ERROR',
+      };
+    }
   } catch (error) {
     console.error('❌ [messageService] deleteMessage error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 /**
- * Share message (increment shared_count)
+ * 📤 Increment Share Count
  * @param {string} message_key
- * @returns {Promise<{success: boolean, data?: object, errorCode?: string}>}
+ * @returns {Promise<{success: boolean, errorCode?: string}>}
  */
-export async function shareMessage(message_key) {
-  console.log('📤 [messageService] Sharing message:', message_key);
-
+export async function incrementShareCount(message_key) {
+  console.log('📤 [messageService] Incrementing share count:', message_key);
+  
   try {
     const response = await apiFetch(MESSAGE_ENDPOINTS.SHARE, {
       method: 'POST',
       body: JSON.stringify({ message_key }),
     });
 
-    console.log('✅ [messageService] Message shared, count:', response.data?.shared_count);
-    return response;
+    console.log('📤 [messageService] Increment share result:', response);
+
+    if (response.success) {
+      return { success: true };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_SHARE_ERROR',
+      };
+    }
   } catch (error) {
-    console.error('❌ [messageService] shareMessage error:', error);
+    console.error('❌ [messageService] incrementShareCount error:', error);
     return {
       success: false,
       errorCode: 'NETWORK_ERROR',
-      message: error.message,
     };
   }
 }
 
 export default {
   createMessage,
-  getMessageList,
+  listMessages,
   getPublicMessage,
-  verifyMessagePassword,
+  verifyPassword,
   reuseMessage,
   deleteMessage,
-  shareMessage,
+  incrementShareCount,
 };
-

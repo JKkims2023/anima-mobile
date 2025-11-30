@@ -330,11 +330,16 @@ const CustomBottomSheet = forwardRef((props, ref) => {
       enablePanDownToClose={enablePanDownToClose}
       enableDismissOnClose={enableDismissOnClose}
       onChange={(newIndex) => {
+        console.log('[CustomBottomSheet] onChange called, index:', newIndex);
         // ✅ Track open/close state for back button handler
         if (newIndex === -1) {
           setIsOpen(false);
         } else {
           setIsOpen(true);
+        }
+        // ✅ Call parent onChange if provided
+        if (props.onChange) {
+          props.onChange(newIndex);
         }
       }}
       onDismiss={() => {

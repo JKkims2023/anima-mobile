@@ -53,7 +53,10 @@
     "main_message_placeholder": "궁굼한 내용을 입력하세요...",
     "main_message_block_placeholder": "잠시만 기다려주세요...",
     "message_placeholder": "메시지를 입력하세요...",
-    "swipe": "스와이프"
+    "swipe": "스와이프",
+    "tap_to_edit": "탭하여 수정",
+    "password_set": "비밀번호 설정됨",
+    "no_password": "비밀번호 없음"
   },
   "main": {
     "title": "상상이 현실이 되는 공간",
@@ -1976,9 +1979,9 @@
       "dress_select": "컨셉 선택 (선택사항)",
       "dress_placeholder": "기본 이미지",
       "title_label": "메시지 제목",
-      "title_placeholder": "생일 축하해!",
+      "title_placeholder": "메세지 제목을 입력하세요.",
       "content_label": "메시지 내용",
-      "content_placeholder": "오늘은 네 생일이야!\n행복한 하루 보내!",
+      "content_placeholder": "메세지 내용을 입력하세요.",
       "password_label": "비밀번호 보호 (선택사항)",
       "password_placeholder": "비밀번호 입력",
       "password_confirm_placeholder": "비밀번호 확인",
@@ -2024,5 +2027,10 @@
       "delete": "삭제",
       "delete_confirm": "이 메시지를 삭제하시겠습니까?"
     }
+  },
+  "message_creator": {
+    "url_copied_toast": "링크가 복사되었습니다! 🎉",
+    "generate_url_button": "URL 생성하기",
+    "edit_button": "수정하기"
   }
 }

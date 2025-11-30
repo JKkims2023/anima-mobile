@@ -12,10 +12,10 @@
  */
 
 import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity, Keyboard, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Keyboard, Platform, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomBottomSheet, { BottomSheetTextInput } from '../CustomBottomSheet';
+import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import CustomSwitch from '../CustomSwitch';
 import { scale, moderateScale, platformPadding } from '../../utils/responsive-utils';
@@ -133,57 +133,53 @@ const MessageInputBottomSheet = forwardRef(({
         </CustomText>
       </View>
 
-       {hasPassword && (
-         <>
-           {/* Password input bar */}
-           <View style={styles.inputBar}>
-             <BottomSheetTextInput
-               ref={inputRef}
-               style={styles.input}
-               placeholder={t('message.input.password_placeholder')}
-               placeholderTextColor={COLORS.TEXT_TERTIARY}
-               value={value}
-               onChangeText={setValue}
-               secureTextEntry
-               maxLength={20}
-               returnKeyType="next"
-             />
-             <TouchableOpacity
-               style={[styles.sendButton, !value && styles.sendButtonDisabled]}
-               onPress={() => value && inputRef.current?.blur?.()}
-               disabled={!value}
-             >
-               <Icon name="arrow-down" size={moderateScale(24)} color="#FFF" />
-             </TouchableOpacity>
-           </View>
+      {hasPassword && (
+        <>
+          {/* Password input bar */}
+          <View style={styles.inputBar}>
+            <MessageInputField
+              ref={inputRef}
+              placeholder={t('message.input.password_placeholder')}
+              value={value}
+              onChangeText={setValue}
+              secureTextEntry
+              maxLength={20}
+              returnKeyType="next"
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, !value && styles.sendButtonDisabled]}
+              onPress={() => value && inputRef.current?.blur?.()}
+              disabled={!value}
+            >
+              <Icon name="arrow-down" size={moderateScale(24)} color="#FFF" />
+            </TouchableOpacity>
+          </View>
 
-           {/* Confirm password input bar */}
-           <View style={styles.inputBar}>
-             <BottomSheetTextInput
-               style={styles.input}
-               placeholder={t('message.input.password_confirm_placeholder')}
-               placeholderTextColor={COLORS.TEXT_TERTIARY}
-               value={confirmPassword}
-               onChangeText={setConfirmPassword}
-               secureTextEntry
-               maxLength={20}
-               returnKeyType="done"
-               onSubmitEditing={handleSave}
-             />
-             <TouchableOpacity
-               style={[styles.sendButton, !validate() && styles.sendButtonDisabled]}
-               onPress={handleSave}
-               disabled={!validate()}
-             >
-               <Icon name="check" size={moderateScale(24)} color="#FFF" />
-             </TouchableOpacity>
-           </View>
-         </>
-       )}
+          {/* Confirm password input bar */}
+          <View style={styles.inputBar}>
+            <MessageInputField
+              placeholder={t('message.input.password_confirm_placeholder')}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              maxLength={20}
+              returnKeyType="done"
+              onSubmitEditing={handleSave}
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, !validate() && styles.sendButtonDisabled]}
+              onPress={handleSave}
+              disabled={!validate()}
+            >
+              <Icon name="check" size={moderateScale(24)} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
       {!hasPassword && (
         <View style={styles.inputBar}>
-          <View style={styles.input}>
+          <View style={styles.inputPlaceholder}>
             <CustomText type="small" style={styles.disabledText}>
               {t('common.no_password')}
             </CustomText>
@@ -202,15 +198,9 @@ const MessageInputBottomSheet = forwardRef(({
   const renderTextMode = () => (
     <View style={styles.inputBar}>
       {/* Dynamic TextInput */}
-      <BottomSheetTextInput
+      <MessageInputField
         ref={inputRef}
-        style={[
-          styles.input,
-          fieldType === 'content' && styles.inputMultiline,
-          fieldType === 'content' && { height: Math.max(40, inputHeight) },
-        ]}
         placeholder={getPlaceholder()}
-        placeholderTextColor={COLORS.TEXT_TERTIARY}
         value={value}
         onChangeText={setValue}
         multiline={fieldType === 'content'}
@@ -222,6 +212,7 @@ const MessageInputBottomSheet = forwardRef(({
             setInputHeight(e.nativeEvent.contentSize.height);
           }
         }}
+        style={fieldType === 'content' && { height: Math.max(40, inputHeight) }}
       />
 
       {/* Send button */}
@@ -260,7 +251,8 @@ MessageInputBottomSheet.displayName = 'MessageInputBottomSheet';
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: platformPadding(16),
-    paddingVertical: platformPadding(16),
+    paddingTop: platformPadding(8), // ✅ 상단 공백 최소화
+    paddingBottom: platformPadding(8), // ✅ 하단 공백 최소화
   },
   inputBar: {
     flexDirection: 'row',
@@ -268,21 +260,16 @@ const styles = StyleSheet.create({
     gap: scale(10),
     backgroundColor: COLORS.BG_SECONDARY,
     borderRadius: scale(24),
-    paddingHorizontal: platformPadding(16),
+    paddingHorizontal: platformPadding(10),
     paddingVertical: platformPadding(8),
     borderWidth: 1,
     borderColor: COLORS.BORDER_PRIMARY,
-    marginBottom: scale(10),
+    marginBottom: scale(8), // ✅ 간격 최소화 (10 → 8)
   },
-  input: {
+  inputPlaceholder: {
     flex: 1,
-    color: COLORS.TEXT_PRIMARY,
-    fontSize: moderateScale(15),
-    paddingVertical: Platform.OS === 'ios' ? scale(8) : scale(4),
-    maxHeight: scale(120),
-  },
-  inputMultiline: {
-    minHeight: scale(40),
+    justifyContent: 'center',
+    paddingVertical: scale(8),
   },
   sendButton: {
     width: scale(40),
@@ -302,20 +289,19 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   passwordContainer: {
-    gap: scale(15),
+    gap: scale(12), // ✅ 간격 최소화 (15 → 12)
   },
   passwordToggle: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(12),
-    paddingVertical: scale(10),
+    paddingVertical: scale(8), // ✅ 패딩 최소화 (10 → 8)
   },
   passwordToggleText: {
     color: COLORS.TEXT_PRIMARY,
   },
   disabledText: {
     color: COLORS.TEXT_TERTIARY,
-    paddingVertical: scale(8),
   },
 });
 
