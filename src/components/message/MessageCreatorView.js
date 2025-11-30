@@ -226,7 +226,7 @@ const MessageCreatorView = ({
     
     try {
       // Get user key
-      const userKey = await getUserKey();
+      const userKey = user?.user_key;
       if (!userKey) {
         throw new Error('User key not found');
       }

@@ -21,7 +21,8 @@
  */
 
 import { MESSAGE_ENDPOINTS } from '../../config/api.config';
-import { apiFetch } from '../../utils/api-utils';
+import apiClient from './apiClient';
+
 
 /**
  * 🎁 Create Message
@@ -42,7 +43,7 @@ export async function createMessage(params) {
   console.log('💌 [messageService] Creating message:', params);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.CREATE, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.CREATE, {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -80,7 +81,7 @@ export async function listMessages(user_key, page = 1, limit = 10) {
   console.log('📋 [messageService] Listing messages for user:', user_key);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.LIST, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.LIST, {
       method: 'POST',
       body: JSON.stringify({ user_key, page, limit }),
     });
@@ -118,7 +119,7 @@ export async function getPublicMessage(persona_key, short_code) {
   
   try {
     const url = `${MESSAGE_ENDPOINTS.PUBLIC}/${persona_key}/${short_code}`;
-    const response = await apiFetch(url, {
+    const response = await apiClient(url, {
       method: 'GET',
     });
 
@@ -154,7 +155,7 @@ export async function verifyPassword(message_key, password) {
   console.log('🔐 [messageService] Verifying password for message:', message_key);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.VERIFY_PASSWORD, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.VERIFY_PASSWORD, {
       method: 'POST',
       body: JSON.stringify({ message_key, password }),
     });
@@ -190,7 +191,7 @@ export async function reuseMessage(message_key) {
   console.log('🔄 [messageService] Reusing message:', message_key);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.REUSE, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.REUSE, {
       method: 'POST',
       body: JSON.stringify({ message_key }),
     });
@@ -226,7 +227,7 @@ export async function deleteMessage(message_key) {
   console.log('🗑️ [messageService] Deleting message:', message_key);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.DELETE, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.DELETE, {
       method: 'POST',
       body: JSON.stringify({ message_key }),
     });
@@ -259,7 +260,7 @@ export async function incrementShareCount(message_key) {
   console.log('📤 [messageService] Incrementing share count:', message_key);
   
   try {
-    const response = await apiFetch(MESSAGE_ENDPOINTS.SHARE, {
+    const response = await apiClient(MESSAGE_ENDPOINTS.SHARE, {
       method: 'POST',
       body: JSON.stringify({ message_key }),
     });
