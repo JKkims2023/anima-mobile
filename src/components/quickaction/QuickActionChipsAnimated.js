@@ -147,33 +147,34 @@ const styles = StyleSheet.create({
   container: {
     // ⭐ FIX: Remove position absolute (handled by parent)
     gap: verticalScale(12),
-    alignItems: 'flex-end',
+    alignItems: 'center',
+
 
   },
   chipWrapper: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   chip: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+//    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(16),
     borderRadius: scale(24),
     gap: scale(8),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+//    borderWidth: 1,
+//    borderColor: 'rgba(255, 255, 255, 0.1)',
     // ✅ Shadow for depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+//    shadowColor: '#000',
+//    shadowOffset: { width: 0, height: 4 },
+//    shadowOpacity: 0.3,
+//    shadowRadius: 8,
     elevation: 8,
   },
   label: {
     color: '#FFFFFF',
-    fontSize: scale(14),
-    fontWeight: '600',
+    fontSize: scale(12),
+    fontWeight: '400',
   },
 });
 

@@ -57,7 +57,7 @@ const PersonaStudioScreen = () => {
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
-  const [isMessageAreaVisible, setIsMessageAreaVisible] = useState(true);
+  const [isMessageAreaVisible, setIsMessageAreaVisible] = useState(false);
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   quickChipsOverlay: {
     position: 'absolute',
     bottom: verticalScale(20), // Below AppHeader
-    right: scale(16),
+    right: scale(0),
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
     // ⭐ SafeArea is handled inside QuickActionChipsAnimated

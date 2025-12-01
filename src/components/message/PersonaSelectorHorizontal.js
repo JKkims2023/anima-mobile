@@ -285,7 +285,7 @@ const PersonaSelectorHorizontal = ({
   return (
     <View style={styles.container}>
       {/* Title */}
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, { display: 'none' }]}>
         <CustomText type="normal" bold style={styles.sectionTitle}>
           {t('message.persona_selector_title')}
         </CustomText>
@@ -344,6 +344,8 @@ const PersonaSelectorHorizontal = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: scale(20),
+    marginTop: scale(10),
+    marginLeft: scale(10),
   },
   headerContainer: {
     paddingHorizontal: scale(20),
