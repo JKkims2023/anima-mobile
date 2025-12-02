@@ -71,7 +71,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     console.log('📋 [CenterAIButton] Context:', getCurrentContext());
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // Open Manager AI Overlay
+    // ✅ Haptic feedback
+    HapticService.cameraFullPress();
+    
+    // ✅ Open Manager AI Overlay (Universal Chat)
     setIsManagerOverlayVisible(true);
   };
   
@@ -203,11 +206,11 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         })}
       </View>
       
-      {/* ✅ CenterAIActionSheet */}
-      <CenterAIActionSheet
+      {/* ✅ CenterAIActionSheet - DISABLED (Using ManagerAIOverlay instead) */}
+      {/* <CenterAIActionSheet
         ref={actionSheetRef}
         onClose={() => actionSheetRef.current?.dismiss()}
-      />
+      /> */}
       
       {/* ✅ ManagerAIOverlay - Universal AI Chat */}
       <ManagerAIOverlay
