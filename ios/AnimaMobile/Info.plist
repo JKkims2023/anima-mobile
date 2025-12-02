@@ -71,5 +71,21 @@
 		<string>Zocial.ttf</string>
 		<string>Fontisto.ttf</string>
 	</array>
+
+	<!-- ⭐ Google Sign-In URL Scheme (REQUIRED for iOS) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- ⭐ REVERSED_CLIENT_ID from GoogleService-Info.plist -->
+				<!-- This will be automatically populated by Firebase -->
+				<!-- Format: com.googleusercontent.apps.{APP_ID} -->
+				<string>com.googleusercontent.apps.477268616388-gh957ova16b7qnm5nt928ersfrvjkq73</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
