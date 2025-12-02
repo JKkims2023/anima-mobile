@@ -160,7 +160,20 @@ const AuthSection = () => {
       // handleSuccessfulLogin(userCredential.user);
 
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error('❌ [Google Login] Error:', error);
+      
+      // Handle specific errors
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        Alert.alert('계정 오류', '이미 다른 로그인 방법으로 가입된 이메일입니다.');
+      } else if (error.code === 'auth/invalid-credential') {
+        Alert.alert('인증 오류', 'Google 인증 정보가 유효하지 않습니다.');
+      } else if (error.code === 'auth/network-request-failed') {
+        Alert.alert('네트워크 오류', '인터넷 연결을 확인해주세요.');
+      } else if (error.code === 'SIGN_IN_CANCELLED') {
+        console.log('ℹ️ [Google Login] User cancelled');
+      } else {
+        Alert.alert('로그인 실패', `Google 로그인 중 오류가 발생했습니다.\n${error.message}`);
+      }
     }
 
   };
