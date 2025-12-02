@@ -1,4 +1,4 @@
-package com.animamobile
+package ai.anima.soulconnect
 
 import android.os.Bundle
 import androidx.core.view.WindowCompat
