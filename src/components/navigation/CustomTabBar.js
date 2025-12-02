@@ -61,10 +61,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
-      key: 'Persona',
-      icon: 'storefront',
-      label: t('navigation.point') || '페르소나',
-      route: 'Persona', // Navigate to Persona screen
+      key: 'Point',
+      icon: 'diamond',
+      label: t('navigation.point') || '포인트',
+      route: 'Point', // Navigate to Point screen
     },
     { 
       key: 'Settings',
