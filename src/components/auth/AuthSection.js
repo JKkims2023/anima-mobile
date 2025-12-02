@@ -164,23 +164,36 @@ const AuthSection = () => {
       
       // 3. Google Sign-In 시도
       console.log('📋 [Google Login] Step 3: Attempting sign in...');
-      const userInfo = await GoogleSignin.signIn();
-      console.log('✅ [Google Login] Sign in response:', userInfo);
+      const signInResult = await GoogleSignin.signIn();
+      console.log('✅ [Google Login] Sign in response:', signInResult);
+      
+      // 4. Extract user info from response
+      // Note: @react-native-google-signin/google-signin v16+ returns { type, data }
+      let userInfo;
+      if (signInResult.type === 'success') {
+        userInfo = signInResult.data;
+        console.log('✅ [Google Login] Using signInResult.data');
+      } else {
+        userInfo = signInResult;
+        console.log('✅ [Google Login] Using signInResult directly');
+      }
+      
       console.log('✅ [Google Login] ID Token:', userInfo?.idToken);
       console.log('✅ [Google Login] User:', userInfo?.user);
 
-      // 4. ID Token 확인
+      // 5. ID Token 확인
       if (!userInfo?.idToken) {
+        console.error('❌ [Google Login] Full signInResult:', JSON.stringify(signInResult, null, 2));
         throw new Error('Google Sign-In succeeded but no ID token received. This usually means webClientId is not configured correctly.');
       }
       
-      // 5. Firebase용 자격 증명 생성
-      console.log('📋 [Google Login] Step 4: Creating Firebase credential...');
+      // 6. Firebase용 자격 증명 생성
+      console.log('📋 [Google Login] Step 6: Creating Firebase credential...');
       const googleCredential = auth.GoogleAuthProvider.credential(userInfo.idToken);
       console.log('✅ [Google Login] Firebase credential created:', googleCredential);
       
-      // 6. Firebase에 로그인
-      console.log('📋 [Google Login] Step 5: Signing in to Firebase...');
+      // 7. Firebase에 로그인
+      console.log('📋 [Google Login] Step 7: Signing in to Firebase...');
       const userCredential = await auth().signInWithCredential(googleCredential);
       console.log('✅ [Google Login] Firebase sign in successful!');
       console.log('✅ [Google Login] User:', userCredential.user.displayName, userCredential.user.email);
