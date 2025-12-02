@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "477268616388",
+    "project_id": "animamobile-53dc5",
+    "storage_bucket": "animamobile-53dc5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477268616388:android:e8581b8d8dc66455921591",
+        "android_client_info": {
+          "package_name": "com.animamobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCSSCE9ngK-uJjX214D1s3S0ouVSRbpLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
