@@ -12,7 +12,12 @@
           "package_name": "ai.anima.soulconnect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "477268616388-gh957ova16b7qnm5nt928ersfrvjkq73.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCCSSCE9ngK-uJjX214D1s3S0ouVSRbpLI"

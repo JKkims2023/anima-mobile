@@ -34,6 +34,14 @@ import HapticService from '../../utils/HapticService';
 import { verticalScale } from '../../utils/responsive-utils';
 import { register } from '../../services/api/authService';
 import { useAnima } from '../../contexts/AnimaContext';
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import appleAuth from '@invertase/react-native-apple-authentication';
+
+GoogleSignin.configure({
+  webClientId: '477268616388-gh957ova16b7qnm5nt928ersfrvjkq73.apps.googleusercontent.com',
+});
+
 
 const AuthSection = () => {
   const { t } = useTranslation();
@@ -124,9 +132,37 @@ const AuthSection = () => {
   };
 
   // ✅ Handle Google login
-  const handleGoogleLogin = () => {
-    HapticService.medium();
-    Alert.alert('Google Login', 'Google login will be implemented in Phase 2');
+  const handleGoogleLogin = async () => {
+    
+    try {
+
+      HapticService.medium();
+
+      // 1. 기기에 구글 플레이 서비스가 있는지 확인
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      
+      // 2. Google ID 토큰 가져오기
+      const { idToken } = await GoogleSignin.signIn();
+
+      console.log('Google ID 토큰:', idToken);
+      
+      // 3. Firebase용 자격 증명 생성
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      console.log('Google 자격 증명:', googleCredential);
+      
+      // 4. Firebase에 로그인
+      const userCredential = await auth().signInWithCredential(googleCredential);
+      console.log('Google 로그인 성공:', userCredential.user);
+      Alert.alert('로그인 성공', `${userCredential.user.displayName}님, 환영합니다!`);
+      
+      // ✨ 여기서 JK님의 서비스 로직을 처리합니다 (예: 메인 화면으로 이동)
+      // handleSuccessfulLogin(userCredential.user);
+
+    } catch (error) {
+      console.error('Google login error:', error);
+    }
+
   };
 
   // ✅ Handle Apple login
@@ -143,22 +179,7 @@ const AuthSection = () => {
       
       if (response.success) {
         HapticService.success();
-        /*
-        Alert.alert(
-          t('auth.login.title'),
-          t('auth.login.success'),
-          [
-            {
-              text: t('common.confirm'),
-              onPress: () => {
-                // Flip back to initial view (will show profile)
-                handleFlipBack();
-              },
-            },
-          ]
-        );
-        */
-
+        
         showAlert({
           title: t('auth.login.title'),
           message: t('auth.login.success'),

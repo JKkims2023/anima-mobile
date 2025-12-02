@@ -14,6 +14,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
+// ⭐ Firebase Initialization (MUST BE FIRST!)
+import auth from '@react-native-firebase/auth';
+import messaging from '@react-native-firebase/messaging';
+
 // Import i18n
 import './src/i18n/i18n.config';
 
@@ -40,6 +44,30 @@ import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
 
 function App(): React.JSX.Element {
   const [showSplash, setShowSplash] = useState(true);
+
+  // ⭐ Firebase Initialization Check
+  useEffect(() => {
+    console.log('🔥 [Firebase] Checking initialization...');
+    
+    // Check if Firebase is initialized
+    try {
+      const app = auth().app;
+      console.log('✅ [Firebase] App initialized:', app.name);
+      console.log('✅ [Firebase] Project ID:', app.options.projectId);
+    } catch (error) {
+      console.error('❌ [Firebase] Initialization error:', error);
+    }
+
+    // Request notification permission (optional)
+    messaging()
+      .requestPermission()
+      .then((authStatus) => {
+        console.log('📱 [Firebase Messaging] Permission status:', authStatus);
+      })
+      .catch((error) => {
+        console.log('⚠️ [Firebase Messaging] Permission error:', error);
+      });
+  }, []);
 
   const handleSplashFinish = () => {
     setShowSplash(false);

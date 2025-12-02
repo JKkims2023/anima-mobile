@@ -2150,6 +2150,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@invertase/react-native-apple-authentication@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "@invertase/react-native-apple-authentication@npm:2.5.0"
+  checksum: 30d7bf1d62b75c109f03a360f10bcf63d5dbb106104b99758a2eba691c25c17d7f071b9fb7b7fac9af7059b055739002a21bda7a5c4a9b746305d0c4054704a3
+  languageName: node
+  linkType: hard
+
 "@isaacs/balanced-match@npm:^4.0.1":
   version: 4.0.1
   resolution: "@isaacs/balanced-match@npm:4.0.1"
@@ -2879,6 +2886,20 @@ __metadata:
     expo:
       optional: true
   checksum: 1adb2eba86685ff859db16ae6988c1c89de71fd959a30d56e4aadad77b6831be125e2bbf9c022937530b38694bc9439f6e8808210f8090992f8ccd666e146746
+  languageName: node
+  linkType: hard
+
+"@react-native-google-signin/google-signin@npm:^16.0.0":
+  version: 16.0.0
+  resolution: "@react-native-google-signin/google-signin@npm:16.0.0"
+  peerDependencies:
+    expo: ">=52.0.40"
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+  checksum: a03f66e0473e28eb4a5bf53afe802cef15b24f81d332474ad13bb564dbbbe4c2aa01e9c35dfe5fd3e8d97d81e34b4f7f0acee02c5d4e3e3258f8fc49e9c62d8b
   languageName: node
   linkType: hard
 
@@ -3649,6 +3670,7 @@ __metadata:
     "@babel/preset-env": ^7.25.3
     "@babel/runtime": ^7.25.0
     "@gorhom/bottom-sheet": ^5
+    "@invertase/react-native-apple-authentication": ^2.5.0
     "@react-native-async-storage/async-storage": ^2.2.0
     "@react-native-community/blur": ^4.4.1
     "@react-native-community/cli": 18.0.0
@@ -3657,6 +3679,7 @@ __metadata:
     "@react-native-firebase/app": 21.7.1
     "@react-native-firebase/auth": 21.7.1
     "@react-native-firebase/messaging": 21.7.1
+    "@react-native-google-signin/google-signin": ^16.0.0
     "@react-native/babel-preset": 0.79.2
     "@react-native/eslint-config": 0.79.2
     "@react-native/metro-config": 0.79.2
