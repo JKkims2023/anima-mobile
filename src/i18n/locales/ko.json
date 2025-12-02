@@ -396,6 +396,12 @@
         "general": "오류가 발생했습니다. 다시 시도해주세요"
       }
     },
+    "social_login": {
+      "welcome_new_user": "환영합니다! 🎉",
+      "welcome_message": "{{name}}님, ANIMA에 오신 것을 환영합니다!\n이제 당신만의 AI 페르소나를 만나보세요! 💫",
+      "welcome_back": "다시 오신 것을 환영합니다! 👋",
+      "welcome_back_message": "{{name}}님, 반갑습니다!\n소중한 인연들이 당신을 그리워했어요! 💖"
+    },
     "logout": {
       "success": "로그아웃되었습니다! 👋",
       "button": "로그아웃"
@@ -472,6 +478,10 @@
     "AUTH_WITHDRAW_001": "사용자 키가 제공되지 않았습니다",
     "AUTH_WITHDRAW_002": "사용자를 찾을 수 없습니다",
     "AUTH_WITHDRAW_SUCCESS": "회원 탈퇴가 완료되었습니다",
+    "SOCIAL_LOGIN_MISSING_FIELDS": "필수 정보가 누락되었습니다",
+    "SOCIAL_LOGIN_INVALID_PROVIDER": "지원하지 않는 로그인 방식입니다",
+    "SOCIAL_LOGIN_FAILED": "소셜 로그인에 실패했습니다. 다시 시도해주세요",
+    "SOCIAL_PROVIDER_ERROR": "소셜 로그인 제공자 오류가 발생했습니다",
     "PASSWORD_TOO_SHORT": "비밀번호는 최소 8자 이상이어야 합니다",
     "PASSWORD_NO_LOWERCASE": "비밀번호는 영문 소문자를 포함해야 합니다",
     "PASSWORD_NO_UPPERCASE": "비밀번호는 영문 대문자를 포함해야 합니다",

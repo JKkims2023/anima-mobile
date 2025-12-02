@@ -455,6 +455,67 @@ export async function resetPassword(email, code, newPassword) {
   };
 }
 
+// ==================== Social Login ====================
+
+/**
+ * Social login (Google, Apple, etc.)
+ * Auto-register if new user, or login if existing user
+ * @param {Object} socialData - Social login data
+ * @param {string} socialData.provider - "google", "apple", "kakao"
+ * @param {string} socialData.email - User email
+ * @param {string} socialData.displayName - User display name
+ * @param {string} socialData.photoURL - User profile photo URL
+ * @param {string} socialData.uid - Social platform unique ID
+ * @returns {Promise<{success: boolean, errorCode?: string, data?: Object, user?: Object, token?: string, isNewUser?: boolean}>}
+ */
+export async function socialLogin(socialData) {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔵 [authService] Social login request');
+  console.log('📋 [authService] Provider:', socialData.provider);
+  console.log('📋 [authService] Email:', socialData.email);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  const result = await apiFetch(AUTH_ENDPOINTS.SOCIAL_LOGIN, {
+    method: 'POST',
+    body: JSON.stringify({
+      provider: socialData.provider,
+      email: socialData.email,
+      displayName: socialData.displayName,
+      photoURL: socialData.photoURL,
+      uid: socialData.uid,
+    }),
+  });
+
+  if (result.success) {
+    console.log('✅ [authService] Social login successful');
+    console.log('📊 [authService] isNewUser:', result.data?.isNewUser);
+    
+    // ✅ Save token and user to AsyncStorage
+    if (result.data.token) {
+      await saveToken(result.data.token);
+    }
+    if (result.data.user) {
+      await saveUser(result.data.user);
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      user: result.data.user,
+      token: result.data.token,
+      isNewUser: result.data.isNewUser || false,
+    };
+  }
+
+  console.error('❌ [authService] Social login failed');
+  console.error('📊 [authService] Error:', result.data?.errorCode);
+
+  return {
+    success: false,
+    errorCode: result.data?.errorCode || 'SOCIAL_LOGIN_FAILED',
+  };
+}
+
 // ==================== Export All ====================
 
 export default {
@@ -466,6 +527,7 @@ export default {
   register,
   login,
   logout,
+  socialLogin, // ⭐ Social login (Google, Apple, etc.)
   verifyToken,
   autoLogin,
   

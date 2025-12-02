@@ -198,10 +198,76 @@ const AuthSection = () => {
       console.log('✅ [Google Login] Firebase sign in successful!');
       console.log('✅ [Google Login] User:', userCredential.user.displayName, userCredential.user.email);
       
-      Alert.alert('로그인 성공', `${userCredential.user.displayName}님, 환영합니다!`);
+      // ⭐ Step 8: 백엔드 소셜 로그인 API 호출
+      console.log('📋 [Google Login] Step 8: Calling backend social login API...');
+      const { socialLogin } = await import('../../services/api/authService');
       
-      // ✨ 여기서 JK님의 서비스 로직을 처리합니다 (예: 메인 화면으로 이동)
-      // handleSuccessfulLogin(userCredential.user);
+      const response = await socialLogin({
+        provider: 'google',
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+        photoURL: userCredential.user.photoURL,
+        uid: userCredential.user.uid,
+      });
+      
+      if (response.success) {
+        console.log('✅ [Google Login] Backend login successful!');
+        console.log('📊 [Google Login] isNewUser:', response.isNewUser);
+        
+        HapticService.success();
+        
+        // ✅ 신규 가입 vs 기존 로그인 구분
+        if (response.isNewUser) {
+          showAlert({
+            title: t('auth.social_login.welcome_new_user'),
+            message: t('auth.social_login.welcome_message', { 
+              name: response.user.user_name 
+            }),
+            emoji: '🎉',
+            buttons: [
+              {
+                text: t('common.confirm'),
+                onPress: () => {
+                  console.log('✅ [Google Login] New user welcome confirmed');
+                  // UserContext가 자동으로 업데이트되어 메인 화면으로 이동
+                },
+              },
+            ],
+          });
+        } else {
+          showAlert({
+            title: t('auth.social_login.welcome_back'),
+            message: t('auth.social_login.welcome_back_message', { 
+              name: response.user.user_name 
+            }),
+            emoji: '👋',
+            buttons: [
+              {
+                text: t('common.confirm'),
+                onPress: () => {
+                  console.log('✅ [Google Login] Welcome back confirmed');
+                  // UserContext가 자동으로 업데이트되어 메인 화면으로 이동
+                },
+              },
+            ],
+          });
+        }
+      } else {
+        // ❌ 백엔드 로그인 실패
+        console.error('❌ [Google Login] Backend login failed:', response.errorCode);
+        HapticService.error();
+        
+        showAlert({
+          title: t('error.title'),
+          message: t(`errors.${response.errorCode}`) || t('errors.SOCIAL_LOGIN_FAILED'),
+          emoji: '❌',
+          buttons: [
+            {
+              text: t('common.confirm'),
+            },
+          ],
+        });
+      }
 
     } catch (error) {
       console.error('❌ [Google Login] Error:', error);

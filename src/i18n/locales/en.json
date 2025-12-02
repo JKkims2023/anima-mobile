@@ -359,6 +359,12 @@
         "general": "An error occurred. Please try again"
       }
     },
+    "social_login": {
+      "welcome_new_user": "Welcome! 🎉",
+      "welcome_message": "Welcome to ANIMA, {{name}}!\nMeet your AI personas now! 💫",
+      "welcome_back": "Welcome Back! 👋",
+      "welcome_back_message": "Welcome back, {{name}}!\nYour AI personas missed you! 💖"
+    },
     "logout": {
       "success": "Logged out successfully! 👋",
       "button": "Logout"
@@ -495,6 +501,10 @@
     "AUTH_WITHDRAW_001": "User key is required",
     "AUTH_WITHDRAW_002": "User not found",
     "AUTH_WITHDRAW_SUCCESS": "Account withdrawal completed",
+    "SOCIAL_LOGIN_MISSING_FIELDS": "Required information is missing",
+    "SOCIAL_LOGIN_INVALID_PROVIDER": "Unsupported login method",
+    "SOCIAL_LOGIN_FAILED": "Social login failed. Please try again",
+    "SOCIAL_PROVIDER_ERROR": "Social login provider error occurred",
     "PASSWORD_TOO_SHORT": "Password must be at least 8 characters",
     "PASSWORD_NO_LOWERCASE": "Password must include lowercase letters",
     "PASSWORD_NO_UPPERCASE": "Password must include uppercase letters",

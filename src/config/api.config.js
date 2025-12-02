@@ -33,6 +33,7 @@ export const AUTH_ENDPOINTS = {
   WITHDRAW: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/withdraw',
   SEND_PASSWORD_RESET_EMAIL: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/send-password-reset-email',
   RESET_PASSWORD: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/reset-password',
+  SOCIAL_LOGIN: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/auth/social-login', // ⭐ Social login (Google, Apple, etc.)
 };
 
 /**
