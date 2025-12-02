@@ -195,6 +195,26 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
+  // ==================== Set Authenticated User ====================
+
+  /**
+   * Set user and mark as authenticated
+   * (Use this for social login or when user data comes from external auth)
+   * 
+   * @param {object} userData - Complete user data
+   */
+  const setAuthenticatedUser = useCallback((userData) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+    
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✅ [UserContext] User authenticated');
+    console.log('👤 [UserContext] User:', userData.user_id);
+    console.log('📧 [UserContext] Email:', userData.user_email);
+    console.log('💰 [UserContext] Points:', userData.user_point);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, []);
+
   // ==================== Refresh User Info ====================
 
   /**
@@ -241,6 +261,7 @@ export const UserProvider = ({ children }) => {
     register,
     updateUser,
     refreshUser,
+    setAuthenticatedUser, // ⭐ Social login용
   };
 
   // ==================== Render ====================

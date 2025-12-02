@@ -56,7 +56,7 @@ GoogleSignin.configure({
 const AuthSection = () => {
   const { t } = useTranslation();
   const { showAlert } = useAnima();
-  const { user, isAuthenticated, loading, login } = useUser();
+  const { user, isAuthenticated, loading, login, setAuthenticatedUser } = useUser(); // ⭐ setAuthenticatedUser 추가
   const [viewState, setViewState] = useState('initial'); // 'initial', 'email', 'signup'
   const [isLoading, setIsLoading] = useState(false);
 
@@ -214,6 +214,10 @@ const AuthSection = () => {
         console.log('✅ [Google Login] Backend login successful!');
         console.log('📊 [Google Login] isNewUser:', response.isNewUser);
         
+        // ⭐ UserContext 즉시 업데이트!
+        setAuthenticatedUser(response.user);
+        console.log('✅ [Google Login] UserContext updated!');
+        
         HapticService.success();
         
         // ✅ 신규 가입 vs 기존 로그인 구분
@@ -229,7 +233,7 @@ const AuthSection = () => {
                 text: t('common.confirm'),
                 onPress: () => {
                   console.log('✅ [Google Login] New user welcome confirmed');
-                  // UserContext가 자동으로 업데이트되어 메인 화면으로 이동
+                  // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
                 },
               },
             ],
@@ -246,7 +250,7 @@ const AuthSection = () => {
                 text: t('common.confirm'),
                 onPress: () => {
                   console.log('✅ [Google Login] Welcome back confirmed');
-                  // UserContext가 자동으로 업데이트되어 메인 화면으로 이동
+                  // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
                 },
               },
             ],
