@@ -60,6 +60,7 @@ const ManagerAIOverlay = ({
   const [isLoading, setIsLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [messageVersion, setMessageVersion] = useState(0); // ✅ For ChatMessageList optimization
   
   // ✅ Keyboard handling
   const keyboardHeight = useKeyboardHeight();
@@ -135,6 +136,7 @@ const ManagerAIOverlay = ({
         text: greeting,
         timestamp: new Date().toISOString(),
       }]);
+      setMessageVersion(prev => prev + 1); // ✅ Increment version
     }
   }, [visible, context, messages.length, t]);
   
@@ -151,16 +153,18 @@ const ManagerAIOverlay = ({
     };
     
     setMessages(prev => [...prev, userMessage]);
+    setMessageVersion(prev => prev + 1); // ✅ Increment version
     setIsLoading(true);
     
     try {
       const userKey = await getUserKey();
       
-      // Call Manager AI API with context
-      const response = await chatApi.managerQuestion({
-        userKey: userKey || 'guest',
+      // ✅ Call Manager AI API (sendManagerAIMessage)
+      const response = await chatApi.sendManagerAIMessage({
+        user_key: userKey || 'guest',
         question: text,
-        context: context, // ⭐ Pass context to AI
+        // TODO: Backend에서 context 파라미터 지원 추가 필요
+        // context: context, // 'home' | 'music' | 'point' | 'settings'
       });
       
       if (response.success && response.data?.answer) {
@@ -188,6 +192,7 @@ const ManagerAIOverlay = ({
             };
             
             setMessages(prev => [...prev, aiMessage]);
+            setMessageVersion(prev => prev + 1); // ✅ Increment version
             setIsTyping(false);
             setTypingMessage('');
           }
@@ -202,6 +207,7 @@ const ManagerAIOverlay = ({
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, errorMessage]);
+        setMessageVersion(prev => prev + 1); // ✅ Increment version
       }
       
     } catch (error) {
@@ -214,6 +220,7 @@ const ManagerAIOverlay = ({
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errorMessage]);
+      setMessageVersion(prev => prev + 1); // ✅ Increment version
     } finally {
       setIsLoading(false);
     }
@@ -229,6 +236,7 @@ const ManagerAIOverlay = ({
       setMessages([]);
       setTypingMessage('');
       setIsTyping(false);
+      setMessageVersion(0); // ✅ Reset version
     }, 300);
     
     if (onClose) {
@@ -298,10 +306,10 @@ const ManagerAIOverlay = ({
           {/* ✅ Chat Messages */}
           <View style={styles.chatContainer}>
             <ChatMessageList
-              messages={messages}
+              completedMessages={messages}
+              typingMessage={isTyping ? typingMessage : null}
+              messageVersion={messageVersion}
               isLoading={isLoading}
-              typingMessage={typingMessage}
-              isTyping={isTyping}
             />
           </View>
           
