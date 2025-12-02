@@ -38,8 +38,18 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import appleAuth from '@invertase/react-native-apple-authentication';
 
+// ⭐ Google Sign-In Configuration
+// IMPORTANT: webClientId is the OAuth 2.0 Web Client ID from Firebase Console
 GoogleSignin.configure({
   webClientId: '477268616388-gh957ova16b7qnm5nt928ersfrvjkq73.apps.googleusercontent.com',
+  offlineAccess: true, // Enable refresh tokens
+  forceCodeForRefreshToken: true, // Android only
+  accountName: '', // Android only
+  googleServicePlistPath: '', // iOS only
+  openIdRealm: '', // iOS only
+  hostedDomain: '', // Restrict to a specific domain
+  loginHint: '', // iOS only
+  profileImageSize: 120, // Image size for user profile
 });
 
 
@@ -133,27 +143,48 @@ const AuthSection = () => {
 
   // ✅ Handle Google login
   const handleGoogleLogin = async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔵 [Google Login] Starting...');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     try {
-
       HapticService.medium();
 
-      // 1. 기기에 구글 플레이 서비스가 있는지 확인
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      
-      // 2. Google ID 토큰 가져오기
-      const { idToken } = await GoogleSignin.signIn();
+      // 1. Check Google Sign-In Configuration
+      console.log('📋 [Google Login] Step 1: Checking configuration...');
+      const configuredWebClientId = GoogleSignin.getCurrentUser();
+      console.log('📋 [Google Login] Current User:', configuredWebClientId);
 
-      console.log('Google ID 토큰:', idToken);
+      // 2. 기기에 구글 플레이 서비스가 있는지 확인
+      console.log('📋 [Google Login] Step 2: Checking Play Services...');
+      const hasPlayServices = await GoogleSignin.hasPlayServices({ 
+        showPlayServicesUpdateDialog: true 
+      });
+      console.log('✅ [Google Login] Play Services available:', hasPlayServices);
       
-      // 3. Firebase용 자격 증명 생성
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      // 3. Google Sign-In 시도
+      console.log('📋 [Google Login] Step 3: Attempting sign in...');
+      const userInfo = await GoogleSignin.signIn();
+      console.log('✅ [Google Login] Sign in response:', userInfo);
+      console.log('✅ [Google Login] ID Token:', userInfo?.idToken);
+      console.log('✅ [Google Login] User:', userInfo?.user);
 
-      console.log('Google 자격 증명:', googleCredential);
+      // 4. ID Token 확인
+      if (!userInfo?.idToken) {
+        throw new Error('Google Sign-In succeeded but no ID token received. This usually means webClientId is not configured correctly.');
+      }
       
-      // 4. Firebase에 로그인
+      // 5. Firebase용 자격 증명 생성
+      console.log('📋 [Google Login] Step 4: Creating Firebase credential...');
+      const googleCredential = auth.GoogleAuthProvider.credential(userInfo.idToken);
+      console.log('✅ [Google Login] Firebase credential created:', googleCredential);
+      
+      // 6. Firebase에 로그인
+      console.log('📋 [Google Login] Step 5: Signing in to Firebase...');
       const userCredential = await auth().signInWithCredential(googleCredential);
-      console.log('Google 로그인 성공:', userCredential.user);
+      console.log('✅ [Google Login] Firebase sign in successful!');
+      console.log('✅ [Google Login] User:', userCredential.user.displayName, userCredential.user.email);
+      
       Alert.alert('로그인 성공', `${userCredential.user.displayName}님, 환영합니다!`);
       
       // ✨ 여기서 JK님의 서비스 로직을 처리합니다 (예: 메인 화면으로 이동)
@@ -161,18 +192,21 @@ const AuthSection = () => {
 
     } catch (error) {
       console.error('❌ [Google Login] Error:', error);
+      console.error('❌ [Google Login] Error Type:', typeof error);
+      console.error('❌ [Google Login] Error Code:', error?.code);
+      console.error('❌ [Google Login] Error Message:', error?.message);
       
       // Handle specific errors
-      if (error.code === 'auth/account-exists-with-different-credential') {
+      if (error?.code === 'auth/account-exists-with-different-credential') {
         Alert.alert('계정 오류', '이미 다른 로그인 방법으로 가입된 이메일입니다.');
-      } else if (error.code === 'auth/invalid-credential') {
+      } else if (error?.code === 'auth/invalid-credential') {
         Alert.alert('인증 오류', 'Google 인증 정보가 유효하지 않습니다.');
-      } else if (error.code === 'auth/network-request-failed') {
+      } else if (error?.code === 'auth/network-request-failed') {
         Alert.alert('네트워크 오류', '인터넷 연결을 확인해주세요.');
-      } else if (error.code === 'SIGN_IN_CANCELLED') {
+      } else if (error?.code === 'SIGN_IN_CANCELLED' || error?.code === '-5') {
         console.log('ℹ️ [Google Login] User cancelled');
       } else {
-        Alert.alert('로그인 실패', `Google 로그인 중 오류가 발생했습니다.\n${error.message}`);
+        Alert.alert('로그인 실패', `Google 로그인 중 오류가 발생했습니다.\n${error?.message || error?.toString()}`);
       }
     }
 
