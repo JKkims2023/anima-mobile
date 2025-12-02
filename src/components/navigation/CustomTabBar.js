@@ -18,7 +18,7 @@
  * @date 2024-11-21
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -30,6 +30,7 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
 import CenterAIActionSheet from '../CenterAIActionSheet';
+import ManagerAIOverlay from '../chat/ManagerAIOverlay'; // ⭐ Manager AI Overlay
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
 
@@ -44,7 +45,40 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { t } = useTranslation();
   // ✅ CenterAIActionSheet ref
   const actionSheetRef = useRef(null);
-  const insets = useSafeAreaInsets(); 
+  // ✅ ManagerAIOverlay state
+  const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
+  const insets = useSafeAreaInsets();
+  
+  // ✅ Get current context based on active tab
+  const getCurrentContext = () => {
+    const currentRouteName = state.routes[state.index]?.name || 'Home';
+    const contextMap = {
+      'Home': 'home',
+      'Music': 'music',
+      'Point': 'point',
+      'Settings': 'settings',
+      'Persona': 'home', // Fallback to home context
+      'AI': 'home', // Fallback to home context
+    };
+    return contextMap[currentRouteName] || 'home';
+  };
+  
+  // ✅ Handle Center AI Button Press
+  const handleCenterButtonPress = () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💙 [CenterAIButton] Pressed');
+    console.log('📋 [CenterAIButton] Current Tab:', state.routes[state.index]?.name);
+    console.log('📋 [CenterAIButton] Context:', getCurrentContext());
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Open Manager AI Overlay
+    setIsManagerOverlayVisible(true);
+  };
+  
+  // ✅ Handle Overlay Close
+  const handleOverlayClose = () => {
+    setIsManagerOverlayVisible(false);
+  }; 
   // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
   const tabs = [
     { 
@@ -101,14 +135,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           }
           personaImageUrl={selectedPersona?.selected_dress_image_url || selectedPersona?.original_url}
           personaName={selectedPersona?.persona_name}
-          onPress={() => {
-            // ✅ Open CenterAIActionSheet
-            actionSheetRef.current?.present();
-            
-            if (__DEV__) {
-              console.log('💙 [CenterAIButton] Pressed → Opening ActionSheet');
-            }
-          }}
+          onPress={handleCenterButtonPress}
         />
       </View>
       
@@ -180,6 +207,13 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       <CenterAIActionSheet
         ref={actionSheetRef}
         onClose={() => actionSheetRef.current?.dismiss()}
+      />
+      
+      {/* ✅ ManagerAIOverlay - Universal AI Chat */}
+      <ManagerAIOverlay
+        visible={isManagerOverlayVisible}
+        onClose={handleOverlayClose}
+        context={getCurrentContext()}
       />
     </View>
   );

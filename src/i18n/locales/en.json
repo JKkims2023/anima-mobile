@@ -1510,6 +1510,20 @@
     "manager_sage": "🤖 MANAGER SAGE",
     "manager_sage_desc": "Chat with AI Manager"
   },
+  "managerAI": {
+    "context": {
+      "home": "Message & Persona Creation Assistant",
+      "music": "Music Generation Assistant",
+      "point": "Points & Premium Guide",
+      "settings": "Settings Assistant"
+    },
+    "greeting": {
+      "home": "Hello! 💙 I'll help you create messages and personas!\n\nWhat would you like to know?",
+      "music": "Hello! 🎵 I'll help you generate music!\n\nAI will create music that matches your message.",
+      "point": "Hello! 💰 Let me guide you through points and premium membership!\n\nWhat would you like to know?",
+      "settings": "Hello! ⚙️ I'll help you with settings!\n\nWhat do you need help with?"
+    }
+  },
   "settings": {
     "title": "Settings",
     "service": {
