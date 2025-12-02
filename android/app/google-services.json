@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:477268616388:android:e8581b8d8dc66455921591",
+        "mobilesdk_app_id": "1:477268616388:android:bfb1d84594007504921591",
         "android_client_info": {
-          "package_name": "com.animamobile"
+          "package_name": "ai.anima.soulconnect"
         }
       },
       "oauth_client": [],
