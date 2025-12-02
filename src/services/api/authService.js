@@ -508,11 +508,16 @@ export async function socialLogin(socialData) {
   }
 
   console.error('❌ [authService] Social login failed');
-  console.error('📊 [authService] Error:', result.data?.errorCode);
+  console.error('📊 [authService] Full result:', JSON.stringify(result, null, 2));
+  console.error('📊 [authService] result.data:', result.data);
+  console.error('📊 [authService] result.data.errorCode:', result.data?.errorCode);
+  console.error('📊 [authService] result.data.message:', result.data?.message);
+  console.error('📊 [authService] result.data.error:', result.data?.error);
 
   return {
     success: false,
-    errorCode: result.data?.errorCode || 'SOCIAL_LOGIN_FAILED',
+    errorCode: result.data?.errorCode || result.data?.error || 'SOCIAL_LOGIN_FAILED',
+    message: result.data?.message,
   };
 }
 

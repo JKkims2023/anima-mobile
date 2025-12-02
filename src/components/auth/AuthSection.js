@@ -296,9 +296,170 @@ const AuthSection = () => {
   };
 
   // ✅ Handle Apple login
-  const handleAppleLogin = () => {
+  const handleAppleLogin = async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🍎 [Apple Login] Starting...');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     HapticService.medium();
-    Alert.alert('Apple Login', 'Apple login will be implemented in Phase 2');
+
+    try {
+      // 1. Apple 로그인 가능 여부 확인
+      console.log('📋 [Apple Login] Step 1: Checking availability...');
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      console.log('✅ [Apple Login] Apple auth response:', appleAuthRequestResponse);
+
+      // 2. identityToken 확인
+      const { identityToken, nonce } = appleAuthRequestResponse;
+      
+      if (!identityToken) {
+        console.error('❌ [Apple Login] No identity token received');
+        throw new Error('Apple Sign-In failed - no identity token');
+      }
+
+      console.log('✅ [Apple Login] Identity Token:', identityToken);
+      console.log('✅ [Apple Login] Nonce:', nonce);
+
+      // 3. Firebase용 자격 증명 생성
+      console.log('📋 [Apple Login] Step 3: Creating Firebase credential...');
+      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+      console.log('✅ [Apple Login] Firebase credential created');
+
+      // 4. Firebase에 로그인
+      console.log('📋 [Apple Login] Step 4: Signing in to Firebase...');
+      const userCredential = await auth().signInWithCredential(appleCredential);
+      console.log('✅ [Apple Login] Firebase sign in successful!');
+      console.log('✅ [Apple Login] User:', userCredential.user.displayName, userCredential.user.email);
+
+      // ⭐ Step 5: 백엔드 소셜 로그인 API 호출
+      console.log('📋 [Apple Login] Step 5: Calling backend social login API...');
+      const { socialLogin } = await import('../../services/api/authService');
+      
+      // Apple은 email이 없을 수 있으므로 uid를 대체 사용
+      const email = userCredential.user.email || `${userCredential.user.uid}@privaterelay.appleid.com`;
+      const displayName = userCredential.user.displayName || 
+                         appleAuthRequestResponse.fullName?.givenName || 
+                         'Apple User';
+
+      const response = await socialLogin({
+        provider: 'apple',
+        email: email,
+        displayName: displayName,
+        photoURL: userCredential.user.photoURL,
+        uid: userCredential.user.uid,
+      });
+      
+      if (response.success) {
+        console.log('✅ [Apple Login] Backend login successful!');
+        console.log('📊 [Apple Login] isNewUser:', response.isNewUser);
+        
+        // ⭐ UserContext 즉시 업데이트!
+        setAuthenticatedUser(response.user);
+        console.log('✅ [Apple Login] UserContext updated!');
+        
+        HapticService.success();
+        
+        // ✅ 신규 가입 vs 기존 로그인 구분
+        if (response.isNewUser) {
+          showAlert({
+            title: t('auth.social_login.welcome_new_user'),
+            message: t('auth.social_login.welcome_message', { 
+              name: response.user.user_name 
+            }),
+            emoji: '🎉',
+            buttons: [
+              {
+                text: t('common.confirm'),
+                onPress: () => {
+                  console.log('✅ [Apple Login] New user welcome confirmed');
+                  // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
+                },
+              },
+            ],
+          });
+        } else {
+          showAlert({
+            title: t('auth.social_login.welcome_back'),
+            message: t('auth.social_login.welcome_back_message', { 
+              name: response.user.user_name 
+            }),
+            emoji: '👋',
+            buttons: [
+              {
+                text: t('common.confirm'),
+                onPress: () => {
+                  console.log('✅ [Apple Login] Welcome back confirmed');
+                  // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
+                },
+              },
+            ],
+          });
+        }
+      } else {
+        // ❌ 백엔드 로그인 실패
+        console.error('❌ [Apple Login] Backend login failed:', response.errorCode);
+        HapticService.error();
+        
+        showAlert({
+          title: t('error.title'),
+          message: t(`errors.${response.errorCode}`) || t('errors.SOCIAL_LOGIN_FAILED'),
+          emoji: '❌',
+          buttons: [
+            {
+              text: t('common.confirm'),
+            },
+          ],
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ [Apple Login] Error:', error);
+      console.error('❌ [Apple Login] Error Type:', typeof error);
+      console.error('❌ [Apple Login] Error Code:', error?.code);
+      console.error('❌ [Apple Login] Error Message:', error?.message);
+      
+      let errorMessage = t('errors.SOCIAL_LOGIN_FAILED'); // Default error
+      
+      // Apple Sign-In specific errors
+      if (error?.code === appleAuth.Error.CANCELED) {
+        errorMessage = t('errors.APPLE_LOGIN_CANCELLED');
+        HapticService.light();
+      } else if (error?.code === appleAuth.Error.FAILED) {
+        errorMessage = t('errors.APPLE_LOGIN_FAILED');
+        HapticService.error();
+      } else if (error?.code === appleAuth.Error.INVALID_RESPONSE) {
+        errorMessage = t('errors.APPLE_LOGIN_INVALID_RESPONSE');
+        HapticService.error();
+      } else if (error?.code === appleAuth.Error.NOT_HANDLED) {
+        errorMessage = t('errors.APPLE_LOGIN_NOT_HANDLED');
+        HapticService.error();
+      } else if (error?.code === appleAuth.Error.UNKNOWN) {
+        errorMessage = t('errors.APPLE_LOGIN_UNKNOWN');
+        HapticService.error();
+      } else if (error?.code === 'auth/account-exists-with-different-credential') {
+        errorMessage = t('errors.AUTH_ACCOUNT_EXISTS_DIFFERENT_CREDENTIAL');
+        HapticService.warning();
+      } else if (error?.code === 'auth/network-request-failed') {
+        errorMessage = t('errors.NETWORK_001');
+        HapticService.error();
+      } else {
+        HapticService.error();
+      }
+      
+      showAlert({
+        title: t('error.title'),
+        message: errorMessage,
+        emoji: '❌',
+        buttons: [
+          {
+            text: t('common.confirm'),
+          },
+        ],
+      });
+    }
   };
 
   // ✅ Handle email login
