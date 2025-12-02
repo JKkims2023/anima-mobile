@@ -31,6 +31,7 @@ import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
 import CenterAIActionSheet from '../CenterAIActionSheet';
 import HapticService from '../../utils/HapticService';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CustomTabBar Component
@@ -40,31 +41,30 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const insets = useSafeAreaInsets();
-  
+  const { t } = useTranslation();
   // ✅ CenterAIActionSheet ref
   const actionSheetRef = useRef(null);
-  
+  const insets = useSafeAreaInsets(); 
   // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
   const tabs = [
     { 
       key: 'SAGE',
       icon: 'flash',
-      label: 'SAGE',
+      label: t('navigation.home') || '홈',
       route: 'Home', // Navigate to Home (SAGE)
     },
     { 
-      key: 'Persona',
-      icon: 'people',
-      label: '페르소나',
-      route: 'Persona', // Navigate to Persona screen
+      key: 'Music',
+      icon: 'musical-notes',
+      label: t('navigation.music') || '스튜디오',
+      route: 'Music', // Navigate to Music screen
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
-      key: 'Music',
-      icon: 'musical-notes',
-      label: '뮤직',
-      route: 'Music', // Navigate to Music screen
+      key: 'Persona',
+      icon: 'storefront',
+      label: t('navigation.point') || '페르소나',
+      route: 'Persona', // Navigate to Persona screen
     },
     { 
       key: 'Settings',

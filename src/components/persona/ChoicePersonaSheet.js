@@ -131,6 +131,7 @@ const ChoicePersonaSheet = ({
   const handlePhotoRemove = useCallback(() => {
     HapticService.light();
     
+    /*
     // Animate out
     photoScale.value = withTiming(0, {
       duration: 200,
@@ -138,6 +139,8 @@ const ChoicePersonaSheet = ({
     }, () => {
       setPhoto(null);
     });
+    */
+    setPhoto(null);
   }, [photoScale]);
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -464,7 +467,7 @@ const ChoicePersonaSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 4: Point Info (Optional)                                   */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.section}>
+        <View style={[styles.section, { display: 'none' }]}>
           <TouchableOpacity
             style={styles.pointInfoHeader}
             onPress={handlePointInfoToggle}
@@ -505,8 +508,7 @@ const ChoicePersonaSheet = ({
           </Animated.View>
         </View>
 
-        {/* Bottom spacer for button */}
-        <View style={{ height: verticalScale(80) }} />
+
       </ScrollView>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
@@ -679,6 +681,7 @@ const styles = StyleSheet.create({
     paddingBottom: platformPadding(20),
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
+
   },
   createButton: {
     width: '100%',

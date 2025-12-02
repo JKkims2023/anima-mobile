@@ -1,15 +1,15 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎯 QuickActionChipsAnimated Component (Persona Mode)
+ * 🎯 MessageModeQuickActionChips Component
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * Quick action chips with SAFE animations
- * - Simple fade-in animation only (no complex transforms)
- * - Sequential appearance
- * - Glassmorphism style
+ * Quick action chips for Message Mode (when user is creating a message)
+ * - Sequential fade-in animation
+ * - Same design as QuickActionChipsAnimated
+ * - 4 actions: Back, History, Music, Preview
  * 
  * @author JK & Hero Nexus AI
- * @date 2024-11-22
+ * @date 2024-11-30
  */
 
 import React, { useEffect } from 'react';
@@ -23,31 +23,28 @@ import Animated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, verticalScale } from '../../utils/responsive-utils';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
-import { useTranslation } from 'react-i18next';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-const QuickActionChipsAnimated = ({
-  onDressClick,      // ⭐ 1. Dressing Room
-  onHistoryClick,    // ⭐ 2. Memory History
-  onVideoClick,      // ⭐ 3. Video Conversion
-  onMessageClick,    // ⭐ 4. Message Toggle
-  onSettingsClick,   // ⭐ 5. Settings
-  onMusicClick,      // ⭐ 6. Music
-  onShareClick,      // ⭐ 7. Share
+/**
+ * MessageModeQuickActionChips Component
+ * @param {Function} onBackClick - Navigate back to explore mode
+ * @param {Function} onHistoryClick - Show message history
+ * @param {Function} onMusicClick - Navigate to music screen
+ * @param {Function} onPreviewClick - Preview message
+ */
+const MessageModeQuickActionChips = ({
+  onBackClick,
+  onHistoryClick,
+  onMusicClick,
+  onPreviewClick,
 }) => {
-  const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
-
   const actions = [
-  //  { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
-    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'share', icon: 'share', label: t('common.share'), onClick: onShareClick },
-//    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
-//    {id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick},
-//    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
+    { id: 'back', icon: 'arrow-left', label: '돌아가기', onClick: onBackClick },
+    { id: 'history', icon: 'history', label: '히스토리', onClick: onHistoryClick },
+    { id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick },
+//    { id: 'preview', icon: 'eye', label: '미리보기', onClick: onPreviewClick },
   ];
   
   // ✅ Animation values (individual for each chip)
@@ -55,7 +52,6 @@ const QuickActionChipsAnimated = ({
   const opacity1 = useSharedValue(0);
   const opacity2 = useSharedValue(0);
   const opacity3 = useSharedValue(0);
-  const opacity4 = useSharedValue(0);
   
   // ✅ Animated styles (must be at top level)
   const animatedStyle0 = useAnimatedStyle(() => ({
@@ -74,17 +70,13 @@ const QuickActionChipsAnimated = ({
     opacity: opacity3.value,
   }));
   
-  const animatedStyle4 = useAnimatedStyle(() => ({
-    opacity: opacity4.value,
-  }));
-  
-  const animatedStyles = [animatedStyle0, animatedStyle1, animatedStyle2, animatedStyle3, animatedStyle4];
-  const opacityValues = [opacity0, opacity1, opacity2, opacity3, opacity4];
+  const animatedStyles = [animatedStyle0, animatedStyle1, animatedStyle2, animatedStyle3];
+  const opacityValues = [opacity0, opacity1, opacity2, opacity3];
   
   // ✅ Entry animation (fade in)
   useEffect(() => {
     if (__DEV__) {
-      console.log('[QuickActionChipsAnimated] 🎬 Starting fade-in animation');
+      console.log('[MessageModeQuickActionChips] 🎬 Starting fade-in animation');
     }
     
     opacityValues.forEach((opacity, index) => {
@@ -104,7 +96,7 @@ const QuickActionChipsAnimated = ({
     // ✅ Exit animation on unmount (fade out in reverse order)
     return () => {
       if (__DEV__) {
-        console.log('[QuickActionChipsAnimated] 🌅 Starting fade-out animation');
+        console.log('[MessageModeQuickActionChips] 🌅 Starting fade-out animation');
       }
       
       opacityValues.forEach((opacity, index) => {
@@ -123,50 +115,35 @@ const QuickActionChipsAnimated = ({
   
   const handlePress = (action) => {
     HapticService.medium();
-    action.onClick();
+    action.onClick?.();
   };
   
   return (
-    <>
     <View style={styles.container}>
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         
         return (
           <View key={action.id} style={styles.chipWrapper}>
-            <TouchableOpacity
+            <AnimatedTouchable
               style={[styles.chip, animatedStyle]}
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
               <Icon name={action.icon} size={scale(24)} color="#FFFFFF" />
               <Text style={styles.label}>{action.label}</Text>
-            </TouchableOpacity>
+            </AnimatedTouchable>
           </View>
         );
       })}
     </View>
-    <TouchableOpacity
-    onPress={() => handlePress({id: 'message', icon: 'pencil-outline', label: '메시지', onClick: onMessageClick})}>
-    <View 
-    style={[styles.chip, {backgroundColor: 'rgba(0, 0, 0, 0.85)', width: scale(70), height: scale(70), borderRadius: scale(50), marginTop: verticalScale(20), marginBottom: verticalScale(20), alignItems: 'center', justifyContent: 'center'}]}
-    >
-      <Icon name="pencil-outline" size={scale(32)} color="#FFFFFF" />
-
-    </View>
-    </TouchableOpacity>
-    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    // ⭐ FIX: Remove position absolute (handled by parent)
     gap: verticalScale(12),
     alignItems: 'center',
-    marginTop: verticalScale(20),
-
-
   },
   chipWrapper: {
     alignItems: 'center',
@@ -174,18 +151,10 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'column',
     alignItems: 'center',
-//    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(16),
     borderRadius: scale(24),
     gap: scale(8),
-//    borderWidth: 1,
-//    borderColor: 'rgba(255, 255, 255, 0.1)',
-    // ✅ Shadow for depth
-//    shadowColor: '#000',
-//    shadowOffset: { width: 0, height: 4 },
-//    shadowOpacity: 0.3,
-//    shadowRadius: 8,
     elevation: 8,
   },
   label: {
@@ -195,5 +164,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuickActionChipsAnimated;
+export default MessageModeQuickActionChips;
 

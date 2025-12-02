@@ -28,6 +28,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import HapticService from '../../utils/HapticService';
+import { useTranslation } from 'react-i18next';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -46,8 +47,10 @@ const PersonaSelectorPanel = ({
   onSelectPersona,
   onClose,
   onViewAll,
+  onCreatePersona,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
@@ -105,7 +108,7 @@ const PersonaSelectorPanel = ({
   const handleViewAll = () => {
     HapticService.selection();
     if (onViewAll) {
-      onViewAll();
+      onCreatePersona();
     }
   };
   
@@ -118,7 +121,7 @@ const PersonaSelectorPanel = ({
       style={[
         styles.container,
         {
-          top: verticalScale(80),
+          bottom: Platform.OS === 'ios' ? verticalScale(150) : verticalScale(110),
           opacity: fadeAnim,
           transform: [{ translateX: slideAnim }],
         },
@@ -157,7 +160,7 @@ const PersonaSelectorPanel = ({
             activeOpacity={0.7}
           >
             <Icon name="plus" size={scale(32)} color="#FFFFFF" />
-            <CustomText style={styles.viewAllText}>더보기</CustomText>
+            <CustomText style={styles.viewAllText}>{t('persona.creation.create_button')}</CustomText>
           </TouchableOpacity>
         )}
       </ScrollView>

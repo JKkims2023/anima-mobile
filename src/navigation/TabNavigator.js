@@ -52,16 +52,16 @@ const TabNavigator = () => {
           title: 'Studio',
         }}
       />
-      
-      {/* Tab 2: Persona */}
+
+      {/* Tab 4: Music (AI Music) */}
       <Tab.Screen 
-        name="Persona" 
-        component={PersonaScreen}
+        name="Music" 
+        component={MusicScreen}
         options={{ 
-          title: t('navigation.persona') || '자아',
+          title: t('navigation.music') || '뮤직',
         }}
       />
-      
+       
       {/* Tab 3: AI (Center) - Placeholder */}
       <Tab.Screen 
         name="AI" 
@@ -72,14 +72,15 @@ const TabNavigator = () => {
         }}
       />
       
-      {/* Tab 4: Music (AI Music) */}
+      {/* Tab 2: Persona */}
       <Tab.Screen 
-        name="Music" 
-        component={MusicScreen}
+        name="Persona" 
+        component={PersonaScreen}
         options={{ 
-          title: t('navigation.music') || '뮤직',
+          title: t('navigation.persona') || '자아',
         }}
       />
+     
       
       {/* Tab 5: Settings */}
       <Tab.Screen 

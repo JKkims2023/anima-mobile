@@ -40,7 +40,7 @@ const CustomText = (props) => {
     ...commonstyles.textStyles.base,
     ...textTypeStyle,
     fontFamily,
-    color: commonstyles.whiteTheme.textColor, // Default text color
+    color: commonstyles.darkTheme.textColor, // Default text color
     // Redefine fontWeight if bold is true
     ...(bold && { fontWeight: '700' }),
   };

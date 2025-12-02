@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, StyleSheet, Animated, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, verticalScale } from '../../utils/responsive-utils';
@@ -72,12 +72,12 @@ const PersonaSelectorButton = ({ isPersonaMode = false, onPress }) => {
   });
   
   return (
-    <Animated.View
+    <View
       style={[
         styles.container,
         {
-          top: verticalScale(20),
-          transform: [{ rotate }, { scale: scaleAnim }],
+ //         top: verticalScale(20),
+ //         transform: [{ rotate }, { scale: scaleAnim }],
         },
       ]}
     >
@@ -97,15 +97,14 @@ const PersonaSelectorButton = ({ isPersonaMode = false, onPress }) => {
           color="#FFFFFF"
         />
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    right: scale(20),
-    zIndex: 200,
+//    right: scale(20),
+//    zIndex: 200,
   },
   button: {
     width: scale(56),

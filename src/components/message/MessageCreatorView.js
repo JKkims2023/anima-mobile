@@ -37,6 +37,9 @@ import { useAnima } from '../../contexts/AnimaContext';
 import { useUser } from '../../contexts/UserContext';
 import messageService from '../../services/api/messageService';
 import { getUserKey } from '../../utils/storage';
+import GradientOverlay from '../GradientOverlay';
+import { verticalScale } from '../../utils/responsive-utils';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MessageCreatorView = ({
   personas = [],
@@ -55,6 +58,12 @@ const MessageCreatorView = ({
   const contentSheetRef = useRef(null);
   const passwordSheetRef = useRef(null);
 
+  // 그라디언트 색상 배열: 위(투명) -> 아래(어두움)
+  const gradientColors = [
+    'transparent',
+    `rgba(0, 0, 0, 0.7)` 
+  ];
+  
   // Default personas (SAGE, Nexus)
   const defaultPersonas = [
     {
@@ -156,16 +165,17 @@ const MessageCreatorView = ({
   const handlePreview = useCallback(() => {
     // ✅ 1. Login check (highest priority)
     if (!user || !user.user_key) {
+    
+      // Navigate to Settings screen for login
+      setTimeout(() => {
+        navigation.navigate('Settings');
+      }, 500);
+      
       showToast({
         type: 'warning',
         message: t('message_creator.errors.login_required'),
         emoji: '🔐',
       });
-      
-      // Navigate to Settings screen for login
-      setTimeout(() => {
-        navigation.navigate('Settings');
-      }, 500);
       
       return;
     }
@@ -330,38 +340,22 @@ const MessageCreatorView = ({
 
   return (
     <View style={styles.container}>
+
       {/* Front Side: Message Creator */}
       <Animated.View style={[StyleSheet.absoluteFill, frontAnimStyle]}>
-        {/* Background: Persona Image/Video */}
-        {/* ⭐ REMOVED: PersonaBackgroundView (handled by PersonaStudioScreen's PersonaSwipeViewer) */}
-        {showPersonaSelector && (
-          <PersonaBackgroundView
-            persona={currentPersona}
-            isScreenFocused={isScreenFocused && !showPreview}
-            opacity={1}
-          />
-        )}
+      
 
         {/* Content: Persona Selector + Message Overlay */}
         <View style={[styles.contentContainer, !showPersonaSelector && styles.contentContainerCompact]}>
-        {/* Persona Selector (Top) - ⭐ Conditional rendering */}
-        {showPersonaSelector && (
-          <View style={styles.selectorContainer}>
-            <PersonaSelectorHorizontal
-              personas={displayPersonas}
-              selectedIndex={selectedPersonaIndex}
-              onSelectPersona={setSelectedPersonaIndex}
-              onAddPersona={onAddPersona}
-              isCreating={isCreating}
-              hasWaitingPersona={false}
-              showDefaultPersonas={personas.length === 0}
-            />
-          </View>
-        )}
+      
 
         {/* Spacer - ⭐ Only show when persona selector is visible */}
         {showPersonaSelector && <View style={styles.spacer} />}
 
+        <LinearGradient
+          colors={gradientColors}
+          style={[styles.gradient, { height: verticalScale(400) }]}
+        >
         {/* Message Overlay (Bottom) */}
         <View style={styles.messageOverlayContainer}>
           {/* Title Field */}
@@ -371,9 +365,9 @@ const MessageCreatorView = ({
             activeOpacity={0.8}
           >
             <View style={styles.overlayFieldHeader}>
-              <Icon name="text" size={moderateScale(18)} color={COLORS.DEEP_BLUE_LIGHT} />
+              <Icon name="text" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
               <CustomText type="middle" bold style={styles.overlayFieldLabel}>
-                {t('message.input.title_label')}
+                {t('message.input.title_placeholder')}
               </CustomText>
             </View>
             {messageTitle ? (
@@ -381,15 +375,8 @@ const MessageCreatorView = ({
                 {messageTitle}
               </CustomText>
             ) : (
-              <CustomText type="normal" style={styles.overlayFieldPlaceholder}>
-                {t('message.input.title_placeholder')}
-              </CustomText>
+              null
             )}
-            <View style={styles.tapHint}>
-              <CustomText type="small" style={styles.tapHintText}>
-                💬 {t('common.tap_to_edit')}
-              </CustomText>
-            </View>
           </TouchableOpacity>
 
           {/* Content Field */}
@@ -399,9 +386,9 @@ const MessageCreatorView = ({
             activeOpacity={0.8}
           >
             <View style={styles.overlayFieldHeader}>
-              <Icon name="text-box-outline" size={moderateScale(18)} color={COLORS.DEEP_BLUE_LIGHT} />
+              <Icon name="text-box-outline" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
               <CustomText type="middle" bold style={styles.overlayFieldLabel}>
-                {t('message.input.content_label')}
+                {t('message.input.content_placeholder')}
               </CustomText>
             </View>
             {messageContent ? (
@@ -409,15 +396,8 @@ const MessageCreatorView = ({
                 {messageContent}
               </CustomText>
             ) : (
-              <CustomText type="normal" style={styles.overlayFieldPlaceholder} numberOfLines={2}>
-                {t('message.input.content_placeholder')}
-              </CustomText>
+              null
             )}
-            <View style={styles.tapHint}>
-              <CustomText type="small" style={styles.tapHintText}>
-                💬 {t('common.tap_to_edit')}
-              </CustomText>
-            </View>
           </TouchableOpacity>
 
           {/* Password Field (Compact) */}
@@ -443,9 +423,10 @@ const MessageCreatorView = ({
             onPress={handlePreview}
             type="primary"
             style={styles.previewButton}
-            disabled={!messageTitle || !messageContent}
+//            disabled={!messageTitle || !messageContent}
           />
         </View>
+        </LinearGradient>
       </View>
 
       {/* Input Overlays - Simple & Clean! */}
@@ -485,7 +466,7 @@ const MessageCreatorView = ({
 
       {/* Back Side: Message Preview */}
       {showPreview && (
-        <Animated.View style={[StyleSheet.absoluteFill, backAnimStyle]}>
+        <Animated.View style={[StyleSheet.absoluteFill, backAnimStyle, { display: 'none' }]}>
           <MessagePreviewView
             persona={currentPersona}
             messageTitle={messageTitle}
@@ -497,7 +478,9 @@ const MessageCreatorView = ({
           />
         </Animated.View>
       )}
+
     </View>
+
   );
 };
 
@@ -512,8 +495,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent', // ⭐ FIX: Transparent to show PersonaSwipeViewer
   },
   contentContainerCompact: {
-    flex: 0, // ⭐ FIX: No flex when used as overlay in PersonaStudioScreen
-    justifyContent: 'flex-end',
+   // flex: 0, // ⭐ FIX: No flex when used as overlay in PersonaStudioScreen
+   // justifyContent: 'flex-end',
   },
   selectorContainer: {
     marginTop: platformPadding(10),
@@ -524,9 +507,9 @@ const styles = StyleSheet.create({
   messageOverlayContainer: {
     paddingHorizontal: scale(20),
     paddingBottom: platformPadding(30),
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark overlay for readability
-    borderTopLeftRadius: scale(30),
-    borderTopRightRadius: scale(30),
+//    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark overlay for readability
+//    borderTopLeftRadius: scale(30),
+//    borderTopRightRadius: scale(30),
   },
   overlayField: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)', // Glass effect
@@ -589,6 +572,15 @@ const styles = StyleSheet.create({
   },
   previewButton: {
     marginTop: scale(20),
+
+  },
+  gradient: {
+    // 핵심 스타일: 화면 하단에 고정
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-end', // 컨텐츠를 아래쪽으로 정렬
   },
 });
 

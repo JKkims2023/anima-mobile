@@ -69,18 +69,18 @@ const MusicScreen = () => {
       </View>
 
       {/* Title */}
-      <CustomText type="title" bold style={styles.emptyTitle}>
-        {t('music.empty.title')}
+      <CustomText type="big" bold style={styles.emptyTitle}>
+        {t('studio.empty.title')}
       </CustomText>
 
       {/* Description */}
       <CustomText type="normal" style={styles.emptyDescription}>
-        {t('music.empty.description')}
+        {t('studio.empty.description')}
       </CustomText>
 
       {/* CTA */}
-      <CustomText type="small" style={styles.emptyCTA}>
-        {t('music.empty.cta')}
+      <CustomText type="title" style={styles.emptyCTA}>
+        {t('studio.empty.cta')}
       </CustomText>
     </View>
   );
@@ -108,10 +108,10 @@ const MusicScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <CustomText type="big" bold style={styles.headerTitle}>
-            {t('music.title')}
+            {t('navigation.title.studio')}
           </CustomText>
           <CustomText type="small" style={styles.headerSubtitle}>
-            {t('music.subtitle')}
+            {t('navigation.subtitle.studio')}
           </CustomText>
         </View>
 

@@ -22,10 +22,18 @@
  * @date 2024-11-30
  */
 
-import React, { useState, useCallback, useRef, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { View, StyleSheet, BackHandler } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+  runOnJS,
+} from 'react-native-reanimated';
 import SafeScreen from '../components/SafeScreen';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
@@ -35,13 +43,19 @@ import { useAnima } from '../contexts/AnimaContext';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
 import MessageCreatorView from '../components/message/MessageCreatorView';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
-import PersonaSelectorHorizontal from '../components/message/PersonaSelectorHorizontal';
+import MessageModeQuickActionChips from '../components/message/MessageModeQuickActionChips'; // ⭐ NEW
+import PersonaSelectorButton from '../components/persona/PersonaSelectorButton'; // ⭐ Button for panel toggle
+import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; // ⭐ NEW: Slide panel
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
-import { scale, verticalScale } from '../utils/responsive-utils';
+import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { createPersona, checkPersonaStatus, getPersonaList } from '../services/api/personaApi';
+import CustomText from '../components/CustomText';
+import { COLORS } from '../styles/commonstyles';
+import GradientOverlay from '../components/GradientOverlay';
+
 
 const PersonaStudioScreen = () => {
   const { t } = useTranslation();
@@ -49,15 +63,16 @@ const PersonaStudioScreen = () => {
   const { currentTheme } = useTheme();
   const { personas } = usePersona();
   const { user } = useUser();
-  const { showToast } = useAnima();
-  
+  const { showToast, showAlert } = useAnima();
+
   // ═══════════════════════════════════════════════════════════════════════
   // STATE MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
-  const [isMessageAreaVisible, setIsMessageAreaVisible] = useState(false);
+  const [isMessageMode, setIsMessageMode] = useState(false); // ⭐ Message mode toggle
+  const [isPanelVisible, setIsPanelVisible] = useState(false); // ⭐ NEW: PersonaSelectorPanel toggle
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
@@ -66,20 +81,47 @@ const PersonaStudioScreen = () => {
   const personaCreationDataRef = useRef(null);
   
   // ═══════════════════════════════════════════════════════════════════════
+  // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
+  // ═══════════════════════════════════════════════════════════════════════
+  const exploreModeOpacity = useSharedValue(1); // ⭐ Explore mode UI opacity
+  const messageModeOpacity = useSharedValue(0); // ⭐ Message mode UI opacity
+  
+  // ═══════════════════════════════════════════════════════════════════════
   // SCREEN FOCUS HANDLER
   // ═══════════════════════════════════════════════════════════════════════
   useFocusEffect(
+    
     useCallback(() => {
       // Screen is focused
       setIsScreenFocused(true);
-      
-      if (__DEV__) {
-        console.log('🎯 [PersonaStudioScreen] Screen FOCUSED');
-      }
+
+      const onBackPress = () => {
+        // Message Mode인 경우 먼저 닫기
+        console.log('🎯 [PersonaStudioScreen] Back button pressed, isMessageMode:', isMessageMode);
+        if (isMessageMode) {
+
+            showAlert({
+              title: t('message.alert.exit_message_mode'),
+              message: t('message.alert.exit_message_mode_description'),
+              buttons: [
+                { text: t('message.alert.cancel'), style: 'cancel' },
+                { text: t('message.alert.exit'), onPress: () => setIsMessageMode(false) },
+              ],
+            });
+            return true;
+        }
+        
+        return false;
+    };
+
+    // 백 버튼 이벤트 및 앱 상태 리스너 등록
+    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
       
       return () => {
         // Screen is blurred (navigated away)
         setIsScreenFocused(false);
+        backHandlerSubscription.remove();
         
         if (__DEV__) {
           console.log('🎯 [PersonaStudioScreen] Screen BLURRED');
@@ -87,6 +129,33 @@ const PersonaStudioScreen = () => {
       };
     }, [])
   );
+
+  useEffect(() => {
+    console.log('🎯 [PersonaStudioScreen] isMessageMode:', isMessageMode);
+
+    const onBackPress = () => {
+        // Message Mode인 경우 먼저 닫기
+        console.log('🎯 [PersonaStudioScreen] Back button pressed, isMessageMode:', isMessageMode);
+        if (isMessageMode) {
+            showAlert({
+              title: t('message.alert.exit_message_mode'),
+              message: t('message.alert.exit_message_mode_description'),
+              buttons: [
+                { text: t('message.alert.cancel'), style: 'cancel' },
+                { text: t('message.alert.exit'), onPress: () => setIsMessageMode(false) },
+              ],
+            });
+            return true;
+        }
+        
+        return false;
+    };
+    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => {
+      console.log('🎯 [PersonaStudioScreen] isMessageMode unmounted');
+      backHandlerSubscription.remove();
+    };
+  }, [isMessageMode]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // DEFAULT PERSONAS (SAGE, Nexus)
@@ -156,28 +225,53 @@ const PersonaStudioScreen = () => {
     setCurrentPersonaIndex(newIndex);
   }, []);
   
-  // Handle persona selection from PersonaSelectorHorizontal
-  const handlePersonaSelect = useCallback((index) => {
+  // ⭐ NEW: Handle panel toggle (PersonaSelectorButton click)
+  const handlePanelToggle = useCallback(() => {
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] ✨ Persona selected at index:', index);
+      console.log('[PersonaStudioScreen] 🎭 Panel toggle clicked, current state:', isPanelVisible);
     }
     
-    // ⭐ FIX: Get persona from personasWithDefaults using index
-    const persona = personasWithDefaults[index];
+    HapticService.selection();
+    setIsPanelVisible(prev => !prev);
+  }, [isPanelVisible]);
+  
+  // ⭐ NEW: Handle panel close
+  const handlePanelClose = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📪 Panel closed');
+    }
     
-    if (!persona) {
-      console.error('[PersonaStudioScreen] ❌ Invalid index:', index);
+    HapticService.light();
+    setIsPanelVisible(false);
+  }, []);
+  
+  // ⭐ NEW: Handle persona selection from PersonaSelectorPanel
+  const handlePersonaSelectFromPanel = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] ✨ Persona selected from panel:', persona.persona_name);
+    }
+    
+    // Find index of selected persona
+    const index = personasWithDefaults.findIndex(p => p.persona_key === persona.persona_key);
+    
+    if (index === -1) {
+      console.error('[PersonaStudioScreen] ❌ Persona not found:', persona.persona_key);
       return;
     }
     
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] ✨ Persona:', persona.persona_name);
+      console.log('[PersonaStudioScreen] ✨ Persona index:', index);
     }
     
-    // ⭐ FIX: Update savedIndexRef to trigger PersonaSwipeViewer scroll
+    // Update current persona
     savedIndexRef.current = index;
     setCurrentPersonaIndex(index);
     setCurrentPersona(persona);
+    
+    // Close panel
+    setIsPanelVisible(false);
+    
+    HapticService.success();
   }, [personasWithDefaults]);
   
   // Handle add persona
@@ -331,15 +425,6 @@ const PersonaStudioScreen = () => {
     HapticService.success();
   }, []);
   
-  // Handle message preview
-  const handleMessagePreview = useCallback((messageData) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ✨ Message preview requested:', messageData);
-    }
-    
-    // Already handled inside MessageCreatorView
-  }, []);
-  
   // Handle settings
   const handleSettingsPress = useCallback(() => {
     if (__DEV__) {
@@ -380,15 +465,97 @@ const PersonaStudioScreen = () => {
     // TODO: Trigger video conversion for current persona
   }, []);
   
-  // 4. Message Toggle (메시지 생성 영역 토글)
+  // 4. Message Toggle (메시지 모드 진입)
   const handleQuickMessage = useCallback(() => {
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 💌 Message toggle clicked');
+      console.log('[PersonaStudioScreen] 💌 Entering Message Mode');
     }
     
-    setIsMessageAreaVisible(prev => !prev);
+    HapticService.success();
+    setIsMessageMode(true);
+    
+    // Fade out explore mode UI
+    exploreModeOpacity.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+    });
+    
+    // Fade in message mode UI (with slight delay for smooth transition)
+    messageModeOpacity.value = withDelay(
+      150,
+      withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+      })
+    );
+  }, [exploreModeOpacity, messageModeOpacity]);
+  
+  // 4-1. Exit Message Mode (탐색 모드로 복귀)
+  const handleExitMessageMode = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔙 Exiting Message Mode');
+    }
+    
     HapticService.light();
-  }, []);
+    
+    // Fade out message mode UI
+    messageModeOpacity.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.in(Easing.ease),
+    });
+    
+    // Fade in explore mode UI (with slight delay)
+    exploreModeOpacity.value = withDelay(
+      150,
+      withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+      }, () => {
+        // Reset isMessageMode after animation completes
+        runOnJS(setIsMessageMode)(false);
+      })
+    );
+  }, [exploreModeOpacity, messageModeOpacity]);
+  
+  // 4-2. Message History (메시지 히스토리)
+  const handleMessageHistory = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📜 Message history clicked');
+    }
+    
+    HapticService.light();
+    // TODO: Open MessageHistoryBottomSheet
+    showToast({
+      type: 'info',
+      message: '메시지 히스토리 기능 준비 중입니다',
+      emoji: '📜',
+    });
+  }, [showToast]);
+  
+  // 4-3. Message Music (뮤직으로 이동)
+  const handleMessageMusic = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🎵 Navigate to Music');
+    }
+    
+    HapticService.light();
+    navigation.navigate('Music');
+  }, [navigation]);
+  
+  // 4-4. Message Preview (메시지 미리보기)
+  const handleMessagePreview = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 👁️ Message preview clicked');
+    }
+    
+    HapticService.light();
+    // TODO: Trigger preview in MessageCreatorView
+    showToast({
+      type: 'info',
+      message: '미리보기 기능은 MessageCreatorView에서 처리됩니다',
+      emoji: '👁️',
+    });
+  }, [showToast]);
   
   // 5. Settings (설정)
   const handleQuickSettings = useCallback(() => {
@@ -410,8 +577,17 @@ const PersonaStudioScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
+
+
       {/* Header */}
-      <AppHeader onSettingsPress={handleSettingsPress} />
+      <View style={styles.header}>
+          <CustomText type="big" bold style={styles.headerTitle}>
+            {t('navigation.title.home')}
+          </CustomText>
+          <CustomText type="small" style={styles.headerSubtitle}>
+            {t('navigation.subtitle.home')}
+          </CustomText>
+        </View>
       
       <View style={styles.container}>
         {/* ═════════════════════════════════════════════════════════════════ */}
@@ -424,55 +600,127 @@ const PersonaStudioScreen = () => {
             isModeActive={true}
             isScreenFocused={isScreenFocused}
             initialIndex={currentPersonaIndex}
-            onIndexChange={handlePersonaChange}
+            onIndexChange={(index) => {
+              if (__DEV__) {
+                console.log('[PersonaStudioScreen] 🔄 Persona changed to index:', index, 'isMessageMode:', isMessageMode);
+              }
+              handlePersonaChange(index);
+            }}
             modeOpacity={null}
             onChatWithPersona={null} // Not used in studio mode
+            enabled={!isMessageMode} // ⭐ Disable swipe in message mode
+            isMessageMode={isMessageMode}
           />
         </View>
         
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* LAYER 2 (Z-INDEX: 10) - MessageCreatorView (Bottom Overlay)      */}
+        {/* EXPLORE MODE UI (Fade Out when entering Message Mode)             */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {isMessageAreaVisible && (
-          <View style={styles.messageOverlay}>
-            <MessageCreatorView
-              personas={personasWithDefaults}
-              selectedPersona={currentPersona}
-              onAddPersona={handleAddPersona}
-              onPreview={handleMessagePreview}
-              isCreating={false}
-              isScreenFocused={isScreenFocused}
-              showPersonaSelector={false}
+        <Animated.View 
+          style={[
+            styles.exploreModeContainer, 
+            { opacity: isMessageMode ? 0 : 1 }
+          ]}
+          pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer
+        >
+          {/* QuickActionChips (Right Overlay) */}
+          <View 
+            style={styles.quickChipsOverlay}
+            pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
+          >
+            <QuickActionChipsAnimated
+              onDressClick={handleQuickDress}
+              onHistoryClick={handleQuickHistory}
+              onVideoClick={handleQuickVideo}
+              onMessageClick={handleQuickMessage}
+              onSettingsClick={handleQuickSettings}
             />
           </View>
+        </Animated.View>
+        
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* MESSAGE MODE UI (Fade In when entering Message Mode)              */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {isMessageMode && (
+          <Animated.View 
+            style={[
+              styles.messageModeContainer, 
+              { opacity: messageModeOpacity }
+            ]}
+            pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer (disabled in message mode)
+          >
+            {/* MessageModeQuickActionChips (Right Overlay) */}
+            <View 
+              style={styles.messageModeQuickChipsOverlay}
+              pointerEvents={isMessageMode ? 'auto' : 'none'} // ⭐ Control touch per child
+            >
+              <MessageModeQuickActionChips
+                onBackClick={handleExitMessageMode}
+                onHistoryClick={handleMessageHistory}
+                onMusicClick={handleMessageMusic}
+                onPreviewClick={handleMessagePreview}
+              />
+            </View>
+            
+            {/* MessageCreatorView (Bottom Overlay) */}
+            <View 
+              style={styles.messageOverlay}
+              pointerEvents={isMessageMode ? 'auto' : 'none'} // ⭐ Control touch per child
+            >
+
+              <MessageCreatorView
+                personas={personasWithDefaults}
+                selectedPersona={currentPersona}
+                onAddPersona={handleAddPersona}
+                onPreview={handleMessagePreview}
+                isCreating={false}
+                isScreenFocused={isScreenFocused}
+                showPersonaSelector={false}
+              />
+
+            </View>
+          </Animated.View>
         )}
-        
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* LAYER 3 (Z-INDEX: 20) - QuickActionChips (Right Overlay)         */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.quickChipsOverlay}>
-          <QuickActionChipsAnimated
-            onDressClick={handleQuickDress}
-            onHistoryClick={handleQuickHistory}
-            onVideoClick={handleQuickVideo}
-            onMessageClick={handleQuickMessage}
-            onSettingsClick={handleQuickSettings}
-          />
+
+
+        {!isMessageMode && (
+        <View style={styles.bottomLayer}>
+
+            <GradientOverlay>
+                <View style={{flexDirection: 'row', padding: platformPadding(0), paddingBottom: platformPadding(20)}}>
+
+                <View style={{alignItems: 'center', justifyContent: 'center', marginRight: scale(10)}}>
+                <PersonaSelectorButton
+                    isPersonaMode={false} // Always show "Select Persona" icon
+                    onPress={handlePanelToggle}
+                />
+                </View>
+                <View style={{flex: 1, marginLeft: platformPadding(10)}}>
+                    <CustomText type="big" bold >
+                        {currentPersona?.persona_name}
+                    </CustomText>
+                    <CustomText type="title" style={{}}>
+                        {t('navigation.subtitle.home')}
+                    </CustomText>
+                </View>
+
+                </View>
+
+            </GradientOverlay>
+
         </View>
-        
+        )}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* LAYER 4 (Z-INDEX: 30) - PersonaSelectorHorizontal (Top Overlay)  */}
+        {/* PersonaSelectorPanel (Slide from Right) */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.selectorOverlay}>
-          <PersonaSelectorHorizontal
-            personas={personasWithDefaults}
-            selectedIndex={currentPersonaIndex}
-            onSelectPersona={handlePersonaSelect}
-            onAddPersona={handleAddPersona}
-            isCreating={false}
-            hasWaitingPersona={false}
-          />
-        </View>
+        <PersonaSelectorPanel
+          visible={isPanelVisible && !isMessageMode}
+          personas={personasWithDefaults}
+          onSelectPersona={handlePersonaSelectFromPanel}
+          onClose={handlePanelClose}
+          onViewAll={handleAddPersona}
+          onCreatePersona={handleAddPersona}
+        />
       </View>
       
       {/* ═════════════════════════════════════════════════════════════════ */}
@@ -529,6 +777,20 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   
+  // ⭐ Explore Mode Container (All overlays for explore mode)
+  exploreModeContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 2,
+    pointerEvents: 'box-none', // Allow touches to pass through container but not children
+  },
+  
+  // ⭐ Message Mode Container (All overlays for message mode)
+  messageModeContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 3, // Above explore mode
+    pointerEvents: 'box-none',
+  },
+  
   // ⭐ Z-INDEX: 10 - Message Creator Overlay (Bottom)
   messageOverlay: {
     position: 'absolute',
@@ -544,22 +806,33 @@ const styles = StyleSheet.create({
   // ⭐ Z-INDEX: 100 - Quick Action Chips (Right) - HIGHEST
   quickChipsOverlay: {
     position: 'absolute',
-    bottom: verticalScale(20), // Below AppHeader
+    bottom: Platform.OS === 'ios' ? verticalScale(120) : verticalScale(100),
+    right: scale(10),
+    zIndex: 100,
+    elevation: 100, // ⭐ Android shadow
+
+    // ⭐ SafeArea is handled inside QuickActionChipsAnimated
+  },
+
+    // ⭐ Z-INDEX: 100 - Quick Action Chips (Right) - HIGHEST
+   messageModeQuickChipsOverlay: {
+    position: 'absolute',
+    top: verticalScale(20), // Below AppHeader
     right: scale(0),
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
-    // ⭐ SafeArea is handled inside QuickActionChipsAnimated
-  },
+     // ⭐ SafeArea is handled inside QuickActionChipsAnimated
+     },
   
-  // ⭐ Z-INDEX: 50 - Persona Selector (Top)
-  selectorOverlay: {
+  // ⭐ Z-INDEX: 200 - PersonaSelectorButton (Top Right)
+  selectorButtonOverlay: {
     position: 'absolute',
-    top: verticalScale(10), // Just below AppHeader
-    left: 0,
-    right: 0,
-    zIndex: 50,
-    elevation: 50, // ⭐ Android shadow
-    // ⭐ SafeArea top is handled inside PersonaSelectorHorizontal
+    top: 0,
+    right: 190,
+    zIndex: 1200,
+    elevation: 200,
+    pointerEvents: 'box-none',
+
   },
   
   // ⭐ Z-INDEX: 999999 - Bottom Sheet Container (HIGHEST PRIORITY)
@@ -573,6 +846,29 @@ const styles = StyleSheet.create({
     elevation: 999, // ⭐ Android maximum elevation
     pointerEvents: 'box-none', // ⭐ Allow touches to pass through when sheet is closed
   },
+
+  bottomLayer: {
+    position: 'absolute',
+    backgroundColor: 'red',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+
+  header: {
+    paddingTop: platformPadding(20),
+    paddingBottom: platformPadding(16),
+    marginLeft: platformPadding(20),
+  },
+  headerTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: scale(4),
+  },
+  headerSubtitle: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+
 });
 
 export default PersonaStudioScreen;

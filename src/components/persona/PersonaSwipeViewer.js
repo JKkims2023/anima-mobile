@@ -43,6 +43,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Function} props.onIndexChange - Callback when index changes
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
  * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
+ * @param {boolean} props.enabled - Whether swipe gestures are enabled (default: true)
  */
 const PersonaSwipeViewer = ({ 
   personas, 
@@ -52,6 +53,8 @@ const PersonaSwipeViewer = ({
   onIndexChange = () => {},
   modeOpacity, 
   onChatWithPersona,
+  enabled = true, // ⭐ NEW: Control swipe gestures
+  isMessageMode = false, // ⭐ NEW: Control swipe gestures
 }) => {
   const { currentTheme } = useTheme();
   
@@ -59,6 +62,13 @@ const PersonaSwipeViewer = ({
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
+  
+  // ⭐ DEBUG: Log enabled prop changes
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[PersonaSwipeViewer] 🔓 Swipe enabled:', enabled);
+    }
+  }, [enabled]);
 
   // ✅ Restore saved index on mount (after remount from screen focus)
   useEffect(() => {
@@ -164,6 +174,7 @@ const PersonaSwipeViewer = ({
         keyExtractor={keyExtractor}
         vertical
         pagingEnabled
+        scrollEnabled={enabled} // ⭐ Control swipe gestures
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollToIndexFailed={(info) => {
@@ -194,7 +205,7 @@ const PersonaSwipeViewer = ({
       />
 
       {/* Pagination Indicator */}
-      {personas.length > 1 && (
+      {personas.length > 1 && !isMessageMode && (
         <View style={styles.paginationContainer} pointerEvents="none">
           {personas.map((_, index) => (
             <View
@@ -238,13 +249,13 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     position: 'absolute',
-    left: scale(16),
-    top: '40%',
+    left: scale(10),
+    top: '10%',
     transform: [{ translateY: -40 }],
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     paddingLeft: scale(10),
     paddingRight: scale(10),
     paddingTop: scale(10),
