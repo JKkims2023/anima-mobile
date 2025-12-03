@@ -11,7 +11,7 @@
  * - Preview button with flip animation
  */
 
-import React, { useState, useRef, useCallback, useFocusEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useFocusEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Clipboard } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -44,6 +44,7 @@ import LinearGradient from 'react-native-linear-gradient';
 const MessageCreatorView = ({
   personas = [],
   selectedPersona = null, // ⭐ NEW: Selected persona from parent
+  selectedMessage = null, // ⭐ NEW: Selected message from search
   onAddPersona,
   isScreenFocused = true,
   showPersonaSelector = true, // ⭐ NEW: Control persona selector visibility
@@ -112,6 +113,26 @@ const MessageCreatorView = ({
   
   // Flip animation
   const flipAnim = useSharedValue(0);
+  
+  // ⭐ NEW: Auto-fill from selected message (from search)
+  useEffect(() => {
+    if (selectedMessage) {
+      if (__DEV__) {
+        console.log('[MessageCreatorView] 🔍 Auto-filling from selected message:', selectedMessage.message_title);
+      }
+      
+      setMessageTitle(selectedMessage.message_title || '');
+      setMessageContent(selectedMessage.message_content || '');
+      setHasPassword(selectedMessage.has_password === 'Y');
+      
+      // Show toast notification
+      showToast({
+        type: 'success',
+        message: t('message_creator.message_loaded'),
+        emoji: '✅',
+      });
+    }
+  }, [selectedMessage, showToast, t]);
 
   // ⭐ Use prop's selectedPersona if provided, otherwise use internal state
   const currentPersona = selectedPersona || displayPersonas[selectedPersonaIndex] || displayPersonas[0] || null;

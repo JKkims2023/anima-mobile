@@ -47,13 +47,15 @@ import QuickActionChipsAnimated from '../components/quickaction/QuickActionChips
 import MessageModeQuickActionChips from '../components/message/MessageModeQuickActionChips'; // ⭐ NEW
 import PersonaSelectorButton from '../components/persona/PersonaSelectorButton'; // ⭐ Button for panel toggle
 import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; // ⭐ NEW: Slide panel
-import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Search overlay
+import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Persona search overlay
+import MessageSearchOverlay from '../components/message/MessageSearchOverlay'; // ⭐ NEW: Message search overlay
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { createPersona, checkPersonaStatus, getPersonaList } from '../services/api/personaApi';
+import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
 import GradientOverlay from '../components/GradientOverlay';
@@ -79,7 +81,10 @@ const PersonaStudioScreen = () => {
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
-  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ NEW: Search overlay state
+  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ Persona search overlay
+  const [isMessageSearchVisible, setIsMessageSearchVisible] = useState(false); // ⭐ Message search overlay
+  const [messages, setMessages] = useState([]); // ⭐ Message history
+  const [selectedMessage, setSelectedMessage] = useState(null); // ⭐ Selected message for editing
   const swiperRef = useRef(null); // ⭐ NEW: Ref for PersonaSwipeViewer
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
@@ -613,14 +618,54 @@ const PersonaStudioScreen = () => {
   }, [navigation]);
   
   // 6. Search (검색)
-  const handleSearchOpen = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Search overlay opened');
+  // Load messages when entering message mode
+  const loadMessages = useCallback(async () => {
+    if (!user?.user_key) {
+      console.log('[PersonaStudioScreen] 📋 No user_key, skipping message load');
+      return;
     }
     
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📋 Loading messages for user:', user.user_key);
+    }
+    
+    try {
+      const result = await listMessages(user.user_key, 1, 50);
+      if (result.success && result.data) {
+        setMessages(result.data || []);
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] 📋 Loaded messages:', result.data.length);
+        }
+      }
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Failed to load messages:', error);
+    }
+  }, [user]);
+  
+  const handleSearchOpen = useCallback(async () => {
     HapticService.light();
-    setIsSearchOverlayVisible(true);
-  }, []);
+    
+    if (isMessageMode) {
+      // Message search mode
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔍 Opening message search');
+      }
+      
+      // Load messages if not already loaded
+      if (messages.length === 0) {
+        await loadMessages();
+      }
+      
+      setIsMessageSearchVisible(true);
+    } else {
+      // Persona search mode
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔍 Opening persona search');
+      }
+      
+      setIsSearchOverlayVisible(true);
+    }
+  }, [isMessageMode, messages.length, loadMessages]);
   
   const handleSearchClose = useCallback(() => {
     if (__DEV__) {
@@ -628,6 +673,14 @@ const PersonaStudioScreen = () => {
     }
     
     setIsSearchOverlayVisible(false);
+  }, []);
+  
+  const handleMessageSearchClose = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Message search overlay closed');
+    }
+    
+    setIsMessageSearchVisible(false);
   }, []);
   
   const handleSearchSelectPersona = useCallback((persona, index) => {
@@ -639,6 +692,15 @@ const PersonaStudioScreen = () => {
     if (swiperRef.current) {
       swiperRef.current.scrollToIndex({ index, animated: true });
     }
+  }, []);
+  
+  const handleSearchSelectMessage = useCallback((message) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Search selected message:', message.message_title);
+    }
+    
+    // Set selected message for MessageCreatorView
+    setSelectedMessage(message);
   }, []);
   
   // ═══════════════════════════════════════════════════════════════════════
@@ -758,6 +820,7 @@ const PersonaStudioScreen = () => {
               <MessageCreatorView
                 personas={personasWithDefaults}
                 selectedPersona={currentPersona}
+                selectedMessage={selectedMessage}
                 onAddPersona={handleAddPersona}
                 onPreview={handleMessagePreview}
                 isCreating={false}
@@ -852,6 +915,16 @@ const PersonaStudioScreen = () => {
       onClose={handleSearchClose}
       onSelectPersona={handleSearchSelectPersona}
       currentPersonaKey={currentPersona?.persona_key}
+    />
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Message Search Overlay */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <MessageSearchOverlay
+      visible={isMessageSearchVisible}
+      messages={messages}
+      onClose={handleMessageSearchClose}
+      onSelectMessage={handleSearchSelectMessage}
     />
     </>
   );

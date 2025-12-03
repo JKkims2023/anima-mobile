@@ -1626,7 +1626,8 @@
   "message_creator": {
     "url_copied_toast": "Link copied! 🎉",
     "generate_url_button": "Generate URL",
-    "edit_button": "Edit"
+    "edit_button": "Edit",
+    "message_loaded": "Message loaded successfully"
   },
   "persona": {
     "creation": {
@@ -1679,10 +1680,18 @@
   "search": {
     "placeholder": {
       "persona": "Search persona name",
-      "message": "Search messages"
+      "message": "Search message title or content"
     },
     "no_results": "No results found",
-    "start_typing": "Search for personas"
+    "start_typing": "Search for personas",
+    "message": {
+      "empty": "No messages yet"
+    }
+  },
+  "common": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "days_ago": "{{count}} days ago"
   }
 }
 
