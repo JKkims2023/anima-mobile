@@ -1635,6 +1635,34 @@
     "particle_effect": "Particle Effect",
     "bg_music": "Background Music"
   },
+  "effects": {
+    "text": {
+      "fade_in": "Fade In",
+      "typing": "Typing",
+      "scale_in": "Scale In",
+      "slide_cross": "Slide Cross"
+    },
+    "particle": {
+      "none": "None",
+      "confetti": "Confetti",
+      "hearts": "Hearts",
+      "snow": "Snow",
+      "sparkles": "Sparkles",
+      "comfort_light": "Comfort Light",
+      "hope_star": "Hope Star",
+      "rain_soft": "Soft Rain"
+    },
+    "music": {
+      "none": "None",
+      "birthday": "Birthday",
+      "romantic": "Romantic",
+      "thank_you": "Thank You",
+      "christmas": "Christmas",
+      "celebration": "Celebration",
+      "cheer_up": "Cheer Up",
+      "comfort": "Comfort"
+    }
+  },
   "persona": {
     "creation": {
       "title": "New Persona",

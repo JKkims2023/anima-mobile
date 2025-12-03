@@ -1585,6 +1585,34 @@
     "particle_effect": "파티클 효과",
     "bg_music": "배경 음원"
   },
+  "effects": {
+    "text": {
+      "fade_in": "부드럽게",
+      "typing": "타이핑",
+      "scale_in": "크게 등장",
+      "slide_cross": "좌우 슬라이드"
+    },
+    "particle": {
+      "none": "효과 없음",
+      "confetti": "색종이",
+      "hearts": "하트",
+      "snow": "눈",
+      "sparkles": "반짝임",
+      "comfort_light": "따뜻한 빛 (위로)",
+      "hope_star": "떠오르는 별 (희망)",
+      "rain_soft": "부드러운 비 (슬픔)"
+    },
+    "music": {
+      "none": "음원 없음",
+      "birthday": "생일",
+      "romantic": "로맨틱",
+      "thank_you": "감사",
+      "christmas": "크리스마스",
+      "celebration": "축하",
+      "cheer_up": "응원",
+      "comfort": "위로"
+    }
+  },
   "persona": {
     "creation": {
       "title": "새로운 페르소나",
