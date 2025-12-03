@@ -31,9 +31,11 @@ import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
 import SafeScreen from '../components/SafeScreen';
 import MessageHistoryCard from '../components/message/MessageHistoryCard';
+import MessageHistoryChips from '../components/message/MessageHistoryChips';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
-import { listMessages } from '../services/api/messageService';
+import { useAnima } from '../contexts/AnimaContext';
+import messageService from '../services/api/messageService';
 import HapticService from '../utils/HapticService';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
@@ -47,6 +49,7 @@ const HistoryScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
+  const { showAlert, showToast } = useAnima();
   const insets = useSafeAreaInsets();
 
   // ✅ FlatList ref
@@ -147,7 +150,7 @@ const HistoryScreen = () => {
         console.log('[HistoryScreen] Loading messages for user:', user?.user_key);
       }
       
-      const result = await listMessages(user.user_key);
+      const result = await messageService.listMessages(user.user_key);
 
       if (__DEV__) {
         console.log('[HistoryScreen] loadMessages result:', result);
@@ -170,6 +173,94 @@ const HistoryScreen = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Favorite Toggle
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleFavoriteToggle = async () => {
+    const currentMessage = messages[currentIndex];
+    if (!currentMessage) return;
+
+    const newFavoriteYn = currentMessage.favorite_yn === 'Y' ? 'N' : 'Y';
+
+    try {
+      const result = await messageService.toggleFavorite(currentMessage.message_key, newFavoriteYn);
+
+      if (result.success) {
+        // ⭐ 핵심: 내부 state 업데이트 (DB 재조회 없음)
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === currentIndex 
+            ? { ...msg, favorite_yn: newFavoriteYn }
+            : msg
+        ));
+
+        // Toast notification
+        showToast({
+          type: 'success',
+          message: newFavoriteYn === 'Y' 
+            ? t('message.history.favorite_added')
+            : t('message.history.favorite_removed'),
+          emoji: newFavoriteYn === 'Y' ? '❤️' : '🤍',
+        });
+      }
+    } catch (error) {
+      console.error('[HistoryScreen] Favorite toggle error:', error);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Delete
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleDelete = () => {
+    const currentMessage = messages[currentIndex];
+    if (!currentMessage) return;
+
+    showAlert({
+      title: t('message.history.delete_confirm'),
+      message: t('message.history.delete_confirm_message'),
+      emoji: '🗑️',
+      buttons: [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('message.history.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await messageService.deleteMessage(currentMessage.message_key);
+
+              if (result.success) {
+                // ⭐ 핵심: 내부 state 업데이트 (DB 재조회 없음)
+                const newMessages = messages.filter((_, idx) => idx !== currentIndex);
+                setMessages(newMessages);
+
+                // Adjust current index if needed
+                if (currentIndex >= newMessages.length) {
+                  setCurrentIndex(Math.max(0, newMessages.length - 1));
+                }
+
+                // Toast notification
+                showToast({
+                  type: 'success',
+                  message: t('message.history.delete_success'),
+                  emoji: '✅',
+                });
+
+                // If no messages left, show empty state
+                if (newMessages.length === 0) {
+                  setAllViewed(true);
+                }
+              }
+            } catch (error) {
+              console.error('[HistoryScreen] Delete error:', error);
+            }
+          },
+        },
+      ],
+    });
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -339,6 +430,15 @@ const HistoryScreen = () => {
                 index,
               })}
             />
+
+            {/* ✅ Quick Action Chips (우측 상단) */}
+            {messages[currentIndex] && (
+              <MessageHistoryChips
+                message={messages[currentIndex]}
+                onFavoriteToggle={handleFavoriteToggle}
+                onDelete={handleDelete}
+              />
+            )}
 
             {/* ✅ Music Player (Top Left) */}
             {currentMusicUrl && (

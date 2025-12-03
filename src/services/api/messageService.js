@@ -312,6 +312,49 @@ export async function incrementShareCount(message_key) {
   }
 }
 
+/**
+ * ⭐ Toggle favorite status
+ * @param {string} message_key - Message key
+ * @param {string} favorite_yn - 'Y' or 'N'
+ * @returns {Promise<{success: boolean, favorite_yn?: string, errorCode?: string}>}
+ */
+export async function toggleFavorite(message_key, favorite_yn) {
+  try {
+    console.log(`⭐ [messageService] Toggle favorite: message_key=${message_key}, favorite_yn=${favorite_yn}`);
+
+    const userKey = await authService.getUserKey();
+    if (!userKey) {
+      return { success: false, errorCode: 'USER_NOT_AUTHENTICATED' };
+    }
+
+    const response = await apiClient.post(API_CONFIG.MESSAGE_ENDPOINTS.FAVORITE, {
+      user_key: userKey,
+      message_key,
+      favorite_yn,
+    });
+
+    console.log(`⭐ [messageService] Toggle favorite result:`, response);
+
+    if (response.success) {
+      return {
+        success: true,
+        favorite_yn: response.favorite_yn,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.errorCode || 'MESSAGE_FAVORITE_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [messageService] toggleFavorite error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
 export default {
   createMessage,
   listMessages,
@@ -320,4 +363,5 @@ export default {
   reuseMessage,
   deleteMessage,
   incrementShareCount,
+  toggleFavorite,
 };

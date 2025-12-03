@@ -172,6 +172,7 @@ export const MESSAGE_ENDPOINTS = {
   REUSE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/reuse',
   DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/delete',
   SHARE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/share',
+  FAVORITE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/favorite',
 };
 
 /**

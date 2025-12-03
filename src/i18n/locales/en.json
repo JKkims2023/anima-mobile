@@ -1627,7 +1627,11 @@
       "reuse": "Reuse",
       "share": "Share",
       "delete": "Delete",
-      "delete_confirm": "Are you sure you want to delete this message?"
+      "delete_confirm": "Are you sure you want to delete this message?",
+      "delete_confirm_message": "Deleted messages cannot be recovered.",
+      "favorite_added": "Added to favorites",
+      "favorite_removed": "Removed from favorites",
+      "delete_success": "Message deleted successfully"
     }
   },
   "message_creator": {

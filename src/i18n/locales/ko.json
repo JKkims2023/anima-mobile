@@ -1573,7 +1573,11 @@
       "reuse": "재사용",
       "share": "공유",
       "delete": "삭제",
-      "delete_confirm": "이 메시지를 삭제하시겠습니까?"
+      "delete_confirm": "이 메시지를 삭제하시겠습니까?",
+      "delete_confirm_message": "삭제된 메시지는 복구할 수 없습니다.",
+      "favorite_added": "즐겨찾기에 추가되었습니다",
+      "favorite_removed": "즐겨찾기에서 제거되었습니다",
+      "delete_success": "메시지가 삭제되었습니다"
     },
     "alert": {
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",
