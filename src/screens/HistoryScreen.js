@@ -23,6 +23,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
@@ -45,6 +46,7 @@ const HistoryScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
+  const insets = useSafeAreaInsets();
 
   // ✅ FlatList ref
   const flatListRef = useRef(null);
@@ -301,7 +303,7 @@ const HistoryScreen = () => {
 
                 {/* Floating Music Button */}
                 <TouchableOpacity
-                  style={styles.musicButton}
+                  style={[styles.musicButton, { top: insets.top + platformPadding(16) }]}
                   onPress={handleToggleMusic}
                   activeOpacity={0.8}
                 >
@@ -378,7 +380,7 @@ const styles = StyleSheet.create({
   },
   musicButton: {
     position: 'absolute',
-    top: platformPadding(16), // ✅ 상단 (Safe Area 포함)
+    // top은 insets를 사용하여 동적으로 설정
     left: scale(16),
     width: scale(44),
     height: scale(44),

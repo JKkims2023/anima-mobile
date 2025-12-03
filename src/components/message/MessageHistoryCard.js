@@ -143,14 +143,14 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Content Wrapper (하단 60%, MessagePreviewOverlay 스타일)
+  // Content Wrapper (하단 50%, Safe Area 고려)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   contentWrapper: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: SCREEN_HEIGHT * 0.6, // 하단 60%
+    height: SCREEN_HEIGHT * 0.5, // 하단 50% (60% → 50%, 텍스트 잘림 방지)
   },
   gradient: {
     flex: 1,
