@@ -26,7 +26,6 @@ import {
   StyleSheet, 
   TouchableOpacity,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -62,10 +61,12 @@ const ManagerAIOverlay = ({
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [messageVersion, setMessageVersion] = useState(0); // ✅ For ChatMessageList optimization
+  const [keyboardHeight, setKeyboardHeight] = useState(0); // ✅ Manual keyboard tracking
   
-  // ✅ Animation values (Simplified - no keyboard height tracking)
+  // ✅ Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const inputBottomAnim = useRef(new Animated.Value(0)).current;
   
   // ✅ Context titles
   const contextTitles = {
@@ -106,6 +107,41 @@ const ManagerAIOverlay = ({
       ]).start();
     }
   }, [visible, fadeAnim, slideAnim]);
+  
+  // ✅ Keyboard event listeners (Safe - only when visible)
+  useEffect(() => {
+    if (!visible) return;
+    
+    const keyboardWillShow = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        const height = e.endCoordinates.height;
+        setKeyboardHeight(height);
+        Animated.timing(inputBottomAnim, {
+          toValue: height,
+          duration: Platform.OS === 'ios' ? 250 : 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+    
+    const keyboardWillHide = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+        Animated.timing(inputBottomAnim, {
+          toValue: 0,
+          duration: Platform.OS === 'ios' ? 250 : 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+    
+    return () => {
+      keyboardWillShow.remove();
+      keyboardWillHide.remove();
+    };
+  }, [visible, inputBottomAnim]);
   
   // ✅ Initialize with greeting message
   useEffect(() => {
@@ -216,6 +252,10 @@ const ManagerAIOverlay = ({
     HapticService.light();
     Keyboard.dismiss();
     
+    // Reset keyboard state
+    setKeyboardHeight(0);
+    inputBottomAnim.setValue(0);
+    
     // Clear messages on close (fresh start next time)
     setTimeout(() => {
       setMessages([]);
@@ -227,7 +267,7 @@ const ManagerAIOverlay = ({
     if (onClose) {
       onClose();
     }
-  }, [onClose]);
+  }, [onClose, inputBottomAnim]);
   
   return (
     <Modal
@@ -255,24 +295,18 @@ const ManagerAIOverlay = ({
         {/* ✅ Dark Overlay */}
         <View style={styles.darkOverlay} />
         
-        {/* ✅ KeyboardAvoidingView for proper keyboard handling */}
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
+        {/* ✅ Content */}
+        <Animated.View
+          style={[
+            styles.contentContainer,
+            {
+              paddingTop: insets.top,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
         >
-          {/* ✅ Content */}
-          <Animated.View
-            style={[
-              styles.contentContainer,
-              {
-                paddingTop: insets.top, // ✅ Remove extra padding
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
-          >
-            {/* ✅ Header */}
-            <View style={styles.header}>
+          {/* ✅ Header */}
+          <View style={styles.header}>
               {/* Title */}
               <View style={styles.headerLeft}>
                 <CustomText type="big" bold style={styles.headerTitle}>
@@ -302,17 +336,23 @@ const ManagerAIOverlay = ({
                 isLoading={isLoading}
               />
             </View>
-            
-            {/* ✅ Chat Input Bar (Fixed at bottom) */}
-            <View style={styles.inputContainer}>
-              <ChatInputBar
-                onSend={handleSend}
-                disabled={isLoading || isTyping}
-                placeholder={t('chatBottomSheet.placeholder')}
-              />
-            </View>
+          
+          {/* ✅ Chat Input Bar (Animated with keyboard) */}
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                bottom: inputBottomAnim,
+              },
+            ]}
+          >
+            <ChatInputBar
+              onSend={handleSend}
+              disabled={isLoading || isTyping}
+              placeholder={t('chatBottomSheet.placeholder')}
+            />
           </Animated.View>
-        </KeyboardAvoidingView>
+        </Animated.View>
       </Animated.View>
     </Modal>
   );
@@ -325,9 +365,6 @@ const styles = StyleSheet.create({
   darkOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
   },
   contentContainer: {
     flex: 1,
@@ -366,14 +403,20 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
     paddingHorizontal: platformPadding(20),
-    paddingTop: platformPadding(10), // ✅ Optimized padding
+    paddingTop: platformPadding(10),
+    paddingBottom: verticalScale(70), // ✅ Space for input bar
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Input
+  // Input (Animated with keyboard)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   inputContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     paddingHorizontal: platformPadding(0),
+    backgroundColor: 'transparent',
   },
 });
 
