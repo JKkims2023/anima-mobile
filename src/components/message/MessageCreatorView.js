@@ -246,12 +246,6 @@ const MessageCreatorView = ({
   // Handle generate URL
   const handleGenerateURL = useCallback(async () => {
     console.log('[MessageCreatorView] Generating URL...');
-    console.log('🎨 [MessageCreatorView] Current effect states:', {
-      textAnimation,
-      particleEffect,
-      bgMusic,
-      bgMusicUrl
-    });
     setIsCreating(true);
     
     try {
@@ -281,8 +275,7 @@ const MessageCreatorView = ({
         effect_config: null, // Can be expanded later
       };
 
-      console.log('📤 [MessageCreatorView] API params:', params);
-      console.log('🎨 [MessageCreatorView] text_animation value:', textAnimation);
+      console.log('[MessageCreatorView] API params:', params);
 
       // Call API
       const result = await messageService.createMessage(params);
