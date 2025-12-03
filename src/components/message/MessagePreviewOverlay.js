@@ -448,20 +448,35 @@ const MessagePreviewOverlay = ({
    * Effect Selection Handlers
    */
   const handleTextAnimationSelect = useCallback((animationId) => {
+    console.log('🎨 [MessagePreviewOverlay] Text animation selected:', animationId);
+    console.log('🎨 [MessagePreviewOverlay] onChangeTextAnimation callback:', typeof onChangeTextAnimation);
     HapticService.success();
-    onChangeTextAnimation && onChangeTextAnimation(animationId);
+    if (onChangeTextAnimation) {
+      onChangeTextAnimation(animationId);
+      console.log('✅ [MessagePreviewOverlay] Text animation callback called!');
+    } else {
+      console.warn('⚠️ [MessagePreviewOverlay] onChangeTextAnimation callback is undefined!');
+    }
     closeSelectionPanel();
   }, [onChangeTextAnimation, closeSelectionPanel]);
 
   const handleParticleEffectSelect = useCallback((effectId) => {
+    console.log('✨ [MessagePreviewOverlay] Particle effect selected:', effectId);
     HapticService.success();
-    onChangeParticleEffect && onChangeParticleEffect(effectId);
+    if (onChangeParticleEffect) {
+      onChangeParticleEffect(effectId);
+      console.log('✅ [MessagePreviewOverlay] Particle effect callback called!');
+    }
     closeSelectionPanel();
   }, [onChangeParticleEffect, closeSelectionPanel]);
 
   const handleBgMusicSelect = useCallback((musicId) => {
+    console.log('🎵 [MessagePreviewOverlay] BG music selected:', musicId);
     HapticService.success();
-    onChangeBgMusic && onChangeBgMusic(musicId);
+    if (onChangeBgMusic) {
+      onChangeBgMusic(musicId);
+      console.log('✅ [MessagePreviewOverlay] BG music callback called!');
+    }
     closeSelectionPanel();
   }, [onChangeBgMusic, closeSelectionPanel]);
   

@@ -117,6 +117,16 @@ const MessageCreatorView = ({
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState(null);
   
+  // Debug: Log effect state changes
+  useEffect(() => {
+    console.log('🎨 [MessageCreatorView] Effect state updated:', {
+      textAnimation,
+      particleEffect,
+      bgMusic,
+      bgMusicUrl
+    });
+  }, [textAnimation, particleEffect, bgMusic, bgMusicUrl]);
+  
   // ⭐ NEW: Auto-fill from selected message (from search)
   useEffect(() => {
     if (selectedMessage) {
@@ -246,6 +256,12 @@ const MessageCreatorView = ({
   // Handle generate URL
   const handleGenerateURL = useCallback(async () => {
     console.log('[MessageCreatorView] Generating URL...');
+    console.log('🎨 [MessageCreatorView] Current effect states:', {
+      textAnimation,
+      particleEffect,
+      bgMusic,
+      bgMusicUrl
+    });
     setIsCreating(true);
     
     try {
@@ -275,7 +291,8 @@ const MessageCreatorView = ({
         effect_config: null, // Can be expanded later
       };
 
-      console.log('[MessageCreatorView] API params:', params);
+      console.log('📤 [MessageCreatorView] API params:', params);
+      console.log('🎨 [MessageCreatorView] text_animation value:', textAnimation);
 
       // Call API
       const result = await messageService.createMessage(params);
