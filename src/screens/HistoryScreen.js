@@ -104,16 +104,26 @@ const HistoryScreen = () => {
       const musicUrl = currentMessage?.bg_music_url;
 
       if (__DEV__) {
-        console.log('[HistoryScreen] Current message:', currentIndex, 'Music URL:', musicUrl);
+        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
+        console.log('[HistoryScreen] Current message index:', currentIndex);
+        console.log('[HistoryScreen] Current message:', currentMessage?.message_title);
+        console.log('[HistoryScreen] Music URL:', musicUrl);
+        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
       }
       
-      if (musicUrl && musicUrl !== 'none') {
+      // ✅ 음악 URL이 있으면 설정
+      if (musicUrl && musicUrl !== 'none' && musicUrl !== null) {
         setCurrentMusicUrl(musicUrl);
         setIsMusicPlaying(true);
       } else {
+        // ✅ 음악이 없으면 정리
         setCurrentMusicUrl(null);
         setIsMusicPlaying(false);
       }
+    } else {
+      // ✅ 범위 밖이면 음악 정지
+      setCurrentMusicUrl(null);
+      setIsMusicPlaying(false);
     }
   }, [currentIndex, messages]);
 
