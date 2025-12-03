@@ -78,7 +78,7 @@ const MessageHistoryCard = memo(({
         </View>
       )}
 
-      {/* Content Wrapper (하단 60%, MessagePreviewOverlay 스타일) */}
+      {/* Content Wrapper (Auto Height, 최대 50%) */}
       <View style={styles.contentWrapper}>
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.9)']}
@@ -88,14 +88,14 @@ const MessageHistoryCard = memo(({
           <View style={[styles.contentContainer, { paddingBottom: insets.bottom + platformPadding(20) }]}>
             {/* Title */}
             {message_title ? (
-              <CustomText type="big" bold style={styles.title}>
+              <CustomText type="big" bold style={styles.title} numberOfLines={2}>
                 {message_title}
               </CustomText>
             ) : null}
 
             {/* Content */}
             {message_content ? (
-              <CustomText type="normal" style={styles.content}>
+              <CustomText type="normal" style={styles.content} numberOfLines={6}>
                 {message_content}
               </CustomText>
             ) : null}
@@ -143,14 +143,14 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Content Wrapper (하단 50%, Safe Area 고려)
+  // Content Wrapper (Auto Height, 최대 50%)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   contentWrapper: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: SCREEN_HEIGHT * 0.5, // 하단 50% (60% → 50%, 텍스트 잘림 방지)
+    maxHeight: SCREEN_HEIGHT * 0.5, // ✅ 최대 50% (Auto height)
   },
   gradient: {
     flex: 1,

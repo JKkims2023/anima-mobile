@@ -27,6 +27,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
+import SafeScreen from '../components/SafeScreen';
 import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
 import MessageHistoryCard from '../components/message/MessageHistoryCard';
@@ -190,10 +191,11 @@ const HistoryScreen = () => {
   // Render each message card
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderMessage = useCallback(({ item, index }) => {
+    // ✅ 현재 보이는 카드만 isActive
     const isActive = index === currentIndex && isScreenFocused;
 
     if (__DEV__) {
-      console.log('[HistoryScreen] Rendering message at index:', index, 'IsActive:', isActive);
+      console.log('[HistoryScreen] 🎴 Rendering message at index:', index, 'Current:', currentIndex, 'IsActive:', isActive);
     }
 
     return (
@@ -217,7 +219,35 @@ const HistoryScreen = () => {
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
-    <View style={styles.container}>
+    <SafeScreen
+      backgroundColor={currentTheme.backgroundColor}
+      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
+      edges={{ top: true, bottom: false }}
+      keyboardAware={false}
+    >
+      {/* Header with Search Icon */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <CustomText type="big" bold style={styles.headerTitle}>
+            {t('navigation.title.history')}
+          </CustomText>
+          <CustomText type="small" style={styles.headerSubtitle}>
+            {t('navigation.subtitle.history')}
+          </CustomText>
+        </View>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={() => {
+            HapticService.light();
+            // TODO: Open search overlay
+          }}
+          activeOpacity={0.7}
+        >
+          <Icon name="search" size={scale(24)} color={currentTheme.mainColor} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.container}>
         {/* ✅ Loading */}
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -276,10 +306,10 @@ const HistoryScreen = () => {
               snapToAlignment="start"
               snapToInterval={SCREEN_HEIGHT}
               scrollEventThrottle={16}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={1}
-              initialNumToRender={1}
-              windowSize={3}
+              removeClippedSubviews={false} // ✅ 모든 카드 렌더링 (이펙트 정상 동작)
+              maxToRenderPerBatch={2}
+              initialNumToRender={2}
+              windowSize={5} // ✅ 더 많은 카드 유지
               getItemLayout={(data, index) => ({
                 length: SCREEN_HEIGHT,
                 offset: SCREEN_HEIGHT * index,
@@ -303,7 +333,7 @@ const HistoryScreen = () => {
 
                 {/* Floating Music Button */}
                 <TouchableOpacity
-                  style={[styles.musicButton, { top: insets.top + platformPadding(16) }]}
+                  style={styles.musicButton}
                   onPress={handleToggleMusic}
                   activeOpacity={0.8}
                 >
@@ -318,10 +348,38 @@ const HistoryScreen = () => {
           </>
         )}
       </View>
+    </SafeScreen>
   );
 };
 
 const styles = StyleSheet.create({
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Header
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: platformPadding(20),
+    paddingBottom: platformPadding(16),
+    paddingHorizontal: platformPadding(20),
+    backgroundColor: COLORS.BG_PRIMARY,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  headerTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: scale(4),
+  },
+  headerSubtitle: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  searchButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#000', // ✅ 완전한 검은색 (화이트 제거)
@@ -380,7 +438,7 @@ const styles = StyleSheet.create({
   },
   musicButton: {
     position: 'absolute',
-    // top은 insets를 사용하여 동적으로 설정
+    top: platformPadding(16), // ✅ 헤더 바로 아래 (SafeScreen이 top safe area 처리)
     left: scale(16),
     width: scale(44),
     height: scale(44),
