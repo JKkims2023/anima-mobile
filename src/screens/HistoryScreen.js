@@ -166,7 +166,7 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleMomentumScrollEnd = useCallback((event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / SCREEN_HEIGHT);
+    const index = Math.round(offsetY / availableHeight); // ✅ availableHeight 사용
 
     if (index !== currentIndex) {
       if (__DEV__) {
@@ -183,7 +183,7 @@ const HistoryScreen = () => {
         console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
       }
     }
-  }, [currentIndex]);
+  }, [currentIndex, availableHeight]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Toggle music playback
@@ -198,6 +198,19 @@ const HistoryScreen = () => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Available height for FlatList (헤더 제외)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const [availableHeight, setAvailableHeight] = useState(SCREEN_HEIGHT);
+  
+  const handleContainerLayout = useCallback((event) => {
+    const { height } = event.nativeEvent.layout;
+    if (__DEV__) {
+      console.log('[HistoryScreen] 📐 Container height:', height);
+    }
+    setAvailableHeight(height);
+  }, []);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render each message card
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderMessage = useCallback(({ item, index }) => {
@@ -209,14 +222,14 @@ const HistoryScreen = () => {
     }
 
     return (
-      <View style={styles.messageItemContainer}>
+      <View style={[styles.messageItemContainer, { height: availableHeight }]}>
         <MessageHistoryCard
           message={item}
           isActive={isActive}
         />
       </View>
     );
-  }, [currentIndex, isScreenFocused]);
+  }, [currentIndex, isScreenFocused, availableHeight]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Key extractor
@@ -290,7 +303,7 @@ const HistoryScreen = () => {
 
         {/* ✅ Message List (FlatList with Vertical Paging) */}
         {!isLoading && messages.length > 0 && (
-          <>
+          <View style={styles.listContainer} onLayout={handleContainerLayout}>
             <FlatList
               ref={flatListRef}
               data={messages}
@@ -308,21 +321,21 @@ const HistoryScreen = () => {
                 
                 // Fallback: scroll to offset
                 flatListRef.current?.scrollToOffset({
-                  offset: info.index * SCREEN_HEIGHT,
+                  offset: info.index * availableHeight,
                   animated: true,
                 });
               }}
               decelerationRate="fast"
               snapToAlignment="start"
-              snapToInterval={SCREEN_HEIGHT}
+              snapToInterval={availableHeight} // ✅ availableHeight 사용
               scrollEventThrottle={16}
-              removeClippedSubviews={false} // ✅ 모든 카드 렌더링 (이펙트 정상 동작)
+              removeClippedSubviews={false}
               maxToRenderPerBatch={2}
               initialNumToRender={2}
-              windowSize={5} // ✅ 더 많은 카드 유지
+              windowSize={5}
               getItemLayout={(data, index) => ({
-                length: SCREEN_HEIGHT,
-                offset: SCREEN_HEIGHT * index,
+                length: availableHeight, // ✅ availableHeight 사용
+                offset: availableHeight * index,
                 index,
               })}
             />
@@ -394,6 +407,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000', // ✅ 완전한 검은색 (화이트 제거)
   },
+  listContainer: {
+    flex: 1, // ✅ 남은 공간 차지
+  },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Loading
@@ -435,7 +451,7 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   messageItemContainer: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    // height는 renderMessage에서 동적으로 설정
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

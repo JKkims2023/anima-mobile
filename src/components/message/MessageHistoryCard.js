@@ -374,10 +374,10 @@ const MessageHistoryCard = memo(({
 MessageHistoryCard.displayName = 'MessageHistoryCard';
 
 const styles = StyleSheet.create({
-  // ✅ Full screen card (전체 화면 채우기)
+  // ✅ Full width card (height는 부모에서 설정)
   card: {
+    flex: 1, // ✅ 부모의 height 차지
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
     overflow: 'hidden',
     backgroundColor: '#000',
   },
