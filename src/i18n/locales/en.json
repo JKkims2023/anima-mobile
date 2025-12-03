@@ -1629,6 +1629,12 @@
     "edit_button": "Edit",
     "message_loaded": "Message loaded successfully"
   },
+  "message_preview": {
+    "title": "Preview",
+    "text_animation": "Text Effect",
+    "particle_effect": "Particle Effect",
+    "bg_music": "Background Music"
+  },
   "persona": {
     "creation": {
       "title": "New Persona",

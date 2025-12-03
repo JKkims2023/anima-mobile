@@ -1577,6 +1577,12 @@
     "edit_button": "수정하기",
     "message_loaded": "메시지를 불러왔습니다"
   },
+  "message_preview": {
+    "title": "미리보기",
+    "text_animation": "텍스트 효과",
+    "particle_effect": "파티클 효과",
+    "bg_music": "배경 음원"
+  },
   "persona": {
     "creation": {
       "title": "새로운 페르소나",
