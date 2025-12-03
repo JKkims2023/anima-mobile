@@ -59,36 +59,25 @@ const PersonaBackgroundView = memo(({
 
   return (
     <RNAnimated.View style={[styles.container, { opacity }]}>
-      {hasVideo && !videoError ? (
-        <>
-          {/* Video */}
-          <Video
-            ref={videoRef}
-            source={{ uri: videoUrl }}
-            style={styles.video}
-            resizeMode="cover"
-            repeat
-            muted
-            paused={!isScreenFocused}
-            onError={handleVideoError}
-            onLoad={handleVideoLoad}
-          />
-          
-          {/* Image fallback while video loads */}
-          {!videoLoaded && imageUrl && (
-            <FastImage
-              source={{ uri: imageUrl }}
-              style={styles.image}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          )}
-        </>
-      ) : (
-        // Image only
-        <FastImage
-          source={{ uri: imageUrl }}
-          style={styles.image}
-          resizeMode={FastImage.resizeMode.contain}
+      {/* ✅ Always show image as base layer */}
+      <FastImage
+        source={{ uri: imageUrl }}
+        style={styles.image}
+        resizeMode={FastImage.resizeMode.cover}
+      />
+
+      {/* ✅ Video layer on top (if available) */}
+      {hasVideo && !videoError && (
+        <Video
+          ref={videoRef}
+          source={{ uri: videoUrl }}
+          style={styles.video}
+          resizeMode="cover"
+          repeat
+          muted
+          paused={!isScreenFocused}
+          onError={handleVideoError}
+          onLoad={handleVideoLoad}
         />
       )}
       
