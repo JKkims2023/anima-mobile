@@ -111,13 +111,13 @@ const MessagePreviewOverlay = ({
   const titleOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   
-  // scale_in animation
-  const titleScale = useSharedValue(0.8);
-  const contentScale = useSharedValue(0.8);
+  // scale_in animation (바운스: 1.2 → 1.0)
+  const titleScale = useSharedValue(1.2);
+  const contentScale = useSharedValue(1.2);
   
-  // slide_cross animation
-  const titleTranslateX = useSharedValue(-50);
-  const contentTranslateX = useSharedValue(50);
+  // slide_cross animation (화면 밖에서: -100, 100)
+  const titleTranslateX = useSharedValue(-100);
+  const contentTranslateX = useSharedValue(100);
   
   // typing animation
   const [typingText, setTypingText] = useState('');
@@ -139,10 +139,10 @@ const MessagePreviewOverlay = ({
     overlayOpacity.value = 0;
     titleOpacity.value = 0;
     contentOpacity.value = 0;
-    titleScale.value = 0.8;
-    contentScale.value = 0.8;
-    titleTranslateX.value = -50;
-    contentTranslateX.value = 50;
+    titleScale.value = 1.2; // Start larger for bounce effect
+    contentScale.value = 1.2;
+    titleTranslateX.value = -100; // Start from left edge
+    contentTranslateX.value = 100; // Start from right edge
     setTypingText('');
     setShowCursor(false);
     
@@ -222,6 +222,9 @@ const MessagePreviewOverlay = ({
       })
     );
     
+    // Content is always visible for typing (opacity: 1)
+    contentOpacity.value = 1;
+    
     // Start typing effect after title (delay 800ms)
     setTimeout(() => {
       typingStartTimeRef.current = null;
@@ -249,102 +252,136 @@ const MessagePreviewOverlay = ({
   }, [messageContent]);
   
   /**
-   * 3. scale_in: 작게 → 크게 (Web 동일, duration 600ms)
+   * 3. scale_in: 바운스 (1.2 → 1.0, Web 동일, duration 800ms)
    */
   const startScaleInAnimation = useCallback(() => {
-    // Title scale in (delay 300ms, duration 600ms)
+    // Title: bounce effect (1.2 → 1.0)
     titleScale.value = withDelay(
       300,
-      withTiming(1, {
-        duration: 600,
+      withTiming(1.0, {
+        duration: 800,
         easing: Easing.out(Easing.back(1.5)), // Bounce effect
       })
     );
     titleOpacity.value = withDelay(
       300,
       withTiming(1, {
-        duration: 600,
+        duration: 800,
         easing: Easing.out(Easing.ease),
       })
     );
     
-    // Content scale in (delay 600ms, duration 600ms)
+    // Content: bounce effect (1.2 → 1.0)
     contentScale.value = withDelay(
-      600,
-      withTiming(1, {
-        duration: 600,
+      700,
+      withTiming(1.0, {
+        duration: 800,
         easing: Easing.out(Easing.back(1.5)),
       })
     );
     contentOpacity.value = withDelay(
-      600,
+      700,
       withTiming(1, {
-        duration: 600,
+        duration: 800,
         easing: Easing.out(Easing.ease),
       })
     );
   }, []);
   
   /**
-   * 4. slide_cross: 제목 좌→우, 내용 우→좌 (Web 동일, duration 600ms)
+   * 4. slide_cross: 제목 좌→우, 내용 우→좌 (화면 밖에서, duration 700ms)
    */
   const startSlideCrossAnimation = useCallback(() => {
-    // Title: slide from left (delay 300ms, duration 600ms)
+    // Title: slide from left edge (delay 300ms, duration 700ms)
     titleTranslateX.value = withDelay(
       300,
       withTiming(0, {
-        duration: 600,
-        easing: Easing.out(Easing.ease),
+        duration: 700,
+        easing: Easing.out(Easing.cubic),
       })
     );
     titleOpacity.value = withDelay(
       300,
       withTiming(1, {
-        duration: 600,
+        duration: 700,
         easing: Easing.out(Easing.ease),
       })
     );
     
-    // Content: slide from right (delay 600ms, duration 600ms)
+    // Content: slide from right edge (delay 700ms, duration 700ms)
     contentTranslateX.value = withDelay(
-      600,
+      700,
       withTiming(0, {
-        duration: 600,
-        easing: Easing.out(Easing.ease),
+        duration: 700,
+        easing: Easing.out(Easing.cubic),
       })
     );
     contentOpacity.value = withDelay(
-      600,
+      700,
       withTiming(1, {
-        duration: 600,
+        duration: 700,
         easing: Easing.out(Easing.ease),
       })
     );
   }, []);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // Animated Styles
+  // Animated Styles (애니메이션별로 조건부 적용)
   // ═══════════════════════════════════════════════════════════════════════
   
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
   }));
   
-  const titleAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: titleOpacity.value,
-    transform: [
-      { scale: titleScale.value },
-      { translateX: titleTranslateX.value },
-    ],
-  }));
+  // Title: 애니메이션 타입에 따라 다른 스타일 적용
+  const titleAnimatedStyle = useAnimatedStyle(() => {
+    switch (textAnimation) {
+      case 'fade_in':
+      case 'typing':
+        return {
+          opacity: titleOpacity.value,
+        };
+      case 'scale_in':
+        return {
+          opacity: titleOpacity.value,
+          transform: [{ scale: titleScale.value }],
+        };
+      case 'slide_cross':
+        return {
+          opacity: titleOpacity.value,
+          transform: [{ translateX: titleTranslateX.value }],
+        };
+      default:
+        return { opacity: titleOpacity.value };
+    }
+  });
   
-  const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-    transform: [
-      { scale: contentScale.value },
-      { translateX: contentTranslateX.value },
-    ],
-  }));
+  // Content: 애니메이션 타입에 따라 다른 스타일 적용
+  const contentAnimatedStyle = useAnimatedStyle(() => {
+    switch (textAnimation) {
+      case 'fade_in':
+        return {
+          opacity: contentOpacity.value,
+        };
+      case 'typing':
+        // typing은 opacity 애니메이션 없음 (타이핑 텍스트만)
+        return {
+          opacity: 1,
+        };
+      case 'scale_in':
+        return {
+          opacity: contentOpacity.value,
+          transform: [{ scale: contentScale.value }],
+        };
+      case 'slide_cross':
+        return {
+          opacity: contentOpacity.value,
+          transform: [{ translateX: contentTranslateX.value }],
+        };
+      default:
+        return { opacity: contentOpacity.value };
+    }
+  });
 
   /**
    * Handle close
