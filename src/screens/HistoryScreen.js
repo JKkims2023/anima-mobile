@@ -106,28 +106,23 @@ const HistoryScreen = () => {
 
   // ✅ Handle swipe (any direction)
   const handleSwiped = (cardIndex) => {
+    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
     console.log('[HistoryScreen] Swiped card:', cardIndex);
+    console.log('[HistoryScreen] Current index before:', currentIndex);
+    
     HapticService.medium();
     
     // Update current index
-    setCurrentIndex(cardIndex + 1);
+    const newIndex = cardIndex + 1;
+    console.log('[HistoryScreen] New index:', newIndex);
+    setCurrentIndex(newIndex);
     
     // Check if all cards swiped
-    if (cardIndex === messages.length - 1) {
+    if (cardIndex >= messages.length - 1) {
+      console.log('[HistoryScreen] All cards swiped!');
       setAllSwiped(true);
     }
-  };
-
-  // ✅ Handle swipe left
-  const handleSwipedLeft = (cardIndex) => {
-    console.log('[HistoryScreen] Swiped LEFT:', cardIndex);
-    handleSwiped(cardIndex);
-  };
-
-  // ✅ Handle swipe right
-  const handleSwipedRight = (cardIndex) => {
-    console.log('[HistoryScreen] Swiped RIGHT:', cardIndex);
-    handleSwiped(cardIndex);
+    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
   };
 
   // ✅ Handle card tap
@@ -136,15 +131,24 @@ const HistoryScreen = () => {
     HapticService.light();
   };
 
-  // ✅ Reset swiper
+  // ✅ Reset swiper (완전 재구성)
   const handleReset = () => {
+    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
     console.log('[HistoryScreen] Resetting swiper...');
     HapticService.success();
+    
+    // ✅ Force re-render by creating new message array
+    const resetMessages = [...messages];
+    setMessages([]);
     setCurrentIndex(0);
     setAllSwiped(false);
-    if (swiperRef.current) {
-      swiperRef.current.jumpToCardIndex(0);
-    }
+    
+    // ✅ Re-mount swiper with messages
+    setTimeout(() => {
+      setMessages(resetMessages);
+      console.log('[HistoryScreen] Swiper reset complete!');
+    }, 100);
+    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
   };
 
   // ✅ Handle swipe back
@@ -154,7 +158,7 @@ const HistoryScreen = () => {
     
     if (swiperRef.current && currentIndex > 0) {
       swiperRef.current.swipeBack();
-      setCurrentIndex(currentIndex - 1);
+      // ✅ 인덱스는 onSwiped에서 자동 관리되므로 여기서는 처리 안함
     }
   };
 
@@ -275,53 +279,57 @@ const HistoryScreen = () => {
             <Swiper
               ref={swiperRef}
               cards={messages}
-              renderCard={(card, index) => {
-                if (!card) return null;
+              renderCard={(card, cardIndex) => {
+                if (!card) {
+                  console.log('[HistoryScreen] Rendering NULL card at index:', cardIndex);
+                  return null;
+                }
+                
+                console.log('[HistoryScreen] Rendering card at index:', cardIndex, 'Current:', currentIndex, 'IsActive:', cardIndex === currentIndex);
+                
                 return (
                   <MessageHistoryCard
-                    key={card.message_key || index}
                     message={card}
-                    isActive={index === currentIndex}
-                    onPress={() => handleCardPress(index)}
+                    isActive={cardIndex === currentIndex}
+                    onPress={() => handleCardPress(cardIndex)}
                   />
                 );
               }}
+              // ✅ 이벤트 핸들러 (중복 제거)
               onSwiped={handleSwiped}
-              onSwipedLeft={handleSwipedLeft}
-              onSwipedRight={handleSwipedRight}
-              onSwipedAll={() => setAllSwiped(true)}
+              onSwipedAll={() => {
+                console.log('[HistoryScreen] All cards swiped!');
+                setAllSwiped(true);
+              }}
               onTapCard={(cardIndex) => handleCardPress(cardIndex)}
               // ✅ 자유로운 드래그 허용
               verticalSwipe={true}
               horizontalSwipe={true}
-              // ✅ 카드 스택 설정 (개선)
+              // ✅ 카드 스택 설정 (명확하게 보이도록)
               stackSize={3}
-              stackScale={5} // 10 → 5 (카드 크기 차이 줄임)
-              stackSeparation={12} // 15 → 12 (카드 간격 줄임)
+              stackScale={8} // 5 → 8 (조금 더 차이 줌)
+              stackSeparation={14} // 12 → 14 (간격 조금 늘림)
               // ✅ 애니메이션 최적화
-              animateOverlayLabelsOpacity
-              animateCardOpacity={false} // 겹침 방지
+              animateOverlayLabelsOpacity={false}
+              animateCardOpacity={false}
               // ✅ 무한 스와이프 방지
               infinite={false}
               // ✅ 스타일
               backgroundColor="transparent"
               containerStyle={styles.swiperContainer}
               cardStyle={styles.cardStyle}
-              // ✅ 오버레이 라벨 제거 (깔끔한 UI)
+              // ✅ 오버레이 라벨 제거
               overlayLabels={{
-                left: {
-                  element: null,
-                },
-                right: {
-                  element: null,
-                },
-                top: {
-                  element: null,
-                },
-                bottom: {
-                  element: null,
-                },
+                left: { element: null },
+                right: { element: null },
+                top: { element: null },
+                bottom: { element: null },
               }}
+              // ✅ 스와이프 제한 제거 (자유도 최대화)
+              disableTopSwipe={false}
+              disableBottomSwipe={false}
+              disableLeftSwipe={false}
+              disableRightSwipe={false}
             />
           )}
         </View>

@@ -55,53 +55,65 @@ const MessageHistoryCard = memo(({
     selected_dress_video_convert_yn: persona_video_url ? 'Y' : 'N',
   };
 
+  // Debug log
+  console.log(`[MessageHistoryCard] Rendering card:`, {
+    persona_name,
+    isActive,
+    particle_effect,
+    message_title: message_title?.substring(0, 20),
+  });
+
   return (
-    <View style={styles.card}>
-      {/* Background: Persona Image/Video */}
-      <PersonaBackgroundView
-        persona={persona}
-        isScreenFocused={isActive}
-      />
-
-      {/* Gradient Overlay */}
-      <LinearGradient
-        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-        locations={[0, 0.5, 1]}
-        style={styles.gradientOverlay}
-      />
-
-      {/* Particle Effects */}
-      {particle_effect !== 'none' && (
-        <View style={styles.particleContainer}>
-          <ParticleEffect
-            type={particle_effect}
-            isActive={isActive}
+    <View style={styles.cardOuter}>
+      <View style={styles.card}>
+        {/* Background: Persona Image/Video */}
+        <View style={styles.backgroundContainer}>
+          <PersonaBackgroundView
+            persona={persona}
+            isScreenFocused={isActive}
           />
         </View>
-      )}
 
-      {/* Message Content */}
-      <View style={styles.contentContainer}>
-        {/* Title */}
-        {message_title ? (
-          <CustomText type="big" bold style={styles.title}>
-            {message_title}
+        {/* Gradient Overlay */}
+        <LinearGradient
+          colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+          locations={[0, 0.5, 1]}
+          style={styles.gradientOverlay}
+        />
+
+        {/* Particle Effects */}
+        {particle_effect && particle_effect !== 'none' && isActive && (
+          <View style={styles.particleContainer} pointerEvents="none">
+            <ParticleEffect
+              type={particle_effect}
+              isActive={true}
+            />
+          </View>
+        )}
+
+        {/* Message Content */}
+        <View style={styles.contentContainer}>
+          {/* Title */}
+          {message_title ? (
+            <CustomText type="big" bold style={styles.title}>
+              {message_title}
+            </CustomText>
+          ) : null}
+
+          {/* Content */}
+          {message_content ? (
+            <CustomText type="normal" style={styles.content}>
+              {message_content}
+            </CustomText>
+          ) : null}
+        </View>
+
+        {/* Persona Name Badge (Top Right) */}
+        <View style={styles.personaBadge}>
+          <CustomText type="small" style={styles.personaName}>
+            {persona_name || 'Unknown'}
           </CustomText>
-        ) : null}
-
-        {/* Content */}
-        {message_content ? (
-          <CustomText type="normal" style={styles.content}>
-            {message_content}
-          </CustomText>
-        ) : null}
-      </View>
-
-      {/* Persona Name Badge (Top Right) */}
-      <View style={styles.personaBadge}>
-        <CustomText type="small" style={styles.personaName}>
-          {persona_name || 'Unknown'}
-        </CustomText>
+        </View>
       </View>
     </View>
   );
@@ -110,29 +122,54 @@ const MessageHistoryCard = memo(({
 MessageHistoryCard.displayName = 'MessageHistoryCard';
 
 const styles = StyleSheet.create({
+  // ✅ Outer wrapper (Swiper가 움직이는 영역)
+  cardOuter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // ✅ Inner card (모든 컨텐츠 포함)
   card: {
-    width: SCREEN_WIDTH - scale(40), // 20px padding on each side
-    height: SCREEN_HEIGHT - verticalScale(180), // 200 → 180 (헤더 영역 최소화)
+    width: SCREEN_WIDTH - scale(40),
+    height: SCREEN_HEIGHT - verticalScale(180),
     borderRadius: scale(20),
     overflow: 'hidden',
     backgroundColor: COLORS.BG_PRIMARY,
-    // ✅ Shadow for card elevation (개선)
+    // ✅ Shadow for card elevation
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: scale(8), // 4 → 8 (더 강한 그림자)
+      height: scale(8),
     },
-    shadowOpacity: 0.4, // 0.3 → 0.4
-    shadowRadius: scale(12), // 8 → 12
-    elevation: 10, // 8 → 10 (Android)
+    shadowOpacity: 0.4,
+    shadowRadius: scale(12),
+    elevation: 10,
+  },
+
+  // ✅ Background container (카드 내부에 고정)
+  backgroundContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   gradientOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   particleContainer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     pointerEvents: 'none',
   },
 
