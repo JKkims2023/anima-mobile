@@ -631,6 +631,10 @@ const PersonaStudioScreen = () => {
     
     try {
       const result = await listMessages(user.user_key, 1, 50);
+
+      console.log('[PersonaStudioScreen] 📋 Loaded messages result:', result);
+
+      console.log('[PersonaStudioScreen] 📋 Loaded messages:', result.data);
       if (result.success && result.data) {
         setMessages(result.data || []);
         if (__DEV__) {

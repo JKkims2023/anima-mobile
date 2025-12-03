@@ -87,21 +87,22 @@ export async function createMessage(params) {
  * @param {number} limit - Default: 10
  * @returns {Promise<{success: boolean, data?: {messages, total, page, limit}, errorCode?: string}>}
  */
-export async function listMessages(user_key, page = 1, limit = 10) {
+export async function listMessages(user_key, page = 1, limit = 200) {
   console.log('📋 [messageService] Listing messages for user:', user_key);
   
   try {
-    const response = await apiClient(MESSAGE_ENDPOINTS.LIST, {
-      method: 'POST',
-      body: JSON.stringify({ user_key, page, limit }),
+    const response = await apiClient.post(MESSAGE_ENDPOINTS.LIST, {
+      user_key,
+      page,
+      limit,
     });
 
     console.log('📋 [messageService] List messages result:', response);
 
-    if (response.success) {
+    if (response.data.success) {
       return {
         success: true,
-        data: response.data,
+        data: response.data.data,
       };
     } else {
       return {

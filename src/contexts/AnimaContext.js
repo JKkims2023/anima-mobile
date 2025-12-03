@@ -53,29 +53,32 @@ export const AnimaProvider = ({ children }) => {
    * @param {string} config.emoji - Optional emoji
    */
   const showToast = useCallback((config) => {
-    // ✅ Prevent duplicates: Hide existing toast first
-    if (toast.visible) {
-      setToast((prev) => ({ ...prev, visible: false }));
-      
-      // Wait for animation to complete before showing new toast
-      setTimeout(() => {
-        setToast({
+    // ✅ Use functional update to avoid dependency on toast.visible
+    setToast((prev) => {
+      // Prevent duplicates: If toast is currently visible, hide it first
+      if (prev.visible) {
+        // Hide existing toast
+        setTimeout(() => {
+          setToast({
+            visible: true,
+            type: config.type || 'info',
+            message: config.message || '',
+            emoji: config.emoji || null,
+          });
+        }, 100);
+        
+        return { ...prev, visible: false };
+      } else {
+        // Show immediately
+        return {
           visible: true,
           type: config.type || 'info',
           message: config.message || '',
           emoji: config.emoji || null,
-        });
-      }, 100);
-    } else {
-      // Show immediately
-      setToast({
-        visible: true,
-        type: config.type || 'info',
-        message: config.message || '',
-        emoji: config.emoji || null,
-      });
-    }
-  }, [toast.visible]);
+        };
+      }
+    });
+  }, []); // ✅ No dependencies - function is stable!
 
   /**
    * Hide Toast

@@ -59,6 +59,8 @@ const MessageSearchOverlay = ({
         inputRef.current?.focus();
       }, 300);
     }
+
+    console.log('[MessageSearchOverlay] 🔍 Messages:', messages);
   }, [visible, messages]);
 
   // Filter messages by search query (title OR content)
@@ -76,6 +78,8 @@ const MessageSearchOverlay = ({
     });
 
     setFilteredMessages(filtered);
+
+    console.log('[MessageSearchOverlay] 🔍 Filtered Messages:', filtered);
   }, [searchQuery, messages]);
 
   // ═══════════════════════════════════════════════════════════════════════

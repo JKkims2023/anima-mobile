@@ -71,7 +71,10 @@
     "swipe": "스와이프",
     "tap_to_edit": "탭하여 수정",
     "password_set": "비밀번호 설정됨",
-    "no_password": "비밀번호 없음"
+    "no_password": "비밀번호 없음",
+    "today": "오늘",
+    "yesterday": "어제",
+    "days_ago": "{{count}}일 전"
   },
   "main": {
     "title": "상상이 현실이 되는 공간",
@@ -1632,11 +1635,6 @@
     "message": {
       "empty": "아직 작성한 메시지가 없습니다"
     }
-  },
-  "common": {
-    "today": "오늘",
-    "yesterday": "어제",
-    "days_ago": "{{count}}일 전"
   },
   "dummy": {
     "message": "작성하기"
