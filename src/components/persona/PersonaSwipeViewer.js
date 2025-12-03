@@ -44,6 +44,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
  * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
  * @param {boolean} props.enabled - Whether swipe gestures are enabled (default: true)
+ * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  */
 const PersonaSwipeViewer = forwardRef(({ 
   personas, 
@@ -55,6 +56,7 @@ const PersonaSwipeViewer = forwardRef(({
   onChatWithPersona,
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
+  availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -123,7 +125,7 @@ const PersonaSwipeViewer = forwardRef(({
   // ✅ Handle swipe (change persona) - VERTICAL
   const handleMomentumScrollEnd = useCallback((event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / SCREEN_HEIGHT);
+    const index = Math.round(offsetY / availableHeight);
 
     if (index !== selectedIndex) {
       HapticService.selection();
@@ -134,7 +136,7 @@ const PersonaSwipeViewer = forwardRef(({
         console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
       }
     }
-  }, [selectedIndex, personas, onIndexChange]);
+  }, [selectedIndex, personas, onIndexChange, availableHeight]);
 
   // ✅ Current persona
   const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
@@ -144,16 +146,17 @@ const PersonaSwipeViewer = forwardRef(({
     const isActive = index === selectedIndex && isModeActive;
     
     return (
-      <View style={styles.personaItemContainer}>
+      <View style={[styles.personaItemContainer, { height: availableHeight }]}>
         <PersonaCardView 
           persona={item} 
           isActive={isActive}
           isScreenFocused={isScreenFocused}
           modeOpacity={modeOpacity}
+          availableHeight={availableHeight}
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity]);
+  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity, availableHeight]);
 
   // ✅ Key extractor (optimized)
   const keyExtractor = useCallback((item) => item.persona_key, []);
@@ -196,21 +199,21 @@ const PersonaSwipeViewer = forwardRef(({
           
           // Fallback: scroll to offset
           flatListRef.current?.scrollToOffset({
-            offset: info.index * SCREEN_HEIGHT,
+            offset: info.index * availableHeight,
             animated: false,
           });
         }}
         decelerationRate="fast"
         snapToAlignment="start"
-        snapToInterval={SCREEN_HEIGHT}
+        snapToInterval={availableHeight}
         scrollEventThrottle={16}
         removeClippedSubviews={true}
         maxToRenderPerBatch={1}
         initialNumToRender={1}
         windowSize={3}
         getItemLayout={(data, index) => ({
-          length: SCREEN_HEIGHT,
-          offset: SCREEN_HEIGHT * index,
+          length: availableHeight,
+          offset: availableHeight * index,
           index,
         })}
       />
@@ -256,7 +259,7 @@ const styles = StyleSheet.create({
   },
   personaItemContainer: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    // height는 renderPersona에서 동적으로 설정됨 (availableHeight)
   },
   paginationContainer: {
     position: 'absolute',

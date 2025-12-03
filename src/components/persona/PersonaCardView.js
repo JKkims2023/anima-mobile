@@ -43,6 +43,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {boolean} props.isActive - Whether this persona is currently active/selected
  * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
+ * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  */
 const PersonaCardView = ({ 
   persona, 
@@ -52,6 +53,7 @@ const PersonaCardView = ({
   typingMessage = null, // ✅ Receive from PersonaSwipeViewer
   isLoading = false, // ✅ Receive from PersonaSwipeViewer
   chatInputBottom = 0, // ✅ Receive from PersonaSwipeViewer (SAME AS SAGE)
+  availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
 }) => {
   const { currentTheme } = useTheme();
   const [isFlipped, setIsFlipped] = useState(false);
@@ -190,7 +192,7 @@ const PersonaCardView = ({
   });
 
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={[styles.container, { height: availableHeight }]} pointerEvents="box-none">
       {/* 1. Background Image (FastImage) - Always visible for smooth loading */}
       <FastImage
         source={{ 

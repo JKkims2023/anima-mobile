@@ -23,8 +23,9 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, BackHandler, PanResponder, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, BackHandler, PanResponder, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -68,6 +69,25 @@ const PersonaStudioScreen = () => {
   const { personas } = usePersona();
   const { user } = useUser();
   const { showToast, showAlert } = useAnima();
+  const insets = useSafeAreaInsets();
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // AVAILABLE HEIGHT CALCULATION (Same as HistoryScreen)
+  // ═══════════════════════════════════════════════════════════════════════
+  const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+  const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
+  
+  const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom - TAB_BAR_HEIGHT;
+  
+  if (__DEV__) {
+    console.log('[PersonaStudioScreen] Height calculation:', {
+      SCREEN_HEIGHT,
+      'insets.top': insets.top,
+      'insets.bottom': insets.bottom,
+      TAB_BAR_HEIGHT,
+      availableHeight,
+    });
+  }
 
   // ═══════════════════════════════════════════════════════════════════════
   // STATE MANAGEMENT
@@ -753,6 +773,7 @@ const PersonaStudioScreen = () => {
             isModeActive={true}
             isScreenFocused={isScreenFocused}
             initialIndex={currentPersonaIndex}
+            availableHeight={availableHeight}
             onIndexChange={(index) => {
               if (__DEV__) {
                 console.log('[PersonaStudioScreen] 🔄 Persona changed to index:', index, 'isMessageMode:', isMessageMode);
