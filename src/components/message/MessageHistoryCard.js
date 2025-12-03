@@ -67,14 +67,26 @@ const MessageHistoryCard = memo(({
   const titleOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   const particleOpacity = useSharedValue(0);
+  const titleScale = useSharedValue(1.2);
+  const contentScale = useSharedValue(1.2);
+  const titleTranslateX = useSharedValue(-100);
+  const contentTranslateX = useSharedValue(100);
 
   // ✅ Start animations when card becomes active
   useEffect(() => {
     if (isActive) {
-      // Reset first
+      if (__DEV__) {
+        console.log('[MessageHistoryCard] 🎬 Starting animations:', text_animation);
+      }
+
+      // Reset all animation values
       titleOpacity.value = 0;
       contentOpacity.value = 0;
       particleOpacity.value = 0;
+      titleScale.value = 1.2;
+      contentScale.value = 1.2;
+      titleTranslateX.value = -100;
+      contentTranslateX.value = 100;
 
       // 1. Particle effects start (0.3s delay)
       particleOpacity.value = withDelay(
@@ -82,37 +94,128 @@ const MessageHistoryCard = memo(({
         withTiming(1, { duration: 500, easing: Easing.out(Easing.ease) })
       );
 
-      // 2. Title fade in (0.5s delay)
-      titleOpacity.value = withDelay(
-        500,
-        withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
-      );
-
-      // 3. Content fade in (1s delay)
-      contentOpacity.value = withDelay(
-        1000,
-        withTiming(1, { duration: 1000, easing: Easing.out(Easing.ease) })
-      );
-
-      if (__DEV__) {
-        console.log('[MessageHistoryCard] Starting animations for:', message_title?.substring(0, 20));
+      // 2. Text animations based on text_animation type
+      switch (text_animation) {
+        case 'fade_in':
+          startFadeInAnimation();
+          break;
+        case 'typing':
+          startFadeInAnimation(); // For now, use fade_in (typing requires special handling)
+          break;
+        case 'scale_in':
+          startScaleInAnimation();
+          break;
+        case 'slide_cross':
+          startSlideCrossAnimation();
+          break;
+        default:
+          startFadeInAnimation();
       }
     } else {
       // Reset when not active
       titleOpacity.value = 0;
       contentOpacity.value = 0;
       particleOpacity.value = 0;
+      titleScale.value = 1.2;
+      contentScale.value = 1.2;
+      titleTranslateX.value = -100;
+      contentTranslateX.value = 100;
     }
-  }, [isActive, message_title]);
+  }, [isActive, text_animation]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Animation Functions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  const startFadeInAnimation = () => {
+    titleOpacity.value = withDelay(
+      500,
+      withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+    );
+    contentOpacity.value = withDelay(
+      1000,
+      withTiming(1, { duration: 1000, easing: Easing.out(Easing.ease) })
+    );
+  };
+
+  const startScaleInAnimation = () => {
+    titleScale.value = withDelay(
+      500,
+      withTiming(1.0, { duration: 800, easing: Easing.out(Easing.back(1.5)) })
+    );
+    titleOpacity.value = withDelay(
+      500,
+      withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+    );
+    
+    contentScale.value = withDelay(
+      900,
+      withTiming(1.0, { duration: 800, easing: Easing.out(Easing.back(1.5)) })
+    );
+    contentOpacity.value = withDelay(
+      900,
+      withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+    );
+  };
+
+  const startSlideCrossAnimation = () => {
+    titleTranslateX.value = withDelay(
+      500,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+    titleOpacity.value = withDelay(
+      500,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+    
+    contentTranslateX.value = withDelay(
+      900,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+    contentOpacity.value = withDelay(
+      900,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+  };
 
   // ✅ Animated styles
-  const animatedTitleStyle = useAnimatedStyle(() => ({
-    opacity: titleOpacity.value,
-  }));
+  const animatedTitleStyle = useAnimatedStyle(() => {
+    switch (text_animation) {
+      case 'scale_in':
+        return {
+          opacity: titleOpacity.value,
+          transform: [{ scale: titleScale.value }],
+        };
+      case 'slide_cross':
+        return {
+          opacity: titleOpacity.value,
+          transform: [{ translateX: titleTranslateX.value }],
+        };
+      default:
+        return {
+          opacity: titleOpacity.value,
+        };
+    }
+  });
 
-  const animatedContentStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-  }));
+  const animatedContentStyle = useAnimatedStyle(() => {
+    switch (text_animation) {
+      case 'scale_in':
+        return {
+          opacity: contentOpacity.value,
+          transform: [{ scale: contentScale.value }],
+        };
+      case 'slide_cross':
+        return {
+          opacity: contentOpacity.value,
+          transform: [{ translateX: contentTranslateX.value }],
+        };
+      default:
+        return {
+          opacity: contentOpacity.value,
+        };
+    }
+  });
 
   const animatedParticleStyle = useAnimatedStyle(() => ({
     opacity: particleOpacity.value,
@@ -207,7 +310,7 @@ const styles = StyleSheet.create({
 
   gradientOverlay: {
     position: 'absolute',
-    top: 0,
+    top: '50%', // ✅ 하단 50%만 어둡게
     left: 0,
     right: 0,
     bottom: 0,
