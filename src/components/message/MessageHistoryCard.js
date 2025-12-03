@@ -236,13 +236,14 @@ const MessageHistoryCard = memo(({
         <PersonaBackgroundView
           persona={persona}
           isScreenFocused={isActive}
+          showOverlay={false}
         />
       </View>
 
       {/* Gradient Overlay (하단 50%만 어둡게) */}
       <LinearGradient
         colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
-        locations={[0.5, 0.75, 1]}
+        locations={[0, 0.5, 1]}
         style={styles.gradientOverlay}
         pointerEvents="none"
       />

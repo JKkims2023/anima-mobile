@@ -22,6 +22,7 @@ const PersonaBackgroundView = memo(({
   persona,
   isScreenFocused = true,
   opacity = 1,
+  showOverlay = false, // ⭐ NEW: Control gradient overlay
 }) => {
   const videoRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
@@ -91,8 +92,8 @@ const PersonaBackgroundView = memo(({
         />
       )}
       
-      {/* Gradient overlay for better text readability */}
-      <View style={styles.gradientOverlay} />
+      {/* Gradient overlay for better text readability (optional) */}
+      {showOverlay && <View style={styles.gradientOverlay} />}
     </RNAnimated.View>
   );
 });
