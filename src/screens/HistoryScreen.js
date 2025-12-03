@@ -28,7 +28,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
-import SafeScreen from '../components/SafeScreen';
 import MessageHistoryCard from '../components/message/MessageHistoryCard';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
@@ -216,11 +215,7 @@ const HistoryScreen = () => {
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
-    <SafeScreen
-      title={t('navigation.title.history')}
-      subtitle={t('navigation.subtitle.history')}
-    >
-      <View style={styles.container}>
+    <View style={styles.container}>
         {/* ✅ Loading */}
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -321,14 +316,13 @@ const HistoryScreen = () => {
           </>
         )}
       </View>
-    </SafeScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.BG_PRIMARY,
+    backgroundColor: '#000', // ✅ 완전한 검은색 (화이트 제거)
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -338,7 +332,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.BG_PRIMARY,
+    backgroundColor: '#000',
   },
   loadingText: {
     marginTop: verticalScale(16),
@@ -353,7 +347,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(40),
-    backgroundColor: COLORS.BG_PRIMARY,
+    backgroundColor: '#000',
   },
   emptyTitle: {
     marginTop: verticalScale(20),
@@ -384,7 +378,7 @@ const styles = StyleSheet.create({
   },
   musicButton: {
     position: 'absolute',
-    top: platformPadding(60), // Below header
+    top: platformPadding(16), // ✅ 상단 (Safe Area 포함)
     left: scale(16),
     width: scale(44),
     height: scale(44),
