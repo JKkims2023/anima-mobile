@@ -117,16 +117,6 @@ const MessageCreatorView = ({
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState(null);
   
-  // Debug: Log effect state changes
-  useEffect(() => {
-    console.log('🎨 [MessageCreatorView] Effect state updated:', {
-      textAnimation,
-      particleEffect,
-      bgMusic,
-      bgMusicUrl
-    });
-  }, [textAnimation, particleEffect, bgMusic, bgMusicUrl]);
-  
   // ⭐ NEW: Auto-fill from selected message (from search)
   useEffect(() => {
     if (selectedMessage) {
