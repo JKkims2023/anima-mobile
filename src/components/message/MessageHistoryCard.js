@@ -13,9 +13,16 @@
  * @author JK & Hero Nexus AI
  */
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 import PersonaBackgroundView from './PersonaBackgroundView';
 import ParticleEffect from '../particle/ParticleEffect';
 import CustomText from '../CustomText';
@@ -56,6 +63,61 @@ const MessageHistoryCard = memo(({
     selected_dress_video_convert_yn: persona_video_url ? 'Y' : 'N',
   };
 
+  // ✅ Animation values
+  const titleOpacity = useSharedValue(0);
+  const contentOpacity = useSharedValue(0);
+  const particleOpacity = useSharedValue(0);
+
+  // ✅ Start animations when card becomes active
+  useEffect(() => {
+    if (isActive) {
+      // Reset first
+      titleOpacity.value = 0;
+      contentOpacity.value = 0;
+      particleOpacity.value = 0;
+
+      // 1. Particle effects start (0.3s delay)
+      particleOpacity.value = withDelay(
+        300,
+        withTiming(1, { duration: 500, easing: Easing.out(Easing.ease) })
+      );
+
+      // 2. Title fade in (0.5s delay)
+      titleOpacity.value = withDelay(
+        500,
+        withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+      );
+
+      // 3. Content fade in (1s delay)
+      contentOpacity.value = withDelay(
+        1000,
+        withTiming(1, { duration: 1000, easing: Easing.out(Easing.ease) })
+      );
+
+      if (__DEV__) {
+        console.log('[MessageHistoryCard] Starting animations for:', message_title?.substring(0, 20));
+      }
+    } else {
+      // Reset when not active
+      titleOpacity.value = 0;
+      contentOpacity.value = 0;
+      particleOpacity.value = 0;
+    }
+  }, [isActive, message_title]);
+
+  // ✅ Animated styles
+  const animatedTitleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+  }));
+
+  const animatedContentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+  }));
+
+  const animatedParticleStyle = useAnimatedStyle(() => ({
+    opacity: particleOpacity.value,
+  }));
+
   // Debug log
   console.log(`[MessageHistoryCard] Rendering card:`, {
     persona_name,
@@ -74,37 +136,42 @@ const MessageHistoryCard = memo(({
         />
       </View>
 
-      {/* Gradient Overlay */}
+      {/* Gradient Overlay (하단 50%만 어둡게) */}
       <LinearGradient
-        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-        locations={[0, 0.5, 1]}
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
+        locations={[0.5, 0.75, 1]}
         style={styles.gradientOverlay}
+        pointerEvents="none"
       />
 
       {/* Particle Effects */}
       {particle_effect && particle_effect !== 'none' && isActive && (
-        <View style={styles.particleContainer} pointerEvents="none">
+        <Animated.View style={[styles.particleContainer, animatedParticleStyle]} pointerEvents="none">
           <ParticleEffect
             type={particle_effect}
             isActive={true}
           />
-        </View>
+        </Animated.View>
       )}
 
       {/* Message Content */}
       <View style={styles.contentContainer}>
         {/* Title */}
         {message_title ? (
-          <CustomText type="big" bold style={styles.title}>
-            {message_title}
-          </CustomText>
+          <Animated.View style={animatedTitleStyle}>
+            <CustomText type="big" bold style={styles.title}>
+              {message_title}
+            </CustomText>
+          </Animated.View>
         ) : null}
 
         {/* Content */}
         {message_content ? (
-          <CustomText type="normal" style={styles.content}>
-            {message_content}
-          </CustomText>
+          <Animated.View style={animatedContentStyle}>
+            <CustomText type="normal" style={styles.content}>
+              {message_content}
+            </CustomText>
+          </Animated.View>
         ) : null}
       </View>
 
