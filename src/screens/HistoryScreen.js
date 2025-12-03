@@ -54,6 +54,9 @@ const HistoryScreen = () => {
 
   // ✅ Load messages on mount
   useEffect(() => {
+
+    console.log('[HistoryScreen] isAuthenticated:', isAuthenticated);
+    console.log('[HistoryScreen] user:', user);
     if (isAuthenticated && user?.user_key) {
       loadMessages();
     }
@@ -81,10 +84,12 @@ const HistoryScreen = () => {
     try {
       console.log('[HistoryScreen] Loading messages for user:', user?.user_key);
       const result = await listMessages(user.user_key);
-      
-      if (result.success && result.data?.messages) {
-        console.log('[HistoryScreen] Loaded messages:', result.data.messages.length);
-        setMessages(result.data.messages);
+
+      console.log('[HistoryScreen] loadMessages result:', result);
+
+      if (result.success && result?.data) {
+        console.log('[HistoryScreen] Loaded messages:', result.data.length);
+        setMessages(result.data);
         setCurrentIndex(0);
         setAllSwiped(false);
       } else {
@@ -99,10 +104,13 @@ const HistoryScreen = () => {
     }
   };
 
-  // ✅ Handle swipe (left/right)
+  // ✅ Handle swipe (any direction)
   const handleSwiped = (cardIndex) => {
     console.log('[HistoryScreen] Swiped card:', cardIndex);
     HapticService.medium();
+    
+    // Update current index
+    setCurrentIndex(cardIndex + 1);
     
     // Check if all cards swiped
     if (cardIndex === messages.length - 1) {
@@ -143,8 +151,10 @@ const HistoryScreen = () => {
   const handleSwipeBack = () => {
     console.log('[HistoryScreen] Swipe back...');
     HapticService.medium();
-    if (swiperRef.current) {
+    
+    if (swiperRef.current && currentIndex > 0) {
       swiperRef.current.swipeBack();
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
@@ -265,32 +275,53 @@ const HistoryScreen = () => {
             <Swiper
               ref={swiperRef}
               cards={messages}
-              renderCard={(card, index) => (
-                <MessageHistoryCard
-                  key={card.message_key || index}
-                  message={card}
-                  isActive={index === currentIndex}
-                  onPress={() => handleCardPress(index)}
-                />
-              )}
+              renderCard={(card, index) => {
+                if (!card) return null;
+                return (
+                  <MessageHistoryCard
+                    key={card.message_key || index}
+                    message={card}
+                    isActive={index === currentIndex}
+                    onPress={() => handleCardPress(index)}
+                  />
+                );
+              }}
               onSwiped={handleSwiped}
               onSwipedLeft={handleSwipedLeft}
               onSwipedRight={handleSwipedRight}
               onSwipedAll={() => setAllSwiped(true)}
-              cardIndex={currentIndex}
               onTapCard={(cardIndex) => handleCardPress(cardIndex)}
-              backgroundColor="transparent"
-              stackSize={3}
-              stackScale={10}
-              stackSeparation={15}
-              animateOverlayLabelsOpacity
-              animateCardOpacity
-              disableTopSwipe // Will enable in Phase 3
-              disableBottomSwipe // Will enable in Phase 3
-              verticalSwipe={false} // Will enable in Phase 3
+              // ✅ 자유로운 드래그 허용
+              verticalSwipe={true}
               horizontalSwipe={true}
+              // ✅ 카드 스택 설정 (개선)
+              stackSize={3}
+              stackScale={5} // 10 → 5 (카드 크기 차이 줄임)
+              stackSeparation={12} // 15 → 12 (카드 간격 줄임)
+              // ✅ 애니메이션 최적화
+              animateOverlayLabelsOpacity
+              animateCardOpacity={false} // 겹침 방지
+              // ✅ 무한 스와이프 방지
+              infinite={false}
+              // ✅ 스타일
+              backgroundColor="transparent"
               containerStyle={styles.swiperContainer}
               cardStyle={styles.cardStyle}
+              // ✅ 오버레이 라벨 제거 (깔끔한 UI)
+              overlayLabels={{
+                left: {
+                  element: null,
+                },
+                right: {
+                  element: null,
+                },
+                top: {
+                  element: null,
+                },
+                bottom: {
+                  element: null,
+                },
+              }}
             />
           )}
         </View>
@@ -400,13 +431,16 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Swiper
+  // Swiper (자유로운 드래그 영역)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   swiperContainer: {
     flex: 1,
+    // ✅ 헤더/탭바 무시하고 전체 화면 사용
+    marginTop: -platformPadding(20),
+    marginBottom: -platformPadding(20),
   },
   cardStyle: {
-    top: 0,
+    top: verticalScale(20),
     left: 0,
   },
 

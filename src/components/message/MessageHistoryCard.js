@@ -112,19 +112,19 @@ MessageHistoryCard.displayName = 'MessageHistoryCard';
 const styles = StyleSheet.create({
   card: {
     width: SCREEN_WIDTH - scale(40), // 20px padding on each side
-    height: SCREEN_HEIGHT - verticalScale(200), // Leave space for header and bottom controls
+    height: SCREEN_HEIGHT - verticalScale(180), // 200 → 180 (헤더 영역 최소화)
     borderRadius: scale(20),
     overflow: 'hidden',
     backgroundColor: COLORS.BG_PRIMARY,
-    // Shadow for card elevation
+    // ✅ Shadow for card elevation (개선)
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: scale(4),
+      height: scale(8), // 4 → 8 (더 강한 그림자)
     },
-    shadowOpacity: 0.3,
-    shadowRadius: scale(8),
-    elevation: 8,
+    shadowOpacity: 0.4, // 0.3 → 0.4
+    shadowRadius: scale(12), // 8 → 12
+    elevation: 10, // 8 → 10 (Android)
   },
 
   gradientOverlay: {
