@@ -219,10 +219,36 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
     <SafeScreen
-      title={t('navigation.title.history')}
-      subtitle={t('navigation.subtitle.history')}
+      backgroundColor={currentTheme.backgroundColor}
+      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
+      edges={{ top: true, bottom: false }}
+      keyboardAware={false}
     >
       <View style={styles.container}>
+        {/* ✅ Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <CustomText type="big" bold style={styles.headerTitle}>
+              {t('navigation.title.history')}
+            </CustomText>
+            <CustomText type="small" style={styles.headerSubtitle}>
+              {t('navigation.subtitle.history')}
+            </CustomText>
+          </View>
+          
+          {/* Search Button */}
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => {
+              // TODO: Phase 5에서 검색 기능 추가
+              HapticService.light();
+            }}
+            activeOpacity={0.7}
+          >
+            <Icon name="search-outline" size={scale(24)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
+          </TouchableOpacity>
+        </View>
+
         {/* ✅ Loading */}
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -331,6 +357,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.BG_PRIMARY,
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Header
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: scale(20),
+    paddingVertical: verticalScale(16),
+    backgroundColor: COLORS.BG_PRIMARY,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: verticalScale(4),
+  },
+  headerSubtitle: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  searchButton: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: scale(12),
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
