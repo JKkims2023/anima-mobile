@@ -722,10 +722,10 @@ const PersonaStudioScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <CustomText type="big" bold style={styles.headerTitle}>
-            {t('navigation.title.home')}
+            {isMessageMode ? t('navigation.title.message_mode') : t('navigation.title.home')}
           </CustomText>
           <CustomText type="small" style={styles.headerSubtitle}>
-            {t('navigation.subtitle.home')}
+            {isMessageMode ? t('navigation.subtitle.message_mode') : t('navigation.subtitle.home')}
           </CustomText>
         </View>
         <TouchableOpacity

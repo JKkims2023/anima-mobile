@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import PersonaSelectorHorizontal from './PersonaSelectorHorizontal';
 import PersonaBackgroundView from './PersonaBackgroundView';
-import MessagePreviewView from './MessagePreviewView';
+import MessagePreviewOverlay from './MessagePreviewOverlay';
 import MessageInputBottomSheet from './MessageInputBottomSheet';
 import MessageInputOverlay from './MessageInputOverlay';
 import CustomText from '../CustomText';
@@ -108,11 +108,14 @@ const MessageCreatorView = ({
   const [password, setPassword] = useState(null);
   
   // Preview state
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreviewOverlay, setShowPreviewOverlay] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   
-  // Flip animation
-  const flipAnim = useSharedValue(0);
+  // Effect configuration (for MessagePreviewOverlay)
+  const [textAnimation, setTextAnimation] = useState('fade_in');
+  const [particleEffect, setParticleEffect] = useState('none');
+  const [bgMusic, setBgMusic] = useState('none');
+  const [bgMusicUrl, setBgMusicUrl] = useState(null);
   
   // ⭐ NEW: Auto-fill from selected message (from search)
   useEffect(() => {
@@ -229,30 +232,16 @@ const MessageCreatorView = ({
       return;
     }
 
-    // 3. Show preview with flip animation
+    // 3. Show preview overlay
     HapticService.success();
-    
-    flipAnim.value = withTiming(1, {
-      duration: 600,
-      easing: Easing.inOut(Easing.ease),
-    });
-    
-    setShowPreview(true);
-  }, [user, navigation, currentPersona, messageTitle, messageContent, showToast, t, flipAnim]);
+    setShowPreviewOverlay(true);
+  }, [user, navigation, currentPersona, messageTitle, messageContent, showToast, t]);
   
-  // Handle back from preview
-  const handleBackFromPreview = useCallback(() => {
+  // Handle close preview overlay
+  const handleClosePreviewOverlay = useCallback(() => {
     HapticService.light();
-    
-    flipAnim.value = withTiming(0, {
-      duration: 600,
-      easing: Easing.inOut(Easing.ease),
-    });
-    
-    setTimeout(() => {
-      setShowPreview(false);
-    }, 600);
-  }, [flipAnim]);
+    setShowPreviewOverlay(false);
+  }, []);
   
   // Handle generate URL
   const handleGenerateURL = useCallback(async () => {
@@ -266,7 +255,7 @@ const MessageCreatorView = ({
         throw new Error('User key not found');
       }
 
-      // Prepare API params
+      // Prepare API params (including effect configuration)
       const params = {
         user_key: userKey,
         persona_key: currentPersona.persona_key,
@@ -278,6 +267,12 @@ const MessageCreatorView = ({
         persona_video_url: currentPersona.selected_dress_video_url || null,
         message_password: hasPassword ? password : null,
         has_password: hasPassword ? 'Y' : 'N',
+        // ⭐ Effect configuration
+        text_animation: textAnimation,
+        particle_effect: particleEffect,
+        bg_music: bgMusic,
+        bg_music_url: bgMusicUrl,
+        effect_config: null, // Can be expanded later
       };
 
       console.log('[MessageCreatorView] API params:', params);
@@ -302,13 +297,13 @@ const MessageCreatorView = ({
 
         // Reset and go back after delay
         setTimeout(() => {
-          handleBackFromPreview();
+          handleClosePreviewOverlay();
           setTimeout(() => {
             setMessageTitle('');
             setMessageContent('');
             setHasPassword(false);
             setPassword(null);
-          }, 650);
+          }, 300);
         }, 1500);
       } else {
         // Show error
@@ -328,42 +323,13 @@ const MessageCreatorView = ({
     } finally {
       setIsCreating(false);
     }
-  }, [currentPersona, messageTitle, messageContent, hasPassword, password, showToast, showAlert, t, handleBackFromPreview]);
-
-  // Animated styles for flip
-  const frontAnimStyle = useAnimatedStyle(() => {
-    const rotateY = interpolate(flipAnim.value, [0, 1], [0, 180]);
-    const opacity = interpolate(flipAnim.value, [0, 0.5, 1], [1, 0, 0]);
-    
-    return {
-      transform: [
-        { perspective: 1000 },
-        { rotateY: `${rotateY}deg` },
-      ],
-      opacity,
-      backfaceVisibility: 'hidden',
-    };
-  });
-  
-  const backAnimStyle = useAnimatedStyle(() => {
-    const rotateY = interpolate(flipAnim.value, [0, 1], [-180, 0]);
-    const opacity = interpolate(flipAnim.value, [0, 0.5, 1], [0, 0, 1]);
-    
-    return {
-      transform: [
-        { perspective: 1000 },
-        { rotateY: `${rotateY}deg` },
-      ],
-      opacity,
-      backfaceVisibility: 'hidden',
-    };
-  });
+  }, [user, currentPersona, messageTitle, messageContent, hasPassword, password, textAnimation, particleEffect, bgMusic, bgMusicUrl, showToast, showAlert, t, handleClosePreviewOverlay]);
 
   return (
     <View style={styles.container}>
 
-      {/* Front Side: Message Creator */}
-      <Animated.View style={[StyleSheet.absoluteFill, frontAnimStyle]}>
+      {/* Message Creator UI */}
+      <View style={StyleSheet.absoluteFill}>
       
 
         {/* Content: Persona Selector + Message Overlay */}
@@ -483,22 +449,25 @@ const MessageCreatorView = ({
         onSave={handlePasswordSave}
         onClose={() => passwordSheetRef.current?.dismiss()}
       />
-      </Animated.View>
+      </View>
 
-      {/* Back Side: Message Preview */}
-      {showPreview && (
-        <Animated.View style={[StyleSheet.absoluteFill, backAnimStyle, { display: 'none' }]}>
-          <MessagePreviewView
-            persona={currentPersona}
-            messageTitle={messageTitle}
-            messageContent={messageContent}
-            onGenerateURL={handleGenerateURL}
-            onBack={handleBackFromPreview}
-            isScreenFocused={isScreenFocused}
-            isCreating={isCreating}
-          />
-        </Animated.View>
-      )}
+      {/* Message Preview Overlay (Modal) */}
+      <MessagePreviewOverlay
+        visible={showPreviewOverlay}
+        persona={currentPersona}
+        messageTitle={messageTitle}
+        messageContent={messageContent}
+        textAnimation={textAnimation}
+        particleEffect={particleEffect}
+        bgMusic={bgMusic}
+        bgMusicUrl={bgMusicUrl}
+        onClose={handleClosePreviewOverlay}
+        onGenerateURL={handleGenerateURL}
+        onChangeTextAnimation={setTextAnimation}
+        onChangeParticleEffect={setParticleEffect}
+        onChangeBgMusic={setBgMusic}
+        isCreating={isCreating}
+      />
 
     </View>
 
