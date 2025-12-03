@@ -26,6 +26,8 @@ import {
   StyleSheet, 
   TouchableOpacity,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
@@ -36,10 +38,9 @@ import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
 import { chatApi } from '../../services/api';
 import { getUserKey } from '../../utils/storage';
-import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 import { verticalScale, scale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
-import { TAB_BAR, CHAT_INPUT, KEYBOARD } from '../../constants/layout';
+import { TAB_BAR } from '../../constants/layout';
 import HapticService from '../../utils/HapticService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -62,11 +63,7 @@ const ManagerAIOverlay = ({
   const [isTyping, setIsTyping] = useState(false);
   const [messageVersion, setMessageVersion] = useState(0); // ✅ For ChatMessageList optimization
   
-  // ✅ Keyboard handling
-  const keyboardHeight = useKeyboardHeight();
-  const chatInputBottom = useRef(new Animated.Value(insets.bottom + TAB_BAR.BASE_HEIGHT)).current;
-  
-  // ✅ Animation values
+  // ✅ Animation values (Simplified - no keyboard height tracking)
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   
@@ -110,20 +107,6 @@ const ManagerAIOverlay = ({
     }
   }, [visible, fadeAnim, slideAnim]);
   
-  // ✅ Keyboard height animation
-  useEffect(() => {
-    const targetBottom = keyboardHeight > 0 
-      ? keyboardHeight + KEYBOARD.EXTRA_SPACE 
-      : insets.bottom + TAB_BAR.BASE_HEIGHT;
-    
-    Animated.spring(chatInputBottom, {
-      toValue: targetBottom,
-      useNativeDriver: false,
-      tension: 100,
-      friction: 10,
-    }).start();
-  }, [keyboardHeight, insets.bottom, chatInputBottom]);
-  
   // ✅ Initialize with greeting message
   useEffect(() => {
     if (visible && messages.length === 0) {
@@ -166,14 +149,16 @@ const ManagerAIOverlay = ({
         // TODO: Backend에서 context 파라미터 지원 추가 필요
         // context: context, // 'home' | 'music' | 'point' | 'settings'
       });
+
+      console.log('response', response);
       
-      if (response.success && response.data?.answer) {
+      if (response.success && response.data?.data) {
         // Start typing effect
         setIsTyping(true);
         setTypingMessage('');
         
         // Simulate typing
-        const answer = response.data.answer;
+        const answer = response.data.data;
         let currentIndex = 0;
         
         const typeInterval = setInterval(() => {
@@ -270,65 +255,65 @@ const ManagerAIOverlay = ({
         {/* ✅ Dark Overlay */}
         <View style={styles.darkOverlay} />
         
-        {/* ✅ Content */}
-        <Animated.View
-          style={[
-            styles.contentContainer,
-            {
-              paddingTop: insets.top + scale(20),
-              paddingBottom: insets.bottom,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
+        {/* ✅ KeyboardAvoidingView for proper keyboard handling */}
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={0}
         >
-          {/* ✅ Header */}
-          <View style={styles.header}>
-            {/* Title */}
-            <View style={styles.headerLeft}>
-              <CustomText type="big" bold style={styles.headerTitle}>
-                💙 SAGE AI
-              </CustomText>
-              <CustomText type="small" style={styles.headerSubtitle}>
-                {contextTitles[context]}
-              </CustomText>
-            </View>
-            
-            {/* Close Button */}
-            <TouchableOpacity 
-              onPress={handleClose}
-              style={styles.closeButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Icon name="close-circle" size={moderateScale(32)} color={COLORS.TEXT_SECONDARY} />
-            </TouchableOpacity>
-          </View>
-          
-          {/* ✅ Chat Messages */}
-          <View style={styles.chatContainer}>
-            <ChatMessageList
-              completedMessages={messages}
-              typingMessage={isTyping ? typingMessage : null}
-              messageVersion={messageVersion}
-              isLoading={isLoading}
-            />
-          </View>
-          
-          {/* ✅ Chat Input Bar */}
+          {/* ✅ Content */}
           <Animated.View
             style={[
-              styles.inputContainer,
+              styles.contentContainer,
               {
-                bottom: chatInputBottom,
+                paddingTop: insets.top + scale(20),
+                paddingBottom: insets.bottom + scale(10),
+                transform: [{ translateY: slideAnim }],
               },
             ]}
           >
-            <ChatInputBar
-              onSend={handleSend}
-              disabled={isLoading || isTyping}
-              placeholder={t('chatBottomSheet.placeholder')}
-            />
+            {/* ✅ Header */}
+            <View style={styles.header}>
+              {/* Title */}
+              <View style={styles.headerLeft}>
+                <CustomText type="big" bold style={styles.headerTitle}>
+                  💙 SAGE AI
+                </CustomText>
+                <CustomText type="small" style={[styles.headerSubtitle, { display: 'none' }]}>
+                  {contextTitles[context]}
+                </CustomText>
+              </View>
+              
+              {/* Close Button */}
+              <TouchableOpacity 
+                onPress={handleClose}
+                style={styles.closeButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Icon name="close-circle" size={moderateScale(32)} color={COLORS.TEXT_SECONDARY} />
+              </TouchableOpacity>
+            </View>
+            
+            {/* ✅ Chat Messages */}
+            <View style={styles.chatContainer}>
+              <ChatMessageList
+                completedMessages={messages}
+                typingMessage={isTyping ? typingMessage : null}
+                messageVersion={messageVersion}
+                isLoading={isLoading}
+              />
+            </View>
+            
+            {/* ✅ Chat Input Bar (Fixed at bottom) */}
+            <View style={styles.inputContainer}>
+              <ChatInputBar
+                onSend={handleSend}
+                disabled={isLoading || isTyping}
+                placeholder={t('chatBottomSheet.placeholder')}
+              />
+            </View>
           </Animated.View>
-        </Animated.View>
+        </KeyboardAvoidingView>
       </Animated.View>
     </Modal>
   );
@@ -342,6 +327,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
   contentContainer: {
     flex: 1,
   },
@@ -354,9 +342,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: platformPadding(20),
-    paddingBottom: scale(16),
+    paddingTop: scale(10),
+    paddingBottom: scale(10),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(59, 130, 246, 0.2)',
+    backgroundColor: COLORS.DEEP_BLUE_DARK,
   },
   headerLeft: {
     flex: 1,
@@ -385,10 +374,8 @@ const styles = StyleSheet.create({
   // Input
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   inputContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(0),
+    paddingBottom: scale(10),
   },
 });
 
