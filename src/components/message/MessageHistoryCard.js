@@ -64,56 +64,54 @@ const MessageHistoryCard = memo(({
   });
 
   return (
-    <View style={styles.cardOuter}>
-      <View style={styles.card}>
-        {/* Background: Persona Image/Video */}
-        <View style={styles.backgroundContainer}>
-          <PersonaBackgroundView
-            persona={persona}
-            isScreenFocused={isActive}
+    <View style={styles.card}>
+      {/* Background: Persona Image/Video */}
+      <View style={styles.backgroundContainer}>
+        <PersonaBackgroundView
+          persona={persona}
+          isScreenFocused={isActive}
+        />
+      </View>
+
+      {/* Gradient Overlay */}
+      <LinearGradient
+        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+        locations={[0, 0.5, 1]}
+        style={styles.gradientOverlay}
+      />
+
+      {/* Particle Effects */}
+      {particle_effect && particle_effect !== 'none' && isActive && (
+        <View style={styles.particleContainer} pointerEvents="none">
+          <ParticleEffect
+            type={particle_effect}
+            isActive={true}
           />
         </View>
+      )}
 
-        {/* Gradient Overlay */}
-        <LinearGradient
-          colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-          locations={[0, 0.5, 1]}
-          style={styles.gradientOverlay}
-        />
-
-        {/* Particle Effects */}
-        {particle_effect && particle_effect !== 'none' && isActive && (
-          <View style={styles.particleContainer} pointerEvents="none">
-            <ParticleEffect
-              type={particle_effect}
-              isActive={true}
-            />
-          </View>
-        )}
-
-        {/* Message Content */}
-        <View style={styles.contentContainer}>
-          {/* Title */}
-          {message_title ? (
-            <CustomText type="big" bold style={styles.title}>
-              {message_title}
-            </CustomText>
-          ) : null}
-
-          {/* Content */}
-          {message_content ? (
-            <CustomText type="normal" style={styles.content}>
-              {message_content}
-            </CustomText>
-          ) : null}
-        </View>
-
-        {/* Persona Name Badge (Top Right) */}
-        <View style={styles.personaBadge}>
-          <CustomText type="small" style={styles.personaName}>
-            {persona_name || 'Unknown'}
+      {/* Message Content */}
+      <View style={styles.contentContainer}>
+        {/* Title */}
+        {message_title ? (
+          <CustomText type="big" bold style={styles.title}>
+            {message_title}
           </CustomText>
-        </View>
+        ) : null}
+
+        {/* Content */}
+        {message_content ? (
+          <CustomText type="normal" style={styles.content}>
+            {message_content}
+          </CustomText>
+        ) : null}
+      </View>
+
+      {/* Persona Name Badge (Top Right) */}
+      <View style={styles.personaBadge}>
+        <CustomText type="small" style={styles.personaName}>
+          {persona_name || 'Unknown'}
+        </CustomText>
       </View>
     </View>
   );
@@ -122,29 +120,12 @@ const MessageHistoryCard = memo(({
 MessageHistoryCard.displayName = 'MessageHistoryCard';
 
 const styles = StyleSheet.create({
-  // ✅ Outer wrapper (Swiper가 움직이는 영역)
-  cardOuter: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // ✅ Inner card (모든 컨텐츠 포함)
+  // ✅ Full screen card (전체 화면 채우기)
   card: {
-    width: SCREEN_WIDTH - scale(40),
-    height: SCREEN_HEIGHT - verticalScale(180),
-    borderRadius: scale(20),
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     overflow: 'hidden',
     backgroundColor: COLORS.BG_PRIMARY,
-    // ✅ Shadow for card elevation
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: scale(8),
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: scale(12),
-    elevation: 10,
   },
 
   // ✅ Background container (카드 내부에 고정)

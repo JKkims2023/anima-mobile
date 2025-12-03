@@ -25,6 +25,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Video from 'react-native-video';
 import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
 import SafeScreen from '../components/SafeScreen';
@@ -53,8 +54,11 @@ const HistoryScreen = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allViewed, setAllViewed] = useState(false);
   const [isScreenFocused, setIsScreenFocused] = useState(false);
+
+  // ✅ Music playback state
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [currentMusicUrl, setCurrentMusicUrl] = useState(null);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Screen Focus (for video playback)
@@ -88,6 +92,28 @@ const HistoryScreen = () => {
       loadMessages();
     }
   }, [isAuthenticated, user?.user_key]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Auto-play music for current card
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (messages.length > 0 && currentIndex < messages.length) {
+      const currentMessage = messages[currentIndex];
+      const musicUrl = currentMessage?.bg_music_url;
+
+      if (__DEV__) {
+        console.log('[HistoryScreen] Current message:', currentIndex, 'Music URL:', musicUrl);
+      }
+      
+      if (musicUrl && musicUrl !== 'none') {
+        setCurrentMusicUrl(musicUrl);
+        setIsMusicPlaying(true);
+      } else {
+        setCurrentMusicUrl(null);
+        setIsMusicPlaying(false);
+      }
+    }
+  }, [currentIndex, messages]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
@@ -141,39 +167,23 @@ const HistoryScreen = () => {
       HapticService.selection();
       setCurrentIndex(index);
 
-      // Check if all viewed
-      if (index >= messages.length - 1) {
-        if (__DEV__) {
-          console.log('[HistoryScreen] All messages viewed!');
-        }
-        setAllViewed(true);
-      }
-
       if (__DEV__) {
         console.log('[HistoryScreen] New index:', index);
         console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
       }
     }
-  }, [currentIndex, messages.length]);
+  }, [currentIndex]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Reset to first message
+  // Toggle music playback
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleReset = () => {
+  const handleToggleMusic = () => {
     if (__DEV__) {
-      console.log('[HistoryScreen] Resetting to first message...');
+      console.log('[HistoryScreen] Toggle music:', !isMusicPlaying);
     }
     
-    HapticService.success();
-    setCurrentIndex(0);
-    setAllViewed(false);
-    
-    if (flatListRef.current) {
-      flatListRef.current.scrollToIndex({
-        index: 0,
-        animated: true,
-      });
-    }
+    HapticService.light();
+    setIsMusicPlaying(!isMusicPlaying);
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -207,7 +217,10 @@ const HistoryScreen = () => {
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
-    <SafeScreen>
+    <SafeScreen
+      title={t('navigation.title.history')}
+      subtitle={t('navigation.subtitle.history')}
+    >
       <View style={styles.container}>
         {/* ✅ Loading */}
         {isLoading && (
@@ -278,47 +291,33 @@ const HistoryScreen = () => {
               })}
             />
 
-            {/* ✅ Pagination Indicator (Left Side) */}
-            <View style={styles.paginationContainer} pointerEvents="none">
-              {messages.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.paginationDot,
-                    {
-                      backgroundColor: index === currentIndex
-                        ? (currentTheme.mainColor || COLORS.MAIN_COLOR)
-                        : (currentTheme.textSecondary || COLORS.TEXT_SECONDARY),
-                    },
-                    index === currentIndex && styles.paginationDotActive,
-                  ]}
+            {/* ✅ Music Player (Top Left) */}
+            {currentMusicUrl && (
+              <>
+                {/* Hidden Video Component for Audio Playback */}
+                <Video
+                  source={{ uri: currentMusicUrl }}
+                  audioOnly={true}
+                  repeat={true}
+                  paused={!isMusicPlaying}
+                  playInBackground={false}
+                  playWhenInactive={false}
+                  style={styles.hiddenVideo}
                 />
-              ))}
-            </View>
 
-            {/* ✅ All Viewed Overlay */}
-            {allViewed && (
-              <View style={styles.allViewedOverlay}>
-                <View style={styles.allViewedCard}>
+                {/* Floating Music Button */}
+                <TouchableOpacity
+                  style={styles.musicButton}
+                  onPress={handleToggleMusic}
+                  activeOpacity={0.8}
+                >
                   <Icon
-                    name="checkmark-circle"
-                    size={scale(60)}
-                    color={currentTheme.mainColor || COLORS.MAIN_COLOR}
+                    name={isMusicPlaying ? 'musical-notes' : 'musical-notes-outline'}
+                    size={scale(20)}
+                    color={COLORS.TEXT_PRIMARY}
                   />
-                  <CustomText type="big" bold style={styles.allViewedTitle}>
-                    {t('history.all_swiped_title')}
-                  </CustomText>
-                  <CustomText type="normal" style={styles.allViewedSubtitle}>
-                    {t('history.all_swiped_subtitle')}
-                  </CustomText>
-                  <CustomButton
-                    text={t('history.reset_button')}
-                    onPress={handleReset}
-                    style={styles.resetButton}
-                    leftIcon={<Icon name="refresh" size={scale(20)} color="#FFFFFF" />}
-                  />
-                </View>
-              </View>
+                </TouchableOpacity>
+              </>
             )}
           </>
         )}
@@ -340,6 +339,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.BG_PRIMARY,
   },
   loadingText: {
     marginTop: verticalScale(16),
@@ -354,6 +354,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(40),
+    backgroundColor: COLORS.BG_PRIMARY,
   },
   emptyTitle: {
     marginTop: verticalScale(20),
@@ -375,68 +376,26 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Pagination Indicator
+  // Music Player (Top Left)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  paginationContainer: {
+  hiddenVideo: {
+    width: 0,
+    height: 0,
     position: 'absolute',
-    left: scale(10),
-    top: '10%',
-    flexDirection: 'column',
+  },
+  musicButton: {
+    position: 'absolute',
+    top: platformPadding(60), // Below header
+    left: scale(16),
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(22),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    paddingVertical: verticalScale(10),
-    paddingHorizontal: scale(6),
-    borderRadius: scale(16),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  paginationDot: {
-    width: scale(8),
-    height: scale(8),
-    borderRadius: scale(4),
-    marginVertical: verticalScale(4),
-    opacity: 0.5,
-  },
-  paginationDotActive: {
-    width: scale(12),
-    height: scale(12),
-    borderRadius: scale(6),
-    opacity: 1,
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // All Viewed Overlay
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  allViewedOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  allViewedCard: {
-    backgroundColor: COLORS.BG_SECONDARY,
-    borderRadius: scale(20),
-    padding: scale(30),
-    alignItems: 'center',
-    marginHorizontal: scale(40),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  allViewedTitle: {
-    marginTop: verticalScale(16),
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-  },
-  allViewedSubtitle: {
-    marginTop: verticalScale(8),
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-  },
-  resetButton: {
-    marginTop: verticalScale(20),
-    minWidth: scale(160),
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    zIndex: 100,
   },
 });
 
