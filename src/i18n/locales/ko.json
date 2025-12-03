@@ -1616,7 +1616,18 @@
       "description": "당신의 새로운 페르소나가 태어났어요!\n이제 함께 특별한 순간을 만들어가요.",
       "go_to_studio": "스튜디오로 이동",
       "tip": "💡 페르소나와 대화하면서 더 친밀해질 수 있어요!"
+    },
+    "category": {
+      "default": "일반"
     }
+  },
+  "search": {
+    "placeholder": {
+      "persona": "페르소나 이름을 검색하세요",
+      "message": "메시지를 검색하세요"
+    },
+    "no_results": "검색 결과가 없습니다",
+    "start_typing": "페르소나를 검색해보세요"
   },
   "dummy": {
     "message": "작성하기"

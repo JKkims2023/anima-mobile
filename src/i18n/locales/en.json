@@ -1671,7 +1671,18 @@
       "description": "Your new persona is born!\nLet's create special moments together.",
       "go_to_studio": "Go to Studio",
       "tip": "💡 Chat with your persona to become closer!"
+    },
+    "category": {
+      "default": "General"
     }
+  },
+  "search": {
+    "placeholder": {
+      "persona": "Search persona name",
+      "message": "Search messages"
+    },
+    "no_results": "No results found",
+    "start_typing": "Search for personas"
   }
 }
 

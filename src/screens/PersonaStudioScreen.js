@@ -23,8 +23,9 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, BackHandler, PanResponder } from 'react-native';
+import { View, StyleSheet, BackHandler, PanResponder, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
@@ -46,6 +47,7 @@ import QuickActionChipsAnimated from '../components/quickaction/QuickActionChips
 import MessageModeQuickActionChips from '../components/message/MessageModeQuickActionChips'; // ⭐ NEW
 import PersonaSelectorButton from '../components/persona/PersonaSelectorButton'; // ⭐ Button for panel toggle
 import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; // ⭐ NEW: Slide panel
+import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Search overlay
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
@@ -77,6 +79,7 @@ const PersonaStudioScreen = () => {
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
+  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ NEW: Search overlay state
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   
@@ -608,6 +611,35 @@ const PersonaStudioScreen = () => {
     navigation.navigate('Settings');
   }, [navigation]);
   
+  // 6. Search (검색)
+  const handleSearchOpen = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Search overlay opened');
+    }
+    
+    HapticService.light();
+    setIsSearchOverlayVisible(true);
+  }, []);
+  
+  const handleSearchClose = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Search overlay closed');
+    }
+    
+    setIsSearchOverlayVisible(false);
+  }, []);
+  
+  const handleSearchSelectPersona = useCallback((persona, index) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Search selected persona:', persona.persona_name, 'at index:', index);
+    }
+    
+    // Navigate to the selected persona in PersonaSwipeViewer
+    if (swiperRef.current) {
+      swiperRef.current.scrollToIndex({ index, animated: true });
+    }
+  }, []);
+  
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -619,8 +651,9 @@ const PersonaStudioScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
-      {/* Header */}
+      {/* Header with Search Icon */}
       <View style={styles.header}>
+        <View style={styles.headerContent}>
           <CustomText type="big" bold style={styles.headerTitle}>
             {t('navigation.title.home')}
           </CustomText>
@@ -628,6 +661,14 @@ const PersonaStudioScreen = () => {
             {t('navigation.subtitle.home')}
           </CustomText>
         </View>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={handleSearchOpen}
+          activeOpacity={0.7}
+        >
+          <Icon name="magnify" size={scale(24)} color={theme.colors.primary} />
+        </TouchableOpacity>
+      </View>
       
       {/* ⭐ Container with PanResponder for Left/Right Swipe */}
       <View 
@@ -799,6 +840,17 @@ const PersonaStudioScreen = () => {
       onClose={handleSuccessCardClose}
       onGoToStudio={handleGoToStudio}
     />
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Persona Search Overlay */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <PersonaSearchOverlay
+      visible={isSearchOverlayVisible}
+      personas={personasWithDefaults}
+      onClose={handleSearchClose}
+      onSelectPersona={handleSearchSelectPersona}
+      currentPersonaKey={currentPersona?.persona_key}
+    />
     </>
   );
 };
@@ -902,9 +954,15 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row', // ⭐ Horizontal layout for title + search button
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: platformPadding(20),
     paddingBottom: platformPadding(16),
-    marginLeft: platformPadding(20),
+    paddingHorizontal: platformPadding(20),
+  },
+  headerContent: {
+    flex: 1, // ⭐ Take remaining space
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
@@ -912,6 +970,10 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: COLORS.TEXT_SECONDARY,
+  },
+  searchButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
   },
 
 });
