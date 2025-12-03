@@ -78,7 +78,7 @@ const PersonaBackgroundView = memo(({
             <FastImage
               source={{ uri: imageUrl }}
               style={styles.image}
-              resizeMode={FastImage.resizeMode.cover}
+              resizeMode={FastImage.resizeMode.contain}
             />
           )}
         </>
@@ -87,7 +87,7 @@ const PersonaBackgroundView = memo(({
         <FastImage
           source={{ uri: imageUrl }}
           style={styles.image}
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode={FastImage.resizeMode.contain}
         />
       )}
       

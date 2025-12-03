@@ -33,6 +33,7 @@ import Animated, {
 import PersonaBackgroundView from './PersonaBackgroundView';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
+import ParticleEffect from '../particle/ParticleEffect';
 // CustomBottomSheet removed - use inline selection panel instead
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -534,6 +535,11 @@ const MessagePreviewOverlay = ({
           isScreenFocused={visible}
           opacity={1}
         />
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* ⭐ Particle Effect (NEW) */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <ParticleEffect type={particleEffect} isActive={visible} />
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* Header: Close Button (Left) + URL Button (Right) */}
