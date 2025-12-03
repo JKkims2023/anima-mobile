@@ -267,6 +267,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(59, 130, 246, 0.2)',
     backgroundColor: COLORS.DEEP_BLUE_DARK,
+    marginTop: Platform.OS === 'ios' ? 0 : -30,
   },
   headerLeft: {
     flex: 1,
@@ -285,6 +286,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(10),
+
+
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -293,6 +296,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     paddingHorizontal: platformPadding(0),
     paddingTop: platformPadding(10),
+    marginBottom: Platform.OS === 'ios' ? -10 : -50,
   },
 });
 
