@@ -15,11 +15,12 @@
 
 import React, { memo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import PersonaBackgroundView from './PersonaBackgroundView';
 import ParticleEffect from '../particle/ParticleEffect';
 import CustomText from '../CustomText';
-import { scale, verticalScale } from '../../utils/responsive-utils';
+import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -32,6 +33,8 @@ const MessageHistoryCard = memo(({
   isActive = false, // Is this card currently visible?
   onPress,
 }) => {
+  const insets = useSafeAreaInsets();
+  
   // ✅ Extract message data
   const {
     message_title,
@@ -55,14 +58,6 @@ const MessageHistoryCard = memo(({
     selected_dress_video_convert_yn: persona_video_url ? 'Y' : 'N',
   };
 
-  // Debug log
-  console.log(`[MessageHistoryCard] Rendering card:`, {
-    persona_name,
-    isActive,
-    particle_effect,
-    message_title: message_title?.substring(0, 20),
-  });
-
   return (
     <View style={styles.card}>
       {/* Background: Persona Image/Video */}
@@ -72,13 +67,6 @@ const MessageHistoryCard = memo(({
           isScreenFocused={isActive}
         />
       </View>
-
-      {/* Gradient Overlay */}
-      <LinearGradient
-        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-        locations={[0, 0.5, 1]}
-        style={styles.gradientOverlay}
-      />
 
       {/* Particle Effects */}
       {particle_effect && particle_effect !== 'none' && isActive && (
@@ -90,25 +78,33 @@ const MessageHistoryCard = memo(({
         </View>
       )}
 
-      {/* Message Content */}
-      <View style={styles.contentContainer}>
-        {/* Title */}
-        {message_title ? (
-          <CustomText type="big" bold style={styles.title}>
-            {message_title}
-          </CustomText>
-        ) : null}
+      {/* Content Wrapper (하단 60%, MessagePreviewOverlay 스타일) */}
+      <View style={styles.contentWrapper}>
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.9)']}
+          locations={[0, 0.4, 1]}
+          style={styles.gradient}
+        >
+          <View style={[styles.contentContainer, { paddingBottom: insets.bottom + platformPadding(20) }]}>
+            {/* Title */}
+            {message_title ? (
+              <CustomText type="big" bold style={styles.title}>
+                {message_title}
+              </CustomText>
+            ) : null}
 
-        {/* Content */}
-        {message_content ? (
-          <CustomText type="normal" style={styles.content}>
-            {message_content}
-          </CustomText>
-        ) : null}
+            {/* Content */}
+            {message_content ? (
+              <CustomText type="normal" style={styles.content}>
+                {message_content}
+              </CustomText>
+            ) : null}
+          </View>
+        </LinearGradient>
       </View>
 
       {/* Persona Name Badge (Top Right) */}
-      <View style={styles.personaBadge}>
+      <View style={[styles.personaBadge, { top: insets.top + verticalScale(20) }]}>
         <CustomText type="small" style={styles.personaName}>
           {persona_name || 'Unknown'}
         </CustomText>
@@ -125,19 +121,11 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
     overflow: 'hidden',
-    backgroundColor: COLORS.BG_PRIMARY,
+    backgroundColor: '#000',
   },
 
   // ✅ Background container (카드 내부에 고정)
   backgroundContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-
-  gradientOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -155,31 +143,43 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Content
+  // Content Wrapper (하단 60%, MessagePreviewOverlay 스타일)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  contentContainer: {
+  contentWrapper: {
     position: 'absolute',
-    bottom: verticalScale(40),
-    left: scale(20),
-    right: scale(20),
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: SCREEN_HEIGHT * 0.6, // 하단 60%
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  contentContainer: {
+    paddingHorizontal: platformPadding(24),
   },
 
   title: {
+    fontSize: scale(28),
+    lineHeight: scale(36),
+    marginBottom: verticalScale(16),
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'left',
-    marginBottom: verticalScale(12),
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: scale(2) },
-    textShadowRadius: scale(4),
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
 
   content: {
+    fontSize: scale(20),
+    lineHeight: scale(32),
+    marginBottom: verticalScale(30),
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'left',
-    lineHeight: verticalScale(24),
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: scale(1) },
-    textShadowRadius: scale(3),
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -187,12 +187,13 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   personaBadge: {
     position: 'absolute',
-    top: verticalScale(20),
     right: scale(20),
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(6),
     borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
 
   personaName: {

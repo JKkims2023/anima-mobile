@@ -137,7 +137,6 @@ const HistoryScreen = () => {
         }
         setMessages(result.data);
         setCurrentIndex(0);
-        setAllViewed(false);
       } else {
         console.error('[HistoryScreen] Failed to load messages:', result.errorCode);
         setMessages([]);
