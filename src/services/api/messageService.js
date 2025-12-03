@@ -37,6 +37,11 @@ import apiClient from './apiClient';
  * @param {string} params.persona_video_url - Snapshot
  * @param {string} params.message_password - Optional
  * @param {string} params.has_password - 'Y' | 'N'
+ * @param {string} params.text_animation - fade_in, typing, scale_in, slide_cross
+ * @param {string} params.particle_effect - confetti, hearts, snow, sparkles, comfort_light, hope_star, rain_soft, none
+ * @param {string} params.bg_music - birthday, romantic, christmas, ai_generated, none, etc.
+ * @param {string} params.bg_music_url - Optional: AI generated music URL
+ * @param {Object} params.effect_config - Optional: Complex effect configuration
  * @returns {Promise<{success: boolean, data?: {message_key, share_url, short_code}, errorCode?: string}>}
  */
 export async function createMessage(params) {
@@ -53,7 +58,19 @@ export async function createMessage(params) {
       message_title: params.message_title,
       message_content: params.message_content,
       message_password: params.message_password || null,
-      public_yn: params.public_yn || 'Y'
+      public_yn: params.public_yn || 'Y',
+      // ⭐ Effect configuration (NEW)
+      text_animation: params.text_animation || 'fade_in',
+      particle_effect: params.particle_effect || 'none',
+      bg_music: params.bg_music || 'none',
+      bg_music_url: params.bg_music_url || null,
+      effect_config: params.effect_config || null,
+      // ⭐ Persona snapshots (for display)
+      persona_name: params.persona_name || null,
+      persona_image_url: params.persona_image_url || null,
+      persona_video_url: params.persona_video_url || null,
+      // ⭐ Password protection
+      has_password: params.has_password || 'N',
     });
 
     
