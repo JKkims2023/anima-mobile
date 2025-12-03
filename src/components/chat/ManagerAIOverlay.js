@@ -266,8 +266,7 @@ const ManagerAIOverlay = ({
             style={[
               styles.contentContainer,
               {
-                paddingTop: insets.top + scale(20),
-                paddingBottom: insets.bottom + scale(10),
+                paddingTop: insets.top, // ✅ Remove extra padding
                 transform: [{ translateY: slideAnim }],
               },
             ]}
@@ -342,9 +341,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: platformPadding(20),
-    paddingTop: scale(10),
-    paddingBottom: scale(10),
+    paddingVertical: platformPadding(12), // ✅ Optimized padding
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(59, 130, 246, 0.2)',
     backgroundColor: COLORS.DEEP_BLUE_DARK,
   },
   headerLeft: {
@@ -367,7 +366,7 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
     paddingHorizontal: platformPadding(20),
-    paddingTop: scale(16),
+    paddingTop: platformPadding(10), // ✅ Optimized padding
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -375,7 +374,6 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   inputContainer: {
     paddingHorizontal: platformPadding(0),
-    paddingBottom: scale(10),
   },
 });
 
