@@ -23,7 +23,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
+import { View, StyleSheet, BackHandler, PanResponder } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -85,6 +85,41 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   const exploreModeOpacity = useSharedValue(1); // ⭐ Explore mode UI opacity
   const messageModeOpacity = useSharedValue(0); // ⭐ Message mode UI opacity
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // PAN RESPONDER (Left/Right Swipe for Mode Toggle)
+  // ═══════════════════════════════════════════════════════════════════════
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false, // Don't capture immediately
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Only capture if horizontal movement is significant
+        const { dx, dy } = gestureState;
+        const isHorizontal = Math.abs(dx) > Math.abs(dy); // Horizontal swipe?
+        const isSignificant = Math.abs(dx) > 30; // At least 30px
+        
+        return isHorizontal && isSignificant;
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        const { dx, vx } = gestureState;
+        const swipeThreshold = 80; // 80px 이상 스와이프
+        const velocityThreshold = 0.5; // 또는 빠른 속도
+        
+        console.log('[PanResponder] Swipe detected:', { dx, vx, isMessageMode });
+        
+        // 왼쪽으로 스와이프 (← 메시지 모드 진입)
+        if ((dx < -swipeThreshold || vx < -velocityThreshold) && !isMessageMode) {
+          console.log('[PanResponder] ← Left swipe detected, entering Message Mode');
+          handleQuickMessage();
+        }
+        // 오른쪽으로 스와이프 (→ 일반 모드 복귀)
+        else if ((dx > swipeThreshold || vx > velocityThreshold) && isMessageMode) {
+          console.log('[PanResponder] → Right swipe detected, exiting Message Mode');
+          handleExitMessageMode();
+        }
+      },
+    })
+  ).current;
   
   // ═══════════════════════════════════════════════════════════════════════
   // SCREEN FOCUS HANDLER
@@ -577,8 +612,6 @@ const PersonaStudioScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
-
-
       {/* Header */}
       <View style={styles.header}>
           <CustomText type="big" bold style={styles.headerTitle}>
@@ -589,7 +622,11 @@ const PersonaStudioScreen = () => {
           </CustomText>
         </View>
       
-      <View style={styles.container}>
+      {/* ⭐ Container with PanResponder for Left/Right Swipe */}
+      <View 
+        style={styles.container}
+        {...panResponder.panHandlers}
+      >
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
         {/* ═════════════════════════════════════════════════════════════════ */}
@@ -710,6 +747,7 @@ const PersonaStudioScreen = () => {
 
         </View>
         )}
+        
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* PersonaSelectorPanel (Slide from Right) */}
         {/* ═════════════════════════════════════════════════════════════════ */}
