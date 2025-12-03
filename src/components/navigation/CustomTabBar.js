@@ -55,7 +55,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     const contextMap = {
       'Home': 'home',
       'Music': 'music',
-      'Point': 'point',
+      'History': 'history',
       'Settings': 'settings',
       'Persona': 'home', // Fallback to home context
       'AI': 'home', // Fallback to home context
@@ -98,10 +98,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
-      key: 'Point',
-      icon: 'diamond',
-      label: t('navigation.point') || '포인트',
-      route: 'Point', // Navigate to Point screen
+      key: 'History',
+      icon: 'time-outline',
+      label: t('navigation.history') || '히스토리',
+      route: 'History', // Navigate to History screen
     },
     { 
       key: 'Settings',

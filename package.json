@@ -39,6 +39,7 @@
     "react-i18next": "^15.7.4",
     "react-image-picker": "^1.1.1",
     "react-native": "0.79.2",
+    "react-native-deck-swiper": "^2.0.19",
     "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-haptic-feedback": "^2.3.3",

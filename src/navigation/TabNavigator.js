@@ -8,7 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PersonaScreen from '../screens/PersonaScreen';
 import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ NEW: Unified Persona Studio
 import MusicScreen from '../screens/MusicScreen';
-import PointScreen from '../screens/PointScreen'; // ⭐ NEW: Point Management
+import HistoryScreen from '../screens/HistoryScreen'; // ⭐ NEW: Message History
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -73,12 +73,12 @@ const TabNavigator = () => {
         }}
       />
       
-      {/* Tab 4: Point */}
+      {/* Tab 4: History */}
       <Tab.Screen 
-        name="Point" 
-        component={PointScreen}
+        name="History" 
+        component={HistoryScreen}
         options={{ 
-          title: t('navigation.point') || '포인트',
+          title: t('navigation.history') || '히스토리',
         }}
       />
      
