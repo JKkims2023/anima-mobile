@@ -48,6 +48,7 @@ const MessageHistoryCard = memo(({
     persona_name,
     persona_image_url,
     persona_video_url,
+    convert_yn, // ⭐ From persona_memory_history
     text_animation = 'fade_in',
     particle_effect = 'none',
     bg_music = 'none',
@@ -60,7 +61,7 @@ const MessageHistoryCard = memo(({
     persona_name,
     selected_dress_image_url: persona_image_url,
     selected_dress_video_url: persona_video_url,
-    selected_dress_video_convert_yn: persona_video_url ? 'Y' : 'N',
+    selected_dress_video_convert_yn: convert_yn || 'N', // ⭐ Use convert_yn from API
   };
 
   // ✅ Animation values
