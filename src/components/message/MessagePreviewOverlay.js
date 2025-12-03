@@ -669,8 +669,9 @@ const MessagePreviewOverlay = ({
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* Selection Panel (Inline, Modal 내부에서 동작) */}
+        {/* ⚠️ Music은 MusicSelectionOverlay로 대체되어 제외 */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {showSelectionPanel && (
+        {showSelectionPanel && selectionType !== 'music' && (
           <>
             {/* Backdrop */}
             <TouchableOpacity

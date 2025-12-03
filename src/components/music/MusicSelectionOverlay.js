@@ -17,6 +17,7 @@ import { View, StyleSheet, TouchableOpacity, FlatList, Modal, ActivityIndicator 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Video from 'react-native-video';
 import CustomText from '../CustomText';
 import CustomTextInput from '../CustomTextInput';
 import { scale, verticalScale, platformPadding, moderateScale } from '../../utils/responsive-utils';
@@ -24,10 +25,6 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import musicService from '../../services/api/musicService';
 import { useUser } from '../../contexts/UserContext';
-import Sound from 'react-native-sound';
-
-// Enable playback in silence mode
-Sound.setCategory('Playback');
 
 const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey }) => {
   const { t } = useTranslation();
@@ -41,8 +38,10 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
   const [musicType, setMusicType] = useState('all'); // 'all' | 'instrumental' | 'vocal'
   const [sortBy, setSortBy] = useState('created_desc'); // 'created_desc' | 'created_asc' | 'type_inst' | 'type_vocal'
   const [playingMusicKey, setPlayingMusicKey] = useState(null);
+  const [playingMusicUrl, setPlayingMusicUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
-  const soundRef = useRef(null);
+  const videoRef = useRef(null);
 
   // Fetch music list
   const fetchMusicList = useCallback(async () => {
@@ -80,60 +79,35 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
     }
   }, [visible, searchKeyword, musicType, sortBy, fetchMusicList]);
 
-  // Cleanup sound on unmount
+  // Cleanup: Stop music on unmount
   useEffect(() => {
     return () => {
-      if (soundRef.current) {
-        soundRef.current.stop();
-        soundRef.current.release();
-        soundRef.current = null;
+      if (isPlaying) {
+        setIsPlaying(false);
+        setPlayingMusicKey(null);
+        setPlayingMusicUrl(null);
       }
     };
-  }, []);
+  }, [isPlaying]);
 
   // Handle music preview (play)
   const handlePlayMusic = useCallback((music) => {
     HapticService.light();
 
-    // Stop current sound if playing
-    if (soundRef.current) {
-      soundRef.current.stop();
-      soundRef.current.release();
-      soundRef.current = null;
-    }
-
     // If clicking the same music, just stop
     if (playingMusicKey === music.music_key) {
+      setIsPlaying(false);
       setPlayingMusicKey(null);
+      setPlayingMusicUrl(null);
+      console.log('🎵 [MusicSelectionOverlay] Stopped playing:', music.music_title);
       return;
     }
 
     // Play new music
-    try {
-      const sound = new Sound(music.music_url, null, (error) => {
-        if (error) {
-          console.error('❌ [MusicSelectionOverlay] Failed to load music:', error);
-          setPlayingMusicKey(null);
-          return;
-        }
-
-        // Play the sound
-        sound.play((success) => {
-          if (success) {
-            console.log('🎵 [MusicSelectionOverlay] Music finished playing');
-          } else {
-            console.error('❌ [MusicSelectionOverlay] Playback failed');
-          }
-          setPlayingMusicKey(null);
-        });
-      });
-
-      soundRef.current = sound;
-      setPlayingMusicKey(music.music_key);
-    } catch (error) {
-      console.error('❌ [MusicSelectionOverlay] Error playing music:', error);
-      setPlayingMusicKey(null);
-    }
+    console.log('🎵 [MusicSelectionOverlay] Start playing:', music.music_title, music.music_url);
+    setPlayingMusicKey(music.music_key);
+    setPlayingMusicUrl(music.music_url);
+    setIsPlaying(true);
   }, [playingMusicKey]);
 
   // Handle music selection
@@ -141,31 +115,45 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
     HapticService.success();
 
     // Stop preview if playing
-    if (soundRef.current) {
-      soundRef.current.stop();
-      soundRef.current.release();
-      soundRef.current = null;
+    if (isPlaying) {
+      setIsPlaying(false);
       setPlayingMusicKey(null);
+      setPlayingMusicUrl(null);
     }
 
     onSelect && onSelect(music);
     onClose && onClose();
-  }, [onSelect, onClose]);
+  }, [isPlaying, onSelect, onClose]);
 
   // Handle close
   const handleClose = useCallback(() => {
     HapticService.light();
 
     // Stop preview if playing
-    if (soundRef.current) {
-      soundRef.current.stop();
-      soundRef.current.release();
-      soundRef.current = null;
+    if (isPlaying) {
+      setIsPlaying(false);
       setPlayingMusicKey(null);
+      setPlayingMusicUrl(null);
     }
 
     onClose && onClose();
-  }, [onClose]);
+  }, [isPlaying, onClose]);
+  
+  // Handle video end
+  const handleVideoEnd = useCallback(() => {
+    console.log('🎵 [MusicSelectionOverlay] Music finished playing');
+    setIsPlaying(false);
+    setPlayingMusicKey(null);
+    setPlayingMusicUrl(null);
+  }, []);
+  
+  // Handle video error
+  const handleVideoError = useCallback((error) => {
+    console.error('❌ [MusicSelectionOverlay] Failed to load music:', error);
+    setIsPlaying(false);
+    setPlayingMusicKey(null);
+    setPlayingMusicUrl(null);
+  }, []);
 
   // Get music type icon
   const getMusicTypeIcon = (type) => {
@@ -381,6 +369,21 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
             keyExtractor={(item) => item.music_key}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+          />
+        )}
+
+        {/* Hidden Audio Player (react-native-video) */}
+        {playingMusicUrl && (
+          <Video
+            ref={videoRef}
+            source={{ uri: playingMusicUrl }}
+            audioOnly={true}
+            paused={!isPlaying}
+            repeat={false}
+            volume={1.0}
+            onEnd={handleVideoEnd}
+            onError={handleVideoError}
+            style={{ width: 0, height: 0 }}
           />
         )}
       </View>
