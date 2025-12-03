@@ -89,37 +89,44 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   // PAN RESPONDER (Left/Right Swipe for Mode Toggle)
   // ═══════════════════════════════════════════════════════════════════════
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false, // Don't capture immediately
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        // Only capture if horizontal movement is significant
-        const { dx, dy } = gestureState;
-        const isHorizontal = Math.abs(dx) > Math.abs(dy); // Horizontal swipe?
-        const isSignificant = Math.abs(dx) > 30; // At least 30px
-        
-        return isHorizontal && isSignificant;
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        const { dx, vx } = gestureState;
-        const swipeThreshold = 80; // 80px 이상 스와이프
-        const velocityThreshold = 0.5; // 또는 빠른 속도
-        
-        console.log('[PanResponder] Swipe detected:', { dx, vx, isMessageMode });
-        
-        // 왼쪽으로 스와이프 (← 메시지 모드 진입)
-        if ((dx < -swipeThreshold || vx < -velocityThreshold) && !isMessageMode) {
-          console.log('[PanResponder] ← Left swipe detected, entering Message Mode');
-          handleQuickMessage();
-        }
-        // 오른쪽으로 스와이프 (→ 일반 모드 복귀)
-        else if ((dx > swipeThreshold || vx > velocityThreshold) && isMessageMode) {
-          console.log('[PanResponder] → Right swipe detected, exiting Message Mode');
-          handleExitMessageMode();
-        }
-      },
-    })
-  ).current;
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => false, // Don't capture immediately
+        onMoveShouldSetPanResponder: (evt, gestureState) => {
+          // Only capture if horizontal movement is significant
+          const { dx, dy } = gestureState;
+          const isHorizontal = Math.abs(dx) > Math.abs(dy); // Horizontal swipe?
+          const isSignificant = Math.abs(dx) > 30; // At least 30px
+          
+          console.log('[PanResponder] Move check:', { dx, dy, isHorizontal, isSignificant, isMessageMode });
+          
+          return isHorizontal && isSignificant;
+        },
+        onPanResponderGrant: (evt, gestureState) => {
+          console.log('[PanResponder] Gesture granted');
+        },
+        onPanResponderRelease: (evt, gestureState) => {
+          const { dx, vx } = gestureState;
+          const swipeThreshold = 80; // 80px 이상 스와이프
+          const velocityThreshold = 0.5; // 또는 빠른 속도
+          
+          console.log('[PanResponder] Swipe detected:', { dx, vx, isMessageMode });
+          
+          // 왼쪽으로 스와이프 (← 메시지 모드 진입)
+          if ((dx < -swipeThreshold || vx < -velocityThreshold) && !isMessageMode) {
+            console.log('[PanResponder] ← Left swipe detected, entering Message Mode');
+            handleQuickMessage();
+          }
+          // 오른쪽으로 스와이프 (→ 일반 모드 복귀)
+          else if ((dx > swipeThreshold || vx > velocityThreshold) && isMessageMode) {
+            console.log('[PanResponder] → Right swipe detected, exiting Message Mode');
+            handleExitMessageMode();
+          }
+        },
+      }),
+    [isMessageMode, handleQuickMessage, handleExitMessageMode]
+  );
   
   // ═══════════════════════════════════════════════════════════════════════
   // SCREEN FOCUS HANDLER
@@ -689,7 +696,7 @@ const PersonaStudioScreen = () => {
             {/* MessageModeQuickActionChips (Right Overlay) */}
             <View 
               style={styles.messageModeQuickChipsOverlay}
-              pointerEvents={isMessageMode ? 'auto' : 'none'} // ⭐ Control touch per child
+              pointerEvents={isMessageMode ? 'box-none' : 'none'} // ⭐ box-none: pass through container, but children receive touch
             >
               <MessageModeQuickActionChips
                 onBackClick={handleExitMessageMode}
@@ -702,7 +709,7 @@ const PersonaStudioScreen = () => {
             {/* MessageCreatorView (Bottom Overlay) */}
             <View 
               style={styles.messageOverlay}
-              pointerEvents={isMessageMode ? 'auto' : 'none'} // ⭐ Control touch per child
+              pointerEvents={isMessageMode ? 'box-none' : 'none'} // ⭐ box-none: allow swipe gesture to pass through
             >
 
               <MessageCreatorView
