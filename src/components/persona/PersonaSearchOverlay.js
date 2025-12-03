@@ -35,7 +35,7 @@ const PersonaSearchOverlay = ({
   onSelectPersona,
   currentPersonaKey = null,
 }) => {
-  const { theme } = useTheme();
+  const { currentTheme: theme } = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const inputRef = useRef(null);
@@ -115,9 +115,9 @@ const PersonaSearchOverlay = ({
           styles.personaItem,
           {
             backgroundColor: isActive
-              ? `${theme.colors.primary}15`
-              : theme.colors.cardBackground,
-            borderColor: isActive ? theme.colors.primary : theme.colors.border,
+              ? `${theme.mainColor}15`
+              : theme.bgSecondary,
+            borderColor: isActive ? theme.mainColor : theme.borderColor,
           },
         ]}
         onPress={() => handleSelectPersona(persona, index)}
@@ -131,7 +131,7 @@ const PersonaSearchOverlay = ({
             resizeMode="cover"
           />
           {isActive && (
-            <View style={[styles.activeIndicator, { backgroundColor: theme.colors.primary }]}>
+            <View style={[styles.activeIndicator, { backgroundColor: theme.mainColor }]}>
               <Icon name="check-circle" size={scale(16)} color="#FFFFFF" />
             </View>
           )}
@@ -139,12 +139,12 @@ const PersonaSearchOverlay = ({
 
         {/* Persona Info */}
         <View style={styles.personaInfo}>
-          <CustomText type="body" bold style={{ color: theme.colors.text }}>
+          <CustomText type="body" bold style={{ color: theme.textPrimary }}>
             {persona.persona_name}
           </CustomText>
           <CustomText
             type="small"
-            style={{ color: theme.colors.textSecondary, marginTop: verticalScale(4) }}
+            style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}
           >
             {persona.persona_category || t('persona.category.default')}
           </CustomText>
@@ -154,7 +154,7 @@ const PersonaSearchOverlay = ({
         <Icon
           name="chevron-right"
           size={scale(24)}
-          color={isActive ? theme.colors.primary : theme.colors.textSecondary}
+          color={isActive ? theme.mainColor : theme.textSecondary}
         />
       </TouchableOpacity>
     );
@@ -166,8 +166,8 @@ const PersonaSearchOverlay = ({
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="magnify-close" size={scale(64)} color={theme.colors.textSecondary} />
-      <CustomText type="body" style={{ color: theme.colors.textSecondary, marginTop: verticalScale(16) }}>
+      <Icon name="magnify-close" size={scale(64)} color={theme.textSecondary} />
+      <CustomText type="body" style={{ color: theme.textSecondary, marginTop: verticalScale(16) }}>
         {searchQuery ? t('search.no_results') : t('search.start_typing')}
       </CustomText>
     </View>
@@ -184,7 +184,7 @@ const PersonaSearchOverlay = ({
       onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
         {/* ════════════════════════════════════════════════════════════════ */}
         {/* Search Header */}
         {/* ════════════════════════════════════════════════════════════════ */}
@@ -193,8 +193,8 @@ const PersonaSearchOverlay = ({
             styles.header,
             {
               paddingTop: insets.top + platformPadding(12),
-              backgroundColor: theme.colors.cardBackground,
-              borderBottomColor: theme.colors.border,
+              backgroundColor: theme.bgSecondary,
+              borderBottomColor: theme.borderColor,
             },
           ]}
         >
@@ -204,7 +204,7 @@ const PersonaSearchOverlay = ({
             onPress={handleClose}
             activeOpacity={0.7}
           >
-            <Icon name="arrow-left" size={scale(24)} color={theme.colors.text} />
+            <Icon name="arrow-left" size={scale(24)} color={theme.textPrimary} />
           </TouchableOpacity>
 
           {/* Search Input */}
@@ -212,15 +212,15 @@ const PersonaSearchOverlay = ({
             style={[
               styles.searchInputContainer,
               {
-                backgroundColor: theme.colors.background,
-                borderColor: theme.colors.border,
+                backgroundColor: theme.backgroundColor,
+                borderColor: theme.borderColor,
               },
             ]}
           >
             <Icon
               name="magnify"
               size={scale(20)}
-              color={theme.colors.textSecondary}
+              color={theme.textSecondary}
               style={styles.searchIcon}
             />
             <TextInput
@@ -228,12 +228,12 @@ const PersonaSearchOverlay = ({
               style={[
                 styles.searchInput,
                 {
-                  color: theme.colors.text,
+                  color: theme.textPrimary,
                   fontFamily: 'Pretendard-Regular',
                 },
               ]}
               placeholder={t('search.placeholder.persona')}
-              placeholderTextColor={theme.colors.textSecondary}
+              placeholderTextColor={theme.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCapitalize="none"
@@ -246,7 +246,7 @@ const PersonaSearchOverlay = ({
                 onPress={handleClearSearch}
                 activeOpacity={0.7}
               >
-                <Icon name="close-circle" size={scale(20)} color={theme.colors.textSecondary} />
+                <Icon name="close-circle" size={scale(20)} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
