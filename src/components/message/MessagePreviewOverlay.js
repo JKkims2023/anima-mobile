@@ -128,32 +128,42 @@ const MessagePreviewOverlay = ({
   const TYPING_SPEED = 15; // 15ms per character (same as Web)
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Animation Logic
+  // Animation Logic (Split into two useEffects)
   // ═══════════════════════════════════════════════════════════════════════
   
+  // 1️⃣ Modal visibility: Reset and start overlay animation
   useEffect(() => {
     if (!visible) return;
     
-    console.log('[MessagePreviewOverlay] Starting animations, textAnimation:', textAnimation);
+    console.log('[MessagePreviewOverlay] Modal opened, starting overlay animation...');
     
-    // Reset all animation values
+    // Reset overlay animation only
     overlayOpacity.value = 0;
-    titleOpacity.value = 0;
-    contentOpacity.value = 0;
-    titleScale.value = 1.2; // Start larger for bounce effect
-    contentScale.value = 1.2;
-    titleTranslateX.value = -100; // Start from left edge
-    contentTranslateX.value = 100; // Start from right edge
-    setTypingText('');
-    setShowCursor(false);
     
-    // Always fade in overlay first (500ms)
+    // Fade in overlay (500ms)
     overlayOpacity.value = withTiming(1, {
       duration: 500,
       easing: Easing.out(Easing.ease),
     });
+  }, [visible]);
+  
+  // 2️⃣ Text animation: Reset text-related animations only
+  useEffect(() => {
+    if (!visible) return;
     
-    // Start specific text animation based on textAnimation prop
+    console.log('[MessagePreviewOverlay] Starting text animation:', textAnimation);
+    
+    // Reset text animation values only
+    titleOpacity.value = 0;
+    contentOpacity.value = 0;
+    titleScale.value = 1.2;
+    contentScale.value = 1.2;
+    titleTranslateX.value = -100;
+    contentTranslateX.value = 100;
+    setTypingText('');
+    setShowCursor(false);
+    
+    // Start specific text animation
     setTimeout(() => {
       startTextAnimation();
     }, 100);

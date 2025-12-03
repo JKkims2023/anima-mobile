@@ -39,19 +39,19 @@ const ParticleEffect = ({ type = 'none', isActive = true }) => {
   const renderParticleEffect = () => {
     switch (type) {
       case 'confetti':
-        return <Confetti />;
+        return <Confetti key="confetti" />;
       case 'hearts':
-        return <Hearts />;
+        return <Hearts key="hearts" />;
       case 'snow':
-        return <Snow />;
+        return <Snow key="snow" />;
       case 'sparkles':
-        return <Sparkles />;
+        return <Sparkles key="sparkles" />;
       case 'comfort_light':
-        return <ComfortLight />;
+        return <ComfortLight key="comfort_light" />;
       case 'hope_star':
-        return <HopeStar />;
+        return <HopeStar key="hope_star" />;
       case 'rain_soft':
-        return <RainSoft />;
+        return <RainSoft key="rain_soft" />;
       default:
         return null;
     }
@@ -75,5 +75,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ParticleEffect;
+// ⭐ Memoize to prevent unnecessary re-renders
+export default React.memo(ParticleEffect, (prevProps, nextProps) => {
+  // Only re-render if type or isActive changes
+  return prevProps.type === nextProps.type && prevProps.isActive === nextProps.isActive;
+});
 

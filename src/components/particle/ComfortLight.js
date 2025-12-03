@@ -57,12 +57,12 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
       )
     );
 
-    // Pulse gently
+    // Pulse gently (더 부드럽게)
     scale.value = withDelay(
       delay,
       withRepeat(
         withTiming(1, {
-          duration: 2000,
+          duration: 3000,
           easing: Easing.inOut(Easing.ease),
         }),
         -1,
@@ -70,12 +70,12 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
       )
     );
 
-    // Fade in/out
+    // Fade in/out (더 부드럽게)
     opacity.value = withDelay(
       delay,
       withRepeat(
-        withTiming(0.6, {
-          duration: 2500,
+        withTiming(0.7, {
+          duration: 3500,
           easing: Easing.inOut(Easing.ease),
         }),
         -1,

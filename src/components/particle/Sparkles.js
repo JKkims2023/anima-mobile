@@ -32,13 +32,13 @@ const Sparkle = ({ delay = 0, x, y, color, size }) => {
   const rotate = useSharedValue(0);
 
   useEffect(() => {
-    // Twinkle effect: scale and opacity
+    // Twinkle effect: scale and opacity (부드럽게 개선)
     scale.value = withDelay(
       delay,
       withRepeat(
         withSequence(
-          withTiming(1, { duration: 400, easing: Easing.out(Easing.ease) }),
-          withTiming(0, { duration: 400, easing: Easing.in(Easing.ease) })
+          withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) }),
+          withTiming(0.5, { duration: 600, easing: Easing.in(Easing.ease) })
         ),
         -1,
         false
@@ -49,8 +49,8 @@ const Sparkle = ({ delay = 0, x, y, color, size }) => {
       delay,
       withRepeat(
         withSequence(
-          withTiming(1, { duration: 400 }),
-          withTiming(0, { duration: 400 })
+          withTiming(0.9, { duration: 600, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.3, { duration: 600, easing: Easing.inOut(Easing.ease) })
         ),
         -1,
         false
@@ -62,7 +62,7 @@ const Sparkle = ({ delay = 0, x, y, color, size }) => {
       delay,
       withRepeat(
         withTiming(180, {
-          duration: 1600,
+          duration: 2400,
           easing: Easing.linear,
         }),
         -1,
