@@ -55,6 +55,7 @@ const HistoryScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isScreenFocused, setIsScreenFocused] = useState(false);
+  const [allViewed, setAllViewed] = useState(false);
 
   // ✅ Music playback state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
