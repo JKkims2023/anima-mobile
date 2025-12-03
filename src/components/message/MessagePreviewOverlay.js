@@ -33,7 +33,7 @@ import Animated, {
 import PersonaBackgroundView from './PersonaBackgroundView';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
-import CustomBottomSheet from '../CustomBottomSheet';
+// CustomBottomSheet removed - use inline selection panel instead
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
@@ -64,10 +64,11 @@ const MessagePreviewOverlay = ({
   const { currentTheme: theme } = useTheme();
   const insets = useSafeAreaInsets();
 
-  // Bottom sheet refs
-  const textAnimationSheetRef = useRef(null);
-  const particleEffectSheetRef = useRef(null);
-  const bgMusicSheetRef = useRef(null);
+  // Selection panel state
+  const [showSelectionPanel, setShowSelectionPanel] = useState(false);
+  const [selectionType, setSelectionType] = useState(null); // 'text' | 'particle' | 'music'
+  const panelOpacity = useSharedValue(0);
+  const panelTranslateY = useSharedValue(300);
 
   // Effect options
   const TEXT_ANIMATIONS = [
@@ -368,43 +369,113 @@ const MessagePreviewOverlay = ({
   }, [onGenerateURL, textAnimation, particleEffect, bgMusic, bgMusicUrl, effectConfig]);
 
   /**
-   * Quick Action Chip Handlers - Open Bottom Sheets
+   * Open/Close Selection Panel
+   */
+  const openSelectionPanel = useCallback((type) => {
+    HapticService.light();
+    setSelectionType(type);
+    setShowSelectionPanel(true);
+    
+    panelOpacity.value = withTiming(1, { duration: 300 });
+    panelTranslateY.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.ease) });
+  }, [panelOpacity, panelTranslateY]);
+
+  const closeSelectionPanel = useCallback(() => {
+    HapticService.light();
+    
+    panelOpacity.value = withTiming(0, { duration: 250 });
+    panelTranslateY.value = withTiming(300, { duration: 250, easing: Easing.in(Easing.ease) });
+    
+    setTimeout(() => {
+      setShowSelectionPanel(false);
+      setSelectionType(null);
+    }, 250);
+  }, [panelOpacity, panelTranslateY]);
+
+  /**
+   * Quick Action Chip Handlers
    */
   const handleTextAnimationChipPress = useCallback(() => {
-    HapticService.light();
-    textAnimationSheetRef.current?.present();
-  }, []);
+    openSelectionPanel('text');
+  }, [openSelectionPanel]);
 
   const handleParticleEffectChipPress = useCallback(() => {
-    HapticService.light();
-    particleEffectSheetRef.current?.present();
-  }, []);
+    openSelectionPanel('particle');
+  }, [openSelectionPanel]);
 
   const handleBgMusicChipPress = useCallback(() => {
-    HapticService.light();
-    bgMusicSheetRef.current?.present();
-  }, []);
+    openSelectionPanel('music');
+  }, [openSelectionPanel]);
 
   /**
    * Effect Selection Handlers
    */
   const handleTextAnimationSelect = useCallback((animationId) => {
-    HapticService.light();
+    HapticService.success();
     onChangeTextAnimation && onChangeTextAnimation(animationId);
-    textAnimationSheetRef.current?.dismiss();
-  }, [onChangeTextAnimation]);
+    closeSelectionPanel();
+  }, [onChangeTextAnimation, closeSelectionPanel]);
 
   const handleParticleEffectSelect = useCallback((effectId) => {
-    HapticService.light();
+    HapticService.success();
     onChangeParticleEffect && onChangeParticleEffect(effectId);
-    particleEffectSheetRef.current?.dismiss();
-  }, [onChangeParticleEffect]);
+    closeSelectionPanel();
+  }, [onChangeParticleEffect, closeSelectionPanel]);
 
   const handleBgMusicSelect = useCallback((musicId) => {
-    HapticService.light();
+    HapticService.success();
     onChangeBgMusic && onChangeBgMusic(musicId);
-    bgMusicSheetRef.current?.dismiss();
-  }, [onChangeBgMusic]);
+    closeSelectionPanel();
+  }, [onChangeBgMusic, closeSelectionPanel]);
+  
+  /**
+   * Get current selection options based on type
+   */
+  const getCurrentOptions = useCallback(() => {
+    switch (selectionType) {
+      case 'text':
+        return TEXT_ANIMATIONS;
+      case 'particle':
+        return PARTICLE_EFFECTS;
+      case 'music':
+        return BG_MUSICS;
+      default:
+        return [];
+    }
+  }, [selectionType, TEXT_ANIMATIONS, PARTICLE_EFFECTS, BG_MUSICS]);
+
+  const getCurrentValue = useCallback(() => {
+    switch (selectionType) {
+      case 'text':
+        return textAnimation;
+      case 'particle':
+        return particleEffect;
+      case 'music':
+        return bgMusic;
+      default:
+        return null;
+    }
+  }, [selectionType, textAnimation, particleEffect, bgMusic]);
+
+  const handleOptionSelect = useCallback((optionId) => {
+    switch (selectionType) {
+      case 'text':
+        handleTextAnimationSelect(optionId);
+        break;
+      case 'particle':
+        handleParticleEffectSelect(optionId);
+        break;
+      case 'music':
+        handleBgMusicSelect(optionId);
+        break;
+    }
+  }, [selectionType, handleTextAnimationSelect, handleParticleEffectSelect, handleBgMusicSelect]);
+  
+  // Animated style for selection panel
+  const selectionPanelAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: panelOpacity.value,
+    transform: [{ translateY: panelTranslateY.value }],
+  }));
 
   if (!visible) {
     return null;
@@ -520,125 +591,71 @@ const MessagePreviewOverlay = ({
         </View>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* Effect Selection Bottom Sheets */}
+        {/* Selection Panel (Inline, Modal 내부에서 동작) */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        
-        {/* Text Animation Bottom Sheet */}
-        <CustomBottomSheet
-          ref={textAnimationSheetRef}
-          snapPoints={['50%']}
-          title={t('message_preview.text_animation')}
-        >
-          <ScrollView style={styles.bottomSheetContent}>
-            {TEXT_ANIMATIONS.map((animation) => (
-              <TouchableOpacity
-                key={animation.id}
-                style={[
-                  styles.optionItem,
-                  textAnimation === animation.id && styles.optionItemSelected,
-                  { borderColor: theme.borderColor }
-                ]}
-                onPress={() => handleTextAnimationSelect(animation.id)}
-              >
-                <Icon
-                  name={animation.icon}
-                  size={scale(24)}
-                  color={textAnimation === animation.id ? theme.mainColor : theme.textSecondary}
-                />
-                <CustomText
-                  type="body"
-                  style={{
-                    marginLeft: scale(12),
-                    color: textAnimation === animation.id ? theme.mainColor : theme.textPrimary
-                  }}
-                >
-                  {animation.label}
-                </CustomText>
-                {textAnimation === animation.id && (
-                  <Icon name="check-circle" size={scale(20)} color={theme.mainColor} style={{ marginLeft: 'auto' }} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </CustomBottomSheet>
+        {showSelectionPanel && (
+          <>
+            {/* Backdrop */}
+            <TouchableOpacity
+              style={styles.selectionBackdrop}
+              activeOpacity={1}
+              onPress={closeSelectionPanel}
+            >
+              <Animated.View style={[styles.selectionBackdropOverlay, { opacity: panelOpacity.value }]} />
+            </TouchableOpacity>
 
-        {/* Particle Effect Bottom Sheet */}
-        <CustomBottomSheet
-          ref={particleEffectSheetRef}
-          snapPoints={['60%']}
-          title={t('message_preview.particle_effect')}
-        >
-          <ScrollView style={styles.bottomSheetContent}>
-            {PARTICLE_EFFECTS.map((effect) => (
-              <TouchableOpacity
-                key={effect.id}
-                style={[
-                  styles.optionItem,
-                  particleEffect === effect.id && styles.optionItemSelected,
-                  { borderColor: theme.borderColor }
-                ]}
-                onPress={() => handleParticleEffectSelect(effect.id)}
-              >
-                <Icon
-                  name={effect.icon}
-                  size={scale(24)}
-                  color={particleEffect === effect.id ? theme.mainColor : theme.textSecondary}
-                />
-                <CustomText
-                  type="body"
-                  style={{
-                    marginLeft: scale(12),
-                    color: particleEffect === effect.id ? theme.mainColor : theme.textPrimary
-                  }}
-                >
-                  {effect.label}
+            {/* Selection Panel */}
+            <Animated.View style={[styles.selectionPanel, selectionPanelAnimatedStyle, { backgroundColor: theme.backgroundColor }]}>
+              {/* Panel Header */}
+              <View style={[styles.selectionPanelHeader, { borderBottomColor: theme.borderColor }]}>
+                <CustomText type="bodyBold" style={{ color: theme.textPrimary }}>
+                  {selectionType === 'text' && t('message_preview.text_animation')}
+                  {selectionType === 'particle' && t('message_preview.particle_effect')}
+                  {selectionType === 'music' && t('message_preview.bg_music')}
                 </CustomText>
-                {particleEffect === effect.id && (
-                  <Icon name="check-circle" size={scale(20)} color={theme.mainColor} style={{ marginLeft: 'auto' }} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </CustomBottomSheet>
+                <TouchableOpacity onPress={closeSelectionPanel}>
+                  <Icon name="close" size={scale(24)} color={theme.textSecondary} />
+                </TouchableOpacity>
+              </View>
 
-        {/* Background Music Bottom Sheet */}
-        <CustomBottomSheet
-          ref={bgMusicSheetRef}
-          snapPoints={['60%']}
-          title={t('message_preview.bg_music')}
-        >
-          <ScrollView style={styles.bottomSheetContent}>
-            {BG_MUSICS.map((music) => (
-              <TouchableOpacity
-                key={music.id}
-                style={[
-                  styles.optionItem,
-                  bgMusic === music.id && styles.optionItemSelected,
-                  { borderColor: theme.borderColor }
-                ]}
-                onPress={() => handleBgMusicSelect(music.id)}
-              >
-                <Icon
-                  name={music.icon}
-                  size={scale(24)}
-                  color={bgMusic === music.id ? theme.mainColor : theme.textSecondary}
-                />
-                <CustomText
-                  type="body"
-                  style={{
-                    marginLeft: scale(12),
-                    color: bgMusic === music.id ? theme.mainColor : theme.textPrimary
-                  }}
-                >
-                  {music.label}
-                </CustomText>
-                {bgMusic === music.id && (
-                  <Icon name="check-circle" size={scale(20)} color={theme.mainColor} style={{ marginLeft: 'auto' }} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </CustomBottomSheet>
+              {/* Options List */}
+              <ScrollView style={styles.selectionPanelContent}>
+                {getCurrentOptions().map((option) => {
+                  const isSelected = getCurrentValue() === option.id;
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      style={[
+                        styles.optionItem,
+                        isSelected && styles.optionItemSelected,
+                        { borderColor: theme.borderColor }
+                      ]}
+                      onPress={() => handleOptionSelect(option.id)}
+                    >
+                      <Icon
+                        name={option.icon}
+                        size={scale(24)}
+                        color={isSelected ? theme.mainColor : theme.textSecondary}
+                      />
+                      <CustomText
+                        type="body"
+                        style={{
+                          marginLeft: scale(12),
+                          color: isSelected ? theme.mainColor : theme.textPrimary
+                        }}
+                      >
+                        {option.label}
+                      </CustomText>
+                      {isSelected && (
+                        <Icon name="check-circle" size={scale(20)} color={theme.mainColor} style={{ marginLeft: 'auto' }} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </Animated.View>
+          </>
+        )}
       </View>
     </Modal>
   );
@@ -733,9 +750,44 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  bottomSheetContent: {
+  selectionBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 200,
+  },
+  selectionBackdropOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  selectionPanel: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    maxHeight: SCREEN_HEIGHT * 0.6,
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
+    zIndex: 201,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  selectionPanelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: verticalScale(16),
+    borderBottomWidth: 1,
+  },
+  selectionPanelContent: {
     paddingHorizontal: platformPadding(16),
-    paddingBottom: platformPadding(20),
+    paddingVertical: verticalScale(12),
   },
   optionItem: {
     flexDirection: 'row',
