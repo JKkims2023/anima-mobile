@@ -35,6 +35,7 @@ import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
 import ParticleEffect from '../particle/ParticleEffect';
 import MusicSelectionOverlay from '../music/MusicSelectionOverlay';
+import Video from 'react-native-video';
 // CustomBottomSheet removed - use inline selection panel instead
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -75,6 +76,10 @@ const MessagePreviewOverlay = ({
   // Music selection overlay state
   const [showMusicOverlay, setShowMusicOverlay] = useState(false);
   const [selectedMusicData, setSelectedMusicData] = useState(null);
+  
+  // Music playback state (floating player)
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const videoMusicRef = useRef(null);
 
   // Effect options
   const TEXT_ANIMATIONS = [
@@ -497,7 +502,19 @@ const MessagePreviewOverlay = ({
     
     // Close overlay
     setShowMusicOverlay(false);
+    
+    // Stop music if playing
+    setIsMusicPlaying(false);
   }, [onChangeBgMusic]);
+  
+  /**
+   * Handle floating music button (play/pause)
+   */
+  const handleToggleMusic = useCallback(() => {
+    HapticService.light();
+    setIsMusicPlaying(!isMusicPlaying);
+    console.log('🎵 [MessagePreviewOverlay] Toggle music:', !isMusicPlaying);
+  }, [isMusicPlaying]);
   
   /**
    * Get current selection options based on type
@@ -598,6 +615,28 @@ const MessagePreviewOverlay = ({
             )}
           </TouchableOpacity>
         </View>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* 🎵 Floating Music Button (좌측 상단) */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {bgMusic && bgMusic !== 'none' && bgMusicUrl && (
+          <TouchableOpacity
+            onPress={handleToggleMusic}
+            style={[
+              styles.floatingMusicButton,
+              { 
+                backgroundColor: theme.mainColor,
+                top: insets.top + verticalScale(70),
+              }
+            ]}
+          >
+            <Icon 
+              name={isMusicPlaying ? 'pause' : 'play'} 
+              size={scale(20)} 
+              color="#fff" 
+            />
+          </TouchableOpacity>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* Main Content: Message with Gradient Overlay */}
@@ -734,6 +773,29 @@ const MessagePreviewOverlay = ({
             </Animated.View>
           </>
         )}
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* 🎵 Hidden Audio Player (react-native-video) */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {bgMusic && bgMusic !== 'none' && bgMusicUrl && (
+          <Video
+            ref={videoMusicRef}
+            source={{ uri: bgMusicUrl }}
+            audioOnly={true}
+            paused={!isMusicPlaying}
+            repeat={true}
+            volume={1.0}
+            onEnd={() => {
+              console.log('🎵 [MessagePreviewOverlay] Music ended');
+              setIsMusicPlaying(false);
+            }}
+            onError={(error) => {
+              console.error('❌ [MessagePreviewOverlay] Music error:', error);
+              setIsMusicPlaying(false);
+            }}
+            style={{ width: 0, height: 0 }}
+          />
+        )}
       </View>
     </Modal>
 
@@ -781,6 +843,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
+  },
+  floatingMusicButton: {
+    position: 'absolute',
+    left: platformPadding(20),
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 101,
   },
   contentWrapper: {
     position: 'absolute',

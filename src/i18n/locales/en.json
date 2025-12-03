@@ -1732,12 +1732,14 @@
     "search_placeholder": "Search music by title, tag...",
     "loading": "Loading music...",
     "no_music": "No music available",
+    "no_music_option": "🚫 No Music",
     "default": "Default",
     "no_tag": "No tag",
     "type": {
       "all": "All",
       "instrumental": "Instrumental",
-      "vocal": "Vocal"
+      "vocal": "Vocal",
+      "none": "No Music"
     },
     "sort": {
       "newest": "Newest",

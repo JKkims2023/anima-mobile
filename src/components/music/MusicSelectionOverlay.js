@@ -59,7 +59,19 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
       });
 
       if (result.success) {
-        setMusicList(result.data.music_list || []);
+        // Add "No Music" option at the top
+        const noMusicOption = {
+          music_key: 'none',
+          music_title: t('music.no_music_option', '🚫 음원 없음'),
+          music_type: 'none',
+          music_url: null,
+          tag: 'no music',
+          is_default: 'Y',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        
+        setMusicList([noMusicOption, ...(result.data.music_list || [])]);
       } else {
         console.error('❌ [MusicSelectionOverlay] Failed to fetch music:', result.errorCode);
         setMusicList([]);
@@ -70,7 +82,7 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
     } finally {
       setLoading(false);
     }
-  }, [user, searchKeyword, musicType, sortBy]);
+  }, [user, searchKeyword, musicType, sortBy, t]);
 
   // Fetch on mount and when filters change
   useEffect(() => {
@@ -157,11 +169,13 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
 
   // Get music type icon
   const getMusicTypeIcon = (type) => {
+    if (type === 'none') return '🚫';
     return type === 'vocal' ? '🎤' : '🎵';
   };
 
   // Get music type label
   const getMusicTypeLabel = (type) => {
+    if (type === 'none') return t('music.type.none', '음원 없음');
     return type === 'vocal' 
       ? t('music.type.vocal', '보컬')
       : t('music.type.instrumental', '순수음원');
@@ -172,6 +186,7 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
     const isSelected = selectedMusicKey === music.music_key;
     const isPlaying = playingMusicKey === music.music_key;
     const isDefault = music.is_default === 'Y';
+    const isNone = music.music_key === 'none';
 
     return (
       <TouchableOpacity
@@ -183,7 +198,12 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
           },
           isSelected && styles.musicCardSelected,
         ]}
-        onPress={() => handleSelectMusic(music)}
+        onPress={() => {
+          // Row 클릭 → 재생만 (음원 없음은 재생 불가)
+          if (!isNone) {
+            handlePlayMusic(music);
+          }
+        }}
         activeOpacity={0.7}
       >
         {/* Left: Type Icon */}
@@ -199,7 +219,7 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
             <CustomText type="bodyBold" style={{ color: theme.textPrimary }} numberOfLines={1}>
               {music.music_title}
             </CustomText>
-            {isDefault && (
+            {isDefault && !isNone && (
               <View style={[styles.defaultBadge, { backgroundColor: theme.mainColor }]}>
                 <CustomText type="tiny" style={{ color: '#fff' }}>
                   {t('music.default', '기본')}
@@ -210,41 +230,50 @@ const MusicSelectionOverlay = ({ visible, onClose, onSelect, selectedMusicKey })
           <CustomText type="small" style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}>
             {getMusicTypeLabel(music.music_type)} • {music.tag || t('music.no_tag', '태그 없음')}
           </CustomText>
-          <CustomText type="tiny" style={{ color: theme.textTertiary, marginTop: verticalScale(4) }}>
-            {new Date(music.created_at).toLocaleDateString('ko-KR', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            })}
-          </CustomText>
+          {!isNone && (
+            <CustomText type="tiny" style={{ color: theme.textTertiary, marginTop: verticalScale(4) }}>
+              {new Date(music.created_at).toLocaleDateString('ko-KR', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              })}
+            </CustomText>
+          )}
         </View>
 
         {/* Right: Play + Select Buttons */}
         <View style={styles.musicActions}>
-          {/* Play Button */}
+          {/* Play Button (음원 없음은 숨김) */}
+          {!isNone && (
+            <TouchableOpacity
+              style={[styles.playButton, { backgroundColor: theme.mainColor }]}
+              onPress={(e) => {
+                e.stopPropagation();
+                handlePlayMusic(music);
+              }}
+            >
+              <Icon 
+                name={isPlaying ? 'stop' : 'play'} 
+                size={scale(16)} 
+                color="#fff" 
+              />
+            </TouchableOpacity>
+          )}
+
+          {/* Select Button (항상 표시) */}
           <TouchableOpacity
-            style={[styles.playButton, { backgroundColor: theme.mainColor }]}
             onPress={(e) => {
               e.stopPropagation();
-              handlePlayMusic(music);
+              handleSelectMusic(music);
             }}
+            style={{ marginLeft: isNone ? 0 : scale(8) }}
           >
             <Icon 
-              name={isPlaying ? 'stop' : 'play'} 
-              size={scale(16)} 
-              color="#fff" 
+              name={isSelected ? 'check-circle' : 'checkbox-blank-circle-outline'} 
+              size={scale(28)} 
+              color={isSelected ? theme.mainColor : theme.textTertiary} 
             />
           </TouchableOpacity>
-
-          {/* Select Check */}
-          {isSelected && (
-            <Icon 
-              name="check-circle" 
-              size={scale(24)} 
-              color={theme.mainColor} 
-              style={{ marginLeft: scale(8) }}
-            />
-          )}
         </View>
       </TouchableOpacity>
     );
