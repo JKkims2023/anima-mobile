@@ -23,13 +23,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Video from 'react-native-video';
-import SafeScreen from '../components/SafeScreen';
 import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
+import SafeScreen from '../components/SafeScreen';
 import MessageHistoryCard from '../components/message/MessageHistoryCard';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
@@ -47,7 +45,6 @@ const HistoryScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
-  const insets = useSafeAreaInsets();
 
   // ✅ FlatList ref
   const flatListRef = useRef(null);
@@ -56,11 +53,8 @@ const HistoryScreen = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [allViewed, setAllViewed] = useState(false);
   const [isScreenFocused, setIsScreenFocused] = useState(false);
-
-  // ✅ Music playback state
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [currentMusicUrl, setCurrentMusicUrl] = useState(null);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Screen Focus (for video playback)
@@ -96,38 +90,6 @@ const HistoryScreen = () => {
   }, [isAuthenticated, user?.user_key]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Auto-play music for current card
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  useEffect(() => {
-    if (messages.length > 0 && currentIndex < messages.length) {
-      const currentMessage = messages[currentIndex];
-      const musicUrl = currentMessage?.bg_music_url;
-
-      if (__DEV__) {
-        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-        console.log('[HistoryScreen] Current message index:', currentIndex);
-        console.log('[HistoryScreen] Current message:', currentMessage?.message_title);
-        console.log('[HistoryScreen] Music URL:', musicUrl);
-        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-      }
-      
-      // ✅ 음악 URL이 있으면 설정
-      if (musicUrl && musicUrl !== 'none' && musicUrl !== null) {
-        setCurrentMusicUrl(musicUrl);
-        setIsMusicPlaying(true);
-      } else {
-        // ✅ 음악이 없으면 정리
-        setCurrentMusicUrl(null);
-        setIsMusicPlaying(false);
-      }
-    } else {
-      // ✅ 범위 밖이면 음악 정지
-      setCurrentMusicUrl(null);
-      setIsMusicPlaying(false);
-    }
-  }, [currentIndex, messages]);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const loadMessages = async () => {
@@ -149,6 +111,7 @@ const HistoryScreen = () => {
         }
         setMessages(result.data);
         setCurrentIndex(0);
+        setAllViewed(false);
       } else {
         console.error('[HistoryScreen] Failed to load messages:', result.errorCode);
         setMessages([]);
@@ -166,7 +129,7 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleMomentumScrollEnd = useCallback((event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / availableHeight); // ✅ availableHeight 사용
+    const index = Math.round(offsetY / SCREEN_HEIGHT);
 
     if (index !== currentIndex) {
       if (__DEV__) {
@@ -178,58 +141,60 @@ const HistoryScreen = () => {
       HapticService.selection();
       setCurrentIndex(index);
 
+      // Check if all viewed
+      if (index >= messages.length - 1) {
+        if (__DEV__) {
+          console.log('[HistoryScreen] All messages viewed!');
+        }
+        setAllViewed(true);
+      }
+
       if (__DEV__) {
         console.log('[HistoryScreen] New index:', index);
         console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
       }
     }
-  }, [currentIndex, availableHeight]);
+  }, [currentIndex, messages.length]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Toggle music playback
+  // Reset to first message
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleToggleMusic = () => {
+  const handleReset = () => {
     if (__DEV__) {
-      console.log('[HistoryScreen] Toggle music:', !isMusicPlaying);
+      console.log('[HistoryScreen] Resetting to first message...');
     }
     
-    HapticService.light();
-    setIsMusicPlaying(!isMusicPlaying);
-  };
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Available height for FlatList (헤더 제외)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const [availableHeight, setAvailableHeight] = useState(SCREEN_HEIGHT);
-  
-  const handleContainerLayout = useCallback((event) => {
-    const { height } = event.nativeEvent.layout;
-    if (__DEV__) {
-      console.log('[HistoryScreen] 📐 Container height:', height);
+    HapticService.success();
+    setCurrentIndex(0);
+    setAllViewed(false);
+    
+    if (flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: 0,
+        animated: true,
+      });
     }
-    setAvailableHeight(height);
-  }, []);
+  };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render each message card
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderMessage = useCallback(({ item, index }) => {
-    // ✅ 현재 보이는 카드만 isActive
     const isActive = index === currentIndex && isScreenFocused;
 
     if (__DEV__) {
-      console.log('[HistoryScreen] 🎴 Rendering message at index:', index, 'Current:', currentIndex, 'IsActive:', isActive);
+      console.log('[HistoryScreen] Rendering message at index:', index, 'IsActive:', isActive);
     }
 
     return (
-      <View style={[styles.messageItemContainer, { height: availableHeight }]}>
+      <View style={styles.messageItemContainer}>
         <MessageHistoryCard
           message={item}
           isActive={isActive}
         />
       </View>
     );
-  }, [currentIndex, isScreenFocused, availableHeight]);
+  }, [currentIndex, isScreenFocused]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Key extractor
@@ -242,34 +207,7 @@ const HistoryScreen = () => {
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
-    <SafeScreen
-      backgroundColor={currentTheme.backgroundColor}
-      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
-      edges={{ top: true, bottom: false }}
-      keyboardAware={false}
-    >
-      {/* Header with Search Icon */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <CustomText type="big" bold style={styles.headerTitle}>
-            {t('navigation.title.history')}
-          </CustomText>
-          <CustomText type="small" style={styles.headerSubtitle}>
-            {t('navigation.subtitle.history')}
-          </CustomText>
-        </View>
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => {
-            HapticService.light();
-            // TODO: Open search overlay
-          }}
-          activeOpacity={0.7}
-        >
-          <Icon name="search" size={scale(24)} color={currentTheme.mainColor} />
-        </TouchableOpacity>
-      </View>
-
+    <SafeScreen>
       <View style={styles.container}>
         {/* ✅ Loading */}
         {isLoading && (
@@ -303,7 +241,7 @@ const HistoryScreen = () => {
 
         {/* ✅ Message List (FlatList with Vertical Paging) */}
         {!isLoading && messages.length > 0 && (
-          <View style={styles.listContainer} onLayout={handleContainerLayout}>
+          <>
             <FlatList
               ref={flatListRef}
               data={messages}
@@ -321,52 +259,66 @@ const HistoryScreen = () => {
                 
                 // Fallback: scroll to offset
                 flatListRef.current?.scrollToOffset({
-                  offset: info.index * availableHeight,
+                  offset: info.index * SCREEN_HEIGHT,
                   animated: true,
                 });
               }}
               decelerationRate="fast"
               snapToAlignment="start"
-              snapToInterval={availableHeight} // ✅ availableHeight 사용
+              snapToInterval={SCREEN_HEIGHT}
               scrollEventThrottle={16}
-              removeClippedSubviews={false}
-              maxToRenderPerBatch={2}
-              initialNumToRender={2}
-              windowSize={5}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={1}
+              initialNumToRender={1}
+              windowSize={3}
               getItemLayout={(data, index) => ({
-                length: availableHeight, // ✅ availableHeight 사용
-                offset: availableHeight * index,
+                length: SCREEN_HEIGHT,
+                offset: SCREEN_HEIGHT * index,
                 index,
               })}
             />
 
-            {/* ✅ Music Player (Top Left) */}
-            {currentMusicUrl && (
-              <>
-                {/* Hidden Video Component for Audio Playback */}
-                <Video
-                  source={{ uri: currentMusicUrl }}
-                  audioOnly={true}
-                  repeat={true}
-                  paused={!isMusicPlaying}
-                  playInBackground={false}
-                  playWhenInactive={false}
-                  style={styles.hiddenVideo}
+            {/* ✅ Pagination Indicator (Left Side) */}
+            <View style={styles.paginationContainer} pointerEvents="none">
+              {messages.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    {
+                      backgroundColor: index === currentIndex
+                        ? (currentTheme.mainColor || COLORS.MAIN_COLOR)
+                        : (currentTheme.textSecondary || COLORS.TEXT_SECONDARY),
+                    },
+                    index === currentIndex && styles.paginationDotActive,
+                  ]}
                 />
+              ))}
+            </View>
 
-                {/* Floating Music Button */}
-                <TouchableOpacity
-                  style={styles.musicButton}
-                  onPress={handleToggleMusic}
-                  activeOpacity={0.8}
-                >
+            {/* ✅ All Viewed Overlay */}
+            {allViewed && (
+              <View style={styles.allViewedOverlay}>
+                <View style={styles.allViewedCard}>
                   <Icon
-                    name={isMusicPlaying ? 'musical-notes' : 'musical-notes-outline'}
-                    size={scale(20)}
-                    color={COLORS.TEXT_PRIMARY}
+                    name="checkmark-circle"
+                    size={scale(60)}
+                    color={currentTheme.mainColor || COLORS.MAIN_COLOR}
                   />
-                </TouchableOpacity>
-              </>
+                  <CustomText type="big" bold style={styles.allViewedTitle}>
+                    {t('history.all_swiped_title')}
+                  </CustomText>
+                  <CustomText type="normal" style={styles.allViewedSubtitle}>
+                    {t('history.all_swiped_subtitle')}
+                  </CustomText>
+                  <CustomButton
+                    text={t('history.reset_button')}
+                    onPress={handleReset}
+                    style={styles.resetButton}
+                    leftIcon={<Icon name="refresh" size={scale(20)} color="#FFFFFF" />}
+                  />
+                </View>
+              </View>
             )}
           </>
         )}
@@ -376,39 +328,9 @@ const HistoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Header
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
-    paddingHorizontal: platformPadding(20),
-    backgroundColor: COLORS.BG_PRIMARY,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
-  },
-  headerSubtitle: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-  searchButton: {
-    marginLeft: platformPadding(12),
-    padding: platformPadding(8),
-  },
-
   container: {
     flex: 1,
-    backgroundColor: '#000', // ✅ 완전한 검은색 (화이트 제거)
-  },
-  listContainer: {
-    flex: 1, // ✅ 남은 공간 차지
+    backgroundColor: COLORS.BG_PRIMARY,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -418,7 +340,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
   },
   loadingText: {
     marginTop: verticalScale(16),
@@ -433,7 +354,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(40),
-    backgroundColor: '#000',
   },
   emptyTitle: {
     marginTop: verticalScale(20),
@@ -451,30 +371,72 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   messageItemContainer: {
     width: SCREEN_WIDTH,
-    // height는 renderMessage에서 동적으로 설정
+    height: SCREEN_HEIGHT,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Music Player (Top Left)
+  // Pagination Indicator
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  hiddenVideo: {
-    width: 0,
-    height: 0,
+  paginationContainer: {
     position: 'absolute',
-  },
-  musicButton: {
-    position: 'absolute',
-    top: platformPadding(16), // ✅ 헤더 바로 아래 (SafeScreen이 top safe area 처리)
-    left: scale(16),
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    left: scale(10),
+    top: '10%',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(6),
+    borderRadius: scale(16),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    zIndex: 100,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  paginationDot: {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
+    marginVertical: verticalScale(4),
+    opacity: 0.5,
+  },
+  paginationDotActive: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6),
+    opacity: 1,
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // All Viewed Overlay
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  allViewedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  allViewedCard: {
+    backgroundColor: COLORS.BG_SECONDARY,
+    borderRadius: scale(20),
+    padding: scale(30),
+    alignItems: 'center',
+    marginHorizontal: scale(40),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  allViewedTitle: {
+    marginTop: verticalScale(16),
+    color: COLORS.TEXT_PRIMARY,
+    textAlign: 'center',
+  },
+  allViewedSubtitle: {
+    marginTop: verticalScale(8),
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+  },
+  resetButton: {
+    marginTop: verticalScale(20),
+    minWidth: scale(160),
   },
 });
 
