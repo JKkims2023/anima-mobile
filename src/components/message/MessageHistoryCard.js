@@ -31,6 +31,7 @@ const MessageHistoryCard = memo(({
   message,
   isActive = false, // Is this card currently visible?
   onPress,
+  availableHeight = SCREEN_HEIGHT, // Available height (excluding header, tabbar, etc.)
 }) => {
   // ✅ Extract message data
   const {
@@ -64,7 +65,7 @@ const MessageHistoryCard = memo(({
   });
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { height: availableHeight }]}>
       {/* Background: Persona Image/Video */}
       <View style={styles.backgroundContainer}>
         <PersonaBackgroundView
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   // ✅ Full screen card (전체 화면 채우기)
   card: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    // height는 props로 전달됨 (availableHeight)
     overflow: 'hidden',
     backgroundColor: COLORS.BG_PRIMARY,
   },

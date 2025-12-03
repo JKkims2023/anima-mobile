@@ -23,6 +23,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
@@ -46,6 +47,7 @@ const HistoryScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
+  const insets = useSafeAreaInsets();
 
   // ✅ FlatList ref
   const flatListRef = useRef(null);
@@ -60,6 +62,25 @@ const HistoryScreen = () => {
   // ✅ Music playback state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [currentMusicUrl, setCurrentMusicUrl] = useState(null);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Calculate available height for cards
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const HEADER_HEIGHT = verticalScale(80); // 헤더 높이 (타이틀 + 서브타이틀 + 패딩)
+  const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
+  
+  const availableHeight = SCREEN_HEIGHT - insets.top - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
+  
+  if (__DEV__) {
+    console.log('[HistoryScreen] Height calculation:', {
+      SCREEN_HEIGHT,
+      'insets.top': insets.top,
+      HEADER_HEIGHT,
+      'insets.bottom': insets.bottom,
+      TAB_BAR_HEIGHT,
+      availableHeight,
+    });
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Screen Focus (for video playback)
@@ -156,7 +177,7 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleMomentumScrollEnd = useCallback((event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / SCREEN_HEIGHT);
+    const index = Math.round(offsetY / availableHeight);
 
     if (index !== currentIndex) {
       if (__DEV__) {
@@ -173,7 +194,7 @@ const HistoryScreen = () => {
         console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
       }
     }
-  }, [currentIndex]);
+  }, [currentIndex, availableHeight]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Toggle music playback
@@ -198,14 +219,15 @@ const HistoryScreen = () => {
     }
 
     return (
-      <View style={styles.messageItemContainer}>
+      <View style={[styles.messageItemContainer, { height: availableHeight }]}>
         <MessageHistoryCard
           message={item}
           isActive={isActive}
+          availableHeight={availableHeight}
         />
       </View>
     );
-  }, [currentIndex, isScreenFocused]);
+  }, [currentIndex, isScreenFocused, availableHeight]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Key extractor
@@ -299,21 +321,21 @@ const HistoryScreen = () => {
                 
                 // Fallback: scroll to offset
                 flatListRef.current?.scrollToOffset({
-                  offset: info.index * SCREEN_HEIGHT,
+                  offset: info.index * availableHeight,
                   animated: true,
                 });
               }}
               decelerationRate="fast"
               snapToAlignment="start"
-              snapToInterval={SCREEN_HEIGHT}
+              snapToInterval={availableHeight}
               scrollEventThrottle={16}
               removeClippedSubviews={true}
               maxToRenderPerBatch={1}
               initialNumToRender={1}
               windowSize={3}
               getItemLayout={(data, index) => ({
-                length: SCREEN_HEIGHT,
-                offset: SCREEN_HEIGHT * index,
+                length: availableHeight,
+                offset: availableHeight * index,
                 index,
               })}
             />
@@ -432,7 +454,7 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   messageItemContainer: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    // height는 renderMessage에서 동적으로 설정됨 (availableHeight)
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
