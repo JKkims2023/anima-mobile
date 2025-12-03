@@ -80,6 +80,7 @@ const PersonaStudioScreen = () => {
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
   const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ NEW: Search overlay state
+  const swiperRef = useRef(null); // ⭐ NEW: Ref for PersonaSwipeViewer
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   
@@ -680,6 +681,7 @@ const PersonaStudioScreen = () => {
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.baseLayer}>
           <PersonaSwipeViewer 
+            ref={swiperRef}
             key={`persona-swipe-${isScreenFocused}`}
             personas={personasWithDefaults}
             isModeActive={true}

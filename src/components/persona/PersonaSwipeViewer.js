@@ -17,7 +17,7 @@
  * @date 2024-11-22
  */
 
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   FlatList,
@@ -45,7 +45,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
  * @param {boolean} props.enabled - Whether swipe gestures are enabled (default: true)
  */
-const PersonaSwipeViewer = ({ 
+const PersonaSwipeViewer = forwardRef(({ 
   personas, 
   isModeActive = true, 
   isScreenFocused = true,
@@ -55,13 +55,24 @@ const PersonaSwipeViewer = ({
   onChatWithPersona,
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
-}) => {
+}, ref) => {
   const { currentTheme } = useTheme();
   
   const flatListRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
+  
+  // ⭐ Expose scrollToIndex method to parent
+  useImperativeHandle(ref, () => ({
+    scrollToIndex: ({ index, animated = true }) => {
+      if (flatListRef.current && index >= 0 && index < personas.length) {
+        flatListRef.current.scrollToIndex({ index, animated });
+        setSelectedIndex(index);
+        lastScrolledIndex.current = index;
+      }
+    },
+  }));
   
   // ⭐ DEBUG: Log enabled prop changes
   useEffect(() => {
@@ -233,7 +244,7 @@ const PersonaSwipeViewer = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
