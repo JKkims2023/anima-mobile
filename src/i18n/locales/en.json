@@ -1726,6 +1726,23 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "days_ago": "{{count}} days ago"
+  },
+  "music": {
+    "select_title": "Select Music",
+    "search_placeholder": "Search music by title, tag...",
+    "loading": "Loading music...",
+    "no_music": "No music available",
+    "default": "Default",
+    "no_tag": "No tag",
+    "type": {
+      "all": "All",
+      "instrumental": "Instrumental",
+      "vocal": "Vocal"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest"
+    }
   }
 }
 

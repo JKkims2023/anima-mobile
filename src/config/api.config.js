@@ -175,6 +175,16 @@ export const MESSAGE_ENDPOINTS = {
 };
 
 /**
+ * Music Endpoints
+ */
+export const MUSIC_ENDPOINTS = {
+  LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/list',
+  CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/create',
+  POLL: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/poll',
+  DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/delete',
+};
+
+/**
  * Health Check
  */
 export const HEALTH_ENDPOINT = '/api/health';
@@ -225,6 +235,7 @@ export default {
   PAYMENT_ENDPOINTS,
   STUDY_ENDPOINTS,
   MESSAGE_ENDPOINTS,
+  MUSIC_ENDPOINTS,
   HEALTH_ENDPOINT,
 };
 

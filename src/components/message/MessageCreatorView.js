@@ -117,6 +117,13 @@ const MessageCreatorView = ({
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState(null);
   
+  // Handle music selection (receives music_key and music_url)
+  const handleMusicSelect = useCallback((music_key, music_url) => {
+    console.log('🎵 [MessageCreatorView] Music selected:', { music_key, music_url });
+    setBgMusic(music_key);
+    setBgMusicUrl(music_url);
+  }, []);
+  
   // ⭐ NEW: Auto-fill from selected message (from search)
   useEffect(() => {
     if (selectedMessage) {
@@ -465,7 +472,7 @@ const MessageCreatorView = ({
         onGenerateURL={handleGenerateURL}
         onChangeTextAnimation={setTextAnimation}
         onChangeParticleEffect={setParticleEffect}
-        onChangeBgMusic={setBgMusic}
+        onChangeBgMusic={handleMusicSelect}
         isCreating={isCreating}
       />
 

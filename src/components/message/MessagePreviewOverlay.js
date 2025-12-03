@@ -34,6 +34,7 @@ import PersonaBackgroundView from './PersonaBackgroundView';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
 import ParticleEffect from '../particle/ParticleEffect';
+import MusicSelectionOverlay from '../music/MusicSelectionOverlay';
 // CustomBottomSheet removed - use inline selection panel instead
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -70,6 +71,10 @@ const MessagePreviewOverlay = ({
   const [selectionType, setSelectionType] = useState(null); // 'text' | 'particle' | 'music'
   const panelOpacity = useSharedValue(0);
   const panelTranslateY = useSharedValue(300);
+  
+  // Music selection overlay state
+  const [showMusicOverlay, setShowMusicOverlay] = useState(false);
+  const [selectedMusicData, setSelectedMusicData] = useState(null);
 
   // Effect options
   const TEXT_ANIMATIONS = [
@@ -452,8 +457,9 @@ const MessagePreviewOverlay = ({
   }, [openSelectionPanel]);
 
   const handleBgMusicChipPress = useCallback(() => {
-    openSelectionPanel('music');
-  }, [openSelectionPanel]);
+    HapticService.light();
+    setShowMusicOverlay(true);
+  }, []);
 
   /**
    * Effect Selection Handlers
@@ -475,6 +481,23 @@ const MessagePreviewOverlay = ({
     onChangeBgMusic && onChangeBgMusic(musicId);
     closeSelectionPanel();
   }, [onChangeBgMusic, closeSelectionPanel]);
+  
+  /**
+   * Handle music selection from MusicSelectionOverlay
+   */
+  const handleMusicSelect = useCallback((music) => {
+    console.log('🎵 [MessagePreviewOverlay] Music selected:', music);
+    HapticService.success();
+    
+    // Store selected music data
+    setSelectedMusicData(music);
+    
+    // Update parent with music_key and music_url
+    onChangeBgMusic && onChangeBgMusic(music.music_key, music.music_url);
+    
+    // Close overlay
+    setShowMusicOverlay(false);
+  }, [onChangeBgMusic]);
   
   /**
    * Get current selection options based on type
@@ -530,6 +553,7 @@ const MessagePreviewOverlay = ({
   }
 
   return (
+    <>
     <Modal
       visible={visible}
       animationType="fade"
@@ -711,6 +735,17 @@ const MessagePreviewOverlay = ({
         )}
       </View>
     </Modal>
+
+    {/* Music Selection Overlay */}
+    {showMusicOverlay && (
+      <MusicSelectionOverlay
+        visible={showMusicOverlay}
+        onClose={() => setShowMusicOverlay(false)}
+        onSelect={handleMusicSelect}
+        selectedMusicKey={selectedMusicData?.music_key || null}
+      />
+    )}
+    </>
   );
 };
 

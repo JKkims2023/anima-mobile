@@ -1674,5 +1674,22 @@
   },
   "dummy": {
     "message": "작성하기"
+  },
+  "music": {
+    "select_title": "음원 선택",
+    "search_placeholder": "음원 제목, 태그 검색...",
+    "loading": "음원 불러오는 중...",
+    "no_music": "음원이 없습니다",
+    "default": "기본",
+    "no_tag": "태그 없음",
+    "type": {
+      "all": "전체",
+      "instrumental": "순수음원",
+      "vocal": "보컬"
+    },
+    "sort": {
+      "newest": "최신순",
+      "oldest": "오래된순"
+    }
   }
 }
