@@ -1617,7 +1617,13 @@
     },
     "history": {
       "title": "Recent Messages",
+      "loading": "Loading messages...",
       "empty": "No messages created yet",
+      "empty_title": "No messages created yet",
+      "empty_subtitle": "Create your first message on the Home screen! 💌",
+      "all_swiped_title": "All messages viewed!",
+      "all_swiped_subtitle": "Wait for new messages or restart.",
+      "reset_button": "Start Over",
       "reuse": "Reuse",
       "share": "Share",
       "delete": "Delete",

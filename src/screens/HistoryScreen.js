@@ -1,26 +1,32 @@
 /**
- * 📜 HistoryScreen - Message History with Tinder Card Swipe
+ * 📜 HistoryScreen - Message History (PersonaSwipeViewer Style)
  * 
  * Features:
- * - Tinder card style message browsing
- * - 4-direction swipe (left/right: next, up: favorite, down: unfavorite)
- * - Swipe back to previous card
+ * - Vertical swipe message browsing (TikTok/YouTube Shorts style)
+ * - FlatList with pagingEnabled (안정적)
  * - Auto play background music for current card
- * - Search messages
- * - Delete, Share, Copy actions
+ * - All viewed state with reset button
+ * - ⭐ 좌우 스와이프 기능은 Phase 3에서 추가 예정
  * 
- * Design: Tinder Card Stack with Native Message Display
+ * Design: Vertical swipe with Native Message Display
  * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import Swiper from 'react-native-deck-swiper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Video from 'react-native-video';
 import CustomText from '../components/CustomText';
+import CustomButton from '../components/CustomButton';
 import SafeScreen from '../components/SafeScreen';
 import MessageHistoryCard from '../components/message/MessageHistoryCard';
 import { useTheme } from '../contexts/ThemeContext';
@@ -30,6 +36,8 @@ import HapticService from '../utils/HapticService';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 /**
  * HistoryScreen Component
  */
@@ -38,60 +46,72 @@ const HistoryScreen = () => {
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
 
-  // ✅ Swiper ref
-  const swiperRef = useRef(null);
-  const musicPlayerRef = useRef(null);
+  // ✅ FlatList ref
+  const flatListRef = useRef(null);
 
   // ✅ Messages state
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allSwiped, setAllSwiped] = useState(false);
+  const [allViewed, setAllViewed] = useState(false);
+  const [isScreenFocused, setIsScreenFocused] = useState(false);
 
-  // ✅ Music playback state
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [currentMusicUrl, setCurrentMusicUrl] = useState(null);
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Screen Focus (for video playback)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useFocusEffect(
+    useCallback(() => {
+      if (__DEV__) {
+        console.log('[HistoryScreen] 🎯 Screen FOCUSED');
+      }
+      setIsScreenFocused(true);
+      
+      return () => {
+        if (__DEV__) {
+          console.log('[HistoryScreen] 🎯 Screen BLURRED');
+        }
+        setIsScreenFocused(false);
+      };
+    }, [])
+  );
 
-  // ✅ Load messages on mount
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Load messages on mount
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-
-    console.log('[HistoryScreen] isAuthenticated:', isAuthenticated);
-    console.log('[HistoryScreen] user:', user);
+    if (__DEV__) {
+      console.log('[HistoryScreen] isAuthenticated:', isAuthenticated);
+      console.log('[HistoryScreen] user:', user);
+    }
+    
     if (isAuthenticated && user?.user_key) {
       loadMessages();
     }
   }, [isAuthenticated, user?.user_key]);
 
-  // ✅ Auto-play music for current card
-  useEffect(() => {
-    if (messages.length > 0 && currentIndex < messages.length) {
-      const currentMessage = messages[currentIndex];
-      const musicUrl = currentMessage?.bg_music_url;
-      
-      if (musicUrl && musicUrl !== currentMusicUrl) {
-        setCurrentMusicUrl(musicUrl);
-        setIsMusicPlaying(true);
-      } else if (!musicUrl) {
-        setCurrentMusicUrl(null);
-        setIsMusicPlaying(false);
-      }
-    }
-  }, [currentIndex, messages]);
-
-  // ✅ Load messages from API
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Load messages from API
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const loadMessages = async () => {
     setIsLoading(true);
     try {
-      console.log('[HistoryScreen] Loading messages for user:', user?.user_key);
+      if (__DEV__) {
+        console.log('[HistoryScreen] Loading messages for user:', user?.user_key);
+      }
+      
       const result = await listMessages(user.user_key);
 
-      console.log('[HistoryScreen] loadMessages result:', result);
+      if (__DEV__) {
+        console.log('[HistoryScreen] loadMessages result:', result);
+      }
 
       if (result.success && result?.data) {
-        console.log('[HistoryScreen] Loaded messages:', result.data.length);
+        if (__DEV__) {
+          console.log('[HistoryScreen] Loaded messages:', result.data.length);
+        }
         setMessages(result.data);
         setCurrentIndex(0);
-        setAllSwiped(false);
+        setAllViewed(false);
       } else {
         console.error('[HistoryScreen] Failed to load messages:', result.errorCode);
         setMessages([]);
@@ -104,253 +124,203 @@ const HistoryScreen = () => {
     }
   };
 
-  // ✅ Handle swipe (any direction)
-  const handleSwiped = (cardIndex) => {
-    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[HistoryScreen] Swiped card:', cardIndex);
-    console.log('[HistoryScreen] Current index before:', currentIndex);
-    
-    HapticService.medium();
-    
-    // Update current index
-    const newIndex = cardIndex + 1;
-    console.log('[HistoryScreen] New index:', newIndex);
-    setCurrentIndex(newIndex);
-    
-    // Check if all cards swiped
-    if (cardIndex >= messages.length - 1) {
-      console.log('[HistoryScreen] All cards swiped!');
-      setAllSwiped(true);
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle vertical swipe (change message)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleMomentumScrollEnd = useCallback((event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / SCREEN_HEIGHT);
+
+    if (index !== currentIndex) {
+      if (__DEV__) {
+        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
+        console.log('[HistoryScreen] Swiped to message:', index);
+        console.log('[HistoryScreen] Current index before:', currentIndex);
+      }
+
+      HapticService.selection();
+      setCurrentIndex(index);
+
+      // Check if all viewed
+      if (index >= messages.length - 1) {
+        if (__DEV__) {
+          console.log('[HistoryScreen] All messages viewed!');
+        }
+        setAllViewed(true);
+      }
+
+      if (__DEV__) {
+        console.log('[HistoryScreen] New index:', index);
+        console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
+      }
     }
-    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-  };
+  }, [currentIndex, messages.length]);
 
-  // ✅ Handle card tap
-  const handleCardPress = (cardIndex) => {
-    console.log('[HistoryScreen] Card tapped:', cardIndex);
-    HapticService.light();
-  };
-
-  // ✅ Reset swiper (완전 재구성)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Reset to first message
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleReset = () => {
-    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[HistoryScreen] Resetting swiper...');
+    if (__DEV__) {
+      console.log('[HistoryScreen] Resetting to first message...');
+    }
+    
     HapticService.success();
-    
-    // ✅ Force re-render by creating new message array
-    const resetMessages = [...messages];
-    setMessages([]);
     setCurrentIndex(0);
-    setAllSwiped(false);
+    setAllViewed(false);
     
-    // ✅ Re-mount swiper with messages
-    setTimeout(() => {
-      setMessages(resetMessages);
-      console.log('[HistoryScreen] Swiper reset complete!');
-    }, 100);
-    console.log('[HistoryScreen] ━━━━━━━━━━━━━━━━━━━━━');
-  };
-
-  // ✅ Handle swipe back
-  const handleSwipeBack = () => {
-    console.log('[HistoryScreen] Swipe back...');
-    HapticService.medium();
-    
-    if (swiperRef.current && currentIndex > 0) {
-      swiperRef.current.swipeBack();
-      // ✅ 인덱스는 onSwiped에서 자동 관리되므로 여기서는 처리 안함
+    if (flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: 0,
+        animated: true,
+      });
     }
   };
 
-  // ✅ Render loading state
-  if (isLoading) {
-    return (
-      <SafeScreen
-        backgroundColor={currentTheme.backgroundColor}
-        statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
-        edges={{ top: true, bottom: false }}
-        keyboardAware={false}
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <CustomText type="big" bold style={styles.headerTitle}>
-              {t('navigation.history')}
-            </CustomText>
-          </View>
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-            <CustomText type="small" style={styles.loadingText}>
-              메시지를 불러오는 중...
-            </CustomText>
-          </View>
-        </View>
-      </SafeScreen>
-    );
-  }
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render each message card
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderMessage = useCallback(({ item, index }) => {
+    const isActive = index === currentIndex && isScreenFocused;
 
-  // ✅ Render empty state
-  if (!isLoading && messages.length === 0) {
-    return (
-      <SafeScreen
-        backgroundColor={currentTheme.backgroundColor}
-        statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
-        edges={{ top: true, bottom: false }}
-        keyboardAware={false}
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <CustomText type="big" bold style={styles.headerTitle}>
-              {t('navigation.history')}
-            </CustomText>
-          </View>
-          <View style={styles.emptyContainer}>
-            <Icon name="file-tray-outline" size={scale(80)} color={COLORS.TEXT_SECONDARY} />
-            <CustomText type="normal" style={styles.emptyText}>
-              아직 생성한 메시지가 없습니다
-            </CustomText>
-            <CustomText type="small" style={styles.emptySubtext}>
-              홈 화면에서 첫 메시지를 만들어보세요! 💌
-            </CustomText>
-          </View>
-        </View>
-      </SafeScreen>
-    );
-  }
+    if (__DEV__) {
+      console.log('[HistoryScreen] Rendering message at index:', index, 'IsActive:', isActive);
+    }
 
+    return (
+      <View style={styles.messageItemContainer}>
+        <MessageHistoryCard
+          message={item}
+          isActive={isActive}
+        />
+      </View>
+    );
+  }, [currentIndex, isScreenFocused]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Key extractor
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const keyExtractor = useCallback((item, index) => {
+    return item.message_key || `message-${index}`;
+  }, []);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
-    <SafeScreen
-      backgroundColor={currentTheme.backgroundColor}
-      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
-      edges={{ top: true, bottom: false }}
-      keyboardAware={false}
-    >
+    <SafeScreen>
       <View style={styles.container}>
-        {/* Header with Swipe Back Button */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <CustomText type="big" bold style={styles.headerTitle}>
-              {t('navigation.history')}
-            </CustomText>
-            <CustomText type="small" style={styles.headerSubtitle}>
-              {`${currentIndex + 1} / ${messages.length}`}
+        {/* ✅ Loading */}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={currentTheme.mainColor || COLORS.MAIN_COLOR}
+            />
+            <CustomText type="normal" style={styles.loadingText}>
+              {t('history.loading')}
             </CustomText>
           </View>
-          
-          {/* Swipe Back Button */}
-          {currentIndex > 0 && (
-            <TouchableOpacity
-              style={styles.swipeBackButton}
-              onPress={handleSwipeBack}
-              activeOpacity={0.7}
-            >
-              <Icon name="arrow-undo" size={scale(24)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-              <CustomText type="small" style={styles.swipeBackText}>
-                되돌리기
-              </CustomText>
-            </TouchableOpacity>
-          )}
-        </View>
+        )}
 
-        {/* Content - Tinder Card Stack */}
-        <View style={styles.contentContainer}>
-          {allSwiped ? (
-            // All cards swiped - show completion message
-            <View style={styles.completionContainer}>
-              <Icon name="checkmark-circle" size={scale(80)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-              <CustomText type="big" bold style={styles.completionText}>
-                모두 확인하셨습니다! 🎉
-              </CustomText>
-              <CustomText type="normal" style={styles.completionSubtext}>
-                {messages.length}개의 메시지를 모두 보셨습니다
-              </CustomText>
-              <TouchableOpacity
-                style={[styles.resetButton, { backgroundColor: currentTheme.mainColor || COLORS.MAIN_COLOR }]}
-                onPress={handleReset}
-                activeOpacity={0.8}
-              >
-                <Icon name="refresh" size={scale(20)} color="#FFFFFF" />
-                <CustomText type="normal" bold style={styles.resetButtonText}>
-                  처음부터 다시 보기
-                </CustomText>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            // Swiper
-            <Swiper
-              ref={swiperRef}
-              cards={messages}
-              renderCard={(card, cardIndex) => {
-                if (!card) {
-                  console.log('[HistoryScreen] Rendering NULL card at index:', cardIndex);
-                  return null;
+        {/* ✅ Empty state */}
+        {!isLoading && messages.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <Icon
+              name="chatbubbles-outline"
+              size={scale(60)}
+              color={currentTheme.textSecondary || COLORS.TEXT_SECONDARY}
+            />
+            <CustomText type="big" bold style={styles.emptyTitle}>
+              {t('history.empty_title')}
+            </CustomText>
+            <CustomText type="normal" style={styles.emptySubtitle}>
+              {t('history.empty_subtitle')}
+            </CustomText>
+          </View>
+        )}
+
+        {/* ✅ Message List (FlatList with Vertical Paging) */}
+        {!isLoading && messages.length > 0 && (
+          <>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={renderMessage}
+              keyExtractor={keyExtractor}
+              vertical
+              pagingEnabled
+              showsVerticalScrollIndicator={false}
+              onMomentumScrollEnd={handleMomentumScrollEnd}
+              onScrollToIndexFailed={(info) => {
+                // Handle scrollToIndex failure
+                if (__DEV__) {
+                  console.warn('[HistoryScreen] ⚠️ scrollToIndex failed:', info);
                 }
                 
-                console.log('[HistoryScreen] Rendering card at index:', cardIndex, 'Current:', currentIndex, 'IsActive:', cardIndex === currentIndex);
-                
-                return (
-                  <MessageHistoryCard
-                    message={card}
-                    isActive={cardIndex === currentIndex}
-                    onPress={() => handleCardPress(cardIndex)}
-                  />
-                );
+                // Fallback: scroll to offset
+                flatListRef.current?.scrollToOffset({
+                  offset: info.index * SCREEN_HEIGHT,
+                  animated: true,
+                });
               }}
-              // ✅ 이벤트 핸들러 (중복 제거)
-              onSwiped={handleSwiped}
-              onSwipedAll={() => {
-                console.log('[HistoryScreen] All cards swiped!');
-                setAllSwiped(true);
-              }}
-              onTapCard={(cardIndex) => handleCardPress(cardIndex)}
-              // ✅ 자유로운 드래그 허용
-              verticalSwipe={true}
-              horizontalSwipe={true}
-              // ✅ 카드 스택 설정 (명확하게 보이도록)
-              stackSize={3}
-              stackScale={8} // 5 → 8 (조금 더 차이 줌)
-              stackSeparation={14} // 12 → 14 (간격 조금 늘림)
-              // ✅ 애니메이션 최적화
-              animateOverlayLabelsOpacity={false}
-              animateCardOpacity={false}
-              // ✅ 무한 스와이프 방지
-              infinite={false}
-              // ✅ 스타일
-              backgroundColor="transparent"
-              containerStyle={styles.swiperContainer}
-              cardStyle={styles.cardStyle}
-              // ✅ 오버레이 라벨 제거
-              overlayLabels={{
-                left: { element: null },
-                right: { element: null },
-                top: { element: null },
-                bottom: { element: null },
-              }}
-              // ✅ 스와이프 제한 제거 (자유도 최대화)
-              disableTopSwipe={false}
-              disableBottomSwipe={false}
-              disableLeftSwipe={false}
-              disableRightSwipe={false}
+              decelerationRate="fast"
+              snapToAlignment="start"
+              snapToInterval={SCREEN_HEIGHT}
+              scrollEventThrottle={16}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={1}
+              initialNumToRender={1}
+              windowSize={3}
+              getItemLayout={(data, index) => ({
+                length: SCREEN_HEIGHT,
+                offset: SCREEN_HEIGHT * index,
+                index,
+              })}
             />
-          )}
-        </View>
 
-        {/* Background Music Player (hidden) */}
-        {currentMusicUrl && (
-          <Video
-            ref={musicPlayerRef}
-            source={{ uri: currentMusicUrl }}
-            audioOnly={true}
-            repeat={true}
-            paused={!isMusicPlaying}
-            playInBackground={false}
-            playWhenInactive={false}
-            volume={1.0}
-            onError={(error) => {
-              console.error('[HistoryScreen] Music playback error:', error);
-              setIsMusicPlaying(false);
-            }}
-            style={{ width: 0, height: 0 }}
-          />
+            {/* ✅ Pagination Indicator (Left Side) */}
+            <View style={styles.paginationContainer} pointerEvents="none">
+              {messages.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    {
+                      backgroundColor: index === currentIndex
+                        ? (currentTheme.mainColor || COLORS.MAIN_COLOR)
+                        : (currentTheme.textSecondary || COLORS.TEXT_SECONDARY),
+                    },
+                    index === currentIndex && styles.paginationDotActive,
+                  ]}
+                />
+              ))}
+            </View>
+
+            {/* ✅ All Viewed Overlay */}
+            {allViewed && (
+              <View style={styles.allViewedOverlay}>
+                <View style={styles.allViewedCard}>
+                  <Icon
+                    name="checkmark-circle"
+                    size={scale(60)}
+                    color={currentTheme.mainColor || COLORS.MAIN_COLOR}
+                  />
+                  <CustomText type="big" bold style={styles.allViewedTitle}>
+                    {t('history.all_swiped_title')}
+                  </CustomText>
+                  <CustomText type="normal" style={styles.allViewedSubtitle}>
+                    {t('history.all_swiped_subtitle')}
+                  </CustomText>
+                  <CustomButton
+                    text={t('history.reset_button')}
+                    onPress={handleReset}
+                    style={styles.resetButton}
+                    leftIcon={<Icon name="refresh" size={scale(20)} color="#FFFFFF" />}
+                  />
+                </View>
+              </View>
+            )}
+          </>
         )}
       </View>
     </SafeScreen>
@@ -360,49 +330,7 @@ const HistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: platformPadding(20),
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Header
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
-  },
-  headerSubtitle: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-  swipeBackButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: scale(12),
-    paddingVertical: verticalScale(8),
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: scale(12),
-  },
-  swipeBackText: {
-    color: COLORS.TEXT_PRIMARY,
-    marginLeft: scale(4),
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Content
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: COLORS.BG_PRIMARY,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -414,8 +342,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: COLORS.TEXT_SECONDARY,
     marginTop: verticalScale(16),
+    color: COLORS.TEXT_SECONDARY,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -425,65 +353,91 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: platformPadding(40),
+    paddingHorizontal: scale(40),
   },
-  emptyText: {
-    color: COLORS.TEXT_PRIMARY,
+  emptyTitle: {
     marginTop: verticalScale(20),
+    color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
   },
-  emptySubtext: {
-    color: COLORS.TEXT_SECONDARY,
+  emptySubtitle: {
     marginTop: verticalScale(8),
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Swiper (자유로운 드래그 영역)
+  // Message List
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  swiperContainer: {
-    flex: 1,
-    // ✅ 헤더/탭바 무시하고 전체 화면 사용
-    marginTop: -platformPadding(20),
-    marginBottom: -platformPadding(20),
-  },
-  cardStyle: {
-    top: verticalScale(20),
-    left: 0,
+  messageItemContainer: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Completion State
+  // Pagination Indicator
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  completionContainer: {
-    flex: 1,
+  paginationContainer: {
+    position: 'absolute',
+    left: scale(10),
+    top: '10%',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: platformPadding(40),
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(6),
+    borderRadius: scale(16),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  completionText: {
+  paginationDot: {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
+    marginVertical: verticalScale(4),
+    opacity: 0.5,
+  },
+  paginationDotActive: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6),
+    opacity: 1,
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // All Viewed Overlay
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  allViewedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  allViewedCard: {
+    backgroundColor: COLORS.BG_SECONDARY,
+    borderRadius: scale(20),
+    padding: scale(30),
+    alignItems: 'center',
+    marginHorizontal: scale(40),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  allViewedTitle: {
+    marginTop: verticalScale(16),
     color: COLORS.TEXT_PRIMARY,
-    marginTop: verticalScale(20),
     textAlign: 'center',
   },
-  completionSubtext: {
-    color: COLORS.TEXT_SECONDARY,
+  allViewedSubtitle: {
     marginTop: verticalScale(8),
+    color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
   },
   resetButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: scale(24),
-    paddingVertical: verticalScale(14),
-    borderRadius: scale(12),
-    marginTop: verticalScale(24),
-  },
-  resetButtonText: {
-    color: '#FFFFFF',
-    marginLeft: scale(8),
+    marginTop: verticalScale(20),
+    minWidth: scale(160),
   },
 });
 
 export default HistoryScreen;
-
