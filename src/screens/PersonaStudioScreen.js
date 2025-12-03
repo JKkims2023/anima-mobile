@@ -666,7 +666,7 @@ const PersonaStudioScreen = () => {
           onPress={handleSearchOpen}
           activeOpacity={0.7}
         >
-          <Icon name="magnify" size={scale(24)} color={theme.colors.primary} />
+          <Icon name="magnify" size={scale(24)} color={currentTheme.colors.primary} />
         </TouchableOpacity>
       </View>
       
