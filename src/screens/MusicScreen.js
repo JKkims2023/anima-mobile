@@ -300,6 +300,16 @@ const MusicScreen = () => {
   // Handle delete music
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleDeleteMusic = (music) => {
+    // Prevent deletion of default music
+    if (music.is_default === 'Y') {
+      showToast({
+        type: 'warning',
+        message: t('music.toast.cannot_delete_default'),
+        emoji: '⚠️',
+      });
+      return;
+    }
+
     showAlert({
       title: t('music.player.delete_confirm'),
       message: t('music.player.delete_confirm_message'),
@@ -314,23 +324,35 @@ const MusicScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              // TODO: Implement delete API
-              // const result = await musicService.deleteMusic(music.music_key);
+              const result = await musicService.deleteMusic(music.music_key);
 
-              // For now, just remove from list
-              setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
-              
-              // Reset control mode
-              setControlMode('create');
-              setSelectedMusic(null);
+              if (result.success) {
+                // ⭐ 핵심: 내부 state 업데이트 (DB 재조회 없음)
+                setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
+                
+                // Reset control mode
+                setControlMode('create');
+                setSelectedMusic(null);
 
-              showToast({
-                type: 'success',
-                message: t('music.player.delete_success'),
-                emoji: '✅',
-              });
+                showToast({
+                  type: 'success',
+                  message: t('music.player.delete_success'),
+                  emoji: '✅',
+                });
+              } else {
+                showToast({
+                  type: 'error',
+                  message: t('common.error'),
+                  emoji: '❌',
+                });
+              }
             } catch (error) {
               console.error('[MusicScreen] Delete music error:', error);
+              showToast({
+                type: 'error',
+                message: t('common.error'),
+                emoji: '❌',
+              });
             }
           },
         },

@@ -1570,7 +1570,8 @@
       "create_started": "Music generation started",
       "create_completed": "Music generated successfully!",
       "create_failed": "Failed to generate music",
-      "attached_to_message": "Attached to message"
+      "attached_to_message": "Attached to message",
+      "cannot_delete_default": "Cannot delete default music"
     }
   },
   "managerAI": {

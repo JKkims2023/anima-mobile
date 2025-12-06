@@ -141,9 +141,45 @@ export async function checkMusicStatus(music_key) {
   }
 }
 
+/**
+ * 🗑️ Delete Music
+ * @param {string} music_key - Music key
+ * @returns {Promise<{success: boolean, errorCode?: string}>}
+ */
+export async function deleteMusic(music_key) {
+  console.log('🗑️ [musicService] Deleting music:', music_key);
+  
+  try {
+    const response = await apiClient.post(MUSIC_ENDPOINTS.DELETE, {
+      user_key: (await require('./authService').default.getUserKey()),
+      music_key,
+    });
+
+    console.log('🗑️ [musicService] Delete music result:', response);
+
+    if (response.data.success) {
+      return {
+        success: true,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.data.errorCode || 'MUSIC_DELETE_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [musicService] deleteMusic error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
 export default {
   listMusic,
   createMusic,
   checkMusicStatus,
+  deleteMusic,
 };
 

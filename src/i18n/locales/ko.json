@@ -1551,7 +1551,8 @@
       "create_started": "음원 생성이 시작되었습니다",
       "create_completed": "음원이 생성되었습니다!",
       "create_failed": "음원 생성에 실패했습니다",
-      "attached_to_message": "메시지에 연결되었습니다"
+      "attached_to_message": "메시지에 연결되었습니다",
+      "cannot_delete_default": "기본 음원은 삭제할 수 없습니다"
     }
   },
   "managerAI": {
