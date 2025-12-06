@@ -2,26 +2,33 @@
  * 🎵 MusicScreen - AI Music Generation & Management
  * 
  * Features:
- * - View generated music list
- * - Play/Pause music
- * - Share music
- * - Generate new music (via CenterAIButton)
+ * - Music Control Area (Create/Creating/Playing)
+ * - Music List (Scrollable)
+ * - Music Creator Sheet (Bottom Sheet)
+ * - Smart Polling System
  * 
- * Design: Modern Card Style with ANIMA branding
+ * Structure:
+ * ┌─────────────────────────────────────┐
+ * │  MusicControlArea (180dp fixed)    │
+ * ├─────────────────────────────────────┤
+ * │  MusicList (Scrollable)             │
+ * └─────────────────────────────────────┘
  * 
- * @author JK & Hero AI
+ * @author JK & Hero Nexus AI
  */
 
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, StyleSheet, Share, Platform } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomText from '../components/CustomText';
-import CustomButton from '../components/CustomButton';
 import SafeScreen from '../components/SafeScreen';
+import MusicControlArea from '../components/music/MusicControlArea';
+import MusicList from '../components/music/MusicList';
+import MusicCreatorSheet from '../components/music/MusicCreatorSheet';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
-import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
+import { useAnima } from '../contexts/AnimaContext';
+import musicService from '../services/api/musicService';
 import { COLORS } from '../styles/commonstyles';
 
 /**
@@ -31,281 +38,377 @@ const MusicScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
+  const { showAlert, showToast } = useAnima();
 
-  // ✅ Music list state (TODO: Fetch from API)
+  // Refs
+  const creatorSheetRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
+
+  // Music list state
   const [musicList, setMusicList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingList, setIsLoadingList] = useState(false);
 
-  // ✅ Load music list on mount
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadMusicList();
-    }
-  }, [isAuthenticated]);
+  // Control area state
+  const [controlMode, setControlMode] = useState('create'); // 'create' | 'creating' | 'playing'
+  const [selectedMusic, setSelectedMusic] = useState(null);
+  
+  // Creating state
+  const [creatingMusicKey, setCreatingMusicKey] = useState(null);
+  const [creatingProgress, setCreatingProgress] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState(30);
 
-  // ✅ Load music list
+  // Screen focus state
+  const [isScreenFocused, setIsScreenFocused] = useState(false);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Screen focus effect
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useFocusEffect(
+    useCallback(() => {
+      setIsScreenFocused(true);
+      if (isAuthenticated) {
+        loadMusicList();
+      }
+      return () => {
+        setIsScreenFocused(false);
+      };
+    }, [isAuthenticated])
+  );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Load music list from API
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const loadMusicList = async () => {
-    setIsLoading(true);
+    setIsLoadingList(true);
     try {
-      // TODO: Fetch music list from API
-      // const result = await musicService.getMyMusicList();
-      // setMusicList(result.data);
-      
-      // Temporary empty state
-      setMusicList([]);
+      if (__DEV__) {
+        console.log('[MusicScreen] Loading music list for user:', user?.user_key);
+      }
+
+      const result = await musicService.listMusic(user.user_key, {
+        music_type: 'all',
+        sort_by: 'created_desc',
+      });
+
+      if (__DEV__) {
+        console.log('[MusicScreen] Music list result:', result);
+      }
+
+      if (result.success && result.data?.music_list) {
+        setMusicList(result.data.music_list);
+      } else {
+        console.error('[MusicScreen] Failed to load music:', result.errorCode);
+        setMusicList([]);
+      }
     } catch (error) {
-      console.error('[MusicScreen] Failed to load music:', error);
+      console.error('[MusicScreen] Load music error:', error);
+      setMusicList([]);
     } finally {
-      setIsLoading(false);
+      setIsLoadingList(false);
     }
   };
 
-  // ✅ Render empty state
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      {/* Icon */}
-      <View style={styles.emptyIconContainer}>
-        <Icon name="music-note" size={moderateScale(80)} color={COLORS.DEEP_BLUE} />
-      </View>
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle create button press
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleCreatePress = () => {
+    if (controlMode === 'creating') {
+      showToast({
+        type: 'warning',
+        message: t('music.creating_in_progress'),
+        emoji: '⏳',
+      });
+      return;
+    }
 
-      {/* Title */}
-      <CustomText type="big" bold style={styles.emptyTitle}>
-        {t('studio.empty.title')}
-      </CustomText>
+    // Check authentication
+    if (!isAuthenticated) {
+      showToast({
+        type: 'warning',
+        message: t('auth.login_required'),
+        emoji: '🔒',
+      });
+      return;
+    }
 
-      {/* Description */}
-      <CustomText type="normal" style={styles.emptyDescription}>
-        {t('studio.empty.description')}
-      </CustomText>
+    creatorSheetRef.current?.present();
+  };
 
-      {/* CTA */}
-      <CustomText type="title" style={styles.emptyCTA}>
-        {t('studio.empty.cta')}
-      </CustomText>
-    </View>
-  );
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle music creation submit
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleMusicCreationSubmit = async (formData) => {
+    if (__DEV__) {
+      console.log('[MusicScreen] Music creation submit:', formData);
+    }
 
-  // ✅ Render music list
-  const renderMusicList = () => (
-    <ScrollView
-      contentContainerStyle={styles.listContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {musicList.map((music, index) => (
-        <MusicCard key={music.id || index} music={music} />
-      ))}
-    </ScrollView>
-  );
+    try {
+      const result = await musicService.createMusic({
+        user_key: user.user_key,
+        music_title: formData.music_title,
+        music_type: formData.music_type,
+        prompt: formData.prompt,
+        lyrics: formData.lyrics,
+      });
+
+      if (__DEV__) {
+        console.log('[MusicScreen] Create result:', result);
+      }
+
+      if (result.success) {
+        // Start creating mode
+        setControlMode('creating');
+        setCreatingMusicKey(result.data.music_key);
+        setCreatingProgress(0);
+        setEstimatedTime(result.data.estimated_time || 30);
+
+        showToast({
+          type: 'success',
+          message: t('music.toast.create_started'),
+          emoji: '🎵',
+        });
+
+        // Start polling
+        startPolling(result.data.music_key, result.data.estimated_time || 30);
+      } else {
+        showToast({
+          type: 'error',
+          message: t('music.toast.create_failed'),
+          emoji: '❌',
+        });
+      }
+    } catch (error) {
+      console.error('[MusicScreen] Create music error:', error);
+      showToast({
+        type: 'error',
+        message: t('music.toast.create_failed'),
+        emoji: '❌',
+      });
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Smart Polling System
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const startPolling = (music_key, estimated_time) => {
+    if (__DEV__) {
+      console.log('[MusicScreen] Starting polling:', music_key, estimated_time);
+    }
+
+    // Clear existing polling
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+
+    // Calculate polling interval based on estimated time
+    const pollingInterval = estimated_time < 20 ? 2000 : 3000; // 2s or 3s
+
+    let elapsedTime = 0;
+
+    pollingIntervalRef.current = setInterval(async () => {
+      elapsedTime += pollingInterval / 1000;
+
+      // Update progress (estimated)
+      const estimatedProgress = Math.min(95, (elapsedTime / estimated_time) * 100);
+      setCreatingProgress(Math.round(estimatedProgress));
+
+      // Check status
+      try {
+        const result = await musicService.checkMusicStatus(music_key);
+
+        if (__DEV__) {
+          console.log('[MusicScreen] Polling result:', result);
+        }
+
+        if (result.success) {
+          if (result.data.status === 'completed') {
+            // ✅ Completed
+            setCreatingProgress(100);
+            stopPolling();
+
+            showToast({
+              type: 'success',
+              message: t('music.toast.create_completed'),
+              emoji: '🎉',
+            });
+
+            // Reload music list
+            loadMusicList();
+
+            // Reset to create mode
+            setTimeout(() => {
+              setControlMode('create');
+              setCreatingMusicKey(null);
+              setCreatingProgress(0);
+            }, 1500);
+
+          } else if (result.data.status === 'failed') {
+            // ❌ Failed
+            stopPolling();
+
+            showToast({
+              type: 'error',
+              message: t('music.toast.create_failed'),
+              emoji: '❌',
+            });
+
+            // Reset to create mode
+            setControlMode('create');
+            setCreatingMusicKey(null);
+            setCreatingProgress(0);
+
+          } else {
+            // ⏳ Still processing - update progress from API
+            if (result.data.progress !== undefined) {
+              setCreatingProgress(result.data.progress);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[MusicScreen] Polling error:', error);
+      }
+    }, pollingInterval);
+  };
+
+  const stopPolling = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, []);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle music selection from list
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleSelectMusic = (music) => {
+    if (__DEV__) {
+      console.log('[MusicScreen] Selected music:', music.music_key);
+    }
+
+    setSelectedMusic(music);
+    setControlMode('playing');
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle delete music
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleDeleteMusic = (music) => {
+    showAlert({
+      title: t('music.player.delete_confirm'),
+      message: t('music.player.delete_confirm_message'),
+      emoji: '🗑️',
+      buttons: [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('music.player.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // TODO: Implement delete API
+              // const result = await musicService.deleteMusic(music.music_key);
+
+              // For now, just remove from list
+              setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
+              
+              // Reset control mode
+              setControlMode('create');
+              setSelectedMusic(null);
+
+              showToast({
+                type: 'success',
+                message: t('music.player.delete_success'),
+                emoji: '✅',
+              });
+            } catch (error) {
+              console.error('[MusicScreen] Delete music error:', error);
+            }
+          },
+        },
+      ],
+    });
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle share music
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleShareMusic = async (music) => {
+    try {
+      await Share.share({
+        message: Platform.OS === 'ios'
+          ? `${music.music_title}\n\n${music.music_url}`
+          : music.music_url,
+        url: Platform.OS === 'ios' ? music.music_url : undefined,
+        title: music.music_title,
+      });
+    } catch (error) {
+      console.error('[MusicScreen] Share error:', error);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle attach music to message
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleAttachToMessage = (music) => {
+    // TODO: Navigate to MessageCreatorView with selected music
+    showToast({
+      type: 'success',
+      message: t('music.toast.attached_to_message'),
+      emoji: '🔗',
+    });
+  };
 
   return (
     <SafeScreen
-      backgroundColor={currentTheme.backgroundColor}
+      backgroundColor={currentTheme.backgroundColor || COLORS.BACKGROUND}
       statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <CustomText type="big" bold style={styles.headerTitle}>
-            {t('navigation.title.studio')}
-          </CustomText>
-          <CustomText type="small" style={styles.headerSubtitle}>
-            {t('navigation.subtitle.studio')}
-          </CustomText>
-        </View>
+        {/* Music Control Area (Top - 180dp fixed) */}
+        <MusicControlArea
+          mode={controlMode}
+          selectedMusic={selectedMusic}
+          creatingProgress={creatingProgress}
+          estimatedTime={estimatedTime}
+          onCreatePress={handleCreatePress}
+          onDelete={handleDeleteMusic}
+          onShare={handleShareMusic}
+          onAttachToMessage={handleAttachToMessage}
+        />
 
-        {/* Content */}
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <CustomText type="normal" style={styles.loadingText}>
-              {t('common.loading')}...
-            </CustomText>
-          </View>
-        ) : musicList.length === 0 ? (
-          renderEmptyState()
-        ) : (
-          renderMusicList()
-        )}
+        {/* Music List (Bottom - Scrollable) */}
+        <MusicList
+          musicList={musicList}
+          selectedMusicKey={selectedMusic?.music_key}
+          isLoading={isLoadingList}
+          onSelectMusic={handleSelectMusic}
+        />
       </View>
+
+      {/* Music Creator Bottom Sheet */}
+      <MusicCreatorSheet
+        ref={creatorSheetRef}
+        onSubmit={handleMusicCreationSubmit}
+      />
     </SafeScreen>
-  );
-};
-
-/**
- * MusicCard Component (Individual Music Item)
- */
-const MusicCard = ({ music }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    // TODO: Implement play/pause logic
-  };
-
-  return (
-    <View style={styles.musicCard}>
-      {/* Glow Layer */}
-      <View style={styles.cardGlow} />
-
-      {/* Card Content */}
-      <View style={styles.cardContent}>
-        {/* Left: Album Art */}
-        <View style={styles.albumArt}>
-          <Icon name="music" size={moderateScale(32)} color={COLORS.DEEP_BLUE} />
-        </View>
-
-        {/* Center: Info */}
-        <View style={styles.musicInfo}>
-          <CustomText type="normal" bold style={styles.musicTitle} numberOfLines={1}>
-            {music.title || 'Untitled'}
-          </CustomText>
-          <CustomText type="small" style={styles.musicDate} numberOfLines={1}>
-            {music.date || '2024-01-01'}
-          </CustomText>
-        </View>
-
-        {/* Right: Play Button */}
-        <TouchableOpacity onPress={handlePlayPause} style={styles.playButton}>
-          <Icon
-            name={isPlaying ? 'pause-circle' : 'play-circle'}
-            size={moderateScale(40)}
-            color={COLORS.DEEP_BLUE}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: platformPadding(20),
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Header
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  header: {
-    paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
-  },
-  headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
-  },
-  headerSubtitle: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Empty State
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: platformPadding(40),
-  },
-  emptyIconContainer: {
-    marginBottom: scale(24),
-  },
-  emptyTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: scale(12),
-  },
-  emptyDescription: {
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-    marginBottom: scale(24),
-    lineHeight: scale(22),
-  },
-  emptyCTA: {
-    color: COLORS.DEEP_BLUE,
-    textAlign: 'center',
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Loading State
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Music List
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  listContainer: {
-    paddingBottom: platformPadding(100),
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Music Card
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  musicCard: {
-    marginBottom: scale(16),
-    position: 'relative',
-  },
-  cardGlow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: moderateScale(16),
-    borderWidth: 1,
-    borderColor: COLORS.DEEP_BLUE,
-    shadowColor: COLORS.DEEP_BLUE,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: scale(8),
-    elevation: 0,
-    opacity: 0.5,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(30, 30, 46, 0.8)',
-    borderRadius: moderateScale(16),
-    borderWidth: 1,
-    borderColor: 'rgba(62, 80, 180, 0.3)',
-    paddingHorizontal: platformPadding(16),
-    paddingVertical: platformPadding(16),
-  },
-  albumArt: {
-    width: scale(56),
-    height: scale(56),
-    borderRadius: moderateScale(12),
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: scale(16),
-  },
-  musicInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  musicTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
-  },
-  musicDate: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-  playButton: {
-    marginLeft: scale(12),
   },
 });
 
 export default MusicScreen;
-

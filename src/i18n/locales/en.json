@@ -55,6 +55,7 @@
     "optional": "Optional",
     "error": "An error occurred. Please try again.",
     "success": "Success",
+    "complete": "Complete",
     "login": "Move to Login",
     "login_guide": {
       "title": "Oops! Still not logged in?",
