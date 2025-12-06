@@ -30,7 +30,7 @@ import CustomText from '../CustomText';
 import PersonaCardView from './PersonaCardView';
 import PersonaInfoCard from './PersonaInfoCard';
 import HapticService from '../../utils/HapticService';
-
+import { useTranslation } from 'react-i18next';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 /**
@@ -67,16 +67,17 @@ const PersonaSwipeViewer = forwardRef(({
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setFilteredPersonas(personas.filter(persona => persona.default_yn === filterCategoryType));
   }, [personas, filterCategoryType]);
-  
+
   
   // ⭐ Expose scrollToIndex method to parent
   useImperativeHandle(ref, () => ({
     scrollToIndex: ({ index, animated = true }) => {
-      if (flatListRef.current && index >= 0 && index < personas.length) {
+      if (flatListRef.current && index >= 0 && index < filteredPersonas.length) {
         flatListRef.current.scrollToIndex({ index, animated });
         setSelectedIndex(index);
         lastScrolledIndex.current = index;
@@ -140,14 +141,14 @@ const PersonaSwipeViewer = forwardRef(({
       setSelectedIndex(index);
       onIndexChange(index); // ✅ Notify parent
 
-      if (__DEV__ && personas && personas[index]) {
-        console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
+      if (__DEV__ && filteredPersonas && filteredPersonas[index]) {
+        console.log('[PersonaSwipeViewer] 📱 Swiped to:', filteredPersonas[index].persona_name);
       }
     }
-  }, [selectedIndex, personas, onIndexChange, availableHeight]);
+  }, [selectedIndex, filteredPersonas, onIndexChange, availableHeight]);
 
   // ✅ Current persona
-  const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
+  const currentPersona = filteredPersonas && filteredPersonas[selectedIndex] ? filteredPersonas[selectedIndex] : null;
 
   // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
@@ -170,17 +171,15 @@ const PersonaSwipeViewer = forwardRef(({
   const keyExtractor = useCallback((item) => item.persona_key, []);
 
   // Empty state (no personas)
-  if (!personas || personas.length === 0) {
+  if (!filteredPersonas || filteredPersonas.length === 0) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <CustomText type="big" style={{ color: currentTheme.textSecondary }}>
-          🎭
+        
+        <CustomText type="big" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
+          {t('persona.no_personas')}
         </CustomText>
-        <CustomText type="normal" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
-          자아가 없습니다
-        </CustomText>
-        <CustomText type="small" style={{ color: currentTheme.textSecondary, marginTop: 8 }}>
-          중앙 버튼을 눌러 생성하세요
+        <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 8, textAlign: 'center' }}>
+          {t('persona.create_persona')}
         </CustomText>
       </View>
     );
@@ -191,7 +190,7 @@ const PersonaSwipeViewer = forwardRef(({
       {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
       <FlatList
         ref={flatListRef}
-        data={personas}
+        data={filteredPersonas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
         vertical
@@ -227,9 +226,9 @@ const PersonaSwipeViewer = forwardRef(({
       />
 
       {/* Pagination Indicator */}
-      {personas.length > 1 && !isMessageMode && (
+        {filteredPersonas.length > 1 && !isMessageMode && (
         <View style={styles.paginationContainer} pointerEvents="none">
-          {personas.map((_, index) => (
+          {filteredPersonas.map((_, index) => (
             <View
               key={index}
               style={[
@@ -247,7 +246,7 @@ const PersonaSwipeViewer = forwardRef(({
       )}
 
       {/* ✅ PersonaInfoCard - 자아 정보 카드 */}
-      {false && (
+      {filteredPersonas.length > 0 && !isMessageMode  && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}
@@ -260,6 +259,8 @@ const PersonaSwipeViewer = forwardRef(({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   centered: {
     justifyContent: 'center',

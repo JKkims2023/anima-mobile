@@ -111,6 +111,7 @@ const PersonaStudioScreen = () => {
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   const [defaultMode, setDefaultMode] = useState(false);
+  const [showQuickActionChips, setShowQuickActionChips] = useState(false);
   
   // ═══════════════════════════════════════════════════════════════════════
   // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
@@ -131,7 +132,6 @@ const PersonaStudioScreen = () => {
           const isHorizontal = Math.abs(dx) > Math.abs(dy); // Horizontal swipe?
           const isSignificant = Math.abs(dx) > 30; // At least 30px
           
-          console.log('[PanResponder] Move check:', { dx, dy, isHorizontal, isSignificant, isMessageMode });
           
           return isHorizontal && isSignificant;
         },
@@ -143,16 +143,15 @@ const PersonaStudioScreen = () => {
           const swipeThreshold = 80; // 80px 이상 스와이프
           const velocityThreshold = 0.5; // 또는 빠른 속도
           
-          console.log('[PanResponder] Swipe detected:', { dx, vx, isMessageMode });
           
           // 왼쪽으로 스와이프 (← 메시지 모드 진입)
           if ((dx < -swipeThreshold || vx < -velocityThreshold) && !isMessageMode) {
-            console.log('[PanResponder] ← Left swipe detected, entering Message Mode');
+
             handleQuickMessage();
           }
           // 오른쪽으로 스와이프 (→ 일반 모드 복귀)
           else if ((dx > swipeThreshold || vx > velocityThreshold) && isMessageMode) {
-            console.log('[PanResponder] → Right swipe detected, exiting Message Mode');
+
             handleExitMessageMode();
           }
         },
@@ -206,11 +205,11 @@ const PersonaStudioScreen = () => {
   );
 
   useEffect(() => {
-    console.log('🎯 [PersonaStudioScreen] isMessageMode:', isMessageMode);
+
 
     const onBackPress = () => {
         // Message Mode인 경우 먼저 닫기
-        console.log('🎯 [PersonaStudioScreen] Back button pressed, isMessageMode:', isMessageMode);
+
         if (isMessageMode) {
             showAlert({
               title: t('message.alert.exit_message_mode'),
@@ -739,6 +738,37 @@ const PersonaStudioScreen = () => {
     setDefaultMode(value);
   }, []);
   
+  const handleChatWithPersona = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 💬 Chat with persona:', persona.persona_name);
+    }
+
+    
+  }, []);
+
+  const rtnPersonaCount = useCallback(() => {
+
+    console.log('toggle', defaultMode);
+ 
+    console.log('count', personasWithDefaults.filter(persona => persona.default_yn === defaultMode ? 'Y' : 'N').length);
+    
+    let rtnCount = 0;
+
+    if(!defaultMode) {
+      rtnCount = personasWithDefaults.filter(persona => persona.default_yn === 'Y').length;
+    } else {
+      rtnCount = personasWithDefaults.filter(persona => persona.default_yn === 'N').length;
+    }
+
+    if(rtnCount > 0 ) {
+//      setShowQuickActionChips(true);
+    } else {
+//      setShowQuickActionChips(false);
+    }
+
+    return rtnCount;
+  }, [defaultMode]);
+  
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -793,10 +823,10 @@ const PersonaStudioScreen = () => {
               handlePersonaChange(index);
             }}
             modeOpacity={null}
-            onChatWithPersona={null} // Not used in studio mode
+            onChatWithPersona={handleChatWithPersona} // Not used in studio mode
             enabled={!isMessageMode} // ⭐ Disable swipe in message mode
             isMessageMode={isMessageMode}
-            filterCategoryType={defaultMode ? 'Y' : 'N'}
+            filterCategoryType={!defaultMode ? 'Y' : 'N'}
           />
         </View>
         
@@ -837,8 +867,9 @@ const PersonaStudioScreen = () => {
             pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer (disabled in message mode)
           >
             {/* MessageModeQuickActionChips (Right Overlay) */}
+    
             <View 
-              style={styles.messageModeQuickChipsOverlay}
+              style={[styles.messageModeQuickChipsOverlay, { }]}
               pointerEvents={isMessageMode ? 'box-none' : 'none'} // ⭐ box-none: pass through container, but children receive touch
             >
               <MessageModeQuickActionChips
@@ -846,9 +877,10 @@ const PersonaStudioScreen = () => {
                 onHistoryClick={handleMessageHistory}
                 onMusicClick={handleMessageMusic}
                 onPreviewClick={handleMessagePreview}
+                showQuickActionChips={showQuickActionChips}
               />
             </View>
-            
+
             {/* MessageCreatorView (Bottom Overlay) */}
             <View 
               style={styles.messageOverlay}
@@ -871,7 +903,7 @@ const PersonaStudioScreen = () => {
         )}
 
 
-        {!isMessageMode && (
+        {false && (
         <View style={styles.bottomLayer}>
 
             <GradientOverlay>
@@ -912,9 +944,10 @@ const PersonaStudioScreen = () => {
           onCreatePersona={handleAddPersona}
         />
 
+        {!isMessageMode && (
         <View style={styles.stepContainer}>
           <CustomText type="big" bold>
-            {t('message.select_mode_title')}
+            {t('message.select_mode_title')} ({rtnPersonaCount()})
           </CustomText>
           <View style={styles.stepItemContainer}>
 
@@ -927,6 +960,7 @@ const PersonaStudioScreen = () => {
             <CustomText type="middle" style={{marginLeft: scale(10)}} bold>{t('message.select_user_mode')}</CustomText>
           </View>
         </View>
+        )}
 
       </View>
       

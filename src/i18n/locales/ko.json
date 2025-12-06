@@ -1513,11 +1513,11 @@
     "create_new_persona": "새로 만들기",
     "select_default_male": "👨 남성",
     "select_default_female": "👩 여성",
-    "select_mode_title" : "텝플릿 선택",
+    "select_mode_title" : "페르소나 타입",
     "select_mode_description" : "모드를 선택하여 메시지를 생성합니다.",
-    "select_default_mode" : "기본 모드",
+    "select_default_mode" : "기본 타입",
     "select_default_mode_description" : "기본 모드는 기본으로 제공되는 페르소나를 사용하여 메시지를 생성합니다.",
-    "select_user_mode" : "사용자 모드",
+    "select_user_mode" : "사용자 타입",
     "select_user_mode_description" : "사용자 모드는 사용자가 직접 페르소나를 생성, 선택하여 메시지를 생성합니다.",
     "cta_title": "💡 나만의 페르소나로 더 특별하게!",
     "input": {
@@ -1526,9 +1526,9 @@
       "dress_select": "컨셉 선택 (선택사항)",
       "dress_placeholder": "기본 이미지",
       "title_label": "메시지 제목",
-      "title_placeholder": "클릭 & 제목 입력!",
+      "title_placeholder": "클릭하여 제목을 입력하세요",
       "content_label": "메시지 내용",
-      "content_placeholder": "클릭 & 내용 입력!",
+      "content_placeholder": "클릭하여 메세지 내용을 입력하세요",
       "password_label": "비밀번호 보호 (선택사항)",
       "password_placeholder": "비밀번호 입력",
       "password_confirm_placeholder": "비밀번호 확인",
@@ -1678,7 +1678,9 @@
     },
     "category": {
       "default": "일반"
-    }
+    },
+    "no_personas": "아직 생성한 페르소나가 없습니다",
+    "create_persona": "나만의 페르소나를 생성하여, 특별한 메세지를 만들어보세요!"
   },
   "search": {
     "placeholder": {

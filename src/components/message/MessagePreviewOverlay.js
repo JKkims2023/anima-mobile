@@ -595,25 +595,14 @@ const MessagePreviewOverlay = ({
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* Header: Close Button (Left) + URL Button (Right) */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <View style={[styles.header, { paddingTop: insets.top + platformPadding(10) }]}>
+        <View style={[styles.header, { paddingTop: platformPadding(10), paddingBottom: platformPadding(10) }]}>
           <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <Icon name="close" size={scale(28)} color={theme.textPrimary} />
           </TouchableOpacity>
-          <CustomText type="bodyBold" style={{ color: theme.textPrimary }}>
+          <CustomText type="title" bold style={{ color: theme.textPrimary }}>
             {t('message_preview.title', 'Preview')}
           </CustomText>
-          {/* URL 생성 플로팅 버튼 (우측 상단) */}
-          <TouchableOpacity
-            onPress={handleGenerateURL}
-            disabled={isCreating}
-            style={[styles.urlFloatingButton, { backgroundColor: theme.mainColor }]}
-          >
-            {isCreating ? (
-              <Icon name="loading" size={scale(20)} color="#fff" />
-            ) : (
-              <Icon name="link-variant" size={scale(20)} color="#fff" />
-            )}
-          </TouchableOpacity>
+
         </View>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
@@ -642,6 +631,20 @@ const MessagePreviewOverlay = ({
         {/* Main Content: Message with Gradient Overlay */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         <View style={styles.contentWrapper}>
+
+          {/* URL 생성 플로팅 버튼 (우측 상단) */}
+          <TouchableOpacity
+            onPress={handleGenerateURL}
+            disabled={isCreating}
+            style={[styles.urlFloatingButton, { backgroundColor: theme.mainColor }]}
+          >
+            {isCreating ? (
+              <Icon name="loading" size={scale(20)} color="#fff" />
+            ) : (
+              <Icon name="link-variant" size={scale(20)} color="#fff" />
+            )}
+          </TouchableOpacity>
+
           {/* Gradient Overlay with Animation */}
           <Animated.View style={[styles.gradientWrapper, overlayAnimatedStyle]}>
             <LinearGradient
@@ -823,19 +826,20 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+
     alignItems: 'center',
     paddingHorizontal: platformPadding(16),
     zIndex: 100,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   closeButton: {
     padding: scale(5),
     width: scale(40),
   },
   urlFloatingButton: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
+    width: scale(50),
+    height: scale(50),
+    borderRadius: scale(25),
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -843,6 +847,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
+    marginLeft: 'auto',
+    marginRight: scale(20),
+    marginBottom: scale(20),
   },
   floatingMusicButton: {
     position: 'absolute',

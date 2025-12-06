@@ -352,6 +352,15 @@ const MessageCreatorView = ({
         >
         {/* Message Overlay (Bottom) */}
         <View style={styles.messageOverlayContainer}>
+          
+          {/* Preview Button */}
+          <CustomButton
+            title={`✨ ${t('message.buttons.preview')}`}
+            onPress={handlePreview}
+            type="primary"
+            style={styles.chatButton}
+//            disabled={!messageTitle || !messageContent}
+          />
           {/* Title Field */}
           <TouchableOpacity
             style={styles.overlayField}
@@ -359,14 +368,14 @@ const MessageCreatorView = ({
             activeOpacity={0.8}
           >
             <View style={styles.overlayFieldHeader}>
-              <Icon name="text" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
+              <Icon name="text" size={moderateScale(28)} color={COLORS.DEEP_BLUE} style={{ display: 'none' }} />
             </View>
             {messageTitle ? (
-              <CustomText type="title" bold style={styles.overlayFieldValue}>
+              <CustomText type="middle" bold style={styles.overlayFieldValue}>
                 {messageTitle}
               </CustomText>
             ) : (
-              <CustomText type="middle" style={styles.overlayFieldValue}>
+              <CustomText type="middle" bold style={styles.overlayFieldValue}>
                 {t('message.input.title_placeholder')}
               </CustomText>
             )}
@@ -378,18 +387,13 @@ const MessageCreatorView = ({
             onPress={handleContentTap}
             activeOpacity={0.8}
           >
-            <View style={styles.overlayFieldHeader}>
-              <Icon name="text-box-outline" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
-              <CustomText type="middle" bold style={styles.overlayFieldLabel}>
-                
-              </CustomText>
-            </View>
+           
             {messageContent ? (
-              <CustomText type="large" style={styles.overlayFieldValue} numberOfLines={4}>
+              <CustomText type="middle" style={styles.overlayFieldCommentValue} numberOfLines={4}>
                 {messageContent}
               </CustomText>
             ) : (
-              <CustomText type="middle" style={styles.overlayFieldValue}>
+              <CustomText type="middle" style={styles.overlayFieldCommentValue}>
                 {t('message.input.content_placeholder')}
               </CustomText>
             )}
@@ -412,14 +416,7 @@ const MessageCreatorView = ({
             <Icon name="pencil" size={moderateScale(14)} color={COLORS.TEXT_TERTIARY} />
           </TouchableOpacity>
 
-          {/* Preview Button */}
-          <CustomButton
-            title={`✨ ${t('message.buttons.preview')}`}
-            onPress={handlePreview}
-            type="primary"
-            style={styles.previewButton}
-//            disabled={!messageTitle || !messageContent}
-          />
+
         </View>
         </LinearGradient>
       </View>
@@ -530,7 +527,15 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
   },
   overlayFieldValue: {
-    fontSize: scale(16),
+    fontSize: scale(20),
+    color: COLORS.TEXT_PRIMARY,
+    lineHeight: scale(24),
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  overlayFieldCommentValue: {
+    fontSize: scale(18),
     color: COLORS.TEXT_PRIMARY,
     lineHeight: scale(24),
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
@@ -580,6 +585,24 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: 'flex-end', // 컨텐츠를 아래쪽으로 정렬
+  },
+  chatButton: {
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
+    backgroundColor: '#3B82F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // ✅ Shadow
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 8,
+    // ✅ Border
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginLeft: 'auto',
   },
 });
 

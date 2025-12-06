@@ -29,7 +29,7 @@ const PersonaBackgroundView = memo(({
   const [videoLoaded, setVideoLoaded] = useState(false);
 
   // Determine media URL
-  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_yn === 'Y';
+  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_done === 'Y';
   const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
   const imageUrl = persona?.selected_dress_image_url || persona?.original_url || persona?.default_image;
 
@@ -41,6 +41,7 @@ const PersonaBackgroundView = memo(({
 
   // Video control based on screen focus
   useEffect(() => {
+
     if (videoRef.current && hasVideo && !videoError) {
       if (isScreenFocused) {
         videoRef.current.seek(0); // Restart video

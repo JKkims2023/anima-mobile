@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     top: verticalScale(20),
     right: scale(20),
     zIndex: 200,
+    display: 'none',
   },
   button: {
     width: scale(56),

@@ -14,6 +14,7 @@
 
 import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { getPersonaList } from '../services/api/personaApi';
+import { useUser } from '../contexts/UserContext';
 
 const PersonaContext = createContext();
 
@@ -25,14 +26,16 @@ export const PersonaProvider = ({ children }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
-
-  // Initialize with Manager AI on first launch
+  const { user } = useUser();
+  
   useEffect(() => {
+
     initializePersonas();
-  }, []);
+  }, [user]);
 
   const initializePersonas = useCallback(async () => {
     try {
+
       setIsLoading(true);
       
       if (__DEV__) {
@@ -50,9 +53,10 @@ export const PersonaProvider = ({ children }) => {
         created_at: new Date().toISOString(),
       };
 
+      console.log('user', user);
       // ✅ Fetch user's personas from API
       try {
-        const userPersonas = await getPersonaList(DEV_USER_KEY);
+        const userPersonas = await getPersonaList(user ? user?.user_key : 'empty');
         
         if (__DEV__) {
           console.log('[PersonaContext] ✅ User personas loaded:', userPersonas.length);
