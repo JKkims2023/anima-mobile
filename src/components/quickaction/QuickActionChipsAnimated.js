@@ -26,6 +26,7 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
+import { COLORS } from '../../styles/commonstyles';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -149,7 +150,10 @@ const QuickActionChipsAnimated = ({
     <TouchableOpacity
     onPress={() => handlePress({id: 'message', icon: 'pencil-outline', label: '메시지', onClick: onMessageClick})}>
     <View 
-    style={[styles.chip, {backgroundColor: 'rgba(0, 0, 0, 0.85)', width: scale(70), height: scale(70), borderRadius: scale(50), marginTop: verticalScale(20), marginBottom: verticalScale(20), alignItems: 'center', justifyContent: 'center'}]}
+    style={[styles.chip, {backgroundColor: COLORS.DEEP_BLUE_LIGHT,  
+      borderWidth: 3,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      width: scale(70), height: scale(70), borderRadius: scale(50), marginTop: verticalScale(20), marginBottom: verticalScale(20), alignItems: 'center', justifyContent: 'center'}]}
     >
       <Icon name="pencil-outline" size={scale(32)} color="#FFFFFF" />
 
@@ -179,6 +183,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     borderRadius: scale(24),
     gap: scale(8),
+    marginRight: scale(10),
 //    borderWidth: 1,
 //    borderColor: 'rgba(255, 255, 255, 0.1)',
     // ✅ Shadow for depth

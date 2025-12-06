@@ -28,6 +28,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconSearch from 'react-native-vector-icons/Ionicons';
+import IconMore from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
@@ -72,7 +73,8 @@ const PersonaStudioScreen = () => {
   const { user } = useUser();
   const { showToast, showAlert } = useAnima();
   const insets = useSafeAreaInsets();
-
+  const refPersonaCount = useRef(0);
+  
   // ═══════════════════════════════════════════════════════════════════════
   // AVAILABLE HEIGHT CALCULATION (Same as HistoryScreen)
   // ═══════════════════════════════════════════════════════════════════════
@@ -112,6 +114,7 @@ const PersonaStudioScreen = () => {
   const personaCreationDataRef = useRef(null);
   const [defaultMode, setDefaultMode] = useState(false);
   const [showQuickActionChips, setShowQuickActionChips] = useState(false);
+  const [showWriteMessageActionChips, setShowWriteMessageActionChips] = useState(false);
   
   // ═══════════════════════════════════════════════════════════════════════
   // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
@@ -235,6 +238,8 @@ const PersonaStudioScreen = () => {
       backHandlerSubscription.remove();
     };
   }, [isMessageMode]);
+
+
   
   // ═══════════════════════════════════════════════════════════════════════
   // DEFAULT PERSONAS (SAGE, Nexus)
@@ -697,6 +702,13 @@ const PersonaStudioScreen = () => {
     }
   }, [isMessageMode, messages.length, loadMessages]);
   
+  const handleMoreOpen = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔍 Opening more');
+    }
+    
+  }, []);
+  
   const handleSearchClose = useCallback(() => {
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🔍 Search overlay closed');
@@ -737,6 +749,13 @@ const PersonaStudioScreen = () => {
   const handleDefaultModeChange = useCallback((value) => {
     setDefaultMode(value);
   }, []);
+
+  const handleCreatePersona = useCallback(() => {
+    
+
+    handleAddPersona();
+
+  }, [handleAddPersona]);
   
   const handleChatWithPersona = useCallback((persona) => {
     if (__DEV__) {
@@ -746,7 +765,7 @@ const PersonaStudioScreen = () => {
     
   }, []);
 
-  const rtnPersonaCount = useCallback(() => {
+  const rtnPersonaCount = () => {
 
     console.log('toggle', defaultMode);
  
@@ -760,15 +779,11 @@ const PersonaStudioScreen = () => {
       rtnCount = personasWithDefaults.filter(persona => persona.default_yn === 'N').length;
     }
 
-    if(rtnCount > 0 ) {
-//      setShowQuickActionChips(true);
-    } else {
-//      setShowQuickActionChips(false);
-    }
+
+    refPersonaCount.current = rtnCount;
 
     return rtnCount;
-  }, [defaultMode]);
-  
+  } 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -796,6 +811,13 @@ const PersonaStudioScreen = () => {
           activeOpacity={0.7}
         >
           <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.moreButton}
+          onPress={handleMoreOpen}
+          activeOpacity={0.7}
+        >
+          <IconMore name="more-vert" size={scale(24)} color={currentTheme.mainColor} />
         </TouchableOpacity>
       </View>
       
@@ -946,7 +968,7 @@ const PersonaStudioScreen = () => {
 
         {!isMessageMode && (
         <View style={styles.stepContainer}>
-          <CustomText type="big" bold>
+          <CustomText type="middle" bold>
             {t('message.select_mode_title')} ({rtnPersonaCount()})
           </CustomText>
           <View style={styles.stepItemContainer}>
@@ -958,6 +980,13 @@ const PersonaStudioScreen = () => {
               onValueChange={handleDefaultModeChange}
             />
             <CustomText type="middle" style={{marginLeft: scale(10)}} bold>{t('message.select_user_mode')}</CustomText>
+
+            <TouchableOpacity
+              style={[styles.writeMessageButton, {opacity: defaultMode  ? 1 : 0}]}
+              onPress={handleCreatePersona}
+            >
+              <IconMore name="add" size={scale(34)} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
         </View>
         )}
@@ -1100,6 +1129,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
 
+
     // ⭐ SafeArea is handled inside QuickActionChipsAnimated
   },
 
@@ -1167,10 +1197,15 @@ const styles = StyleSheet.create({
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
   },
+  moreButton: {
+    marginLeft: platformPadding(2),
+    padding: platformPadding(8),
+  },
 
   stepContainer: {
     position: 'absolute',
     left: scale(10),
+    right: scale(10),
     top: verticalScale(20),
     flexDirection: 'column',
     justifyContent: 'center',
@@ -1189,10 +1224,22 @@ const styles = StyleSheet.create({
   },
 
   stepItemContainer: {
-    marginTop: scale(5),
+    marginTop: scale(-5),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+
+  writeMessageButton: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: COLORS.DEEP_BLUE_LIGHT,
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(16),
+    borderRadius: scale(24),
+    gap: scale(8),
+    marginLeft: 'auto',
+    elevation: 8,
   },
 
 });

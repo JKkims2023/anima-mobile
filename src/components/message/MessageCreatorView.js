@@ -593,6 +593,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
     justifyContent: 'center',
     alignItems: 'center',
+
     // ✅ Shadow
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },

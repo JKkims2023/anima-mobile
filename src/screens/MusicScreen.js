@@ -30,6 +30,11 @@ import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import musicService from '../services/api/musicService';
 import { COLORS } from '../styles/commonstyles';
+import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CustomText from '../components/CustomText';
+import IconSearch from 'react-native-vector-icons/Ionicons';
+import { TouchableOpacity } from 'react-native';
 
 /**
  * MusicScreen Component
@@ -389,6 +394,14 @@ const MusicScreen = () => {
     });
   };
 
+  const handleSearchOpen = () => {
+    showToast({
+      type: 'success',
+      message: t('music.toast.search_open'),
+      emoji: '🔍',
+    });
+  };
+
   return (
     <SafeScreen
       backgroundColor={currentTheme.backgroundColor || COLORS.BACKGROUND}
@@ -396,6 +409,24 @@ const MusicScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
+      {/* Header with Search Icon */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <CustomText type="big" bold style={styles.headerTitle}>
+            {t('navigation.title.studio')}
+          </CustomText>
+          <CustomText type="small" style={styles.headerSubtitle}>
+            {t('navigation.subtitle.studio')}
+          </CustomText>
+        </View>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={handleSearchOpen}
+          activeOpacity={0.7}
+        >
+          <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         {/* Music Control Area (Top - 180dp fixed) */}
         <MusicControlArea
@@ -430,6 +461,28 @@ const MusicScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row', // ⭐ Horizontal layout for title + search button
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: platformPadding(20),
+    paddingBottom: platformPadding(16),
+    paddingHorizontal: platformPadding(20),
+  },
+  headerContent: {
+    flex: 1, // ⭐ Take remaining space
+  },
+  headerTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: scale(4),
+  },
+  headerSubtitle: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  searchButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
   },
 });
 
