@@ -63,7 +63,87 @@ export async function listMusic(user_key, options = {}) {
   }
 }
 
+/**
+ * 🎵 Create Music
+ * @param {Object} params
+ * @param {string} params.music_title - Music title
+ * @param {string} params.music_type - 'instrumental' | 'vocal'
+ * @param {string} params.prompt - Music style/prompt
+ * @param {string} params.lyrics - Lyrics prompt (for vocal)
+ * @returns {Promise<{success: boolean, data?: {music_key, request_key, estimated_time, status}, errorCode?: string}>}
+ */
+export async function createMusic(params) {
+  console.log('🎵 [musicService] Creating music:', params);
+  
+  try {
+    const response = await apiClient.post(MUSIC_ENDPOINTS.CREATE, {
+      user_key: params.user_key,
+      music_title: params.music_title,
+      music_type: params.music_type,
+      prompt: params.prompt,
+      lyrics: params.lyrics,
+    });
+
+    console.log('🎵 [musicService] Create music result:', response);
+
+    if (response.data.success) {
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.data.errorCode || 'MUSIC_CREATE_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [musicService] createMusic error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
+/**
+ * 🔍 Check Music Status
+ * @param {string} music_key - Music key
+ * @returns {Promise<{success: boolean, data?: {music_key, status, music_url?, progress}, errorCode?: string}>}
+ */
+export async function checkMusicStatus(music_key) {
+  console.log('🔍 [musicService] Checking music status:', music_key);
+  
+  try {
+    const response = await apiClient.post(MUSIC_ENDPOINTS.CHECK_STATUS, {
+      music_key,
+    });
+
+    console.log('🔍 [musicService] Check status result:', response);
+
+    if (response.data.success) {
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.data.errorCode || 'MUSIC_STATUS_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [musicService] checkMusicStatus error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
 export default {
   listMusic,
+  createMusic,
+  checkMusicStatus,
 };
 

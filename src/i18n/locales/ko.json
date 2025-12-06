@@ -1492,6 +1492,67 @@
     "manager_sage": "AI 매니저 채팅",
     "manager_sage_desc": "AI 매니저 채팅"
   },
+  "music": {
+    "title": "음원 생성",
+    "subtitle": "AI로 나만의 음악을 만들어보세요",
+    "empty_title": "아직 생성한 음원이 없습니다",
+    "empty_subtitle": "AI로 나만의 음악을 만들어보세요! 🎵",
+    "create_button": "음원 생성하기",
+    "creating_title": "음원 생성 중...",
+    "creating_subtitle": "잠시만 기다려주세요",
+    "creating_in_progress": "음원 생성이 진행 중입니다. 잠시만 기다려주세요.",
+    "playing_title": "재생 중",
+    "types": {
+      "instrumental": "배경음악",
+      "vocal": "보컬음악"
+    },
+    "creator": {
+      "title": "음원 생성하기",
+      "type_label": "음원 타입 선택",
+      "type_instrumental": "배경음악 (Instrumental)",
+      "type_instrumental_desc": "순수 배경음악을 생성합니다",
+      "type_vocal": "보컬음악 (with Lyrics)",
+      "type_vocal_desc": "가사가 있는 음악을 생성합니다",
+      "title_label": "제목",
+      "title_placeholder": "예: 여름 바다의 추억",
+      "prompt_label": "프롬프트 (음악 스타일)",
+      "prompt_placeholder": "예: 잔잔한 어쿠스틱 기타, 서정적인 멜로디",
+      "lyrics_label": "가사 프롬프트",
+      "lyrics_placeholder": "예: 파도 소리와 함께 추억을 떠올리며...",
+      "lyrics_description": "AI가 이 프롬프트를 바탕으로 적절한 가사를 만들어 노래합니다",
+      "submit_button": "생성하기",
+      "submit_button_points": "생성하기 (10 포인트)",
+      "validation": {
+        "title_required": "제목을 입력하세요",
+        "prompt_required": "프롬프트를 입력하세요"
+      }
+    },
+    "player": {
+      "play": "재생",
+      "pause": "일시정지",
+      "delete": "삭제",
+      "share": "공유",
+      "attach_to_message": "메시지에 연결",
+      "delete_confirm": "이 음원을 삭제하시겠습니까?",
+      "delete_confirm_message": "삭제된 음원은 복구할 수 없습니다.",
+      "delete_success": "음원이 삭제되었습니다"
+    },
+    "list": {
+      "loading": "음원 목록을 불러오는 중...",
+      "search_placeholder": "음원 검색",
+      "filter_all": "전체",
+      "filter_instrumental": "배경음악",
+      "filter_vocal": "보컬음악",
+      "sort_newest": "최신순",
+      "sort_oldest": "오래된순"
+    },
+    "toast": {
+      "create_started": "음원 생성이 시작되었습니다",
+      "create_completed": "음원이 생성되었습니다!",
+      "create_failed": "음원 생성에 실패했습니다",
+      "attached_to_message": "메시지에 연결되었습니다"
+    }
+  },
   "managerAI": {
     "context": {
       "home": "메시지 & 페르소나 생성 도우미",

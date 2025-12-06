@@ -181,7 +181,7 @@ export const MESSAGE_ENDPOINTS = {
 export const MUSIC_ENDPOINTS = {
   LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/list',
   CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/create',
-  POLL: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/poll',
+  CHECK_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/check-status',
   DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/delete',
 };
 

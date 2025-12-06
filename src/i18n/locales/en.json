@@ -1511,6 +1511,67 @@
     "manager_sage": "🤖 MANAGER SAGE",
     "manager_sage_desc": "Chat with AI Manager"
   },
+  "music": {
+    "title": "Music Generation",
+    "subtitle": "Create your own music with AI",
+    "empty_title": "No music created yet",
+    "empty_subtitle": "Create your own music with AI! 🎵",
+    "create_button": "Generate Music",
+    "creating_title": "Generating Music...",
+    "creating_subtitle": "Please wait a moment",
+    "creating_in_progress": "Music generation in progress. Please wait.",
+    "playing_title": "Now Playing",
+    "types": {
+      "instrumental": "Instrumental",
+      "vocal": "Vocal"
+    },
+    "creator": {
+      "title": "Generate Music",
+      "type_label": "Select Music Type",
+      "type_instrumental": "Instrumental",
+      "type_instrumental_desc": "Generate pure background music",
+      "type_vocal": "Vocal (with Lyrics)",
+      "type_vocal_desc": "Generate music with lyrics",
+      "title_label": "Title",
+      "title_placeholder": "e.g., Summer Beach Memories",
+      "prompt_label": "Prompt (Music Style)",
+      "prompt_placeholder": "e.g., Calm acoustic guitar, lyrical melody",
+      "lyrics_label": "Lyrics Prompt",
+      "lyrics_placeholder": "e.g., Remembering memories with ocean waves...",
+      "lyrics_description": "AI will create appropriate lyrics based on this prompt",
+      "submit_button": "Generate",
+      "submit_button_points": "Generate (10 Points)",
+      "validation": {
+        "title_required": "Please enter a title",
+        "prompt_required": "Please enter a prompt"
+      }
+    },
+    "player": {
+      "play": "Play",
+      "pause": "Pause",
+      "delete": "Delete",
+      "share": "Share",
+      "attach_to_message": "Attach to Message",
+      "delete_confirm": "Delete this music?",
+      "delete_confirm_message": "Deleted music cannot be recovered.",
+      "delete_success": "Music deleted successfully"
+    },
+    "list": {
+      "loading": "Loading music list...",
+      "search_placeholder": "Search music",
+      "filter_all": "All",
+      "filter_instrumental": "Instrumental",
+      "filter_vocal": "Vocal",
+      "sort_newest": "Newest",
+      "sort_oldest": "Oldest"
+    },
+    "toast": {
+      "create_started": "Music generation started",
+      "create_completed": "Music generated successfully!",
+      "create_failed": "Failed to generate music",
+      "attached_to_message": "Attached to message"
+    }
+  },
   "managerAI": {
     "context": {
       "home": "Message & Persona Creation Assistant",
