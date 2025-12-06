@@ -1513,6 +1513,12 @@
     "create_new_persona": "새로 만들기",
     "select_default_male": "👨 남성",
     "select_default_female": "👩 여성",
+    "select_mode_title" : "텝플릿 선택",
+    "select_mode_description" : "모드를 선택하여 메시지를 생성합니다.",
+    "select_default_mode" : "기본 모드",
+    "select_default_mode_description" : "기본 모드는 기본으로 제공되는 페르소나를 사용하여 메시지를 생성합니다.",
+    "select_user_mode" : "사용자 모드",
+    "select_user_mode_description" : "사용자 모드는 사용자가 직접 페르소나를 생성, 선택하여 메시지를 생성합니다.",
     "cta_title": "💡 나만의 페르소나로 더 특별하게!",
     "input": {
       "persona_select": "보내는 사람 선택",
@@ -1535,7 +1541,7 @@
       "share_sns": "SNS 공유"
     },
     "buttons": {
-      "preview": "미리보기",
+      "preview": "효과설정",
       "edit": "수정하기",
       "create": "메시지 생성",
       "creating": "생성 중..."
@@ -1706,5 +1712,41 @@
       "newest": "최신순",
       "oldest": "오래된순"
     }
+  },
+  "history": {
+
+    "loading": "메세지 불러오는 중...",
+    "empty": "생성한 메시지가 없습니다",
+    "empty_title": "아직 생성한 메시지가 없습니다",
+    "empty_subtitle": "홈 화면에서 당신의 첫 메시지를 만들어보세요!",
+    "all_swiped_title": "모두 확인하셨습니다!",
+    "all_swiped_subtitle": "새로운 메시지를 기다리거나, 다시 시작해보세요.",
+    "reset_button": "처음부터 다시 보기"
+  },
+  "category_type": {
+    "normal": "일상",
+    "normal_desc": "일상적인 메시지에 적합한 페르소나 입니다.",
+    "thanks": "감사",
+    "thanks_desc": "감사의 메시지에 적합한 페르소나 입니다.",
+    "apologize": "사과",
+    "apologize_desc": "사과의 메시지에 적합한 페르소나 입니다.",
+    "hope": "희망",
+    "hope_desc": "희망의 메시지에 적합한 페르소나 입니다.",
+    "cheer_up": "응원",
+    "cheer_up_desc": "응원의 메시지에 적합한 페르소나 입니다.",
+    "congrats": "축하",
+    "congrats_desc": "축하의 메시지에 적합한 페르소나 입니다.",
+    "birthday": "생일",
+    "birthday_desc": "생일의 메시지에 적합한 페르소나 입니다.",
+    "christmas": "크리스마스",
+    "christmas_desc": "크리스마스의 메시지에 적합한 페르소나 입니다.",
+    "new_year": "새해",
+    "new_year_desc": "새해의 메시지에 적합한 페르소나 입니다.",
+    "romantic": "사랑",
+    "romantic_desc": "사랑의 메시지에 적합한 페르소나 입니다.",
+    "comfort": "위로",
+    "comfort_desc": "위로의 메시지에 적합한 페르소나 입니다.",
+    "sadness": "슬픔",
+    "sadness_desc": "슬픔의 메시지에 적합한 페르소나 입니다."
   }
 }

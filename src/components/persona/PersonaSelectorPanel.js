@@ -142,16 +142,6 @@ const PersonaSelectorPanel = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {personas.map((persona, index) => (
-          <PersonaChip
-            key={persona.persona_key}
-            persona={persona}
-            index={index}
-            visible={visible}
-            onPress={() => handleSelectPersona(persona)}
-          />
-        ))}
-        
         {/* View All Button */}
         {personas.length > 0 && (
           <TouchableOpacity
@@ -163,6 +153,17 @@ const PersonaSelectorPanel = ({
             <CustomText style={styles.viewAllText}>{t('persona.creation.create_button')}</CustomText>
           </TouchableOpacity>
         )}
+
+        {personas.map((persona, index) => (
+          <PersonaChip
+            key={persona.persona_key}
+            persona={persona}
+            index={index}
+            visible={visible}
+            onPress={() => handleSelectPersona(persona)}
+          />
+        ))}
+        
       </ScrollView>
     </Animated.View>
   );

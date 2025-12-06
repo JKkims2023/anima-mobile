@@ -72,7 +72,7 @@ const HistoryScreen = () => {
   const HEADER_HEIGHT = verticalScale(80); // 헤더 높이 (타이틀 + 서브타이틀 + 패딩)
   const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
   
-  const availableHeight = SCREEN_HEIGHT - insets.top - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
+  const availableHeight = SCREEN_HEIGHT   - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
   
   if (__DEV__) {
     console.log('[HistoryScreen] Height calculation:', {
@@ -230,9 +230,10 @@ const HistoryScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const result = await messageService.deleteMessage(currentMessage.message_key);
+              const result = await messageService.deleteMessage(user.user_key, currentMessage.message_key);
 
-              if (result.success) {
+              console.log('[HistoryScreen] Delete result:', result);
+              if (result?.success) {
                 // ⭐ 핵심: 내부 state 업데이트 (DB 재조회 없음)
                 const newMessages = messages.filter((_, idx) => idx !== currentIndex);
                 setMessages(newMessages);
@@ -253,9 +254,17 @@ const HistoryScreen = () => {
                 if (newMessages.length === 0) {
                   setAllViewed(true);
                 }
+              }else{
+
+                console.error('[HistoryScreen] Delete error:', result.errorCode);
+                showToast({
+                  type: 'error',
+                  message: t('message.history.delete_error'),
+                  emoji: '❌',
+                });
               }
             } catch (error) {
-              console.error('[HistoryScreen] Delete error:', error);
+              console.log('[HistoryScreen] Delete error:', error);
             }
           },
         },
@@ -461,7 +470,7 @@ const HistoryScreen = () => {
                   activeOpacity={0.8}
                 >
                   <Icon
-                    name={isMusicPlaying ? 'musical-notes' : 'musical-notes-outline'}
+                    name={isMusicPlaying ? 'musical-notes' : 'pause'}
                     size={scale(20)}
                     color={COLORS.TEXT_PRIMARY}
                   />
@@ -567,11 +576,11 @@ const styles = StyleSheet.create({
   },
   musicButton: {
     position: 'absolute',
-    top: platformPadding(60), // Below header
-    left: scale(16),
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
+    top: platformPadding(120), // Below header
+    left: scale(26),
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',

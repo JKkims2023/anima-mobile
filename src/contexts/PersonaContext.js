@@ -60,7 +60,7 @@ export const PersonaProvider = ({ children }) => {
 
         // ✅ Combine: Manager AI first, then user personas
         const allPersonas = [
-          managerAI,
+         // managerAI,
           ...userPersonas.map(p => ({
             ...p,
             isManager: false,

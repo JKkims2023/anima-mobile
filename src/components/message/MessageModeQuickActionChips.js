@@ -42,8 +42,8 @@ const MessageModeQuickActionChips = ({
 }) => {
   const actions = [
     { id: 'back', icon: 'arrow-left', label: '돌아가기', onClick: onBackClick },
-    { id: 'history', icon: 'history', label: '히스토리', onClick: onHistoryClick },
-    { id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick },
+  //  { id: 'history', icon: 'history', label: '히스토리', onClick: onHistoryClick },
+  //  { id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick },
 //    { id: 'preview', icon: 'eye', label: '미리보기', onClick: onPreviewClick },
   ];
   
@@ -144,23 +144,34 @@ const styles = StyleSheet.create({
   container: {
     gap: verticalScale(12),
     alignItems: 'center',
+  
   },
   chipWrapper: {
     alignItems: 'center',
   },
   chip: {
-    flexDirection: 'column',
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(26),
+    backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark background for visibility
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(16),
-    borderRadius: scale(24),
-    gap: scale(8),
-    elevation: 8,
+    justifyContent: 'center',
+    // Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
   },
   label: {
     color: '#FFFFFF',
     fontSize: scale(12),
     fontWeight: '400',
+    display: 'none',
   },
 });
 

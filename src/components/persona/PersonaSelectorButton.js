@@ -105,6 +105,10 @@ const styles = StyleSheet.create({
   container: {
 //    right: scale(20),
 //    zIndex: 200,
+    position: 'absolute',
+    top: verticalScale(20),
+    right: scale(20),
+    zIndex: 200,
   },
   button: {
     width: scale(56),

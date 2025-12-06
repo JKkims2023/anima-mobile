@@ -273,7 +273,7 @@ const MessageHistoryCard = memo(({
         {/* Content */}
         {message_content ? (
           <Animated.View style={animatedContentStyle}>
-            <CustomText type="normal" style={styles.content}>
+            <CustomText type="middle" style={styles.content}>
               {message_content}
             </CustomText>
           </Animated.View>
@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(6),
     borderRadius: scale(12),
+    display: 'none',
   },
 
   personaName: {

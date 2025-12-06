@@ -660,7 +660,7 @@ const MessagePreviewOverlay = ({
                 {/* Content with Animation (different rendering for typing) */}
                 {textAnimation === 'typing' ? (
                   <Animated.View style={contentAnimatedStyle}>
-                    <CustomText type="normal" style={styles.content}>
+                    <CustomText type="middle" style={styles.content}>
                       {typingText}
                       {showCursor && <CustomText style={styles.cursor}>▌</CustomText>}
                     </CustomText>
@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: SCREEN_HEIGHT * 0.6,
+    height: 'auto'//SCREEN_HEIGHT * 0.6,
   },
   gradientWrapper: {
     flex: 1,
@@ -877,7 +877,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: platformPadding(24),
   },
   title: {
-    fontSize: scale(28),
     lineHeight: scale(36),
     marginBottom: verticalScale(16),
     textAlign: 'left',
@@ -886,9 +885,9 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   content: {
-    fontSize: scale(20),
+    fontSize: scale(16),
     lineHeight: scale(32),
-    marginBottom: verticalScale(30),
+    marginBottom: verticalScale(0),
     textAlign: 'left',
     textShadowColor: 'rgba(0, 0, 0, 0.6)',
     textShadowOffset: { width: 0, height: 1 },

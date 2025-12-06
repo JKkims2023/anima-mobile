@@ -57,13 +57,21 @@ const PersonaSwipeViewer = forwardRef(({
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
   availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
+  filterCategoryType = 'Y',
 }, ref) => {
   const { currentTheme } = useTheme();
   
+  
   const flatListRef = useRef(null);
+  const [filteredPersonas, setFilteredPersonas] = useState(personas);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
+
+  useEffect(() => {
+    setFilteredPersonas(personas.filter(persona => persona.default_yn === filterCategoryType));
+  }, [personas, filterCategoryType]);
+  
   
   // ⭐ Expose scrollToIndex method to parent
   useImperativeHandle(ref, () => ({
@@ -279,6 +287,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderStyle: 'solid',
     borderRadius: scale(16),
+    display: 'none',
   },
   paginationDot: {
     width: scale(8),

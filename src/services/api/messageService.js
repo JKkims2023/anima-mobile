@@ -22,6 +22,7 @@
 
 import { MESSAGE_ENDPOINTS } from '../../config/api.config';
 import apiClient from './apiClient';
+import authService from './authService';
 
 
 /**
@@ -251,18 +252,19 @@ export async function reuseMessage(message_key) {
  * @param {string} message_key
  * @returns {Promise<{success: boolean, errorCode?: string}>}
  */
-export async function deleteMessage(message_key) {
+export async function deleteMessage(user_key, message_key) {
   console.log('🗑️ [messageService] Deleting message:', message_key);
   
   try {
-    const response = await apiClient(MESSAGE_ENDPOINTS.DELETE, {
-      method: 'POST',
-      body: JSON.stringify({ message_key }),
+    
+    const response = await apiClient.post(MESSAGE_ENDPOINTS.DELETE, {
+      user_key: user_key,
+      message_key: message_key,
     });
 
     console.log('🗑️ [messageService] Delete message result:', response);
 
-    if (response.success) {
+    if (response.data.success) {
       return { success: true };
     } else {
       return {

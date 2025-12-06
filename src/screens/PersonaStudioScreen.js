@@ -27,6 +27,7 @@ import { View, StyleSheet, BackHandler, PanResponder, TouchableOpacity, Dimensio
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconSearch from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
@@ -60,6 +61,7 @@ import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
 import GradientOverlay from '../components/GradientOverlay';
+import CustomSwitch from '../components/CustomSwitch';
 
 
 const PersonaStudioScreen = () => {
@@ -108,6 +110,7 @@ const PersonaStudioScreen = () => {
   const swiperRef = useRef(null); // ⭐ NEW: Ref for PersonaSwipeViewer
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
+  const [defaultMode, setDefaultMode] = useState(false);
   
   // ═══════════════════════════════════════════════════════════════════════
   // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
@@ -194,6 +197,7 @@ const PersonaStudioScreen = () => {
         setIsScreenFocused(false);
         backHandlerSubscription.remove();
         
+        
         if (__DEV__) {
           console.log('🎯 [PersonaStudioScreen] Screen BLURRED');
         }
@@ -221,6 +225,11 @@ const PersonaStudioScreen = () => {
         
         return false;
     };
+
+    if (!isMessageMode) {
+        setSelectedMessage(null);
+    }
+
     const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => {
       console.log('🎯 [PersonaStudioScreen] isMessageMode unmounted');
@@ -269,7 +278,8 @@ const PersonaStudioScreen = () => {
       p.persona_key !== 'default_nexus'
     );
     
-    return [...DEFAULT_PERSONAS, ...userPersonas];
+ //   return [...DEFAULT_PERSONAS, ...userPersonas];
+ return [...userPersonas];
   }, [personas, DEFAULT_PERSONAS]);
   
   // ═══════════════════════════════════════════════════════════════════════
@@ -590,9 +600,6 @@ const PersonaStudioScreen = () => {
   
   // 4-2. Message History (메시지 히스토리)
   const handleMessageHistory = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📜 Message history clicked');
-    }
     
     HapticService.light();
     // TODO: Open MessageHistoryBottomSheet
@@ -726,6 +733,11 @@ const PersonaStudioScreen = () => {
     // Set selected message for MessageCreatorView
     setSelectedMessage(message);
   }, []);
+
+
+  const handleDefaultModeChange = useCallback((value) => {
+    setDefaultMode(value);
+  }, []);
   
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
@@ -753,7 +765,7 @@ const PersonaStudioScreen = () => {
           onPress={handleSearchOpen}
           activeOpacity={0.7}
         >
-          <Icon name="magnify" size={scale(24)} color={currentTheme.mainColor} />
+          <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
         </TouchableOpacity>
       </View>
       
@@ -784,6 +796,7 @@ const PersonaStudioScreen = () => {
             onChatWithPersona={null} // Not used in studio mode
             enabled={!isMessageMode} // ⭐ Disable swipe in message mode
             isMessageMode={isMessageMode}
+            filterCategoryType={defaultMode ? 'Y' : 'N'}
           />
         </View>
         
@@ -864,18 +877,12 @@ const PersonaStudioScreen = () => {
             <GradientOverlay>
                 <View style={{flexDirection: 'row', padding: platformPadding(0), paddingBottom: platformPadding(20)}}>
 
-                <View style={{alignItems: 'center', justifyContent: 'center', marginRight: scale(10)}}>
-                <PersonaSelectorButton
-                    isPersonaMode={false} // Always show "Select Persona" icon
-                    onPress={handlePanelToggle}
-                />
-                </View>
                 <View style={{flex: 1, marginLeft: platformPadding(10)}}>
                     <CustomText type="big" bold >
                         {currentPersona?.persona_name}
                     </CustomText>
                     <CustomText type="title" style={{}}>
-                        {t('navigation.subtitle.home')}
+                        {t('category_type.' + currentPersona?.category_type + '_desc')}
                     </CustomText>
                 </View>
 
@@ -884,6 +891,13 @@ const PersonaStudioScreen = () => {
             </GradientOverlay>
 
         </View>
+        )}
+
+        {!defaultMode && (
+        <PersonaSelectorButton
+            isPersonaMode={false} // Always show "Select Persona" icon
+            onPress={handlePanelToggle}
+        />
         )}
         
         {/* ═════════════════════════════════════════════════════════════════ */}
@@ -897,6 +911,23 @@ const PersonaStudioScreen = () => {
           onViewAll={handleAddPersona}
           onCreatePersona={handleAddPersona}
         />
+
+        <View style={styles.stepContainer}>
+          <CustomText type="big" bold>
+            {t('message.select_mode_title')}
+          </CustomText>
+          <View style={styles.stepItemContainer}>
+
+            <CustomText type="middle" style={{marginRight: scale(10)}} bold>{t('message.select_default_mode')}</CustomText>
+            <CustomSwitch
+              style={{}}
+              value={defaultMode}
+              onValueChange={handleDefaultModeChange}
+            />
+            <CustomText type="middle" style={{marginLeft: scale(10)}} bold>{t('message.select_user_mode')}</CustomText>
+          </View>
+        </View>
+
       </View>
       
       {/* ═════════════════════════════════════════════════════════════════ */}
@@ -973,6 +1004,33 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 1,
   },
+
+  firstLaunchLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10000,
+    padding: platformPadding(20),
+    backgroundColor: COLORS.BACKGROUND_COLOR,
+  },
+
+  templateContainer: {
+
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'blue',
+  },
+
+  templateItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+  },
   
   // ⭐ Explore Mode Container (All overlays for explore mode)
   exploreModeContainer: {
@@ -1015,7 +1073,7 @@ const styles = StyleSheet.create({
    messageModeQuickChipsOverlay: {
     position: 'absolute',
     top: verticalScale(20), // Below AppHeader
-    right: scale(0),
+    right: scale(10),
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
      // ⭐ SafeArea is handled inside QuickActionChipsAnimated
@@ -1074,6 +1132,33 @@ const styles = StyleSheet.create({
   searchButton: {
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
+  },
+
+  stepContainer: {
+    position: 'absolute',
+    left: scale(10),
+    top: verticalScale(20),
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    paddingLeft: scale(20),
+    paddingRight: scale(20),
+    paddingTop: scale(10),
+    paddingBottom: scale(10),
+    borderRadius: scale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderStyle: 'solid',
+    borderRadius: scale(16),
+    zIndex: 999,
+
+  },
+
+  stepItemContainer: {
+    marginTop: scale(5),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
 });

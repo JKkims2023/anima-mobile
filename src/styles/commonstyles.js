@@ -82,6 +82,15 @@ const COLORS = {
   TEXT_PRIMARY: '#F1F5F9', // Slate 100 - Primary text
   TEXT_SECONDARY: '#94A3B8', // Slate 400 - Secondary text
   TEXT_TERTIARY: '#64748B', // Slate 500 - Tertiary text
+
+  BACKGROUND_COLOR: '#0F172A', // Slate 900 - Background color
+  BACKGROUND_COLOR_LIGHT: '#1E293B', // Slate 800 - Background color
+  BACKGROUND_COLOR_DARK: '#334155', // Slate 700 - Background color
+  BACKGROUND_COLOR_ELEVATED: '#1E293B', // Slate 800 - Background color
+  BACKGROUND_COLOR_MODAL: '#1E293B', // Slate 800 - Background color
+  BACKGROUND_COLOR_MENU_MAIN: '#0F172A', // Slate 900 - Background color
+  BACKGROUND_COLOR_MENU_MAIN_CONTENT: '#0F172A', // Slate 900 - Background color
+  BACKGROUND_COLOR_TOP_HEADER: '#0F172A', // Slate 900 - Background color
 };
 
 const styles = StyleSheet.create({

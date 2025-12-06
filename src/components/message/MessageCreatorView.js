@@ -360,16 +360,15 @@ const MessageCreatorView = ({
           >
             <View style={styles.overlayFieldHeader}>
               <Icon name="text" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
-              <CustomText type="middle" bold style={styles.overlayFieldLabel}>
-                {t('message.input.title_placeholder')}
-              </CustomText>
             </View>
             {messageTitle ? (
               <CustomText type="title" bold style={styles.overlayFieldValue}>
                 {messageTitle}
               </CustomText>
             ) : (
-              null
+              <CustomText type="middle" style={styles.overlayFieldValue}>
+                {t('message.input.title_placeholder')}
+              </CustomText>
             )}
           </TouchableOpacity>
 
@@ -382,15 +381,17 @@ const MessageCreatorView = ({
             <View style={styles.overlayFieldHeader}>
               <Icon name="text-box-outline" size={moderateScale(28)} color={COLORS.DEEP_BLUE} />
               <CustomText type="middle" bold style={styles.overlayFieldLabel}>
-                {t('message.input.content_placeholder')}
+                
               </CustomText>
             </View>
             {messageContent ? (
-              <CustomText type="normal" style={styles.overlayFieldValue} numberOfLines={4}>
+              <CustomText type="large" style={styles.overlayFieldValue} numberOfLines={4}>
                 {messageContent}
               </CustomText>
             ) : (
-              null
+              <CustomText type="middle" style={styles.overlayFieldValue}>
+                {t('message.input.content_placeholder')}
+              </CustomText>
             )}
           </TouchableOpacity>
 
@@ -529,6 +530,7 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
   },
   overlayFieldValue: {
+    fontSize: scale(16),
     color: COLORS.TEXT_PRIMARY,
     lineHeight: scale(24),
     textShadowColor: 'rgba(0, 0, 0, 0.5)',

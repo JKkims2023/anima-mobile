@@ -73,7 +73,7 @@ const MessageHistoryChips = memo(({
       <TouchableOpacity
         style={[
           styles.chip,
-          { backgroundColor: currentTheme.cardBackground },
+          {  },
           isFavorite && { backgroundColor: currentTheme.mainColor }
         ]}
         onPress={handleFavoritePress}
@@ -90,7 +90,7 @@ const MessageHistoryChips = memo(({
       <TouchableOpacity
         style={[
           styles.chip,
-          { backgroundColor: currentTheme.cardBackground }
+          { }
         ]}
         onPress={handleSharePress}
         activeOpacity={0.7}
@@ -106,7 +106,7 @@ const MessageHistoryChips = memo(({
       <TouchableOpacity
         style={[
           styles.chip,
-          { backgroundColor: currentTheme.cardBackground }
+          {  }
         ]}
         onPress={handleDeletePress}
         activeOpacity={0.7}
@@ -133,18 +133,22 @@ const styles = StyleSheet.create({
     elevation: 10, // Android
   },
   chip: {
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
-    justifyContent: 'center',
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(26),
+    backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark background for visibility
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
-    // Shadow for iOS
+    justifyContent: 'center',
+    // Shadow
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    // Elevation for Android
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
   },
 });
 

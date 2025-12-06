@@ -32,6 +32,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -62,6 +63,12 @@ const PersonaCardView = ({
   const flipAnim = useRef(new Animated.Value(0)).current;
   const videoOpacity = useRef(new Animated.Value(0)).current;
   const containerOpacity = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
+  
+  const HEADER_HEIGHT = verticalScale(80); // 헤더 높이 (타이틀 + 서브타이틀 + 패딩)
+  const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
+  
+  const availableHeight_local = SCREEN_HEIGHT  - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
   
   // ✅ Listen to modeOpacity changes to pause video when mode is switching
   useEffect(() => {
@@ -192,7 +199,7 @@ const PersonaCardView = ({
   });
 
   return (
-    <View style={[styles.container, { height: availableHeight }]} pointerEvents="box-none">
+    <View style={[styles.container, { height: availableHeight_local }]} pointerEvents="box-none">
       {/* 1. Background Image (FastImage) - Always visible for smooth loading */}
       <FastImage
         source={{ 
@@ -211,6 +218,7 @@ const PersonaCardView = ({
           style={[
             styles.videoContainer, 
             { 
+              height: availableHeight_local,
               opacity: Animated.multiply(containerOpacity, videoOpacity)
             }
           ]} 
@@ -260,11 +268,14 @@ const styles = StyleSheet.create({
   // Background Media (FastImage) - Always visible
   // ═══════════════════════════════════════════════════════════════════════════
   backgroundMedia: {
+    /*
     position: 'absolute',
     top: 0,
     left: 0,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
+    */
+    ...StyleSheet.absoluteFillObject,
     zIndex: 0,
     ...(Platform.OS === 'android' && {
       elevation: 0,
@@ -275,11 +286,11 @@ const styles = StyleSheet.create({
   // Video Container (Fades in over image)
   // ═══════════════════════════════════════════════════════════════════════════
   videoContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+ //   position: 'absolute',
+ //   top: 0,
+ //   left: 0,
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+//    height: SCREEN_HEIGHT,
     zIndex: 1,
     ...(Platform.OS === 'android' && {
       elevation: 1,

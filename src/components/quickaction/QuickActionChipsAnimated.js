@@ -43,8 +43,8 @@ const QuickActionChipsAnimated = ({
 
   const actions = [
   //  { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
-    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'share', icon: 'share', label: t('common.share'), onClick: onShareClick },
+//    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
+//    { id: 'share', icon: 'share', label: t('common.share'), onClick: onShareClick },
 //    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
 //    {id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick},
 //    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
