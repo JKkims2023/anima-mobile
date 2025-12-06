@@ -261,12 +261,138 @@ const ChoicePersonaSheet = ({
       snapPoints={['85%']}
       title={t('persona.creation.title', '새로운 페르소나')}
       showCloseButton={true}
+      buttons={[
+        {
+          title:t('common.cancel', '취소'),
+          type: 'outline',
+          onPress: onClose,
+        },
+        {
+          title: t('persona.creation.create_button', '생성하기'),
+          type: 'primary',
+          onPress: handleCreate,
+        }
+      ]}
     >
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* SECTION 2: Name Input                                              */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        <View style={[styles.section, { marginTop: verticalScale(-10) }]}>
+          <View style={styles.sectionHeader}>
+            <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
+            <CustomText type="big" bold style={styles.sectionTitle}>
+              {t('persona.creation.name_title', '이름')}
+            </CustomText>
+          </View>
+
+          <View style={styles.nameInputContainer}>
+            <CustomTextInput
+              value={name}
+              onChangeText={handleNameChange}
+              placeholder={t('persona.creation.name_hint', '예: 민지, Alex')}
+              maxLength={20}
+              style={styles.input}
+              autoCapitalize="words"
+            />
+
+            {/* Character count */}
+            <View style={styles.nameCharCount}>
+              <CustomText 
+                style={{ color: name.length >= 18 ? '#F59E0B' : currentTheme.textTertiary }}
+              >
+                {name.length}/20
+              </CustomText>
+            </View>
+
+            {/* Validation indicator */}
+            {!nameError && name && (
+              <Animated.View style={[styles.nameCheckIcon, nameCheckAnimStyle]}>
+                <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
+              </Animated.View>
+            )}
+
+            {nameError && (
+              <View style={styles.nameErrorIcon}>
+                <Icon name="alert-circle" size={moderateScale(20)} color="#EF4444" />
+              </View>
+            )}
+          </View>
+
+          {/* Error message */}
+          {nameError && (
+            <CustomText type="small" style={styles.nameErrorText}>
+              {nameError === 'required' 
+                ? t('persona.creation.name_error_required', '이름을 입력해주세요')
+                : t('persona.creation.name_error_too_long', '이름은 20자 이하로 입력해주세요')
+              }
+            </CustomText>
+          )}
+        </View>
+
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* SECTION 2: Discription Input                                              */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
+          <View style={styles.sectionHeader}>
+            <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
+            <CustomText type="big" bold style={styles.sectionTitle}>
+              {t('persona.creation.description_title', '설명')}
+            </CustomText>
+          </View>
+
+          <View style={styles.nameInputContainer}>
+            <CustomTextInput
+              value={name}
+              onChangeText={handleNameChange}
+              placeholder={t('persona.creation.description_hint', '예: 민지, Alex')}
+              maxLength={20}
+              style={styles.input}
+              autoCapitalize="words"
+            />
+
+            {/* Character count */}
+            <View style={styles.nameCharCount}>
+              <CustomText 
+                style={{ color: name.length >= 18 ? '#F59E0B' : currentTheme.textTertiary }}
+              >
+                {name.length}/20
+              </CustomText>
+            </View>
+
+            {/* Validation indicator */}
+            {!nameError && name && (
+              <Animated.View style={[styles.nameCheckIcon, nameCheckAnimStyle]}>
+                <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
+              </Animated.View>
+            )}
+
+            {nameError && (
+              <View style={styles.nameErrorIcon}>
+                <Icon name="alert-circle" size={moderateScale(20)} color="#EF4444" />
+              </View>
+            )}
+          </View>
+
+          {/* Error message */}
+          {nameError && (
+            <CustomText type="small" style={styles.nameErrorText}>
+              {nameError === 'required' 
+                ? t('persona.creation.name_error_required', '이름을 입력해주세요')
+                : t('persona.creation.name_error_too_long', '이름은 20자 이하로 입력해주세요')
+              }
+            </CustomText>
+          )}
+        </View>
+
+        {/* Divider */}
+        <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
+
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 1: Photo Upload                                            */}
         {/* ═════════════════════════════════════════════════════════════════ */}
@@ -326,75 +452,10 @@ const ChoicePersonaSheet = ({
           </TouchableOpacity>
         </View>
 
-        {/* Divider */}
-        <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
-
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 2: Name Input                                              */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
-            <CustomText type="big" bold style={styles.sectionTitle}>
-              {t('persona.creation.name_title', '이름')}
-            </CustomText>
-          </View>
-
-          <CustomText type="small" style={[styles.sectionHint, {display: 'none', color: currentTheme.textSecondary }]}>
-            {t('persona.creation.name_hint', '페르소나의 이름을 입력해주세요 (최대 20자)')}
-          </CustomText>
-
-          <View style={styles.nameInputContainer}>
-            <CustomTextInput
-              value={name}
-              onChangeText={handleNameChange}
-              placeholder={t('persona.creation.name_hint', '예: 민지, Alex')}
-              maxLength={20}
-              style={styles.nameInput}
-              autoCapitalize="words"
-            />
-
-            {/* Character count */}
-            <View style={styles.nameCharCount}>
-              <CustomText 
-                style={{ color: name.length >= 18 ? '#F59E0B' : currentTheme.textTertiary }}
-              >
-                {name.length}/20
-              </CustomText>
-            </View>
-
-            {/* Validation indicator */}
-            {!nameError && name && (
-              <Animated.View style={[styles.nameCheckIcon, nameCheckAnimStyle]}>
-                <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
-              </Animated.View>
-            )}
-
-            {nameError && (
-              <View style={styles.nameErrorIcon}>
-                <Icon name="alert-circle" size={moderateScale(20)} color="#EF4444" />
-              </View>
-            )}
-          </View>
-
-          {/* Error message */}
-          {nameError && (
-            <CustomText type="small" style={styles.nameErrorText}>
-              {nameError === 'required' 
-                ? t('persona.creation.name_error_required', '이름을 입력해주세요')
-                : t('persona.creation.name_error_too_long', '이름은 20자 이하로 입력해주세요')
-              }
-            </CustomText>
-          )}
-        </View>
-
-        {/* Divider */}
-        <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
-
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 3: Gender Selection                                        */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.section}>
+        <View style={[styles.section, { display: 'none' }]}>
           <View style={styles.sectionHeader}>
             <Icon name="human-male-female" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="big" bold style={styles.sectionTitle}>
@@ -461,8 +522,6 @@ const ChoicePersonaSheet = ({
           </View>
         </View>
 
-        {/* Divider */}
-        <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
 
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 4: Point Info (Optional)                                   */}
@@ -514,7 +573,7 @@ const ChoicePersonaSheet = ({
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* FOOTER: Create Button                                              */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <View style={[styles.footer, { backgroundColor: currentTheme.backgroundColor }]}>
+      <View style={[styles.footer, { backgroundColor: currentTheme.backgroundColor, display: 'none' }]}>
         <CustomButton
           title={t('persona.creation.create_button', '생성하기')}
           onPress={handleCreate}
@@ -530,11 +589,14 @@ const ChoicePersonaSheet = ({
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
+    paddingBottom: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(0),
+    marginBottom: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(0),
   },
   scrollContent: {
     paddingHorizontal: scale(0),
     paddingTop: verticalScale(10),
-    paddingBottom: verticalScale(10),
+    paddingBottom: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(0),
+    marginBottom: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(0),
   },
 
   // Section
@@ -608,7 +670,6 @@ const styles = StyleSheet.create({
   // Name Input
   nameInputContainer: {
     position: 'relative',
-    marginTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(-10),
   },
   nameInput: {
     paddingRight: scale(80), // Space for indicators
@@ -686,6 +747,56 @@ const styles = StyleSheet.create({
   createButton: {
     width: '100%',
   },
+
+  inputContainer: {
+    padding: platformPadding(20),
+  },
+  input: {
+    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    borderWidth: 2,
+    borderColor: 'rgba(156, 163, 175, 0.3)',
+    borderRadius: scale(12),
+    paddingHorizontal: platformPadding(16),
+    paddingVertical: platformPadding(14),
+    fontSize: moderateScale(15),
+    color: '#FFFFFF',
+    minHeight: scale(50),
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'Roboto',
+    }),
+    // ✅ Android specific fixes
+    ...(Platform.OS === 'android' && {
+      paddingTop: platformPadding(14),
+      paddingBottom: platformPadding(14),
+      textAlignVertical: 'top',
+      includeFontPadding: false,
+      underlineColorAndroid: 'transparent',
+    }),
+  },
+  inputMultiline: {
+    minHeight: scale(120),
+    maxHeight: scale(200),
+    textAlignVertical: 'top',
+  },
+  inputFocused: {
+    borderColor: COLORS.DEEP_BLUE,
+    backgroundColor: 'rgba(30, 41, 59, 0.8)',
+    shadowColor: COLORS.DEEP_BLUE,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: scale(8),
+    elevation: 4,
+  },
+  counterContainer: {
+    alignItems: 'flex-end',
+    marginTop: scale(8),
+  },
+  counter: {
+    color: 'rgba(156, 163, 175, 0.6)',
+    fontSize: moderateScale(12),
+  },
+  
 });
 
 export default ChoicePersonaSheet;
