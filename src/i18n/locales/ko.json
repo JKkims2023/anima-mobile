@@ -1812,11 +1812,22 @@
     "message": "작성하기"
   },
   "history": {
-
-    "loading": "메세지 불러오는 중...",
+    "title": "메시지 히스토리",
+    "messages_count": "개",
+    "loading": "메시지 불러오는 중...",
     "empty": "생성한 메시지가 없습니다",
     "empty_title": "아직 생성한 메시지가 없습니다",
     "empty_subtitle": "홈 화면에서 당신의 첫 메시지를 만들어보세요!",
+    "no_messages": "생성한 메시지가 없습니다",
+    "create_first_message": "홈 화면에서 첫 메시지를 만들어보세요! 💌",
+    "no_results": "검색 결과가 없습니다",
+    "try_different_filter": "다른 검색어나 필터를 시도해보세요",
+    "search_placeholder": "제목, 내용, 페르소나 이름으로 검색...",
+    "filter_all": "전체",
+    "filter_favorite": "즐겨찾기",
+    "filter_replies": "댓글있음",
+    "untitled": "제목 없음",
+    "favorite": "즐겨찾기",
     "all_swiped_title": "모두 확인하셨습니다!",
     "all_swiped_subtitle": "새로운 메시지를 기다리거나, 다시 시작해보세요.",
     "reset_button": "처음부터 다시 보기"

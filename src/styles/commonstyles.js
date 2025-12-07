@@ -84,6 +84,7 @@ const COLORS = {
   TEXT_TERTIARY: '#64748B', // Slate 500 - Tertiary text
 
   BACKGROUND_COLOR: '#0F172A', // Slate 900 - Background color
+  BACKGROUND: '#0F172A', // Alias for BACKGROUND_COLOR
   BACKGROUND_COLOR_LIGHT: '#1E293B', // Slate 800 - Background color
   BACKGROUND_COLOR_DARK: '#334155', // Slate 700 - Background color
   BACKGROUND_COLOR_ELEVATED: '#1E293B', // Slate 800 - Background color
@@ -91,6 +92,10 @@ const COLORS = {
   BACKGROUND_COLOR_MENU_MAIN: '#0F172A', // Slate 900 - Background color
   BACKGROUND_COLOR_MENU_MAIN_CONTENT: '#0F172A', // Slate 900 - Background color
   BACKGROUND_COLOR_TOP_HEADER: '#0F172A', // Slate 900 - Background color
+  
+  // Additional colors
+  neonBlue: '#3B82F6', // Neon Blue - same as DEEP_BLUE
+  gold: '#FFD700', // Gold color for favorite/premium
 };
 
 const styles = StyleSheet.create({

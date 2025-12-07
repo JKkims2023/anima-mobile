@@ -167,10 +167,13 @@ export const createPersona = async (userKey, personaData) => {
  * @param {string} personaKey - Persona's unique key
  * @returns {Promise<Object>} Status information
  */
-export const checkPersonaStatus = async (personaKey) => {
+export const checkPersonaStatus = async (personaKey, memoryKey, bricKey, promptText) => {
   try {
     const response = await apiClient.post(PERSONA_ENDPOINTS.CHECK_STATUS, {
       persona_key: personaKey,
+      memory_key: memoryKey,
+      bric_key: bricKey,
+      prompt_text: promptText,
     });
 
     return response.data || {};

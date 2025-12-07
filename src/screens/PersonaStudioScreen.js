@@ -434,12 +434,14 @@ const PersonaStudioScreen = () => {
         throw new Error(response.error || 'Persona creation failed');
       }
       
-      const { persona_key, estimate_time, persona_url } = response.data;
+      const { persona_key, estimate_time, persona_url, memory_key, bric_key } = response.data;
       
       console.log('[PersonaStudioScreen] ✅ Persona creation initiated:', {
         persona_key,
         estimate_time,
         persona_url,
+        bric_key,
+        memory_key,
       });
       
       // Start polling for persona status
@@ -451,7 +453,8 @@ const PersonaStudioScreen = () => {
         checkCount++;
         
         try {
-          const statusResponse = await checkPersonaStatus(persona_key);
+          
+          const statusResponse = await checkPersonaStatus(persona_key, memory_key, bric_key, data.description);
           
           console.log('[PersonaStudioScreen] 📊 Status check:', {
             checkCount,
