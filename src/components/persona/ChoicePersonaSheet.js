@@ -31,7 +31,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import CustomTextInput from '../CustomTextInput';
@@ -41,6 +40,7 @@ import { scale, verticalScale, moderateScale, platformPadding } from '../../util
 import { COLORS } from '../../styles/commonstyles';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
+import MessageInputOverlay from '../message/MessageInputOverlay';
 
 const ChoicePersonaSheet = ({
   isOpen,
@@ -50,6 +50,10 @@ const ChoicePersonaSheet = ({
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const bottomSheetRef = useRef(null);
+  
+  // ✅ Modal Refs for Input Overlays
+  const nameInputRef = useRef(null);
+  const descriptionInputRef = useRef(null);
 
   // States
   const [photo, setPhoto] = useState(null); // { uri, type, name }
@@ -154,6 +158,32 @@ const ChoicePersonaSheet = ({
   }, [photoScale]);
 
   // ═══════════════════════════════════════════════════════════════════════
+  // INPUT MODAL HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const handleNameClick = useCallback(() => {
+    HapticService.light();
+    nameInputRef.current?.present();
+  }, []);
+
+  const handleDescriptionClick = useCallback(() => {
+    HapticService.light();
+    descriptionInputRef.current?.present();
+  }, []);
+
+  const handleNameSave = useCallback((value) => {
+    console.log('✅ [ChoicePersonaSheet] Name saved:', value);
+    setName(value);
+    validateName(value);
+  }, []);
+
+  const handleDescriptionSave = useCallback((value) => {
+    console.log('✅ [ChoicePersonaSheet] Description saved:', value);
+    setDescription(value);
+    validateDescription(value);
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════
   // NAME VALIDATION
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -201,15 +231,6 @@ const ChoicePersonaSheet = ({
 }, [descriptionCheckScale]);
 
 
-  const handleNameChange = useCallback((text) => {
-    setName(text);
-    validateName(text);
-  }, [validateName]);
-
-  const handleDescriptionChange = useCallback((text) => {
-    setDescription(text);
-    validateDescription(text);
-  }, [validateDescription]);
 
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -306,8 +327,6 @@ const ChoicePersonaSheet = ({
   // ═══════════════════════════════════════════════════════════════════════
 
   console.log('[ChoicePersonaSheet] 🎨 Rendering with isOpen:', isOpen);
-  console.log('🚀 [ChoicePersonaSheet] Using BottomSheetTextInput from @gorhom/bottom-sheet');
-  console.log('🚀 [ChoicePersonaSheet] BottomSheetTextInput type:', typeof BottomSheetTextInput);
 
   return (
     <CustomBottomSheet
@@ -336,7 +355,7 @@ const ChoicePersonaSheet = ({
       >
 
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 2: Name Input                                              */}
+        {/* SECTION 2: Name Input (클릭 시 Modal)                              */}
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={[styles.section, { marginTop: verticalScale(-10) }]}>
           <View style={styles.sectionHeader}>
@@ -346,66 +365,47 @@ const ChoicePersonaSheet = ({
             </CustomText>
           </View>
 
-          <View style={styles.nameInputContainer}>
-            {/* ✅ BottomSheetTextInput: 한글 입력 최적화 */}
-            <BottomSheetTextInput
+          {/* ✅ 클릭 가능한 입력 영역 (읽기 전용 표시) */}
+          <TouchableOpacity
+            style={[
+              styles.inputDisplay,
+              { borderColor: name ? COLORS.DEEP_BLUE : 'rgba(156, 163, 175, 0.3)' }
+            ]}
+            onPress={handleNameClick}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="normal"
               style={[
-                styles.input,
-                // isFocused && styles.inputFocused, // ✅ 주석: Android 내부 사각형 방지
+                styles.inputDisplayText,
+                !name && styles.inputDisplayPlaceholder
               ]}
-              value={name}
-              onChangeText={(text) => {
-                console.log('🔥 [ChoicePersonaSheet] BottomSheetTextInput onChange:', text);
-                console.log('🔥 [ChoicePersonaSheet] Text length:', text.length);
-                console.log('🔥 [ChoicePersonaSheet] Text bytes:', Buffer.from(text, 'utf8').length);
-                handleNameChange(text);
-              }}
-              onFocus={() => {
-                console.log('🎯 [ChoicePersonaSheet] ✅ BottomSheetTextInput focused!');
-                setIsNameFocused(true);
-              }}
-              onBlur={() => {
-                console.log('[ChoicePersonaSheet] Name input blurred!');
-                setIsNameFocused(false);
-              }}
-              placeholder={t('persona.creation.name_hint', '예: 민지, Alex')}
-              placeholderTextColor="rgba(156, 163, 175, 0.6)"
-              multiline={false}
               numberOfLines={1}
-              maxLength={20}
-              autoFocus={false}
-              autoCorrect={false}
-              autoCapitalize="sentences"
-              textAlignVertical="center"
-              editable={true}
-              selectTextOnFocus={false}
-              returnKeyType="done"
-              blurOnSubmit={true}
-              underlineColorAndroid="transparent"
-            />
+            >
+              {name || t('persona.creation.name_hint', '예: 민지, Alex')}
+            </CustomText>
 
-            {/* Character count */}
-            <View style={styles.nameCharCount}>
+            <View style={styles.inputDisplayRight}>
+              {/* Character count */}
               <CustomText 
+                type="small"
                 style={{ color: name.length >= 18 ? '#F59E0B' : currentTheme.textTertiary }}
               >
                 {name.length}/20
               </CustomText>
-            </View>
 
-            {/* Validation indicator */}
-            {!nameError && name && (
-              <Animated.View style={[styles.nameCheckIcon, nameCheckAnimStyle]}>
-                <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
-              </Animated.View>
-            )}
-
-            {nameError && (
-              <View style={styles.nameErrorIcon}>
+              {/* Validation indicator */}
+              {!nameError && name ? (
+                <Animated.View style={nameCheckAnimStyle}>
+                  <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
+                </Animated.View>
+              ) : nameError ? (
                 <Icon name="alert-circle" size={moderateScale(20)} color="#EF4444" />
-              </View>
-            )}
-          </View>
+              ) : (
+                <Icon name="pencil" size={moderateScale(20)} color={COLORS.TEXT_SECONDARY} />
+              )}
+            </View>
+          </TouchableOpacity>
 
           {/* Error message */}
           {nameError && (
@@ -419,7 +419,7 @@ const ChoicePersonaSheet = ({
         </View>
 
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 2: Discription Input                                              */}
+        {/* SECTION 3: Description Input (클릭 시 Modal)                       */}
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={[styles.section, { marginTop: verticalScale(10) }]}>
           <View style={styles.sectionHeader}>
@@ -429,64 +429,47 @@ const ChoicePersonaSheet = ({
             </CustomText>
           </View>
 
-          <View style={styles.nameInputContainer}>
-            {/* ✅ BottomSheetTextInput: 한글 입력 최적화 */}
-            <BottomSheetTextInput
+          {/* ✅ 클릭 가능한 입력 영역 (읽기 전용 표시) */}
+          <TouchableOpacity
+            style={[
+              styles.inputDisplay,
+              { borderColor: description ? COLORS.DEEP_BLUE : 'rgba(156, 163, 175, 0.3)' }
+            ]}
+            onPress={handleDescriptionClick}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="normal"
               style={[
-                styles.input,
-                // isDescriptionFocused && styles.inputFocused,
+                styles.inputDisplayText,
+                !description && styles.inputDisplayPlaceholder
               ]}
-              value={description}
-              onChangeText={(text) => {
-                console.log('🔥 [ChoicePersonaSheet] Description BottomSheetTextInput onChange:', text);
-                handleDescriptionChange(text);
-              }}
-              onFocus={() => {
-                console.log('🎯 [ChoicePersonaSheet] ✅ Description BottomSheetTextInput focused!');
-                setIsDescriptionFocused(true);
-              }}
-              onBlur={() => {
-                console.log('[ChoicePersonaSheet] Description input blurred!');
-                setIsDescriptionFocused(false);
-              }}
-              placeholder={t('persona.creation.description_hint', '예: 산타 복장, 빨간 벤츠, 웃는 얼굴')}
-              placeholderTextColor="rgba(156, 163, 175, 0.6)"
-              multiline={false}
               numberOfLines={1}
-              maxLength={50}
-              autoFocus={false}
-              autoCorrect={false}
-              autoCapitalize="words"
-              textAlignVertical="center"
-              editable={true}
-              selectTextOnFocus={false}
-              returnKeyType="done"
-              blurOnSubmit={true}
-              underlineColorAndroid="transparent"
-            />
+            >
+              {description || t('persona.creation.description_hint', '예: 산타 복장, 빨간 벤츠, 웃는 얼굴')}
+            </CustomText>
 
-            {/* Character count */}
-            <View style={styles.descriptionCharCount}>
+            <View style={styles.inputDisplayRight}>
+              {/* Character count */}
               <CustomText 
+                type="small"
                 style={{ color: description.length >= 50 ? '#F59E0B' : currentTheme.textTertiary }}
               >
                 {description.length}/50
               </CustomText>
-            </View>
 
-            {/* Validation indicator */}
-            {!descriptionError && description && (
-              <Animated.View style={[styles.nameCheckIcon, descriptionCheckAnimStyle]}>
-                <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
-              </Animated.View>
-            )}
-
-            {descriptionError && (
-              <View style={styles.nameErrorIcon}>
+              {/* Validation indicator */}
+              {!descriptionError && description ? (
+                <Animated.View style={descriptionCheckAnimStyle}>
+                  <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
+                </Animated.View>
+              ) : descriptionError ? (
                 <Icon name="alert-circle" size={moderateScale(20)} color="#EF4444" />
-              </View>
-            )}
-          </View>
+              ) : (
+                <Icon name="pencil" size={moderateScale(20)} color={COLORS.TEXT_SECONDARY} />
+              )}
+            </View>
+          </TouchableOpacity>
 
           {/* Error message */}
           {descriptionError && (
@@ -691,6 +674,31 @@ const ChoicePersonaSheet = ({
           leftIcon={<Icon name="sparkles" size={moderateScale(20)} color={COLORS.TEXT_PRIMARY} />}
         />
       </View>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Input Modal Overlays                                                */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <MessageInputOverlay
+        ref={nameInputRef}
+        title={t('persona.creation.name_title', '이름')}
+        placeholder={t('persona.creation.name_hint', '예: 민지, Alex')}
+        leftIcon="account"
+        initialValue={name}
+        maxLength={20}
+        multiline={false}
+        onSave={handleNameSave}
+      />
+
+      <MessageInputOverlay
+        ref={descriptionInputRef}
+        title={t('persona.creation.description_title', '설명')}
+        placeholder={t('persona.creation.description_hint', '예: 산타 복장, 빨간 벤츠, 웃는 얼굴')}
+        leftIcon="text-box"
+        initialValue={description}
+        maxLength={50}
+        multiline={false}
+        onSave={handleDescriptionSave}
+      />
     </CustomBottomSheet>
   );
 };
@@ -910,6 +918,32 @@ const styles = StyleSheet.create({
   counter: {
     color: 'rgba(156, 163, 175, 0.6)',
     fontSize: moderateScale(12),
+  },
+
+  // ✅ Input Display (클릭 가능한 읽기 전용 표시)
+  inputDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    borderWidth: 2,
+    borderRadius: scale(12),
+    paddingHorizontal: platformPadding(16),
+    paddingVertical: platformPadding(14),
+    minHeight: scale(50),
+  },
+  inputDisplayText: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: moderateScale(15),
+  },
+  inputDisplayPlaceholder: {
+    color: 'rgba(156, 163, 175, 0.6)',
+  },
+  inputDisplayRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(12),
   },
   
 });
