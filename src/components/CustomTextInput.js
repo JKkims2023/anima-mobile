@@ -31,6 +31,7 @@ const CustomTextInput = (props) => {
   // Manage focus state
   const [isFocused, setIsFocused] = useState(false);
   
+  
   // Set selection prop for consistent handling of overflow text
   // On Android, show the end part when text is long, but set to show the start part like iOS
   const selectionProp = Platform.OS === 'android' && !isFocused && value && value.length > 0
@@ -87,6 +88,27 @@ const CustomTextInput = (props) => {
   const focusedStyle = isFocused ? {
     borderColor: commonstyles.whiteTheme.mainColor,
   } : {};
+
+  const onCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const onCompositionUpdate = (event) => {
+    // 중간 입력값 처리 (선택 사항)
+    // setText(event.nativeEvent.text);
+  };
+
+  const onCompositionEnd = (event) => {
+    setIsComposing(false);
+    setText(event.nativeEvent.text); // 완성된 텍스트 설정
+  };
+
+  const onChangeText = (newText) => {
+    // isComposing 상태일 때는 onChangeText에서 바로 설정하지 않고, onCompositionEnd에서 처리
+    if (!isComposing) {
+      setText(newText);
+    }
+  };
   
   // If multiline, wrap TextInput with View to apply border styling
   if (multiline) {
@@ -124,6 +146,7 @@ const CustomTextInput = (props) => {
       onFocus={handleFocus} // Update state when gaining focus
       underlineColorAndroid="transparent" // Remove default underline on Android
       {...selectionProp} // Apply selection prop for overflow handling
+      fontFamily='System'
     />
   );
 };

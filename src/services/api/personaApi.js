@@ -101,6 +101,7 @@ export const createPersona = async (userKey, personaData) => {
       console.log('🎭 [PersonaAPI] Creating persona:', {
         userKey,
         name: personaData.name,
+        description: personaData.description,
         gender: personaData.gender,
         hasPhoto: !!personaData.photo,
       });
@@ -110,6 +111,7 @@ export const createPersona = async (userKey, personaData) => {
     const formData = new FormData();
     formData.append('user_key', userKey);
     formData.append('name', personaData.name);
+    formData.append('description', personaData.description);
     formData.append('selectedType', personaData.gender); // 'male' or 'female'
     
     // Append photo file

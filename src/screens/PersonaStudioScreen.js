@@ -386,6 +386,7 @@ const PersonaStudioScreen = () => {
     console.log('[PersonaStudioScreen] ✨ Persona creation started:', {
       name: data.name,
       gender: data.gender,
+      description: data.description,
       hasFile: !!data.file,
     });
     
@@ -402,6 +403,7 @@ const PersonaStudioScreen = () => {
       // Call API to create persona
       const response = await createPersona(user.user_key, {
         name: data.name,
+        description: data.description,
         gender: data.gender,
         photo: data.file,
       });
