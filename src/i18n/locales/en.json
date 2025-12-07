@@ -1785,6 +1785,21 @@
       "default": "General"
     }
   },
+  "category_type": {
+    "all": "All",
+    "normal": "Daily",
+    "thanks": "Thanks",
+    "apologize": "Apology",
+    "hope": "Hope",
+    "cheer_up": "Cheer Up",
+    "congrats": "Congrats",
+    "birthday": "Birthday",
+    "christmas": "Christmas",
+    "new_year": "New Year",
+    "romantic": "Love",
+    "comfort": "Comfort",
+    "sadness": "Sadness"
+  },
   "search": {
     "placeholder": {
       "persona": "Search persona name",

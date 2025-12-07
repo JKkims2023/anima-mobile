@@ -1793,6 +1793,7 @@
     "reset_button": "처음부터 다시 보기"
   },
   "category_type": {
+    "all": "전체",
     "normal": "일상",
     "normal_desc": "일상적인 메시지에 적합한 페르소나 입니다.",
     "thanks": "감사",

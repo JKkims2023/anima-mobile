@@ -25,6 +25,25 @@ import { scale, verticalScale, platformPadding } from '../../utils/responsive-ut
 import HapticService from '../../utils/HapticService';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// CATEGORY CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
+const PERSONA_CATEGORIES = [
+  { key: 'all', emoji: '🌐' },
+  { key: 'normal', emoji: '☀️' },
+  { key: 'thanks', emoji: '🙏' },
+  { key: 'apologize', emoji: '🙇' },
+  { key: 'hope', emoji: '✨' },
+  { key: 'cheer_up', emoji: '📣' },
+  { key: 'congrats', emoji: '🎉' },
+  { key: 'birthday', emoji: '🎂' },
+  { key: 'christmas', emoji: '🎄' },
+  { key: 'new_year', emoji: '🎊' },
+  { key: 'romantic', emoji: '💕' },
+  { key: 'comfort', emoji: '🤗' },
+  { key: 'sadness', emoji: '😢' },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -44,6 +63,8 @@ const PersonaSearchOverlay = ({
   // STATE
   // ═══════════════════════════════════════════════════════════════════════
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all'); // ⭐ NEW: Category filter
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false); // ⭐ NEW: Dropdown state
   const [filteredPersonas, setFilteredPersonas] = useState(personas);
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -54,6 +75,8 @@ const PersonaSearchOverlay = ({
   useEffect(() => {
     if (visible) {
       setSearchQuery('');
+      setSelectedCategory('all');
+      setIsCategoryDropdownOpen(false);
       setFilteredPersonas(personas);
       // Delay to ensure modal is fully rendered
       setTimeout(() => {
@@ -62,21 +85,26 @@ const PersonaSearchOverlay = ({
     }
   }, [visible, personas]);
 
-  // Filter personas by search query
+  // ⭐ Filter personas by search query AND category
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredPersonas(personas);
-      return;
+    let filtered = [...personas];
+
+    // 1️⃣ Category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter((persona) => persona.category_type === selectedCategory);
     }
 
-    const query = searchQuery.toLowerCase().trim();
-    const filtered = personas.filter((persona) => {
-      const name = persona.persona_name?.toLowerCase() || '';
-      return name.includes(query);
-    });
+    // 2️⃣ Name search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((persona) => {
+        const name = persona.persona_name?.toLowerCase() || '';
+        return name.includes(query);
+      });
+    }
 
     setFilteredPersonas(filtered);
-  }, [searchQuery, personas]);
+  }, [searchQuery, selectedCategory, personas]);
 
   // ═══════════════════════════════════════════════════════════════════════
   // HANDLERS
@@ -100,6 +128,17 @@ const PersonaSearchOverlay = ({
     Keyboard.dismiss();
     onSelectPersona?.(persona, index);
     handleClose();
+  };
+
+  const handleToggleCategoryDropdown = () => {
+    HapticService.light();
+    setIsCategoryDropdownOpen((prev) => !prev);
+  };
+
+  const handleSelectCategory = (categoryKey) => {
+    HapticService.light();
+    setSelectedCategory(categoryKey);
+    setIsCategoryDropdownOpen(false);
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -157,6 +196,82 @@ const PersonaSearchOverlay = ({
           color={isActive ? theme.mainColor : theme.textSecondary}
         />
       </TouchableOpacity>
+    );
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER: Category Dropdown
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const renderCategoryDropdown = () => {
+    const selectedCategoryData = PERSONA_CATEGORIES.find((cat) => cat.key === selectedCategory);
+
+    return (
+      <View style={styles.categoryContainer}>
+        {/* Dropdown Button */}
+        <TouchableOpacity
+          style={[
+            styles.categoryButton,
+            {
+              backgroundColor: theme.bgSecondary,
+              borderColor: theme.borderColor,
+            },
+          ]}
+          onPress={handleToggleCategoryDropdown}
+          activeOpacity={0.7}
+        >
+          <CustomText type="body" style={{ color: theme.textPrimary }}>
+            {selectedCategoryData?.emoji} {t(`category_type.${selectedCategory}`)}
+          </CustomText>
+          <Icon
+            name={isCategoryDropdownOpen ? 'chevron-up' : 'chevron-down'}
+            size={scale(20)}
+            color={theme.textSecondary}
+          />
+        </TouchableOpacity>
+
+        {/* Dropdown List */}
+        {isCategoryDropdownOpen && (
+          <View
+            style={[
+              styles.dropdownList,
+              {
+                backgroundColor: theme.bgSecondary,
+                borderColor: theme.borderColor,
+              },
+            ]}
+          >
+            {PERSONA_CATEGORIES.map((category) => {
+              const isSelected = category.key === selectedCategory;
+              return (
+                <TouchableOpacity
+                  key={category.key}
+                  style={[
+                    styles.dropdownItem,
+                    isSelected && {
+                      backgroundColor: `${theme.mainColor}15`,
+                    },
+                  ]}
+                  onPress={() => handleSelectCategory(category.key)}
+                  activeOpacity={0.7}
+                >
+                  <CustomText
+                    type="body"
+                    style={{
+                      color: isSelected ? theme.mainColor : theme.textPrimary,
+                    }}
+                  >
+                    {category.emoji} {t(`category_type.${category.key}`)}
+                  </CustomText>
+                  {isSelected && (
+                    <Icon name="check" size={scale(20)} color={theme.mainColor} />
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </View>
     );
   };
 
@@ -253,6 +368,11 @@ const PersonaSearchOverlay = ({
         </View>
 
         {/* ════════════════════════════════════════════════════════════════ */}
+        {/* Category Dropdown */}
+        {/* ════════════════════════════════════════════════════════════════ */}
+        {renderCategoryDropdown()}
+
+        {/* ════════════════════════════════════════════════════════════════ */}
         {/* Search Results */}
         {/* ════════════════════════════════════════════════════════════════ */}
         <FlatList
@@ -321,10 +441,55 @@ const styles = StyleSheet.create({
     padding: platformPadding(4),
   },
 
+  // ⭐ Category Dropdown
+  categoryContainer: {
+    paddingHorizontal: platformPadding(16),
+    paddingTop: platformPadding(16),
+    paddingBottom: platformPadding(8),
+    position: 'relative',
+    zIndex: 1000, // ⭐ Ensure dropdown is above list
+  },
+
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: scale(12),
+    borderWidth: 1,
+    paddingHorizontal: platformPadding(16),
+    paddingVertical: platformPadding(12),
+  },
+
+  dropdownList: {
+    position: 'absolute',
+    top: platformPadding(72), // Below button
+    left: platformPadding(16),
+    right: platformPadding(16),
+    borderRadius: scale(12),
+    borderWidth: 1,
+    maxHeight: verticalScale(300), // ⭐ Scrollable if too many items
+    zIndex: 1001,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: platformPadding(16),
+    paddingVertical: platformPadding(14),
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+
   // ⭐ List
   listContent: {
     paddingHorizontal: platformPadding(16),
-    paddingTop: platformPadding(16),
+    paddingTop: platformPadding(8), // ⭐ Reduced padding (category dropdown above)
   },
 
   // ⭐ Persona Item
