@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 
 // Import screens
@@ -9,6 +10,7 @@ import PersonaScreen from '../screens/PersonaScreen';
 import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ NEW: Unified Persona Studio
 import MusicScreen from '../screens/MusicScreen';
 import HistoryScreen from '../screens/HistoryScreen'; // ⭐ NEW: Message History
+import MessageDetailScreen from '../screens/MessageDetailScreen'; // ⭐ NEW: Message Detail
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -16,6 +18,30 @@ import SettingsScreen from '../screens/SettingsScreen';
 import CustomTabBar from '../components/navigation/CustomTabBar';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+/**
+ * HistoryStack - Stack Navigator for History Tab
+ * Allows navigation from HistoryScreen -> MessageDetailScreen
+ */
+const HistoryStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen 
+        name="HistoryList" 
+        component={HistoryScreen}
+      />
+      <Stack.Screen 
+        name="MessageDetail" 
+        component={MessageDetailScreen}
+      />
+    </Stack.Navigator>
+  );
+};
 
 /**
  * TabNavigator - Bottom Tab Navigation with CenterAIButton
@@ -73,13 +99,26 @@ const TabNavigator = () => {
         }}
       />
       
-      {/* Tab 4: History */}
+      {/* Tab 4: History (with Stack) */}
       <Tab.Screen 
         name="History" 
-        component={HistoryScreen}
-        options={{ 
+        component={HistoryStack}
+        options={({ route }) => ({
           title: t('navigation.history') || '히스토리',
-        }}
+          tabBarStyle: ((routeName) => {
+            // Hide tab bar when in MessageDetail screen
+            const routeNames = route.state?.routeNames;
+            const index = route.state?.index;
+            
+            if (routeNames && index !== undefined) {
+              const currentRoute = routeNames[index];
+              if (currentRoute === 'MessageDetail') {
+                return { display: 'none' };
+              }
+            }
+            return undefined;
+          })(),
+        })}
       />
      
       
