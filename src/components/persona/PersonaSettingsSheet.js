@@ -72,13 +72,13 @@ const PersonaSettingsSheet = ({
   const handleNameChange = () => {
     HapticService.light();
     onNameChange?.(persona);
-    onClose?.();
+    // ⚠️ Don't close here - close after name change is saved
   };
 
   const handleCategoryChange = () => {
     HapticService.light();
     onCategoryChange?.(persona);
-    onClose?.();
+    // ⚠️ Don't close here - close after category change is saved
   };
 
   const handleVideoConvert = () => {
@@ -106,7 +106,7 @@ const PersonaSettingsSheet = ({
           text: t('common.confirm'),
           onPress: () => {
             onVideoConvert?.(persona);
-            onClose?.();
+            // ⚠️ Don't close here - close after video conversion starts
           },
         },
       ],
@@ -130,7 +130,7 @@ const PersonaSettingsSheet = ({
           style: 'destructive',
           onPress: () => {
             onDelete?.(persona);
-            onClose?.();
+            // ⚠️ Don't close here - close after deletion is complete
           },
         },
       ],

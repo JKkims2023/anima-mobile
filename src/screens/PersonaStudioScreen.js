@@ -115,8 +115,8 @@ const PersonaStudioScreen = () => {
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
-  const nameInputRef = useRef(null); // ⭐ NEW: For name change modal
   const [settingsPersona, setSettingsPersona] = useState(null); // ⭐ NEW: Persona being edited
+  const nameInputRef = useRef(null); // ⭐ FIX: Use ref like ChoicePersonaSheet
   const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ Persona search overlay
   const [isMessageSearchVisible, setIsMessageSearchVisible] = useState(false); // ⭐ Message search overlay
   const [messages, setMessages] = useState([]); // ⭐ Message history
@@ -808,14 +808,10 @@ const PersonaStudioScreen = () => {
       console.log('[PersonaStudioScreen] 📝 Name change requested for:', persona.persona_name);
     }
     
-    // Open MessageInputOverlay for name input
-    nameInputRef.current?.open({
-      title: t('persona.settings.change_name'),
-      value: persona.persona_name,
-      placeholder: t('persona.creation.name_placeholder'),
-      maxLength: 20,
-    });
-  }, [t]);
+    // ⭐ Open MessageInputOverlay using ref (like ChoicePersonaSheet)
+    HapticService.light();
+    nameInputRef.current?.present();
+  }, []);
   
   const handlePersonaNameSave = useCallback(async (newName) => {
     if (!settingsPersona || !user?.user_key || !newName) return;
@@ -848,6 +844,9 @@ const PersonaStudioScreen = () => {
         if (currentPersona?.persona_key === settingsPersona.persona_key) {
           setCurrentPersona(prev => ({ ...prev, persona_name: newName }));
         }
+        
+        // ✅ Close settings sheet after successful update
+        setIsPersonaSettingsOpen(false);
         
         showToast({
           type: 'success',
@@ -964,6 +963,9 @@ const PersonaStudioScreen = () => {
           }));
         }
         
+        // ✅ Close settings sheet after successful conversion start
+        setIsPersonaSettingsOpen(false);
+        
         showToast({
           type: 'success',
           message: t('persona.settings.video_converting'),
@@ -1014,6 +1016,9 @@ const PersonaStudioScreen = () => {
           setCurrentPersona(null);
           setCurrentPersonaIndex(0);
         }
+        
+        // ✅ Close settings sheet after successful deletion
+        setIsPersonaSettingsOpen(false);
         
         showToast({
           type: 'success',
@@ -1274,10 +1279,15 @@ const PersonaStudioScreen = () => {
     />
     
     {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* MessageInputOverlay for Name Change */}
+    {/* MessageInputOverlay for Name Change (Always rendered, ref-based) */}
     {/* ═════════════════════════════════════════════════════════════════ */}
     <MessageInputOverlay
       ref={nameInputRef}
+      title={t('persona.settings.change_name')}
+      placeholder={t('persona.creation.name_placeholder')}
+      initialValue={settingsPersona?.persona_name || ''}
+      maxLength={20}
+      leftIcon="account-edit"
       onSave={handlePersonaNameSave}
     />
     

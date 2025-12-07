@@ -230,7 +230,7 @@ export const updatePersonaDressCode = async (personaKey, historyKey) => {
  */
 export const updatePersonaBasic = async (personaKey, userKey, personaName, categoryType) => {
   try {
-    logApi('Update Persona Basic', {
+    console.log('Update Persona Basic', {
       personaKey,
       userKey,
       personaName,
