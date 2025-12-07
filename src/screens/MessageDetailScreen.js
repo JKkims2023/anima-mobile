@@ -452,15 +452,12 @@ const MessageDetailScreen = ({ route, navigation }) => {
         ) : null}
       </View>
 
-      {/* Quick Action Chips */}
-      <View style={[styles.chipsContainer, { bottom: insets.bottom + verticalScale(20) }]}>
-        <MessageHistoryChips
-          message={message}
-          onToggleFavorite={handleToggleFavorite}
-          onDelete={handleDelete}
-          onShare={handleShare}
-        />
-      </View>
+      {/* Quick Action Chips (우측 중앙) */}
+      <MessageHistoryChips
+        message={message}
+        onFavoriteToggle={handleToggleFavorite}
+        onDelete={handleDelete}
+      />
 
       {/* Background Music Player */}
       {bg_music_url && bg_music_url !== 'none' && (
@@ -558,11 +555,6 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 0, height: scale(1) },
     textShadowRadius: scale(3),
-  },
-  chipsContainer: {
-    position: 'absolute',
-    right: scale(16),
-    zIndex: 10,
   },
   errorContainer: {
     flex: 1,
