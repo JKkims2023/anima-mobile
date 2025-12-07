@@ -176,10 +176,48 @@ export async function deleteMusic(music_key) {
   }
 }
 
+/**
+ * ⭐ Toggle Music Favorite
+ * @param {string} music_key - Music key
+ * @param {string} user_key - User key
+ * @returns {Promise<{success: boolean, data?: {favorite_yn}, errorCode?: string}>}
+ */
+export async function toggleFavorite(music_key, user_key) {
+  console.log('⭐ [musicService] Toggling favorite:', music_key, user_key);
+  
+  try {
+    const response = await apiClient.post(MUSIC_ENDPOINTS.FAVORITE, {
+      music_key,
+      user_key,
+    });
+
+    console.log('⭐ [musicService] Toggle favorite result:', response);
+
+    if (response.data.success) {
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.data.errorCode || 'MUSIC_FAVORITE_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [musicService] toggleFavorite error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
 export default {
   listMusic,
   createMusic,
   checkMusicStatus,
   deleteMusic,
+  toggleFavorite,
 };
 
