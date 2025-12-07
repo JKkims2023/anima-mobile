@@ -42,7 +42,7 @@ const EMOTION_EMOJI = {
 /**
  * ReplyListView Component
  */
-const ReplyListView = ({ messageKey, onClose }) => {
+const ReplyListView = ({ messageKey, userKey, onClose }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { showToast } = useAnima();
@@ -70,11 +70,12 @@ const ReplyListView = ({ messageKey, onClose }) => {
   const loadReplies = async () => {
     setIsLoading(true);
     try {
-      const result = await messageService.getReplies(messageKey);
+      const result = await messageService.getReplies(messageKey, userKey);
 
+      console.log('[ReplyListView] Load replies result:', result);
       if (result.success && result.data) {
-        setReplies(result.data.replies || []);
-        setStats(result.data.stats || { total: 0, emotions: {} });
+        setReplies(result.data.data.replies || []);
+        setStats(result.data.data.stats || { total: 0, emotions: {} });
       }
     } catch (error) {
       console.error('[ReplyListView] Failed to load replies:', error);

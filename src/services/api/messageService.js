@@ -252,7 +252,7 @@ export async function reuseMessage(message_key) {
  * @param {string} message_key
  * @returns {Promise<{success: boolean, errorCode?: string}>}
  */
-export async function deleteMessage(user_key, message_key) {
+export async function deleteMessage(message_key, user_key) {
   console.log('🗑️ [messageService] Deleting message:', message_key);
   
   try {
@@ -431,7 +431,7 @@ export async function getReplies(messageKey, userKey) {
 
     console.log('📬 [messageService] Get replies result:', response);
 
-    if (response.success) {
+    if (response.data.success) {
       return {
         success: true,
         data: response.data,

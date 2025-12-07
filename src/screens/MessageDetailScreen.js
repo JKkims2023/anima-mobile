@@ -20,6 +20,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Platform,
+  BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
@@ -84,6 +85,25 @@ const MessageDetailScreen = ({ route, navigation }) => {
       });
     };
   }, [navigation]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Android back button handler
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // If flipped (showing reply view), go back to message view
+      if (isFlipped) {
+        HapticService.light();
+        setIsFlipped(false);
+        return true; // Prevent default behavior (closing screen)
+      }
+      
+      // Otherwise, allow default behavior (closing screen)
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [isFlipped]);
 
   // ✅ Extract message data
   const {
@@ -272,6 +292,14 @@ const MessageDetailScreen = ({ route, navigation }) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleBack = () => {
     HapticService.light();
+    
+    // If flipped (showing reply view), go back to message view
+    if (isFlipped) {
+      setIsFlipped(false);
+      return;
+    }
+    
+    // Otherwise, close the screen
     navigation.goBack();
   };
 
@@ -325,7 +353,7 @@ const MessageDetailScreen = ({ route, navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const result = await messageService.deleteMessage(message.message_key);
+              const result = await messageService.deleteMessage(message.message_key, user?.user_key);
 
               if (result.success) {
                 showToast({
@@ -462,6 +490,7 @@ const MessageDetailScreen = ({ route, navigation }) => {
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <ReplyListView
         messageKey={message.message_key}
+        userKey={user?.user_key}
         onClose={handleCommentPress}
       />
     </View>
