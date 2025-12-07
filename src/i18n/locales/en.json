@@ -1518,11 +1518,20 @@
     "subtitle": "Create your own music with AI",
     "empty_title": "No music created yet",
     "empty_subtitle": "Create your own music with AI! 🎵",
+    "no_results": "No results found",
+    "try_different_search": "Try a different search term",
     "create_button": "Generate Music",
     "creating_title": "Generating Music...",
     "creating_subtitle": "Please wait a moment",
     "creating_in_progress": "Music generation in progress. Please wait.",
+    "creating": "Creating",
     "playing_title": "Now Playing",
+    "search_placeholder": "Search by title, tag...",
+    "system": "System",
+    "untitled": "Untitled",
+    "filter_all": "All",
+    "filter_system": "System",
+    "filter_user": "User",
     "types": {
       "instrumental": "Instrumental",
       "vocal": "Vocal"
@@ -1547,6 +1556,19 @@
         "title_required": "Please enter a title",
         "prompt_required": "Please enter a prompt"
       }
+    },
+    "toast": {
+      "create_started": "Music generation started",
+      "create_completed": "Music has been created!",
+      "create_failed": "Failed to create music",
+      "still_creating": "Creating music... (about {{time}}s left)",
+      "attached_to_message": "Attached to message",
+      "cannot_delete_default": "Cannot delete default music",
+      "search_open": "Search feature coming soon"
+    },
+    "alert": {
+      "completed_title": "Music Creation Complete!",
+      "completed_message": "Your awesome music is ready 🎵\nListen to it now!"
     },
     "player": {
       "play": "Play",

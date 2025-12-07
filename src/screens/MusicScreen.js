@@ -1,40 +1,66 @@
 /**
- * 🎵 MusicScreen - AI Music Generation & Management
+ * 🎵 MusicScreen - AI Music Generation & Management (Refactored)
  * 
  * Features:
- * - Music Control Area (Create/Creating/Playing)
- * - Music List (Scrollable)
- * - Music Creator Sheet (Bottom Sheet)
- * - Smart Polling System
+ * - FlashList for optimal performance
+ * - Search functionality
+ * - Filter chips (All, System, User)
+ * - Infinite scroll
+ * - Floating create button
+ * - User-initiated status check (no polling)
  * 
- * Structure:
- * ┌─────────────────────────────────────┐
- * │  MusicControlArea (180dp fixed)    │
- * ├─────────────────────────────────────┤
- * │  MusicList (Scrollable)             │
- * └─────────────────────────────────────┘
+ * Design: Clean, efficient, intuitive (History pattern)
  * 
  * @author JK & Hero Nexus AI
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, StyleSheet, Share, Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+  TouchableOpacity,
+  TextInput,
+  RefreshControl,
+  Platform,
+  Share,
+} from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
+import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
-import MusicControlArea from '../components/music/MusicControlArea';
-import MusicList from '../components/music/MusicList';
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import musicService from '../services/api/musicService';
+import HapticService from '../utils/HapticService';
+import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
-import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CustomText from '../components/CustomText';
-import IconSearch from 'react-native-vector-icons/Ionicons';
-import { TouchableOpacity } from 'react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const HEADER_HEIGHT = verticalScale(120);
+const TAB_BAR_HEIGHT = verticalScale(60);
+
+/**
+ * Filter types
+ */
+const FILTERS = {
+  ALL: 'all',
+  SYSTEM: 'system',
+  USER: 'user',
+};
 
 /**
  * MusicScreen Component
@@ -44,80 +70,201 @@ const MusicScreen = () => {
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
   const { showAlert, showToast } = useAnima();
+  const insets = useSafeAreaInsets();
 
   // Refs
+  const flashListRef = useRef(null);
   const creatorSheetRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
+  const searchInputRef = useRef(null);
 
-  // Music list state
+  // State
   const [musicList, setMusicList] = useState([]);
-  const [isLoadingList, setIsLoadingList] = useState(false);
+  const [filteredMusicList, setFilteredMusicList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
 
-  // Control area state
-  const [controlMode, setControlMode] = useState('create'); // 'create' | 'creating' | 'playing'
-  const [selectedMusic, setSelectedMusic] = useState(null);
-  
+  // Search & Filter
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState(FILTERS.ALL);
+
   // Creating state
+  const [isCreating, setIsCreating] = useState(false);
   const [creatingMusicKey, setCreatingMusicKey] = useState(null);
-  const [creatingProgress, setCreatingProgress] = useState(0);
-  const [estimatedTime, setEstimatedTime] = useState(30);
-
-  // Screen focus state
-  const [isScreenFocused, setIsScreenFocused] = useState(false);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Screen focus effect
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  useFocusEffect(
-    useCallback(() => {
-      setIsScreenFocused(true);
-      if (isAuthenticated) {
-        loadMusicList();
-      }
-      return () => {
-        setIsScreenFocused(false);
-      };
-    }, [isAuthenticated])
-  );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load music list from API
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const loadMusicList = async () => {
-    setIsLoadingList(true);
-    try {
-      if (__DEV__) {
-        console.log('[MusicScreen] Loading music list for user:', user?.user_key);
-      }
+  const loadMusicList = async (reset = false) => {
+    if (!isAuthenticated || !user?.user_key) return;
+    
+    if (reset) {
+      setIsLoading(true);
+      setPage(1);
+      setHasMore(true);
+    }
 
+    try {
       const result = await musicService.listMusic(user.user_key, {
         music_type: 'all',
         sort_by: 'created_desc',
       });
 
-      if (__DEV__) {
-        console.log('[MusicScreen] Music list result:', result);
-      }
-
       if (result.success && result.data?.music_list) {
-        setMusicList(result.data.music_list);
-      } else {
-        console.error('[MusicScreen] Failed to load music:', result.errorCode);
-        setMusicList([]);
+        const newList = result.data.music_list;
+        
+        if (reset) {
+          setMusicList(newList);
+        } else {
+          setMusicList(prev => [...prev, ...newList]);
+        }
+
+        setHasMore(newList.length >= 20);
+        
+        // Check if any music is still creating
+        const creatingMusic = newList.find(m => m.status === 'creating');
+        if (creatingMusic) {
+          setIsCreating(true);
+          setCreatingMusicKey(creatingMusic.music_key);
+        } else {
+          setIsCreating(false);
+          setCreatingMusicKey(null);
+        }
       }
     } catch (error) {
       console.error('[MusicScreen] Load music error:', error);
-      setMusicList([]);
     } finally {
-      setIsLoadingList(false);
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle create button press
+  // Load on mount and focus
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleCreatePress = () => {
-    if (controlMode === 'creating') {
+  useEffect(() => {
+    if (isAuthenticated && user?.user_key) {
+      loadMusicList(true); // true = reset
+    }
+  }, [isAuthenticated, user?.user_key]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Filter music list by search and filter
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    let filtered = [...musicList];
+
+    // Filter by type
+    if (selectedFilter === FILTERS.SYSTEM) {
+      filtered = filtered.filter(m => m.is_default === 'Y');
+    } else if (selectedFilter === FILTERS.USER) {
+      filtered = filtered.filter(m => m.is_default !== 'Y');
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(m =>
+        m.music_title?.toLowerCase().includes(query) ||
+        m.tag?.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredMusicList(filtered);
+  }, [musicList, selectedFilter, searchQuery]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle music press (play/manage or check status)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleMusicPress = async (music) => {
+    HapticService.light();
+
+    // If music is still creating, check status
+    if (music.status === 'creating') {
+      await handleCheckMusicStatus(music);
+      return;
+    }
+
+    // Otherwise, open player sheet
+    // TODO: Open MusicPlayerSheet
+    showToast({
+      type: 'info',
+      message: `${music.music_title} 선택됨`,
+      emoji: '🎵',
+    });
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Check music status (user-initiated)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleCheckMusicStatus = async (music) => {
+    try {
+      const result = await musicService.checkMusicStatus(music.music_key);
+
+      if (result.success) {
+        if (result.data.status === 'completed') {
+          // ✅ Completed!
+          showAlert({
+            title: t('music.alert.completed_title'),
+            message: t('music.alert.completed_message'),
+            emoji: '🎉',
+            buttons: [
+              {
+                text: t('common.confirm'),
+                style: 'default',
+                onPress: () => {
+                  // Update list
+                  setMusicList(prev => prev.map(m =>
+                    m.music_key === music.music_key
+                      ? { ...m, status: 'completed', music_url: result.data.music_url }
+                      : m
+                  ));
+                  
+                  // Reset creating state
+                  setIsCreating(false);
+                  setCreatingMusicKey(null);
+                  
+                  // TODO: Show confetti
+                },
+              },
+            ],
+          });
+        } else if (result.data.status === 'failed') {
+          // ❌ Failed
+          showToast({
+            type: 'error',
+            message: t('music.toast.create_failed'),
+            emoji: '❌',
+          });
+
+          // Remove from list
+          setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
+          setIsCreating(false);
+          setCreatingMusicKey(null);
+        } else {
+          // ⏳ Still creating
+          const remainingTime = result.data.estimated_time_remaining || 0;
+          showToast({
+            type: 'info',
+            message: t('music.toast.still_creating', { time: remainingTime }),
+            emoji: '⏳',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[MusicScreen] Check status error:', error);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle floating button press
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleFloatingButtonPress = () => {
+    HapticService.light();
+
+    // If creating, show warning
+    if (isCreating) {
       showToast({
         type: 'warning',
         message: t('music.creating_in_progress'),
@@ -143,10 +290,6 @@ const MusicScreen = () => {
   // Handle music creation submit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleMusicCreationSubmit = async (formData) => {
-    if (__DEV__) {
-      console.log('[MusicScreen] Music creation submit:', formData);
-    }
-
     try {
       const result = await musicService.createMusic({
         user_key: user.user_key,
@@ -156,25 +299,28 @@ const MusicScreen = () => {
         lyrics: formData.lyrics,
       });
 
-      if (__DEV__) {
-        console.log('[MusicScreen] Create result:', result);
-      }
-
       if (result.success) {
-        // Start creating mode
-        setControlMode('creating');
-        setCreatingMusicKey(result.data.music_key);
-        setCreatingProgress(0);
-        setEstimatedTime(result.data.estimated_time || 30);
+        // ⭐ Optimistic Update: Add to list immediately
+        const newMusic = {
+          music_key: result.data.music_key,
+          music_title: formData.music_title,
+          music_type: formData.music_type,
+          status: 'creating',
+          estimated_time: result.data.estimated_time || 30,
+          is_default: 'N',
+          created_at: new Date().toISOString(),
+          music_url: null,
+        };
+
+        setMusicList(prev => [newMusic, ...prev]);
+        setIsCreating(true);
+        setCreatingMusicKey(newMusic.music_key);
 
         showToast({
           type: 'success',
           message: t('music.toast.create_started'),
           emoji: '🎵',
         });
-
-        // Start polling
-        startPolling(result.data.music_key, result.data.estimated_time || 30);
       } else {
         showToast({
           type: 'error',
@@ -193,263 +339,303 @@ const MusicScreen = () => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Smart Polling System
+  // Handle refresh
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const startPolling = (music_key, estimated_time) => {
-    if (__DEV__) {
-      console.log('[MusicScreen] Starting polling:', music_key, estimated_time);
-    }
-
-    // Clear existing polling
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-    }
-
-    // Calculate polling interval based on estimated time
-    const pollingInterval = estimated_time < 20 ? 2000 : 3000; // 2s or 3s
-
-    let elapsedTime = 0;
-
-    pollingIntervalRef.current = setInterval(async () => {
-      elapsedTime += pollingInterval / 1000;
-
-      // Update progress (estimated)
-      const estimatedProgress = Math.min(95, (elapsedTime / estimated_time) * 100);
-      setCreatingProgress(Math.round(estimatedProgress));
-
-      // Check status
-      try {
-        const result = await musicService.checkMusicStatus(music_key);
-
-        if (__DEV__) {
-          console.log('[MusicScreen] Polling result:', result);
-        }
-
-        if (result.success) {
-          if (result.data.status === 'completed') {
-            // ✅ Completed
-            setCreatingProgress(100);
-            stopPolling();
-
-            showToast({
-              type: 'success',
-              message: t('music.toast.create_completed'),
-              emoji: '🎉',
-            });
-
-            // Reload music list
-            loadMusicList();
-
-            // Reset to create mode
-            setTimeout(() => {
-              setControlMode('create');
-              setCreatingMusicKey(null);
-              setCreatingProgress(0);
-            }, 1500);
-
-          } else if (result.data.status === 'failed') {
-            // ❌ Failed
-            stopPolling();
-
-            showToast({
-              type: 'error',
-              message: t('music.toast.create_failed'),
-              emoji: '❌',
-            });
-
-            // Reset to create mode
-            setControlMode('create');
-            setCreatingMusicKey(null);
-            setCreatingProgress(0);
-
-          } else {
-            // ⏳ Still processing - update progress from API
-            if (result.data.progress !== undefined) {
-              setCreatingProgress(result.data.progress);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('[MusicScreen] Polling error:', error);
-      }
-    }, pollingInterval);
-  };
-
-  const stopPolling = () => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-  };
-
-  // Cleanup polling on unmount
-  useEffect(() => {
-    return () => {
-      stopPolling();
-    };
-  }, []);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle music selection from list
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleSelectMusic = (music) => {
-    if (__DEV__) {
-      console.log('[MusicScreen] Selected music:', music.music_key);
-    }
-
-    setSelectedMusic(music);
-    setControlMode('playing');
+  const handleRefresh = () => {
+    HapticService.light();
+    setIsRefreshing(true);
+    loadMusicList(true);
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle delete music
+  // Handle load more (infinite scroll)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleDeleteMusic = (music) => {
-    // Prevent deletion of default music
-    if (music.is_default === 'Y') {
-      showToast({
-        type: 'warning',
-        message: t('music.toast.cannot_delete_default'),
-        emoji: '⚠️',
-      });
-      return;
-    }
-
-    showAlert({
-      title: t('music.player.delete_confirm'),
-      message: t('music.player.delete_confirm_message'),
-      emoji: '🗑️',
-      buttons: [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('music.player.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const result = await musicService.deleteMusic(music.music_key);
-
-              if (result.success) {
-                // ⭐ 핵심: 내부 state 업데이트 (DB 재조회 없음)
-                setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
-                
-                // Reset control mode
-                setControlMode('create');
-                setSelectedMusic(null);
-
-                showToast({
-                  type: 'success',
-                  message: t('music.player.delete_success'),
-                  emoji: '✅',
-                });
-              } else {
-                showToast({
-                  type: 'error',
-                  message: t('common.error'),
-                  emoji: '❌',
-                });
-              }
-            } catch (error) {
-              console.error('[MusicScreen] Delete music error:', error);
-              showToast({
-                type: 'error',
-                message: t('common.error'),
-                emoji: '❌',
-              });
-            }
-          },
-        },
-      ],
-    });
-  };
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle share music
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleShareMusic = async (music) => {
-    try {
-      await Share.share({
-        message: Platform.OS === 'ios'
-          ? `${music.music_title}\n\n${music.music_url}`
-          : music.music_url,
-        url: Platform.OS === 'ios' ? music.music_url : undefined,
-        title: music.music_title,
-      });
-    } catch (error) {
-      console.error('[MusicScreen] Share error:', error);
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      setPage(prev => prev + 1);
+      loadMusicList(false);
     }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle attach music to message
+  // Handle filter select
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleAttachToMessage = (music) => {
-    // TODO: Navigate to MessageCreatorView with selected music
-    showToast({
-      type: 'success',
-      message: t('music.toast.attached_to_message'),
-      emoji: '🔗',
-    });
+  const handleFilterSelect = (filter) => {
+    HapticService.light();
+    setSelectedFilter(filter);
+    setSearchQuery('');
   };
 
-  const handleSearchOpen = () => {
-    showToast({
-      type: 'success',
-      message: t('music.toast.search_open'),
-      emoji: '🔍',
-    });
-  };
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render music item
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderItem = ({ item }) => {
+    const isCreating = item.status === 'creating';
+    
+    return (
+      <TouchableOpacity
+        style={[
+          styles.musicCard,
+          { backgroundColor: currentTheme.cardBackground },
+          isCreating && styles.musicCardCreating,
+        ]}
+        onPress={() => handleMusicPress(item)}
+        activeOpacity={0.8}
+      >
+        {/* Music Icon */}
+        <View style={[
+          styles.musicIcon,
+          { backgroundColor: isCreating ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)' }
+        ]}>
+          <Icon
+            name={isCreating ? "hourglass-outline" : "musical-notes"}
+            size={scale(28)}
+            color={isCreating ? '#FB923C' : currentTheme.mainColor}
+          />
+        </View>
 
-  return (
-    <SafeScreen
-      backgroundColor={currentTheme.backgroundColor || COLORS.BACKGROUND}
-      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
-      edges={{ top: true, bottom: false }}
-      keyboardAware={false}
-    >
-      {/* Header with Search Icon */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <CustomText type="big" bold style={styles.headerTitle}>
-            {t('navigation.title.studio')}
+        {/* Music Info */}
+        <View style={styles.musicInfo}>
+          <CustomText type="middle" bold style={[styles.musicTitle, { color: currentTheme.textPrimary }]}>
+            {item.music_title || t('music.untitled')}
           </CustomText>
-          <CustomText type="small" style={styles.headerSubtitle}>
-            {t('navigation.subtitle.studio')}
+          
+          <View style={styles.musicMeta}>
+            {/* Type Badge */}
+            <View style={[styles.typeBadge, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+              <CustomText style={[styles.typeText, { color: '#A855F7' }]}>
+                {item.music_type === 'vocal' ? '🎤 Vocal' : '🎹 Instrumental'}
+              </CustomText>
+            </View>
+
+            {/* Creating Status */}
+            {isCreating && (
+              <View style={styles.creatingBadge}>
+                <CustomText style={styles.creatingText}>
+                  ⏳ {t('music.creating')} ({item.estimated_time}s)
+                </CustomText>
+              </View>
+            )}
+
+            {/* System Badge */}
+            {item.is_default === 'Y' && (
+              <View style={styles.systemBadge}>
+                <CustomText style={styles.systemText}>
+                  🌟 {t('music.system')}
+                </CustomText>
+              </View>
+            )}
+          </View>
+
+          {/* Creation Date */}
+          <CustomText style={[styles.musicDate, { color: currentTheme.textSecondary }]}>
+            {formatDate(item.created_at)}
           </CustomText>
         </View>
+
+        {/* Chevron */}
+        <Icon
+          name="chevron-forward"
+          size={scale(20)}
+          color={currentTheme.textSecondary}
+        />
+      </TouchableOpacity>
+    );
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Format date
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render empty state
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderEmpty = () => {
+    if (isLoading) return null;
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Icon name="musical-notes-outline" size={scale(64)} color={currentTheme.textSecondary} />
+        <CustomText type="middle" bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+          {searchQuery ? t('music.no_results') : t('music.empty_title')}
+        </CustomText>
+        <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
+          {searchQuery ? t('music.try_different_search') : t('music.empty_subtitle')}
+        </CustomText>
+      </View>
+    );
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render header
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderHeader = () => (
+    <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
+      {/* Title */}
+      <View style={styles.headerTitleRow}>
+        <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+          {t('navigation.title.studio')}
+        </CustomText>
+        
+        {/* Search Icon */}
         <TouchableOpacity
-          style={styles.searchButton}
-          onPress={handleSearchOpen}
+          style={styles.searchIconButton}
+          onPress={() => searchInputRef.current?.focus()}
           activeOpacity={0.7}
         >
-          <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
+          <Icon name="search" size={scale(24)} color={currentTheme.mainColor} />
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
-        {/* Music Control Area (Top - 180dp fixed) */}
-        <MusicControlArea
-          mode={controlMode}
-          selectedMusic={selectedMusic}
-          creatingProgress={creatingProgress}
-          estimatedTime={estimatedTime}
-          onCreatePress={handleCreatePress}
-          onDelete={handleDeleteMusic}
-          onShare={handleShareMusic}
-          onAttachToMessage={handleAttachToMessage}
-        />
 
-        {/* Music List (Bottom - Scrollable) */}
-        <MusicList
-          musicList={musicList}
-          selectedMusicKey={selectedMusic?.music_key}
-          isLoading={isLoadingList}
-          onSelectMusic={handleSelectMusic}
+      {/* Search Bar */}
+      <View style={[styles.searchBar, { backgroundColor: currentTheme.cardBackground }]}>
+        <Icon name="search-outline" size={scale(20)} color={currentTheme.textSecondary} />
+        <TextInput
+          ref={searchInputRef}
+          style={[styles.searchInput, { color: currentTheme.textPrimary }]}
+          placeholder={t('music.search_placeholder')}
+          placeholderTextColor={currentTheme.textSecondary}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.7}>
+            <Icon name="close-circle" size={scale(20)} color={currentTheme.textSecondary} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Music Creator Bottom Sheet */}
+      {/* Filter Chips */}
+      <View style={styles.filterChips}>
+        {Object.entries(FILTERS).map(([key, value]) => {
+          const isSelected = selectedFilter === value;
+          const count = value === FILTERS.ALL 
+            ? musicList.length
+            : value === FILTERS.SYSTEM
+            ? musicList.filter(m => m.is_default === 'Y').length
+            : musicList.filter(m => m.is_default !== 'Y').length;
+
+          return (
+            <TouchableOpacity
+              key={value}
+              style={[
+                styles.filterChip,
+                { borderColor: currentTheme.borderColor },
+                isSelected && { 
+                  backgroundColor: currentTheme.mainColor,
+                  borderColor: currentTheme.mainColor,
+                }
+              ]}
+              onPress={() => handleFilterSelect(value)}
+              activeOpacity={0.7}
+            >
+              <CustomText
+                type="small"
+                bold={isSelected}
+                style={{ color: isSelected ? '#FFFFFF' : currentTheme.textPrimary }}
+              >
+                {t(`music.filter_${key.toLowerCase()}`)} ({count})
+              </CustomText>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Floating button animation
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const pulseScale = useSharedValue(1);
+
+  useEffect(() => {
+    if (isCreating) {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 600 }),
+          withTiming(1.0, { duration: 600 })
+        ),
+        -1
+      );
+    } else {
+      pulseScale.value = withTiming(1, { duration: 300 });
+    }
+  }, [isCreating]);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  return (
+    <SafeScreen
+      backgroundColor={currentTheme.backgroundColor}
+      statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
+      edges={{ top: false, bottom: false }}
+    >
+      {/* Custom Header */}
+      {renderHeader()}
+
+      {/* Music List */}
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.neonBlue} />
+        </View>
+      ) : (
+        <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
+          <FlashList
+            ref={flashListRef}
+            data={filteredMusicList}
+            renderItem={renderItem}
+            estimatedItemSize={90}
+            keyExtractor={(item) => item.music_key}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={renderEmpty}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                tintColor={COLORS.neonBlue}
+                colors={[COLORS.neonBlue]}
+              />
+            }
+            contentContainerStyle={{
+              paddingBottom: insets.bottom + TAB_BAR_HEIGHT + verticalScale(20),
+            }}
+          />
+        </View>
+      )}
+
+      {/* Floating Create Button */}
+      <Animated.View style={[styles.floatingButton, animatedButtonStyle]}>
+        <TouchableOpacity
+          style={[
+            styles.floatingButtonInner,
+            { backgroundColor: isCreating ? '#FB923C' : currentTheme.mainColor }
+          ]}
+          onPress={handleFloatingButtonPress}
+          activeOpacity={0.8}
+        >
+          <Icon
+            name={isCreating ? "hourglass" : "add"}
+            size={scale(28)}
+            color="#FFFFFF"
+          />
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Music Creator Sheet */}
       <MusicCreatorSheet
         ref={creatorSheetRef}
         onSubmit={handleMusicCreationSubmit}
@@ -459,30 +645,165 @@ const MusicScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  // Header
   header: {
-    flexDirection: 'row', // ⭐ Horizontal layout for title + search button
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(16),
+    gap: verticalScale(12),
   },
-  headerContent: {
-    flex: 1, // ⭐ Take remaining space
+  headerTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
+    // color set dynamically
   },
-  headerSubtitle: {
-    color: COLORS.TEXT_SECONDARY,
+  searchIconButton: {
+    padding: scale(8),
   },
-  searchButton: {
-    marginLeft: platformPadding(12),
-    padding: platformPadding(8),
+
+  // Search Bar
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(12),
+    gap: scale(8),
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: moderateScale(14),
+    paddingVertical: 0,
+  },
+
+  // Filter Chips
+  filterChips: {
+    flexDirection: 'row',
+    gap: scale(8),
+  },
+  filterChip: {
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(8),
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+  },
+
+  // Music Card
+  musicCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: scale(20),
+    marginBottom: verticalScale(12),
+    padding: scale(14),
+    borderRadius: moderateScale(16),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    gap: scale(12),
+  },
+  musicCardCreating: {
+    borderColor: 'rgba(251, 146, 60, 0.3)',
+    borderWidth: 1.5,
+  },
+  musicIcon: {
+    width: scale(56),
+    height: scale(56),
+    borderRadius: moderateScale(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  musicInfo: {
+    flex: 1,
+    gap: verticalScale(4),
+  },
+  musicTitle: {
+    // color set dynamically
+  },
+  musicMeta: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: scale(6),
+  },
+  typeBadge: {
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(3),
+    borderRadius: moderateScale(6),
+  },
+  typeText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+  },
+  creatingBadge: {
+    backgroundColor: 'rgba(251, 146, 60, 0.15)',
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(3),
+    borderRadius: moderateScale(6),
+  },
+  creatingText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+    color: '#FB923C',
+  },
+  systemBadge: {
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(3),
+    borderRadius: moderateScale(6),
+  },
+  systemText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+    color: '#FBBF24',
+  },
+  musicDate: {
+    fontSize: moderateScale(12),
+  },
+
+  // Loading
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Empty
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: scale(32),
+    gap: verticalScale(12),
+  },
+  emptyTitle: {
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    textAlign: 'center',
+    fontSize: moderateScale(14),
+  },
+
+  // Floating Button
+  floatingButton: {
+    position: 'absolute',
+    right: scale(20),
+    bottom: TAB_BAR_HEIGHT + verticalScale(20),
+    zIndex: 100,
+  },
+  floatingButtonInner: {
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
   },
 });
 
