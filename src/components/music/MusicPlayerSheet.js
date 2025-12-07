@@ -29,6 +29,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
+import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
@@ -54,6 +55,10 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   // State
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [volume, setVolume] = useState(1.0); // 0.0 ~ 1.0
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
@@ -160,8 +165,15 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Video callbacks
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleVideoLoad = () => {
+  const handleVideoLoad = (data) => {
     setIsLoading(false);
+    setDuration(data.duration);
+  };
+
+  const handleVideoProgress = (data) => {
+    if (!isSeeking) {
+      setCurrentTime(data.currentTime);
+    }
   };
 
   const handleVideoError = (error) => {
@@ -175,12 +187,53 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle progress slider change
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleProgressSliderChange = (value) => {
+    setCurrentTime(value);
+    setIsSeeking(true);
+  };
+
+  const handleProgressSliderComplete = (value) => {
+    videoRef.current?.seek(value);
+    setIsSeeking(false);
+    HapticService.light();
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle volume slider change
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleVolumeChange = (value) => {
+    setVolume(value);
+    HapticService.light();
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Format time (seconds to mm:ss)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Format date
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Get volume icon
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const getVolumeIcon = () => {
+    if (volume === 0) return 'volume-mute';
+    if (volume < 0.5) return 'volume-low';
+    return 'volume-high';
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -207,8 +260,11 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             repeat
             playInBackground
             playWhenInactive
+            volume={volume}
             onLoad={handleVideoLoad}
+            onProgress={handleVideoProgress}
             onError={handleVideoError}
+            progressUpdateInterval={250}
             style={styles.hiddenVideo}
           />
         )}
@@ -271,6 +327,47 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             color="#FFFFFF"
           />
         </TouchableOpacity>
+
+        {/* Progress Bar */}
+        <View style={styles.progressSection}>
+          <Slider
+            style={styles.progressSlider}
+            minimumValue={0}
+            maximumValue={duration}
+            value={currentTime}
+            onValueChange={handleProgressSliderChange}
+            onSlidingComplete={handleProgressSliderComplete}
+            minimumTrackTintColor={currentTheme.mainColor}
+            maximumTrackTintColor={`${currentTheme.mainColor}30`}
+            thumbTintColor={currentTheme.mainColor}
+          />
+          <View style={styles.progressTimeRow}>
+            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary }]}>
+              {formatTime(currentTime)}
+            </CustomText>
+            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary }]}>
+              {formatTime(duration)}
+            </CustomText>
+          </View>
+        </View>
+
+        {/* Volume Control */}
+        <View style={styles.volumeSection}>
+          <Icon name={getVolumeIcon()} size={scale(24)} color={currentTheme.mainColor} />
+          <Slider
+            style={styles.volumeSlider}
+            minimumValue={0}
+            maximumValue={1}
+            value={volume}
+            onValueChange={handleVolumeChange}
+            minimumTrackTintColor={currentTheme.mainColor}
+            maximumTrackTintColor={`${currentTheme.mainColor}30`}
+            thumbTintColor={currentTheme.mainColor}
+          />
+          <CustomText type="small" style={[styles.volumeText, { color: currentTheme.textSecondary }]}>
+            {Math.round(volume * 100)}%
+          </CustomText>
+        </View>
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
@@ -387,6 +484,40 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 8 },
     }),
+  },
+
+  // Progress Section
+  progressSection: {
+    gap: verticalScale(8),
+  },
+  progressSlider: {
+    width: '100%',
+    height: verticalScale(40),
+  },
+  progressTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(4),
+  },
+  timeText: {
+    fontSize: moderateScale(12),
+  },
+
+  // Volume Section
+  volumeSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(12),
+    paddingHorizontal: scale(4),
+  },
+  volumeSlider: {
+    flex: 1,
+    height: verticalScale(40),
+  },
+  volumeText: {
+    fontSize: moderateScale(12),
+    minWidth: scale(40),
+    textAlign: 'right',
   },
 
   // Action Buttons
