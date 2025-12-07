@@ -1571,6 +1571,7 @@
       "completed_message": "Your awesome music is ready 🎵\nListen to it now!"
     },
     "player": {
+      "title": "Music Player",
       "play": "Play",
       "pause": "Pause",
       "delete": "Delete",

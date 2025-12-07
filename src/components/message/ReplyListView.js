@@ -203,12 +203,15 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
       console.log('[ReplyListView] Load replies result:', result);
       if (result.success && result.data) {
         // ✅ Map backend fields to frontend fields
-        const mappedReplies = (result.data.replies || []).map(reply => ({
+        const mappedReplies = (result.data.data.replies || []).map(reply => ({
           ...reply,
           reply_text: reply.reply_content,      // Backend: reply_content → Frontend: reply_text
           emotion: reply.emotion_type,           // Backend: emotion_type → Frontend: emotion
           sender_name: reply.sender_info,        // Backend: sender_info → Frontend: sender_name
         }));
+
+        console.log('[ReplyListView] Replies:', result.data.data.replies);
+        console.log('[ReplyListView] Mapped replies:', mappedReplies);
 
         setReplies(mappedReplies);
         

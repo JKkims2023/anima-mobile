@@ -41,6 +41,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet';
+import MusicPlayerSheet from '../components/music/MusicPlayerSheet';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
@@ -75,6 +76,7 @@ const MusicScreen = () => {
   // Refs
   const flashListRef = useRef(null);
   const creatorSheetRef = useRef(null);
+  const playerSheetRef = useRef(null);
   const searchInputRef = useRef(null);
 
   // State
@@ -92,6 +94,9 @@ const MusicScreen = () => {
   // Creating state
   const [isCreating, setIsCreating] = useState(false);
   const [creatingMusicKey, setCreatingMusicKey] = useState(null);
+
+  // Selected music for player
+  const [selectedMusic, setSelectedMusic] = useState(null);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load music list from API
@@ -187,12 +192,8 @@ const MusicScreen = () => {
     }
 
     // Otherwise, open player sheet
-    // TODO: Open MusicPlayerSheet
-    showToast({
-      type: 'info',
-      message: `${music.music_title} 선택됨`,
-      emoji: '🎵',
-    });
+    setSelectedMusic(music);
+    playerSheetRef.current?.present();
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -254,6 +255,41 @@ const MusicScreen = () => {
       }
     } catch (error) {
       console.error('[MusicScreen] Check status error:', error);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle music update from player sheet (delete)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleMusicUpdate = async (music, action) => {
+    if (action === 'delete') {
+      try {
+        const result = await musicService.deleteMusic(music.music_key);
+
+        if (result.success) {
+          // ⭐ Real-time state update
+          setMusicList(prev => prev.filter(m => m.music_key !== music.music_key));
+
+          showToast({
+            type: 'success',
+            message: t('music.player.delete_success'),
+            emoji: '✅',
+          });
+        } else {
+          showToast({
+            type: 'error',
+            message: t('common.error'),
+            emoji: '❌',
+          });
+        }
+      } catch (error) {
+        console.error('[MusicScreen] Delete music error:', error);
+        showToast({
+          type: 'error',
+          message: t('common.error'),
+          emoji: '❌',
+        });
+      }
     }
   };
 
@@ -639,6 +675,13 @@ const MusicScreen = () => {
       <MusicCreatorSheet
         ref={creatorSheetRef}
         onSubmit={handleMusicCreationSubmit}
+      />
+
+      {/* Music Player Sheet */}
+      <MusicPlayerSheet
+        ref={playerSheetRef}
+        music={selectedMusic}
+        onMusicUpdate={handleMusicUpdate}
       />
     </SafeScreen>
   );
