@@ -114,12 +114,30 @@ export const createPersona = async (userKey, personaData) => {
     formData.append('description', personaData.description);
     formData.append('selectedType', personaData.gender); // 'male' or 'female'
     
+    // ✅ selectedOptions 추가 (서버가 기대함)
+    formData.append('selectedOptions', JSON.stringify({
+      gender: personaData.gender,
+      style: '',
+      outfit: '',
+    }));
+    
     // Append photo file
     if (personaData.photo) {
       formData.append('photo', {
         uri: personaData.photo.uri,
         type: personaData.photo.type || 'image/jpeg',
         name: personaData.photo.name || 'photo.jpg',
+      });
+    }
+
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] FormData prepared:', {
+        user_key: userKey,
+        name: personaData.name,
+        description: personaData.description,
+        selectedType: personaData.gender,
+        selectedOptions: { gender: personaData.gender, style: '', outfit: '' },
+        hasPhoto: !!personaData.photo,
       });
     }
 
@@ -130,13 +148,14 @@ export const createPersona = async (userKey, personaData) => {
     });
 
     if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Persona created:', response.data);
+      console.log('🎭 [PersonaAPI] Persona created response:', response.data);
     }
 
     return response.data || {};
   } catch (error) {
     if (__DEV__) {
       console.error('🎭 [PersonaAPI] Error creating persona:', error);
+      console.error('🎭 [PersonaAPI] Error response:', error.response?.data);
     }
     logError('Persona Creation', error);
     throw error;
