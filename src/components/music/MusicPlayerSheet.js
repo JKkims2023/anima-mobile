@@ -101,22 +101,6 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle attach to message
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleAttachToMessage = () => {
-    HapticService.light();
-    
-    // TODO: Navigate to MessageCreatorView with selected music
-    showToast({
-      type: 'success',
-      message: t('music.toast.attached_to_message'),
-      emoji: '🔗',
-    });
-
-    bottomSheetRef.current?.dismiss();
-  };
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle delete
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleDelete = () => {
@@ -290,14 +274,6 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          {/* Attach to Message */}
-          <CustomButton
-            title={t('music.player.attach_to_message')}
-            onPress={handleAttachToMessage}
-            leftIcon={<Icon name="link-outline" size={scale(20)} color="#FFFFFF" />}
-            style={[styles.actionButton, { backgroundColor: 'rgba(34, 197, 94, 0.8)' }]}
-          />
-
           {/* Share */}
           <CustomButton
             title={t('music.player.share')}
@@ -306,14 +282,30 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             style={[styles.actionButton, { backgroundColor: 'rgba(59, 130, 246, 0.8)' }]}
           />
 
-          {/* Delete (user music only) */}
-          {music.is_default !== 'Y' && (
-            <CustomButton
-              title={t('music.player.delete')}
-              onPress={handleDelete}
-              leftIcon={<Icon name="trash-outline" size={scale(20)} color="#FFFFFF" />}
-              style={[styles.actionButton, { backgroundColor: 'rgba(239, 68, 68, 0.8)' }]}
-            />
+          {/* Delete */}
+          <CustomButton
+            title={t('music.player.delete')}
+            onPress={handleDelete}
+            leftIcon={<Icon name="trash-outline" size={scale(20)} color="#FFFFFF" />}
+            style={[
+              styles.actionButton,
+              { 
+                backgroundColor: music.is_default === 'Y' 
+                  ? 'rgba(156, 163, 175, 0.5)' 
+                  : 'rgba(239, 68, 68, 0.8)' 
+              }
+            ]}
+            disabled={music.is_default === 'Y'}
+          />
+
+          {/* System Music Notice */}
+          {music.is_default === 'Y' && (
+            <View style={styles.noticeContainer}>
+              <Icon name="information-circle-outline" size={scale(16)} color={currentTheme.textSecondary} />
+              <CustomText type="small" style={[styles.noticeText, { color: currentTheme.textSecondary }]}>
+                {t('music.toast.cannot_delete_default')}
+              </CustomText>
+            </View>
           )}
         </View>
 
@@ -403,6 +395,22 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingVertical: verticalScale(14),
+  },
+
+  // System Music Notice
+  noticeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: scale(6),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(12),
+    backgroundColor: 'rgba(156, 163, 175, 0.1)',
+    borderRadius: moderateScale(8),
+  },
+  noticeText: {
+    fontSize: moderateScale(12),
+    textAlign: 'center',
   },
 
   // Loading
