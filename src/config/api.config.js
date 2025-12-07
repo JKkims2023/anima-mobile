@@ -46,13 +46,14 @@ export const PERSONA_ENDPOINTS = {
   CHECK_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status',
   CHECK_STATUS_FIRST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status-first',
   UPDATE_SETTINGS: '/api/persona/update-settings',
+  UPDATE_BASIC: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/update-basic', // ⭐ Mobile optimized: name, category
   UPDATE_STATUS: '/api/persona/update-status',
-  REMOVE: '/api/persona/remove-persona',
+  REMOVE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/remove-persona',
+  UPGRADE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/upgrade', // ⭐ Video conversion
   DRESS_LIST: '/api/persona/dress-list',
   UPDATE_DRESS_CODE: '/api/persona/update-dress-code',
   HASHTAGS: '/api/persona/hashtags',
   NOTIFICATION_STREAM: '/api/persona/notification-stream',
-  UPGRADE: '/api/persona/upgrade',
   UPGRADE_MEMORY: '/api/persona/upgrade-memory',
   CREATE_MEMORY: '/api/persona/create-memory',
   CREATE_FOOD_MEMORY: '/api/persona/create-food-memory',

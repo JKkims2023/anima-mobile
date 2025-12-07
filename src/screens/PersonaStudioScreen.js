@@ -60,7 +60,14 @@ import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
-import { createPersona, checkPersonaStatus, getPersonaList } from '../services/api/personaApi';
+import { 
+  createPersona, 
+  checkPersonaStatus, 
+  getPersonaList,
+  updatePersonaBasic,
+  convertPersonaVideo,
+  deletePersona,
+} from '../services/api/personaApi';
 import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
@@ -71,7 +78,7 @@ const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const { personas } = usePersona();
+  const { personas, setPersonas, selectedPersona: contextSelectedPersona } = usePersona(); // ⭐ ADD: setPersonas for local update
   const { user } = useUser();
   const { showToast, showAlert } = useAnima();
   const insets = useSafeAreaInsets();
@@ -773,14 +780,19 @@ const PersonaStudioScreen = () => {
   }, [handleAddPersona]);
   
   const handleChatWithPersona = useCallback((persona) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ⚙️ Open persona settings:', persona.persona_name);
-    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('⚙️ [PersonaStudioScreen] SETTINGS SHEET OPEN');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Persona:', persona?.persona_name);
+    console.log('Current isPersonaSettingsOpen:', isPersonaSettingsOpen);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     HapticService.light();
     setSettingsPersona(persona);
     setIsPersonaSettingsOpen(true);
-  }, []);
+    
+    console.log('✅ State updated: isPersonaSettingsOpen = true');
+  }, [isPersonaSettingsOpen]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // PERSONA SETTINGS HANDLERS
@@ -806,18 +818,49 @@ const PersonaStudioScreen = () => {
   }, [t]);
   
   const handlePersonaNameSave = useCallback(async (newName) => {
-    if (!settingsPersona || !user?.user_key) return;
+    if (!settingsPersona || !user?.user_key || !newName) return;
     
     try {
-      // TODO: Call update-settings API
-      showToast({
-        type: 'success',
-        message: t('persona.settings.name_changed'),
-        emoji: '✅',
-      });
-      
-      // Refresh persona list
-      // PersonaContext will handle this
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔄 Updating persona name:', {
+          persona_key: settingsPersona.persona_key,
+          old_name: settingsPersona.persona_name,
+          new_name: newName,
+        });
+      }
+
+      const result = await updatePersonaBasic(
+        settingsPersona.persona_key,
+        user.user_key,
+        newName,
+        null // category_type not changed
+      );
+
+      if (result.success) {
+        // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
+        setPersonas(prev => prev.map(p => 
+          p.persona_key === settingsPersona.persona_key
+            ? { ...p, persona_name: newName }
+            : p
+        ));
+        
+        // Update currentPersona if it's the one being edited
+        if (currentPersona?.persona_key === settingsPersona.persona_key) {
+          setCurrentPersona(prev => ({ ...prev, persona_name: newName }));
+        }
+        
+        showToast({
+          type: 'success',
+          message: t('persona.settings.name_changed'),
+          emoji: '✅',
+        });
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ Name changed (local update only)');
+        }
+      } else {
+        throw new Error(result.message || 'Update failed');
+      }
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Name change error:', error);
       showToast({
@@ -826,67 +869,173 @@ const PersonaStudioScreen = () => {
         emoji: '⚠️',
       });
     }
-  }, [settingsPersona, user, showToast, t]);
+  }, [settingsPersona, currentPersona, user, setPersonas, showToast, t]);
   
-  const handlePersonaCategoryChange = useCallback((persona) => {
+  const handlePersonaCategoryChange = useCallback(async (persona, newCategoryType) => {
+    if (!user?.user_key) return;
+    
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🏷️ Category change requested for:', persona.persona_name);
+      console.log('[PersonaStudioScreen] 🏷️ Category change requested for:', {
+        persona_name: persona.persona_name,
+        old_category: persona.category_type,
+        new_category: newCategoryType,
+      });
     }
     
     // TODO: Open category selection sheet
+    // For now, just show coming soon
     showToast({
       type: 'info',
       message: t('persona.settings.category_coming_soon'),
       emoji: '🚧',
     });
-  }, [showToast, t]);
+    
+    /* 
+    // 🚧 Future implementation:
+    try {
+      const result = await updatePersonaBasic(
+        persona.persona_key,
+        user.user_key,
+        null, // name not changed
+        newCategoryType
+      );
+
+      if (result.success) {
+        // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
+        setPersonas(prev => prev.map(p => 
+          p.persona_key === persona.persona_key
+            ? { ...p, category_type: newCategoryType }
+            : p
+        ));
+        
+        showToast({
+          type: 'success',
+          message: t('persona.settings.category_changed'),
+          emoji: '✅',
+        });
+      }
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message: t('errors.generic'),
+        emoji: '⚠️',
+      });
+    }
+    */
+  }, [user, showToast, t]);
   
   const handlePersonaVideoConvert = useCallback(async (persona) => {
+    if (!user?.user_key) return;
+    
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎬 Video convert requested for:', persona.persona_name);
+      console.log('[PersonaStudioScreen] 🎬 Video convert requested for:', {
+        persona_name: persona.persona_name,
+        persona_key: persona.persona_key,
+        img_url: persona.selected_dress_image_url,
+      });
     }
     
     try {
-      // TODO: Call upgrade API
-      showToast({
-        type: 'success',
-        message: t('persona.settings.video_converting'),
-        emoji: '🎬',
-      });
+      const result = await convertPersonaVideo(
+        persona.persona_key,
+        user.user_key,
+        persona.selected_dress_image_url,
+        persona.selected_dress_key // memory_key
+      );
+
+      if (result.success) {
+        // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
+        setPersonas(prev => prev.map(p => 
+          p.persona_key === persona.persona_key
+            ? { 
+                ...p, 
+                selected_dress_video_convert_done: 'N', // Conversion in progress
+                bric_convert_key: result.request_key,
+              }
+            : p
+        ));
+        
+        // Update currentPersona if it's the one being converted
+        if (currentPersona?.persona_key === persona.persona_key) {
+          setCurrentPersona(prev => ({ 
+            ...prev, 
+            selected_dress_video_convert_done: 'N',
+            bric_convert_key: result.request_key,
+          }));
+        }
+        
+        showToast({
+          type: 'success',
+          message: t('persona.settings.video_converting'),
+          emoji: '🎬',
+        });
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ Video conversion started (local update only):', {
+            request_key: result.request_key,
+            estimate_time: result.estimate_time,
+          });
+        }
+      } else {
+        throw new Error(result.message || 'Video conversion failed');
+      }
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Video convert error:', error);
       showToast({
         type: 'error',
-        message: t('errors.generic'),
+        message: error.response?.data?.message || t('errors.generic'),
         emoji: '⚠️',
       });
     }
-  }, [showToast, t]);
+  }, [user, currentPersona, setPersonas, showToast, t]);
   
   const handlePersonaDelete = useCallback(async (persona) => {
+    if (!user?.user_key) return;
+    
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🗑️ Delete requested for:', persona.persona_name);
+      console.log('[PersonaStudioScreen] 🗑️ Delete requested for:', {
+        persona_name: persona.persona_name,
+        persona_key: persona.persona_key,
+      });
     }
     
     try {
-      // TODO: Call remove-persona API
-      showToast({
-        type: 'success',
-        message: t('persona.settings.deleted'),
-        emoji: '✅',
-      });
-      
-      // Refresh persona list
-      // PersonaContext will handle this
+      const result = await deletePersona(
+        persona.persona_key,
+        user.user_key
+      );
+
+      if (result.success) {
+        // ✅ UPDATE LOCAL ARRAY ONLY (Remove item)
+        setPersonas(prev => prev.filter(p => p.persona_key !== persona.persona_key));
+        
+        // If deleted persona was current, reset to first persona
+        if (currentPersona?.persona_key === persona.persona_key) {
+          setCurrentPersona(null);
+          setCurrentPersonaIndex(0);
+        }
+        
+        showToast({
+          type: 'success',
+          message: t('persona.settings.deleted'),
+          emoji: '✅',
+        });
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ Persona deleted (local update only)');
+        }
+      } else {
+        throw new Error(result.message || 'Delete failed');
+      }
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Delete error:', error);
       showToast({
         type: 'error',
-        message: t('errors.generic'),
+        message: error.response?.data?.message || t('errors.generic'),
         emoji: '⚠️',
       });
     }
-  }, [showToast, t]);
+  }, [user, currentPersona, setPersonas, showToast, t]);
 
   // ⭐ Calculate counts for both modes
   const personaCounts = useMemo(() => {
@@ -1108,19 +1257,21 @@ const PersonaStudioScreen = () => {
           onClose={handlePersonaCreationClose}
           onCreateStart={handlePersonaCreationStart}
         />
-        
-        {/* ⭐ NEW: Persona Settings Sheet */}
-        <PersonaSettingsSheet
-          isOpen={isPersonaSettingsOpen}
-          persona={settingsPersona}
-          onClose={handleSettingsClose}
-          onNameChange={handlePersonaNameChange}
-          onCategoryChange={handlePersonaCategoryChange}
-          onVideoConvert={handlePersonaVideoConvert}
-          onDelete={handlePersonaDelete}
-        />
       </View>
     </SafeScreen>
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Persona Settings Sheet (Outside SafeScreen for proper z-index) */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <PersonaSettingsSheet
+      isOpen={isPersonaSettingsOpen}
+      persona={settingsPersona}
+      onClose={handleSettingsClose}
+      onNameChange={handlePersonaNameChange}
+      onCategoryChange={handlePersonaCategoryChange}
+      onVideoConvert={handlePersonaVideoConvert}
+      onDelete={handlePersonaDelete}
+    />
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* MessageInputOverlay for Name Change */}

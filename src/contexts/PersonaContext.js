@@ -143,7 +143,8 @@ export const PersonaProvider = ({ children }) => {
     isLoading,
     mode,
     switchMode,
-  }), [personas, selectedIndex, selectedPersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex]);
+    initializePersonas, // ⭐ NEW: Expose initializePersonas for manual refresh
+  }), [personas, selectedIndex, selectedPersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, initializePersonas]);
 
   return (
     <PersonaContext.Provider value={value}>

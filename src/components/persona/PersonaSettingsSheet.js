@@ -13,7 +13,7 @@
  * @date 2024-12-07
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -38,6 +38,25 @@ const PersonaSettingsSheet = ({
   const { currentTheme: theme } = useTheme();
   const { showAlert, showToast } = useAnima();
   const bottomSheetRef = useRef(null);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // CONTROL BOTTOM SHEET WITH isOpen PROP
+  // ═══════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔧 [PersonaSettingsSheet] useEffect triggered');
+    console.log('isOpen:', isOpen);
+    console.log('bottomSheetRef.current:', bottomSheetRef.current);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    if (isOpen && bottomSheetRef.current) {
+      console.log('✅ [PersonaSettingsSheet] Calling present()');
+      bottomSheetRef.current.present();
+    } else if (!isOpen && bottomSheetRef.current) {
+      console.log('❌ [PersonaSettingsSheet] Calling dismiss()');
+      bottomSheetRef.current.dismiss();
+    }
+  }, [isOpen]);
 
   // ═══════════════════════════════════════════════════════════════════════
   // VIDEO CONVERSION CONDITION

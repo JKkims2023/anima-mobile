@@ -218,6 +218,111 @@ export const updatePersonaDressCode = async (personaKey, historyKey) => {
   }
 };
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 📱 Update Persona Basic Info (Mobile Optimized)
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {string} userKey - User key
+ * @param {string} personaName - New persona name (optional)
+ * @param {string} categoryType - New category type (optional)
+ * @returns {Promise<object>} Updated persona data
+ */
+export const updatePersonaBasic = async (personaKey, userKey, personaName, categoryType) => {
+  try {
+    logApi('Update Persona Basic', {
+      personaKey,
+      userKey,
+      personaName,
+      categoryType,
+    });
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_BASIC, {
+      persona_key: personaKey,
+      user_key: userKey,
+      persona_name: personaName,
+      category_type: categoryType,
+    });
+
+    if (__DEV__) {
+      console.log('✅ [personaApi] Update basic success:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    logError('Update Persona Basic', error);
+    throw error;
+  }
+};
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 🎬 Convert Persona Image to Video
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {string} userKey - User key
+ * @param {string} imgUrl - Image URL to convert
+ * @param {string} memoryKey - Memory key (optional)
+ * @returns {Promise<object>} Conversion result with request_key and estimate_time
+ */
+export const convertPersonaVideo = async (personaKey, userKey, imgUrl, memoryKey) => {
+  try {
+    logApi('Convert Persona Video', {
+      personaKey,
+      userKey,
+      imgUrl,
+      memoryKey,
+    });
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.UPGRADE, {
+      persona_key: personaKey,
+      user_key: userKey,
+      img_url: imgUrl,
+      memory_key: memoryKey,
+    });
+
+    if (__DEV__) {
+      console.log('✅ [personaApi] Video conversion success:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    logError('Convert Persona Video', error);
+    throw error;
+  }
+};
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 🗑️ Delete Persona (Soft Delete)
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {string} userKey - User key
+ * @returns {Promise<object>} Deletion result
+ */
+export const deletePersona = async (personaKey, userKey) => {
+  try {
+    logApi('Delete Persona', {
+      personaKey,
+      userKey,
+    });
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.REMOVE, {
+      persona_key: personaKey,
+      user_key: userKey,
+    });
+
+    if (__DEV__) {
+      console.log('✅ [personaApi] Delete persona success:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    logError('Delete Persona', error);
+    throw error;
+  }
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -225,5 +330,8 @@ export default {
   checkPersonaStatus,
   getPersonaDressList,
   updatePersonaDressCode,
+  updatePersonaBasic,
+  convertPersonaVideo,
+  deletePersona,
 };
 
