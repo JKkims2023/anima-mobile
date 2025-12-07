@@ -1717,6 +1717,7 @@
     }
   },
   "persona": {
+    "create": "생성",
     "creation": {
       "title": "새로운 페르소나",
       "photo_title": "사진 선택",

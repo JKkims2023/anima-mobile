@@ -52,6 +52,7 @@ import PersonaSelectorButton from '../components/persona/PersonaSelectorButton';
 import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; // ⭐ NEW: Slide panel
 import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Persona search overlay
 import MessageSearchOverlay from '../components/message/MessageSearchOverlay'; // ⭐ NEW: Message search overlay
+import PersonaTypeSelector from '../components/persona/PersonaTypeSelector'; // ⭐ NEW: Elegant chip style selector
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
@@ -62,7 +63,6 @@ import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
 import GradientOverlay from '../components/GradientOverlay';
-import CustomSwitch from '../components/CustomSwitch';
 
 
 const PersonaStudioScreen = () => {
@@ -775,17 +775,16 @@ const PersonaStudioScreen = () => {
     
   }, []);
 
-  const rtnPersonaCount = () => {
-    // ⭐ Simply return the length of currentFilteredPersonas (already filtered)
-    const count = currentFilteredPersonas.length;
+  // ⭐ Calculate counts for both modes
+  const personaCounts = useMemo(() => {
+    const defaultPersonas = personasWithDefaults.filter(p => p.default_yn === 'Y');
+    const userPersonas = personasWithDefaults.filter(p => p.default_yn === 'N');
     
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📊 Persona count:', count, 'defaultMode:', defaultMode);
-    }
-    
-    refPersonaCount.current = count;
-    return count;
-  } 
+    return {
+      default: defaultPersonas.length,
+      user: userPersonas.length,
+    };
+  }, [personasWithDefaults]); 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -967,29 +966,20 @@ const PersonaStudioScreen = () => {
           onCreatePersona={handleAddPersona}
         />
 
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* PersonaTypeSelector (Only in Explore Mode) */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
         {!isMessageMode && (
-        <View style={styles.stepContainer}>
-          <CustomText type="middle" bold>
-            {t('message.select_mode_title')} ({rtnPersonaCount()})
-          </CustomText>
-          <View style={styles.stepItemContainer}>
-
-            <CustomText type="middle" style={{marginRight: scale(10)}} bold>{t('message.select_default_mode')}</CustomText>
-            <CustomSwitch
-              style={{}}
-              value={defaultMode}
-              onValueChange={handleDefaultModeChange}
+          <View style={styles.typeSelectorOverlay}>
+            <PersonaTypeSelector
+              isUserMode={defaultMode}
+              defaultCount={personaCounts.default}
+              userCount={personaCounts.user}
+              onTypeChange={handleDefaultModeChange}
+              onCreatePress={handleCreatePersona}
+              showCreateButton={true}
             />
-            <CustomText type="middle" style={{marginLeft: scale(10)}} bold>{t('message.select_user_mode')}</CustomText>
-
-            <TouchableOpacity
-              style={[styles.writeMessageButton, {opacity: defaultMode  ? 1 : 0}]}
-              onPress={handleCreatePersona}
-            >
-              <IconMore name="add" size={scale(34)} color="#FFFFFF" />
-            </TouchableOpacity>
           </View>
-        </View>
         )}
 
       </View>
@@ -1203,44 +1193,14 @@ const styles = StyleSheet.create({
     padding: platformPadding(8),
   },
 
-  stepContainer: {
+  // ⭐ PersonaTypeSelector Overlay
+  typeSelectorOverlay: {
     position: 'absolute',
-    left: scale(10),
-    right: scale(10),
-    top: verticalScale(20),
-    flexDirection: 'column',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    paddingLeft: scale(20),
-    paddingRight: scale(20),
-    paddingTop: scale(10),
-    paddingBottom: scale(10),
-    borderRadius: scale(10),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderStyle: 'solid',
-    borderRadius: scale(16),
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 999,
-
-  },
-
-  stepItemContainer: {
-    marginTop: scale(-5),
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  writeMessageButton: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: COLORS.DEEP_BLUE_LIGHT,
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(16),
-    borderRadius: scale(24),
-    gap: scale(8),
-    marginLeft: 'auto',
-    elevation: 8,
+    elevation: 999,
   },
 
 });

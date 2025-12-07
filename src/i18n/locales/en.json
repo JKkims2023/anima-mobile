@@ -1738,6 +1738,7 @@
     }
   },
   "persona": {
+    "create": "Create",
     "creation": {
       "title": "New Persona",
       "photo_title": "Select Photo",
