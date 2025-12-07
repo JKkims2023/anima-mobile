@@ -21,6 +21,7 @@
 import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
@@ -45,12 +46,33 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { t } = useTranslation();
   
   // ⭐ Check if we should hide the tab bar (for MessageDetail screen)
-  const shouldHideTabBar = props.style?.display === 'none';
+  // Method 1: Check props.style
+  const shouldHideFromProps = props.style?.display === 'none';
   
-  // If tab bar should be hidden, return null
+  // Method 2: Check current route in History stack
+  const historyRoute = state.routes.find(route => route.name === 'History');
+  const currentHistoryRouteName = historyRoute 
+    ? getFocusedRouteNameFromRoute(historyRoute) 
+    : null;
+  const shouldHideFromRoute = currentHistoryRouteName === 'MessageDetail';
+  
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔍 [CustomTabBar] props.style:', props.style);
+  console.log('🔍 [CustomTabBar] shouldHideFromProps:', shouldHideFromProps);
+  console.log('🔍 [CustomTabBar] currentHistoryRouteName:', currentHistoryRouteName);
+  console.log('🔍 [CustomTabBar] shouldHideFromRoute:', shouldHideFromRoute);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  // Hide if either method indicates we should
+  const shouldHideTabBar = shouldHideFromProps || shouldHideFromRoute;
+  
   if (shouldHideTabBar) {
+    console.log('✅ [CustomTabBar] Hiding tab bar!');
     return null;
   }
+  
+  console.log('❌ [CustomTabBar] Tab bar visible');
+
   // ✅ CenterAIActionSheet ref
   const actionSheetRef = useRef(null);
   // ✅ ManagerAIOverlay state

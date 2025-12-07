@@ -76,6 +76,7 @@ const MessageDetailScreen = ({ route, navigation }) => {
       tabBarStyle: { display: 'none' },
     });
 
+    console.log('🎯 [MessageDetailScreen] Tab bar hidden');
     // Show tab bar when unmounting (going back)
     return () => {
       navigation.setOptions({
