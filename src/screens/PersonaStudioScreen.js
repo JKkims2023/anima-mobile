@@ -53,9 +53,11 @@ import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; /
 import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Persona search overlay
 import MessageSearchOverlay from '../components/message/MessageSearchOverlay'; // ⭐ NEW: Message search overlay
 import PersonaTypeSelector from '../components/persona/PersonaTypeSelector'; // ⭐ NEW: Elegant chip style selector
+import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet'; // ⭐ NEW: Persona settings sheet
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
+import MessageInputOverlay from '../components/message/MessageInputOverlay';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { createPersona, checkPersonaStatus, getPersonaList } from '../services/api/personaApi';
@@ -102,9 +104,12 @@ const PersonaStudioScreen = () => {
   const [isMessageMode, setIsMessageMode] = useState(false); // ⭐ Message mode toggle
   const [isPanelVisible, setIsPanelVisible] = useState(false); // ⭐ NEW: PersonaSelectorPanel toggle
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
+  const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false); // ⭐ NEW: Settings sheet
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
+  const nameInputRef = useRef(null); // ⭐ NEW: For name change modal
+  const [settingsPersona, setSettingsPersona] = useState(null); // ⭐ NEW: Persona being edited
   const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ Persona search overlay
   const [isMessageSearchVisible, setIsMessageSearchVisible] = useState(false); // ⭐ Message search overlay
   const [messages, setMessages] = useState([]); // ⭐ Message history
@@ -769,11 +774,119 @@ const PersonaStudioScreen = () => {
   
   const handleChatWithPersona = useCallback((persona) => {
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 💬 Chat with persona:', persona.persona_name);
+      console.log('[PersonaStudioScreen] ⚙️ Open persona settings:', persona.persona_name);
     }
 
-    
+    HapticService.light();
+    setSettingsPersona(persona);
+    setIsPersonaSettingsOpen(true);
   }, []);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // PERSONA SETTINGS HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const handleSettingsClose = useCallback(() => {
+    setIsPersonaSettingsOpen(false);
+    setSettingsPersona(null);
+  }, []);
+  
+  const handlePersonaNameChange = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📝 Name change requested for:', persona.persona_name);
+    }
+    
+    // Open MessageInputOverlay for name input
+    nameInputRef.current?.open({
+      title: t('persona.settings.change_name'),
+      value: persona.persona_name,
+      placeholder: t('persona.creation.name_placeholder'),
+      maxLength: 20,
+    });
+  }, [t]);
+  
+  const handlePersonaNameSave = useCallback(async (newName) => {
+    if (!settingsPersona || !user?.user_key) return;
+    
+    try {
+      // TODO: Call update-settings API
+      showToast({
+        type: 'success',
+        message: t('persona.settings.name_changed'),
+        emoji: '✅',
+      });
+      
+      // Refresh persona list
+      // PersonaContext will handle this
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Name change error:', error);
+      showToast({
+        type: 'error',
+        message: t('errors.generic'),
+        emoji: '⚠️',
+      });
+    }
+  }, [settingsPersona, user, showToast, t]);
+  
+  const handlePersonaCategoryChange = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🏷️ Category change requested for:', persona.persona_name);
+    }
+    
+    // TODO: Open category selection sheet
+    showToast({
+      type: 'info',
+      message: t('persona.settings.category_coming_soon'),
+      emoji: '🚧',
+    });
+  }, [showToast, t]);
+  
+  const handlePersonaVideoConvert = useCallback(async (persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🎬 Video convert requested for:', persona.persona_name);
+    }
+    
+    try {
+      // TODO: Call upgrade API
+      showToast({
+        type: 'success',
+        message: t('persona.settings.video_converting'),
+        emoji: '🎬',
+      });
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Video convert error:', error);
+      showToast({
+        type: 'error',
+        message: t('errors.generic'),
+        emoji: '⚠️',
+      });
+    }
+  }, [showToast, t]);
+  
+  const handlePersonaDelete = useCallback(async (persona) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🗑️ Delete requested for:', persona.persona_name);
+    }
+    
+    try {
+      // TODO: Call remove-persona API
+      showToast({
+        type: 'success',
+        message: t('persona.settings.deleted'),
+        emoji: '✅',
+      });
+      
+      // Refresh persona list
+      // PersonaContext will handle this
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Delete error:', error);
+      showToast({
+        type: 'error',
+        message: t('errors.generic'),
+        emoji: '⚠️',
+      });
+    }
+  }, [showToast, t]);
 
   // ⭐ Calculate counts for both modes
   const personaCounts = useMemo(() => {
@@ -995,8 +1108,27 @@ const PersonaStudioScreen = () => {
           onClose={handlePersonaCreationClose}
           onCreateStart={handlePersonaCreationStart}
         />
+        
+        {/* ⭐ NEW: Persona Settings Sheet */}
+        <PersonaSettingsSheet
+          isOpen={isPersonaSettingsOpen}
+          persona={settingsPersona}
+          onClose={handleSettingsClose}
+          onNameChange={handlePersonaNameChange}
+          onCategoryChange={handlePersonaCategoryChange}
+          onVideoConvert={handlePersonaVideoConvert}
+          onDelete={handlePersonaDelete}
+        />
       </View>
     </SafeScreen>
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* MessageInputOverlay for Name Change */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <MessageInputOverlay
+      ref={nameInputRef}
+      onSave={handlePersonaNameSave}
+    />
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* Loading Overlay (Outside SafeScreen for highest z-index)         */}
