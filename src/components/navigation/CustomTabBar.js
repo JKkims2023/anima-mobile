@@ -40,10 +40,14 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props - React Navigation TabBar props
  */
 const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
+  // ⭐ ALL HOOKS MUST BE AT THE TOP (React Rules of Hooks)
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const { t } = useTranslation();
+  const actionSheetRef = useRef(null);
+  const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
+  const insets = useSafeAreaInsets();
   
   // ⭐ Check if we should hide the tab bar (for MessageDetail screen)
   // Method 1: Check props.style
@@ -66,18 +70,13 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // Hide if either method indicates we should
   const shouldHideTabBar = shouldHideFromProps || shouldHideFromRoute;
   
+  // ⭐ Now we can safely return null AFTER all hooks
   if (shouldHideTabBar) {
     console.log('✅ [CustomTabBar] Hiding tab bar!');
     return null;
   }
   
   console.log('❌ [CustomTabBar] Tab bar visible');
-
-  // ✅ CenterAIActionSheet ref
-  const actionSheetRef = useRef(null);
-  // ✅ ManagerAIOverlay state
-  const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
-  const insets = useSafeAreaInsets();
   
   // ✅ Get current context based on active tab
   const getCurrentContext = () => {
