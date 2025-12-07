@@ -28,19 +28,16 @@ export const PersonaProvider = ({ children }) => {
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
   const { user } = useUser();
   
-  useEffect(() => {
-
-    initializePersonas();
-  }, [user]);
-
+  // ⭐ FIX: initializePersonas MUST depend on 'user' to avoid closure capture
   const initializePersonas = useCallback(async () => {
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🎭 [PersonaContext] initializePersonas called');
+      console.log('👤 [PersonaContext] user:', user ? user.user_id : 'null');
+      console.log('🔑 [PersonaContext] user_key:', user ? user.user_key : 'null');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       setIsLoading(true);
-      
-      if (__DEV__) {
-        console.log('[PersonaContext] 🚀 Initializing personas for user:', DEV_USER_KEY);
-      }
 
       // ✅ Manager AI (SAGE) - Always first
       const managerAI = {
@@ -53,14 +50,20 @@ export const PersonaProvider = ({ children }) => {
         created_at: new Date().toISOString(),
       };
 
-      console.log('user', user);
-      // ✅ Fetch user's personas from API
+      // ✅ Fetch user's personas from API (only if user exists)
       try {
-        const userPersonas = await getPersonaList(user ? user?.user_key : 'empty');
-        
-        if (__DEV__) {
-          console.log('[PersonaContext] ✅ User personas loaded:', userPersonas.length);
+        if (!user || !user.user_key) {
+          console.log('⚠️  [PersonaContext] No user logged in, using empty persona list');
+          setPersonas([]);
+          setIsLoading(false);
+          return;
         }
+
+        console.log('🔍 [PersonaContext] Fetching personas for user_key:', user.user_key);
+        
+        const userPersonas = await getPersonaList(user.user_key);
+        
+        console.log('✅ [PersonaContext] User personas loaded:', userPersonas.length);
 
         // ✅ Combine: Manager AI first, then user personas
         const allPersonas = [
@@ -71,24 +74,28 @@ export const PersonaProvider = ({ children }) => {
           }))
         ];
 
-        if (__DEV__) {
-          console.log('[PersonaContext] ✅ Loaded:', allPersonas.length, 'personas');
-          console.log('[PersonaContext] 📊 Names:', allPersonas.map(p => p.persona_name).join(', '));
-        }
+        console.log('✅ [PersonaContext] Total personas:', allPersonas.length);
+        console.log('📊 [PersonaContext] Names:', allPersonas.map(p => p.persona_name).join(', '));
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
         setPersonas(allPersonas);
       } catch (apiError) {
-        console.error('[PersonaContext] ❌ API error, using Manager AI only:', apiError);
-        // Fallback: Just Manager AI
-        setPersonas([managerAI]);
+        console.error('❌ [PersonaContext] API error:', apiError);
+        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        // Fallback: Empty array
+        setPersonas([]);
       }
 
       setIsLoading(false);
     } catch (error) {
-      console.error('[PersonaContext] ❌ Initialization error:', error);
+      console.error('❌ [PersonaContext] Initialization error:', error);
       setIsLoading(false);
     }
-  }, []);
+  }, [user]); // ⭐ FIX: Add 'user' dependency!
+
+  useEffect(() => {
+    initializePersonas();
+  }, [initializePersonas]); // ⭐ FIX: Depend on initializePersonas, not user
 
   /**
    * Switch between SAGE mode and Persona mode
