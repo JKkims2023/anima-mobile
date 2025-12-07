@@ -174,6 +174,8 @@ export const MESSAGE_ENDPOINTS = {
   DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/delete',
   SHARE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/share',
   FAVORITE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/favorite',
+  REPLY: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/reply', // ⭐ Reply to message
+  REPLIES: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/message/replies', // ⭐ Get replies list
 };
 
 /**

@@ -357,6 +357,100 @@ export async function toggleFavorite(message_key, favorite_yn) {
   }
 }
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 💌 Save Reply to Message
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} messageKey - Message key
+ * @param {string} replyType - 'emotion' | 'text' | 'like'
+ * @param {string} replyContent - Reply content (for 'text' type)
+ * @param {string} emotionType - Emotion type (for 'emotion' type)
+ * @param {string} senderInfo - Sender info (optional)
+ * @returns {Promise<{success: boolean, data?: Object, errorCode?: string}>}
+ */
+export async function saveReply(messageKey, replyType, replyContent = null, emotionType = null, senderInfo = null) {
+  console.log('💌 [messageService] Saving reply:', {
+    messageKey,
+    replyType,
+    emotionType,
+    senderInfo,
+  });
+  
+  try {
+    const response = await apiClient(MESSAGE_ENDPOINTS.REPLY, {
+      method: 'POST',
+      body: JSON.stringify({
+        message_key: messageKey,
+        reply_type: replyType,
+        reply_content: replyContent,
+        emotion_type: emotionType,
+        sender_info: senderInfo,
+      }),
+    });
+
+    console.log('💌 [messageService] Save reply result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.error_code || 'REPLY_SAVE_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [messageService] saveReply error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 📬 Get Replies for Message
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} messageKey - Message key
+ * @param {string} userKey - User key (for ownership check)
+ * @returns {Promise<{success: boolean, data?: Object, errorCode?: string}>}
+ */
+export async function getReplies(messageKey, userKey) {
+  console.log('📬 [messageService] Getting replies:', {
+    messageKey,
+    userKey,
+  });
+  
+  try {
+    const response = await apiClient(`${MESSAGE_ENDPOINTS.REPLIES}/${messageKey}?user_key=${userKey}`, {
+      method: 'GET',
+    });
+
+    console.log('📬 [messageService] Get replies result:', response);
+
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.error_code || 'REPLIES_FETCH_ERROR',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [messageService] getReplies error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+    };
+  }
+}
+
 export default {
   createMessage,
   listMessages,
@@ -366,4 +460,6 @@ export default {
   deleteMessage,
   incrementShareCount,
   toggleFavorite,
+  saveReply,
+  getReplies,
 };

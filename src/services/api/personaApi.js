@@ -267,7 +267,7 @@ export const updatePersonaBasic = async (personaKey, userKey, personaName, categ
  */
 export const convertPersonaVideo = async (personaKey, userKey, imgUrl, memoryKey) => {
   try {
-    logApi('Convert Persona Video', {
+    console.log('Convert Persona Video', {
       personaKey,
       userKey,
       imgUrl,
