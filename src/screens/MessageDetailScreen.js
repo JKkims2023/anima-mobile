@@ -36,6 +36,8 @@ import Video from 'react-native-video';
 import PersonaBackgroundView from '../components/message/PersonaBackgroundView';
 import ParticleEffect from '../components/particle/ParticleEffect';
 import MessageHistoryChips from '../components/message/MessageHistoryChips';
+import FlipCard from '../components/message/FlipCard';
+import ReplyListView from '../components/message/ReplyListView';
 import CustomText from '../components/CustomText';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
@@ -398,13 +400,16 @@ const MessageDetailScreen = ({ route, navigation }) => {
     );
   }
 
-  return (
-    <View style={styles.container}>
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Front View (Message)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderFront = () => (
+    <>
       {/* Background: Persona Image/Video */}
       <View style={styles.backgroundContainer}>
         <PersonaBackgroundView
           persona={persona}
-          isScreenFocused={true}
+          isScreenFocused={!isFlipped}
           showOverlay={false}
         />
       </View>
@@ -422,36 +427,10 @@ const MessageDetailScreen = ({ route, navigation }) => {
         <Animated.View style={[styles.particleContainer, animatedParticleStyle]} pointerEvents="none">
           <ParticleEffect
             type={particle_effect}
-            isActive={true}
+            isActive={!isFlipped}
           />
         </Animated.View>
       )}
-
-      {/* Header (Back Button + Music Toggle) */}
-      <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBack}
-          activeOpacity={0.7}
-        >
-          <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
-        </TouchableOpacity>
-
-        {/* Music Toggle Button */}
-        {bg_music_url && bg_music_url !== 'none' && (
-          <TouchableOpacity
-            style={styles.musicButton}
-            onPress={handleMusicToggle}
-            activeOpacity={0.7}
-          >
-            <Icon 
-              name={isMusicPlaying ? "volume-high" : "volume-mute"} 
-              size={scale(24)} 
-              color="#FFFFFF" 
-            />
-          </TouchableOpacity>
-        )}
-      </View>
 
       {/* Message Content */}
       <View style={[styles.contentContainer, { bottom: insets.bottom + verticalScale(120) }]}>
@@ -473,14 +452,65 @@ const MessageDetailScreen = ({ route, navigation }) => {
           </Animated.View>
         ) : null}
       </View>
+    </>
+  );
 
-      {/* Quick Action Chips (우측 중앙) */}
-      <MessageHistoryChips
-        message={message}
-        onCommentPress={handleCommentPress}
-        onFavoriteToggle={handleToggleFavorite}
-        onDelete={handleDelete}
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Back View (Replies)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderBack = () => (
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+      <ReplyListView
+        messageKey={message.message_key}
+        onClose={handleCommentPress}
       />
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* FlipCard: Front (Message) / Back (Replies) */}
+      <FlipCard
+        isFlipped={isFlipped}
+        front={renderFront()}
+        back={renderBack()}
+      />
+
+      {/* Header (Back Button + Music Toggle) - Always visible */}
+      <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBack}
+          activeOpacity={0.7}
+        >
+          <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        {/* Music Toggle Button */}
+        {bg_music_url && bg_music_url !== 'none' && !isFlipped && (
+          <TouchableOpacity
+            style={styles.musicButton}
+            onPress={handleMusicToggle}
+            activeOpacity={0.7}
+          >
+            <Icon 
+              name={isMusicPlaying ? "volume-high" : "volume-mute"} 
+              size={scale(24)} 
+              color="#FFFFFF" 
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
+      {!isFlipped && (
+        <MessageHistoryChips
+          message={message}
+          onCommentPress={handleCommentPress}
+          onFavoriteToggle={handleToggleFavorite}
+          onDelete={handleDelete}
+        />
+      )}
 
       {/* Background Music Player */}
       {bg_music_url && bg_music_url !== 'none' && (
@@ -507,6 +537,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
+  },
+  safeArea: {
+    flex: 1,
   },
   backgroundContainer: {
     position: 'absolute',

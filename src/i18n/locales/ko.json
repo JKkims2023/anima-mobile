@@ -1832,6 +1832,27 @@
     "all_swiped_subtitle": "새로운 메시지를 기다리거나, 다시 시작해보세요.",
     "reset_button": "처음부터 다시 보기"
   },
+  "reply": {
+    "anonymous": "익명",
+    "total_replies": "총 {{count}}개의 댓글",
+    "no_replies": "아직 댓글이 없습니다",
+    "be_first_to_reply": "첫 댓글을 남겨보세요!",
+    "back_to_message": "메시지로 돌아가기",
+    "load_error": "댓글을 불러오지 못했습니다",
+    "liked_message": "이 메시지를 좋아합니다",
+    "just_now": "방금 전",
+    "minutes_ago": "{{count}}분 전",
+    "hours_ago": "{{count}}시간 전",
+    "days_ago": "{{count}}일 전",
+    "emotion": {
+      "happy": "기쁨",
+      "sad": "슬픔",
+      "love": "사랑",
+      "excited": "설렘",
+      "grateful": "감사",
+      "touched": "감동"
+    }
+  },
   "category_type": {
     "all": "전체",
     "normal": "일상",

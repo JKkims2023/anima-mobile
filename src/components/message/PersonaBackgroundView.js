@@ -106,10 +106,11 @@ const styles = StyleSheet.create({
   },
   video: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 99999999,
+     
   },
   image: {
     ...StyleSheet.absoluteFillObject,
+    
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,

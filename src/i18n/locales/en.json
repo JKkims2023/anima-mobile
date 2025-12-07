@@ -1707,6 +1707,27 @@
       "favorite_added": "Added to favorites",
       "favorite_removed": "Removed from favorites",
       "delete_success": "Message deleted successfully"
+    },
+    "reply": {
+      "anonymous": "Anonymous",
+      "total_replies": "{{count}} Replies",
+      "no_replies": "No replies yet",
+      "be_first_to_reply": "Be the first to reply!",
+      "back_to_message": "Back to Message",
+      "load_error": "Failed to load replies",
+      "liked_message": "Liked this message",
+      "just_now": "Just now",
+      "minutes_ago": "{{count}}m ago",
+      "hours_ago": "{{count}}h ago",
+      "days_ago": "{{count}}d ago",
+      "emotion": {
+        "happy": "Happy",
+        "sad": "Sad",
+        "love": "Love",
+        "excited": "Excited",
+        "grateful": "Grateful",
+        "touched": "Touched"
+      }
     }
   },
   "message_creator": {
