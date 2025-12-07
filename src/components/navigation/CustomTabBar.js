@@ -38,11 +38,19 @@ import { useTranslation } from 'react-i18next';
  * CustomTabBar Component
  * @param {Object} props - React Navigation TabBar props
  */
-const CustomTabBar = ({ state, descriptors, navigation }) => {
+const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const { t } = useTranslation();
+  
+  // ⭐ Check if we should hide the tab bar (for MessageDetail screen)
+  const shouldHideTabBar = props.style?.display === 'none';
+  
+  // If tab bar should be hidden, return null
+  if (shouldHideTabBar) {
+    return null;
+  }
   // ✅ CenterAIActionSheet ref
   const actionSheetRef = useRef(null);
   // ✅ ManagerAIOverlay state

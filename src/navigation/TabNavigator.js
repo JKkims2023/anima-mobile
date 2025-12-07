@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 // Import screens
@@ -103,22 +104,18 @@ const TabNavigator = () => {
       <Tab.Screen 
         name="History" 
         component={HistoryStack}
-        options={({ route }) => ({
-          title: t('navigation.history') || '히스토리',
-          tabBarStyle: ((routeName) => {
+        options={({ route }) => {
+          // Get the currently active route name in the stack
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'HistoryList';
+          
+          return {
+            title: t('navigation.history') || '히스토리',
             // Hide tab bar when in MessageDetail screen
-            const routeNames = route.state?.routeNames;
-            const index = route.state?.index;
-            
-            if (routeNames && index !== undefined) {
-              const currentRoute = routeNames[index];
-              if (currentRoute === 'MessageDetail') {
-                return { display: 'none' };
-              }
-            }
-            return undefined;
-          })(),
-        })}
+            tabBarStyle: routeName === 'MessageDetail' 
+              ? { display: 'none' } 
+              : undefined,
+          };
+        }}
       />
      
       

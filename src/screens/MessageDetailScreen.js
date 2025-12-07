@@ -13,7 +13,7 @@
  * @author JK & Hero Nexus AI
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -66,6 +66,23 @@ const MessageDetailScreen = ({ route, navigation }) => {
 
   // Music player ref
   const musicPlayerRef = useRef(null);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Hide tab bar on mount
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useLayoutEffect(() => {
+    // Hide parent tab bar
+    navigation.setOptions({
+      tabBarStyle: { display: 'none' },
+    });
+
+    // Show tab bar when unmounting (going back)
+    return () => {
+      navigation.setOptions({
+        tabBarStyle: undefined,
+      });
+    };
+  }, [navigation]);
 
   // ✅ Extract message data
   const {
