@@ -60,8 +60,8 @@ const MessageDetailScreen = ({ route, navigation }) => {
   const { showAlert, showToast } = useAnima();
   const insets = useSafeAreaInsets();
 
-  // Get message from navigation params
-  const { message: initialMessage } = route.params || {};
+  // Get message and callback from navigation params
+  const { message: initialMessage, onMessageUpdate } = route.params || {};
 
   // State
   const [message, setMessage] = useState(initialMessage);
@@ -312,11 +312,15 @@ const MessageDetailScreen = ({ route, navigation }) => {
     const newFavoriteYn = message.favorite_yn === 'Y' ? 'N' : 'Y';
 
     try {
-      const result = await messageService.toggleFavorite(message.message_key, newFavoriteYn);
+      const result = await messageService.toggleFavorite(message.message_key, user?.user_key, newFavoriteYn);
 
       if (result.success) {
         // Update local state
-        setMessage(prev => ({ ...prev, favorite_yn: newFavoriteYn }));
+        const updatedMessage = { ...message, favorite_yn: newFavoriteYn };
+        setMessage(updatedMessage);
+
+        // ⭐ Notify parent screen (real-time sync)
+        onMessageUpdate?.(updatedMessage, 'favorite');
 
         // Toast notification
         showToast({
@@ -356,6 +360,9 @@ const MessageDetailScreen = ({ route, navigation }) => {
               const result = await messageService.deleteMessage(message.message_key, user?.user_key);
 
               if (result.success) {
+                // ⭐ Notify parent screen (real-time sync)
+                onMessageUpdate?.(message, 'delete');
+
                 showToast({
                   type: 'success',
                   message: t('message.history.delete_success'),

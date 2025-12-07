@@ -320,16 +320,16 @@ export async function incrementShareCount(message_key) {
  * @param {string} favorite_yn - 'Y' or 'N'
  * @returns {Promise<{success: boolean, favorite_yn?: string, errorCode?: string}>}
  */
-export async function toggleFavorite(message_key, favorite_yn) {
+export async function toggleFavorite(message_key, userKey, favorite_yn) {
   try {
     console.log(`⭐ [messageService] Toggle favorite: message_key=${message_key}, favorite_yn=${favorite_yn}`);
 
-    const userKey = await authService.getUserKey();
+
     if (!userKey) {
       return { success: false, errorCode: 'USER_NOT_AUTHENTICATED' };
     }
 
-    const response = await apiClient.post(API_CONFIG.MESSAGE_ENDPOINTS.FAVORITE, {
+    const response = await apiClient.post(MESSAGE_ENDPOINTS.FAVORITE, {
       user_key: userKey,
       message_key,
       favorite_yn,
@@ -337,10 +337,10 @@ export async function toggleFavorite(message_key, favorite_yn) {
 
     console.log(`⭐ [messageService] Toggle favorite result:`, response);
 
-    if (response.success) {
+    if (response.data.success) {
       return {
         success: true,
-        favorite_yn: response.favorite_yn,
+        favorite_yn: response.data.favorite_yn,
       };
     } else {
       return {

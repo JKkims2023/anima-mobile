@@ -199,9 +199,35 @@ const HistoryScreen = ({ navigation }) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle message item press
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle message update (real-time sync from detail screen)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleMessageUpdate = useCallback((updatedMessage, action) => {
+    setMessages((prevMessages) => {
+      if (action === 'delete') {
+        // Remove message from list
+        return prevMessages.filter(msg => msg.message_key !== updatedMessage.message_key);
+      }
+      
+      if (action === 'favorite') {
+        // Update favorite status
+        return prevMessages.map(msg => 
+          msg.message_key === updatedMessage.message_key 
+            ? { ...msg, favorite_yn: updatedMessage.favorite_yn }
+            : msg
+        );
+      }
+      
+      return prevMessages;
+    });
+  }, []);
+
   const handleMessagePress = (message) => {
     HapticService.light();
-    navigation.push('MessageDetail', { message });
+    navigation.push('MessageDetail', { 
+      message,
+      onMessageUpdate: handleMessageUpdate, // ⭐ Pass callback
+    });
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
