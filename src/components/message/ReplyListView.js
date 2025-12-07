@@ -24,6 +24,7 @@ import CustomButton from '../CustomButton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
 import messageService from '../../services/api/messageService';
+import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 
@@ -37,6 +38,133 @@ const EMOTION_EMOJI = {
   excited: '🎉',
   grateful: '🙏',
   touched: '🥺',
+};
+
+/**
+ * Get emotion color for badge
+ */
+const getEmotionColor = (emotion) => {
+  const colors = {
+    happy: 'rgba(255, 193, 7, 0.15)',     // Yellow
+    sad: 'rgba(59, 130, 246, 0.15)',      // Blue
+    love: 'rgba(236, 72, 153, 0.15)',     // Pink
+    excited: 'rgba(251, 146, 60, 0.15)',  // Orange
+    grateful: 'rgba(16, 185, 129, 0.15)', // Green
+    touched: 'rgba(168, 85, 247, 0.15)',  // Purple
+  };
+  return colors[emotion] || 'rgba(59, 130, 246, 0.15)';
+};
+
+/**
+ * Format date helper
+ */
+const formatDate = (dateString, t) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return t('reply.just_now');
+  if (minutes < 60) return t('reply.minutes_ago', { count: minutes });
+  if (hours < 24) return t('reply.hours_ago', { count: hours });
+  if (days < 7) return t('reply.days_ago', { count: days });
+
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+};
+
+/**
+ * ReplyCard Component (Separate component for useState)
+ */
+const ReplyCard = ({ item, currentTheme, t }) => {
+  const [isExpanded, setIsExpanded] = useState(true); // ✅ Now it's in a component!
+  
+  const isTextReply = item.reply_type === 'text';
+  const isLikeOnly = item.reply_type === 'like';
+  const hasEmotion = !!item.emotion;
+  const hasText = isTextReply && item.reply_text;
+
+  // Toggle accordion
+  const handleToggle = () => {
+    if (hasText) {
+      HapticService.light();
+      setIsExpanded(!isExpanded);
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.replyCard,
+        { backgroundColor: currentTheme.cardBackground },
+        hasEmotion && styles.replyCardWithEmotion,
+      ]}
+      onPress={handleToggle}
+      activeOpacity={hasText ? 0.7 : 1}
+      disabled={!hasText}
+    >
+      {/* Header */}
+      <View style={styles.replyHeader}>
+        <View style={styles.replyAuthor}>
+          <Icon name="person-circle" size={scale(24)} color={currentTheme.textSecondary} />
+          <CustomText style={[styles.authorName, { color: currentTheme.textPrimary }]}>
+            {item.sender_name || t('reply.anonymous')}
+          </CustomText>
+        </View>
+        
+        <View style={styles.replyHeaderRight}>
+          <CustomText style={[styles.replyDate, { color: currentTheme.textSecondary }]}>
+            {formatDate(item.created_at, t)}
+          </CustomText>
+          {/* Accordion toggle icon */}
+          {hasText && (
+            <Icon
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
+              size={scale(20)}
+              color={currentTheme.textSecondary}
+              style={{ marginLeft: scale(8) }}
+            />
+          )}
+        </View>
+      </View>
+
+      {/* Emotion Badge (Large & Prominent) */}
+      {hasEmotion && (
+        <View style={[
+          styles.emotionBadge,
+          { backgroundColor: getEmotionColor(item.emotion) }
+        ]}>
+          <CustomText style={styles.emotionBadgeEmoji}>
+            {EMOTION_EMOJI[item.emotion] || '💙'}
+          </CustomText>
+          <CustomText style={styles.emotionBadgeLabel}>
+            {t(`reply.emotion.${item.emotion}`)}
+          </CustomText>
+        </View>
+      )}
+
+      {/* Text Reply (Accordion Content) */}
+      {hasText && isExpanded && (
+        <View style={styles.replyTextContainer}>
+          <CustomText style={[styles.replyText, { color: currentTheme.textPrimary }]}>
+            {item.reply_text}
+          </CustomText>
+        </View>
+      )}
+
+      {/* Like Only (Compact Badge) */}
+      {isLikeOnly && (
+        <View style={styles.likeOnlyBadge}>
+          <Icon name="heart" size={scale(16)} color="#FF4444" />
+          <CustomText style={[styles.likeOnlyText, { color: currentTheme.textSecondary }]}>
+            {t('reply.liked_message')}
+          </CustomText>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
 };
 
 /**
@@ -90,78 +218,11 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Render reply card
+  // Render reply card (uses ReplyCard component)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const renderReplyCard = ({ item }) => {
-    const isTextReply = item.reply_type === 'text';
-    const isLikeOnly = item.reply_type === 'like';
-
-    return (
-      <View style={[styles.replyCard, { backgroundColor: currentTheme.cardBackground }]}>
-        {/* Header */}
-        <View style={styles.replyHeader}>
-          <View style={styles.replyAuthor}>
-            <Icon name="person-circle" size={scale(24)} color={currentTheme.textSecondary} />
-            <CustomText style={[styles.authorName, { color: currentTheme.textPrimary }]}>
-              {item.sender_name || t('reply.anonymous')}
-            </CustomText>
-          </View>
-          <CustomText style={[styles.replyDate, { color: currentTheme.textSecondary }]}>
-            {formatDate(item.created_at)}
-          </CustomText>
-        </View>
-
-        {/* Emotion */}
-        {item.emotion && (
-          <View style={styles.emotionChip}>
-            <CustomText style={styles.emotionEmoji}>
-              {EMOTION_EMOJI[item.emotion] || '💙'}
-            </CustomText>
-            <CustomText style={[styles.emotionLabel, { color: currentTheme.textSecondary }]}>
-              {t(`reply.emotion.${item.emotion}`)}
-            </CustomText>
-          </View>
-        )}
-
-        {/* Text Reply */}
-        {isTextReply && item.reply_text && (
-          <CustomText style={[styles.replyText, { color: currentTheme.textPrimary }]}>
-            {item.reply_text}
-          </CustomText>
-        )}
-
-        {/* Like Only */}
-        {isLikeOnly && (
-          <View style={styles.likeOnly}>
-            <Icon name="heart" size={scale(20)} color="#FF4444" />
-            <CustomText style={[styles.likeOnlyText, { color: currentTheme.textSecondary }]}>
-              {t('reply.liked_message')}
-            </CustomText>
-          </View>
-        )}
-      </View>
-    );
-  };
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Format date
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return t('reply.just_now');
-    if (minutes < 60) return t('reply.minutes_ago', { count: minutes });
-    if (hours < 24) return t('reply.hours_ago', { count: hours });
-    if (days < 7) return t('reply.days_ago', { count: days });
-
-    return `${date.getMonth() + 1}/${date.getDate()}`;
-  };
+  const renderReplyCard = ({ item }) => (
+    <ReplyCard item={item} currentTheme={currentTheme} t={t} />
+  );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render empty state
@@ -288,16 +349,26 @@ const styles = StyleSheet.create({
   replyCard: {
     marginHorizontal: scale(20),
     marginBottom: verticalScale(12),
-    padding: scale(14),
-    borderRadius: moderateScale(12),
+    padding: scale(16),
+    borderRadius: moderateScale(16),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    // Shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  replyCardWithEmotion: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(59, 130, 246, 0.3)', // Neon blue
   },
   replyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: verticalScale(8),
+    marginBottom: verticalScale(12),
   },
   replyAuthor: {
     flexDirection: 'row',
@@ -308,32 +379,55 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     fontWeight: '600',
   },
-  replyDate: {
-    fontSize: moderateScale(12),
-  },
-  emotionChip: {
+  replyHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(6),
-    marginBottom: verticalScale(8),
   },
-  emotionEmoji: {
-    fontSize: moderateScale(20),
+  replyDate: {
+    fontSize: moderateScale(11),
   },
-  emotionLabel: {
-    fontSize: moderateScale(13),
+  
+  // Emotion Badge (Large & Prominent)
+  emotionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(20),
+    marginBottom: verticalScale(12),
+    gap: scale(10),
+  },
+  emotionBadgeEmoji: {
+    fontSize: moderateScale(28),
+  },
+  emotionBadgeLabel: {
+    fontSize: moderateScale(15),
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  
+  // Text Reply Container (Accordion)
+  replyTextContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: moderateScale(12),
+    padding: scale(12),
+    marginTop: verticalScale(4),
   },
   replyText: {
     fontSize: moderateScale(14),
-    lineHeight: moderateScale(20),
+    lineHeight: moderateScale(21),
   },
-  likeOnly: {
+  
+  // Like Only Badge (Compact)
+  likeOnlyBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(8),
+    gap: scale(6),
+    marginTop: verticalScale(4),
   },
   likeOnlyText: {
-    fontSize: moderateScale(13),
+    fontSize: moderateScale(12),
     fontStyle: 'italic',
   },
 

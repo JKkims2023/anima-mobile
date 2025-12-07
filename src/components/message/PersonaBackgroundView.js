@@ -23,48 +23,52 @@ const PersonaBackgroundView = memo(({
   isScreenFocused = true,
   opacity = 1,
   showOverlay = false, // ⭐ NEW: Control gradient overlay
+  videoKey, // ⭐ NEW: Unique key for forcing video remount
 }) => {
   const videoRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Determine media URL
   const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_yn === 'Y';
   const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
   const imageUrl = persona?.selected_dress_image_url || persona?.original_url || persona?.default_image;
 
-  // Reset video error when persona changes
+  // Reset video state when persona or videoKey changes
   useEffect(() => {
     setVideoError(false);
     setVideoLoaded(false);
-
-    console.log('[PersonaBackgroundView] Persona changed:', persona?.persona_key);
-    console.log('[PersonaBackgroundView] Persona name:', persona?.persona_name);
-    console.log('[PersonaBackgroundView] Persona image URL:', persona?.selected_dress_image_url);
-    console.log('[PersonaBackgroundView] Persona video URL:', persona?.selected_dress_video_url);
-    console.log('[PersonaBackgroundView] Persona video convert done:', persona?.selected_dress_video_convert_yn);
-    console.log('[PersonaBackgroundView] Persona original URL:', persona);
-    console.log('[PersonaBackgroundView] Has video:', hasVideo);
-
-  }, [persona?.persona_key]);
+    setIsPlaying(false);
+  }, [persona?.persona_key, videoKey]);
 
   // Video control based on screen focus
   useEffect(() => {
+    if (videoRef.current && hasVideo && !videoError && isScreenFocused) {
+      // Force restart video when screen is focused
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.seek(0);
+          setIsPlaying(true);
+        }
+      }, 100);
 
-    if (videoRef.current && hasVideo && !videoError) {
-      if (isScreenFocused) {
-        videoRef.current.seek(0); // Restart video
-      }
+      return () => clearTimeout(timer);
     }
-  }, [isScreenFocused, hasVideo, videoError]);
+  }, [isScreenFocused, hasVideo, videoError, videoKey]);
 
   const handleVideoError = (error) => {
     console.error('[PersonaBackgroundView] Video error:', error);
     setVideoError(true);
+    setIsPlaying(false);
   };
 
   const handleVideoLoad = () => {
     setVideoLoaded(true);
+    // Auto-play after load
+    if (isScreenFocused) {
+      setIsPlaying(true);
+    }
   };
 
   return (
@@ -79,15 +83,18 @@ const PersonaBackgroundView = memo(({
       {/* ✅ Video layer on top (if available) */}
       {hasVideo && !videoError && (
         <Video
+          key={videoKey || videoUrl} // ⭐ Force remount when videoKey changes
           ref={videoRef}
           source={{ uri: videoUrl }}
           style={styles.video}
           resizeMode="cover"
           repeat
           muted
-          paused={!isScreenFocused}
+          paused={!isScreenFocused || !isPlaying}
           onError={handleVideoError}
           onLoad={handleVideoLoad}
+          playInBackground={false}
+          playWhenInactive={false}
         />
       )}
       

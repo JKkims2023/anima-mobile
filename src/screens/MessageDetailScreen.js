@@ -446,6 +446,7 @@ const MessageDetailScreen = ({ route, navigation }) => {
           persona={persona}
           isScreenFocused={!isFlipped}
           showOverlay={false}
+          videoKey={message?.message_key} // ⭐ Unique key for video remount
         />
       </View>
 
