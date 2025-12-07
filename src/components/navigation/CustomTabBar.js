@@ -60,23 +60,13 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     : null;
   const shouldHideFromRoute = currentHistoryRouteName === 'MessageDetail';
   
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔍 [CustomTabBar] props.style:', props.style);
-  console.log('🔍 [CustomTabBar] shouldHideFromProps:', shouldHideFromProps);
-  console.log('🔍 [CustomTabBar] currentHistoryRouteName:', currentHistoryRouteName);
-  console.log('🔍 [CustomTabBar] shouldHideFromRoute:', shouldHideFromRoute);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  
   // Hide if either method indicates we should
   const shouldHideTabBar = shouldHideFromProps || shouldHideFromRoute;
   
-  // ⭐ Now we can safely return null AFTER all hooks
+  // ⭐ Return null if tab bar should be hidden
   if (shouldHideTabBar) {
-    console.log('✅ [CustomTabBar] Hiding tab bar!');
     return null;
   }
-  
-  console.log('❌ [CustomTabBar] Tab bar visible');
   
   // ✅ Get current context based on active tab
   const getCurrentContext = () => {

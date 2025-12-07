@@ -14,7 +14,8 @@
 import React, { memo } from 'react';
 import { View, TouchableOpacity, StyleSheet, Share, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, verticalScale } from '../../utils/responsive-utils';
+import CustomText from '../CustomText';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 
@@ -25,14 +26,21 @@ const MessageHistoryChips = memo(({
   message,
   onFavoriteToggle,
   onDelete,
+  onCommentPress, // ⭐ NEW: Comment chip callback
 }) => {
   const { currentTheme } = useTheme();
   
   const isFavorite = message?.favorite_yn === 'Y';
+  const replyCount = message?.reply_count || 0;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handlers
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  const handleCommentPress = () => {
+    HapticService.light();
+    onCommentPress?.();
+  };
 
   const handleFavoritePress = () => {
     HapticService.light();
@@ -69,6 +77,27 @@ const MessageHistoryChips = memo(({
 
   return (
     <View style={styles.container}>
+      {/* Comment Button */}
+      <TouchableOpacity
+        style={[
+          styles.chip,
+          replyCount > 0 && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+        ]}
+        onPress={handleCommentPress}
+        activeOpacity={0.7}
+      >
+        <Icon
+          name="comment-multiple"
+          size={scale(20)}
+          color={currentTheme.mainColor}
+        />
+        {replyCount > 0 && (
+          <View style={styles.badge}>
+            <CustomText style={styles.badgeText}>{replyCount}</CustomText>
+          </View>
+        )}
+      </TouchableOpacity>
+
       {/* Favorite Button */}
       <TouchableOpacity
         style={[
@@ -141,6 +170,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative', // For badge positioning
     // Shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -149,6 +179,25 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 8 },
     }),
+  },
+  badge: {
+    position: 'absolute',
+    top: scale(-4),
+    right: scale(-4),
+    backgroundColor: '#FF4444',
+    borderRadius: scale(10),
+    minWidth: scale(20),
+    height: scale(20),
+    paddingHorizontal: scale(4),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  badgeText: {
+    fontSize: moderateScale(11),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });
 

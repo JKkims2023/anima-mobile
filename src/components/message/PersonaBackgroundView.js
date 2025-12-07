@@ -29,7 +29,7 @@ const PersonaBackgroundView = memo(({
   const [videoLoaded, setVideoLoaded] = useState(false);
 
   // Determine media URL
-  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_done === 'Y';
+  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_yn === 'Y';
   const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
   const imageUrl = persona?.selected_dress_image_url || persona?.original_url || persona?.default_image;
 
@@ -37,6 +37,15 @@ const PersonaBackgroundView = memo(({
   useEffect(() => {
     setVideoError(false);
     setVideoLoaded(false);
+
+    console.log('[PersonaBackgroundView] Persona changed:', persona?.persona_key);
+    console.log('[PersonaBackgroundView] Persona name:', persona?.persona_name);
+    console.log('[PersonaBackgroundView] Persona image URL:', persona?.selected_dress_image_url);
+    console.log('[PersonaBackgroundView] Persona video URL:', persona?.selected_dress_video_url);
+    console.log('[PersonaBackgroundView] Persona video convert done:', persona?.selected_dress_video_convert_yn);
+    console.log('[PersonaBackgroundView] Persona original URL:', persona);
+    console.log('[PersonaBackgroundView] Has video:', hasVideo);
+
   }, [persona?.persona_key]);
 
   // Video control based on screen focus
@@ -97,6 +106,7 @@ const styles = StyleSheet.create({
   },
   video: {
     ...StyleSheet.absoluteFillObject,
+    zIndex: 99999999,
   },
   image: {
     ...StyleSheet.absoluteFillObject,

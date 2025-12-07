@@ -63,21 +63,19 @@ const MessageDetailScreen = ({ route, navigation }) => {
   // State
   const [message, setMessage] = useState(initialMessage);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false); // ⭐ Flip state for comment view
 
-  // Music player ref
+  // Refs
   const musicPlayerRef = useRef(null);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Hide tab bar on mount
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useLayoutEffect(() => {
-    // Hide parent tab bar
     navigation.setOptions({
       tabBarStyle: { display: 'none' },
     });
 
-    console.log('🎯 [MessageDetailScreen] Tab bar hidden');
-    // Show tab bar when unmounting (going back)
     return () => {
       navigation.setOptions({
         tabBarStyle: undefined,
@@ -122,8 +120,6 @@ const MessageDetailScreen = ({ route, navigation }) => {
   // Start animations on mount
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-    console.log('[MessageDetailScreen] 🎬 Starting animations:', text_animation);
-
     // Reset all animation values
     titleOpacity.value = 0;
     contentOpacity.value = 0;
@@ -379,6 +375,14 @@ const MessageDetailScreen = ({ route, navigation }) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle comment view (180° flip)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleCommentPress = () => {
+    HapticService.light();
+    setIsFlipped(!isFlipped);
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (!message) {
@@ -473,6 +477,7 @@ const MessageDetailScreen = ({ route, navigation }) => {
       {/* Quick Action Chips (우측 중앙) */}
       <MessageHistoryChips
         message={message}
+        onCommentPress={handleCommentPress}
         onFavoriteToggle={handleToggleFavorite}
         onDelete={handleDelete}
       />

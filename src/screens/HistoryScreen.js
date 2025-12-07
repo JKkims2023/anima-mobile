@@ -85,12 +85,7 @@ const HistoryScreen = ({ navigation }) => {
   // Load messages on mount
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-    console.log('🎯 [HistoryScreen] Component mounted!');
-    console.log('🎯 [HistoryScreen] isAuthenticated:', isAuthenticated);
-    console.log('🎯 [HistoryScreen] user?.user_key:', user?.user_key);
-    
     if (isAuthenticated && user?.user_key) {
-      console.log('✅ [HistoryScreen] Loading messages...');
       loadMessages(true); // true = reset
     }
   }, [isAuthenticated, user?.user_key]);
