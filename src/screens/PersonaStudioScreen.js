@@ -862,19 +862,21 @@ const PersonaStudioScreen = () => {
           ]}
           pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer
         >
-          {/* QuickActionChips (Right Overlay) */}
-          <View 
-            style={styles.quickChipsOverlay}
-            pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
-          >
-            <QuickActionChipsAnimated
-              onDressClick={handleQuickDress}
-              onHistoryClick={handleQuickHistory}
-              onVideoClick={handleQuickVideo}
-              onMessageClick={handleQuickMessage}
-              onSettingsClick={handleQuickSettings}
-            />
-          </View>
+          {/* QuickActionChips (Right Overlay) - Only show when personas exist */}
+          {currentFilteredPersonas.length > 0 && (
+            <View 
+              style={styles.quickChipsOverlay}
+              pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
+            >
+              <QuickActionChipsAnimated
+                onDressClick={handleQuickDress}
+                onHistoryClick={handleQuickHistory}
+                onVideoClick={handleQuickVideo}
+                onMessageClick={handleQuickMessage}
+                onSettingsClick={handleQuickSettings}
+              />
+            </View>
+          )}
         </Animated.View>
         
         {/* ═════════════════════════════════════════════════════════════════ */}
