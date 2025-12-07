@@ -54,6 +54,7 @@ import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; /
 import MessageSearchOverlay from '../components/message/MessageSearchOverlay'; // ⭐ NEW: Message search overlay
 import PersonaTypeSelector from '../components/persona/PersonaTypeSelector'; // ⭐ NEW: Elegant chip style selector
 import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet'; // ⭐ NEW: Persona settings sheet
+import CategorySelectionSheet from '../components/persona/CategorySelectionSheet'; // ⭐ NEW: Category selection sheet
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
@@ -112,6 +113,7 @@ const PersonaStudioScreen = () => {
   const [isPanelVisible, setIsPanelVisible] = useState(false); // ⭐ NEW: PersonaSelectorPanel toggle
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false); // ⭐ NEW: Settings sheet
+  const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false); // ⭐ NEW: Category sheet
   const [isLoadingPersona, setIsLoadingPersona] = useState(false);
   const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
   const [createdPersona, setCreatedPersona] = useState(null);
@@ -870,30 +872,33 @@ const PersonaStudioScreen = () => {
     }
   }, [settingsPersona, currentPersona, user, setPersonas, showToast, t]);
   
-  const handlePersonaCategoryChange = useCallback(async (persona, newCategoryType) => {
-    if (!user?.user_key) return;
-    
+  const handlePersonaCategoryChange = useCallback((persona) => {
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🏷️ Category change requested for:', {
         persona_name: persona.persona_name,
-        old_category: persona.category_type,
+        current_category: persona.category_type,
+      });
+    }
+    
+    // Open category selection sheet
+    HapticService.light();
+    setIsCategorySelectionOpen(true);
+  }, []);
+  
+  const handleCategorySelect = useCallback(async (newCategoryType) => {
+    if (!settingsPersona || !user?.user_key) return;
+    
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🔄 Updating persona category:', {
+        persona_key: settingsPersona.persona_key,
+        old_category: settingsPersona.category_type,
         new_category: newCategoryType,
       });
     }
     
-    // TODO: Open category selection sheet
-    // For now, just show coming soon
-    showToast({
-      type: 'info',
-      message: t('persona.settings.category_coming_soon'),
-      emoji: '🚧',
-    });
-    
-    /* 
-    // 🚧 Future implementation:
     try {
       const result = await updatePersonaBasic(
-        persona.persona_key,
+        settingsPersona.persona_key,
         user.user_key,
         null, // name not changed
         newCategoryType
@@ -902,26 +907,41 @@ const PersonaStudioScreen = () => {
       if (result.success) {
         // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
         setPersonas(prev => prev.map(p => 
-          p.persona_key === persona.persona_key
+          p.persona_key === settingsPersona.persona_key
             ? { ...p, category_type: newCategoryType }
             : p
         ));
+        
+        // Update currentPersona if it's the one being edited
+        if (currentPersona?.persona_key === settingsPersona.persona_key) {
+          setCurrentPersona(prev => ({ ...prev, category_type: newCategoryType }));
+        }
+        
+        // ✅ Close both sheets after successful update
+        setIsCategorySelectionOpen(false);
+        setIsPersonaSettingsOpen(false);
         
         showToast({
           type: 'success',
           message: t('persona.settings.category_changed'),
           emoji: '✅',
         });
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ Category changed (local update only)');
+        }
+      } else {
+        throw new Error(result.message || 'Update failed');
       }
     } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Category change error:', error);
       showToast({
         type: 'error',
         message: t('errors.generic'),
         emoji: '⚠️',
       });
     }
-    */
-  }, [user, showToast, t]);
+  }, [settingsPersona, currentPersona, user, setPersonas, showToast, t]);
   
   const handlePersonaVideoConvert = useCallback(async (persona) => {
     if (!user?.user_key) return;
@@ -1276,6 +1296,16 @@ const PersonaStudioScreen = () => {
       onCategoryChange={handlePersonaCategoryChange}
       onVideoConvert={handlePersonaVideoConvert}
       onDelete={handlePersonaDelete}
+    />
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Category Selection Sheet */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <CategorySelectionSheet
+      isOpen={isCategorySelectionOpen}
+      currentCategory={settingsPersona?.category_type || 'normal'}
+      onClose={() => setIsCategorySelectionOpen(false)}
+      onSelectCategory={handleCategorySelect}
     />
     
     {/* ═════════════════════════════════════════════════════════════════ */}

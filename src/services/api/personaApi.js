@@ -302,7 +302,7 @@ export const convertPersonaVideo = async (personaKey, userKey, imgUrl, memoryKey
  */
 export const deletePersona = async (personaKey, userKey) => {
   try {
-    logApi('Delete Persona', {
+    console.log('Delete Persona', {
       personaKey,
       userKey,
     });

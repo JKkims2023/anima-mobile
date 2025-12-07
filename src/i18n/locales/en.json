@@ -1759,7 +1759,13 @@
       "category_coming_soon": "Category change feature coming soon",
       "name_changed": "Name has been changed",
       "video_converting": "Video conversion started",
-      "deleted": "Persona has been deleted"
+      "deleted": "Persona has been deleted",
+      "category_changed": "Category has been changed"
+    },
+    "category": {
+      "title": "Select Category",
+      "current": "Current Category",
+      "hint": "Select a persona concept to change the message mood"
     },
     "creation": {
       "title": "New Persona",
