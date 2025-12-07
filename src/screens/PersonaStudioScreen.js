@@ -287,14 +287,22 @@ const PersonaStudioScreen = () => {
   }, [personas, DEFAULT_PERSONAS]);
   
   // ═══════════════════════════════════════════════════════════════════════
+  // FILTERED PERSONAS (Based on defaultMode switch)
+  // ═══════════════════════════════════════════════════════════════════════
+  const currentFilteredPersonas = useMemo(() => {
+    const targetDefaultYn = defaultMode ? 'N' : 'Y';
+    return personasWithDefaults.filter(p => p.default_yn === targetDefaultYn);
+  }, [personasWithDefaults, defaultMode]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
   // ═══════════════════════════════════════════════════════════════════════
   useMemo(() => {
-    if (personasWithDefaults.length > 0) {
-      const validIndex = Math.min(currentPersonaIndex, personasWithDefaults.length - 1);
-      setCurrentPersona(personasWithDefaults[validIndex]);
+    if (currentFilteredPersonas.length > 0) {
+      const validIndex = Math.min(currentPersonaIndex, currentFilteredPersonas.length - 1);
+      setCurrentPersona(currentFilteredPersonas[validIndex]);
     }
-  }, [currentPersonaIndex, personasWithDefaults]);
+  }, [currentPersonaIndex, currentFilteredPersonas]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
@@ -336,8 +344,8 @@ const PersonaStudioScreen = () => {
       console.log('[PersonaStudioScreen] ✨ Persona selected from panel:', persona.persona_name);
     }
     
-    // Find index of selected persona
-    const index = personasWithDefaults.findIndex(p => p.persona_key === persona.persona_key);
+    // Find index of selected persona in currentFilteredPersonas
+    const index = currentFilteredPersonas.findIndex(p => p.persona_key === persona.persona_key);
     
     if (index === -1) {
       console.error('[PersonaStudioScreen] ❌ Persona not found:', persona.persona_key);
@@ -357,7 +365,7 @@ const PersonaStudioScreen = () => {
     setIsPanelVisible(false);
     
     HapticService.success();
-  }, [personasWithDefaults]);
+  }, [currentFilteredPersonas]);
   
   // Handle add persona
   const handleAddPersona = useCallback(() => {
@@ -768,23 +776,15 @@ const PersonaStudioScreen = () => {
   }, []);
 
   const rtnPersonaCount = () => {
-
-    console.log('toggle', defaultMode);
- 
-    console.log('count', personasWithDefaults.filter(persona => persona.default_yn === defaultMode ? 'Y' : 'N').length);
+    // ⭐ Simply return the length of currentFilteredPersonas (already filtered)
+    const count = currentFilteredPersonas.length;
     
-    let rtnCount = 0;
-
-    if(!defaultMode) {
-      rtnCount = personasWithDefaults.filter(persona => persona.default_yn === 'Y').length;
-    } else {
-      rtnCount = personasWithDefaults.filter(persona => persona.default_yn === 'N').length;
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📊 Persona count:', count, 'defaultMode:', defaultMode);
     }
-
-
-    refPersonaCount.current = rtnCount;
-
-    return rtnCount;
+    
+    refPersonaCount.current = count;
+    return count;
   } 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
@@ -835,7 +835,7 @@ const PersonaStudioScreen = () => {
           <PersonaSwipeViewer 
             ref={swiperRef}
             key={`persona-swipe-${isScreenFocused}`}
-            personas={personasWithDefaults}
+            personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
             isModeActive={true}
             isScreenFocused={isScreenFocused}
             initialIndex={currentPersonaIndex}
@@ -850,7 +850,6 @@ const PersonaStudioScreen = () => {
             onChatWithPersona={handleChatWithPersona} // Not used in studio mode
             enabled={!isMessageMode} // ⭐ Disable swipe in message mode
             isMessageMode={isMessageMode}
-            filterCategoryType={!defaultMode ? 'Y' : 'N'}
           />
         </View>
         
@@ -961,7 +960,7 @@ const PersonaStudioScreen = () => {
         {/* ═════════════════════════════════════════════════════════════════ */}
         <PersonaSelectorPanel
           visible={isPanelVisible && !isMessageMode}
-          personas={personasWithDefaults}
+          personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
           onSelectPersona={handlePersonaSelectFromPanel}
           onClose={handlePanelClose}
           onViewAll={handleAddPersona}
@@ -1032,7 +1031,7 @@ const PersonaStudioScreen = () => {
     {/* ═════════════════════════════════════════════════════════════════ */}
     <PersonaSearchOverlay
       visible={isSearchOverlayVisible}
-      personas={personasWithDefaults}
+      personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
       onClose={handleSearchClose}
       onSelectPersona={handleSearchSelectPersona}
       currentPersonaKey={currentPersona?.persona_key}

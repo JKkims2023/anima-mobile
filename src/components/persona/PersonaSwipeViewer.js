@@ -47,7 +47,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  */
 const PersonaSwipeViewer = forwardRef(({ 
-  personas, 
+  personas, // ⭐ Already filtered by default_yn in parent
   isModeActive = true, 
   isScreenFocused = true,
   initialIndex = 0,
@@ -57,27 +57,21 @@ const PersonaSwipeViewer = forwardRef(({
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
   availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
-  filterCategoryType = 'Y',
 }, ref) => {
   const { currentTheme } = useTheme();
   
   
   const flatListRef = useRef(null);
-  const [filteredPersonas, setFilteredPersonas] = useState(personas);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    setFilteredPersonas(personas.filter(persona => persona.default_yn === filterCategoryType));
-  }, [personas, filterCategoryType]);
-
   
   // ⭐ Expose scrollToIndex method to parent
   useImperativeHandle(ref, () => ({
     scrollToIndex: ({ index, animated = true }) => {
-      if (flatListRef.current && index >= 0 && index < filteredPersonas.length) {
+      if (flatListRef.current && index >= 0 && index < personas.length) {
         flatListRef.current.scrollToIndex({ index, animated });
         setSelectedIndex(index);
         lastScrolledIndex.current = index;
@@ -141,14 +135,14 @@ const PersonaSwipeViewer = forwardRef(({
       setSelectedIndex(index);
       onIndexChange(index); // ✅ Notify parent
 
-      if (__DEV__ && filteredPersonas && filteredPersonas[index]) {
-        console.log('[PersonaSwipeViewer] 📱 Swiped to:', filteredPersonas[index].persona_name);
+      if (__DEV__ && personas && personas[index]) {
+        console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
       }
     }
-  }, [selectedIndex, filteredPersonas, onIndexChange, availableHeight]);
+  }, [selectedIndex, personas, onIndexChange, availableHeight]);
 
   // ✅ Current persona
-  const currentPersona = filteredPersonas && filteredPersonas[selectedIndex] ? filteredPersonas[selectedIndex] : null;
+  const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
 
   // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
@@ -171,7 +165,7 @@ const PersonaSwipeViewer = forwardRef(({
   const keyExtractor = useCallback((item) => item.persona_key, []);
 
   // Empty state (no personas)
-  if (!filteredPersonas || filteredPersonas.length === 0) {
+  if (!personas || personas.length === 0) {
     return (
       <View style={[styles.container, styles.centered]}>
         
@@ -190,7 +184,7 @@ const PersonaSwipeViewer = forwardRef(({
       {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
       <FlatList
         ref={flatListRef}
-        data={filteredPersonas}
+        data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
         vertical
@@ -226,9 +220,9 @@ const PersonaSwipeViewer = forwardRef(({
       />
 
       {/* Pagination Indicator */}
-        {filteredPersonas.length > 1 && !isMessageMode && (
+        {personas.length > 1 && !isMessageMode && (
         <View style={styles.paginationContainer} pointerEvents="none">
-          {filteredPersonas.map((_, index) => (
+          {personas.map((_, index) => (
             <View
               key={index}
               style={[
@@ -246,7 +240,7 @@ const PersonaSwipeViewer = forwardRef(({
       )}
 
       {/* ✅ PersonaInfoCard - 자아 정보 카드 */}
-      {filteredPersonas.length > 0 && !isMessageMode  && (
+      {personas.length > 0 && !isMessageMode  && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}

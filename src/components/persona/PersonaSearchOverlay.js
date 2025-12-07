@@ -3,7 +3,7 @@
 // YouTube-style full-screen search overlay for personas
 // ═══════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -49,7 +49,7 @@ const PERSONA_CATEGORIES = [
 
 const PersonaSearchOverlay = ({
   visible = false,
-  personas = [],
+  personas = [], // ⭐ Already filtered by default_yn in parent
   onClose,
   onSelectPersona,
   currentPersonaKey = null,
@@ -66,6 +66,36 @@ const PersonaSearchOverlay = ({
   const [selectedCategory, setSelectedCategory] = useState('all'); // ⭐ NEW: Category filter
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false); // ⭐ NEW: Dropdown state
   const [filteredPersonas, setFilteredPersonas] = useState(personas);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // COMPUTED VALUES
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ⭐ Calculate category counts (based on name search, but NOT category filter)
+  const categoryCounts = useMemo(() => {
+    let basePersonas = [...personas]; // Already filtered by default_yn in parent
+
+    // Apply name search filter (if any)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      basePersonas = basePersonas.filter((persona) => {
+        const name = persona.persona_name?.toLowerCase() || '';
+        return name.includes(query);
+      });
+    }
+
+    // Count by category
+    const counts = {};
+    PERSONA_CATEGORIES.forEach((cat) => {
+      if (cat.key === 'all') {
+        counts[cat.key] = basePersonas.length;
+      } else {
+        counts[cat.key] = basePersonas.filter((p) => p.category_type === cat.key).length;
+      }
+    });
+
+    return counts;
+  }, [personas, searchQuery]);
 
   // ═══════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -85,9 +115,9 @@ const PersonaSearchOverlay = ({
     }
   }, [visible, personas]);
 
-  // ⭐ Filter personas by search query AND category
+  // ⭐ Filter personas by category AND name (default_yn already filtered in parent)
   useEffect(() => {
-    let filtered = [...personas];
+    let filtered = [...personas]; // Already filtered by default_yn
 
     // 1️⃣ Category filter
     if (selectedCategory !== 'all') {
@@ -220,9 +250,14 @@ const PersonaSearchOverlay = ({
           onPress={handleToggleCategoryDropdown}
           activeOpacity={0.7}
         >
-          <CustomText type="body" style={{ color: theme.textPrimary }}>
-            {selectedCategoryData?.emoji} {t(`category_type.${selectedCategory}`)}
-          </CustomText>
+          <View style={styles.categoryButtonContent}>
+            <CustomText type="body" style={{ color: theme.textPrimary }}>
+              {selectedCategoryData?.emoji} {t(`category_type.${selectedCategory}`)}
+            </CustomText>
+            <CustomText type="small" style={{ color: theme.textSecondary, marginLeft: scale(8) }}>
+              ({categoryCounts[selectedCategory] || 0})
+            </CustomText>
+          </View>
           <Icon
             name={isCategoryDropdownOpen ? 'chevron-up' : 'chevron-down'}
             size={scale(20)}
@@ -243,6 +278,8 @@ const PersonaSearchOverlay = ({
           >
             {PERSONA_CATEGORIES.map((category) => {
               const isSelected = category.key === selectedCategory;
+              const count = categoryCounts[category.key] || 0;
+              
               return (
                 <TouchableOpacity
                   key={category.key}
@@ -255,14 +292,25 @@ const PersonaSearchOverlay = ({
                   onPress={() => handleSelectCategory(category.key)}
                   activeOpacity={0.7}
                 >
-                  <CustomText
-                    type="body"
-                    style={{
-                      color: isSelected ? theme.mainColor : theme.textPrimary,
-                    }}
-                  >
-                    {category.emoji} {t(`category_type.${category.key}`)}
-                  </CustomText>
+                  <View style={styles.dropdownItemContent}>
+                    <CustomText
+                      type="body"
+                      style={{
+                        color: isSelected ? theme.mainColor : theme.textPrimary,
+                      }}
+                    >
+                      {category.emoji} {t(`category_type.${category.key}`)}
+                    </CustomText>
+                    <CustomText
+                      type="small"
+                      style={{
+                        color: isSelected ? theme.mainColor : theme.textSecondary,
+                        marginLeft: scale(8),
+                      }}
+                    >
+                      ({count})
+                    </CustomText>
+                  </View>
                   {isSelected && (
                     <Icon name="check" size={scale(20)} color={theme.mainColor} />
                   )}
@@ -460,6 +508,11 @@ const styles = StyleSheet.create({
     paddingVertical: platformPadding(12),
   },
 
+  categoryButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
   dropdownList: {
     position: 'absolute',
     top: platformPadding(72), // Below button
@@ -484,6 +537,12 @@ const styles = StyleSheet.create({
     paddingVertical: platformPadding(14),
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+
+  dropdownItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
 
   // ⭐ List
