@@ -16,11 +16,11 @@ import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
-import CustomTextInput from '../CustomTextInput';
 import CustomButton from '../CustomButton';
+import MessageInputOverlay from '../message/MessageInputOverlay';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
-import { scale, verticalScale } from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 
@@ -32,6 +32,11 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
   const { currentTheme } = useTheme();
   const { showToast } = useAnima();
   const bottomSheetRef = useRef(null);
+
+  // Input overlay refs
+  const titleInputRef = useRef(null);
+  const promptInputRef = useRef(null);
+  const lyricsInputRef = useRef(null);
 
   // Form state
   const [musicType, setMusicType] = useState('instrumental'); // 'instrumental' | 'vocal'
@@ -210,41 +215,106 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
           </View>
         </View>
 
-        {/* Title Input */}
+        {/* Title Input (Read-only View) */}
         <View style={styles.section}>
-          <CustomTextInput
-            label={t('music.creator.title_label')}
-            placeholder={t('music.creator.title_placeholder')}
-            value={title}
-            onChangeText={setTitle}
-            maxLength={100}
-          />
+          <CustomText type="small" style={styles.inputLabel}>
+            {t('music.creator.title_label')}
+          </CustomText>
+          <TouchableOpacity
+            style={[
+              styles.readOnlyInput,
+              { 
+                backgroundColor: currentTheme.cardBackground,
+                borderColor: currentTheme.borderColor,
+              }
+            ]}
+            onPress={() => {
+              HapticService.light();
+              titleInputRef.current?.present();
+            }}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="normal"
+              style={[
+                styles.readOnlyText,
+                { color: title ? currentTheme.textPrimary : currentTheme.textSecondary }
+              ]}
+            >
+              {title || t('music.creator.title_placeholder')}
+            </CustomText>
+            <Icon name="pencil" size={scale(20)} color={currentTheme.textSecondary} />
+          </TouchableOpacity>
         </View>
 
-        {/* Prompt Input */}
+        {/* Prompt Input (Read-only View) */}
         <View style={styles.section}>
-          <CustomTextInput
-            label={t('music.creator.prompt_label')}
-            placeholder={t('music.creator.prompt_placeholder')}
-            value={prompt}
-            onChangeText={setPrompt}
-            multiline
-            numberOfLines={3}
-            maxLength={500}
-          />
+          <CustomText type="small" style={styles.inputLabel}>
+            {t('music.creator.prompt_label')}
+          </CustomText>
+          <TouchableOpacity
+            style={[
+              styles.readOnlyInput,
+              styles.readOnlyInputMultiline,
+              { 
+                backgroundColor: currentTheme.cardBackground,
+                borderColor: currentTheme.borderColor,
+              }
+            ]}
+            onPress={() => {
+              HapticService.light();
+              promptInputRef.current?.present();
+            }}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="normal"
+              style={[
+                styles.readOnlyText,
+                styles.readOnlyTextMultiline,
+                { color: prompt ? currentTheme.textPrimary : currentTheme.textSecondary }
+              ]}
+              numberOfLines={3}
+            >
+              {prompt || t('music.creator.prompt_placeholder')}
+            </CustomText>
+            <Icon name="pencil" size={scale(20)} color={currentTheme.textSecondary} />
+          </TouchableOpacity>
         </View>
 
-        {/* Lyrics Input (Conditional) */}
+        {/* Lyrics Input (Conditional, Read-only View) */}
         <Animated.View style={[styles.section, lyricsContainerStyle]}>
-          <CustomTextInput
-            label={t('music.creator.lyrics_label')}
-            placeholder={t('music.creator.lyrics_placeholder')}
-            value={lyrics}
-            onChangeText={setLyrics}
-            multiline
-            numberOfLines={4}
-            maxLength={1000}
-          />
+          <CustomText type="small" style={styles.inputLabel}>
+            {t('music.creator.lyrics_label')}
+          </CustomText>
+          <TouchableOpacity
+            style={[
+              styles.readOnlyInput,
+              styles.readOnlyInputMultiline,
+              { 
+                backgroundColor: currentTheme.cardBackground,
+                borderColor: currentTheme.borderColor,
+              }
+            ]}
+            onPress={() => {
+              HapticService.light();
+              lyricsInputRef.current?.present();
+            }}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="normal"
+              style={[
+                styles.readOnlyText,
+                styles.readOnlyTextMultiline,
+                { color: lyrics ? currentTheme.textPrimary : currentTheme.textSecondary }
+              ]}
+              numberOfLines={4}
+            >
+              {lyrics || t('music.creator.lyrics_placeholder')}
+            </CustomText>
+            <Icon name="pencil" size={scale(20)} color={currentTheme.textSecondary} />
+          </TouchableOpacity>
           <CustomText type="small" style={styles.lyricsDescription}>
             {t('music.creator.lyrics_description')}
           </CustomText>
@@ -259,6 +329,37 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
           />
         </View>
       </ScrollView>
+
+      {/* Input Overlays */}
+      <MessageInputOverlay
+        ref={titleInputRef}
+        title={t('music.creator.title_label')}
+        placeholder={t('music.creator.title_placeholder')}
+        value={title}
+        onSave={setTitle}
+        maxLength={100}
+        multiline={false}
+      />
+
+      <MessageInputOverlay
+        ref={promptInputRef}
+        title={t('music.creator.prompt_label')}
+        placeholder={t('music.creator.prompt_placeholder')}
+        value={prompt}
+        onSave={setPrompt}
+        maxLength={500}
+        multiline={true}
+      />
+
+      <MessageInputOverlay
+        ref={lyricsInputRef}
+        title={t('music.creator.lyrics_label')}
+        placeholder={t('music.creator.lyrics_placeholder')}
+        value={lyrics}
+        onSave={setLyrics}
+        maxLength={1000}
+        multiline={true}
+      />
     </CustomBottomSheet>
   );
 });
@@ -312,6 +413,31 @@ const styles = StyleSheet.create({
   radioDesc: {
     color: COLORS.TEXT_SECONDARY,
     paddingLeft: scale(32),
+  },
+  // Read-only Input Styles
+  inputLabel: {
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: scale(8),
+  },
+  readOnlyInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(14),
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+  },
+  readOnlyInputMultiline: {
+    alignItems: 'flex-start',
+    minHeight: verticalScale(80),
+  },
+  readOnlyText: {
+    flex: 1,
+    marginRight: scale(8),
+  },
+  readOnlyTextMultiline: {
+    lineHeight: verticalScale(22),
   },
   lyricsDescription: {
     color: COLORS.TEXT_SECONDARY,
