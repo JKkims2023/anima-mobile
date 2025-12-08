@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(16),
-    paddingBottom: platformPadding(16), // ✅ 고정 패딩 (BottomSheetFooter가 Safe Area 자동 처리)
+    paddingBottom: platformPadding(0), // ✅ 고정 패딩 (BottomSheetFooter가 Safe Area 자동 처리)
     borderTopWidth: 1,
     gap: scale(12),
   },

@@ -134,14 +134,21 @@ const CategorySelectionSheet = ({
       onClose={onClose}
       title={t('persona.category.title')}
       snapPoints={['70%']}
+      buttons={[
+        {
+          title: t('common.close'),
+          type: 'outline',
+          onPress: onClose,
+        },
+      ]}
     >
-      <ScrollView
+      <View
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
         {/* Current Category */}
-        <View style={[styles.currentCategoryCard, { backgroundColor: theme.bgSecondary }]}>
+        <View style={[styles.currentCategoryCard, { backgroundColor: theme.bgSecondary, display: 'none' }]}>
           <CustomText type="small" style={{ color: theme.textSecondary }}>
             {t('persona.category.current')}
           </CustomText>
@@ -161,13 +168,13 @@ const CategorySelectionSheet = ({
         </View>
 
         {/* Hint */}
-        <View style={[styles.hintCard, { backgroundColor: theme.bgTertiary }]}>
+        <View style={[styles.hintCard, { backgroundColor: theme.bgTertiary, display: 'none' }]}>
           <Icon name="information" size={moderateScale(20)} color={theme.textSecondary} />
           <CustomText type="small" style={{ color: theme.textSecondary, flex: 1 }}>
             {t('persona.category.hint')}
           </CustomText>
         </View>
-      </ScrollView>
+      </View>
     </CustomBottomSheet>
   );
 };
@@ -175,10 +182,11 @@ const CategorySelectionSheet = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
   },
 
   contentContainer: {
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(0),
     paddingBottom: platformPadding(20),
   },
 
@@ -205,7 +213,7 @@ const styles = StyleSheet.create({
 
   // ⭐ Category Chip
   categoryChip: {
-    width: '31%', // 3 columns
+    width: '30%', // 3 columns
     aspectRatio: 1.2,
     flexDirection: 'column',
     alignItems: 'center',

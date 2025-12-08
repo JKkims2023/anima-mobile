@@ -156,10 +156,10 @@ const PersonaSettingsSheet = ({
       disabled={disabled}
     >
       <View style={[styles.settingIconContainer, { backgroundColor: `${iconColor}20` }]}>
-        <Icon name={icon} size={scale(24)} color={iconColor} />
+        <Icon name={icon} size={scale(20)} color={iconColor} />
       </View>
       <View style={styles.settingTextContainer}>
-        <CustomText type="body" bold style={{ color: theme.textPrimary }}>
+        <CustomText type="title" bold style={{ color: theme.textPrimary }}>
           {title}
         </CustomText>
         {subtitle && (
@@ -183,6 +183,13 @@ const PersonaSettingsSheet = ({
       onClose={onClose}
       title={t('persona.settings.title')}
       snapPoints={['70%']}
+      buttons={[
+        {
+          title: t('common.close'),
+          type: 'outline',
+          onPress: onClose,
+        },
+      ]}
     >
       <ScrollView
         style={styles.container}
@@ -190,7 +197,7 @@ const PersonaSettingsSheet = ({
         showsVerticalScrollIndicator={false}
       >
         {/* Persona Info */}
-        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary }]}>
+        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary, display: 'none' }]}>
           <CustomText type="big" bold style={{ color: theme.textPrimary }}>
             {persona?.persona_name || t('persona.settings.no_persona')}
           </CustomText>
@@ -204,8 +211,8 @@ const PersonaSettingsSheet = ({
           {/* 이름 변경 */}
           {renderSettingItem({
             icon: 'pencil',
-            title: t('persona.settings.change_name'),
-            subtitle: t('persona.settings.change_name_desc'),
+            title: persona?.persona_name,
+            subtitle: null,
             onPress: handleNameChange,
             iconColor: theme.mainColor,
           })}
@@ -213,8 +220,8 @@ const PersonaSettingsSheet = ({
           {/* 카테고리 변경 */}
           {renderSettingItem({
             icon: 'tag',
-            title: t('persona.settings.change_category'),
-            subtitle: t('persona.settings.change_category_desc'),
+            title: t(`category_type.${persona?.category_type || 'normal'}`),
+            subtitle: null,
             onPress: handleCategoryChange,
             iconColor: '#FFA500',
           })}
@@ -278,8 +285,8 @@ const styles = StyleSheet.create({
   },
 
   settingIconContainer: {
-    width: scale(48),
-    height: scale(48),
+    width: scale(40),
+    height: scale(40),
     borderRadius: scale(24),
     alignItems: 'center',
     justifyContent: 'center',

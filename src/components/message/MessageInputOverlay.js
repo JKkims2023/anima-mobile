@@ -320,7 +320,8 @@ MessageInputOverlay.displayName = 'MessageInputOverlay';
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+
   },
   container: {
     flex: 1,
