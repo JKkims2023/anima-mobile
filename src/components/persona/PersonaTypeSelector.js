@@ -1,17 +1,20 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎨 PersonaTypeSelector - Elegant Chip Style Type Selector
+ * 🎨 PersonaTypeSelector - Single Toggle Chip Style Selector
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Features:
  * - Gradient background (dark → transparent)
- * - Two chips: Default / User
- * - Active chip: underline + background
- * - Create button on right
- * - Count display
+ * - Single chip: Toggles between Default → User → Favorite
+ * - Active chip: border + background + color
+ * - Create button on right (user mode only)
+ * - Count display for current mode
+ * - Next icon (→) for visual feedback
+ * 
+ * Mobile Optimized: Single chip design for narrow screens
  * 
  * @author JK & Hero Nexus AI
- * @date 2024-12-07
+ * @date 2024-12-08
  */
 
 import React from 'react';
@@ -38,28 +41,51 @@ const PersonaTypeSelector = ({
   const { t } = useTranslation();
   const { currentTheme: theme } = useTheme();
 
-  const handleDefaultPress = () => {
-    if (!isUserMode && !isFavoriteMode) return; // Already selected
+  // ⭐ Cycle through modes: default -> user -> favorite -> default
+  const handleModeToggle = () => {
     HapticService.light();
-    onTypeChange?.('default');
-  };
-
-  const handleUserPress = () => {
-    if (isUserMode && !isFavoriteMode) return; // Already selected
-    HapticService.light();
-    onTypeChange?.('user');
-  };
-
-  const handleFavoritePress = () => {
-    if (isFavoriteMode) return; // Already selected
-    HapticService.light();
-    onTypeChange?.('favorite');
+    
+    if (!isUserMode && !isFavoriteMode) {
+      // Currently default, switch to user
+      onTypeChange?.('user');
+    } else if (isUserMode && !isFavoriteMode) {
+      // Currently user, switch to favorite
+      onTypeChange?.('favorite');
+    } else {
+      // Currently favorite, switch to default
+      onTypeChange?.('default');
+    }
   };
 
   const handleCreate = () => {
     HapticService.light();
     onCreatePress?.();
   };
+
+  // ⭐ Get current mode info
+  const getCurrentModeInfo = () => {
+    if (isFavoriteMode) {
+      return {
+        emoji: '⭐',
+        label: t('persona.favorite'),
+        count: favoriteCount,
+      };
+    } else if (isUserMode) {
+      return {
+        emoji: '👤',
+        label: t('message.select_user_mode'),
+        count: userCount,
+      };
+    } else {
+      return {
+        emoji: '🌐',
+        label: t('message.select_default_mode'),
+        count: defaultCount,
+      };
+    }
+  };
+
+  const currentMode = getCurrentModeInfo();
 
   return (
     <View style={styles.container}>
@@ -76,110 +102,40 @@ const PersonaTypeSelector = ({
 
       {/* ⭐ Content */}
       <View style={styles.content}>
-        {/* Left: Type Chips */}
-        <View style={styles.chipsContainer}>
-          {/* Default Chip */}
-          <TouchableOpacity
-            style={[
-              styles.chip,
-              !isUserMode && !isFavoriteMode && [
-                styles.chipActive,
-                { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
-              ],
-            ]}
-            onPress={handleDefaultPress}
-            activeOpacity={0.7}
-          >
+        {/* Single Mode Chip (Toggles on Click) */}
+        <TouchableOpacity
+          style={[
+            styles.singleChip,
+            { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
+          ]}
+          onPress={handleModeToggle}
+          activeOpacity={0.7}
+        >
+          <View style={styles.chipContent}>
             <CustomText
               type="title"
-              bold={!isUserMode && !isFavoriteMode}
+              bold
               style={[
                 styles.chipText,
-                { color: (!isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
+                { color: theme.mainColor },
               ]}
             >
-              🌐 {t('message.select_default_mode')}
+              {currentMode.emoji} {currentMode.label}
             </CustomText>
             <CustomText
               type="small"
               style={[
                 styles.chipCount,
-                { color: (!isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
+                { color: theme.mainColor },
               ]}
             >
-              ({defaultCount})
+              ({currentMode.count})
             </CustomText>
-
-          </TouchableOpacity>
-
-          {/* User Chip */}
-          <TouchableOpacity
-            style={[
-              styles.chip,
-              isUserMode && !isFavoriteMode && [
-                styles.chipActive,
-                { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
-              ],
-            ]}
-            onPress={handleUserPress}
-            activeOpacity={0.7}
-          >
-            <CustomText
-              type="title"
-              bold={isUserMode && !isFavoriteMode}
-              style={[
-                styles.chipText,
-                { color: (isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
-              ]}
-            >
-              👤 {t('message.select_user_mode')}
-            </CustomText>
-            <CustomText
-              type="small"
-              style={[
-                styles.chipCount,
-                { color: (isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
-              ]}
-            >
-              ({userCount})
-            </CustomText>
-
-          </TouchableOpacity>
-
-          {/* Favorite Chip */}
-          <TouchableOpacity
-            style={[
-              styles.chip,
-              isFavoriteMode && [
-                styles.chipActive,
-                { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
-              ],
-            ]}
-            onPress={handleFavoritePress}
-            activeOpacity={0.7}
-          >
-            <CustomText
-              type="title"
-              bold={isFavoriteMode}
-              style={[
-                styles.chipText,
-                { color: isFavoriteMode ? theme.mainColor : theme.textSecondary },
-              ]}
-            >
-              ⭐ {t('persona.favorite')}
-            </CustomText>
-            <CustomText
-              type="small"
-              style={[
-                styles.chipCount,
-                { color: isFavoriteMode ? theme.mainColor : theme.textSecondary },
-              ]}
-            >
-              ({favoriteCount})
-            </CustomText>
-
-          </TouchableOpacity>
-        </View>
+          </View>
+          
+          {/* Next Icon */}
+          <Icon name="chevron-right" size={scale(20)} color={theme.mainColor} />
+        </TouchableOpacity>
 
         {/* Right: Create Button */}
         {showCreateButton && isUserMode && !isFavoriteMode && (
@@ -196,15 +152,6 @@ const PersonaTypeSelector = ({
         )}
       </View>
 
-      <CustomText
-        type="middle"
-        bold={isUserMode}
-        style={[
-          styles.chipText, {marginLeft: scale(20), color: 'white', display: 'none'}
-        ]}
-      >
-        {isUserMode ? t('message.select_user_mode_description') : t('message.select_default_mode_description')}
-      </CustomText>
     </View>
   );
 };
@@ -233,29 +180,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: platformPadding(16),
     paddingTop: platformPadding(16),
     paddingBottom: platformPadding(12),
-  },
-
-  // ⭐ Chips
-  chipsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: scale(12),
   },
 
-  chip: {
-    position: 'relative',
+  // ⭐ Single Chip (Toggleable)
+  singleChip: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: platformPadding(16),
-    paddingVertical: platformPadding(10),
-    borderRadius: scale(20),
+    paddingVertical: platformPadding(12),
+    borderRadius: scale(24),
+    borderWidth: 2,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
 
-  chipActive: {
-    borderWidth: 2,
+  chipContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
 
   chipText: {
@@ -264,15 +208,6 @@ const styles = StyleSheet.create({
 
   chipCount: {
     opacity: 0.8,
-  },
-
-  chipUnderline: {
-    position: 'absolute',
-    bottom: 0,
-    left: platformPadding(16),
-    right: platformPadding(16),
-    height: 2,
-    borderRadius: 1,
   },
 
   // ⭐ Create Button
