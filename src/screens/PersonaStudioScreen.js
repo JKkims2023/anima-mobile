@@ -91,7 +91,7 @@ const PersonaStudioScreen = () => {
   const { height: SCREEN_HEIGHT } = Dimensions.get('window');
   const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
   
-  const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom - TAB_BAR_HEIGHT;
+  const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom - TAB_BAR_HEIGHT - TAB_BAR_HEIGHT;
   
   if (__DEV__) {
     console.log('[PersonaStudioScreen] Height calculation:', {
@@ -954,6 +954,7 @@ const PersonaStudioScreen = () => {
         persona_name: persona.persona_name,
         persona_key: persona.persona_key,
         img_url: persona.selected_dress_image_url,
+        memory_key: persona.history_key,
       });
     }
     
@@ -962,7 +963,7 @@ const PersonaStudioScreen = () => {
         persona.persona_key,
         user.user_key,
         persona.selected_dress_image_url,
-        persona.selected_dress_key // memory_key
+        persona.history_key // memory_key
       );
 
       if (result.success) {
@@ -1092,7 +1093,7 @@ const PersonaStudioScreen = () => {
           <CustomText type="big" bold style={styles.headerTitle}>
             {isMessageMode ? t('navigation.title.message_mode') : t('navigation.title.home')}
           </CustomText>
-          <CustomText type="small" style={styles.headerSubtitle}>
+          <CustomText type="middle" style={styles.headerSubtitle}>
             {isMessageMode ? t('navigation.subtitle.message_mode') : t('navigation.subtitle.home')}
           </CustomText>
         </View>
@@ -1139,6 +1140,7 @@ const PersonaStudioScreen = () => {
             onChatWithPersona={handleChatWithPersona} // Not used in studio mode
             enabled={!isMessageMode} // ⭐ Disable swipe in message mode
             isMessageMode={isMessageMode}
+            onCreatePersona={handleAddPersona}
           />
         </View>
         
@@ -1510,7 +1512,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(4),
   },
   headerSubtitle: {
-    color: COLORS.TEXT_SECONDARY,
+    color: COLORS.TEXT_PRIMARY,
   },
   searchButton: {
     marginLeft: platformPadding(12),
@@ -1519,6 +1521,7 @@ const styles = StyleSheet.create({
   moreButton: {
     marginLeft: platformPadding(2),
     padding: platformPadding(8),
+    display: 'none',
   },
 
   // ⭐ PersonaTypeSelector Overlay

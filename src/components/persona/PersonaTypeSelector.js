@@ -58,7 +58,7 @@ const PersonaTypeSelector = ({
       {/* ⭐ Gradient Background (Dark → Transparent) */}
       <LinearGradient
         colors={[
-          'rgba(0, 0, 0, 0.6)',
+          'rgba(0, 0, 0, 0.8)',
           'rgba(0, 0, 0, 0.4)',
           'rgba(0, 0, 0, 0.0)',
         ]}
@@ -83,7 +83,7 @@ const PersonaTypeSelector = ({
             activeOpacity={0.7}
           >
             <CustomText
-              type="body"
+              type="title"
               bold={!isUserMode}
               style={[
                 styles.chipText,
@@ -101,7 +101,7 @@ const PersonaTypeSelector = ({
             >
               ({defaultCount})
             </CustomText>
-            {!isUserMode && <View style={[styles.chipUnderline, { backgroundColor: theme.mainColor }]} />}
+
           </TouchableOpacity>
 
           {/* User Chip */}
@@ -117,7 +117,7 @@ const PersonaTypeSelector = ({
             activeOpacity={0.7}
           >
             <CustomText
-              type="body"
+              type="title"
               bold={isUserMode}
               style={[
                 styles.chipText,
@@ -135,7 +135,7 @@ const PersonaTypeSelector = ({
             >
               ({userCount})
             </CustomText>
-            {isUserMode && <View style={[styles.chipUnderline, { backgroundColor: theme.mainColor }]} />}
+
           </TouchableOpacity>
         </View>
 
@@ -153,6 +153,16 @@ const PersonaTypeSelector = ({
           </TouchableOpacity>
         )}
       </View>
+
+      <CustomText
+        type="middle"
+        bold={isUserMode}
+        style={[
+          styles.chipText, {marginLeft: scale(20), color: 'white', display: 'none'}
+        ]}
+      >
+        {isUserMode ? t('message.select_user_mode_description') : t('message.select_default_mode_description')}
+      </CustomText>
     </View>
   );
 };
@@ -228,13 +238,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: platformPadding(14),
-    paddingVertical: platformPadding(8),
-    borderRadius: scale(20),
+    paddingVertical: platformPadding(14),
+    borderRadius: scale(24),
     gap: scale(4),
+    marginRight: scale(12),
   },
 
   createButtonText: {
     color: '#FFFFFF',
+    display: 'none',
   },
 });
 

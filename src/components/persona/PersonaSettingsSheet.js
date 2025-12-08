@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(0),
     paddingBottom: platformPadding(20),
   },
 

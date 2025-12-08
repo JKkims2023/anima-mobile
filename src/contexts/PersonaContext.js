@@ -39,6 +39,7 @@ export const PersonaProvider = ({ children }) => {
 
       setIsLoading(true);
 
+
       // ✅ Manager AI (SAGE) - Always first
       const managerAI = {
         persona_key: 'MANAGER_AI',
@@ -52,16 +53,17 @@ export const PersonaProvider = ({ children }) => {
 
       // ✅ Fetch user's personas from API (only if user exists)
       try {
+        /*
         if (!user || !user.user_key) {
           console.log('⚠️  [PersonaContext] No user logged in, using empty persona list');
           setPersonas([]);
           setIsLoading(false);
           return;
         }
+        */
 
-        console.log('🔍 [PersonaContext] Fetching personas for user_key:', user.user_key);
-        
-        const userPersonas = await getPersonaList(user.user_key);
+
+        const userPersonas = await getPersonaList(user != null ? user?.user_key : 'empty');
         
         console.log('✅ [PersonaContext] User personas loaded:', userPersonas.length);
 

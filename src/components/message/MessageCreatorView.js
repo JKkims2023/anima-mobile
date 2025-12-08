@@ -375,9 +375,12 @@ const MessageCreatorView = ({
                 {messageTitle}
               </CustomText>
             ) : (
+              <View style={[styles.overlayFieldHeader, { flexDirection: 'row', alignItems: 'center', gap: scale(8) }]}>
+              <Icon name="format-title" size={moderateScale(28)} color='white'  />
               <CustomText type="middle" bold style={styles.overlayFieldValue}>
                 {t('message.input.title_placeholder')}
               </CustomText>
+              </View>
             )}
           </TouchableOpacity>
 
@@ -393,9 +396,12 @@ const MessageCreatorView = ({
                 {messageContent}
               </CustomText>
             ) : (
-              <CustomText type="middle" style={styles.overlayFieldCommentValue}>
+              <View style={[{ marginTop: scale(0), paddingTop: scale(0), flexDirection: 'row', alignItems: 'center', gap: scale(8) }]}>
+              <Icon name="text-box-outline" size={moderateScale(20)} color='white'  />
+              <CustomText type="normal"  style={styles.overlayFieldCommentValue}>
                 {t('message.input.content_placeholder')}
               </CustomText>
+              </View>
             )}
           </TouchableOpacity>
 
@@ -500,28 +506,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messageOverlayContainer: {
-    paddingHorizontal: scale(20),
+    paddingHorizontal: scale(10),
     paddingBottom: platformPadding(30),
 //    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark overlay for readability
 //    borderTopLeftRadius: scale(30),
 //    borderTopRightRadius: scale(30),
   },
   overlayField: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Glass effect
-    borderRadius: scale(16),
+  //  backgroundColor: 'rgba(255, 255, 255, 0.15)', // Glass effect
+  //  borderRadius: scale(16),
     padding: platformPadding(16),
-    marginTop: scale(20),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginTop: scale(10),
+  //  borderWidth: 1,
+  //  borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   contentField: {
-
+    marginTop: scale(0),
+    marginBottom: scale(10),
   },
   overlayFieldHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(8),
-    marginBottom: scale(8),
+    marginBottom: scale(0),
+    marginLeft: scale(-5),
+    
   },
   overlayFieldLabel: {
     color: COLORS.TEXT_PRIMARY,

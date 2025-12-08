@@ -105,22 +105,22 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const tabs = [
     { 
       key: 'SAGE',
-      icon: 'flash',
+      icon: 'mail-outline',
       label: t('navigation.home') || '홈',
       route: 'Home', // Navigate to Home (SAGE)
     },
-    { 
-      key: 'Music',
-      icon: 'musical-notes',
-      label: t('navigation.music') || '스튜디오',
-      route: 'Music', // Navigate to Music screen
-    },
-    { key: 'AI', icon: null, label: '' }, // Center AI button
     { 
       key: 'History',
       icon: 'time-outline',
       label: t('navigation.history') || '히스토리',
       route: 'History', // Navigate to History screen
+    },
+    { key: 'AI', icon: null, label: '' }, // Center AI button
+    { 
+      key: 'Music',
+      icon: 'musical-notes',
+      label: t('navigation.music') || '스튜디오',
+      route: 'Music', // Navigate to Music screen
     },
     { 
       key: 'Settings',

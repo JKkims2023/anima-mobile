@@ -10,7 +10,7 @@
     "training_chat": "채팅모드",
     "settings": "설정",
     "title" : {
-      "home": "메세지 페르소나",
+      "home": "메세지 제작",
       "message_mode": "메세지 편집",
       "studio": "뮤직 스튜디오",
       "history": "메세지 히스토리",
@@ -18,8 +18,8 @@
       "settings": "설정"
     },
     "subtitle" : {
-      "home": "메세지 백그라운드에 사용될 페르소나를 선택하세요!",
-      "message_mode": "전하고자 하는 메세지를 편집하세요!",
+      "home": "단계 : 1 / 2 (배경 페르소나 선택)",
+      "message_mode": "단계 : 2 / 2 (메세지 편집)",
       "studio": "나만의 메세지에 음악을 연결하세요!",
       "history": "스와이프로 메세지를 탐색하세요!",
       "point": "포인트를 사용하여 나만의 메세지를 만들어보세요.",
@@ -1615,10 +1615,10 @@
     "select_default_female": "👩 여성",
     "select_mode_title" : "페르소나 타입",
     "select_mode_description" : "모드를 선택하여 메시지를 생성합니다.",
-    "select_default_mode" : "기본 타입",
-    "select_default_mode_description" : "기본 모드는 기본으로 제공되는 페르소나를 사용하여 메시지를 생성합니다.",
-    "select_user_mode" : "사용자 타입",
-    "select_user_mode_description" : "사용자 모드는 사용자가 직접 페르소나를 생성, 선택하여 메시지를 생성합니다.",
+    "select_default_mode" : "기본",
+    "select_default_mode_description" : "기본 페르소나를 사용하여 메시지를 생성합니다.",
+    "select_user_mode" : "사용자",
+    "select_user_mode_description" : "사용자가 고유의 유니크한 메시지를 생성합니다.",
     "cta_title": "💡 나만의 페르소나로 더 특별하게!",
     "input": {
       "persona_select": "보내는 사람 선택",
@@ -1756,11 +1756,6 @@
       "video_converting": "영상 전환을 시작합니다",
       "deleted": "페르소나가 삭제되었습니다"
     },
-    "category": {
-      "title": "카테고리 선택",
-      "current": "현재 카테고리",
-      "hint": "페르소나의 컨셉을 선택하면 메시지 분위기가 변경됩니다"
-    },
     "creation": {
       "title": "새로운 페르소나",
       "photo_title": "사진 선택",
@@ -1807,10 +1802,13 @@
       "tip": "💡 페르소나와 대화하면서 더 친밀해질 수 있어요!"
     },
     "category": {
+      "title": "카테고리 선택",
+      "current": "현재 카테고리",
+      "hint": "페르소나의 컨셉을 선택하면 메시지 분위기가 변경됩니다",
       "default": "일반"
     },
     "no_personas": "아직 생성한 페르소나가 없습니다",
-    "create_persona": "나만의 페르소나를 생성하여, 특별한 메세지를 만들어보세요!"
+    "create_persona": "첫 페르소나 생성하기"
   },
   "search": {
     "placeholder": {

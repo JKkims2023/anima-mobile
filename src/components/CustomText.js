@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Platform, StyleSheet } from 'react-native';
+import { Text, Platform, StyleSheet } from 'react-native'; 
 import i18n from '../i18n/i18n.config';
 
 const commonstyles = require('../styles/commonstyles');
@@ -32,6 +32,8 @@ const CustomText = (props) => {
     ? (bold ? commonstyles.fontSizeInfo.fontFamilyBold : commonstyles.fontSizeInfo.fontFamily)
     : (bold ? commonstyles.fontSizeInfo_Us.fontFamilyBold : commonstyles.fontSizeInfo_Us.fontFamily);
   
+  const fontSizeAdjustment = Platform.OS === 'ios' ? -1 : 0;
+
   // Get text style for the type
   const textTypeStyle = commonstyles.textStyles[type] || commonstyles.textStyles.normal;
   
@@ -39,10 +41,12 @@ const CustomText = (props) => {
   const defaultStyle = {
     ...commonstyles.textStyles.base,
     ...textTypeStyle,
+    fontSize: (textTypeStyle.fontSize || commonstyles.textStyles.normal.fontSize) + fontSizeAdjustment,
     fontFamily,
     color: commonstyles.darkTheme.textColor, // Default text color
     // Redefine fontWeight if bold is true
     ...(bold && { fontWeight: '700' }),
+    lineHeight: (textTypeStyle.fontSize || commonstyles.textStyles.normal.fontSize) * 1.5 + fontSizeAdjustment,
   };
   
   // Set default properties for text overflow handling

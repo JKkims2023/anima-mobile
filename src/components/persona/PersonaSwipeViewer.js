@@ -23,6 +23,7 @@ import {
   FlatList,
   Dimensions,
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
@@ -57,6 +58,7 @@ const PersonaSwipeViewer = forwardRef(({
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
   availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
+  onCreatePersona = () => {},
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -164,17 +166,25 @@ const PersonaSwipeViewer = forwardRef(({
   // ✅ Key extractor (optimized)
   const keyExtractor = useCallback((item) => item.persona_key, []);
 
+  const handleCreatePersona = useCallback(() => {
+    
+    onCreatePersona();
+
+  }, []);
+
   // Empty state (no personas)
   if (!personas || personas.length === 0) {
     return (
       <View style={[styles.container, styles.centered]}>
         
-        <CustomText type="big" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
+        <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
           {t('persona.no_personas')}
         </CustomText>
-        <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 8, textAlign: 'center' }}>
-          {t('persona.create_persona')}
-        </CustomText>
+        <TouchableOpacity onPress={handleCreatePersona}>
+          <CustomText type="title" style={{ color: currentTheme.mainColor, marginTop: 8, textAlign: 'center' }}>
+            {t('persona.create_persona')}
+          </CustomText>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -267,7 +277,7 @@ const styles = StyleSheet.create({
   paginationContainer: {
     position: 'absolute',
     left: scale(10),
-    top: '10%',
+    top: '25%',
     transform: [{ translateY: -40 }],
     flexDirection: 'column',
     justifyContent: 'center',
@@ -282,7 +292,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderStyle: 'solid',
     borderRadius: scale(16),
-    display: 'none',
+
   },
   paginationDot: {
     width: scale(8),
