@@ -1523,6 +1523,7 @@
     "filter_all": "전체",
     "filter_system": "시스템",
     "filter_user": "사용자",
+    "filter_favorite": "즐겨찾기",
     "type": {
       "all": "전체",
       "instrumental": "순수음원",
@@ -1585,7 +1586,9 @@
       "still_creating": "음원 생성 중... (약 {{time}}초 남음)",
       "attached_to_message": "메시지에 연결되었습니다",
       "cannot_delete_default": "기본 음원은 삭제할 수 없습니다",
-      "search_open": "검색 기능 준비 중입니다"
+      "search_open": "검색 기능 준비 중입니다",
+      "favorite_added": "즐겨찾기에 추가되었습니다",
+      "favorite_removed": "즐겨찾기에서 제거되었습니다"
     },
     "alert": {
       "completed_title": "음원 생성 완료!",

@@ -106,6 +106,16 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle toggle favorite
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleToggleFavorite = () => {
+    HapticService.light();
+    
+    // Notify parent to toggle favorite
+    onMusicUpdate?.(music, 'favorite');
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle delete
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleDelete = () => {
@@ -313,6 +323,19 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
           <CustomText style={[styles.date, { color: currentTheme.textSecondary }]}>
             {formatDate(music.created_at)}
           </CustomText>
+
+          {/* Favorite Button */}
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleToggleFavorite}
+            activeOpacity={0.7}
+          >
+            <Icon
+              name={music.favorite_yn === 'Y' ? 'star' : 'star-outline'}
+              size={scale(32)}
+              color={music.favorite_yn === 'Y' ? '#FBBF24' : currentTheme.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Play/Pause Button */}
@@ -466,6 +489,10 @@ const styles = StyleSheet.create({
   date: {
     fontSize: moderateScale(13),
     marginTop: verticalScale(4),
+  },
+  favoriteButton: {
+    marginTop: verticalScale(12),
+    padding: scale(8),
   },
 
   // Play/Pause Button

@@ -1532,6 +1532,7 @@
     "filter_all": "All",
     "filter_system": "System",
     "filter_user": "User",
+    "filter_favorite": "Favorites",
     "types": {
       "instrumental": "Instrumental",
       "vocal": "Vocal"
@@ -1564,7 +1565,9 @@
       "still_creating": "Creating music... (about {{time}}s left)",
       "attached_to_message": "Attached to message",
       "cannot_delete_default": "Cannot delete default music",
-      "search_open": "Search feature coming soon"
+      "search_open": "Search feature coming soon",
+      "favorite_added": "Added to favorites",
+      "favorite_removed": "Removed from favorites"
     },
     "alert": {
       "completed_title": "Music Creation Complete!",

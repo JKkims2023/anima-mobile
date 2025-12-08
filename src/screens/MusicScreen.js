@@ -61,6 +61,7 @@ const FILTERS = {
   ALL: 'all',
   SYSTEM: 'system',
   USER: 'user',
+  FAVORITE: 'favorite',
 };
 
 /**
@@ -165,6 +166,8 @@ const MusicScreen = () => {
       filtered = filtered.filter(m => m.is_default === 'Y');
     } else if (selectedFilter === FILTERS.USER) {
       filtered = filtered.filter(m => m.is_default !== 'Y');
+    } else if (selectedFilter === FILTERS.FAVORITE) {
+      filtered = filtered.filter(m => m.favorite_yn === 'Y');
     }
 
     // Filter by search query
@@ -284,6 +287,49 @@ const MusicScreen = () => {
         }
       } catch (error) {
         console.error('[MusicScreen] Delete music error:', error);
+        showToast({
+          type: 'error',
+          message: t('common.error'),
+          emoji: '❌',
+        });
+      }
+    } else if (action === 'favorite') {
+      try {
+        const result = await musicService.toggleFavorite(music.music_key, user.user_key);
+
+        if (result.success) {
+          // ⭐ Real-time state update
+          const newFavoriteStatus = result.data.favorite_yn;
+          
+          setMusicList(prev => prev.map(m =>
+            m.music_key === music.music_key
+              ? { ...m, favorite_yn: newFavoriteStatus }
+              : m
+          ));
+
+          // Update selectedMusic for player sheet
+          setSelectedMusic(prev => 
+            prev?.music_key === music.music_key
+              ? { ...prev, favorite_yn: newFavoriteStatus }
+              : prev
+          );
+
+          showToast({
+            type: 'success',
+            message: newFavoriteStatus === 'Y' 
+              ? t('music.toast.favorite_added')
+              : t('music.toast.favorite_removed'),
+            emoji: newFavoriteStatus === 'Y' ? '⭐' : '✨',
+          });
+        } else {
+          showToast({
+            type: 'error',
+            message: t('common.error'),
+            emoji: '❌',
+          });
+        }
+      } catch (error) {
+        console.error('[MusicScreen] Toggle favorite error:', error);
         showToast({
           type: 'error',
           message: t('common.error'),
@@ -556,7 +602,9 @@ const MusicScreen = () => {
             ? musicList.length
             : value === FILTERS.SYSTEM
             ? musicList.filter(m => m.is_default === 'Y').length
-            : musicList.filter(m => m.is_default !== 'Y').length;
+            : value === FILTERS.USER
+            ? musicList.filter(m => m.is_default !== 'Y').length
+            : musicList.filter(m => m.favorite_yn === 'Y').length;
 
           return (
             <TouchableOpacity
