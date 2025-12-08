@@ -453,6 +453,7 @@ const MusicScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderItem = ({ item }) => {
     const isCreating = item.status === 'creating';
+    const isFavorite = item.favorite_yn === 'Y';
     
     return (
       <TouchableOpacity
@@ -465,15 +466,24 @@ const MusicScreen = () => {
         activeOpacity={0.8}
       >
         {/* Music Icon */}
-        <View style={[
-          styles.musicIcon,
-          { backgroundColor: isCreating ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)' }
-        ]}>
-          <Icon
-            name={isCreating ? "hourglass-outline" : "musical-notes"}
-            size={scale(28)}
-            color={isCreating ? '#FB923C' : currentTheme.mainColor}
-          />
+        <View style={styles.musicIconContainer}>
+          <View style={[
+            styles.musicIcon,
+            { backgroundColor: isCreating ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)' }
+          ]}>
+            <Icon
+              name={isCreating ? "hourglass-outline" : "musical-notes"}
+              size={scale(28)}
+              color={isCreating ? '#FB923C' : currentTheme.mainColor}
+            />
+          </View>
+          
+          {/* Favorite Indicator Badge */}
+          {isFavorite && (
+            <View style={styles.favoriteIndicator}>
+              <Icon name="star" size={scale(14)} color={COLORS.gold} />
+            </View>
+          )}
         </View>
 
         {/* Music Info */}
@@ -504,6 +514,16 @@ const MusicScreen = () => {
               <View style={styles.systemBadge}>
                 <CustomText style={styles.systemText}>
                   🌟 {t('music.system')}
+                </CustomText>
+              </View>
+            )}
+
+            {/* Favorite Badge */}
+            {isFavorite && (
+              <View style={styles.favoriteBadge}>
+                <Icon name="star" size={scale(12)} color={COLORS.gold} />
+                <CustomText style={[styles.favoriteText, { color: COLORS.gold }]}>
+                  {t('music.favorite')}
                 </CustomText>
               </View>
             )}
@@ -797,12 +817,28 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(251, 146, 60, 0.3)',
     borderWidth: 1.5,
   },
+  musicIconContainer: {
+    position: 'relative',
+  },
   musicIcon: {
     width: scale(56),
     height: scale(56),
     borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  favoriteIndicator: {
+    position: 'absolute',
+    top: scale(-4),
+    right: scale(-4),
+    width: scale(20),
+    height: scale(20),
+    borderRadius: scale(10),
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.gold,
   },
   musicInfo: {
     flex: 1,
@@ -846,6 +882,19 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(11),
     fontWeight: '600',
     color: '#FBBF24',
+  },
+  favoriteBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(3),
+    borderRadius: moderateScale(6),
+    gap: scale(4),
+  },
+  favoriteText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
   },
   musicDate: {
     fontSize: moderateScale(12),
