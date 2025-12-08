@@ -1770,31 +1770,80 @@
     "bg_music": "Background Music"
   },
   "effects": {
+    "text_group": {
+      "gentle": "Gentle",
+      "gentle_desc": "Soft and comfortable",
+      "dynamic": "Dynamic",
+      "dynamic_desc": "Fast and energetic",
+      "impactful": "Impactful",
+      "impactful_desc": "Strong and impressive",
+      "playful": "Playful",
+      "playful_desc": "Fun and cheerful"
+    },
+    "particle_group": {
+      "love_romance": "Love & Romance",
+      "love_romance_desc": "Express love and romance",
+      "celebration_joy": "Celebration & Joy",
+      "celebration_joy_desc": "Moments of celebration",
+      "nature_season": "Nature & Season",
+      "nature_season_desc": "Beauty of nature",
+      "comfort_hope": "Comfort & Hope",
+      "comfort_hope_desc": "Comfort and hope",
+      "others": "Others",
+      "others_desc": "Various effects"
+    },
+    "music_group": {
+      "default": "Default Music",
+      "default_desc": "Music prepared by ANIMA",
+      "user_generated": "User Generated",
+      "user_generated_desc": "AI music you created",
+      "favorites": "Favorites",
+      "favorites_desc": "Frequently used music"
+    },
     "text": {
       "fade_in": "Fade In",
       "typing": "Typing",
       "scale_in": "Scale In",
-      "slide_cross": "Slide Cross"
+      "slide_cross": "Slide Cross",
+      "breath": "Breath",
+      "blur_focus": "Blur Focus",
+      "letter_drop": "Letter Drop",
+      "rotate_in": "Rotate In",
+      "wave": "Wave",
+      "stagger": "Stagger",
+      "flip": "Flip",
+      "split": "Split",
+      "glow_pulse": "Glow Pulse",
+      "rainbow": "Rainbow"
     },
     "particle": {
       "none": "None",
+      "none_desc": "No particle effect",
       "confetti": "Confetti",
       "hearts": "Hearts",
       "snow": "Snow",
       "sparkles": "Sparkles",
       "comfort_light": "Comfort Light",
       "hope_star": "Hope Star",
-      "rain_soft": "Soft Rain"
+      "rain_soft": "Soft Rain",
+      "neon_hearts": "Neon Hearts",
+      "fireworks": "Fireworks",
+      "sakura": "Sakura",
+      "leaves": "Leaves",
+      "fireflies": "Fireflies"
     },
     "music": {
       "none": "None",
+      "none_desc": "No background music",
       "birthday": "Birthday",
       "romantic": "Romantic",
       "thank_you": "Thank You",
       "christmas": "Christmas",
       "celebration": "Celebration",
       "cheer_up": "Cheer Up",
-      "comfort": "Comfort"
+      "comfort": "Comfort",
+      "calm": "Calm",
+      "cheerful": "Cheerful"
     }
   },
   "persona": {

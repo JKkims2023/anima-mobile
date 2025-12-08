@@ -41,6 +41,10 @@ export const AnimaProvider = ({ children }) => {
     buttons: [],
   });
 
+  // ⭐ New Message Badge state
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const [createdMessageUrl, setCreatedMessageUrl] = useState('');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Toast Functions
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -123,6 +127,10 @@ export const AnimaProvider = ({ children }) => {
     hideToast,
     showAlert,
     hideAlert,
+    hasNewMessage,
+    setHasNewMessage,
+    createdMessageUrl,
+    setCreatedMessageUrl,
   };
 
   return (

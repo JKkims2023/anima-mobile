@@ -40,13 +40,6 @@ import Video from 'react-native-video';
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
-// ⭐ NEW: Grouped effect structure
-import EffectGroupAccordion from '../EffectGroupAccordion';
-import { 
-  TEXT_ANIMATION_GROUPS, 
-  PARTICLE_EFFECT_GROUPS,
-  filterNonEmptyGroups,
-} from '../../constants/effect-groups';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -79,22 +72,6 @@ const MessagePreviewOverlay = ({
   const [selectionType, setSelectionType] = useState(null); // 'text' | 'particle' | 'music'
   const panelOpacity = useSharedValue(0);
   const panelTranslateY = useSharedValue(300);
-  
-  // ⭐ NEW: Group open/close state for accordions
-  const [openTextGroups, setOpenTextGroups] = useState({
-    gentle: true,      // First group opens by default
-    dynamic: false,
-    impactful: false,
-    playful: false,
-  });
-  
-  const [openParticleGroups, setOpenParticleGroups] = useState({
-    love_romance: true, // First group opens by default
-    celebration_joy: false,
-    nature_season: false,
-    comfort_hope: false,
-    others: false,
-  });
   
   // Music selection overlay state
   const [showMusicOverlay, setShowMusicOverlay] = useState(false);
@@ -511,23 +488,6 @@ const MessagePreviewOverlay = ({
   }, [onChangeBgMusic, closeSelectionPanel]);
   
   /**
-   * ⭐ NEW: Group Toggle Handlers
-   */
-  const handleToggleTextGroup = useCallback((groupId) => {
-    setOpenTextGroups(prev => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
-  }, []);
-  
-  const handleToggleParticleGroup = useCallback((groupId) => {
-    setOpenParticleGroups(prev => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
-  }, []);
-  
-  /**
    * Handle music selection from MusicSelectionOverlay
    */
   const handleMusicSelect = useCallback((music) => {
@@ -778,34 +738,40 @@ const MessagePreviewOverlay = ({
                 </TouchableOpacity>
               </View>
 
-              {/* ⭐ NEW: Grouped Options (Accordion) */}
-              <ScrollView 
-                style={styles.selectionPanelContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {/* Text Animation Groups */}
-                {selectionType === 'text' && filterNonEmptyGroups(TEXT_ANIMATION_GROUPS).map((group) => (
-                  <EffectGroupAccordion
-                    key={group.id}
-                    group={group}
-                    isOpen={openTextGroups[group.id] !== undefined ? openTextGroups[group.id] : group.defaultOpen}
-                    onToggle={() => handleToggleTextGroup(group.id)}
-                    selectedValue={textAnimation}
-                    onSelect={handleTextAnimationSelect}
-                  />
-                ))}
-                
-                {/* Particle Effect Groups */}
-                {selectionType === 'particle' && filterNonEmptyGroups(PARTICLE_EFFECT_GROUPS).map((group) => (
-                  <EffectGroupAccordion
-                    key={group.id}
-                    group={group}
-                    isOpen={openParticleGroups[group.id] !== undefined ? openParticleGroups[group.id] : group.defaultOpen}
-                    onToggle={() => handleToggleParticleGroup(group.id)}
-                    selectedValue={particleEffect}
-                    onSelect={handleParticleEffectSelect}
-                  />
-                ))}
+              {/* Options List */}
+              <ScrollView style={styles.selectionPanelContent}>
+                {getCurrentOptions().map((option) => {
+                  const isSelected = getCurrentValue() === option.id;
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      style={[
+                        styles.optionItem,
+                        isSelected && styles.optionItemSelected,
+                        { borderColor: theme.borderColor }
+                      ]}
+                      onPress={() => handleOptionSelect(option.id)}
+                    >
+                      <Icon
+                        name={option.icon}
+                        size={scale(24)}
+                        color={isSelected ? theme.mainColor : theme.textSecondary}
+                      />
+                      <CustomText
+                        type="body"
+                        style={{
+                          marginLeft: scale(12),
+                          color: isSelected ? theme.mainColor : theme.textPrimary
+                        }}
+                      >
+                        {option.label}
+                      </CustomText>
+                      {isSelected && (
+                        <Icon name="check-circle" size={scale(20)} color={theme.mainColor} style={{ marginLeft: 'auto' }} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             </Animated.View>
           </>

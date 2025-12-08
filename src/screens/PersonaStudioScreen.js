@@ -1242,6 +1242,8 @@ const PersonaStudioScreen = () => {
               pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
             >
               <QuickActionChipsAnimated
+                navigation={navigation}
+                selectedPersona={currentPersona}
                 onDressClick={handleQuickDress}
                 onHistoryClick={handleQuickHistory}
                 onVideoClick={handleQuickVideo}

@@ -31,10 +31,12 @@ import { COLORS } from '../../styles/commonstyles';
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const QuickActionChipsAnimated = ({
+  navigation,        // ⭐ NEW: Navigation prop for push
+  selectedPersona,   // ⭐ NEW: Selected persona for MessageCreation
   onDressClick,      // ⭐ 1. Dressing Room
   onHistoryClick,    // ⭐ 2. Memory History
   onVideoClick,      // ⭐ 3. Video Conversion
-  onMessageClick,    // ⭐ 4. Message Toggle
+  onMessageClick,    // ⭐ 4. Message Toggle (DEPRECATED - use navigation.push instead)
   onSettingsClick,   // ⭐ 5. Settings
   onMusicClick,      // ⭐ 6. Music
   onShareClick,      // ⭐ 7. Share
@@ -148,7 +150,15 @@ const QuickActionChipsAnimated = ({
       })}
     </View>
     <TouchableOpacity
-    onPress={() => handlePress({id: 'message', icon: 'pencil-outline', label: '메시지', onClick: onMessageClick})}>
+    onPress={() => {
+      HapticService.medium();
+      // ⭐ NEW: navigation.push instead of mode toggle
+      if (navigation && selectedPersona) {
+        navigation.push('MessageCreation', { selectedPersona });
+      } else {
+        console.warn('[QuickActionChipsAnimated] navigation or selectedPersona missing');
+      }
+    }}>
     <View 
     style={[styles.chip, {backgroundColor: COLORS.DEEP_BLUE_LIGHT,  
       borderWidth: 3,

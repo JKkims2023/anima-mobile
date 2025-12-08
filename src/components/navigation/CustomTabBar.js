@@ -26,6 +26,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useQuickAction } from '../../contexts/QuickActionContext';
+import { useAnima } from '../../contexts/AnimaContext'; // ⭐ For new message badge
 import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -44,12 +45,13 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
+  const { hasNewMessage } = useAnima(); // ⭐ Get badge state from Context
   const { t } = useTranslation();
   const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
   const insets = useSafeAreaInsets();
   
-  // ⭐ Check if we should hide the tab bar (for MessageDetail screen)
+  // ⭐ Check if we should hide the tab bar (for MessageDetail & MessageCreation screens)
   // Method 1: Check props.style
   const shouldHideFromProps = props.style?.display === 'none';
   
@@ -58,13 +60,28 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const currentHistoryRouteName = historyRoute 
     ? getFocusedRouteNameFromRoute(historyRoute) 
     : null;
-  const shouldHideFromRoute = currentHistoryRouteName === 'MessageDetail';
+  const shouldHideFromHistory = currentHistoryRouteName === 'MessageDetail';
   
-  // Hide if either method indicates we should
-  const shouldHideTabBar = shouldHideFromProps || shouldHideFromRoute;
+  // Method 3: Check current route in Home (PersonaStack) stack
+  const homeRoute = state.routes.find(route => route.name === 'Home');
+  const currentHomeRouteName = homeRoute 
+    ? getFocusedRouteNameFromRoute(homeRoute) 
+    : null;
+  const shouldHideFromHome = currentHomeRouteName === 'MessageCreation';
+  
+  // Hide if any method indicates we should
+  const shouldHideTabBar = shouldHideFromProps || shouldHideFromHistory || shouldHideFromHome;
+  
+  // ⭐ Debug log
+  if (__DEV__) {
+    console.log('🔍 [CustomTabBar] shouldHideTabBar:', shouldHideTabBar);
+    console.log('🔍 [CustomTabBar] currentHomeRouteName:', currentHomeRouteName);
+    console.log('🔍 [CustomTabBar] currentHistoryRouteName:', currentHistoryRouteName);
+  }
   
   // ⭐ Return null if tab bar should be hidden
   if (shouldHideTabBar) {
+    console.log('✅ [CustomTabBar] Hiding tab bar!');
     return null;
   }
   
@@ -205,11 +222,19 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
               onPress={onPress}
               activeOpacity={0.7}
             >
-              <Icon
-                name={tab.icon}
-                size={TAB_BAR.REGULAR_ICON_SIZE}
-                color={isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
-              />
+              <View style={styles.iconContainer}>
+                <Icon
+                  name={tab.icon}
+                  size={TAB_BAR.REGULAR_ICON_SIZE}
+                  color={isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
+                />
+                {/* ⭐ New Message Badge for History tab */}
+                {tab.key === 'History' && hasNewMessage && (
+                  <View style={styles.newMessageBadge}>
+                    <CustomText style={styles.newMessageBadgeText}>N</CustomText>
+                  </View>
+                )}
+              </View>
               <CustomText
                 style={[
                   styles.tabLabel,
@@ -261,10 +286,36 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(8),
   },
   
+  iconContainer: {
+    position: 'relative',
+  },
+  
   tabLabel: {
     fontSize: scale(10),
     marginTop: verticalScale(4),
     fontWeight: '500',
+  },
+  
+  // ⭐ New Message Badge
+  newMessageBadge: {
+    position: 'absolute',
+    top: scale(-4),
+    right: scale(-8),
+    backgroundColor: '#FF4444',
+    borderRadius: scale(8),
+    minWidth: scale(16),
+    height: scale(16),
+    paddingHorizontal: scale(4),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  
+  newMessageBadgeText: {
+    fontSize: scale(10),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   
   // ═══════════════════════════════════════════════════════════════════════════

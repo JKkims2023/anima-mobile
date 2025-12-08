@@ -59,7 +59,7 @@ const HistoryScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
-  const { showAlert, showToast } = useAnima();
+  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl } = useAnima(); // ⭐ For badge clearing
   const insets = useSafeAreaInsets();
 
   // ✅ FlashList ref
@@ -80,6 +80,15 @@ const HistoryScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState(FILTERS.ALL);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+  // ⭐ Clear new message badge on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      console.log('✅ [HistoryScreen] Clearing new message badge');
+      setHasNewMessage(false);
+      setCreatedMessageUrl('');
+    }, [setHasNewMessage, setCreatedMessageUrl])
+  );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages on mount

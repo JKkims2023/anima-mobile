@@ -31,7 +31,7 @@ const PersonaBackgroundView = memo(({
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Determine media URL
-  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_yn === 'Y';
+  const hasVideo = persona?.selected_dress_video_url && persona?.selected_dress_video_convert_done === 'Y';
   const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
   const imageUrl = persona?.selected_dress_image_url || persona?.original_url || persona?.default_image;
 
@@ -40,6 +40,11 @@ const PersonaBackgroundView = memo(({
     setVideoError(false);
     setVideoLoaded(false);
     setIsPlaying(false);
+
+    console.log('[PersonaBackgroundView] persona:', persona);
+    console.log('[PersonaBackgroundView] hasVideo:', hasVideo);
+    console.log('[PersonaBackgroundView] videoUrl:', videoUrl);
+    console.log('[PersonaBackgroundView] imageUrl:', imageUrl);
   }, [persona?.persona_key, videoKey]);
 
   // Video control based on screen focus
@@ -110,18 +115,17 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.BG_PRIMARY,
+    marginTop: 120,
   },
   video: {
     ...StyleSheet.absoluteFillObject,
-     
   },
   image: {
     ...StyleSheet.absoluteFillObject,
-    
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 30% dark overlay for text readability
+  //  backgroundColor: 'rgba(0, 0, 0, 0.3)', // 30% dark overlay for text readability
   },
 });
 

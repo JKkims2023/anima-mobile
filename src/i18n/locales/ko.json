@@ -1709,31 +1709,80 @@
     "bg_music": "배경 음원"
   },
   "effects": {
+    "text_group": {
+      "gentle": "부드러운",
+      "gentle_desc": "은은하고 편안한",
+      "dynamic": "역동적인",
+      "dynamic_desc": "빠르고 활기찬",
+      "impactful": "임팩트",
+      "impactful_desc": "강렬하고 인상적인",
+      "playful": "경쾌한",
+      "playful_desc": "재미있고 경쾌한"
+    },
+    "particle_group": {
+      "love_romance": "사랑 & 로맨스",
+      "love_romance_desc": "사랑과 로맨스를 표현",
+      "celebration_joy": "축하 & 기쁨",
+      "celebration_joy_desc": "축하와 기쁨의 순간",
+      "nature_season": "자연 & 계절",
+      "nature_season_desc": "자연과 계절의 아름다움",
+      "comfort_hope": "위로 & 희망",
+      "comfort_hope_desc": "위로와 희망을 전하는",
+      "others": "기타",
+      "others_desc": "다양한 효과들"
+    },
+    "music_group": {
+      "default": "기본 음원",
+      "default_desc": "ANIMA가 준비한 음원",
+      "user_generated": "사용자 생성",
+      "user_generated_desc": "내가 만든 AI 음원",
+      "favorites": "즐겨찾기",
+      "favorites_desc": "자주 사용하는 음원"
+    },
     "text": {
-      "fade_in": "부드럽게",
-      "typing": "타이핑",
-      "scale_in": "크게 등장",
-      "slide_cross": "좌우 슬라이드"
+      "fade_in": "Fade In",
+      "typing": "Typing",
+      "scale_in": "Scale In",
+      "slide_cross": "Slide Cross",
+      "breath": "Breath",
+      "blur_focus": "Blur Focus",
+      "letter_drop": "Letter Drop",
+      "rotate_in": "Rotate In",
+      "wave": "Wave",
+      "stagger": "Stagger",
+      "flip": "Flip",
+      "split": "Split",
+      "glow_pulse": "Glow Pulse",
+      "rainbow": "Rainbow"
     },
     "particle": {
-      "none": "효과 없음",
+      "none": "없음",
+      "none_desc": "파티클 효과 없음",
       "confetti": "색종이",
       "hearts": "하트",
       "snow": "눈",
       "sparkles": "반짝임",
-      "comfort_light": "따뜻한 빛 (위로)",
-      "hope_star": "떠오르는 별 (희망)",
-      "rain_soft": "부드러운 비 (슬픔)"
+      "comfort_light": "따뜻한 빛",
+      "hope_star": "희망의 별",
+      "rain_soft": "비",
+      "neon_hearts": "네온하트",
+      "fireworks": "폭죽",
+      "sakura": "벚꽃",
+      "leaves": "낙엽",
+      "fireflies": "반딧불이"
     },
     "music": {
-      "none": "음원 없음",
-      "birthday": "생일",
+      "none": "없음",
+      "none_desc": "배경 음악 없음",
+      "birthday": "생일 축하",
       "romantic": "로맨틱",
       "thank_you": "감사",
       "christmas": "크리스마스",
       "celebration": "축하",
       "cheer_up": "응원",
-      "comfort": "위로"
+      "comfort": "위로",
+      "calm": "차분한",
+      "cheerful": "경쾌한"
     }
   },
   "persona": {
