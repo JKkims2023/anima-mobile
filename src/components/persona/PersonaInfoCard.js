@@ -50,7 +50,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
   const handleFavoritePress = (e) => {
     e.stopPropagation(); // Prevent triggering parent onPress
     HapticService.light();
-    if (onFavoriteToggle && persona?.default_yn !== 'Y') {
+    if (onFavoriteToggle) {
       onFavoriteToggle(persona);
     }
   };
@@ -94,22 +94,27 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
             <CustomText type="big" style={styles.name} numberOfLines={1}>
               {persona.persona_name}
             </CustomText>
-            <Icon name="settings" size={scale(20)} color="#FFFFFF" style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }} />
             
-            {/* Favorite Icon (Only for user personas) */}
-            {persona?.default_yn !== 'Y' && (
-              <TouchableOpacity
-                onPress={handleFavoritePress}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Icon 
-                  name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
-                  size={scale(24)} 
-                  color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
-                />
-              </TouchableOpacity>
-            )}
+            {/* Settings Icon (Only for user-created personas) */}
+            <Icon 
+              name="settings" 
+              size={scale(20)} 
+              color="#FFFFFF" 
+              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }} 
+            />
+            
+            {/* Favorite Icon (⭐ ALL personas including default) */}
+            <TouchableOpacity
+              onPress={handleFavoritePress}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Icon 
+                name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
+                size={scale(24)} 
+                color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" style={styles.description} numberOfLines={2}>

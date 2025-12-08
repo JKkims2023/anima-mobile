@@ -1087,13 +1087,15 @@ const PersonaStudioScreen = () => {
   // FAVORITE TOGGLE HANDLER
   // ═══════════════════════════════════════════════════════════════════════
   const handlePersonaFavoriteToggle = useCallback(async (persona) => {
-    if (!user?.user_key || !persona || persona.default_yn === 'Y') return;
+    // ⭐ FIX: Allow favorite toggle for ALL personas (including default personas)
+    if (!user?.user_key || !persona) return;
     
     if (__DEV__) {
       console.log('[PersonaStudioScreen] ⭐ Favorite toggle requested for:', {
         persona_name: persona.persona_name,
         persona_key: persona.persona_key,
         current_favorite: persona.favorite_yn,
+        is_default: persona.default_yn,
       });
     }
     
