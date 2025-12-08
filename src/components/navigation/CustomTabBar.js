@@ -73,8 +73,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     const currentRouteName = state.routes[state.index]?.name || 'Home';
     const contextMap = {
       'Home': 'home',
-      'Music': 'music',
       'History': 'history',
+      'Music': 'music',
       'Settings': 'settings',
       'Persona': 'home', // Fallback to home context
       'AI': 'home', // Fallback to home context

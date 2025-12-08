@@ -80,26 +80,6 @@ const TabNavigator = () => {
           title: 'Studio',
         }}
       />
-
-      {/* Tab 4: Music (AI Music) */}
-      <Tab.Screen 
-        name="Music" 
-        component={MusicScreen}
-        options={{ 
-          title: t('navigation.music') || '뮤직',
-        }}
-      />
-       
-      {/* Tab 3: AI (Center) - Placeholder */}
-      <Tab.Screen 
-        name="AI" 
-        component={HomeScreen} // Temporary placeholder
-        options={{ 
-          title: '',
-          tabBarButton: () => null, // Hide default button (handled by CenterAIButton)
-        }}
-      />
-      
       {/* Tab 4: History (with Stack) */}
       <Tab.Screen 
         name="History" 
@@ -115,6 +95,24 @@ const TabNavigator = () => {
               ? { display: 'none' } 
               : undefined,
           };
+        }}
+      />
+       
+      {/* Tab 3: AI (Center) - Placeholder */}
+      <Tab.Screen 
+        name="AI" 
+        component={HomeScreen} // Temporary placeholder
+        options={{ 
+          title: '',
+          tabBarButton: () => null, // Hide default button (handled by CenterAIButton)
+        }}
+      />
+      {/* Tab 4: Music (AI Music) */}
+      <Tab.Screen 
+        name="Music" 
+        component={MusicScreen}
+        options={{ 
+          title: t('navigation.music') || '뮤직',
         }}
       />
      
