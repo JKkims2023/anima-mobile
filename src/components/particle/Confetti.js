@@ -1,8 +1,9 @@
 /**
- * 🎉 Confetti Particle Effect
+ * 🎉 Confetti / Fireworks Particle Effect
  * 
- * Colorful confetti falling from top
- * Perfect for celebration messages
+ * Colorful confetti with two variants:
+ * - confetti: Falling from top (traditional celebration) 🎉
+ * - fireworks: Exploding from bottom (dynamic fireworks) 🎆
  * 
  * @author JK & Hero Nexus AI
  */

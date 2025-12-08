@@ -1,8 +1,11 @@
 /**
- * ❄️ Snow Particle Effect
+ * ❄️ Snow / Sakura / Leaves Particle Effect
  * 
- * Gentle snowflakes falling from top
- * Perfect for winter and peaceful messages
+ * Gentle particles falling from top
+ * Supports multiple variants:
+ * - snow: White snowflakes ❄️
+ * - sakura: Pink cherry blossoms 🌸
+ * - leaves: Orange/brown autumn leaves 🍂
  * 
  * @author JK & Hero Nexus AI
  */
@@ -21,8 +24,24 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Single snowflake
-const Snowflake = ({ delay = 0, startX, size }) => {
+// Variant configurations
+const VARIANTS = {
+  snow: {
+    icon: 'snowflake',
+    color: '#FFFFFF',
+  },
+  sakura: {
+    icon: 'flower',
+    color: '#FFB7C5', // Pink cherry blossom
+  },
+  leaves: {
+    icon: 'leaf',
+    color: '#D2691E', // Chocolate brown / autumn orange
+  },
+};
+
+// Single particle (snowflake / sakura / leaf)
+const Snowflake = ({ delay = 0, startX, size, icon, color }) => {
   const translateY = useSharedValue(-50);
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
@@ -88,15 +107,23 @@ const Snowflake = ({ delay = 0, startX, size }) => {
         },
       ]}
     >
-      <Icon name="snowflake" size={size} color="#FFFFFF" />
+      <Icon name={icon} size={size} color={color} />
     </Animated.View>
   );
 };
 
 // Main Snow component
-const Snow = () => {
-  // Generate 25 snowflakes
-  const snowflakes = Array.from({ length: 25 }, (_, i) => ({
+const Snow = ({ variant = 'snow' }) => {
+  const config = VARIANTS[variant] || VARIANTS.snow;
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('❄️ [Snow] Rendering with variant:', variant);
+  console.log('  - icon:', config.icon);
+  console.log('  - color:', config.color);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  // Generate 25 particles
+  const particles = Array.from({ length: 25 }, (_, i) => ({
     key: i,
     delay: Math.random() * 4000,
     startX: Math.random() * SCREEN_WIDTH,
@@ -105,12 +132,14 @@ const Snow = () => {
 
   return (
     <View style={styles.container}>
-      {snowflakes.map((snowflake) => (
+      {particles.map((particle) => (
         <Snowflake
-          key={snowflake.key}
-          delay={snowflake.delay}
-          startX={snowflake.startX}
-          size={snowflake.size}
+          key={particle.key}
+          delay={particle.delay}
+          startX={particle.startX}
+          size={particle.size}
+          icon={config.icon}
+          color={config.color}
         />
       ))}
     </View>

@@ -45,7 +45,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage } = useAnima(); // ⭐ Get badge state from Context
+  const { hasNewMessage, isMessageCreationActive, showAlert: showAnimaAlert } = useAnima(); // ⭐ Get badge state and message creation state from Context
   const { t } = useTranslation();
   const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
@@ -191,6 +191,48 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           
           // ✅ Custom onPress for tabs
           const onPress = () => {
+            // ⭐ CRITICAL FIX: Block navigation if message creation is active
+            if (isMessageCreationActive && !isFocused) {
+              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+              console.log('🚨 [CustomTabBar] TAB PRESS BLOCKED!');
+              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+              console.log('  - isMessageCreationActive:', isMessageCreationActive);
+              console.log('  - Target tab:', tab.label);
+              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+              
+              HapticService.warning();
+              
+              // Show confirmation dialog
+              showAnimaAlert({
+                title: t('message.alert.exit_message_creation'),
+                emoji: '⚠️',
+                message: t('message.alert.exit_message_creation_description'),
+                buttons: [
+                  {
+                    text: t('message.alert.continue_writing'),
+                    style: 'cancel',
+                    onPress: () => {
+                      console.log('[CustomTabBar] ✅ User chose to continue writing');
+                      HapticService.light();
+                    }
+                  },
+                  {
+                    text: t('message.alert.exit'),
+                    style: 'destructive',
+                    onPress: () => {
+                      console.log('[CustomTabBar] ✅ User confirmed exit, navigating to:', tab.label);
+                      HapticService.medium();
+                      
+                      // Navigate to target tab
+                      navigation.navigate(state.routes[index].name);
+                    }
+                  }
+                ]
+              });
+              
+              return; // ⭐ Stop here!
+            }
+            
             // 🎯 Haptic feedback for tab navigation
             HapticService.medium();
             

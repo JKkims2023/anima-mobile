@@ -44,6 +44,9 @@ export const AnimaProvider = ({ children }) => {
   // ⭐ New Message Badge state
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [createdMessageUrl, setCreatedMessageUrl] = useState('');
+  
+  // ⭐ Message Creation Active state (for Tab Bar blocking)
+  const [isMessageCreationActive, setIsMessageCreationActive] = useState(false);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Toast Functions
@@ -131,6 +134,8 @@ export const AnimaProvider = ({ children }) => {
     setHasNewMessage,
     createdMessageUrl,
     setCreatedMessageUrl,
+    isMessageCreationActive,
+    setIsMessageCreationActive,
   };
 
   return (

@@ -1,15 +1,14 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack'; // ⭐ Still needed for HistoryStack
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native'; // ⭐ Still needed for HistoryStack
 import { useTranslation } from 'react-i18next';
 
 // Import screens
 import MainScreen from '../screens/MainScreen';
 import HomeScreen from '../screens/HomeScreen';
 import PersonaScreen from '../screens/PersonaScreen';
-import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ NEW: Unified Persona Studio
-import MessageCreationScreen from '../screens/MessageCreationScreen'; // ⭐ NEW: Message Creation
+import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ Unified Persona Studio (with MessageCreationOverlay)
 import MusicScreen from '../screens/MusicScreen';
 import HistoryScreen from '../screens/HistoryScreen'; // ⭐ NEW: Message History
 import MessageDetailScreen from '../screens/MessageDetailScreen'; // ⭐ NEW: Message Detail
@@ -23,27 +22,10 @@ const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 /**
- * PersonaStack - Stack Navigator for Persona Studio Tab
- * Allows navigation from PersonaStudioScreen -> MessageCreationScreen
+ * ⭐ PersonaStack REMOVED
+ * MessageCreationScreen is now a full-screen overlay inside PersonaStudioScreen
+ * No longer needs Stack Navigation
  */
-const PersonaStack = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen 
-        name="PersonaStudio" 
-        component={PersonaStudioScreen}
-      />
-      <Stack.Screen 
-        name="MessageCreation" 
-        component={MessageCreationScreen}
-      />
-    </Stack.Navigator>
-  );
-};
 
 /**
  * HistoryStack - Stack Navigator for History Tab
@@ -96,21 +78,13 @@ const TabNavigator = () => {
       detachInactiveScreens={false}
     >
 
-      {/* Tab 1: Studio (Unified Persona & Message Creation Hub) - with Stack */}
+      {/* Tab 1: Studio (Unified Persona & Message Creation Hub) - ⭐ Direct component */}
       <Tab.Screen 
         name="Home" 
-        component={PersonaStack}
-        options={({ route }) => {
-          // Get the currently active route name in the stack
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'PersonaStudio';
-          
-          return {
-            title: 'Studio',
-            // Hide tab bar when in MessageCreation screen
-            tabBarStyle: routeName === 'MessageCreation' 
-              ? { display: 'none' } 
-              : undefined,
-          };
+        component={PersonaStudioScreen}
+        options={{
+          title: 'Studio',
+          // ⭐ No dynamic tabBarStyle needed (MessageCreationOverlay covers it with z-index)
         }}
       />
       {/* Tab 4: History (with Stack) */}

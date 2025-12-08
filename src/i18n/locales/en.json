@@ -1735,6 +1735,15 @@
       "favorite_removed": "Removed from favorites",
       "delete_success": "Message deleted successfully"
     },
+    "alert": {
+      "exit_message_mode": "Cancel message creation?",
+      "exit_message_mode_description": "All your work will be reset if you cancel.",
+      "exit_message_creation": "Stop message creation?",
+      "exit_message_creation_description": "You have a message in progress.\nAre you sure you want to leave?\n\nAll content will be lost.",
+      "continue_writing": "Continue",
+      "exit": "Confirm",
+      "cancel": "Cancel"
+    },
     "reply": {
       "anonymous": "Anonymous",
       "total_replies": "{{count}} Replies",
@@ -1789,6 +1798,8 @@
       "nature_season_desc": "Beauty of nature",
       "comfort_hope": "Comfort & Hope",
       "comfort_hope_desc": "Comfort and hope",
+      "custom_words": "Custom Words",
+      "custom_words_desc": "Personalize with your words",
       "others": "Others",
       "others_desc": "Various effects"
     },
@@ -1830,7 +1841,9 @@
       "fireworks": "Fireworks",
       "sakura": "Sakura",
       "leaves": "Leaves",
-      "fireflies": "Fireflies"
+      "fireflies": "Fireflies",
+      "floating_words": "Floating Words",
+      "scrolling_words": "Scrolling Words"
     },
     "music": {
       "none": "None",

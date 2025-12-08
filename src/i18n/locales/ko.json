@@ -1692,6 +1692,9 @@
     "alert": {
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",
       "exit_message_mode_description": "메시지 작성을 취소하면 모든 작업이 초기화됩니다.",
+      "exit_message_creation": "메시지 제작을 중단하시겠습니까?",
+      "exit_message_creation_description": "작성 중인 메시지가 있습니다.\n정말 나가시겠습니까?\n\n모든 내용이 사라집니다.",
+      "continue_writing": "계속 작성",
       "exit": "확인",
       "cancel": "취소"
     }
@@ -1728,6 +1731,8 @@
       "nature_season_desc": "자연과 계절의 아름다움",
       "comfort_hope": "위로 & 희망",
       "comfort_hope_desc": "위로와 희망을 전하는",
+      "custom_words": "나만의 단어",
+      "custom_words_desc": "특별한 단어로 감동을",
       "others": "기타",
       "others_desc": "다양한 효과들"
     },
@@ -1769,7 +1774,9 @@
       "fireworks": "폭죽",
       "sakura": "벚꽃",
       "leaves": "낙엽",
-      "fireflies": "반딧불이"
+      "fireflies": "반딧불이",
+      "floating_words": "떠오르는 단어",
+      "scrolling_words": "흐르는 단어"
     },
     "music": {
       "none": "없음",

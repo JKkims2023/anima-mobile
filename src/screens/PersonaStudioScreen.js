@@ -59,6 +59,7 @@ import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
 import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
+import MessageCreationOverlay from '../components/message/MessageCreationOverlay'; // ⭐ NEW: Overlay for message creation
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { 
@@ -82,7 +83,7 @@ const PersonaStudioScreen = () => {
   const { currentTheme } = useTheme();
   const { personas, setPersonas, selectedPersona: contextSelectedPersona } = usePersona(); // ⭐ ADD: setPersonas for local update
   const { user } = useUser();
-  const { showToast, showAlert } = useAnima();
+  const { showToast, showAlert, setIsMessageCreationActive } = useAnima(); // ⭐ For Tab Bar blocking
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
   
@@ -130,6 +131,13 @@ const PersonaStudioScreen = () => {
   const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
   const [showQuickActionChips, setShowQuickActionChips] = useState(false);
   const [showWriteMessageActionChips, setShowWriteMessageActionChips] = useState(false);
+  const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false); // ⭐ NEW: Message Creation Overlay
+  
+  // ⭐ Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
+  useEffect(() => {
+    setIsMessageCreationActive(isMessageCreationVisible);
+    console.log('[PersonaStudioScreen] 🔄 Syncing isMessageCreationActive:', isMessageCreationVisible);
+  }, [isMessageCreationVisible, setIsMessageCreationActive]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
@@ -178,6 +186,11 @@ const PersonaStudioScreen = () => {
   );
   
   // ═══════════════════════════════════════════════════════════════════════
+  // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
+  // No need for beforeRemove or tabPress listeners here!
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════════════
   // SCREEN FOCUS HANDLER
   // ═══════════════════════════════════════════════════════════════════════
   useFocusEffect(
@@ -185,6 +198,7 @@ const PersonaStudioScreen = () => {
     useCallback(() => {
       // Screen is focused
       setIsScreenFocused(true);
+      console.log('[PersonaStudioScreen] 🟢 Screen FOCUSED');
 
       const onBackPress = () => {
         // Message Mode인 경우 먼저 닫기
@@ -214,12 +228,20 @@ const PersonaStudioScreen = () => {
         setIsScreenFocused(false);
         backHandlerSubscription.remove();
         
+        // ⭐ CRITICAL FIX: Close overlay when screen loses focus
+        if (isMessageCreationVisible) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('⚠️ [PersonaStudioScreen] Screen BLURRED while overlay is open!');
+          console.log('   Force closing overlay to prevent navigation bugs');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          setIsMessageCreationVisible(false);
+        }
         
         if (__DEV__) {
           console.log('🎯 [PersonaStudioScreen] Screen BLURRED');
         }
       };
-    }, [])
+    }, [isMessageMode, isMessageCreationVisible])
   );
 
   useEffect(() => {
@@ -586,30 +608,68 @@ const PersonaStudioScreen = () => {
     // TODO: Trigger video conversion for current persona
   }, []);
   
-  // 4. Message Toggle (메시지 모드 진입)
+  // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Opens MessageCreationOverlay
   const handleQuickMessage = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 💌 Entering Message Mode');
-    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎬 [PersonaStudioScreen] OPENING MESSAGE CREATION OVERLAY');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Current State:');
+    console.log('  - isScreenFocused:', isScreenFocused);
+    console.log('  - isMessageCreationVisible (before):', isMessageCreationVisible);
+    console.log('  - currentPersona:', currentPersona?.persona_name);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     HapticService.success();
-    setIsMessageMode(true);
+    setIsMessageCreationVisible(true); // ⭐ Open overlay instead of message mode
     
-    // Fade out explore mode UI
-    exploreModeOpacity.value = withTiming(0, {
-      duration: 300,
-      easing: Easing.out(Easing.ease),
+    console.log('✅ [PersonaStudioScreen] setIsMessageCreationVisible(true) called');
+  }, [isScreenFocused, isMessageCreationVisible, currentPersona]);
+  
+  // ⭐ NEW: Close Message Creation Overlay
+  const handleCloseMessageCreation = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔙 [PersonaStudioScreen] CLOSING MESSAGE CREATION OVERLAY');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Current State:');
+    console.log('  - isScreenFocused:', isScreenFocused);
+    console.log('  - isMessageCreationVisible (before):', isMessageCreationVisible);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    HapticService.light();
+    setIsMessageCreationVisible(false);
+    
+    console.log('✅ [PersonaStudioScreen] setIsMessageCreationVisible(false) called');
+  }, [isScreenFocused, isMessageCreationVisible]);
+
+  // ⭐ NEW: Handle Message Creation Exit with Confirmation
+  const handleExitMessageCreationWithConfirmation = useCallback(() => {
+    console.log('[PersonaStudioScreen] 🚪 Exit request with confirmation');
+    
+    showAlert({
+      title: t('message.alert.exit_message_creation'),
+      emoji: '⚠️',
+      message: t('message.alert.exit_message_creation_description'),
+      buttons: [
+        {
+          text: t('message.alert.continue_writing'),
+          style: 'cancel',
+          onPress: () => {
+            console.log('[PersonaStudioScreen] User chose to continue writing');
+            HapticService.light();
+          }
+        },
+        {
+          text: t('message.alert.exit'),
+          style: 'destructive',
+          onPress: () => {
+            console.log('[PersonaStudioScreen] User confirmed exit');
+            HapticService.medium();
+            handleCloseMessageCreation();
+          }
+        }
+      ]
     });
-    
-    // Fade in message mode UI (with slight delay for smooth transition)
-    messageModeOpacity.value = withDelay(
-      150,
-      withTiming(1, {
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-      })
-    );
-  }, [exploreModeOpacity, messageModeOpacity]);
+  }, [showAlert, handleCloseMessageCreation, t]);
   
   // 4-1. Exit Message Mode (탐색 모드로 복귀)
   const handleExitMessageMode = useCallback(() => {
@@ -1202,12 +1262,21 @@ const PersonaStudioScreen = () => {
         {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.baseLayer}>
+          {/* ⭐ DEBUG: Log PersonaSwipeViewer props */}
+          {(() => {
+            const calculatedIsScreenFocused = isScreenFocused && !isMessageCreationVisible;
+            console.log('🎥 [PersonaStudioScreen] PersonaSwipeViewer isScreenFocused:', calculatedIsScreenFocused, {
+              isScreenFocused,
+              isMessageCreationVisible,
+            });
+            return null;
+          })()}
           <PersonaSwipeViewer 
             ref={swiperRef}
             key={`persona-swipe-${isScreenFocused}`}
             personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
             isModeActive={true}
-            isScreenFocused={isScreenFocused}
+            isScreenFocused={isScreenFocused && !isMessageCreationVisible} // ⭐ Pause video when overlay is open
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
             onIndexChange={(index) => {
@@ -1242,12 +1311,10 @@ const PersonaStudioScreen = () => {
               pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
             >
               <QuickActionChipsAnimated
-                navigation={navigation}
-                selectedPersona={currentPersona}
                 onDressClick={handleQuickDress}
                 onHistoryClick={handleQuickHistory}
                 onVideoClick={handleQuickVideo}
-                onMessageClick={handleQuickMessage}
+                onMessageClick={handleQuickMessage} // ⭐ Opens MessageCreationOverlay
                 onSettingsClick={handleQuickSettings}
               />
             </View>
@@ -1451,6 +1518,17 @@ const PersonaStudioScreen = () => {
       onClose={handleMessageSearchClose}
       onSelectMessage={handleSearchSelectMessage}
     />
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* Message Creation Overlay (⭐ NEW: Full-screen overlay) */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {isMessageCreationVisible && (
+      <MessageCreationOverlay
+        visible={isMessageCreationVisible}
+        selectedPersona={currentPersona}
+        onClose={handleCloseMessageCreation}
+      />
+    )}
     </>
   );
 };

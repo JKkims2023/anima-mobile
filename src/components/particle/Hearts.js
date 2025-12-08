@@ -22,10 +22,13 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Heart colors
-const COLORS = ['#FF6B9D', '#FFC2D1', '#FF8FAB', '#FFB3C1', '#FF69B4'];
+const COLORS = {
+  normal: ['#FF6B9D', '#FFC2D1', '#FF8FAB', '#FFB3C1', '#FF69B4'],
+  neon: ['#FF1493', '#FF00FF', '#FF69B4', '#FF10F0', '#FF007F'], // ⭐ Neon colors
+};
 
 // Single heart
-const HeartPiece = ({ delay = 0, color, startX, size }) => {
+const HeartPiece = ({ delay = 0, color, startX, size, isNeon = false }) => {
   const translateY = useSharedValue(SCREEN_HEIGHT + 50);
   const translateX = useSharedValue(0);
   const scale = useSharedValue(0);
@@ -97,6 +100,13 @@ const HeartPiece = ({ delay = 0, color, startX, size }) => {
         {
           left: startX,
         },
+        isNeon && {
+          shadowColor: color,
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.9,
+          shadowRadius: 10,
+          elevation: 10,
+        },
       ]}
     >
       <Icon name="heart" size={size} color={color} />
@@ -105,12 +115,21 @@ const HeartPiece = ({ delay = 0, color, startX, size }) => {
 };
 
 // Main Hearts component
-const Hearts = () => {
+const Hearts = ({ variant = 'normal' }) => {
+  const isNeon = variant === 'neon';
+  const colorPalette = COLORS[variant] || COLORS.normal;
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('💕 [Hearts] Rendering with variant:', variant);
+  console.log('  - isNeon:', isNeon);
+  console.log('  - colorPalette:', colorPalette);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
   // Generate 20 hearts
   const hearts = Array.from({ length: 20 }, (_, i) => ({
     key: i,
     delay: Math.random() * 3000,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
     startX: Math.random() * SCREEN_WIDTH,
     size: 20 + Math.random() * 15,
   }));
@@ -124,6 +143,7 @@ const Hearts = () => {
           color={heart.color}
           startX={heart.startX}
           size={heart.size}
+          isNeon={isNeon}
         />
       ))}
     </View>

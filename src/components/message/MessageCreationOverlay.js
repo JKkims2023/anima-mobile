@@ -1,27 +1,35 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎯 MessageCreationScreen - 메시지 생성 전용 화면
+ * 🎯 MessageCreationOverlay - Full Screen Overlay for Message Creation
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Purpose:
- * - PersonaStudioScreen에서 분리된 메시지 생성 전용 화면
- * - 페르소나 선택 후 navigation.push로 진입
- * - 메시지 입력 + 효과 설정 + URL 생성을 한 화면에서 처리
+ * - Full-screen overlay with fade-in animation
+ * - Covers entire screen including tab bar (z-index: 9999)
+ * - Integrated into PersonaStudioScreen as conditional rendering
+ * - Replaces Stack Navigation approach
  * 
  * Features:
- * - 선택된 페르소나 배경 (Image/Video)
- * - 메시지 제목 & 내용 입력
- * - 텍스트 애니메이션 선택 (그룹화 아코디언)
- * - 파티클 효과 선택 (그룹화 아코디언)
- * - 배경 음악 선택 (그룹화)
- * - URL 생성 버튼
- * - 뒤로가기 버튼 (navigation.goBack)
+ * - Fade-in animation (300ms, emotional)
+ * - Persona background (Image/Video)
+ * - Message title & content input
+ * - Text animation selection (grouped accordion)
+ * - Particle effect selection (grouped accordion)
+ * - Background music selection (grouped)
+ * - URL generation button
+ * - Share button (after message creation)
+ * - Android back button support
+ * 
+ * Design Pattern:
+ * - Matches PersonaStudioScreen's overlay architecture
+ * - Same as PersonaSearchOverlay, AnimaLoadingOverlay
+ * - State-based visibility control
  * 
  * @author JK & Hero Nexus AI
  * @date 2024-12-08
  */
 
-import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -31,7 +39,7 @@ import {
   Keyboard,
   BackHandler,
   Platform,
-  Share, // ⭐ For sharing
+  Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -50,220 +58,385 @@ import LinearGradient from 'react-native-linear-gradient';
 // ═══════════════════════════════════════════════════════════════════════════
 // Contexts & Services
 // ═══════════════════════════════════════════════════════════════════════════
-import { useTheme } from '../contexts/ThemeContext';
-import { useUser } from '../contexts/UserContext';
-import { useAnima } from '../contexts/AnimaContext'; // ⭐ For Alert & Badge
-import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
-import HapticService from '../utils/HapticService';
-import messageService from '../services/api/messageService'; // ⭐ Default import
+import { useTheme } from '../../contexts/ThemeContext';
+import { useUser } from '../../contexts/UserContext';
+import { useAnima } from '../../contexts/AnimaContext';
+import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
+import HapticService from '../../utils/HapticService';
+import messageService from '../../services/api/messageService';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Components
 // ═══════════════════════════════════════════════════════════════════════════
-import CustomText from '../components/CustomText';
-import PersonaBackgroundView from '../components/message/PersonaBackgroundView'; // ⭐ ADD
-import ParticleEffect from '../components/particle/ParticleEffect';
-import MessageInputOverlay from '../components/message/MessageInputOverlay';
-import MusicSelectionOverlay from '../components/music/MusicSelectionOverlay';
-import EffectGroupAccordion from '../components/EffectGroupAccordion';
-import CustomBottomSheet from '../components/CustomBottomSheet'; // ⭐ Common BottomSheet component
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // ⭐ For header icons
-import { COLORS } from '../styles/commonstyles';
+import CustomText from '../CustomText';
+import PersonaBackgroundView from './PersonaBackgroundView';
+import ParticleEffect from '../particle/ParticleEffect';
+import MessageInputOverlay from './MessageInputOverlay';
+import MusicSelectionOverlay from '../music/MusicSelectionOverlay';
+import EffectGroupAccordion from '../EffectGroupAccordion';
+import CustomBottomSheet from '../CustomBottomSheet';
+import WordInputBottomSheet from './WordInputBottomSheet'; // ⭐ NEW: Custom words input
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconCreate from 'react-native-vector-icons/Ionicons';
+import { COLORS } from '../../styles/commonstyles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
-import { TEXT_ANIMATION_GROUPS, PARTICLE_EFFECT_GROUPS } from '../constants/effect-groups';
+import { TEXT_ANIMATION_GROUPS, PARTICLE_EFFECT_GROUPS } from '../../constants/effect-groups';
 
-const MessageCreationScreen = ({ navigation, route }) => {
-  const { selectedPersona } = route.params || {};
+/**
+ * MessageCreationOverlay Component
+ * 
+ * @param {boolean} visible - Overlay visibility (controlled by parent)
+ * @param {object} selectedPersona - Selected persona object
+ * @param {function} onClose - Callback when overlay should close
+ */
+const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const { theme } = useTheme();
   const { user } = useUser();
-  const { showAlert, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima(); // ⭐ For Alert & Badge
+  const { showAlert, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🔍 디버깅: 화면 마운트 확인
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    console.log('🎯 [MessageCreationScreen] ===== MOUNTED =====');
-    console.log('🎯 [MessageCreationScreen] selectedPersona:', selectedPersona?.persona_name);
-    console.log('🎯 [MessageCreationScreen] navigation exists:', !!navigation);
-    console.log('🎯 [MessageCreationScreen] navigation.getParent exists:', !!navigation.getParent);
-    
-    if (navigation.getParent) {
-      const parent = navigation.getParent();
-      console.log('🎯 [MessageCreationScreen] parent navigator exists:', !!parent);
-      console.log('🎯 [MessageCreationScreen] parent navigator id:', parent?.getId?.());
-    }
-
-    return () => {
-      console.log('🎯 [MessageCreationScreen] ===== UNMOUNTED =====');
-    };
-  }, []);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Hide tab bar on mount (더 강력한 방법)
-  // ═══════════════════════════════════════════════════════════════════════════
-  useLayoutEffect(() => {
-    console.log('🔵 [MessageCreationScreen] useLayoutEffect - START');
-    console.log('🔵 [MessageCreationScreen] navigation:', !!navigation);
-    console.log('🔵 [MessageCreationScreen] navigation.getParent:', !!navigation.getParent);
-    
-    try {
-      const parent = navigation.getParent();
-      console.log('🔵 [MessageCreationScreen] parent:', !!parent);
-      
-      if (parent) {
-        console.log('🔵 [MessageCreationScreen] Calling parent.setOptions({ tabBarStyle: { display: "none" } })');
-        parent.setOptions({
-          tabBarStyle: { display: 'none' },
-        });
-        console.log('✅ [MessageCreationScreen] Tab bar hide command sent!');
-      } else {
-        console.warn('⚠️ [MessageCreationScreen] Parent navigator not found!');
-      }
-    } catch (error) {
-      console.error('❌ [MessageCreationScreen] Error hiding tab bar:', error);
-    }
-
-    return () => {
-      console.log('🔵 [MessageCreationScreen] useLayoutEffect - CLEANUP');
-      try {
-        const parent = navigation.getParent();
-        if (parent) {
-          setTimeout(() => {
-            console.log('🔵 [MessageCreationScreen] Restoring tab bar...');
-            parent.setOptions({
-              tabBarStyle: undefined,
-            });
-            console.log('✅ [MessageCreationScreen] Tab bar restore command sent!');
-          }, 100);
-        }
-      } catch (error) {
-        console.error('❌ [MessageCreationScreen] Error restoring tab bar:', error);
-      }
-    };
-  }, [navigation]);
-
-  // ⭐ 추가: useFocusEffect로도 처리
-  useEffect(() => {
-    console.log('🟢 [MessageCreationScreen] Setting up focus listener');
-    
-    const unsubscribe = navigation.addListener('focus', () => {
-      console.log('🟢 [MessageCreationScreen] Screen FOCUSED!');
-      try {
-        const parent = navigation.getParent();
-        if (parent) {
-          console.log('🟢 [MessageCreationScreen] Focus listener - hiding tab bar');
-          parent.setOptions({
-            tabBarStyle: { display: 'none' },
-          });
-          console.log('✅ [MessageCreationScreen] Tab bar hide command sent (from focus)!');
-        } else {
-          console.warn('⚠️ [MessageCreationScreen] Parent navigator not found in focus listener!');
-        }
-      } catch (error) {
-        console.error('❌ [MessageCreationScreen] Error in focus listener:', error);
-      }
-    });
-
-    const unsubscribeBlur = navigation.addListener('blur', () => {
-      console.log('🔴 [MessageCreationScreen] Screen BLURRED (leaving)!');
-    });
-
-    return () => {
-      console.log('🟢 [MessageCreationScreen] Removing focus/blur listeners');
-      unsubscribe();
-      unsubscribeBlur();
-    };
-  }, [navigation]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Refs
   // ═══════════════════════════════════════════════════════════════════════════
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);
-  const textAnimationSheetRef = useRef(null); // ⭐ Text Animation BottomSheet
-  const particleEffectSheetRef = useRef(null); // ⭐ Particle Effect BottomSheet
+  const textAnimationSheetRef = useRef(null);
+  const particleEffectSheetRef = useRef(null);
+  const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management
   // ═══════════════════════════════════════════════════════════════════════════
-  const [messageTitle, setMessageTitle] = useState('');
+  const [messageTitle, setMessageTitle] = useState(''); // ⭐ 사용 안함 (통합)
   const [messageContent, setMessageContent] = useState('');
-  const [textAnimation, setTextAnimation] = useState('fade_in');
+  const [textAnimation, setTextAnimation] = useState('typing'); // ⭐ 항상 타이핑 효과
   const [particleEffect, setParticleEffect] = useState('none');
+  const [customWords, setCustomWords] = useState([]); // ⭐ NEW: User's custom words for particle effects
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-
-  // ⭐ Selection Panel State
-  const [showMusicSelection, setShowMusicSelection] = useState(false); // ⭐ Music selection modal
-  
-  // ⭐ Accordion Group State
+  const [showMusicSelection, setShowMusicSelection] = useState(false);
   const [openTextGroups, setOpenTextGroups] = useState({});
   const [openParticleGroups, setOpenParticleGroups] = useState({});
-  
-  // ⭐ Track if accordion has been interacted with (to ignore defaultOpen)
   const [textAccordionTouched, setTextAccordionTouched] = useState(false);
   const [particleAccordionTouched, setParticleAccordionTouched] = useState(false);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Android Back Button Handler
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ⭐ Track which sheet is open (for Android back button)
   const [isTextSheetOpen, setIsTextSheetOpen] = useState(false);
   const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Sequential Animation (악마의 디테일 🎨)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const overlayOpacity = useSharedValue(0); // 전체 오버레이
+  const gradientOpacity = useSharedValue(0); // 하단 그라디언트
+  const contentTranslateX = useSharedValue(300); // 텍스트 영역 (우측에서 시작)
+  const contentOpacity = useSharedValue(0); // 텍스트 영역 투명도
+  const chip1TranslateY = useSharedValue(100); // 첫 번째 칩
+  const chip2TranslateY = useSharedValue(100); // 두 번째 칩
+  const chip3TranslateY = useSharedValue(100); // 세 번째 칩
+  const chip4TranslateY = useSharedValue(100); // 네 번째 칩 (공유)
+  const chipsOpacity = useSharedValue(0); // 칩셋 전체 투명도
+  
+  // ⭐ Step Guide Animations
+  const guideContentOpacity = useSharedValue(0); // 컨텐츠 가이드
+  const guideContentTranslateY = useSharedValue(-10); // 컨텐츠 가이드 위치
+  const guideChipsOpacity = useSharedValue(0); // 칩셋 가이드
+  const guideChipsTranslateX = useSharedValue(-10); // 칩셋 가이드 위치
+  
+  // ⭐ Particle Effect Animation (별도 제어)
+  const particleOpacity = useSharedValue(0); // 파티클 투명도
+
   useEffect(() => {
+    if (visible) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✨ [MessageCreationOverlay] Starting sequential animation');
+      console.log('   🎬 Timeline:');
+      console.log('   0초: 📷 Background Fade In (300ms)');
+      console.log('   1초: ⬆️ Gradient Fade In (800ms)');
+      console.log('   1.8초: ➡️ Content Slide In (600ms)');
+      console.log('   2.4초: 🎪 Chips Bounce In (순차)');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // 📷 Step 0: Reset all values
+      overlayOpacity.value = 0;
+      gradientOpacity.value = 0;
+      contentTranslateX.value = 300;
+      contentOpacity.value = 0;
+      chip1TranslateY.value = 100;
+      chip2TranslateY.value = 100;
+      chip3TranslateY.value = 100;
+      chip4TranslateY.value = 100;
+      chipsOpacity.value = 0;
+      
+      // 📷 Step 1: Background 부드럽게 표시 (300ms)
+      overlayOpacity.value = withTiming(1, { 
+        duration: 300, 
+        easing: Easing.out(Easing.ease) 
+      });
+      
+      // ⬆️ Step 2: Gradient Fade In (1초 후, 800ms 동안)
+      gradientOpacity.value = withDelay(
+        1000, 
+        withTiming(1, { 
+          duration: 800, 
+          easing: Easing.out(Easing.ease) 
+        })
+      );
+      
+      // ➡️ Step 3: Content 슬라이드 인 (1.8초 후, 600ms 동안)
+      contentTranslateX.value = withDelay(
+        1800,
+        withSpring(0, { 
+          damping: 15, 
+          stiffness: 100 
+        })
+      );
+      contentOpacity.value = withDelay(
+        1800,
+        withTiming(1, { duration: 400 })
+      );
+      
+      // 🎪 Step 4: Chips 순차적 바운스 (2.4초 후)
+      const chipDelay = 2400;
+      const chipInterval = 100; // 각 칩 사이 간격
+      
+      chipsOpacity.value = withDelay(chipDelay, withTiming(1, { duration: 200 }));
+      
+      chip1TranslateY.value = withDelay(
+        chipDelay,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
+      chip2TranslateY.value = withDelay(
+        chipDelay + chipInterval,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
+      chip3TranslateY.value = withDelay(
+        chipDelay + chipInterval * 2,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
+      chip4TranslateY.value = withDelay(
+        chipDelay + chipInterval * 3,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
+      // 🎨 Particle Effect: Gradient와 동시에 표시 (1초 후)
+      particleOpacity.value = withDelay(
+        1000,
+        withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+      );
+      
+      // 🎪 Step 5: Step Guide 표시 (3.2초 후 - 모든 애니메이션 완료 후)
+      const guideDelay = 3200;
+      
+      guideContentOpacity.value = withDelay(
+        guideDelay,
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(300, withTiming(0.7, { duration: 200 })),
+          withDelay(300, withTiming(1, { duration: 200 })),
+          withDelay(300, withTiming(0.7, { duration: 200 })),
+          withDelay(300, withTiming(1, { duration: 200 }))
+        )
+      );
+      
+      guideContentTranslateY.value = withDelay(
+        guideDelay,
+        withSpring(0, { damping: 10, stiffness: 100 })
+      );
+      
+    } else {
+      console.log('🌙 [MessageCreationOverlay] Closing with fade-out (400ms)');
+      overlayOpacity.value = withTiming(0, { 
+        duration: 400, // ⭐ 2배로 증가 (더 부드러운 닫힘)
+        easing: Easing.in(Easing.ease) 
+      });
+      particleOpacity.value = withTiming(0, { duration: 400 });
+    }
+  }, [visible]);
+
+  // Animated Styles
+  const overlayAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }));
+
+  const gradientAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: gradientOpacity.value,
+  }));
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateX: contentTranslateX.value }],
+  }));
+
+  const chipsContainerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: chipsOpacity.value,
+  }));
+
+  const chip1AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip1TranslateY.value }],
+  }));
+
+  const chip2AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip2TranslateY.value }],
+  }));
+
+  const chip3AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip3TranslateY.value }],
+  }));
+
+  const chip4AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip4TranslateY.value }],
+  }));
+
+  // ⭐ Particle Effect Animated Style
+  const particleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: particleOpacity.value,
+  }));
+
+  // ⭐ Step Guide Animated Styles
+  const guideContentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: guideContentOpacity.value,
+    transform: [{ translateY: guideContentTranslateY.value }],
+  }));
+
+  const guideChipsAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: guideChipsOpacity.value,
+    transform: [{ translateX: guideChipsTranslateX.value }],
+  }));
+
+  // ⭐ Guide Visibility Logic
+  const [showContentGuide, setShowContentGuide] = useState(true);
+  const [showChipsGuide, setShowChipsGuide] = useState(false);
+
+  useEffect(() => {
+    if (messageContent) {
+      // 컨텐츠 입력 시 첫 번째 가이드 숨김
+      setShowContentGuide(false);
+      guideContentOpacity.value = withTiming(0, { duration: 200 });
+      
+      // 두 번째 가이드 표시
+      setShowChipsGuide(true);
+      guideChipsOpacity.value = withDelay(
+        300,
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(300, withTiming(0.7, { duration: 200 })),
+          withDelay(300, withTiming(1, { duration: 200 })),
+          withDelay(300, withTiming(0.7, { duration: 200 })),
+          withDelay(300, withTiming(1, { duration: 200 }))
+        )
+      );
+      guideChipsTranslateX.value = withDelay(300, withSpring(0, { damping: 10 }));
+    }
+  }, [messageContent]);
+
+  useEffect(() => {
+    // 효과 선택 시 두 번째 가이드 숨김
+    if (particleEffect !== 'none' || bgMusic !== 'none') {
+      setShowChipsGuide(false);
+      guideChipsOpacity.value = withTiming(0, { duration: 200 });
+    }
+  }, [particleEffect, bgMusic]);
+
+  // ⭐ Particle Effect Debug & Immediate Show
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎨 [MessageCreationOverlay] Particle Effect State Changed');
+    console.log('  - particleEffect:', particleEffect);
+    console.log('  - Will render:', particleEffect && particleEffect !== 'none');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // ⭐ CRITICAL FIX: When particle is selected, show immediately (no delay)
+    if (particleEffect && particleEffect !== 'none') {
+      console.log('✨ [MessageCreationOverlay] Showing particle effect immediately!');
+      particleOpacity.value = withTiming(1, { duration: 300 });
+    } else {
+      console.log('🌙 [MessageCreationOverlay] Hiding particle effect');
+      particleOpacity.value = withTiming(0, { duration: 200 });
+    }
+  }, [particleEffect]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Android Back Button Handler (with confirmation)
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!visible) return;
+
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      console.log('[MessageCreationScreen] Android back button pressed');
+      console.log('[MessageCreationOverlay] Android back button pressed');
       
       // 1️⃣ If music selection is open, close it
       if (showMusicSelection) {
-        console.log('[MessageCreationScreen] Closing music selection');
+        console.log('[MessageCreationOverlay] Closing music selection');
         handleMusicClose();
         return true;
       }
       
       // 2️⃣ If text animation sheet is open, close it
       if (isTextSheetOpen) {
-        console.log('[MessageCreationScreen] Closing text animation sheet');
+        console.log('[MessageCreationOverlay] Closing text animation sheet');
         textAnimationSheetRef.current?.dismiss();
         return true;
       }
       
       // 3️⃣ If particle effect sheet is open, close it
       if (isParticleSheetOpen) {
-        console.log('[MessageCreationScreen] Closing particle effect sheet');
+        console.log('[MessageCreationOverlay] Closing particle effect sheet');
         particleEffectSheetRef.current?.dismiss();
         return true;
       }
       
-      // 4️⃣ Otherwise, navigate back
-      console.log('[MessageCreationScreen] Navigating back');
-      navigation.goBack();
+      // 4️⃣ Otherwise, show confirmation dialog before closing
+      console.log('[MessageCreationOverlay] Showing exit confirmation');
+      HapticService.medium();
+      
+      showAlert({
+        title: t('message.alert.exit_message_creation'),
+        emoji: '⚠️',
+        message: t('message.alert.exit_message_creation_description'),
+        buttons: [
+          {
+            text: t('message.alert.continue_writing'),
+            style: 'cancel',
+            onPress: () => {
+              console.log('[MessageCreationOverlay] User chose to continue writing');
+              HapticService.light();
+            }
+          },
+          {
+            text: t('message.alert.exit'),
+            style: 'destructive',
+            onPress: () => {
+              console.log('[MessageCreationOverlay] User confirmed exit');
+              HapticService.medium();
+              onClose();
+            }
+          }
+        ]
+      });
+      
       return true;
     });
 
     return () => backHandler.remove();
-  }, [showMusicSelection, isTextSheetOpen, isParticleSheetOpen, navigation]);
+  }, [visible, showMusicSelection, isTextSheetOpen, isParticleSheetOpen, onClose, showAlert, t]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Text Animation Values & Logic
   // ═══════════════════════════════════════════════════════════════════════════
-  
-  // ⭐ Typing Animation State
   const [typingText, setTypingText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const typingIndexRef = useRef(0);
   const typingIntervalRef = useRef(null);
   const cursorIntervalRef = useRef(null);
 
-  // ⭐ Animation Shared Values
   const textOpacity = useSharedValue(1);
   const textScale = useSharedValue(1);
   const textTranslateX = useSharedValue(0);
@@ -274,7 +447,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (!messageContent) return;
 
-    console.log('[MessageCreationScreen] 🎬 Text animation changed:', textAnimation);
+    console.log('[MessageCreationOverlay] 🎬 Text animation changed:', textAnimation);
 
     // ⭐ Typing Animation (special case)
     if (textAnimation === 'typing') {
@@ -294,7 +467,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
         cursorIntervalRef.current = setInterval(() => {
           setShowCursor((prev) => !prev);
         }, 500);
-      }, 2000); // ⭐ 2초 후 시작
+      }, 2000);
 
       return () => {
         clearTimeout(typingTimeout);
@@ -314,9 +487,6 @@ const MessageCreationScreen = ({ navigation, route }) => {
     textRotate.value = 0;
 
     switch (textAnimation) {
-      // ═══════════════════════════════════════════════════════════
-      // Group 1: Gentle (부드러운) 💙
-      // ═══════════════════════════════════════════════════════════
       case 'fade_in':
         textOpacity.value = 0;
         textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
@@ -333,16 +503,12 @@ const MessageCreationScreen = ({ navigation, route }) => {
         break;
 
       case 'blur_focus':
-        // Simulated with opacity + scale
         textOpacity.value = 0.3;
         textScale.value = 0.95;
         textOpacity.value = withDelay(2000, withTiming(1, { duration: 1000 }));
         textScale.value = withDelay(2000, withTiming(1, { duration: 1000 }));
         break;
 
-      // ═══════════════════════════════════════════════════════════
-      // Group 2: Dynamic (역동적인) ⚡
-      // ═══════════════════════════════════════════════════════════
       case 'letter_drop':
         textTranslateY.value = -100;
         textOpacity.value = 0;
@@ -357,9 +523,6 @@ const MessageCreationScreen = ({ navigation, route }) => {
         textOpacity.value = withDelay(2000, withTiming(1, { duration: 600 }));
         break;
 
-      // ═══════════════════════════════════════════════════════════
-      // Group 3: Impactful (임팩트) 💥
-      // ═══════════════════════════════════════════════════════════
       case 'scale_in':
         textScale.value = 0;
         textScale.value = withDelay(2000, withSpring(1, { damping: 10 }));
@@ -391,9 +554,6 @@ const MessageCreationScreen = ({ navigation, route }) => {
         );
         break;
 
-      // ═══════════════════════════════════════════════════════════
-      // Group 4: Playful (경쾌한) 🎨
-      // ═══════════════════════════════════════════════════════════
       case 'slide_cross':
         textTranslateX.value = -300;
         textTranslateX.value = withDelay(2000, withSpring(0, { damping: 12 }));
@@ -435,14 +595,12 @@ const MessageCreationScreen = ({ navigation, route }) => {
         break;
 
       default:
-        // fade_in as default
         textOpacity.value = 0;
         textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
         break;
     }
   }, [textAnimation, messageContent]);
 
-  // ⭐ Animated Styles
   const animatedTextStyle = useAnimatedStyle(() => ({
     opacity: textAnimation === 'typing' ? 1 : textOpacity.value,
     transform: [
@@ -463,23 +621,22 @@ const MessageCreationScreen = ({ navigation, route }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Selection Panel
   // ═══════════════════════════════════════════════════════════════════════════
-  // ⭐ Chip Press Handlers
   const handleTextAnimationChipPress = () => {
-    console.log('[MessageCreationScreen] Opening text animation sheet');
+    console.log('[MessageCreationOverlay] Opening text animation sheet');
     Keyboard.dismiss();
     HapticService.light();
     textAnimationSheetRef.current?.present();
   };
 
   const handleParticleEffectChipPress = () => {
-    console.log('[MessageCreationScreen] Opening particle effect sheet');
+    console.log('[MessageCreationOverlay] Opening particle effect sheet');
     Keyboard.dismiss();
     HapticService.light();
     particleEffectSheetRef.current?.present();
   };
 
   const handleBgMusicChipPress = () => {
-    console.log('[MessageCreationScreen] Opening music selection');
+    console.log('[MessageCreationOverlay] Opening music selection');
     Keyboard.dismiss();
     HapticService.light();
     setShowMusicSelection(true);
@@ -495,13 +652,47 @@ const MessageCreationScreen = ({ navigation, route }) => {
   };
 
   const handleParticleEffectSelect = (effectId) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎨 [MessageCreationOverlay] Particle Effect Selected:', effectId);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // ⭐ Check if this effect requires custom words
+    const requiresCustomWords = effectId === 'floating_words' || effectId === 'scrolling_words';
+
+    if (requiresCustomWords) {
+      console.log('💬 [MessageCreationOverlay] Effect requires custom words, opening word input sheet');
+      setParticleEffect(effectId); // ⭐ CRITICAL FIX: Set immediately!
+      HapticService.selection();
+      particleEffectSheetRef.current?.dismiss();
+      // Small delay to ensure particle sheet is fully dismissed
+      setTimeout(() => {
+        wordInputSheetRef.current?.present();
+      }, 300);
+      return;
+    }
+
     setParticleEffect(effectId);
     HapticService.selection();
     particleEffectSheetRef.current?.dismiss();
+    setShowChipsGuide(false); // Hide chips guide
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Handler: Save Custom Words
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleWordsSave = (words) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💬 [MessageCreationOverlay] Custom Words Saved:', words);
+    console.log('  - Current particleEffect:', particleEffect);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    setCustomWords(words);
+    // ⭐ FIXED: No need to set particleEffect again, already set in handleParticleEffectSelect
+    HapticService.success();
+    setShowChipsGuide(false); // Hide chips guide
   };
 
   const handleMusicSelect = (music) => {
-    console.log('[MessageCreationScreen] Music selected:', music);
+    console.log('[MessageCreationOverlay] Music selected:', music);
     
     if (music.music_key === 'none') {
       setBgMusic('none');
@@ -513,6 +704,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
     
     setShowMusicSelection(false);
     HapticService.selection();
+    setShowChipsGuide(false); // Hide chips guide
   };
   
   const handleMusicClose = () => {
@@ -521,32 +713,24 @@ const MessageCreationScreen = ({ navigation, route }) => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Handlers: Accordion Toggle (⭐ Only one group can be open at a time)
+  // Handlers: Accordion Toggle
   // ═══════════════════════════════════════════════════════════════════════════
   const handleToggleTextGroup = (groupId) => {
-    console.log('[MessageCreationScreen] 🔄 Toggle text group:', groupId);
-    setTextAccordionTouched(true); // ⭐ Mark as touched
+    console.log('[MessageCreationOverlay] 🔄 Toggle text group:', groupId);
+    setTextAccordionTouched(true);
     setOpenTextGroups((prev) => {
-      console.log('[MessageCreationScreen] 📊 Previous state:', prev);
       const isCurrentlyOpen = prev[groupId];
-      console.log('[MessageCreationScreen] 📊 isCurrentlyOpen:', isCurrentlyOpen);
-      const newState = { [groupId]: !isCurrentlyOpen };
-      console.log('[MessageCreationScreen] 📊 New state:', newState);
-      return newState;
+      return { [groupId]: !isCurrentlyOpen };
     });
     HapticService.light();
   };
 
   const handleToggleParticleGroup = (groupId) => {
-    console.log('[MessageCreationScreen] 🔄 Toggle particle group:', groupId);
-    setParticleAccordionTouched(true); // ⭐ Mark as touched
+    console.log('[MessageCreationOverlay] 🔄 Toggle particle group:', groupId);
+    setParticleAccordionTouched(true);
     setOpenParticleGroups((prev) => {
-      console.log('[MessageCreationScreen] 📊 Previous state:', prev);
       const isCurrentlyOpen = prev[groupId];
-      console.log('[MessageCreationScreen] 📊 isCurrentlyOpen:', isCurrentlyOpen);
-      const newState = { [groupId]: !isCurrentlyOpen };
-      console.log('[MessageCreationScreen] 📊 New state:', newState);
-      return newState;
+      return { [groupId]: !isCurrentlyOpen };
     });
     HapticService.light();
   };
@@ -568,12 +752,9 @@ const MessageCreationScreen = ({ navigation, route }) => {
   // Handler: Generate URL
   // ═══════════════════════════════════════════════════════════════════════════
   const handleGenerateURL = async () => {
-    if (!messageTitle.trim()) {
-      Alert.alert(t('common.error'), '제목을 입력해주세요.');
-      return;
-    }
+    // ⭐ 제목 검증 제거 - 본문만 확인
     if (!messageContent.trim()) {
-      Alert.alert(t('common.error'), '내용을 입력해주세요.');
+      Alert.alert(t('common.error'), '메시지 내용을 입력해주세요.');
       return;
     }
 
@@ -581,26 +762,36 @@ const MessageCreationScreen = ({ navigation, route }) => {
       setIsCreating(true);
       HapticService.success();
 
+      // ⭐ Generate title from first 30 chars of content
+      const autoTitle = messageContent.length > 30 
+        ? messageContent.substring(0, 30) + '...'
+        : messageContent;
+
+      // ⭐ Build effect_config with custom words
+      const effectConfig = customWords.length > 0 ? {
+        custom_words: customWords
+      } : null;
+
       const response = await messageService.createMessage({
         user_key: user?.user_key,
         persona_key: selectedPersona?.persona_key,
         memory_key: selectedPersona?.history_key,
-        message_title: messageTitle,
+        message_title: autoTitle, // ⭐ 자동 생성된 제목
         message_content: messageContent,
-        text_animation: textAnimation,
+        text_animation: 'typing', // ⭐ 항상 타이핑 효과
         particle_effect: particleEffect,
         bg_music: bgMusic || 'none',
         bg_music_url: bgMusicUrl,
-        effect_config: null,
+        effect_config: effectConfig, // ⭐ Include custom words
         persona_name: selectedPersona?.persona_name,
-        persona_image_url: selectedPersona?.persona_image_url,
-        persona_video_url: selectedPersona?.persona_video_url,
+        persona_image_url: selectedPersona?.selected_dress_image_url,
+        persona_video_url: selectedPersona?.selected_dress_video_url,
         has_password: 'N',
         public_yn: 'Y',
       });
 
       if (response.data.success && response.data.data.short_code) {
-        console.log('✅ [MessageCreationScreen] Message created successfully');
+        console.log('✅ [MessageCreationOverlay] Message created successfully');
         
         const shareUrl = `https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/m/${selectedPersona?.persona_key}/${response.data.data.short_code}`;
         
@@ -619,14 +810,14 @@ const MessageCreationScreen = ({ navigation, route }) => {
               text: '나중에',
               style: 'cancel',
               onPress: () => {
-                console.log('[MessageCreationScreen] User chose to share later');
+                console.log('[MessageCreationOverlay] User chose to share later');
               }
             },
             {
               text: '공유하기',
               style: 'primary',
               onPress: () => {
-                console.log('[MessageCreationScreen] User chose to share now');
+                console.log('[MessageCreationOverlay] User chose to share now');
                 handleShareMessage(shareUrl);
               }
             }
@@ -634,7 +825,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
         });
       }
     } catch (error) {
-      console.error('[MessageCreationScreen] Create message error:', error);
+      console.error('[MessageCreationOverlay] Create message error:', error);
       Alert.alert(t('common.error'), '메시지 생성에 실패했습니다.');
     } finally {
       setIsCreating(false);
@@ -654,9 +845,9 @@ const MessageCreationScreen = ({ navigation, route }) => {
         url: Platform.OS === 'ios' ? shareUrl : undefined,
         title: messageTitle || 'ANIMA Message',
       });
-      console.log('✅ [MessageCreationScreen] Message shared');
+      console.log('✅ [MessageCreationOverlay] Message shared');
     } catch (error) {
-      console.error('[MessageCreationScreen] Share error:', error);
+      console.error('[MessageCreationOverlay] Share error:', error);
     }
   };
 
@@ -676,17 +867,14 @@ const MessageCreationScreen = ({ navigation, route }) => {
   }, [selectedPersona?.persona_key]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Render
+  // Render: Don't render if not visible (conditional in parent, but extra safety)
   // ═══════════════════════════════════════════════════════════════════════════
-  console.log('🎨 [MessageCreationScreen] ===== RENDER =====');
-  console.log('🎨 [MessageCreationScreen] messageTitle:', messageTitle);
-  console.log('🎨 [MessageCreationScreen] particleEffect:', particleEffect);
-  console.log('🎨 [MessageCreationScreen] bgMusic:', bgMusic);
+  if (!visible) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.backgroundColor || COLORS.BACKGROUND }}>
+    <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* Background: Persona Image/Video (using PersonaBackgroundView) */}
+      {/* Background: Persona Image/Video */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <PersonaBackgroundView
         persona={selectedPersona}
@@ -696,19 +884,35 @@ const MessageCreationScreen = ({ navigation, route }) => {
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* Particle Effect */}
+      {/* Particle Effect (독립적 애니메이션) */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       {particleEffect && particleEffect !== 'none' && (
-        <ParticleEffect type={particleEffect} isActive={true} />
+        <Animated.View 
+          style={[
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 50, // ⭐ Background 위, Gradient 아래
+            },
+            particleAnimatedStyle
+          ]}
+          pointerEvents="none"
+        >
+          <ParticleEffect 
+            type={particleEffect} 
+            isActive={!isParticleSheetOpen && !showMusicSelection} // ⭐ 바텀시트 열릴 때 비활성화
+            customWords={customWords} // ⭐ Pass custom words for floating_words and scrolling_words
+          />
+        </Animated.View>
       )}
 
-      {/* Header (PersonaStudioScreen 패턴) */}
-      <View style={[styles.header, { paddingTop: insets.top + verticalScale(20) }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + Platform.OS === 'ios' ? verticalScale(10) : verticalScale(45) }]}>
+    
+        <TouchableOpacity style={styles.backButton} onPress={onClose}>
           <Icon name="arrow-left" size={scale(24)} color={theme.textPrimary || '#FFFFFF'} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
@@ -723,110 +927,152 @@ const MessageCreationScreen = ({ navigation, route }) => {
 
       {/* Main Content Area */}
       <View style={styles.contentWrapper}>
-        {/* URL 생성 플로팅 버튼 (우측 상단) */}
-        <TouchableOpacity
-          onPress={handleGenerateURL}
-          disabled={isCreating}
-          style={[
-            styles.urlFloatingButton, 
-            { 
-              backgroundColor: theme.mainColor,
-              top: insets.top + verticalScale(20), // ⭐ Safe Area 적용
-            }
-          ]}
-        >
-          {isCreating ? (
-            <Icon name="loading" size={scale(20)} color="#fff" />
-          ) : (
-            <Icon name="link-variant" size={scale(20)} color="#fff" />
-          )}
-        </TouchableOpacity>
+       
 
-        {/* Gradient Overlay */}
+      {/* ⭐ Gradient Overlay with Sequential Animation */}
+      <Animated.View style={[
+        { 
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+        },
+        gradientAnimatedStyle
+      ]}>
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.9)']}
           locations={[0, 0.4, 1]}
           style={styles.gradient}
         >
-          <View style={[styles.contentContainer, { paddingBottom: insets.bottom + platformPadding(40) }]}>
-            {/* Title */}
-            <TouchableOpacity onPress={() => titleInputRef.current?.present()}>
-              <CustomText type="big" bold style={styles.title}>
-                {messageTitle || '제목을 입력하세요'}
-              </CustomText>
-            </TouchableOpacity>
 
-            {/* Content with Animation */}
+           {/* URL 생성 플로팅 버튼 (우측 상단) */}
+          <TouchableOpacity
+            onPress={handleGenerateURL}
+            disabled={isCreating}
+            style={[
+              styles.urlFloatingButton, 
+              { 
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+
+              }
+            ]}
+          >
+            {isCreating ? (
+              <IconCreate name="checkmark" size={scale(30)} color="#fff" />
+            ) : (
+              <IconCreate name="create" size={scale(30)} color="#fff" />
+            )}
+          </TouchableOpacity>
+          
+          {/* ⭐ Step 1 Guide: 컨텐츠 클릭 가이드 */}
+          {showContentGuide && !messageContent && (
+            <Animated.View style={[
+              styles.stepGuide,
+              { 
+                marginBottom: verticalScale(8),
+                marginLeft: scale(20),
+              },
+              guideContentAnimatedStyle
+            ]}>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => contentInputRef.current?.present()}>
+              <CustomText style={styles.guideEmoji}>👇</CustomText>
+              <CustomText style={styles.guideText}>클릭</CustomText>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+
+          {/* ⭐ Content with Slide Animation */}
+          <Animated.View style={[
+            styles.contentContainer, 
+            { paddingBottom: insets.bottom + platformPadding(40) },
+            contentAnimatedStyle
+          ]}>
+            {/* ⭐ Title 제거 - 제목과 본문 통합 */}
+            
+            {/* Content with Animation (타이핑 효과 고정) */}
             <TouchableOpacity onPress={() => contentInputRef.current?.present()}>
               <Animated.View style={animatedTextStyle}>
                 <CustomText type="title" style={styles.content}>
-                  {textAnimation === 'typing' ? (
+                  {typingText ? (
                     <>
                       {typingText}
                       {showCursor && <CustomText style={styles.cursor}>▌</CustomText>}
                     </>
                   ) : (
-                    messageContent || typingText || '내용을 입력하세요'
+                    '클릭하여 메시지를 입력하세요'
                   )}
                 </CustomText>
               </Animated.View>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </LinearGradient>
+      </Animated.View>
       </View>
 
-      {/* Quick Action Chips (Right Side) - MessageHistoryChips 스타일 */}
-      <View style={[styles.quickChipsContainer, { top: insets.top + verticalScale(120) }]}>
-        {/* Text Animation Chip */}
-        <TouchableOpacity
-          style={[
-            styles.quickChip,
-            textAnimation !== 'fade_in' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
-          ]}
-          onPress={handleTextAnimationChipPress}
-          activeOpacity={0.7}
-        >
-          <Icon name="format-text" size={scale(20)} color={theme.mainColor} />
-        </TouchableOpacity>
+      {/* ⭐ Step 2 Guide: 효과 설정 가이드 */}
+      {showChipsGuide && messageContent && (
+        <Animated.View style={[
+          styles.stepGuideChips,
+          { top: insets.top + verticalScale(120) },
+          guideChipsAnimatedStyle
+        ]}>
+          <CustomText style={styles.guideEmoji}>👉</CustomText>
+          <CustomText style={styles.guideText}>효과 설정</CustomText>
+        </Animated.View>
+      )}
+
+      {/* ⭐ Quick Action Chips with Sequential Bounce Animation */}
+      <Animated.View style={[
+        styles.quickChipsContainer, 
+        { top: insets.top + verticalScale(120) },
+        chipsContainerAnimatedStyle
+      ]}>
+        {/* ⭐ Text Animation Chip 제거 - 타이핑 효과 자동 적용 */}
 
         {/* Particle Effect Chip */}
-        <TouchableOpacity
-          style={[
-            styles.quickChip,
-            particleEffect !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
-          ]}
-          onPress={handleParticleEffectChipPress}
-          activeOpacity={0.7}
-        >
-          <Icon name="shimmer" size={scale(20)} color={theme.mainColor} />
-        </TouchableOpacity>
-
-        {/* Background Music Chip */}
-        <TouchableOpacity
-          style={[
-            styles.quickChip,
-            bgMusic !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
-          ]}
-          onPress={handleBgMusicChipPress}
-          activeOpacity={0.7}
-        >
-          <Icon name="music-note" size={scale(20)} color={theme.mainColor} />
-        </TouchableOpacity>
-
-        {/* ⭐ Share Chip (Only visible after message creation) */}
-        {createdMessageUrl && (
+        <Animated.View style={chip1AnimatedStyle}>
           <TouchableOpacity
             style={[
               styles.quickChip,
-              { backgroundColor: 'rgba(76, 175, 80, 0.3)' } // ⭐ 초록색 하이라이트
+              particleEffect !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
             ]}
-            onPress={() => handleShareMessage(createdMessageUrl)}
+            onPress={handleParticleEffectChipPress}
             activeOpacity={0.7}
           >
-            <Icon name="share-variant" size={scale(20)} color="#4CAF50" />
+            <Icon name="shimmer" size={scale(20)} color="gold" />
           </TouchableOpacity>
+        </Animated.View>
+
+        {/* Background Music Chip */}
+        <Animated.View style={chip2AnimatedStyle}>
+          <TouchableOpacity
+            style={[
+              styles.quickChip,
+              bgMusic !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+            ]}
+            onPress={handleBgMusicChipPress}
+            activeOpacity={0.7}
+          >
+            <Icon name="music-note" size={scale(20)} color="red" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* ⭐ Share Chip (Only visible after message creation) */}
+        {createdMessageUrl && (
+          <Animated.View style={chip3AnimatedStyle}>
+            <TouchableOpacity
+              style={[
+                styles.quickChip,
+                { backgroundColor: 'rgba(76, 175, 80, 0.3)' }
+              ]}
+              onPress={() => handleShareMessage(createdMessageUrl)}
+              activeOpacity={0.7}
+            >
+              <Icon name="share-variant" size={scale(20)} color="#4CAF50" />
+            </TouchableOpacity>
+          </Animated.View>
         )}
-      </View>
+      </Animated.View>
 
       {/* ⭐ Text Animation BottomSheet */}
       <CustomBottomSheet
@@ -835,7 +1081,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
         snapPoints={['70%']}
         enableDynamicSizing={false}
         onDismiss={() => {
-          console.log('[MessageCreationScreen] Text animation sheet dismissed');
+          console.log('[MessageCreationOverlay] Text animation sheet dismissed');
           setIsTextSheetOpen(false);
         }}
         onChange={(index) => {
@@ -843,12 +1089,9 @@ const MessageCreationScreen = ({ navigation, route }) => {
         }}
       >
         {filterNonEmptyGroups(TEXT_ANIMATION_GROUPS).map((group) => {
-          // ⭐ If accordion has been touched, ignore defaultOpen
           const isOpen = textAccordionTouched 
             ? (openTextGroups[group.id] === true)
             : (openTextGroups[group.id] !== undefined ? openTextGroups[group.id] : group.defaultOpen);
-          
-          console.log('[MessageCreationScreen] 🎨 Rendering text group:', group.id, 'isOpen:', isOpen, 'touched:', textAccordionTouched, 'state:', openTextGroups[group.id], 'defaultOpen:', group.defaultOpen);
           
           return (
             <EffectGroupAccordion
@@ -870,7 +1113,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
         snapPoints={['70%']}
         enableDynamicSizing={false}
         onDismiss={() => {
-          console.log('[MessageCreationScreen] Particle effect sheet dismissed');
+          console.log('[MessageCreationOverlay] Particle effect sheet dismissed');
           setIsParticleSheetOpen(false);
         }}
         onChange={(index) => {
@@ -878,12 +1121,9 @@ const MessageCreationScreen = ({ navigation, route }) => {
         }}
       >
         {filterNonEmptyGroups(PARTICLE_EFFECT_GROUPS).map((group) => {
-          // ⭐ If accordion has been touched, ignore defaultOpen
           const isOpen = particleAccordionTouched 
             ? (openParticleGroups[group.id] === true)
             : (openParticleGroups[group.id] !== undefined ? openParticleGroups[group.id] : group.defaultOpen);
-          
-          console.log('[MessageCreationScreen] 🎨 Rendering particle group:', group.id, 'isOpen:', isOpen, 'touched:', particleAccordionTouched, 'state:', openParticleGroups[group.id], 'defaultOpen:', group.defaultOpen);
           
           return (
             <EffectGroupAccordion
@@ -897,6 +1137,15 @@ const MessageCreationScreen = ({ navigation, route }) => {
           );
         })}
       </CustomBottomSheet>
+
+      {/* ⭐ Custom Words Input BottomSheet */}
+      <WordInputBottomSheet
+        sheetRef={wordInputSheetRef}
+        initialWords={customWords}
+        onSave={handleWordsSave}
+        title="나만의 단어 입력"
+        placeholder="단어 입력 후 추가 버튼을 눌러주세요"
+      />
 
       {/* Message Input Overlays */}
       <MessageInputOverlay
@@ -944,8 +1193,8 @@ const MessageCreationScreen = ({ navigation, route }) => {
             style={[
               styles.floatingMusicButton,
               { 
-                backgroundColor: theme.mainColor,
-                top: insets.top + verticalScale(70),
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                top: insets.top + verticalScale(100),
               }
             ]}
           >
@@ -957,7 +1206,7 @@ const MessageCreationScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -965,10 +1214,19 @@ const MessageCreationScreen = ({ navigation, route }) => {
 // Styles
 // ═══════════════════════════════════════════════════════════════════════════
 const styles = StyleSheet.create({
-  // Header (PersonaStudioScreen 패턴)
-  header: {
+  overlay: {
     position: 'absolute',
     top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // ⭐ 탭바 위에 완전히 덮음
+    elevation: 999,
+    backgroundColor: COLORS.BACKGROUND || '#000',
+  },
+  header: {
+    position: 'absolute',
+    top: verticalScale(15),
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -976,27 +1234,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingBottom: verticalScale(16),
     zIndex: 1000,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 약간의 배경
+  
   },
   backButton: {
-    marginRight: scale(12),
+    marginRight: scale(0),
     padding: scale(8),
+    marginLeft: scale(-15),
   },
   headerContent: {
     flex: 1,
+    marginTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(0),
   },
   headerTitle: {
     marginBottom: scale(2),
   },
   headerSubtitle: {
     fontSize: scale(13),
+    display: 'none',
   },
-  
   contentWrapper: {
     flex: 1,
   },
   gradient: {
-
     justifyContent: 'flex-end',
     marginTop: 'auto',
     height: 'auto',
@@ -1011,6 +1270,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   content: {
+    fontSize: scale(18),
     textAlign: 'left',
     color: '#FFFFFF',
     lineHeight: scale(24),
@@ -1019,12 +1279,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   urlFloatingButton: {
-    position: 'absolute',
-    // ⚠️ top is set inline with insets.top
-    right: scale(20),
-    width: scale(50),
-    height: scale(50),
-    borderRadius: scale(25),
+    marginLeft: 'auto',
+    marginRight: scale(20),
+    marginBottom: scale(20),
+    borderRadius: scale(40),
+    padding: scale(20),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
@@ -1036,6 +1295,7 @@ const styles = StyleSheet.create({
   },
   floatingMusicButton: {
     position: 'absolute',
+
     left: scale(20),
     width: scale(50),
     height: scale(50),
@@ -1051,30 +1311,62 @@ const styles = StyleSheet.create({
   },
   quickChipsContainer: {
     position: 'absolute',
-    right: scale(16), // ⭐ MessageHistoryChips와 동일
-    gap: verticalScale(10), // ⭐ MessageHistoryChips와 동일
+    right: scale(16),
+    gap: verticalScale(10),
     zIndex: 100,
     elevation: 100,
   },
   quickChip: {
-    width: scale(52), // ⭐ MessageHistoryChips와 동일 (50 → 52)
+    width: scale(52),
     height: scale(52),
-    borderRadius: scale(26), // ⭐ (25 → 26)
-    backgroundColor: 'rgba(0, 0, 0, 0.85)', // ⭐ MessageHistoryChips와 동일
-    borderWidth: 1.5, // ⭐ MessageHistoryChips와 동일 (추가)
-    borderColor: 'rgba(255, 255, 255, 0.3)', // ⭐ MessageHistoryChips와 동일 (추가)
+    borderRadius: scale(26),
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4, // ⭐ MessageHistoryChips와 동일 (0.3 → 0.4)
+    shadowOpacity: 0.4,
     shadowRadius: 8,
     ...Platform.select({
-      android: { elevation: 8 }, // ⭐ MessageHistoryChips와 동일
+      android: { elevation: 8 },
     }),
   },
-  // ⭐ Selection Panel styles removed (CustomBottomSheet handles styling)
+  // ⭐ Step Guide Styles
+  stepGuide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    alignSelf: 'flex-start',
+  },
+  stepGuideChips: {
+    position: 'absolute',
+    right: scale(80), // 칩셋 왼쪽
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  guideEmoji: {
+    fontSize: scale(18),
+    marginRight: scale(6),
+  },
+  guideText: {
+    fontSize: scale(18),
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
 });
 
-export default MessageCreationScreen;
+export default MessageCreationOverlay;
 

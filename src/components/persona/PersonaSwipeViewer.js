@@ -89,6 +89,15 @@ const PersonaSwipeViewer = forwardRef(({
     }
   }, [enabled]);
 
+  // ⭐ DEBUG: Log isScreenFocused prop changes
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎥 [PersonaSwipeViewer] isScreenFocused changed:', isScreenFocused);
+    console.log('  - Current persona:', currentPersona?.persona_name);
+    console.log('  - Will pass to PersonaCardView:', isScreenFocused);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [isScreenFocused, currentPersona]);
+
   // ✅ Restore saved index on mount (after remount from screen focus)
   useEffect(() => {
     if (isInitialMount.current && initialIndex > 0 && flatListRef.current) {
@@ -198,6 +207,7 @@ const PersonaSwipeViewer = forwardRef(({
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
+        extraData={isScreenFocused} // ⭐ Force re-render when isScreenFocused changes
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures
@@ -219,10 +229,10 @@ const PersonaSwipeViewer = forwardRef(({
         snapToAlignment="start"
         snapToInterval={availableHeight}
         scrollEventThrottle={16}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={1}
-        initialNumToRender={1}
-        windowSize={3}
+        removeClippedSubviews={false} // ⭐ CRITICAL: Keep all items mounted for prop updates (no scroll position reset)
+        maxToRenderPerBatch={3} // ⭐ Increased from 1 for smoother updates
+        initialNumToRender={3} // ⭐ Increased from 1 for smoother updates
+        windowSize={5} // ⭐ Increased from 3 for smoother updates
         getItemLayout={(data, index) => ({
           length: availableHeight,
           offset: availableHeight * index,

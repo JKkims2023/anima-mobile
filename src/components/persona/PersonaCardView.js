@@ -135,14 +135,17 @@ const PersonaCardView = ({
 
   // ✅ Log screen focus changes (for debugging video playback)
   useEffect(() => {
-    if (__DEV__) {
-      console.log('[PersonaCardView] 🎥 Screen focus changed:', persona.persona_name, {
-        isScreenFocused,
-        isActive,
-        hasVideo,
-        paused: !isScreenFocused || !isActive,
-      });
-    }
+    const isPaused = !isScreenFocused || !isActive;
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎥 [PersonaCardView] Screen focus changed:', persona.persona_name);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Props:');
+    console.log('  - isScreenFocused:', isScreenFocused);
+    console.log('  - isActive:', isActive);
+    console.log('  - hasVideo:', hasVideo);
+    console.log('Computed:');
+    console.log('  - Video paused:', isPaused, isPaused ? '⏸️ PAUSED' : '▶️ PLAYING');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }, [isScreenFocused, isActive, persona.persona_name, hasVideo]);
 
   // ✅ Only log when actually rendering (isActive = true)
@@ -448,13 +451,14 @@ const styles = StyleSheet.create({
 });
 
 // ✅ Memoize PersonaCardView to prevent unnecessary re-renders
-// Only re-render when persona_key or isActive changes
+// Only re-render when persona_key, isActive, or isScreenFocused changes
 export default memo(PersonaCardView, (prevProps, nextProps) => {
   // Return true if props are equal (prevent re-render)
   // Return false if props are different (allow re-render)
   return (
     prevProps.persona.persona_key === nextProps.persona.persona_key &&
-    prevProps.isActive === nextProps.isActive
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.isScreenFocused === nextProps.isScreenFocused // ⭐ CRITICAL: Check isScreenFocused for video control
   );
 });
 
