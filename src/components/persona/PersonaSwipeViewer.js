@@ -55,6 +55,7 @@ const PersonaSwipeViewer = forwardRef(({
   onIndexChange = () => {},
   modeOpacity, 
   onChatWithPersona,
+  onFavoriteToggle, // ⭐ NEW: Favorite toggle handler
   enabled = true, // ⭐ NEW: Control swipe gestures
   isMessageMode = false, // ⭐ NEW: Control swipe gestures
   availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
@@ -254,6 +255,7 @@ const PersonaSwipeViewer = forwardRef(({
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}
+          onFavoriteToggle={onFavoriteToggle}
         />
       )}
     </View>

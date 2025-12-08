@@ -50,6 +50,7 @@ export const PERSONA_ENDPOINTS = {
   UPDATE_STATUS: '/api/persona/update-status',
   REMOVE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/remove-persona',
   UPGRADE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/upgrade', // ⭐ Video conversion
+  FAVORITE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/favorite', // ⭐ Toggle favorite
   DRESS_LIST: '/api/persona/dress-list',
   UPDATE_DRESS_CODE: '/api/persona/update-dress-code',
   HASHTAGS: '/api/persona/hashtags',

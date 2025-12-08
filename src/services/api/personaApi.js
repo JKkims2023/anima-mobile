@@ -326,6 +326,39 @@ export const deletePersona = async (personaKey, userKey) => {
   }
 };
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * ⭐ Toggle Persona Favorite
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {string} userKey - User key
+ * @returns {Promise<object>} { success: boolean, favorite_yn: 'Y'|'N' }
+ */
+export const togglePersonaFavorite = async (personaKey, userKey) => {
+  try {
+    if (__DEV__) {
+      console.log('⭐ [personaApi] Toggle favorite:', {
+        personaKey,
+        userKey,
+      });
+    }
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.FAVORITE, {
+      persona_key: personaKey,
+      user_key: userKey,
+    });
+
+    if (__DEV__) {
+      console.log('✅ [personaApi] Toggle favorite success:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    logError('Toggle Persona Favorite', error);
+    throw error;
+  }
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -336,5 +369,6 @@ export default {
   updatePersonaBasic,
   convertPersonaVideo,
   deletePersona,
+  togglePersonaFavorite,
 };
 

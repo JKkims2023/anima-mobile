@@ -68,6 +68,7 @@ import {
   updatePersonaBasic,
   convertPersonaVideo,
   deletePersona,
+  togglePersonaFavorite,
 } from '../services/api/personaApi';
 import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
@@ -126,7 +127,7 @@ const PersonaStudioScreen = () => {
   const swiperRef = useRef(null); // ⭐ NEW: Ref for PersonaSwipeViewer
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
-  const [defaultMode, setDefaultMode] = useState(false);
+  const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
   const [showQuickActionChips, setShowQuickActionChips] = useState(false);
   const [showWriteMessageActionChips, setShowWriteMessageActionChips] = useState(false);
   
@@ -301,12 +302,20 @@ const PersonaStudioScreen = () => {
   }, [personas, DEFAULT_PERSONAS]);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // FILTERED PERSONAS (Based on defaultMode switch)
+  // FILTERED PERSONAS (Based on filterMode: 'default' | 'user' | 'favorite')
   // ═══════════════════════════════════════════════════════════════════════
   const currentFilteredPersonas = useMemo(() => {
-    const targetDefaultYn = defaultMode ? 'N' : 'Y';
-    return personasWithDefaults.filter(p => p.default_yn === targetDefaultYn);
-  }, [personasWithDefaults, defaultMode]);
+    if (filterMode === 'favorite') {
+      // Show all personas where favorite_yn === 'Y'
+      return personasWithDefaults.filter(p => p.favorite_yn === 'Y');
+    } else if (filterMode === 'user') {
+      // Show user-created personas (default_yn === 'N')
+      return personasWithDefaults.filter(p => p.default_yn === 'N');
+    } else {
+      // Show default personas (default_yn === 'Y')
+      return personasWithDefaults.filter(p => p.default_yn === 'Y');
+    }
+  }, [personasWithDefaults, filterMode]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
@@ -773,8 +782,16 @@ const PersonaStudioScreen = () => {
   }, []);
 
 
-  const handleDefaultModeChange = useCallback((value) => {
-    setDefaultMode(value);
+  const handleFilterModeChange = useCallback((mode) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 🎭 Filter mode changed:', mode);
+    }
+    
+    HapticService.light();
+    setFilterMode(mode);
+    
+    // Reset to first persona when filter changes
+    setCurrentPersonaIndex(0);
   }, []);
 
   const handleCreatePersona = useCallback(() => {
@@ -1065,15 +1082,76 @@ const PersonaStudioScreen = () => {
       });
     }
   }, [user, currentPersona, setPersonas, showToast, t]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // FAVORITE TOGGLE HANDLER
+  // ═══════════════════════════════════════════════════════════════════════
+  const handlePersonaFavoriteToggle = useCallback(async (persona) => {
+    if (!user?.user_key || !persona || persona.default_yn === 'Y') return;
+    
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] ⭐ Favorite toggle requested for:', {
+        persona_name: persona.persona_name,
+        persona_key: persona.persona_key,
+        current_favorite: persona.favorite_yn,
+      });
+    }
+    
+    try {
+      const result = await togglePersonaFavorite(
+        persona.persona_key,
+        user.user_key
+      );
 
-  // ⭐ Calculate counts for both modes
+      if (result.success) {
+        const newFavoriteYn = result.favorite_yn;
+        
+        // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
+        setPersonas(prev => prev.map(p => 
+          p.persona_key === persona.persona_key
+            ? { ...p, favorite_yn: newFavoriteYn }
+            : p
+        ));
+        
+        // Update currentPersona if it's the one being toggled
+        if (currentPersona?.persona_key === persona.persona_key) {
+          setCurrentPersona(prev => ({ ...prev, favorite_yn: newFavoriteYn }));
+        }
+        
+        showToast({
+          type: 'success',
+          message: newFavoriteYn === 'Y' 
+            ? t('persona.favorite_added')
+            : t('persona.favorite_removed'),
+          emoji: newFavoriteYn === 'Y' ? '⭐' : '✅',
+        });
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ Favorite toggled (local update only):', newFavoriteYn);
+        }
+      } else {
+        throw new Error(result.message || 'Favorite toggle failed');
+      }
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Favorite toggle error:', error);
+      showToast({
+        type: 'error',
+        message: t('errors.generic'),
+        emoji: '⚠️',
+      });
+    }
+  }, [user, currentPersona, setPersonas, showToast, t]);
+
+  // ⭐ Calculate counts for all filter modes
   const personaCounts = useMemo(() => {
     const defaultPersonas = personasWithDefaults.filter(p => p.default_yn === 'Y');
     const userPersonas = personasWithDefaults.filter(p => p.default_yn === 'N');
+    const favoritePersonas = personasWithDefaults.filter(p => p.favorite_yn === 'Y');
     
     return {
       default: defaultPersonas.length,
       user: userPersonas.length,
+      favorite: favoritePersonas.length,
     };
   }, [personasWithDefaults]); 
   // ═══════════════════════════════════════════════════════════════════════
@@ -1138,6 +1216,7 @@ const PersonaStudioScreen = () => {
             }}
             modeOpacity={null}
             onChatWithPersona={handleChatWithPersona} // Not used in studio mode
+            onFavoriteToggle={handlePersonaFavoriteToggle} // ⭐ Favorite toggle
             enabled={!isMessageMode} // ⭐ Disable swipe in message mode
             isMessageMode={isMessageMode}
             onCreatePersona={handleAddPersona}
@@ -1241,7 +1320,7 @@ const PersonaStudioScreen = () => {
         </View>
         )}
 
-        {!defaultMode && (
+        {filterMode !== 'default' && (
         <PersonaSelectorButton
             isPersonaMode={false} // Always show "Select Persona" icon
             onPress={handlePanelToggle}
@@ -1266,10 +1345,12 @@ const PersonaStudioScreen = () => {
         {!isMessageMode && (
           <View style={styles.typeSelectorOverlay}>
             <PersonaTypeSelector
-              isUserMode={defaultMode}
+              isUserMode={filterMode === 'user'}
+              isFavoriteMode={filterMode === 'favorite'}
               defaultCount={personaCounts.default}
               userCount={personaCounts.user}
-              onTypeChange={handleDefaultModeChange}
+              favoriteCount={personaCounts.favorite}
+              onTypeChange={handleFilterModeChange}
               onCreatePress={handleCreatePersona}
               showCreateButton={true}
             />

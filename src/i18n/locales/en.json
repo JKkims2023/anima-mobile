@@ -1799,6 +1799,9 @@
   },
   "persona": {
     "create": "Create",
+    "favorite": "Favorite",
+    "favorite_added": "Added to favorites",
+    "favorite_removed": "Removed from favorites",
     "settings": {
       "title": "Persona Settings",
       "no_persona": "No Persona",

@@ -27,8 +27,10 @@ import HapticService from '../../utils/HapticService';
 
 const PersonaTypeSelector = ({
   isUserMode = false, // false: 기본 제공, true: 사용자 생성
+  isFavoriteMode = false, // ⭐ NEW: Favorite filter mode
   defaultCount = 0,
   userCount = 0,
+  favoriteCount = 0, // ⭐ NEW: Favorite count
   onTypeChange,
   onCreatePress,
   showCreateButton = true,
@@ -37,15 +39,21 @@ const PersonaTypeSelector = ({
   const { currentTheme: theme } = useTheme();
 
   const handleDefaultPress = () => {
-    if (!isUserMode) return; // Already selected
+    if (!isUserMode && !isFavoriteMode) return; // Already selected
     HapticService.light();
-    onTypeChange?.(false);
+    onTypeChange?.('default');
   };
 
   const handleUserPress = () => {
-    if (isUserMode) return; // Already selected
+    if (isUserMode && !isFavoriteMode) return; // Already selected
     HapticService.light();
-    onTypeChange?.(true);
+    onTypeChange?.('user');
+  };
+
+  const handleFavoritePress = () => {
+    if (isFavoriteMode) return; // Already selected
+    HapticService.light();
+    onTypeChange?.('favorite');
   };
 
   const handleCreate = () => {
@@ -74,7 +82,7 @@ const PersonaTypeSelector = ({
           <TouchableOpacity
             style={[
               styles.chip,
-              !isUserMode && [
+              !isUserMode && !isFavoriteMode && [
                 styles.chipActive,
                 { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
               ],
@@ -84,10 +92,10 @@ const PersonaTypeSelector = ({
           >
             <CustomText
               type="title"
-              bold={!isUserMode}
+              bold={!isUserMode && !isFavoriteMode}
               style={[
                 styles.chipText,
-                { color: !isUserMode ? theme.mainColor : theme.textSecondary },
+                { color: (!isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
               ]}
             >
               🌐 {t('message.select_default_mode')}
@@ -96,7 +104,7 @@ const PersonaTypeSelector = ({
               type="small"
               style={[
                 styles.chipCount,
-                { color: !isUserMode ? theme.mainColor : theme.textSecondary },
+                { color: (!isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
               ]}
             >
               ({defaultCount})
@@ -108,7 +116,7 @@ const PersonaTypeSelector = ({
           <TouchableOpacity
             style={[
               styles.chip,
-              isUserMode && [
+              isUserMode && !isFavoriteMode && [
                 styles.chipActive,
                 { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
               ],
@@ -118,10 +126,10 @@ const PersonaTypeSelector = ({
           >
             <CustomText
               type="title"
-              bold={isUserMode}
+              bold={isUserMode && !isFavoriteMode}
               style={[
                 styles.chipText,
-                { color: isUserMode ? theme.mainColor : theme.textSecondary },
+                { color: (isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
               ]}
             >
               👤 {t('message.select_user_mode')}
@@ -130,17 +138,51 @@ const PersonaTypeSelector = ({
               type="small"
               style={[
                 styles.chipCount,
-                { color: isUserMode ? theme.mainColor : theme.textSecondary },
+                { color: (isUserMode && !isFavoriteMode) ? theme.mainColor : theme.textSecondary },
               ]}
             >
               ({userCount})
             </CustomText>
 
           </TouchableOpacity>
+
+          {/* Favorite Chip */}
+          <TouchableOpacity
+            style={[
+              styles.chip,
+              isFavoriteMode && [
+                styles.chipActive,
+                { backgroundColor: `${theme.mainColor}20`, borderColor: theme.mainColor },
+              ],
+            ]}
+            onPress={handleFavoritePress}
+            activeOpacity={0.7}
+          >
+            <CustomText
+              type="title"
+              bold={isFavoriteMode}
+              style={[
+                styles.chipText,
+                { color: isFavoriteMode ? theme.mainColor : theme.textSecondary },
+              ]}
+            >
+              ⭐ {t('persona.favorite')}
+            </CustomText>
+            <CustomText
+              type="small"
+              style={[
+                styles.chipCount,
+                { color: isFavoriteMode ? theme.mainColor : theme.textSecondary },
+              ]}
+            >
+              ({favoriteCount})
+            </CustomText>
+
+          </TouchableOpacity>
         </View>
 
         {/* Right: Create Button */}
-        {showCreateButton && isUserMode && (
+        {showCreateButton && isUserMode && !isFavoriteMode && (
           <TouchableOpacity
             style={[styles.createButton, { backgroundColor: theme.mainColor }]}
             onPress={handleCreate}

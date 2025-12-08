@@ -27,8 +27,9 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props
  * @param {Object} props.persona - 자아 object
  * @param {Function} props.onChatPress - Callback when chat button is pressed
+ * @param {Function} props.onFavoriteToggle - Callback when favorite is toggled
  */
-const PersonaInfoCard = ({ persona, onChatPress }) => {
+const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
@@ -42,6 +43,15 @@ const PersonaInfoCard = ({ persona, onChatPress }) => {
     HapticService.medium();
     if (onChatPress) {
       onChatPress(persona);
+    }
+  };
+  
+  // ✅ Handle favorite toggle
+  const handleFavoritePress = (e) => {
+    e.stopPropagation(); // Prevent triggering parent onPress
+    HapticService.light();
+    if (onFavoriteToggle && persona?.default_yn !== 'Y') {
+      onFavoriteToggle(persona);
     }
   };
   
@@ -85,6 +95,21 @@ const PersonaInfoCard = ({ persona, onChatPress }) => {
               {persona.persona_name}
             </CustomText>
             <Icon name="settings" size={scale(20)} color="#FFFFFF" style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }} />
+            
+            {/* Favorite Icon (Only for user personas) */}
+            {persona?.default_yn !== 'Y' && (
+              <TouchableOpacity
+                onPress={handleFavoritePress}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Icon 
+                  name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
+                  size={scale(24)} 
+                  color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" style={styles.description} numberOfLines={2}>
