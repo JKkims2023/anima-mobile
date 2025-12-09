@@ -1621,7 +1621,7 @@
     "select_mode_description" : "모드를 선택하여 메시지를 생성합니다.",
     "select_default_mode" : "기본",
     "select_default_mode_description" : "기본 페르소나를 사용하여 메시지를 생성합니다.",
-    "select_user_mode" : "사용자",
+    "select_user_mode" : "사용자 맞춤",
     "select_user_mode_description" : "사용자가 고유의 유니크한 메시지를 생성합니다.",
     "cta_title": "💡 나만의 페르소나로 더 특별하게!",
     "input": {
@@ -1688,6 +1688,23 @@
       "favorite_added": "즐겨찾기에 추가되었습니다",
       "favorite_removed": "즐겨찾기에서 제거되었습니다",
       "delete_success": "메시지가 삭제되었습니다"
+    },
+    "validation": {
+      "content_required": "메시지 내용을 입력해주세요",
+      "confirm_title": "메시지 생성 확인",
+      "confirm_partial": "현재 상태로 생성하시겠습니까?",
+      "status_content": "메시지",
+      "status_particle": "파티클 효과",
+      "status_music": "배경 음악",
+      "status_custom_words": "커스텀 단어",
+      "status_complete": "✅ 입력 완료",
+      "status_selected": "✅",
+      "status_not_selected": "⚪ 선택 안 됨",
+      "final_confirm_title": "최종 확인",
+      "final_confirm_message": "한번 생성한 메시지는 수정이 불가능합니다.\n\n정말 생성하시겠습니까?",
+      "button_cancel": "취소",
+      "button_recheck": "다시 확인",
+      "button_create": "생성하기"
     },
     "alert": {
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",

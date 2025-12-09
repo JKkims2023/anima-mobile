@@ -117,7 +117,7 @@ const PersonaTypeSelector = ({
               bold
               style={[
                 styles.chipText,
-                { color: theme.mainColor },
+                { color: 'white' },
               ]}
             >
               {currentMode.emoji} {currentMode.label}
@@ -126,7 +126,7 @@ const PersonaTypeSelector = ({
               type="small"
               style={[
                 styles.chipCount,
-                { color: theme.mainColor },
+                { color: 'white' },
               ]}
             >
               ({currentMode.count})
@@ -134,7 +134,7 @@ const PersonaTypeSelector = ({
           </View>
           
           {/* Next Icon */}
-          <Icon name="chevron-right" size={scale(20)} color={theme.mainColor} />
+          <Icon name="chevron-right" size={scale(20)} color="white" />
         </TouchableOpacity>
 
         {/* Right: Create Button */}
@@ -185,10 +185,10 @@ const styles = StyleSheet.create({
 
   // ⭐ Single Chip (Toggleable)
   singleChip: {
-    flex: 1,
+
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    width: 'auto',
     paddingHorizontal: platformPadding(16),
     paddingVertical: platformPadding(12),
     borderRadius: scale(24),
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   chipContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+
   },
 
   chipText: {

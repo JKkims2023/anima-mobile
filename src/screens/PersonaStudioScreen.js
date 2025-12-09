@@ -1676,6 +1676,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: COLORS.TEXT_PRIMARY,
+    display: 'none',
   },
   searchButton: {
     marginLeft: platformPadding(12),

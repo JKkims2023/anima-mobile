@@ -1735,6 +1735,23 @@
       "favorite_removed": "Removed from favorites",
       "delete_success": "Message deleted successfully"
     },
+    "validation": {
+      "content_required": "Please enter message content",
+      "confirm_title": "Confirm Message Creation",
+      "confirm_partial": "Create with current settings?",
+      "status_content": "Message",
+      "status_particle": "Particle Effect",
+      "status_music": "Background Music",
+      "status_custom_words": "Custom Words",
+      "status_complete": "✅ Complete",
+      "status_selected": "✅",
+      "status_not_selected": "⚪ Not Selected",
+      "final_confirm_title": "Final Confirmation",
+      "final_confirm_message": "Once created, messages cannot be edited.\n\nAre you sure you want to create?",
+      "button_cancel": "Cancel",
+      "button_recheck": "Review",
+      "button_create": "Create"
+    },
     "alert": {
       "exit_message_mode": "Cancel message creation?",
       "exit_message_mode_description": "All your work will be reset if you cancel.",

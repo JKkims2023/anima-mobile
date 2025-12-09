@@ -74,8 +74,10 @@ import ParticleEffect from '../particle/ParticleEffect';
 import MessageInputOverlay from './MessageInputOverlay';
 import MusicSelectionOverlay from '../music/MusicSelectionOverlay';
 import EffectGroupAccordion from '../EffectGroupAccordion';
+import FloatingChipNavigation from '../FloatingChipNavigation'; // ⭐ NEW: Chip-based navigation
+import EffectListView from '../EffectListView'; // ⭐ NEW: Effect list display
 import CustomBottomSheet from '../CustomBottomSheet';
-import WordInputBottomSheet from './WordInputBottomSheet'; // ⭐ NEW: Custom words input
+import WordInputOverlay from './WordInputOverlay'; // ⭐ FIXED: Modal-based for Korean input stability // ⭐ NEW: Custom words input
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconCreate from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../../styles/commonstyles';
@@ -107,6 +109,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const textAnimationSheetRef = useRef(null);
   const particleEffectSheetRef = useRef(null);
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
+  const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management
@@ -120,13 +123,13 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [showMusicSelection, setShowMusicSelection] = useState(false);
   const [openTextGroups, setOpenTextGroups] = useState({});
-  const [openParticleGroups, setOpenParticleGroups] = useState({});
-  const [textAccordionTouched, setTextAccordionTouched] = useState(false);
-  const [particleAccordionTouched, setParticleAccordionTouched] = useState(false);
+  const [openParticleGroups, setOpenParticleGroups] = useState({}); // ⭐ DEPRECATED: Will be removed
+  const [textAccordionTouched, setTextAccordionTouched] = useState(false); // ⭐ DEPRECATED: Will be removed
+  const [particleAccordionTouched, setParticleAccordionTouched] = useState(false); // ⭐ DEPRECATED: Will be removed
   const [isTextSheetOpen, setIsTextSheetOpen] = useState(false);
   const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
+  const [selectedParticleGroup, setSelectedParticleGroup] = useState('none'); // ⭐ NEW: Floating chip navigation (기본: 없음)
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Sequential Animation (악마의 디테일 🎨)
@@ -146,6 +149,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const guideContentTranslateY = useSharedValue(-10); // 컨텐츠 가이드 위치
   const guideChipsOpacity = useSharedValue(0); // 칩셋 가이드
   const guideChipsTranslateX = useSharedValue(-10); // 칩셋 가이드 위치
+  
+  // ⭐ Content Shake Animation (for validation feedback)
+  const contentShakeX = useSharedValue(0); // 컨텐츠 영역 흔들림
   
   // ⭐ Particle Effect Animation (별도 제어)
   const particleOpacity = useSharedValue(0); // 파티클 투명도
@@ -272,7 +278,10 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
-    transform: [{ translateX: contentTranslateX.value }],
+    transform: [
+      { translateX: contentTranslateX.value },
+      { translateX: contentShakeX.value }, // ⭐ Shake animation for validation
+    ],
   }));
 
   const chipsContainerAnimatedStyle = useAnimatedStyle(() => ({
@@ -372,14 +381,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       console.log('[MessageCreationOverlay] Android back button pressed');
       
-      // 1️⃣ If music selection is open, close it
-      if (showMusicSelection) {
-        console.log('[MessageCreationOverlay] Closing music selection');
-        handleMusicClose();
-        return true;
-      }
-      
-      // 2️⃣ If text animation sheet is open, close it
+      // 1️⃣ If text animation sheet is open, close it
       if (isTextSheetOpen) {
         console.log('[MessageCreationOverlay] Closing text animation sheet');
         textAnimationSheetRef.current?.dismiss();
@@ -426,7 +428,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     });
 
     return () => backHandler.remove();
-  }, [visible, showMusicSelection, isTextSheetOpen, isParticleSheetOpen, onClose, showAlert, t]);
+  }, [visible, isTextSheetOpen, isParticleSheetOpen, onClose, showAlert, t]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Text Animation Values & Logic
@@ -639,7 +641,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('[MessageCreationOverlay] Opening music selection');
     Keyboard.dismiss();
     HapticService.light();
-    setShowMusicSelection(true);
+    musicSelectionOverlayRef.current?.present(); // ⭐ NEW: ref-based
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -702,14 +704,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       setBgMusicUrl(music.music_url || music.url || '');
     }
     
-    setShowMusicSelection(false);
     HapticService.selection();
     setShowChipsGuide(false); // Hide chips guide
-  };
-  
-  const handleMusicClose = () => {
-    setShowMusicSelection(false);
-    HapticService.light();
+    // Bottomsheet will dismiss automatically via onSelect in MusicSelectionOverlay
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -749,18 +746,29 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Handler: Generate URL
+  // Handler: Trigger Shake Animation
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleGenerateURL = async () => {
-    // ⭐ 제목 검증 제거 - 본문만 확인
-    if (!messageContent.trim()) {
-      Alert.alert(t('common.error'), '메시지 내용을 입력해주세요.');
-      return;
-    }
+  const triggerContentShake = useCallback(() => {
+    contentShakeX.value = withSequence(
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  }, [contentShakeX]);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Handler: Proceed Generation (실제 메시지 생성)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const proceedGeneration = useCallback(async () => {
     try {
       setIsCreating(true);
       HapticService.success();
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🚀 [MessageCreationOverlay] PROCEED GENERATION');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       // ⭐ Generate title from first 30 chars of content
       const autoTitle = messageContent.length > 30 
@@ -830,7 +838,145 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     } finally {
       setIsCreating(false);
     }
-  };
+  }, [
+    messageContent,
+    customWords,
+    user,
+    selectedPersona,
+    particleEffect,
+    bgMusic,
+    bgMusicUrl,
+    setHasNewMessage,
+    setCreatedMessageUrl,
+    showAlert,
+    t
+  ]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Handler: Generate URL (3단계 벨리데이션)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleGenerateURL = useCallback(async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎯 [MessageCreationOverlay] GENERATE URL CLICKED');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 1️⃣ VALIDATION: Content Required
+    // ═══════════════════════════════════════════════════════════════════════════
+    if (!messageContent.trim()) {
+      console.log('❌ [MessageCreationOverlay] Content is empty!');
+      
+      // Shake animation
+      triggerContentShake();
+      
+      // Warning haptic + Toast
+      HapticService.warning();
+      showAlert({
+        title: t('message.validation.content_required'),
+        emoji: '✍️',
+        message: t('message.validation.content_required'),
+        buttons: [
+          { 
+            text: t('common.confirm'), 
+            style: 'cancel',
+            onPress: () => {
+              // Focus on content input
+              setTimeout(() => {
+                contentInputRef.current?.present();
+              }, 300);
+            }
+          }
+        ]
+      });
+      return;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 2️⃣ VALIDATION: Partial Selection (Content only, no effects)
+    // ═══════════════════════════════════════════════════════════════════════════
+    const hasEffects = particleEffect !== 'none' || bgMusic !== 'none';
+    
+    if (!hasEffects) {
+      console.log('⚠️ [MessageCreationOverlay] No effects selected (partial)');
+      
+      // Build status message
+      const statusMessage = `
+📝 ${t('message.validation.status_content')}: ${t('message.validation.status_complete')}
+✨ ${t('message.validation.status_particle')}: ${t('message.validation.status_not_selected')}
+🎵 ${t('message.validation.status_music')}: ${t('message.validation.status_not_selected')}
+      `.trim();
+      
+      HapticService.light();
+      showAlert({
+        title: t('message.validation.confirm_title'),
+        emoji: '📝',
+        message: `${t('message.validation.confirm_partial')}\n\n${statusMessage}`,
+        buttons: [
+          { 
+            text: t('message.validation.button_cancel'), 
+            style: 'cancel',
+            onPress: () => HapticService.light()
+          },
+          { 
+            text: t('message.validation.button_create'), 
+            style: 'primary',
+            onPress: () => proceedGeneration()
+          }
+        ]
+      });
+      return;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 3️⃣ VALIDATION: Final Confirmation (All options selected)
+    // ═══════════════════════════════════════════════════════════════════════════
+    console.log('✅ [MessageCreationOverlay] All options selected, showing final confirmation');
+    
+    // Get effect labels for display
+    const particleLabel = PARTICLE_EFFECT_GROUPS
+      .flatMap(g => g.items)
+      .find(item => item.id === particleEffect)?.label || particleEffect;
+    
+    const musicLabel = bgMusic !== 'none' ? bgMusic : t('message.validation.status_not_selected');
+    
+    // Build detailed status message
+    const detailedStatus = `
+📝 ${t('message.validation.status_content')}: ${t('message.validation.status_complete')}
+✨ ${t('message.validation.status_particle')}: ${particleLabel}
+${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') && customWords.length > 0 
+  ? `   💬 ${t('message.validation.status_custom_words')}: ${customWords.join(', ')}`
+  : ''}
+🎵 ${t('message.validation.status_music')}: ${musicLabel}
+    `.trim();
+    
+    HapticService.warning(); // Important warning
+    showAlert({
+      title: t('message.validation.final_confirm_title'),
+      emoji: '⚠️',
+      message: `${t('message.validation.final_confirm_message')}\n\n${detailedStatus}`,
+      buttons: [
+        { 
+          text: t('message.validation.button_recheck'), 
+          style: 'cancel',
+          onPress: () => HapticService.light()
+        },
+        { 
+          text: t('message.validation.button_create'), 
+          style: 'destructive',
+          onPress: () => proceedGeneration()
+        }
+      ]
+    });
+  }, [
+    messageContent,
+    particleEffect,
+    bgMusic,
+    customWords,
+    triggerContentShake,
+    showAlert,
+    t,
+    proceedGeneration,
+  ]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handler: Share Message
@@ -903,7 +1049,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         >
           <ParticleEffect 
             type={particleEffect} 
-            isActive={!isParticleSheetOpen && !showMusicSelection} // ⭐ 바텀시트 열릴 때 비활성화
+            isActive={!isParticleSheetOpen} // ⭐ 바텀시트 열릴 때 비활성화
             customWords={customWords} // ⭐ Pass custom words for floating_words and scrolling_words
           />
         </Animated.View>
@@ -1106,7 +1252,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         })}
       </CustomBottomSheet>
 
-      {/* ⭐ Particle Effect BottomSheet */}
+      {/* ⭐ Particle Effect BottomSheet (Floating Chip Navigation) */}
       <CustomBottomSheet
         ref={particleEffectSheetRef}
         title={t('message_preview.particle_effect')}
@@ -1119,32 +1265,52 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         onChange={(index) => {
           setIsParticleSheetOpen(index >= 0);
         }}
-      >
-        {filterNonEmptyGroups(PARTICLE_EFFECT_GROUPS).map((group) => {
-          const isOpen = particleAccordionTouched 
-            ? (openParticleGroups[group.id] === true)
-            : (openParticleGroups[group.id] !== undefined ? openParticleGroups[group.id] : group.defaultOpen);
+
+        buttons={[
+          {
+            title: t('common.close'),
+            type: 'primary',
+            onPress: () => {
+              particleEffectSheetRef.current?.dismiss();
+              HapticService.light();
+            }
+          }
           
-          return (
-            <EffectGroupAccordion
-              key={group.id}
-              group={group}
-              isOpen={isOpen}
-              onToggle={() => handleToggleParticleGroup(group.id)}
-              selectedValue={particleEffect}
-              onSelect={handleParticleEffectSelect}
-            />
-          );
-        })}
+        ]}
+      >
+        {/* ⭐ Floating Chip Navigation (Top) */}
+        <FloatingChipNavigation
+          groups={filterNonEmptyGroups(PARTICLE_EFFECT_GROUPS).map(group => ({
+            id: group.id,
+            // ⭐ For standalone type (like "none"), use first item's emoji and label
+            emoji: group.emoji || (group.items && group.items[0]?.emoji),
+            title: group.title || (group.items && group.items[0]?.label),
+          }))}
+          selectedGroupId={selectedParticleGroup}
+          onSelectGroup={(groupId) => {
+            setSelectedParticleGroup(groupId);
+            console.log('[MessageCreationOverlay] Particle group changed:', groupId);
+          }}
+        />
+
+        {/* ⭐ Effect List View (Bottom) */}
+        <EffectListView
+          items={(() => {
+            const group = PARTICLE_EFFECT_GROUPS.find(g => g.id === selectedParticleGroup);
+            return group ? group.items : [];
+          })()}
+          selectedValue={particleEffect}
+          onSelect={handleParticleEffectSelect}
+        />
       </CustomBottomSheet>
 
-      {/* ⭐ Custom Words Input BottomSheet */}
-      <WordInputBottomSheet
-        sheetRef={wordInputSheetRef}
+      {/* ⭐ Custom Words Input Overlay (Modal-based for Korean input stability) */}
+      <WordInputOverlay
+        ref={wordInputSheetRef}
         initialWords={customWords}
         onSave={handleWordsSave}
         title="나만의 단어 입력"
-        placeholder="단어 입력 후 추가 버튼을 눌러주세요"
+        placeholder="단어 입력 (최대 15자)"
       />
 
       {/* Message Input Overlays */}
@@ -1170,10 +1336,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         onSave={handleContentSave}
       />
 
-      {/* Music Selection Overlay */}
+      {/* Music Selection Overlay (ref-based) */}
       <MusicSelectionOverlay
-        visible={showMusicSelection}
-        onClose={handleMusicClose}
+        ref={musicSelectionOverlayRef}
         onSelect={handleMusicSelect}
         selectedMusicKey={bgMusic}
       />
