@@ -6,8 +6,8 @@
  * Swipeable persona viewer (PERSONAS ONLY - NO SAGE)
  * 
  * Features:
- * - FlashList with vertical paging (10x faster than FlatList)
- * - Auto-optimized rendering (no extraData needed)
+ * - FlatList with vertical paging
+ * - Optimized rendering with deep extraData
  * - Pagination indicators
  * - Haptic feedback on swipe
  * - Smooth animations
@@ -20,11 +20,11 @@
 import React, { useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
+  FlatList,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -203,13 +203,13 @@ const PersonaSwipeViewer = forwardRef(({
 
   return (
     <View style={styles.container}>
-      {/* ✅ FlashList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
-      <FlashList
+      {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
+      <FlatList
         ref={flatListRef}
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        estimatedItemSize={availableHeight} // ⭐ CRITICAL: FlashList requires this
+        extraData={personas} // ⭐ CRITICAL: Force re-render when personas array changes (deep comparison)
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures
@@ -231,6 +231,7 @@ const PersonaSwipeViewer = forwardRef(({
         snapToAlignment="start"
         snapToInterval={availableHeight}
         scrollEventThrottle={16}
+        removeClippedSubviews={false} // ⭐ CRITICAL: Keep all items mounted for immediate updates
         getItemLayout={(data, index) => ({
           length: availableHeight,
           offset: availableHeight * index,
