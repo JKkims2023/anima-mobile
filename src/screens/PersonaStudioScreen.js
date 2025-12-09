@@ -384,11 +384,13 @@ const PersonaStudioScreen = () => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('📊 [PersonaStudioScreen] Status Response:');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('Done YN:', statusResponse.data?.done_yn);
-      console.log('Persona URL:', statusResponse.data?.persona_url);
+      console.log('Full Response:', statusResponse.data);
+      console.log('Status:', statusResponse.data?.status);
+      console.log('Image URL:', statusResponse.data?.image_url);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-      if (statusResponse.data?.done_yn === 'Y') {
+      // ⭐ FIX: API returns 'status: completed', not 'done_yn'
+      if (statusResponse.data?.status === 'completed') {
         // Persona creation complete!
         HapticService.success();
         showToast({

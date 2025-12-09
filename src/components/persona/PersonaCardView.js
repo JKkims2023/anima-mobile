@@ -146,12 +146,25 @@ const PersonaCardView = ({
     const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
     const imageUrl = persona?.selected_dress_image_url || persona?.original_url;
     
+    // ⭐ DEBUG: Log image URL for incomplete personas
+    if (persona?.done_yn === 'N') {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🖼️ [PersonaCardView] Image URL for incomplete persona:');
+      console.log('  - Persona:', persona.persona_name);
+      console.log('  - selected_dress_image_url:', persona?.selected_dress_image_url);
+      console.log('  - original_url:', persona?.original_url);
+      console.log('  - Final imageUrl:', imageUrl);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
     return { hasVideo, videoUrl, imageUrl };
   }, [
     persona?.selected_dress_video_url,
     persona?.selected_dress_video_convert_done,
     persona?.selected_dress_image_url,
     persona?.original_url,
+    persona?.done_yn,
+    persona?.persona_name,
   ]);
 
   // ✅ Control container opacity based on isActive and isScreenFocused
@@ -306,9 +319,9 @@ const PersonaCardView = ({
         <View style={styles.incompleteOverlay}>
           <BlurView
             style={styles.blurContainer}
-            blurType="dark"
-            blurAmount={20}
-            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.8)"
+            blurType="light"
+            blurAmount={10}
+            reducedTransparencyFallbackColor="rgba(255, 255, 255, 0.3)"
           />
           <View style={styles.timerContainer}>
             <CustomText type="title" bold style={styles.generatingText}>
