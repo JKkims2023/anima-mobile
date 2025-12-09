@@ -98,6 +98,14 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // ═══════════════════════════════════════════════════════════════════════════
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false); // ⭐ 180° flip for comment view
+  const [localMessage, setLocalMessage] = useState(message); // ⭐ Local message state for UI updates
+
+  // ⭐ Update localMessage when message prop changes
+  useEffect(() => {
+    if (message) {
+      setLocalMessage(message);
+    }
+  }, [message]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Extract message data
@@ -115,7 +123,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
     bg_music = 'none',
     bg_music_url = null,
     effect_config = null,
-  } = message || {};
+  } = localMessage || {};
 
   // ⭐ Extract customWords from effect_config
   const customWords = effect_config?.custom_words || [];
@@ -526,16 +534,19 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
 
   // Handle favorite toggle
   const handleToggleFavorite = async () => {
-    if (!message) return;
+    if (!localMessage) return;
 
-    const newFavoriteYn = message.favorite_yn === 'Y' ? 'N' : 'Y';
+    const newFavoriteYn = localMessage.favorite_yn === 'Y' ? 'N' : 'Y';
 
     try {
-      const result = await messageService.toggleFavorite(message.message_key, user?.user_key, newFavoriteYn);
+      const result = await messageService.toggleFavorite(localMessage.message_key, user?.user_key, newFavoriteYn);
 
       if (result.success) {
+        // ⭐ Update local message state (immediate UI update)
+        const updatedMessage = { ...localMessage, favorite_yn: newFavoriteYn };
+        setLocalMessage(updatedMessage);
+
         // ⭐ Notify parent screen (real-time sync)
-        const updatedMessage = { ...message, favorite_yn: newFavoriteYn };
         onMessageUpdate?.(updatedMessage, 'favorite');
 
         // Toast notification
@@ -554,7 +565,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
 
   // Handle delete
   const handleDelete = () => {
-    if (!message) return;
+    if (!localMessage) return;
 
     showAlert({
       title: t('message.history.delete'),
@@ -571,11 +582,11 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
           style: 'destructive',
           onPress: async () => {
             try {
-              const result = await messageService.deleteMessage(message.message_key, user?.user_key);
+              const result = await messageService.deleteMessage(localMessage.message_key, user?.user_key);
 
               if (result.success) {
                 // ⭐ Notify parent screen (real-time sync)
-                onMessageUpdate?.(message, 'delete');
+                onMessageUpdate?.(localMessage, 'delete');
 
                 showToast({
                   type: 'success',
@@ -604,7 +615,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // ═══════════════════════════════════════════════════════════════════════════
   // Render: Don't render if not visible
   // ═══════════════════════════════════════════════════════════════════════════
-  if (!visible || !message) return null;
+  if (!visible || !localMessage) return null;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Front View (Message)
@@ -616,7 +627,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         persona={persona}
         isScreenFocused={!isFlipped}
         opacity={1}
-        videoKey={message?.message_key}
+        videoKey={localMessage?.message_key}
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
@@ -701,7 +712,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   const renderBack = () => (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <ReplyListView
-        messageKey={message.message_key}
+        messageKey={localMessage?.message_key}
         userKey={user?.user_key}
         onClose={handleCommentPress}
       />
@@ -751,7 +762,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
           chipsContainerAnimatedStyle
         ]}>
           <MessageHistoryChips
-            message={message}
+            message={localMessage}
             onCommentPress={handleCommentPress}
             onFavoriteToggle={handleToggleFavorite}
             onDelete={handleDelete}
