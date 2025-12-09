@@ -207,7 +207,7 @@ const PersonaSwipeViewer = forwardRef(({
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        extraData={isScreenFocused} // ⭐ Force re-render when isScreenFocused changes
+        extraData={`${isScreenFocused}-${selectedIndex}`} // ⭐ Force re-render when isScreenFocused OR selectedIndex changes
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures
@@ -260,8 +260,8 @@ const PersonaSwipeViewer = forwardRef(({
         </View>
       )}
 
-      {/* ✅ PersonaInfoCard - 자아 정보 카드 */}
-      {personas.length > 0 && !isMessageMode  && (
+      {/* PersonaInfoCard */}
+      {personas.length > 0 && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}

@@ -23,43 +23,27 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, BackHandler, PanResponder, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconSearch from 'react-native-vector-icons/Ionicons';
-import IconMore from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  Easing,
-  runOnJS,
-} from 'react-native-reanimated';
 import SafeScreen from '../components/SafeScreen';
-import AppHeader from '../components/AppHeader';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
-import MessageCreatorView from '../components/message/MessageCreatorView';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
-import MessageModeQuickActionChips from '../components/message/MessageModeQuickActionChips'; // ⭐ NEW
-import PersonaSelectorButton from '../components/persona/PersonaSelectorButton'; // ⭐ Button for panel toggle
-import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel'; // ⭐ NEW: Slide panel
-import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay'; // ⭐ NEW: Persona search overlay
-import MessageSearchOverlay from '../components/message/MessageSearchOverlay'; // ⭐ NEW: Message search overlay
-import PersonaTypeSelector from '../components/persona/PersonaTypeSelector'; // ⭐ NEW: Elegant chip style selector
-import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet'; // ⭐ NEW: Persona settings sheet
-import CategorySelectionSheet from '../components/persona/CategorySelectionSheet'; // ⭐ NEW: Category selection sheet
+import PersonaSelectorButton from '../components/persona/PersonaSelectorButton';
+import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel';
+import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay';
+import PersonaTypeSelector from '../components/persona/PersonaTypeSelector';
+import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet';
+import CategorySelectionSheet from '../components/persona/CategorySelectionSheet';
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
-import AnimaLoadingOverlay from '../components/persona/AnimaLoadingOverlay';
-import AnimaSuccessCard from '../components/persona/AnimaSuccessCard';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
-import MessageCreationOverlay from '../components/message/MessageCreationOverlay'; // ⭐ NEW: Overlay for message creation
+import MessageCreationOverlay from '../components/message/MessageCreationOverlay';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { 
@@ -71,10 +55,8 @@ import {
   deletePersona,
   togglePersonaFavorite,
 } from '../services/api/personaApi';
-import { listMessages } from '../services/api/messageService';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
-import GradientOverlay from '../components/GradientOverlay';
 
 
 const PersonaStudioScreen = () => {
@@ -111,79 +93,23 @@ const PersonaStudioScreen = () => {
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
-  const [isMessageMode, setIsMessageMode] = useState(false); // ⭐ Message mode toggle
-  const [isPanelVisible, setIsPanelVisible] = useState(false); // ⭐ NEW: PersonaSelectorPanel toggle
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
-  const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false); // ⭐ NEW: Settings sheet
-  const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false); // ⭐ NEW: Category sheet
-  const [isLoadingPersona, setIsLoadingPersona] = useState(false);
-  const [isSuccessCardVisible, setIsSuccessCardVisible] = useState(false);
-  const [createdPersona, setCreatedPersona] = useState(null);
-  const [settingsPersona, setSettingsPersona] = useState(null); // ⭐ NEW: Persona being edited
-  const nameInputRef = useRef(null); // ⭐ FIX: Use ref like ChoicePersonaSheet
-  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false); // ⭐ Persona search overlay
-  const [isMessageSearchVisible, setIsMessageSearchVisible] = useState(false); // ⭐ Message search overlay
-  const [messages, setMessages] = useState([]); // ⭐ Message history
-  const [selectedMessage, setSelectedMessage] = useState(null); // ⭐ Selected message for editing
-  const swiperRef = useRef(null); // ⭐ NEW: Ref for PersonaSwipeViewer
+  const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
+  const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false);
+  const [settingsPersona, setSettingsPersona] = useState(null);
+  const nameInputRef = useRef(null);
+  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false);
+  const swiperRef = useRef(null);
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
-  const [showQuickActionChips, setShowQuickActionChips] = useState(false);
-  const [showWriteMessageActionChips, setShowWriteMessageActionChips] = useState(false);
-  const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false); // ⭐ NEW: Message Creation Overlay
+  const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
   
-  // ⭐ Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
+  // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
     setIsMessageCreationActive(isMessageCreationVisible);
-    console.log('[PersonaStudioScreen] 🔄 Syncing isMessageCreationActive:', isMessageCreationVisible);
   }, [isMessageCreationVisible, setIsMessageCreationActive]);
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // FADE ANIMATIONS (Explore Mode ⇄ Message Mode)
-  // ═══════════════════════════════════════════════════════════════════════
-  const exploreModeOpacity = useSharedValue(1); // ⭐ Explore mode UI opacity
-  const messageModeOpacity = useSharedValue(0); // ⭐ Message mode UI opacity
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // PAN RESPONDER (Left/Right Swipe for Mode Toggle)
-  // ═══════════════════════════════════════════════════════════════════════
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => false, // Don't capture immediately
-        onMoveShouldSetPanResponder: (evt, gestureState) => {
-          // Only capture if horizontal movement is significant
-          const { dx, dy } = gestureState;
-          const isHorizontal = Math.abs(dx) > Math.abs(dy); // Horizontal swipe?
-          const isSignificant = Math.abs(dx) > 30; // At least 30px
-          
-          
-          return isHorizontal && isSignificant;
-        },
-        onPanResponderGrant: (evt, gestureState) => {
-          console.log('[PanResponder] Gesture granted');
-        },
-        onPanResponderRelease: (evt, gestureState) => {
-          const { dx, vx } = gestureState;
-          const swipeThreshold = 80; // 80px 이상 스와이프
-          const velocityThreshold = 0.5; // 또는 빠른 속도
-          
-          
-          // 왼쪽으로 스와이프 (← 메시지 모드 진입)
-          if ((dx < -swipeThreshold || vx < -velocityThreshold) && !isMessageMode) {
-
-            handleQuickMessage();
-          }
-          // 오른쪽으로 스와이프 (→ 일반 모드 복귀)
-          else if ((dx > swipeThreshold || vx > velocityThreshold) && isMessageMode) {
-
-            handleExitMessageMode();
-          }
-        },
-      }),
-    [isMessageMode, handleQuickMessage, handleExitMessageMode]
-  );
   
   // ═══════════════════════════════════════════════════════════════════════
   // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
@@ -194,87 +120,19 @@ const PersonaStudioScreen = () => {
   // SCREEN FOCUS HANDLER
   // ═══════════════════════════════════════════════════════════════════════
   useFocusEffect(
-    
     useCallback(() => {
-      // Screen is focused
       setIsScreenFocused(true);
-      console.log('[PersonaStudioScreen] 🟢 Screen FOCUSED');
-
-      const onBackPress = () => {
-        // Message Mode인 경우 먼저 닫기
-        console.log('🎯 [PersonaStudioScreen] Back button pressed, isMessageMode:', isMessageMode);
-        if (isMessageMode) {
-
-            showAlert({
-              title: t('message.alert.exit_message_mode'),
-              message: t('message.alert.exit_message_mode_description'),
-              buttons: [
-                { text: t('message.alert.cancel'), style: 'cancel' },
-                { text: t('message.alert.exit'), onPress: () => setIsMessageMode(false) },
-              ],
-            });
-            return true;
-        }
-        
-        return false;
-    };
-
-    // 백 버튼 이벤트 및 앱 상태 리스너 등록
-    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
       
       return () => {
-        // Screen is blurred (navigated away)
         setIsScreenFocused(false);
-        backHandlerSubscription.remove();
         
-        // ⭐ CRITICAL FIX: Close overlay when screen loses focus
+        // Close overlay when screen loses focus
         if (isMessageCreationVisible) {
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.log('⚠️ [PersonaStudioScreen] Screen BLURRED while overlay is open!');
-          console.log('   Force closing overlay to prevent navigation bugs');
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           setIsMessageCreationVisible(false);
         }
-        
-        if (__DEV__) {
-          console.log('🎯 [PersonaStudioScreen] Screen BLURRED');
-        }
       };
-    }, [isMessageMode, isMessageCreationVisible])
+    }, [isMessageCreationVisible])
   );
-
-  useEffect(() => {
-
-
-    const onBackPress = () => {
-        // Message Mode인 경우 먼저 닫기
-
-        if (isMessageMode) {
-            showAlert({
-              title: t('message.alert.exit_message_mode'),
-              message: t('message.alert.exit_message_mode_description'),
-              buttons: [
-                { text: t('message.alert.cancel'), style: 'cancel' },
-                { text: t('message.alert.exit'), onPress: () => setIsMessageMode(false) },
-              ],
-            });
-            return true;
-        }
-        
-        return false;
-    };
-
-    if (!isMessageMode) {
-        setSelectedMessage(null);
-    }
-
-    const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => {
-      console.log('🎯 [PersonaStudioScreen] isMessageMode unmounted');
-      backHandlerSubscription.remove();
-    };
-  }, [isMessageMode]);
 
 
   
@@ -671,174 +529,25 @@ const PersonaStudioScreen = () => {
     });
   }, [showAlert, handleCloseMessageCreation, t]);
   
-  // 4-1. Exit Message Mode (탐색 모드로 복귀)
-  const handleExitMessageMode = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔙 Exiting Message Mode');
-    }
-    
-    HapticService.light();
-    
-    // Fade out message mode UI
-    messageModeOpacity.value = withTiming(0, {
-      duration: 300,
-      easing: Easing.in(Easing.ease),
-    });
-    
-    // Fade in explore mode UI (with slight delay)
-    exploreModeOpacity.value = withDelay(
-      150,
-      withTiming(1, {
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-      }, () => {
-        // Reset isMessageMode after animation completes
-        runOnJS(setIsMessageMode)(false);
-      })
-    );
-  }, [exploreModeOpacity, messageModeOpacity]);
-  
-  // 4-2. Message History (메시지 히스토리)
-  const handleMessageHistory = useCallback(() => {
-    
-    HapticService.light();
-    // TODO: Open MessageHistoryBottomSheet
-    showToast({
-      type: 'info',
-      message: '메시지 히스토리 기능 준비 중입니다',
-      emoji: '📜',
-    });
-  }, [showToast]);
-  
-  // 4-3. Message Music (뮤직으로 이동)
-  const handleMessageMusic = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎵 Navigate to Music');
-    }
-    
-    HapticService.light();
-    navigation.navigate('Music');
-  }, [navigation]);
-  
-  // 4-4. Message Preview (메시지 미리보기)
-  const handleMessagePreview = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 👁️ Message preview clicked');
-    }
-    
-    HapticService.light();
-    // TODO: Trigger preview in MessageCreatorView
-    showToast({
-      type: 'info',
-      message: '미리보기 기능은 MessageCreatorView에서 처리됩니다',
-      emoji: '👁️',
-    });
-  }, [showToast]);
-  
-  // 5. Settings (설정)
+  // Settings (설정)
   const handleQuickSettings = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ⚙️ Settings clicked');
-    }
-    
     navigation.navigate('Settings');
   }, [navigation]);
   
-  // 6. Search (검색)
-  // Load messages when entering message mode
-  const loadMessages = useCallback(async () => {
-    if (!user?.user_key) {
-      console.log('[PersonaStudioScreen] 📋 No user_key, skipping message load');
-      return;
-    }
-    
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📋 Loading messages for user:', user.user_key);
-    }
-    
-    try {
-      const result = await listMessages(user.user_key, 1, 50);
-
-      console.log('[PersonaStudioScreen] 📋 Loaded messages result:', result);
-
-      console.log('[PersonaStudioScreen] 📋 Loaded messages:', result.data);
-      if (result.success && result.data) {
-        setMessages(result.data || []);
-        if (__DEV__) {
-          console.log('[PersonaStudioScreen] 📋 Loaded messages:', result.data.length);
-        }
-      }
-    } catch (error) {
-      console.error('[PersonaStudioScreen] ❌ Failed to load messages:', error);
-    }
-  }, [user]);
-  
-  const handleSearchOpen = useCallback(async () => {
+  // Search (검색) - Persona search only
+  const handleSearchOpen = useCallback(() => {
     HapticService.light();
-    
-    if (isMessageMode) {
-      // Message search mode
-      if (__DEV__) {
-        console.log('[PersonaStudioScreen] 🔍 Opening message search');
-      }
-      
-      // Load messages if not already loaded
-      if (messages.length === 0) {
-        await loadMessages();
-      }
-      
-      setIsMessageSearchVisible(true);
-    } else {
-      // Persona search mode
-      if (__DEV__) {
-        console.log('[PersonaStudioScreen] 🔍 Opening persona search');
-      }
-      
-      setIsSearchOverlayVisible(true);
-    }
-  }, [isMessageMode, messages.length, loadMessages]);
-  
-  const handleMoreOpen = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Opening more');
-    }
-    
+    setIsSearchOverlayVisible(true);
   }, []);
   
   const handleSearchClose = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Search overlay closed');
-    }
-    
     setIsSearchOverlayVisible(false);
   }, []);
   
-  const handleMessageSearchClose = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Message search overlay closed');
-    }
-    
-    setIsMessageSearchVisible(false);
-  }, []);
-  
   const handleSearchSelectPersona = useCallback((persona, index) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Search selected persona:', persona.persona_name, 'at index:', index);
-    }
-    
-    // Navigate to the selected persona in PersonaSwipeViewer
     if (swiperRef.current) {
       swiperRef.current.scrollToIndex({ index, animated: true });
     }
-  }, []);
-  
-  const handleSearchSelectMessage = useCallback((message) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔍 Search selected message:', message.message_title);
-    }
-    
-    // Set selected message for MessageCreatorView
-    setSelectedMessage(message);
   }, []);
 
 
@@ -1231,10 +940,10 @@ const PersonaStudioScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <CustomText type="big" bold style={styles.headerTitle}>
-            {isMessageMode ? t('navigation.title.message_mode') : t('navigation.title.home')}
+            {t('navigation.title.home')}
           </CustomText>
           <CustomText type="middle" style={styles.headerSubtitle}>
-            {isMessageMode ? t('navigation.subtitle.message_mode') : t('navigation.subtitle.home')}
+            {t('navigation.subtitle.home')}
           </CustomText>
         </View>
         <TouchableOpacity
@@ -1244,189 +953,74 @@ const PersonaStudioScreen = () => {
         >
           <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.moreButton}
-          onPress={handleMoreOpen}
-          activeOpacity={0.7}
-        >
-          <IconMore name="more-vert" size={scale(24)} color={currentTheme.mainColor} />
-        </TouchableOpacity>
       </View>
       
-      {/* ⭐ Container with PanResponder for Left/Right Swipe */}
-      <View 
-        style={styles.container}
-        {...panResponder.panHandlers}
-      >
+      {/* Container */}
+      <View style={styles.container}>
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.baseLayer}>
-          {/* ⭐ DEBUG: Log PersonaSwipeViewer props */}
-          {(() => {
-            const calculatedIsScreenFocused = isScreenFocused && !isMessageCreationVisible;
-            console.log('🎥 [PersonaStudioScreen] PersonaSwipeViewer isScreenFocused:', calculatedIsScreenFocused, {
-              isScreenFocused,
-              isMessageCreationVisible,
-            });
-            return null;
-          })()}
           <PersonaSwipeViewer 
             ref={swiperRef}
-            key={`persona-swipe-${isScreenFocused}`}
-            personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
+            personas={currentFilteredPersonas}
             isModeActive={true}
-            isScreenFocused={isScreenFocused && !isMessageCreationVisible} // ⭐ Pause video when overlay is open
+            isScreenFocused={isScreenFocused && !isMessageCreationVisible}
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
-            onIndexChange={(index) => {
-              if (__DEV__) {
-                console.log('[PersonaStudioScreen] 🔄 Persona changed to index:', index, 'isMessageMode:', isMessageMode);
-              }
-              handlePersonaChange(index);
-            }}
+            onIndexChange={handlePersonaChange}
             modeOpacity={null}
-            onChatWithPersona={handleChatWithPersona} // Not used in studio mode
-            onFavoriteToggle={handlePersonaFavoriteToggle} // ⭐ Favorite toggle
-            enabled={!isMessageMode} // ⭐ Disable swipe in message mode
-            isMessageMode={isMessageMode}
+            onChatWithPersona={handleChatWithPersona}
+            onFavoriteToggle={handlePersonaFavoriteToggle}
+            enabled={true}
+            isMessageMode={false}
             onCreatePersona={handleAddPersona}
           />
         </View>
         
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* EXPLORE MODE UI (Fade Out when entering Message Mode)             */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <Animated.View 
-          style={[
-            styles.exploreModeContainer, 
-            { opacity: isMessageMode ? 0 : 1 }
-          ]}
-          pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer
-        >
-          {/* QuickActionChips (Right Overlay) - Only show when personas exist */}
-          {currentFilteredPersonas.length > 0 && (
-            <View 
-              style={styles.quickChipsOverlay}
-              pointerEvents={isMessageMode ? 'none' : 'auto'} // ⭐ Control touch per child
-            >
-              <QuickActionChipsAnimated
-                onDressClick={handleQuickDress}
-                onHistoryClick={handleQuickHistory}
-                onVideoClick={handleQuickVideo}
-                onMessageClick={handleQuickMessage} // ⭐ Opens MessageCreationOverlay
-                onSettingsClick={handleQuickSettings}
-              />
-            </View>
-          )}
-        </Animated.View>
-        
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* MESSAGE MODE UI (Fade In when entering Message Mode)              */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {isMessageMode && (
-          <Animated.View 
-            style={[
-              styles.messageModeContainer, 
-              { opacity: messageModeOpacity }
-            ]}
-            pointerEvents="box-none" // ⭐ Always pass through touches to PersonaSwipeViewer (disabled in message mode)
-          >
-            {/* MessageModeQuickActionChips (Right Overlay) */}
-    
-            <View 
-              style={[styles.messageModeQuickChipsOverlay, { }]}
-              pointerEvents={isMessageMode ? 'box-none' : 'none'} // ⭐ box-none: pass through container, but children receive touch
-            >
-              <MessageModeQuickActionChips
-                onBackClick={handleExitMessageMode}
-                onHistoryClick={handleMessageHistory}
-                onMusicClick={handleMessageMusic}
-                onPreviewClick={handleMessagePreview}
-                showQuickActionChips={showQuickActionChips}
-              />
-            </View>
-
-            {/* MessageCreatorView (Bottom Overlay) */}
-            <View 
-              style={styles.messageOverlay}
-              pointerEvents={isMessageMode ? 'box-none' : 'none'} // ⭐ box-none: allow swipe gesture to pass through
-            >
-
-              <MessageCreatorView
-                personas={personasWithDefaults}
-                selectedPersona={currentPersona}
-                selectedMessage={selectedMessage}
-                onAddPersona={handleAddPersona}
-                onPreview={handleMessagePreview}
-                isCreating={false}
-                isScreenFocused={isScreenFocused}
-                showPersonaSelector={false}
-              />
-
-            </View>
-          </Animated.View>
-        )}
-
-
-        {false && (
-        <View style={styles.bottomLayer}>
-
-            <GradientOverlay>
-                <View style={{flexDirection: 'row', padding: platformPadding(0), paddingBottom: platformPadding(20)}}>
-
-                <View style={{flex: 1, marginLeft: platformPadding(10)}}>
-                    <CustomText type="big" bold >
-                        {currentPersona?.persona_name}
-                    </CustomText>
-                    <CustomText type="title" style={{}}>
-                        {t('category_type.' + currentPersona?.category_type + '_desc')}
-                    </CustomText>
-                </View>
-
-                </View>
-
-            </GradientOverlay>
-
-        </View>
+        {/* QuickActionChips (Right Overlay) */}
+        {currentFilteredPersonas.length > 0 && (
+          <View style={styles.quickChipsOverlay}>
+            <QuickActionChipsAnimated
+              onDressClick={handleQuickDress}
+              onHistoryClick={handleQuickHistory}
+              onVideoClick={handleQuickVideo}
+              onMessageClick={handleQuickMessage}
+              onSettingsClick={handleQuickSettings}
+            />
+          </View>
         )}
 
         {filterMode !== 'default' && (
         <PersonaSelectorButton
-            isPersonaMode={false} // Always show "Select Persona" icon
+            isPersonaMode={false}
             onPress={handlePanelToggle}
         />
         )}
         
-        {/* ═════════════════════════════════════════════════════════════════ */}
         {/* PersonaSelectorPanel (Slide from Right) */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
         <PersonaSelectorPanel
-          visible={isPanelVisible && !isMessageMode}
-          personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
+          visible={isPanelVisible}
+          personas={currentFilteredPersonas}
           onSelectPersona={handlePersonaSelectFromPanel}
           onClose={handlePanelClose}
           onViewAll={handleAddPersona}
           onCreatePersona={handleAddPersona}
         />
 
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* PersonaTypeSelector (Only in Explore Mode) */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {!isMessageMode && (
-          <View style={styles.typeSelectorOverlay}>
-            <PersonaTypeSelector
-              isUserMode={filterMode === 'user'}
-              isFavoriteMode={filterMode === 'favorite'}
-              defaultCount={personaCounts.default}
-              userCount={personaCounts.user}
-              favoriteCount={personaCounts.favorite}
-              onTypeChange={handleFilterModeChange}
-              onCreatePress={handleCreatePersona}
-              showCreateButton={true}
-            />
-          </View>
-        )}
+        {/* PersonaTypeSelector */}
+        <View style={styles.typeSelectorOverlay}>
+          <PersonaTypeSelector
+            isUserMode={filterMode === 'user'}
+            isFavoriteMode={filterMode === 'favorite'}
+            defaultCount={personaCounts.default}
+            userCount={personaCounts.user}
+            favoriteCount={personaCounts.favorite}
+            onTypeChange={handleFilterModeChange}
+            onCreatePress={handleCreatePersona}
+            showCreateButton={true}
+          />
+        </View>
 
       </View>
       
@@ -1478,45 +1072,13 @@ const PersonaStudioScreen = () => {
       onSave={handlePersonaNameSave}
     />
     
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* Loading Overlay (Outside SafeScreen for highest z-index)         */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    <AnimaLoadingOverlay
-      visible={isLoadingPersona}
-      personaName={personaCreationDataRef.current?.name || ''}
-      estimateTime={60}
-    />
-    
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* Success Card (Outside SafeScreen for highest z-index)            */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    <AnimaSuccessCard
-      visible={isSuccessCardVisible}
-      personaName={createdPersona?.persona_name || ''}
-      personaImageUrl={createdPersona?.persona_url || ''}
-      onClose={handleSuccessCardClose}
-      onGoToStudio={handleGoToStudio}
-    />
-    
-    {/* ═════════════════════════════════════════════════════════════════ */}
     {/* Persona Search Overlay */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
     <PersonaSearchOverlay
       visible={isSearchOverlayVisible}
-      personas={currentFilteredPersonas} // ⭐ FIX: Pass already filtered personas
+      personas={currentFilteredPersonas}
       onClose={handleSearchClose}
       onSelectPersona={handleSearchSelectPersona}
       currentPersonaKey={currentPersona?.persona_key}
-    />
-    
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* Message Search Overlay */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    <MessageSearchOverlay
-      visible={isMessageSearchVisible}
-      messages={messages}
-      onClose={handleMessageSearchClose}
-      onSelectMessage={handleSearchSelectMessage}
     />
     
     {/* ═════════════════════════════════════════════════════════════════ */}
