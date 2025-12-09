@@ -28,7 +28,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Video from 'react-native-video';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image'; // ⭐ TEMP: Testing with native Image
 import { BlurView } from '@react-native-community/blur';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -279,36 +279,16 @@ const PersonaCardView = ({
 
   return (
     <View style={[styles.container, { height: availableHeight_local }]} pointerEvents="box-none">
-      {/* 1. Background Image (FastImage) - Always visible for smooth loading */}
-      <FastImage
-        source={{ 
-          uri: imageUrl, 
-          priority: FastImage.priority.high,
-          cache: FastImage.cacheControl.immutable,
-        }}
+      {/* 1. Background Image (Native Image) - Testing if FastImage is the issue */}
+      <Image
+        source={{ uri: imageUrl }}
         style={styles.backgroundMedia}
-        resizeMode={FastImage.resizeMode.cover}
-        pointerEvents="none"
+        resizeMode="cover"
         onLoad={() => {
-          console.log('✅ [PersonaCardView] FastImage LOADED:', persona.persona_name, imageUrl);
+          console.log('✅ [PersonaCardView] Image LOADED:', persona.persona_name, imageUrl);
         }}
         onError={(error) => {
-          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.error('❌ [PersonaCardView] FastImage ERROR');
-          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.error('Persona:', persona.persona_name);
-          console.error('Image URL:', imageUrl);
-          if (error && error.nativeEvent) {
-            console.error('━━━ Native Event Details ━━━');
-            console.error('nativeEvent:', error.nativeEvent);
-            console.error('nativeEvent.error:', error.nativeEvent.error);
-            console.error('nativeEvent.code:', error.nativeEvent.code);
-            console.error('nativeEvent.message:', error.nativeEvent.message);
-            console.error('nativeEvent keys:', Object.keys(error.nativeEvent));
-          } else {
-            console.error('No nativeEvent available');
-          }
-          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.error('❌ [PersonaCardView] Image ERROR:', persona.persona_name, imageUrl, error);
         }}
       />
 
