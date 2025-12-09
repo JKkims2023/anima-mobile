@@ -124,9 +124,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [openTextGroups, setOpenTextGroups] = useState({});
-  const [openParticleGroups, setOpenParticleGroups] = useState({}); // ⭐ DEPRECATED: Will be removed
-  const [textAccordionTouched, setTextAccordionTouched] = useState(false); // ⭐ DEPRECATED: Will be removed
-  const [particleAccordionTouched, setParticleAccordionTouched] = useState(false); // ⭐ DEPRECATED: Will be removed
   const [isTextSheetOpen, setIsTextSheetOpen] = useState(false);
   const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
   const [selectedParticleGroup, setSelectedParticleGroup] = useState('none'); // ⭐ NEW: Floating chip navigation (기본: 없음)
@@ -716,16 +713,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('[MessageCreationOverlay] 🔄 Toggle text group:', groupId);
     setTextAccordionTouched(true);
     setOpenTextGroups((prev) => {
-      const isCurrentlyOpen = prev[groupId];
-      return { [groupId]: !isCurrentlyOpen };
-    });
-    HapticService.light();
-  };
-
-  const handleToggleParticleGroup = (groupId) => {
-    console.log('[MessageCreationOverlay] 🔄 Toggle particle group:', groupId);
-    setParticleAccordionTouched(true);
-    setOpenParticleGroups((prev) => {
       const isCurrentlyOpen = prev[groupId];
       return { [groupId]: !isCurrentlyOpen };
     });
