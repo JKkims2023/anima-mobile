@@ -85,6 +85,12 @@ const PersonaCardView = ({
       return;
     }
     
+    // ⭐ Handle both Animated.Value and number
+    if (typeof modeOpacity === 'number') {
+      setModeOpacityValue(modeOpacity);
+      return;
+    }
+    
     const listenerId = modeOpacity.addListener(({ value }) => {
       setModeOpacityValue(value);
     });

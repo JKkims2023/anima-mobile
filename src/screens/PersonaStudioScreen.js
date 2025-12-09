@@ -966,7 +966,7 @@ const PersonaStudioScreen = () => {
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
             onIndexChange={handlePersonaChange}
-            modeOpacity={null}
+            modeOpacity={1} // ⭐ CRITICAL FIX: Set to 1 to make images visible!
             onChatWithPersona={handleChatWithPersona}
             onFavoriteToggle={handlePersonaFavoriteToggle}
             onCheckStatus={handleCheckPersonaStatus}
@@ -1046,13 +1046,13 @@ const PersonaStudioScreen = () => {
       {/* ═════════════════════════════════════════════════════════════════ */}
       <ConfettiCannon
         ref={confettiRef}
-        count={200}
-        origin={{ x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT - 100 }}
-        explosionSpeed={800}
-        fallSpeed={3000}
+        count={180}
+        origin={{ x: SCREEN_WIDTH / 2, y: 0 }} // ⭐ CRITICAL: y=0 = 화면 하단!
+        explosionSpeed={750}
+        fallSpeed={2600}
         fadeOut={true}
         autoStart={false}
-        colors={['#FF6B9D', '#C084FC', '#60A5FA', '#34D399', '#FBBF24']}
+        colors={['#FF0000', '#FF4500', '#FFD700', '#00FF00', '#00CED1', '#0000FF', '#FF00FF', '#FF1493']}
       />
     </SafeScreen>
     
