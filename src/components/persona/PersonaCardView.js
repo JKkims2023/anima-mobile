@@ -292,13 +292,15 @@ const PersonaCardView = ({
           console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.error('Persona:', persona.persona_name);
           console.error('Image URL:', imageUrl);
-          console.error('Error object:', error);
-          console.error('Error type:', typeof error);
-          console.error('Error stringified:', JSON.stringify(error, null, 2));
-          console.error('Error keys:', error ? Object.keys(error) : 'null');
-          if (error) {
-            console.error('Error.nativeEvent:', error.nativeEvent);
-            console.error('Error.message:', error.message);
+          if (error && error.nativeEvent) {
+            console.error('━━━ Native Event Details ━━━');
+            console.error('nativeEvent:', error.nativeEvent);
+            console.error('nativeEvent.error:', error.nativeEvent.error);
+            console.error('nativeEvent.code:', error.nativeEvent.code);
+            console.error('nativeEvent.message:', error.nativeEvent.message);
+            console.error('nativeEvent keys:', Object.keys(error.nativeEvent));
+          } else {
+            console.error('No nativeEvent available');
           }
           console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }}
