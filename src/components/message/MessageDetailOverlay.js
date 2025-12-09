@@ -48,7 +48,6 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
-import Video from 'react-native-video';
 import LinearGradient from 'react-native-linear-gradient';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -70,6 +69,7 @@ import ParticleEffect from '../particle/ParticleEffect';
 import MessageHistoryChips from './MessageHistoryChips';
 import FlipCard from './FlipCard';
 import ReplyListView from './ReplyListView';
+import MusicControlBar from '../music/MusicControlBar'; // ⭐ NEW: Compact music player controls
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../../styles/commonstyles';
 
@@ -87,11 +87,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   const { showAlert, showToast } = useAnima();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Refs
-  // ═══════════════════════════════════════════════════════════════════════════
-  const musicPlayerRef = useRef(null);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management
@@ -606,10 +601,10 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
     });
   };
 
-  // Handle music toggle
-  const handleMusicToggle = () => {
-    HapticService.light();
-    setIsMusicPlaying(!isMusicPlaying);
+  // Handle music playing change (from MusicControlBar)
+  const handleMusicPlayingChange = (isPlaying) => {
+    setIsMusicPlaying(isPlaying);
+    console.log('[MessageDetailOverlay] Music playing state changed:', isPlaying);
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -700,6 +695,15 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
                 </CustomText>
               </Animated.View>
             ) : null}
+
+            {/* ⭐ Music Control Bar (텍스트 하단) */}
+            {bg_music_url && bg_music_url !== 'none' && !isFlipped && (
+              <MusicControlBar
+                musicUrl={bg_music_url}
+                isPlaying={isMusicPlaying}
+                onPlayingChange={handleMusicPlayingChange}
+              />
+            )}
           </Animated.View>
         </LinearGradient>
       </Animated.View>
@@ -728,7 +732,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         back={renderBack()}
       />
 
-      {/* Header (Back Button + Music Toggle) - Always visible */}
+      {/* Header (Back Button Only) - Music controls moved to MusicControlBar */}
       <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -737,21 +741,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         >
           <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
         </TouchableOpacity>
-
-        {/* Music Toggle Button */}
-        {bg_music_url && bg_music_url !== 'none' && !isFlipped && (
-          <TouchableOpacity
-            style={styles.musicButton}
-            onPress={handleMusicToggle}
-            activeOpacity={0.7}
-          >
-            <Icon 
-              name={isMusicPlaying ? "volume-high" : "volume-mute"} 
-              size={scale(24)} 
-              color="#FFFFFF" 
-            />
-          </TouchableOpacity>
-        )}
       </View>
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
@@ -770,23 +759,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         </Animated.View>
       )}
 
-      {/* Background Music Player */}
-      {bg_music_url && bg_music_url !== 'none' && (
-        <Video
-          ref={musicPlayerRef}
-          source={{ uri: bg_music_url }}
-          audioOnly
-          repeat
-          paused={!isMusicPlaying}
-          volume={1.0}
-          playInBackground={false}
-          playWhenInactive={false}
-          onError={(error) => {
-            console.error('[MessageDetailOverlay] Music playback error:', error);
-            setIsMusicPlaying(false);
-          }}
-        />
-      )}
     </Animated.View>
   );
 };
@@ -821,14 +793,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   backButton: {
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  musicButton: {
     width: scale(44),
     height: scale(44),
     borderRadius: scale(22),
