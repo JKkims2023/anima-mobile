@@ -111,12 +111,12 @@ export async function createMusic(params) {
  * @param {string} music_key - Music key
  * @returns {Promise<{success: boolean, data?: {music_key, status, music_url?, progress}, errorCode?: string}>}
  */
-export async function checkMusicStatus(music_key) {
-  console.log('🔍 [musicService] Checking music status:', music_key);
-  
+export async function checkMusicStatus(music_key, request_key) {
+
   try {
     const response = await apiClient.post(MUSIC_ENDPOINTS.CHECK_STATUS, {
       music_key,
+      request_key,
     });
 
     console.log('🔍 [musicService] Check status result:', response);

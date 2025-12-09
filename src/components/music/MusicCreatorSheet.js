@@ -125,8 +125,24 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
     <CustomBottomSheet
       ref={bottomSheetRef}
       title={t('music.creator.title')}
-      snapPoints={['90%']}
+      snapPoints={['80%']}
       onClose={handleClose}
+      buttons={[{
+        title: t('common.close'),
+        type: 'outline',
+        onPress: (() => {
+          bottomSheetRef.current?.dismiss();
+          handleClose();
+        }),
+      },
+        {
+          title: t('common.create'),
+          type: 'primary',
+          onPress: (() => {
+            handleSubmit();
+          }),
+        },
+      ]}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -168,12 +184,9 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
                   )}
                 </View>
                 <Icon name="music" size={scale(20)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-                <CustomText type="normal" bold style={styles.radioLabel}>
-                  {t('music.creator.type_instrumental')}
-                </CustomText>
               </View>
-              <CustomText type="small" style={styles.radioDesc}>
-                {t('music.creator.type_instrumental_desc')}
+              <CustomText type="middle" bold style={styles.radioLabel}>
+                  {t('music.creator.type_instrumental')}
               </CustomText>
             </TouchableOpacity>
 
@@ -204,20 +217,17 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
                   )}
                 </View>
                 <Icon name="microphone" size={scale(20)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-                <CustomText type="normal" bold style={styles.radioLabel}>
+              </View>
+              <CustomText type="middle" bold style={styles.radioLabel}>
                   {t('music.creator.type_vocal')}
                 </CustomText>
-              </View>
-              <CustomText type="small" style={styles.radioDesc}>
-                {t('music.creator.type_vocal_desc')}
-              </CustomText>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Title Input (Read-only View) */}
         <View style={styles.section}>
-          <CustomText type="small" style={styles.inputLabel}>
+          <CustomText type="middle" style={styles.inputLabel}>
             {t('music.creator.title_label')}
           </CustomText>
           <TouchableOpacity
@@ -249,13 +259,12 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
 
         {/* Prompt Input (Read-only View) */}
         <View style={styles.section}>
-          <CustomText type="small" style={styles.inputLabel}>
+          <CustomText type="middle" style={styles.inputLabel}>
             {t('music.creator.prompt_label')}
           </CustomText>
           <TouchableOpacity
             style={[
               styles.readOnlyInput,
-              styles.readOnlyInputMultiline,
               { 
                 backgroundColor: currentTheme.cardBackground,
                 borderColor: currentTheme.borderColor,
@@ -271,10 +280,9 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
               type="normal"
               style={[
                 styles.readOnlyText,
-                styles.readOnlyTextMultiline,
                 { color: prompt ? currentTheme.textPrimary : currentTheme.textSecondary }
               ]}
-              numberOfLines={3}
+              numberOfLines={1}
             >
               {prompt || t('music.creator.prompt_placeholder')}
             </CustomText>
@@ -284,13 +292,12 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
 
         {/* Lyrics Input (Conditional, Read-only View) */}
         <Animated.View style={[styles.section, lyricsContainerStyle]}>
-          <CustomText type="small" style={styles.inputLabel}>
+          <CustomText type="middle" style={styles.inputLabel}>
             {t('music.creator.lyrics_label')}
           </CustomText>
           <TouchableOpacity
             style={[
               styles.readOnlyInput,
-              styles.readOnlyInputMultiline,
               { 
                 backgroundColor: currentTheme.cardBackground,
                 borderColor: currentTheme.borderColor,
@@ -306,7 +313,6 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
               type="normal"
               style={[
                 styles.readOnlyText,
-                styles.readOnlyTextMultiline,
                 { color: lyrics ? currentTheme.textPrimary : currentTheme.textSecondary }
               ]}
               numberOfLines={4}
@@ -315,7 +321,7 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
             </CustomText>
             <Icon name="pencil" size={scale(20)} color={currentTheme.textSecondary} />
           </TouchableOpacity>
-          <CustomText type="small" style={styles.lyricsDescription}>
+          <CustomText type="normal" style={styles.lyricsDescription}>
             {t('music.creator.lyrics_description')}
           </CustomText>
         </Animated.View>
@@ -368,7 +374,7 @@ MusicCreatorSheet.displayName = 'MusicCreatorSheet';
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: scale(20),
+    paddingHorizontal: scale(0),
     paddingBottom: scale(40),
   },
   section: {
@@ -379,6 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   radioGroup: {
+    flexDirection: 'row',
     gap: scale(12),
   },
   radioOption: {
@@ -392,6 +399,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(12),
     marginBottom: scale(8),
+    display: 'none',
   },
   radioCircle: {
     width: scale(20),
@@ -446,6 +454,7 @@ const styles = StyleSheet.create({
   },
   submitSection: {
     marginTop: scale(20),
+    display: 'none',
   },
 });
 

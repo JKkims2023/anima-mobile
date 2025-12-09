@@ -166,6 +166,7 @@ const MessageInputOverlay = forwardRef(({
   // ✅ Animated styles
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: opacity.value * 0.95,
+    backgroundColor: 'rgba(0,0,0,0.8)',
   }));
 
   const cardStyle = useAnimatedStyle(() => ({
@@ -332,7 +333,7 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: scale(400),
-    backgroundColor: 'rgba(10, 10, 10, 0.95)', // Glass morphism
+    backgroundColor: 'rgba(20, 20, 20, 0.95)', // Glass morphism
     borderRadius: scale(20),
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',

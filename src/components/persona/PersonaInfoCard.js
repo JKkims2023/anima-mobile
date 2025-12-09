@@ -22,6 +22,7 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import HapticService from '../../utils/HapticService';
 import GradientOverlay from '../GradientOverlay';
 import { useTranslation } from 'react-i18next';
+import { useAnima } from '../../contexts/AnimaContext';
 /**
  * PersonaInfoCard Component
  * @param {Object} props
@@ -32,7 +33,7 @@ import { useTranslation } from 'react-i18next';
 const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-
+  const { showAlert } = useAnima();
 
   useEffect(() => {
     console.log('persona', persona);
@@ -48,6 +49,18 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
   
   // ✅ Handle favorite toggle
   const handleFavoritePress = (e) => {
+
+    if(persona?.done_yn === 'N') {
+      showAlert({
+        emoji: '⏳',
+        title: t('persona.creation.still_processing_title'),
+        message: t('persona.creation.still_processing_message'),
+        buttons: [
+          { text: t('common.confirm'), onPress: () => {} },
+        ],
+      });
+      return;
+    }
     e.stopPropagation(); // Prevent triggering parent onPress
     HapticService.light();
     if (onFavoriteToggle) {
@@ -64,7 +77,20 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
     return parts.join(' • ');
   };
   const handleSettingsPress = () => {
+
     if (persona?.default_yn === 'Y') {
+      return;
+    }
+
+    if(persona?.done_yn === 'N') {
+      showAlert({
+        emoji: '⏳',
+        title: t('persona.creation.still_processing_title'),
+        message: t('persona.creation.still_processing_message'),
+        buttons: [
+          { text: t('common.confirm'), onPress: () => {} },
+        ],
+      });
       return;
     }
 
@@ -108,6 +134,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
               onPress={handleFavoritePress}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
             >
               <Icon 
                 name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
@@ -118,7 +145,8 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
           </View>
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" style={styles.description} numberOfLines={2}>
-              {t('category_type.' + persona?.category_type + '_desc')}
+              {
+              persona?.default_yn === 'N' ? t('persona.creation.creating') : t('category_type.' + persona?.category_type + '_desc')}
             </CustomText>
           </View>
         </View>

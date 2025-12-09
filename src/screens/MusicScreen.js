@@ -188,8 +188,9 @@ const MusicScreen = () => {
   const handleMusicPress = async (music) => {
     HapticService.light();
 
+    console.log('music', music);
     // If music is still creating, check status
-    if (music.status === 'creating') {
+    if (music.status === 'creating' || music.status === 'pending' || music.status === 'processing') {
       await handleCheckMusicStatus(music);
       return;
     }
@@ -204,7 +205,8 @@ const MusicScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleCheckMusicStatus = async (music) => {
     try {
-      const result = await musicService.checkMusicStatus(music.music_key);
+
+      const result = await musicService.checkMusicStatus(music.music_key, music.request_key);
 
       if (result.success) {
         if (result.data.status === 'completed') {
@@ -452,7 +454,7 @@ const MusicScreen = () => {
   // Render music item
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderItem = ({ item }) => {
-    const isCreating = item.status === 'creating';
+    const isCreating = item.status === 'creating' || item.status === 'pending' || item.status === 'processing';
     const isFavorite = item.favorite_yn === 'Y';
     
     return (
@@ -927,7 +929,7 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: 'absolute',
     right: scale(20),
-    bottom: TAB_BAR_HEIGHT + verticalScale(20),
+    bottom: TAB_BAR_HEIGHT + verticalScale(0),
     zIndex: 100,
   },
   floatingButtonInner: {

@@ -51,7 +51,6 @@ import HapticService from '../utils/HapticService';
 import { 
   createPersona,
   checkPersonaStatus,
-  getPersonaList,
   updatePersonaBasic,
   convertPersonaVideo,
   deletePersona,
@@ -977,7 +976,7 @@ const PersonaStudioScreen = () => {
         </View>
         
         {/* QuickActionChips (Right Overlay) */}
-        {currentFilteredPersonas.length > 0 && (
+        {currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && (
           <View style={styles.quickChipsOverlay}>
             <QuickActionChipsAnimated
               onDressClick={handleQuickDress}
@@ -1041,19 +1040,7 @@ const PersonaStudioScreen = () => {
         message={t('persona.creation.creating')}
       />
 
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* Confetti Cannon (Celebration for Status Check Complete) */}
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      <ConfettiCannon
-        ref={confettiRef}
-        count={180}
-        origin={{ x: SCREEN_WIDTH / 2, y: 0 }} // ⭐ CRITICAL: y=0 = 화면 하단!
-        explosionSpeed={750}
-        fallSpeed={2600}
-        fadeOut={true}
-        autoStart={false}
-        colors={['#FF0000', '#FF4500', '#FFD700', '#00FF00', '#00CED1', '#0000FF', '#FF00FF', '#FF1493']}
-      />
+
     </SafeScreen>
     
     {/* ═════════════════════════════════════════════════════════════════ */}

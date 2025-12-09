@@ -695,8 +695,8 @@ const ChoicePersonaSheet = ({
         placeholder={t('persona.creation.description_hint', '예: 산타 복장, 빨간 벤츠, 웃는 얼굴')}
         leftIcon="text-box"
         initialValue={description}
-        maxLength={50}
-        multiline={false}
+        maxLength={80}
+        multiline={true}
         onSave={handleDescriptionSave}
       />
     </CustomBottomSheet>
@@ -782,6 +782,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     borderRadius: scale(12),
     padding: scale(4),
+    display: 'none',
   },
 
   // Name Input
@@ -944,6 +945,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(12),
+    display: 'none',
   },
   
 });

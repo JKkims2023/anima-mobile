@@ -36,6 +36,7 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS } from '../../styles/commonstyles';
 // PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -345,7 +346,7 @@ const PersonaCardView = ({
           <BlurView
             style={styles.blurContainer}
             blurType="light"
-            blurAmount={10}
+            blurAmount={30}
             reducedTransparencyFallbackColor="rgba(255, 255, 255, 0.3)"
           />
           <View style={styles.timerContainer}>
@@ -354,7 +355,7 @@ const PersonaCardView = ({
             </CustomText>
             
             {remainingSeconds > 0 ? (
-              <CustomText type="big" bold style={styles.timerText}>
+              <CustomText type="title" bold style={styles.timerText}>
                 {t('persona.creation.remaining_time', { time: remainingSeconds })}
               </CustomText>
             ) : (
@@ -613,15 +614,15 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   timerText: {
-    fontSize: scale(40),
-    color: '#4FC3F7',
-    fontWeight: '900',
-    textShadowColor: 'rgba(0, 0, 0, 0.9)',
+    fontSize: scale(20),
+    color: '#FFFFFF',
+    fontWeight: '400',
+//    textShadowColor: 'rgba(0, 0, 0, 0.9)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 6,
   },
   checkButton: {
-    backgroundColor: '#4FC3F7',
+    backgroundColor: COLORS.DEEP_BLUE,
     paddingHorizontal: scale(40),
     paddingVertical: verticalScale(15),
     borderRadius: scale(30),

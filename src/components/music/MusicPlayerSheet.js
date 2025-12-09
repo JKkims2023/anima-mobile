@@ -257,9 +257,18 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
       snapPoints={['75%']}
       title={t('music.player.title') || '음원 재생'}
       onClose={() => setIsPlaying(false)}
-      showCloseButton
+      buttons={[{
+        title: t('common.close'),
+        type: 'primary',
+        onPress: (() => {
+          bottomSheetRef.current?.dismiss();
+          setIsPlaying(false);
+        }),
+      }]}
     >
       <View style={[styles.container, { backgroundColor: currentTheme.cardBackground }]}>
+
+        <View style={[styles.content, {width: '100%', flexDirection: 'row'}]}>
         {/* Hidden Audio Player */}
         {music.music_url && (
           <Video
@@ -289,17 +298,35 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             ]}>
               <Icon
                 name={isPlaying ? "musical-notes" : "musical-note"}
-                size={scale(48)}
+                size={scale(30)}
                 color={currentTheme.mainColor}
               />
             </View>
           </Animated.View>
 
+          <View style={{marginLeft: scale(10)}}>
+
+          <View style={{flex: 1, flexDirection: 'row'}}>
           {/* Title */}
           <CustomText type="big" bold style={[styles.musicTitle, { color: currentTheme.textPrimary }]}>
             {music.music_title || t('music.untitled')}
           </CustomText>
 
+           {/* Favorite Button */}
+           <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleToggleFavorite}
+            activeOpacity={0.7}
+          >
+            <Icon
+              name={music.favorite_yn === 'Y' ? 'star' : 'star-outline'}
+              size={scale(22)}
+              color={music.favorite_yn === 'Y' ? '#FBBF24' : currentTheme.textSecondary}
+            />
+          </TouchableOpacity>
+          </View>
+
+          <View style={{flex: 1, flexDirection: 'row'}}>
           {/* Meta Info */}
           <View style={styles.metaRow}>
             {/* Type Badge */}
@@ -323,21 +350,16 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
           <CustomText style={[styles.date, { color: currentTheme.textSecondary }]}>
             {formatDate(music.created_at)}
           </CustomText>
+          </View>
 
-          {/* Favorite Button */}
-          <TouchableOpacity
-            style={styles.favoriteButton}
-            onPress={handleToggleFavorite}
-            activeOpacity={0.7}
-          >
-            <Icon
-              name={music.favorite_yn === 'Y' ? 'star' : 'star-outline'}
-              size={scale(32)}
-              color={music.favorite_yn === 'Y' ? '#FBBF24' : currentTheme.textSecondary}
-            />
-          </TouchableOpacity>
+          </View>
+
+        </View>
         </View>
 
+        <View>
+
+        <View style={{flex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', gap: scale(10), marginTop: verticalScale(-20)}}>
         {/* Play/Pause Button */}
         <TouchableOpacity
           style={[styles.playButton, { backgroundColor: currentTheme.mainColor }]}
@@ -346,7 +368,7 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
         >
           <Icon
             name={isPlaying ? "pause" : "play"}
-            size={scale(32)}
+            size={scale(20)}
             color="#FFFFFF"
           />
         </TouchableOpacity>
@@ -365,13 +387,14 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             thumbTintColor={currentTheme.mainColor}
           />
           <View style={styles.progressTimeRow}>
-            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary }]}>
+            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary, marginLeft: scale(18) }]}>
               {formatTime(currentTime)}
             </CustomText>
-            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary }]}>
+            <CustomText type="small" style={[styles.timeText, { color: currentTheme.textSecondary, marginRight: scale(3) }]}>
               {formatTime(duration)}
             </CustomText>
           </View>
+        </View>
         </View>
 
         {/* Volume Control */}
@@ -391,6 +414,9 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
             {Math.round(volume * 100)}%
           </CustomText>
         </View>
+
+        <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
+
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
@@ -429,6 +455,8 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
           )}
         </View>
 
+        </View>
+
         {/* Loading Indicator */}
         {isLoading && (
           <View style={styles.loadingOverlay}>
@@ -445,8 +473,9 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: scale(20),
+    padding: scale(0),
     gap: verticalScale(24),
+    paddingTop: verticalScale(10),
   },
   hiddenVideo: {
     width: 0,
@@ -455,6 +484,8 @@ const styles = StyleSheet.create({
 
   // Music Info
   infoSection: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     gap: verticalScale(12),
   },
@@ -462,20 +493,21 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(8),
   },
   musicIcon: {
-    width: scale(120),
-    height: scale(120),
+    width: scale(80),
+    height: scale(80),
     borderRadius: scale(60),
     alignItems: 'center',
     justifyContent: 'center',
   },
   musicTitle: {
-    textAlign: 'center',
+    textAlign: 'left',
   },
   metaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: scale(8),
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+
   },
   badge: {
     paddingHorizontal: scale(10),
@@ -488,18 +520,19 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: moderateScale(13),
-    marginTop: verticalScale(4),
+    marginLeft: verticalScale(10),
+    marginBottom: verticalScale(4),
   },
   favoriteButton: {
-    marginTop: verticalScale(12),
+    marginTop: verticalScale(5),
     padding: scale(8),
   },
 
   // Play/Pause Button
   playButton: {
-    width: scale(72),
-    height: scale(72),
-    borderRadius: scale(36),
+    width: scale(30),
+    height: scale(30),
+    borderRadius: scale(15),
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -516,6 +549,8 @@ const styles = StyleSheet.create({
   // Progress Section
   progressSection: {
     gap: verticalScale(8),
+    flex: 1,
+    width: '100%',
   },
   progressSlider: {
     width: '100%',
@@ -524,7 +559,7 @@ const styles = StyleSheet.create({
   progressTimeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: scale(4),
+    marginTop: verticalScale(-15),
   },
   timeText: {
     fontSize: moderateScale(12),
@@ -550,6 +585,7 @@ const styles = StyleSheet.create({
   // Action Buttons
   actionButtons: {
     gap: verticalScale(12),
+    marginTop: verticalScale(20),
   },
   actionButton: {
     paddingVertical: verticalScale(14),
@@ -584,6 +620,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: moderateScale(14),
+  },
+  // Divider
+  divider: {
+    height: 1,
+    marginVertical: verticalScale(10),
   },
 });
 

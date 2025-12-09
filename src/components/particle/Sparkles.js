@@ -22,6 +22,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { verticalScale } from '../../utils/responsive-utils';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -159,6 +160,12 @@ const Sparkles = ({ variant = 'sparkles' }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'absolute',
+    top: verticalScale(200),
+    left: 0,
+    right: 0,
+    bottom: verticalScale(300),
+    zIndex: 5,
   },
   sparkleContainer: {
     position: 'absolute',

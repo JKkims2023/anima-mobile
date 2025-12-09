@@ -93,7 +93,7 @@ const PersonaCreationLoadingOverlay = ({ visible, message }) => {
     opacity: glowOpacity.value,
   }));
 
-  if (!visible) return null;
+//  if (!visible) return null;
 
   return (
     <Modal
@@ -104,8 +104,6 @@ const PersonaCreationLoadingOverlay = ({ visible, message }) => {
       hardwareAccelerated
     >
       <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
-        {/* Sparkles Background */}
-        <Sparkles isActive={visible} />
 
         {/* Center Content */}
         <View style={styles.centerContent}>
@@ -155,12 +153,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
+    alignContent: 'center',
   },
   centerContent: {
+    
     justifyContent: 'center',
     alignItems: 'center',
     width: scale(200),
     height: scale(200),
+    alignSelf: 'center',
+
   },
   glowCircle: {
     position: 'absolute',
@@ -183,9 +185,12 @@ const styles = StyleSheet.create({
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    width: scale(100),
+    height: scale(100),
+    
   },
   icon: {
-    fontSize: scale(50),
+    fontSize: scale(30),
   },
   messageContainer: {
     marginTop: verticalScale(40),

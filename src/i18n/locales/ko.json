@@ -530,7 +530,7 @@
       "creation": {
         "name_title": "이름",
         "description_title": "컨셉 입력",
-        "name_hint": "페르소나의 이름을 입력해주세요 (최대 20자)",
+        "name_hint": "최대 20자",
         "description_hint": "산타 복장, 빨간 벤츠, 웃는 얼굴 등 페르소나의 컨셉을 입력해주세요 (최대 50자)",
         "title": "새로운 만남을 시작해요",
         "description": "당신만의 AI 분신을 탄생시킬 준비가 되셨나요?",
@@ -1542,9 +1542,9 @@
     "creator": {
       "title": "음원 생성하기",
       "type_label": "음원 타입 선택",
-      "type_instrumental": "배경음악 (Instrumental)",
+      "type_instrumental": "배경음악",
       "type_instrumental_desc": "순수 배경음악을 생성합니다",
-      "type_vocal": "보컬음악 (with Lyrics)",
+      "type_vocal": "보컬음악",
       "type_vocal_desc": "가사가 있는 음악을 생성합니다",
       "title_label": "제목",
       "title_placeholder": "예: 여름 바다의 추억",
@@ -1843,8 +1843,9 @@
       "photo_placeholder": "사진 선택하기",
       "name_title": "이름",
       "description_title": "컨셉 입력",
-      "name_hint": "페르소나의 이름을 입력해주세요 (최대 20자)",
-      "description_hint": "산타 복장, 빨간 벤츠, 웃는 얼굴 등 페르소나의 컨셉을 입력해주세요 (최대 50자)",
+      "name_hint": "페르소나의 이름을 입력해주세요",
+      "name_hint_placeholder": "최대 20자리 입니다",
+      "description_hint": "사진속 주인공은 남자, 산타 복장, 빨간 벤츠, 웃는 얼굴로 표현해줘. (성별을 반드시 입력하세요)",
       "name_placeholder": "예: 민지, Alex",
       "name_error_required": "이름을 입력해주세요",
       "name_error_too_long": "이름은 20자 이하로 입력해주세요",
@@ -1862,8 +1863,8 @@
       "remaining_time": "남은 시간: {{time}}초",
       "success": "{{name}} 생성이 완료되었습니다! 🎉",
       "still_processing": "{{name}}이(가) 아직 생성 중입니다. 잠시 후 다시 확인해주세요 ⏳",
-      "creating": "당신만의 페르소나를 만들고 있습니다",
-      "please_wait": "곧 만나게 됩니다...",
+      "creating": "메세지 페르소나 생성중",
+      "please_wait": "잠시만 기다려주세요",
       "success_initiated": "{{name}} 페르소나가 생성 요청되었습니다",
       "errors": {
         "photo_required": "사진을 선택해주세요",
@@ -1873,7 +1874,10 @@
         "creation_failed": "페르소나 생성에 실패했습니다",
         "creation_timeout": "페르소나 생성 시간이 초과되었습니다. 나중에 다시 확인해주세요",
         "status_check_failed": "상태 확인에 실패했습니다. 다시 시도해주세요"
-      }
+      },
+      "still_processing_title": "페르소나 생성 중입니다",
+      "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요"
+ 
     },
     "loading": {
       "title": "당신의 페르소나를 만들고 있어요",
@@ -1898,7 +1902,8 @@
       "default": "일반"
     },
     "no_personas": "아직 생성한 페르소나가 없습니다",
-    "create_persona": "첫 페르소나 생성하기"
+    "create_persona": "첫 페르소나 생성하기",
+    "estimated_time": "남은시간"
   },
   "search": {
     "placeholder": {
