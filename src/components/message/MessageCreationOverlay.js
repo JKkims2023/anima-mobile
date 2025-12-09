@@ -106,7 +106,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);
-  const textAnimationSheetRef = useRef(null);
   const particleEffectSheetRef = useRef(null);
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
@@ -123,8 +122,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [openTextGroups, setOpenTextGroups] = useState({});
-  const [isTextSheetOpen, setIsTextSheetOpen] = useState(false);
   const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
   const [selectedParticleGroup, setSelectedParticleGroup] = useState('none'); // ⭐ NEW: Floating chip navigation (기본: 없음)
 
@@ -378,14 +375,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       console.log('[MessageCreationOverlay] Android back button pressed');
       
-      // 1️⃣ If text animation sheet is open, close it
-      if (isTextSheetOpen) {
-        console.log('[MessageCreationOverlay] Closing text animation sheet');
-        textAnimationSheetRef.current?.dismiss();
-        return true;
-      }
-      
-      // 3️⃣ If particle effect sheet is open, close it
+      // 1️⃣ If particle effect sheet is open, close it
       if (isParticleSheetOpen) {
         console.log('[MessageCreationOverlay] Closing particle effect sheet');
         particleEffectSheetRef.current?.dismiss();
@@ -425,7 +415,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     });
 
     return () => backHandler.remove();
-  }, [visible, isTextSheetOpen, isParticleSheetOpen, onClose, showAlert, t]);
+  }, [visible, isParticleSheetOpen, onClose, showAlert, t]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Text Animation Values & Logic
@@ -620,13 +610,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Selection Panel
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleTextAnimationChipPress = () => {
-    console.log('[MessageCreationOverlay] Opening text animation sheet');
-    Keyboard.dismiss();
-    HapticService.light();
-    textAnimationSheetRef.current?.present();
-  };
-
   const handleParticleEffectChipPress = () => {
     console.log('[MessageCreationOverlay] Opening particle effect sheet');
     Keyboard.dismiss();
@@ -644,12 +627,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Effect Selection
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleTextAnimationSelect = (effectId) => {
-    setTextAnimation(effectId);
-    HapticService.selection();
-    textAnimationSheetRef.current?.dismiss();
-  };
-
   const handleParticleEffectSelect = (effectId) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎨 [MessageCreationOverlay] Particle Effect Selected:', effectId);
@@ -704,19 +681,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     HapticService.selection();
     setShowChipsGuide(false); // Hide chips guide
     // Bottomsheet will dismiss automatically via onSelect in MusicSelectionOverlay
-  };
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Handlers: Accordion Toggle
-  // ═══════════════════════════════════════════════════════════════════════════
-  const handleToggleTextGroup = (groupId) => {
-    console.log('[MessageCreationOverlay] 🔄 Toggle text group:', groupId);
-    setTextAccordionTouched(true);
-    setOpenTextGroups((prev) => {
-      const isCurrentlyOpen = prev[groupId];
-      return { [groupId]: !isCurrentlyOpen };
-    });
-    HapticService.light();
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1206,38 +1170,6 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
           </Animated.View>
         )}
       </Animated.View>
-
-      {/* ⭐ Text Animation BottomSheet */}
-      <CustomBottomSheet
-        ref={textAnimationSheetRef}
-        title={t('message_preview.text_animation')}
-        snapPoints={['70%']}
-        enableDynamicSizing={false}
-        onDismiss={() => {
-          console.log('[MessageCreationOverlay] Text animation sheet dismissed');
-          setIsTextSheetOpen(false);
-        }}
-        onChange={(index) => {
-          setIsTextSheetOpen(index >= 0);
-        }}
-      >
-        {filterNonEmptyGroups(TEXT_ANIMATION_GROUPS).map((group) => {
-          const isOpen = textAccordionTouched 
-            ? (openTextGroups[group.id] === true)
-            : (openTextGroups[group.id] !== undefined ? openTextGroups[group.id] : group.defaultOpen);
-          
-          return (
-            <EffectGroupAccordion
-              key={group.id}
-              group={group}
-              isOpen={isOpen}
-              onToggle={() => handleToggleTextGroup(group.id)}
-              selectedValue={textAnimation}
-              onSelect={handleTextAnimationSelect}
-            />
-          );
-        })}
-      </CustomBottomSheet>
 
       {/* ⭐ Particle Effect BottomSheet (Floating Chip Navigation) */}
       <CustomBottomSheet
