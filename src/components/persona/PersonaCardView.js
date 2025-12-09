@@ -25,9 +25,12 @@ import {
   Dimensions,
   Animated,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import Video from 'react-native-video';
 import FastImage from 'react-native-fast-image';
+import { BlurView } from '@react-native-community/blur';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -45,21 +48,26 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
+ * @param {Function} props.onCheckStatus - Callback when user clicks "Check Status" button
  */
 const PersonaCardView = ({ 
   persona, 
   isActive = false, 
   isScreenFocused = true,
   modeOpacity,
-  typingMessage = null, // ✅ Receive from PersonaSwipeViewer
-  isLoading = false, // ✅ Receive from PersonaSwipeViewer
-  chatInputBottom = 0, // ✅ Receive from PersonaSwipeViewer (SAME AS SAGE)
-  availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
+  typingMessage = null,
+  isLoading = false,
+  chatInputBottom = 0,
+  availableHeight = SCREEN_HEIGHT,
+  onCheckStatus, // ⭐ NEW: Callback for status check
 }) => {
   const { currentTheme } = useTheme();
+  const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
+  const [remainingSeconds, setRemainingSeconds] = useState(null); // ⭐ NEW: Countdown timer
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false); // ⭐ NEW: Loading state for check button
   const flipAnim = useRef(new Animated.Value(0)).current;
   const videoOpacity = useRef(new Animated.Value(0)).current;
   const containerOpacity = useRef(new Animated.Value(0)).current;
@@ -85,6 +93,49 @@ const PersonaCardView = ({
       modeOpacity.removeListener(listenerId);
     };
   }, [modeOpacity]);
+
+  // ⭐ NEW: Timer logic for persona creation
+  useEffect(() => {
+    // Only run if persona is incomplete
+    if (persona?.done_yn !== 'N') {
+      setRemainingSeconds(null);
+      return;
+    }
+
+    // Calculate remaining time based on server data
+    const calculateRemainingTime = () => {
+      if (!persona.created_date || !persona.estimate_time) {
+        console.warn('[PersonaCardView] Missing created_date or estimate_time:', persona);
+        return 0;
+      }
+
+      const now = Date.now();
+      const createdDate = new Date(persona.created_date).getTime();
+      const elapsedSeconds = Math.floor((now - createdDate) / 1000);
+      const remaining = Math.max(0, persona.estimate_time - elapsedSeconds);
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('⏳ [PersonaCardView] Timer Update:', persona.persona_name);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Created:', new Date(persona.created_date).toLocaleString());
+      console.log('Estimate:', persona.estimate_time, 'seconds');
+      console.log('Elapsed:', elapsedSeconds, 'seconds');
+      console.log('Remaining:', remaining, 'seconds');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      return remaining;
+    };
+
+    // Initial calculation
+    setRemainingSeconds(calculateRemainingTime());
+
+    // Update every second
+    const interval = setInterval(() => {
+      setRemainingSeconds(calculateRemainingTime());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [persona?.done_yn, persona?.created_date, persona?.estimate_time, persona?.persona_name]);
 
   // ✅ Determine media source (Video or Image) - Memoized
   const { hasVideo, videoUrl, imageUrl } = useMemo(() => {
@@ -248,6 +299,53 @@ const PersonaCardView = ({
             }}
           />
         </Animated.View>
+      )}
+
+      {/* ⭐ NEW: Incomplete Persona UI (Blur + Timer + Check Button) */}
+      {persona?.done_yn === 'N' && remainingSeconds !== null && (
+        <View style={styles.incompleteOverlay}>
+          <BlurView
+            style={styles.blurContainer}
+            blurType="dark"
+            blurAmount={20}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.8)"
+          />
+          <View style={styles.timerContainer}>
+            <CustomText type="title" bold style={styles.generatingText}>
+              ⏳ {t('persona.creation.generating')}
+            </CustomText>
+            
+            {remainingSeconds > 0 ? (
+              <CustomText type="big" bold style={styles.timerText}>
+                {t('persona.creation.remaining_time', { time: remainingSeconds })}
+              </CustomText>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.checkButton,
+                  isCheckingStatus && styles.checkButtonDisabled
+                ]}
+                onPress={() => {
+                  if (!isCheckingStatus && onCheckStatus) {
+                    HapticService.success();
+                    setIsCheckingStatus(true);
+                    onCheckStatus(persona, () => setIsCheckingStatus(false));
+                  }
+                }}
+                disabled={isCheckingStatus}
+                activeOpacity={0.7}
+              >
+                {isCheckingStatus ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <CustomText type="middle" bold style={styles.checkButtonText}>
+                    {t('persona.creation.check_status')}
+                  </CustomText>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       )}
 
       {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
@@ -447,6 +545,62 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Incomplete Persona UI
+  // ═══════════════════════════════════════════════════════════════════════════
+  incompleteOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  blurContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  timerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: scale(30),
+  },
+  generatingText: {
+    fontSize: scale(24),
+    color: '#FFFFFF',
+    marginBottom: verticalScale(20),
+    textShadowColor: 'rgba(0, 0, 0, 0.9)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  timerText: {
+    fontSize: scale(40),
+    color: '#4FC3F7',
+    fontWeight: '900',
+    textShadowColor: 'rgba(0, 0, 0, 0.9)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  checkButton: {
+    backgroundColor: '#4FC3F7',
+    paddingHorizontal: scale(40),
+    paddingVertical: verticalScale(15),
+    borderRadius: scale(30),
+    shadowColor: '#4FC3F7',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+    minWidth: scale(200),
+    alignItems: 'center',
+  },
+  checkButtonDisabled: {
+    backgroundColor: '#666666',
+    shadowColor: '#666666',
+  },
+  checkButtonText: {
+    fontSize: scale(18),
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
 

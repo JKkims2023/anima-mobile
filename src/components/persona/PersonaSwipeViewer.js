@@ -48,17 +48,18 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  */
 const PersonaSwipeViewer = forwardRef(({ 
-  personas, // ⭐ Already filtered by default_yn in parent
+  personas,
   isModeActive = true, 
   isScreenFocused = true,
   initialIndex = 0,
   onIndexChange = () => {},
   modeOpacity, 
   onChatWithPersona,
-  onFavoriteToggle, // ⭐ NEW: Favorite toggle handler
-  enabled = true, // ⭐ NEW: Control swipe gestures
-  isMessageMode = false, // ⭐ NEW: Control swipe gestures
-  availableHeight = SCREEN_HEIGHT, // ⭐ NEW: Available height
+  onFavoriteToggle,
+  onCheckStatus, // ⭐ NEW: Check persona status handler
+  enabled = true,
+  isMessageMode = false,
+  availableHeight = SCREEN_HEIGHT,
   onCreatePersona = () => {},
 }, ref) => {
   const { currentTheme } = useTheme();
@@ -168,10 +169,11 @@ const PersonaSwipeViewer = forwardRef(({
           isScreenFocused={isScreenFocused}
           modeOpacity={modeOpacity}
           availableHeight={availableHeight}
+          onCheckStatus={onCheckStatus}
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity, availableHeight]);
+  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity, availableHeight, onCheckStatus]);
 
   // ✅ Key extractor (optimized)
   const keyExtractor = useCallback((item) => item.persona_key, []);

@@ -364,6 +364,61 @@ const PersonaStudioScreen = () => {
     setIsPersonaCreationOpen(false);
   }, []);
   
+  // ⭐ NEW: Handle check persona status (from PersonaCardView timer)
+  const handleCheckPersonaStatus = useCallback(async (persona, onComplete) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✅ [PersonaStudioScreen] Checking persona status');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Persona:', persona.persona_name);
+    console.log('Persona Key:', persona.persona_key);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    try {
+      const statusResponse = await checkPersonaStatus(
+        persona.persona_key,
+        persona.history_key,
+        persona.bric_key,
+        persona.persona_description || ''
+      );
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📊 [PersonaStudioScreen] Status Response:');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Done YN:', statusResponse.data?.done_yn);
+      console.log('Persona URL:', statusResponse.data?.persona_url);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      if (statusResponse.data?.done_yn === 'Y') {
+        // Persona creation complete!
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: '🎉',
+          message: t('persona.creation.success', { name: persona.persona_name }),
+        });
+
+        // Refresh persona list
+        await initializePersonas();
+      } else {
+        // Still processing
+        showToast({
+          type: 'info',
+          emoji: '⏳',
+          message: t('persona.creation.still_processing', { name: persona.persona_name }),
+        });
+      }
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Status check error:', error);
+      showToast({
+        type: 'error',
+        emoji: '❌',
+        message: t('persona.creation.errors.status_check_failed'),
+      });
+    } finally {
+      onComplete?.();
+    }
+  }, [checkPersonaStatus, showToast, t, initializePersonas]);
+  
   // Handle settings
   const handleSettingsPress = useCallback(() => {
     if (__DEV__) {
@@ -910,6 +965,7 @@ const PersonaStudioScreen = () => {
             modeOpacity={null}
             onChatWithPersona={handleChatWithPersona}
             onFavoriteToggle={handlePersonaFavoriteToggle}
+            onCheckStatus={handleCheckPersonaStatus}
             enabled={true}
             isMessageMode={false}
             onCreatePersona={handleAddPersona}

@@ -1930,13 +1930,16 @@
       "check_status": "Check Status",
       "generating": "Generating...",
       "remaining_time": "Remaining: {{time}}s",
+      "success": "{{name}} creation completed! 🎉",
+      "still_processing": "{{name}} is still being generated. Please check again later ⏳",
       "errors": {
         "photo_required": "Please select a photo",
         "name_required": "Please enter a name",
         "name_too_long": "Name must be 20 characters or less",
         "gender_required": "Please select a gender",
         "creation_failed": "Persona creation failed",
-        "creation_timeout": "Persona creation timed out. Please check again later"
+        "creation_timeout": "Persona creation timed out. Please check again later",
+        "status_check_failed": "Status check failed. Please try again"
       }
     },
     "loading": {
