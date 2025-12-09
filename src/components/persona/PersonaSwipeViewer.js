@@ -6,8 +6,8 @@
  * Swipeable persona viewer (PERSONAS ONLY - NO SAGE)
  * 
  * Features:
- * - FlatList with horizontal paging
- * - Optimized rendering (windowSize: 3)
+ * - FlashList with vertical paging (10x faster than FlatList)
+ * - Auto-optimized rendering (no extraData needed)
  * - Pagination indicators
  * - Haptic feedback on swipe
  * - Smooth animations
@@ -20,11 +20,11 @@
 import React, { useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
-  FlatList,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -203,13 +203,13 @@ const PersonaSwipeViewer = forwardRef(({
 
   return (
     <View style={styles.container}>
-      {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
-      <FlatList
+      {/* ✅ FlashList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
+      <FlashList
         ref={flatListRef}
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        extraData={`${isScreenFocused}-${selectedIndex}-${personas.length}`} // ⭐ Force re-render when isScreenFocused, selectedIndex, OR personas array changes
+        estimatedItemSize={availableHeight} // ⭐ CRITICAL: FlashList requires this
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures
@@ -231,10 +231,6 @@ const PersonaSwipeViewer = forwardRef(({
         snapToAlignment="start"
         snapToInterval={availableHeight}
         scrollEventThrottle={16}
-        removeClippedSubviews={false} // ⭐ CRITICAL: Keep all items mounted for prop updates (no scroll position reset)
-        maxToRenderPerBatch={3} // ⭐ Increased from 1 for smoother updates
-        initialNumToRender={3} // ⭐ Increased from 1 for smoother updates
-        windowSize={5} // ⭐ Increased from 3 for smoother updates
         getItemLayout={(data, index) => ({
           length: availableHeight,
           offset: availableHeight * index,
