@@ -33,6 +33,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
 import MessageHistoryListItem from '../components/message/MessageHistoryListItem';
+import MessageDetailOverlay from '../components/message/MessageDetailOverlay'; // ⭐ NEW: Overlay instead of Stack Navigation
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
@@ -80,6 +81,10 @@ const HistoryScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState(FILTERS.ALL);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+  // ⭐ Message Detail Overlay state
+  const [isMessageDetailVisible, setIsMessageDetailVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
   // ⭐ Clear new message badge on screen focus
   useFocusEffect(
@@ -233,10 +238,9 @@ const HistoryScreen = ({ navigation }) => {
 
   const handleMessagePress = (message) => {
     HapticService.light();
-    navigation.push('MessageDetail', { 
-      message,
-      onMessageUpdate: handleMessageUpdate, // ⭐ Pass callback
-    });
+    // ⭐ NEW: Use Overlay instead of Stack Navigation
+    setSelectedMessage(message);
+    setIsMessageDetailVisible(true);
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -435,6 +439,19 @@ const HistoryScreen = ({ navigation }) => {
             }}
           />
         </View>
+      )}
+
+      {/* ⭐ Message Detail Overlay (z-index: 9999, covers tab bar) */}
+      {isMessageDetailVisible && selectedMessage && (
+        <MessageDetailOverlay
+          visible={isMessageDetailVisible}
+          message={selectedMessage}
+          onClose={() => {
+            setIsMessageDetailVisible(false);
+            setSelectedMessage(null);
+          }}
+          onMessageUpdate={handleMessageUpdate}
+        />
       )}
     </SafeScreen>
   );
