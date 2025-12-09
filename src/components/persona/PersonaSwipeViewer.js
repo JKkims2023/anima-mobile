@@ -209,7 +209,7 @@ const PersonaSwipeViewer = forwardRef(({
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        extraData={`${isScreenFocused}-${selectedIndex}`} // ⭐ Force re-render when isScreenFocused OR selectedIndex changes
+        extraData={`${isScreenFocused}-${selectedIndex}-${personas.length}`} // ⭐ Force re-render when isScreenFocused, selectedIndex, OR personas array changes
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures
