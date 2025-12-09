@@ -155,7 +155,14 @@ const PersonaCardView = ({
       persona?.selected_dress_video_convert_done === 'Y';
     
     const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
-    const imageUrl = persona?.selected_dress_image_url || persona?.original_url;
+    
+    // ⭐ CRITICAL FIX: Use original_url when persona is still being created!
+    // - done_yn === 'N' means AI is still generating the persona
+    // - selected_dress_image_url exists but the file is not on server yet (404)
+    // - Must use original_url (user uploaded photo) until done_yn === 'Y'
+    const imageUrl = persona?.done_yn === 'N' 
+      ? persona?.original_url 
+      : (persona?.selected_dress_image_url || persona?.original_url);
     
     // ⭐ DEBUG: ALWAYS log image URL for debugging
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -179,9 +186,13 @@ const PersonaCardView = ({
     persona?.persona_name,
   ]);
 
-  // ✅ Control container opacity based on isActive and isScreenFocused
+  // ✅ Control container opacity based on isScreenFocused only
+  // ⚠️ CRITICAL FIX: isActive should NOT control image visibility!
+  // - isActive is for video playback control
+  // - All FlatList items should be visible (opacity = 1)
+  // - Only isScreenFocused and modeOpacityValue should control visibility
   useEffect(() => {
-    const shouldShow = isActive && isScreenFocused && modeOpacityValue > 0;
+    const shouldShow = isScreenFocused && modeOpacityValue > 0;
     const opacityValue = shouldShow ? 1 : 0;
     containerOpacity.setValue(opacityValue);
     
@@ -189,13 +200,12 @@ const PersonaCardView = ({
     console.log('🎨 [PersonaCardView] Container Opacity UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('Persona:', persona.persona_name);
-    console.log('isActive:', isActive);
     console.log('isScreenFocused:', isScreenFocused);
     console.log('modeOpacityValue:', modeOpacityValue);
     console.log('shouldShow:', shouldShow);
     console.log('→ containerOpacity set to:', opacityValue);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  }, [isActive, isScreenFocused, modeOpacityValue, persona.persona_name]);
+  }, [isScreenFocused, modeOpacityValue, persona.persona_name]);
 
   // ✅ Handle video load
   const handleVideoLoad = () => {

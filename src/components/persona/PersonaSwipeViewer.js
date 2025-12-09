@@ -6,8 +6,8 @@
  * Swipeable persona viewer (PERSONAS ONLY - NO SAGE)
  * 
  * Features:
- * - FlatList with vertical paging
- * - Optimized rendering with deep extraData
+ * - ⭐ FlashList with vertical paging (optimized performance!)
+ * - Auto-optimized rendering (no extraData needed)
  * - Pagination indicators
  * - Haptic feedback on swipe
  * - Smooth animations
@@ -15,16 +15,17 @@
  * 
  * @author JK & Hero AI
  * @date 2024-11-22
+ * @updated 2025-01-09 - Migrated from FlatList to FlashList
  */
 
-import React, { useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
 import {
   View,
-  FlatList,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -157,6 +158,11 @@ const PersonaSwipeViewer = forwardRef(({
   // ✅ Current persona
   const currentPersona = personas && personas[selectedIndex] ? personas[selectedIndex] : null;
 
+  // ⭐ NEW: Calculate snap offsets for paging effect (memoized)
+  const snapToOffsets = useMemo(() => {
+    return personas.map((_, index) => index * availableHeight);
+  }, [personas.length, availableHeight]);
+
   // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
     const isActive = index === selectedIndex && isModeActive;
@@ -203,15 +209,15 @@ const PersonaSwipeViewer = forwardRef(({
 
   return (
     <View style={styles.container}>
-      {/* ✅ FlatList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
-      <FlatList
+      {/* ✅ FlashList - Optimized for VERTICAL paging (TikTok/YouTube Shorts style) */}
+      {/* ⭐ FlashList benefits: Auto-optimized, no extraData needed, smoother scrolling */}
+      {/* ⭐ CRITICAL: FlashList needs explicit width & height! */}
+      <FlashList
         ref={flatListRef}
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        extraData={`${isScreenFocused}-${selectedIndex}-${personas.map(p => `${p.persona_key}-${p.done_yn}-${p.persona_url || p.original_url}`).join('|')}`} // ⭐ CRITICAL: Detailed extraData for precise re-render detection
-        vertical
-        pagingEnabled
+        estimatedItemSize={availableHeight} // ⭐ CRITICAL: Required for FlashList (each persona takes full height)
         scrollEnabled={enabled} // ⭐ Control swipe gestures
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
@@ -228,15 +234,9 @@ const PersonaSwipeViewer = forwardRef(({
           });
         }}
         decelerationRate="fast"
+        snapToOffsets={snapToOffsets} // ⭐ NEW: Replaces pagingEnabled for FlashList
         snapToAlignment="start"
-        snapToInterval={availableHeight}
         scrollEventThrottle={16}
-        removeClippedSubviews={false} // ⭐ CRITICAL: Keep all items mounted for immediate updates
-        getItemLayout={(data, index) => ({
-          length: availableHeight,
-          offset: availableHeight * index,
-          index,
-        })}
       />
 
       {/* Pagination Indicator */}
@@ -274,10 +274,11 @@ const PersonaSwipeViewer = forwardRef(({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: SCREEN_WIDTH, // ⭐ CRITICAL: Explicit width for FlashList
+    // ⚠️ REMOVED: alignItems & justifyContent (breaks FlashList layout)
   },
   centered: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
