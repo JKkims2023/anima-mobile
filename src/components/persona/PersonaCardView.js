@@ -287,7 +287,20 @@ const PersonaCardView = ({
           console.log('✅ [PersonaCardView] FastImage LOADED:', persona.persona_name, imageUrl);
         }}
         onError={(error) => {
-          console.error('❌ [PersonaCardView] FastImage ERROR:', persona.persona_name, imageUrl, error);
+          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.error('❌ [PersonaCardView] FastImage ERROR');
+          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.error('Persona:', persona.persona_name);
+          console.error('Image URL:', imageUrl);
+          console.error('Error object:', error);
+          console.error('Error type:', typeof error);
+          console.error('Error stringified:', JSON.stringify(error, null, 2));
+          console.error('Error keys:', error ? Object.keys(error) : 'null');
+          if (error) {
+            console.error('Error.nativeEvent:', error.nativeEvent);
+            console.error('Error.message:', error.message);
+          }
+          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }}
       />
 
