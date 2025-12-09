@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: verticalScale(100), // ⭐ Shift content up to avoid system bar
   },
   centerContent: {
     justifyContent: 'center',

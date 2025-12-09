@@ -209,7 +209,7 @@ const PersonaSwipeViewer = forwardRef(({
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
-        extraData={personas} // ⭐ CRITICAL: Force re-render when personas array changes (deep comparison)
+        extraData={`${isScreenFocused}-${selectedIndex}-${personas.map(p => `${p.persona_key}-${p.done_yn}-${p.persona_url || p.original_url}`).join('|')}`} // ⭐ CRITICAL: Detailed extraData for precise re-render detection
         vertical
         pagingEnabled
         scrollEnabled={enabled} // ⭐ Control swipe gestures

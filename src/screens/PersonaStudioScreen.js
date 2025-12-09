@@ -958,6 +958,7 @@ const PersonaStudioScreen = () => {
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.baseLayer}>
           <PersonaSwipeViewer 
+            key={`swiper-${currentFilteredPersonas.map(p => p.persona_key).join('-')}`} // ⭐ Force re-mount when personas change
             ref={swiperRef}
             personas={currentFilteredPersonas}
             isModeActive={true}
@@ -1045,12 +1046,13 @@ const PersonaStudioScreen = () => {
       {/* ═════════════════════════════════════════════════════════════════ */}
       <ConfettiCannon
         ref={confettiRef}
-        count={150}
-        origin={{ x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT }}
-        explosionSpeed={350}
-        fallSpeed={2500}
+        count={200}
+        origin={{ x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT - 100 }}
+        explosionSpeed={800}
+        fallSpeed={3000}
         fadeOut={true}
         autoStart={false}
+        colors={['#FF6B9D', '#C084FC', '#60A5FA', '#34D399', '#FBBF24']}
       />
     </SafeScreen>
     
