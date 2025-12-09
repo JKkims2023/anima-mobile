@@ -667,7 +667,9 @@ export default memo(PersonaCardView, (prevProps, nextProps) => {
     prevProps.persona.persona_key === nextProps.persona.persona_key &&
     prevProps.persona.done_yn === nextProps.persona.done_yn && // ⭐ CRITICAL: Re-render when creation completes
     prevProps.persona.time_done_yn === nextProps.persona.time_done_yn && // ⭐ CRITICAL: Re-render when timer completes
-    prevProps.persona.persona_url === nextProps.persona.persona_url && // ⭐ CRITICAL: Re-render when image URL updates
+    prevProps.persona.persona_url === nextProps.persona.persona_url && // ⭐ CRITICAL: Re-render when main image URL updates
+    prevProps.persona.original_url === nextProps.persona.original_url && // ⭐ CRITICAL: Re-render when original image updates
+    prevProps.persona.selected_dress_image_url === nextProps.persona.selected_dress_image_url && // ⭐ CRITICAL: Re-render when generated image updates
     prevProps.isActive === nextProps.isActive &&
     prevProps.isScreenFocused === nextProps.isScreenFocused // ⭐ CRITICAL: Check isScreenFocused for video control
   );
