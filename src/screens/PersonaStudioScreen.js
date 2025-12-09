@@ -47,8 +47,8 @@ import MessageCreationOverlay from '../components/message/MessageCreationOverlay
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { 
-  createPersona, 
-  checkPersonaStatus, 
+  createPersona,
+  checkPersonaStatus,
   getPersonaList,
   updatePersonaBasic,
   convertPersonaVideo,
@@ -371,9 +371,14 @@ const PersonaStudioScreen = () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('Persona:', persona.persona_name);
     console.log('Persona Key:', persona.persona_key);
+    console.log('History Key:', persona.history_key);
+    console.log('Bric Key:', persona.bric_key);
+    console.log('checkPersonaStatus function:', typeof checkPersonaStatus);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     try {
+      console.log('📞 [PersonaStudioScreen] Calling checkPersonaStatus API...');
+      
       const statusResponse = await checkPersonaStatus(
         persona.persona_key,
         persona.history_key,
@@ -382,16 +387,19 @@ const PersonaStudioScreen = () => {
       );
 
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📊 [PersonaStudioScreen] Status Response:');
+      console.log('📊 [PersonaStudioScreen] Status Response RECEIVED:');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('Full Response:', statusResponse.data);
-      console.log('Status:', statusResponse.data?.status);
-      console.log('Image URL:', statusResponse.data?.image_url);
+      console.log('Type of statusResponse:', typeof statusResponse);
+      console.log('Full Response:', JSON.stringify(statusResponse, null, 2));
+      console.log('Status:', statusResponse?.status);
+      console.log('Image URL:', statusResponse?.image_url);
+      console.log('Success:', statusResponse?.success);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-      // ⭐ FIX: API returns 'status: completed', not 'done_yn'
-      if (statusResponse.data?.status === 'completed') {
+      // ⭐ FIX: statusResponse is already the data object (not response.data)
+      if (statusResponse?.status === 'completed') {
         // Persona creation complete!
+        console.log('✅ [PersonaStudioScreen] Persona creation completed!');
         HapticService.success();
         showToast({
           type: 'success',
@@ -400,9 +408,12 @@ const PersonaStudioScreen = () => {
         });
 
         // Refresh persona list
+        console.log('🔄 [PersonaStudioScreen] Refreshing persona list...');
         await initializePersonas();
+        console.log('✅ [PersonaStudioScreen] Persona list refreshed');
       } else {
-        // Still processing
+        // Still processing or other status
+        console.log('⏳ [PersonaStudioScreen] Persona still processing');
         showToast({
           type: 'info',
           emoji: '⏳',
@@ -410,16 +421,22 @@ const PersonaStudioScreen = () => {
         });
       }
     } catch (error) {
-      console.error('[PersonaStudioScreen] ❌ Status check error:', error);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('[PersonaStudioScreen] ❌ Status check CATCH block:');
+      console.error('Error:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error response:', error?.response);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       showToast({
         type: 'error',
         emoji: '❌',
         message: t('persona.creation.errors.status_check_failed'),
       });
     } finally {
+      console.log('🏁 [PersonaStudioScreen] Status check FINALLY block');
       onComplete?.();
     }
-  }, [checkPersonaStatus, showToast, t, initializePersonas]);
+  }, [showToast, t, initializePersonas]);
   
   // Handle settings
   const handleSettingsPress = useCallback(() => {

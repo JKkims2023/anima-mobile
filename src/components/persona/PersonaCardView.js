@@ -127,14 +127,31 @@ const PersonaCardView = ({
     };
 
     // Initial calculation
-    setRemainingSeconds(calculateRemainingTime());
+    const initialRemaining = calculateRemainingTime();
+    setRemainingSeconds(initialRemaining);
+
+    // ⭐ FIX: Stop timer if already at 0
+    if (initialRemaining === 0) {
+      console.log('✅ [PersonaCardView] Timer already at 0, not starting interval');
+      return;
+    }
 
     // Update every second
     const interval = setInterval(() => {
-      setRemainingSeconds(calculateRemainingTime());
+      const remaining = calculateRemainingTime();
+      setRemainingSeconds(remaining);
+      
+      // ⭐ FIX: Stop interval when reaching 0
+      if (remaining === 0) {
+        console.log('⏹️ [PersonaCardView] Timer reached 0, stopping interval');
+        clearInterval(interval);
+      }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      console.log('🧹 [PersonaCardView] Cleaning up timer interval');
+      clearInterval(interval);
+    };
   }, [persona?.done_yn, persona?.created_date, persona?.estimate_time, persona?.persona_name]);
 
   // ✅ Determine media source (Video or Image) - Memoized
@@ -339,10 +356,34 @@ const PersonaCardView = ({
                   isCheckingStatus && styles.checkButtonDisabled
                 ]}
                 onPress={() => {
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  console.log('🔘 [PersonaCardView] Check Status Button PRESSED');
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  console.log('isCheckingStatus:', isCheckingStatus);
+                  console.log('onCheckStatus exists:', !!onCheckStatus);
+                  console.log('onCheckStatus type:', typeof onCheckStatus);
+                  console.log('Persona data being passed:', {
+                    persona_name: persona.persona_name,
+                    persona_key: persona.persona_key,
+                    history_key: persona.history_key,
+                    bric_key: persona.bric_key,
+                    done_yn: persona.done_yn,
+                  });
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
                   if (!isCheckingStatus && onCheckStatus) {
                     HapticService.success();
                     setIsCheckingStatus(true);
-                    onCheckStatus(persona, () => setIsCheckingStatus(false));
+                    console.log('✅ [PersonaCardView] Calling onCheckStatus callback...');
+                    onCheckStatus(persona, () => {
+                      console.log('🏁 [PersonaCardView] onCheckStatus callback COMPLETED');
+                      setIsCheckingStatus(false);
+                    });
+                  } else {
+                    console.warn('⚠️ [PersonaCardView] Cannot call onCheckStatus:', {
+                      isCheckingStatus,
+                      hasCallback: !!onCheckStatus
+                    });
                   }
                 }}
                 disabled={isCheckingStatus}
@@ -618,12 +659,15 @@ const styles = StyleSheet.create({
 });
 
 // ✅ Memoize PersonaCardView to prevent unnecessary re-renders
-// Only re-render when persona_key, isActive, or isScreenFocused changes
+// Only re-render when critical props change
 export default memo(PersonaCardView, (prevProps, nextProps) => {
   // Return true if props are equal (prevent re-render)
   // Return false if props are different (allow re-render)
   return (
     prevProps.persona.persona_key === nextProps.persona.persona_key &&
+    prevProps.persona.done_yn === nextProps.persona.done_yn && // ⭐ CRITICAL: Re-render when creation completes
+    prevProps.persona.time_done_yn === nextProps.persona.time_done_yn && // ⭐ CRITICAL: Re-render when timer completes
+    prevProps.persona.persona_url === nextProps.persona.persona_url && // ⭐ CRITICAL: Re-render when image URL updates
     prevProps.isActive === nextProps.isActive &&
     prevProps.isScreenFocused === nextProps.isScreenFocused // ⭐ CRITICAL: Check isScreenFocused for video control
   );
