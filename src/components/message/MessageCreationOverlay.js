@@ -104,7 +104,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Refs
   // ═══════════════════════════════════════════════════════════════════════════
-  const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);
   const particleEffectSheetRef = useRef(null);
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
@@ -113,7 +112,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management
   // ═══════════════════════════════════════════════════════════════════════════
-  const [messageTitle, setMessageTitle] = useState(''); // ⭐ 사용 안함 (통합)
   const [messageContent, setMessageContent] = useState('');
   const [textAnimation, setTextAnimation] = useState('typing'); // ⭐ 항상 타이핑 효과
   const [particleEffect, setParticleEffect] = useState('none');
@@ -686,11 +684,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Message Input
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleTitleSave = (value) => {
-    setMessageTitle(value);
-    titleInputRef.current?.dismiss();
-  };
-
   const handleContentSave = (value) => {
     setMessageContent(value);
     contentInputRef.current?.dismiss();
@@ -935,12 +928,18 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
   const handleShareMessage = async (shareUrl) => {
     try {
       HapticService.light();
+      
+      // ⭐ Generate auto title from content (same as message creation)
+      const autoTitle = messageContent.length > 30 
+        ? messageContent.substring(0, 30) + '...'
+        : messageContent;
+      
       await Share.share({
         message: Platform.OS === 'ios' 
-          ? `${messageTitle}\n\n${shareUrl}`
+          ? `${autoTitle}\n\n${shareUrl}`
           : shareUrl,
         url: Platform.OS === 'ios' ? shareUrl : undefined,
-        title: messageTitle || 'ANIMA Message',
+        title: autoTitle || 'ANIMA Message',
       });
       console.log('✅ [MessageCreationOverlay] Message shared');
     } catch (error) {
@@ -1233,17 +1232,6 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
       />
 
       {/* Message Input Overlays */}
-      <MessageInputOverlay
-        ref={titleInputRef}
-        title="제목 입력"
-        placeholder="메시지 제목을 입력하세요"
-        leftIcon="text"
-        initialValue={messageTitle}
-        maxLength={50}
-        multiline={false}
-        onSave={handleTitleSave}
-      />
-
       <MessageInputOverlay
         ref={contentInputRef}
         title="내용 입력"
