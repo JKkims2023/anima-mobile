@@ -182,18 +182,20 @@ const PersonaCardView = ({
   // ✅ Control container opacity based on isActive and isScreenFocused
   useEffect(() => {
     const shouldShow = isActive && isScreenFocused && modeOpacityValue > 0;
-    containerOpacity.setValue(shouldShow ? 1 : 0);
+    const opacityValue = shouldShow ? 1 : 0;
+    containerOpacity.setValue(opacityValue);
     
-    if (__DEV__) {
-      console.log('[PersonaCardView] 🎨 Container Opacity:', persona.persona_name, {
-        shouldShow,
-        isActive,
-        isScreenFocused,
-        modeOpacityValue,
-        containerOpacity: shouldShow ? 1 : 0,
-      });
-    }
-  }, [isActive, isScreenFocused, modeOpacityValue, containerOpacity, persona.persona_name]);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎨 [PersonaCardView] Container Opacity UPDATE');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Persona:', persona.persona_name);
+    console.log('isActive:', isActive);
+    console.log('isScreenFocused:', isScreenFocused);
+    console.log('modeOpacityValue:', modeOpacityValue);
+    console.log('shouldShow:', shouldShow);
+    console.log('→ containerOpacity set to:', opacityValue);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [isActive, isScreenFocused, modeOpacityValue, persona.persona_name]);
 
   // ✅ Handle video load
   const handleVideoLoad = () => {
