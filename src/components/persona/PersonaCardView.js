@@ -114,15 +114,6 @@ const PersonaCardView = ({
       const elapsedSeconds = Math.floor((now - createdDate) / 1000);
       const remaining = Math.max(0, persona.estimate_time - elapsedSeconds);
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('⏳ [PersonaCardView] Timer Update:', persona.persona_name);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('Created:', new Date(persona.created_date).toLocaleString());
-      console.log('Estimate:', persona.estimate_time, 'seconds');
-      console.log('Elapsed:', elapsedSeconds, 'seconds');
-      console.log('Remaining:', remaining, 'seconds');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
       return remaining;
     };
 
@@ -132,7 +123,6 @@ const PersonaCardView = ({
 
     // ⭐ FIX: Stop timer if already at 0
     if (initialRemaining === 0) {
-      console.log('✅ [PersonaCardView] Timer already at 0, not starting interval');
       return;
     }
 
@@ -143,13 +133,11 @@ const PersonaCardView = ({
       
       // ⭐ FIX: Stop interval when reaching 0
       if (remaining === 0) {
-        console.log('⏹️ [PersonaCardView] Timer reached 0, stopping interval');
         clearInterval(interval);
       }
     }, 1000);
 
     return () => {
-      console.log('🧹 [PersonaCardView] Cleaning up timer interval');
       clearInterval(interval);
     };
   }, [persona?.done_yn, persona?.created_date, persona?.estimate_time, persona?.persona_name]);
@@ -163,16 +151,17 @@ const PersonaCardView = ({
     const videoUrl = hasVideo ? persona.selected_dress_video_url : null;
     const imageUrl = persona?.selected_dress_image_url || persona?.original_url;
     
-    // ⭐ DEBUG: Log image URL for incomplete personas
-    if (persona?.done_yn === 'N') {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🖼️ [PersonaCardView] Image URL for incomplete persona:');
-      console.log('  - Persona:', persona.persona_name);
-      console.log('  - selected_dress_image_url:', persona?.selected_dress_image_url);
-      console.log('  - original_url:', persona?.original_url);
-      console.log('  - Final imageUrl:', imageUrl);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    }
+    // ⭐ DEBUG: ALWAYS log image URL for debugging
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🖼️ [PersonaCardView] Image URL (ALL CASES):');
+    console.log('  - Persona:', persona.persona_name);
+    console.log('  - done_yn:', persona?.done_yn);
+    console.log('  - selected_dress_image_url:', persona?.selected_dress_image_url);
+    console.log('  - original_url:', persona?.original_url);
+    console.log('  - Final imageUrl:', imageUrl);
+    console.log('  - imageUrl type:', typeof imageUrl);
+    console.log('  - imageUrl is truthy?', !!imageUrl);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     return { hasVideo, videoUrl, imageUrl };
   }, [
@@ -294,6 +283,12 @@ const PersonaCardView = ({
         style={styles.backgroundMedia}
         resizeMode={FastImage.resizeMode.cover}
         pointerEvents="none"
+        onLoad={() => {
+          console.log('✅ [PersonaCardView] FastImage LOADED:', persona.persona_name, imageUrl);
+        }}
+        onError={(error) => {
+          console.error('❌ [PersonaCardView] FastImage ERROR:', persona.persona_name, imageUrl, error);
+        }}
       />
 
       {/* 2. Video Layer (Always render if hasVideo, control with opacity and paused) */}
@@ -356,33 +351,11 @@ const PersonaCardView = ({
                   isCheckingStatus && styles.checkButtonDisabled
                 ]}
                 onPress={() => {
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                  console.log('🔘 [PersonaCardView] Check Status Button PRESSED');
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                  console.log('isCheckingStatus:', isCheckingStatus);
-                  console.log('onCheckStatus exists:', !!onCheckStatus);
-                  console.log('onCheckStatus type:', typeof onCheckStatus);
-                  console.log('Persona data being passed:', {
-                    persona_name: persona.persona_name,
-                    persona_key: persona.persona_key,
-                    history_key: persona.history_key,
-                    bric_key: persona.bric_key,
-                    done_yn: persona.done_yn,
-                  });
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
                   if (!isCheckingStatus && onCheckStatus) {
                     HapticService.success();
                     setIsCheckingStatus(true);
-                    console.log('✅ [PersonaCardView] Calling onCheckStatus callback...');
                     onCheckStatus(persona, () => {
-                      console.log('🏁 [PersonaCardView] onCheckStatus callback COMPLETED');
                       setIsCheckingStatus(false);
-                    });
-                  } else {
-                    console.warn('⚠️ [PersonaCardView] Cannot call onCheckStatus:', {
-                      isCheckingStatus,
-                      hasCallback: !!onCheckStatus
                     });
                   }
                 }}

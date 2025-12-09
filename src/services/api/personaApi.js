@@ -169,17 +169,6 @@ export const createPersona = async (userKey, personaData) => {
  */
 export const checkPersonaStatus = async (personaKey, memoryKey, bricKey, promptText) => {
   try {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📞 [personaApi] checkPersonaStatus CALLED');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Input params:', {
-      personaKey,
-      memoryKey,
-      bricKey,
-      promptText
-    });
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.CHECK_STATUS, {
       persona_key: personaKey,
       memory_key: memoryKey,
@@ -187,33 +176,9 @@ export const checkPersonaStatus = async (personaKey, memoryKey, bricKey, promptT
       prompt_text: promptText,
     });
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📦 [personaApi] AXIOS RESPONSE RECEIVED');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Response object:', response);
-    console.log('Response.status:', response.status);
-    console.log('Response.data:', response.data);
-    console.log('Type of response.data:', typeof response.data);
-    console.log('JSON.stringify(response.data):', JSON.stringify(response.data, null, 2));
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-    const returnValue = response.data || {};
-    
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ [personaApi] RETURNING:');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Return value:', returnValue);
-    console.log('Type:', typeof returnValue);
-    console.log('JSON:', JSON.stringify(returnValue, null, 2));
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-    return returnValue;
+    return response.data || {};
   } catch (error) {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.error('❌ [personaApi] checkPersonaStatus ERROR CAUGHT:');
-    console.error('Error:', error);
-    console.error('Error message:', error?.message);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.error('[personaApi] checkPersonaStatus error:', error?.message);
     logError('Persona Status Check', error);
     throw error;
   }
