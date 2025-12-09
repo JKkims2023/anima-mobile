@@ -652,25 +652,32 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
       )}
 
       {/* ⭐ Gradient Overlay with Sequential Animation */}
-      <Animated.View style={[
-        { 
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-        },
-        gradientAnimatedStyle
-      ]}>
+      <Animated.View 
+        style={[
+          { 
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+          },
+          gradientAnimatedStyle
+        ]}
+        pointerEvents="box-none"
+      >
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.9)']}
           locations={[0, 0.4, 1]}
           style={styles.gradient}
+          pointerEvents="box-none"
         >
           {/* ⭐ Content with Slide Animation */}
-          <Animated.View style={[
-            styles.contentContainer, 
-            contentAnimatedStyle
-          ]}>
+          <Animated.View 
+            style={[
+              styles.contentContainer, 
+              contentAnimatedStyle
+            ]}
+            pointerEvents="box-none"
+          >
             {/* Title */}
             {message_title ? (
               <Animated.View style={animatedTextStyle}>
@@ -696,14 +703,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
               </Animated.View>
             ) : null}
 
-            {/* ⭐ Music Control Bar (텍스트 하단) */}
-            {bg_music_url && bg_music_url !== 'none' && !isFlipped && (
-              <MusicControlBar
-                musicUrl={bg_music_url}
-                isPlaying={isMusicPlaying}
-                onPlayingChange={handleMusicPlayingChange}
-              />
-            )}
           </Animated.View>
         </LinearGradient>
       </Animated.View>
@@ -742,6 +741,15 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
           <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+      {/* ⭐ Music Control Bar (최상위 레벨, FlipCard 밖) */}
+      {!isFlipped && bg_music_url && bg_music_url !== 'none' && (
+        <MusicControlBar
+          musicUrl={bg_music_url}
+          isPlaying={isMusicPlaying}
+          onPlayingChange={handleMusicPlayingChange}
+        />
+      )}
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
       {!isFlipped && (

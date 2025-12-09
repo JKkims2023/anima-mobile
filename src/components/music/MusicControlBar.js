@@ -155,7 +155,10 @@ const MusicControlBar = ({ musicUrl, isPlaying = false, onPlayingChange }) => {
   if (!musicUrl || musicUrl === 'none') return null;
 
   return (
-    <View style={[styles.container, { backgroundColor: 'rgba(0, 0, 0, 0.85)' }]}>
+    <View 
+      style={[styles.container, { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}
+      pointerEvents="auto"
+    >
       {/* Hidden Audio Player */}
       <Video
         ref={videoRef}
@@ -246,19 +249,21 @@ const MusicControlBar = ({ musicUrl, isPlaying = false, onPlayingChange }) => {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
+    top: verticalScale(100),
+    left: scale(16),
+    right: scale(16),
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(12),
     gap: verticalScale(10),
-    marginTop: verticalScale(16),
+    zIndex: 999, // ⭐ CRITICAL: Highest priority for touch events
+    elevation: 999, // ⭐ Android highest priority
     // Shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    ...Platform.select({
-      android: { elevation: 4 },
-    }),
   },
   hiddenVideo: {
     width: 0,

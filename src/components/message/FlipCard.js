@@ -89,12 +89,12 @@ const FlipCard = ({
   return (
     <>
       {/* Front (메시지) */}
-      <Animated.View style={[styles.card, style, frontAnimatedStyle]}>
+      <Animated.View style={[styles.card, style, frontAnimatedStyle]} pointerEvents="box-none">
         {front}
       </Animated.View>
 
       {/* Back (댓글) */}
-      <Animated.View style={[styles.card, styles.cardBack, style, backAnimatedStyle]}>
+      <Animated.View style={[styles.card, styles.cardBack, style, backAnimatedStyle]} pointerEvents="box-none">
         {back}
       </Animated.View>
     </>
