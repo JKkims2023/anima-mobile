@@ -44,6 +44,8 @@ import CategorySelectionSheet from '../components/persona/CategorySelectionSheet
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
 import MessageCreationOverlay from '../components/message/MessageCreationOverlay';
+import PersonaCreationLoadingOverlay from '../components/persona/PersonaCreationLoadingOverlay';
+import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import { 
@@ -70,9 +72,9 @@ const PersonaStudioScreen = () => {
   const refPersonaCount = useRef(0);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // AVAILABLE HEIGHT CALCULATION (Same as HistoryScreen)
+  // SCREEN DIMENSIONS & AVAILABLE HEIGHT CALCULATION
   // ═══════════════════════════════════════════════════════════════════════
-  const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
   const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
   
   const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom - TAB_BAR_HEIGHT - TAB_BAR_HEIGHT;
@@ -105,6 +107,8 @@ const PersonaStudioScreen = () => {
   const personaCreationDataRef = useRef(null);
   const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
+  const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ NEW: Loading overlay for persona creation
+  const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -308,6 +312,9 @@ const PersonaStudioScreen = () => {
     // Close creation sheet
     setIsPersonaCreationOpen(false);
     
+    // ⭐ Show emotional loading overlay
+    setIsCreatingPersona(true);
+    
     try {
       // Call API to create persona
       const response = await createPersona(user.user_key, {
@@ -335,19 +342,24 @@ const PersonaStudioScreen = () => {
       });
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      HapticService.success();
-      
-      // ⭐ NEW: Refresh persona list immediately (incomplete persona will appear with timer)
+      // ⭐ Refresh persona list immediately (new persona will appear with original_url)
       await initializePersonas();
       
+      // ⭐ Hide loading overlay
+      setIsCreatingPersona(false);
+      
+      HapticService.success();
       showToast({
         type: 'success',
         emoji: '✨',
-        message: t('persona.creation.started_toast', { name: data.name, time: estimate_time }),
+        message: t('persona.creation.success_initiated', { name: data.name }),
       });
       
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Persona creation error:', error);
+      
+      // ⭐ Hide loading overlay on error
+      setIsCreatingPersona(false);
       
       showToast({
         type: 'error',
@@ -377,15 +389,19 @@ const PersonaStudioScreen = () => {
       // ⭐ FIX: statusResponse is already the data object (not response.data)
       if (statusResponse?.status === 'completed') {
         // Persona creation complete!
+        
+        // ⭐ Refresh persona list first
+        await initializePersonas();
+        
+        // ⭐ Celebrate with Confetti! 🎉
+        confettiRef.current?.start();
+        
         HapticService.success();
         showToast({
           type: 'success',
           emoji: '🎉',
           message: t('persona.creation.success', { name: persona.persona_name }),
         });
-
-        // Refresh persona list
-        await initializePersonas();
       } else {
         // Still processing or other status
         showToast({
@@ -1015,6 +1031,27 @@ const PersonaStudioScreen = () => {
           onCreateStart={handlePersonaCreationStart}
         />
       </View>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Persona Creation Loading Overlay (Emotional & Breathing) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <PersonaCreationLoadingOverlay
+        visible={isCreatingPersona}
+        message={t('persona.creation.creating')}
+      />
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Confetti Cannon (Celebration for Status Check Complete) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <ConfettiCannon
+        ref={confettiRef}
+        count={150}
+        origin={{ x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT }}
+        explosionSpeed={350}
+        fallSpeed={2500}
+        fadeOut={true}
+        autoStart={false}
+      />
     </SafeScreen>
     
     {/* ═════════════════════════════════════════════════════════════════ */}

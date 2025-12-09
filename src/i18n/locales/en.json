@@ -1932,6 +1932,9 @@
       "remaining_time": "Remaining: {{time}}s",
       "success": "{{name}} creation completed! 🎉",
       "still_processing": "{{name}} is still being generated. Please check again later ⏳",
+      "creating": "Creating your unique persona",
+      "please_wait": "You'll meet them soon...",
+      "success_initiated": "{{name}} persona creation requested",
       "errors": {
         "photo_required": "Please select a photo",
         "name_required": "Please enter a name",
