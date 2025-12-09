@@ -205,6 +205,11 @@ const PersonaCardView = ({
     console.log('modeOpacityValue:', modeOpacityValue);
     console.log('shouldShow:', shouldShow);
     console.log('→ containerOpacity set to:', opacityValue);
+    console.log('hasVideo:', hasVideo);
+    console.log('videoUrl:', videoUrl);
+    console.log('imageUrl:', imageUrl);
+    console.log('isActive:', isActive);
+    console.log('done_yn:', persona?.done_yn);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }, [isScreenFocused, modeOpacityValue, persona.persona_name]);
 
@@ -225,32 +230,10 @@ const PersonaCardView = ({
   // ✅ Log screen focus changes (for debugging video playback)
   useEffect(() => {
     const isPaused = !isScreenFocused || !isActive;
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎥 [PersonaCardView] Screen focus changed:', persona.persona_name);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Props:');
-    console.log('  - isScreenFocused:', isScreenFocused);
-    console.log('  - isActive:', isActive);
-    console.log('  - hasVideo:', hasVideo);
-    console.log('Computed:');
-    console.log('  - Video paused:', isPaused, isPaused ? '⏸️ PAUSED' : '▶️ PLAYING');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+   
   }, [isScreenFocused, isActive, persona.persona_name, hasVideo]);
 
-  // ✅ Only log when actually rendering (isActive = true)
-  if (__DEV__ && isActive) {
-    console.log('[PersonaCardView] 🎬 Active Render:', persona.persona_name, {
-      hasVideo,
-      videoUrl: videoUrl ? '✅ Yes' : '❌ No',
-      convert_done: persona?.selected_dress_video_convert_done,
-      isScreenFocused,
-      paused: !isScreenFocused || !isActive,
-      modeOpacityValue,
-      videoOpacity: videoOpacity._value,
-      videoLoaded,
-      willRenderVideo: isActive && hasVideo && modeOpacityValue > 0,
-    });
-  }
+
 
   // ✅ Handle card flip
   const handleFlip = () => {
@@ -341,7 +324,7 @@ const PersonaCardView = ({
       )}
 
       {/* ⭐ NEW: Incomplete Persona UI (Blur + Timer + Check Button) */}
-      {persona?.done_yn === 'N' && remainingSeconds !== null && (
+      {persona?.done_yn === 'N' && (
         <View style={styles.incompleteOverlay}>
           <BlurView
             style={styles.blurContainer}

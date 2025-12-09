@@ -37,7 +37,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
 
   useEffect(() => {
     console.log('persona', persona);
-  }, [persona]);
+  }, [persona,persona?.persona_key,persona?.done_yn]);
   
   // ✅ Handle chat button press
   const handleChatPress = () => {
