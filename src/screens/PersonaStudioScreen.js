@@ -63,7 +63,7 @@ const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const { personas, setPersonas, selectedPersona: contextSelectedPersona } = usePersona(); // ⭐ ADD: setPersonas for local update
+  const { personas, setPersonas, selectedPersona: contextSelectedPersona, initializePersonas } = usePersona();
   const { user } = useUser();
   const { showToast, showAlert, setIsMessageCreationActive } = useAnima(); // ⭐ For Tab Bar blocking
   const insets = useSafeAreaInsets();
@@ -292,25 +292,23 @@ const PersonaStudioScreen = () => {
     setIsPersonaCreationOpen(true);
   }, [user, showToast, t, navigation]);
   
-  // Handle persona creation start
+  // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
   const handlePersonaCreationStart = useCallback(async (data) => {
-    console.log('[PersonaStudioScreen] ✨ Persona creation started:', {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [PersonaStudioScreen] Persona creation started');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Data:', {
       name: data.name,
       gender: data.gender,
       description: data.description,
       hasFile: !!data.file,
     });
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // Close creation sheet
     setIsPersonaCreationOpen(false);
     
-    // Store data for reference
-    personaCreationDataRef.current = data;
-    
     try {
-      // Show loading overlay
-      setIsLoadingPersona(true);
-      
       // Call API to create persona
       const response = await createPersona(user.user_key, {
         name: data.name,
@@ -325,71 +323,31 @@ const PersonaStudioScreen = () => {
       
       const { persona_key, estimate_time, persona_url, memory_key, bric_key } = response.data;
       
-      console.log('[PersonaStudioScreen] ✅ Persona creation initiated:', {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ [PersonaStudioScreen] Persona creation initiated!');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Response:', {
         persona_key,
         estimate_time,
         persona_url,
         bric_key,
         memory_key,
       });
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      // Start polling for persona status
-      const checkInterval = Math.max(estimate_time * 1000 / 10, 3000); // Check every 10% of estimate_time, min 3s
-      let checkCount = 0;
-      const maxChecks = Math.ceil((estimate_time + 30) / (checkInterval / 1000)); // estimate_time + 30s buffer
+      HapticService.success();
       
-      const pollingInterval = setInterval(async () => {
-        checkCount++;
-        
-        try {
-          
-          const statusResponse = await checkPersonaStatus(persona_key, memory_key, bric_key, data.description);
-          
-          console.log('[PersonaStudioScreen] 📊 Status check:', {
-            checkCount,
-            maxChecks,
-            done_yn: statusResponse.data?.done_yn,
-          });
-          
-          if (statusResponse.data?.done_yn === 'Y') {
-            // Persona creation complete!
-            clearInterval(pollingInterval);
-            setIsLoadingPersona(false);
-            
-            // Set created persona data
-            setCreatedPersona({
-              persona_key,
-              persona_name: data.name,
-              persona_url: statusResponse.data.persona_url || persona_url,
-            });
-            
-            // Show success card
-            setIsSuccessCardVisible(true);
-            
-            HapticService.success();
-            
-            // Refresh persona list
-            // PersonaContext will handle this automatically on screen focus
-          } else if (checkCount >= maxChecks) {
-            // Timeout
-            clearInterval(pollingInterval);
-            setIsLoadingPersona(false);
-            
-            showToast({
-              type: 'warning',
-              message: t('persona.creation.errors.creation_timeout'),
-              emoji: '⏰',
-            });
-          }
-        } catch (error) {
-          console.error('[PersonaStudioScreen] ❌ Status check error:', error);
-          // Continue polling on error (might be temporary)
-        }
-      }, checkInterval);
+      // ⭐ NEW: Refresh persona list immediately (incomplete persona will appear with timer)
+      await initializePersonas();
+      
+      showToast({
+        type: 'success',
+        emoji: '✨',
+        message: t('persona.creation.started_toast', { name: data.name, time: estimate_time }),
+      });
       
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Persona creation error:', error);
-      setIsLoadingPersona(false);
       
       showToast({
         type: 'error',
@@ -398,32 +356,12 @@ const PersonaStudioScreen = () => {
       });
       HapticService.warning();
     }
-  }, [user, showToast, t]);
+  }, [user, showToast, t, initializePersonas]);
   
   // Handle persona creation close
   const handlePersonaCreationClose = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📪 Persona creation closed');
-    }
-    
     HapticService.light();
     setIsPersonaCreationOpen(false);
-  }, []);
-  
-  // Handle success card close
-  const handleSuccessCardClose = useCallback(() => {
-    console.log('[PersonaStudioScreen] 🎉 Success card closed');
-    setIsSuccessCardVisible(false);
-    setCreatedPersona(null);
-  }, []);
-  
-  // Handle go to studio (after success)
-  const handleGoToStudio = useCallback(() => {
-    console.log('[PersonaStudioScreen] 🏠 Going to studio');
-    setIsSuccessCardVisible(false);
-    setCreatedPersona(null);
-    // Already on studio screen, just refresh
-    HapticService.success();
   }, []);
   
   // Handle settings

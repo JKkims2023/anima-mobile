@@ -1856,6 +1856,10 @@
       "point_cost": "생성 비용",
       "point_time": "예상 시간",
       "create_button": "생성하기",
+      "started_toast": "{{name}} 생성이 시작되었습니다! 약 {{time}}초 후 확인 가능합니다 ⏳",
+      "check_status": "상태 확인",
+      "generating": "생성 중...",
+      "remaining_time": "남은 시간: {{time}}초",
       "errors": {
         "photo_required": "사진을 선택해주세요",
         "name_required": "이름을 입력해주세요",

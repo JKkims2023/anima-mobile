@@ -1926,6 +1926,10 @@
       "point_cost": "Creation Cost",
       "point_time": "Estimated Time",
       "create_button": "Create",
+      "started_toast": "{{name}} creation started! Available in about {{time}} seconds ⏳",
+      "check_status": "Check Status",
+      "generating": "Generating...",
+      "remaining_time": "Remaining: {{time}}s",
       "errors": {
         "photo_required": "Please select a photo",
         "name_required": "Please enter a name",
