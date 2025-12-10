@@ -56,6 +56,7 @@ import HopeStar from './HopeStar';
 import RainSoft from './RainSoft';
 import FloatingWords from './FloatingWords'; // ⭐ NEW: Custom words floating up
 import ScrollingWords from './ScrollingWords'; // ⭐ NEW: Custom words scrolling
+import TVNoise from './TVNoise'; // ⭐ NEW: Analog TV static effect
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -134,6 +135,24 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
         // ⭐ NEW: User's custom words scrolling left to right
         console.log('💬➡️ [ParticleEffect] Using ScrollingWords with:', customWords);
         return <ScrollingWords key="scrolling_words" words={customWords.length > 0 ? customWords : ['사랑해', '고마워']} />;
+      
+      // ─────────────────────────────────────────────────────────────────────
+      // 📺 Retro (Vintage)
+      // ─────────────────────────────────────────────────────────────────────
+      case 'tv_noise_weak':
+        // ⭐ NEW: Analog TV noise (weak)
+        console.log('📺 [ActiveEffect] TV Noise (Weak)');
+        return <TVNoise key="tv_noise_weak" variant="weak" />;
+      
+      case 'tv_noise_medium':
+        // ⭐ NEW: Analog TV noise (medium) - RECOMMENDED
+        console.log('📺 [ActiveEffect] TV Noise (Medium)');
+        return <TVNoise key="tv_noise_medium" variant="medium" />;
+      
+      case 'tv_noise_strong':
+        // ⭐ NEW: Analog TV noise (strong)
+        console.log('📺 [ActiveEffect] TV Noise (Strong)');
+        return <TVNoise key="tv_noise_strong" variant="strong" />;
       
       default:
         console.warn(`[ParticleEffect] Unknown particle type: ${type}`);

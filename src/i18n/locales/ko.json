@@ -1765,6 +1765,8 @@
       "comfort_hope_desc": "위로와 희망을 전하는",
       "custom_words": "나만의 단어",
       "custom_words_desc": "특별한 단어로 감동을",
+      "retro": "레트로",
+      "retro_desc": "빈티지 아날로그 효과",
       "others": "기타",
       "others_desc": "다양한 효과들"
     },
@@ -1828,7 +1830,10 @@
       "leaves": "낙엽",
       "fireflies": "반딧불이",
       "floating_words": "떠오르는 단어",
-      "scrolling_words": "흐르는 단어"
+      "scrolling_words": "흐르는 단어",
+      "tv_noise_weak": "TV 노이즈 (약함)",
+      "tv_noise_medium": "TV 노이즈 (중간)",
+      "tv_noise_strong": "TV 노이즈 (강함)"
     },
     "music": {
       "none": "없음",
