@@ -36,7 +36,10 @@ import {
   BackHandler,
   Platform,
   Share,
+  Dimensions,
 } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -406,7 +409,8 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         break;
 
       case 'slide_cross':
-        textTranslateX.value = -300;
+        // ⭐ Start from completely off-screen (left side)
+        textTranslateX.value = -SCREEN_WIDTH;
         textTranslateX.value = withDelay(2000, withSpring(0, { damping: 12 }));
         break;
 

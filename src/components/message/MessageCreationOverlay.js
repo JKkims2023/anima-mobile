@@ -40,7 +40,10 @@ import {
   BackHandler,
   Platform,
   Share,
+  Dimensions,
 } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -50,6 +53,8 @@ import Animated, {
   withSpring,
   withSequence,
   withDelay,
+  withRepeat,
+  cancelAnimation,
   Easing,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
@@ -189,6 +194,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       console.log('   1.8초: ➡️ Content Slide In (600ms)');
       console.log('   2.4초: 🎪 Chips Bounce In (순차)');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // ⭐ Reset initial render flag when overlay opens
+      isInitialRenderRef.current = true;
       
       // 📷 Step 0: Reset all values
       overlayOpacity.value = 0;
@@ -461,6 +469,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const typingIndexRef = useRef(0);
   const typingIntervalRef = useRef(null);
   const cursorIntervalRef = useRef(null);
+  const isInitialRenderRef = useRef(true); // ⭐ NEW: Track initial render
 
   const textOpacity = useSharedValue(1);
   const textScale = useSharedValue(1);
@@ -468,16 +477,36 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const textTranslateY = useSharedValue(0);
   const textRotate = useSharedValue(0);
 
-  // ⭐ Trigger Animation: 2초 후 효과 발생
+  // ⭐ Trigger Animation: 초기 렌더링 시에만 2초 딜레이, 이후 즉시 실행
   useEffect(() => {
     if (!messageContent) return;
 
     console.log('[MessageCreationOverlay] 🎬 Text animation changed:', textAnimation);
+    console.log('   🔍 isInitialRender:', isInitialRenderRef.current);
 
     // ⭐ Typing Animation (special case)
     if (textAnimation === 'typing') {
       typingIndexRef.current = 0;
       setTypingText('');
+
+      // ⭐ CRITICAL: Cancel all ongoing animations (especially infinite breath)
+      cancelAnimation(textOpacity);
+      cancelAnimation(textScale);
+      cancelAnimation(textTranslateX);
+      cancelAnimation(textTranslateY);
+      
+      // ⭐ Reset all values to default (prevent ghost animations)
+      textOpacity.value = 1;
+      textScale.value = 1;
+      textTranslateX.value = 0;
+      textTranslateY.value = 0;
+      
+      console.log('   🛑 All animations canceled for typing');
+
+      // ⭐ 초기 렌더링: 2초 딜레이 (시퀀스 애니메이션 대기)
+      // ⭐ 효과 변경: 즉시 실행 (0ms)
+      const typingDelay = isInitialRenderRef.current ? 2000 : 0;
+      console.log('   ⏱️ Typing delay:', typingDelay, 'ms');
 
       const typingTimeout = setTimeout(() => {
         typingIntervalRef.current = setInterval(() => {
@@ -492,7 +521,10 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         cursorIntervalRef.current = setInterval(() => {
           setShowCursor((prev) => !prev);
         }, 500);
-      }, 2000);
+      }, typingDelay); // ⭐ Dynamic delay
+
+      // ⭐ Mark as no longer initial render
+      isInitialRenderRef.current = false;
 
       return () => {
         clearTimeout(typingTimeout);
@@ -501,10 +533,18 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       };
     }
 
-    // ⭐ Other Animations: Reset & Trigger after 2 seconds
+    // ⭐ Other Animations: Cancel ongoing & Reset values
     setTypingText(messageContent);
 
-    // Reset all values
+    // ⭐ CRITICAL: Cancel all ongoing animations first
+    cancelAnimation(textOpacity);
+    cancelAnimation(textScale);
+    cancelAnimation(textTranslateX);
+    cancelAnimation(textTranslateY);
+    
+    console.log('   🛑 All animations canceled for:', textAnimation);
+
+    // ⭐ Reset all values to default
     textOpacity.value = 1;
     textScale.value = 1;
     textTranslateX.value = 0;
@@ -518,18 +558,24 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         break;
 
       case 'slide_cross':
-        textTranslateX.value = -50;
+        // ⭐ Start from completely off-screen (left side)
+        textTranslateX.value = -SCREEN_WIDTH;
         textOpacity.value = 0;
         textTranslateX.value = withSpring(0, { damping: 15 }); // ⭐ NO DELAY
         textOpacity.value = withTiming(1, { duration: 600 }); // ⭐ NO DELAY
         break;
 
       case 'breath':
-        // ⭐ Breathing animation (ONE cycle, NO DELAY)
-        textScale.value = withSequence(
-          withTiming(1.05, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
+        // ⭐ Natural Breathing Pattern (Infinite loop with 2-second rest)
+        // Pattern: Normal → Contract → Normal → [2s Rest] → Repeat
+        textScale.value = withRepeat(
+          withSequence(
+            withTiming(0.95, { duration: 500, easing: Easing.inOut(Easing.ease) }), // Contract (500ms)
+            withTiming(1.0, { duration: 500, easing: Easing.inOut(Easing.ease) }),  // Return to normal (500ms)
+            withDelay(2000, withTiming(1.0, { duration: 0 })) // 2-second rest (keep size 1.0)
+          ),
+          -1, // ⭐ Infinite loop
+          false
         );
         break;
 
