@@ -70,7 +70,8 @@ import messageService from '../../services/api/messageService';
 // ═══════════════════════════════════════════════════════════════════════════
 import CustomText from '../CustomText';
 import PersonaBackgroundView from './PersonaBackgroundView';
-import ParticleEffect from '../particle/ParticleEffect';
+import BackgroundEffect from '../particle/BackgroundEffect'; // ⭐ NEW: Layer 1
+import ActiveEffect from '../particle/ActiveEffect'; // ⭐ NEW: Layer 2 (기존 ParticleEffect)
 import MessageInputOverlay from './MessageInputOverlay';
 import MusicSelectionOverlay from '../music/MusicSelectionOverlay';
 import EffectGroupAccordion from '../EffectGroupAccordion';
@@ -87,7 +88,11 @@ import MessageHelpSheet from '../persona/MessageHelpSheet';
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
-import { TEXT_ANIMATION_GROUPS, PARTICLE_EFFECT_GROUPS } from '../../constants/effect-groups';
+import { 
+  TEXT_ANIMATION_GROUPS, 
+  BACKGROUND_EFFECT_GROUPS, // ⭐ NEW: Layer 1
+  ACTIVE_EFFECT_GROUPS,      // ⭐ NEW: Layer 2 (기존 PARTICLE)
+} from '../../constants/effect-groups';
 
 /**
  * MessageCreationOverlay Component
@@ -108,23 +113,35 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   const contentInputRef = useRef(null);
   const helpSheetRef = useRef(null);
-  const particleEffectSheetRef = useRef(null);
+  const backgroundEffectSheetRef = useRef(null); // ⭐ NEW: Layer 1 (배경 효과)
+  const activeEffectSheetRef = useRef(null); // ⭐ NEW: Layer 2 (액티브 효과, 기존 particleEffectSheetRef)
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // State Management
+  // State Management (2-Layer System)
   // ═══════════════════════════════════════════════════════════════════════════
   const [messageContent, setMessageContent] = useState('');
   const [textAnimation, setTextAnimation] = useState('typing'); // ⭐ 항상 타이핑 효과
-  const [particleEffect, setParticleEffect] = useState('none');
-  const [customWords, setCustomWords] = useState([]); // ⭐ NEW: User's custom words for particle effects
+  
+  // ⭐ 2-Layer Effect States
+  const [backgroundEffect, setBackgroundEffect] = useState('none'); // ⭐ NEW: Layer 1 (배경 효과)
+  const [activeEffect, setActiveEffect] = useState('none'); // ⭐ NEW: Layer 2 (액티브 효과, 기존 particleEffect)
+  const [customWords, setCustomWords] = useState([]); // ⭐ User's custom words for active effects
+  
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
-  const [selectedParticleGroup, setSelectedParticleGroup] = useState('none'); // ⭐ NEW: Floating chip navigation (기본: 없음)
+  
+  // ⭐ BottomSheet Open States
+  const [isBackgroundSheetOpen, setIsBackgroundSheetOpen] = useState(false); // ⭐ NEW: Layer 1 sheet
+  const [isActiveSheetOpen, setIsActiveSheetOpen] = useState(false); // ⭐ NEW: Layer 2 sheet (기존 isParticleSheetOpen)
+  
+  // ⭐ Floating Chip Navigation States
+  const [selectedBackgroundGroup, setSelectedBackgroundGroup] = useState('none'); // ⭐ NEW: Layer 1 group
+  const [selectedActiveGroup, setSelectedActiveGroup] = useState('none'); // ⭐ NEW: Layer 2 group (기존 selectedParticleGroup)
+  
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ═══════════════════════════════════════════════════════════════════════════
   // Sequential Animation (악마의 디테일 🎨)
@@ -342,30 +359,30 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   }, [messageContent]);
 
   useEffect(() => {
-    // 효과 선택 시 두 번째 가이드 숨김
-    if (particleEffect !== 'none' || bgMusic !== 'none') {
+    // 효과 선택 시 두 번째 가이드 숨김 (2-Layer System)
+    if (backgroundEffect !== 'none' || activeEffect !== 'none' || bgMusic !== 'none') {
       setShowChipsGuide(false);
       guideChipsOpacity.value = withTiming(0, { duration: 200 });
     }
-  }, [particleEffect, bgMusic]);
+  }, [backgroundEffect, activeEffect, bgMusic]);
 
-  // ⭐ Particle Effect Debug & Immediate Show
+  // ⭐ Active Effect Debug & Immediate Show (Layer 2)
   useEffect(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎨 [MessageCreationOverlay] Particle Effect State Changed');
-    console.log('  - particleEffect:', particleEffect);
-    console.log('  - Will render:', particleEffect && particleEffect !== 'none');
+    console.log('✨ [MessageCreationOverlay] Active Effect State Changed (Layer 2)');
+    console.log('  - activeEffect:', activeEffect);
+    console.log('  - Will render:', activeEffect && activeEffect !== 'none');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // ⭐ CRITICAL FIX: When particle is selected, show immediately (no delay)
-    if (particleEffect && particleEffect !== 'none') {
-      console.log('✨ [MessageCreationOverlay] Showing particle effect immediately!');
+    // ⭐ CRITICAL FIX: When active effect is selected, show immediately (no delay)
+    if (activeEffect && activeEffect !== 'none') {
+      console.log('✨ [MessageCreationOverlay] Showing active effect immediately!');
       particleOpacity.value = withTiming(1, { duration: 300 });
     } else {
-      console.log('🌙 [MessageCreationOverlay] Hiding particle effect');
+      console.log('🌙 [MessageCreationOverlay] Hiding active effect');
       particleOpacity.value = withTiming(0, { duration: 200 });
     }
-  }, [particleEffect]);
+  }, [activeEffect]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Android Back Button Handler (with confirmation)
@@ -376,14 +393,21 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       console.log('[MessageCreationOverlay] Android back button pressed');
       
-      // 1️⃣ If particle effect sheet is open, close it
-      if (isParticleSheetOpen) {
-        console.log('[MessageCreationOverlay] Closing particle effect sheet');
-        particleEffectSheetRef.current?.dismiss();
+      // 1️⃣ If background effect sheet is open, close it
+      if (isBackgroundSheetOpen) {
+        console.log('[MessageCreationOverlay] Closing background effect sheet');
+        backgroundEffectSheetRef.current?.dismiss();
         return true;
       }
       
-      // 4️⃣ Otherwise, show confirmation dialog before closing
+      // 2️⃣ If active effect sheet is open, close it
+      if (isActiveSheetOpen) {
+        console.log('[MessageCreationOverlay] Closing active effect sheet');
+        activeEffectSheetRef.current?.dismiss();
+        return true;
+      }
+      
+      // 3️⃣ Otherwise, show confirmation dialog before closing
       console.log('[MessageCreationOverlay] Showing exit confirmation');
       HapticService.medium();
       
@@ -416,7 +440,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     });
 
     return () => backHandler.remove();
-  }, [visible, isParticleSheetOpen, onClose, showAlert, t]);
+  }, [visible, isBackgroundSheetOpen, isActiveSheetOpen, onClose, showAlert, t]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Text Animation Values & Logic
@@ -609,13 +633,20 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Handlers: Selection Panel
+  // Handlers: Selection Panel (2-Layer System)
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleParticleEffectChipPress = () => {
-    console.log('[MessageCreationOverlay] Opening particle effect sheet');
+  const handleBackgroundEffectChipPress = () => {
+    console.log('[MessageCreationOverlay] Opening background effect sheet (Layer 1)');
     Keyboard.dismiss();
     HapticService.light();
-    particleEffectSheetRef.current?.present();
+    backgroundEffectSheetRef.current?.present();
+  };
+
+  const handleActiveEffectChipPress = () => {
+    console.log('[MessageCreationOverlay] Opening active effect sheet (Layer 2)');
+    Keyboard.dismiss();
+    HapticService.light();
+    activeEffectSheetRef.current?.present();
   };
 
   const handleBgMusicChipPress = () => {
@@ -626,11 +657,22 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Handlers: Effect Selection
+  // Handlers: Effect Selection (2-Layer System)
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleParticleEffectSelect = (effectId) => {
+  const handleBackgroundEffectSelect = (effectId) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎨 [MessageCreationOverlay] Particle Effect Selected:', effectId);
+    console.log('🌌 [MessageCreationOverlay] Background Effect Selected (Layer 1):', effectId);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    setBackgroundEffect(effectId);
+    HapticService.selection();
+    backgroundEffectSheetRef.current?.dismiss();
+    setShowChipsGuide(false); // Hide chips guide
+  };
+
+  const handleActiveEffectSelect = (effectId) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [MessageCreationOverlay] Active Effect Selected (Layer 2):', effectId);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     // ⭐ Check if this effect requires custom words
@@ -638,19 +680,19 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
 
     if (requiresCustomWords) {
       console.log('💬 [MessageCreationOverlay] Effect requires custom words, opening word input sheet');
-      setParticleEffect(effectId); // ⭐ CRITICAL FIX: Set immediately!
+      setActiveEffect(effectId); // ⭐ CRITICAL FIX: Set immediately!
       HapticService.selection();
-      particleEffectSheetRef.current?.dismiss();
-      // Small delay to ensure particle sheet is fully dismissed
+      activeEffectSheetRef.current?.dismiss();
+      // Small delay to ensure active sheet is fully dismissed
       setTimeout(() => {
         wordInputSheetRef.current?.present();
       }, 300);
       return;
     }
 
-    setParticleEffect(effectId);
+    setActiveEffect(effectId);
     HapticService.selection();
-    particleEffectSheetRef.current?.dismiss();
+    activeEffectSheetRef.current?.dismiss();
     setShowChipsGuide(false); // Hide chips guide
   };
 
@@ -660,10 +702,10 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const handleWordsSave = (words) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('💬 [MessageCreationOverlay] Custom Words Saved:', words);
-    console.log('  - Current particleEffect:', particleEffect);
+    console.log('  - Current activeEffect:', activeEffect);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setCustomWords(words);
-    // ⭐ FIXED: No need to set particleEffect again, already set in handleParticleEffectSelect
+    // ⭐ FIXED: No need to set activeEffect again, already set in handleActiveEffectSelect
     HapticService.success();
     setShowChipsGuide(false); // Hide chips guide
   };
@@ -722,10 +764,12 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         ? messageContent.substring(0, 30) + '...'
         : messageContent;
 
-      // ⭐ Build effect_config with custom words
-      const effectConfig = customWords.length > 0 ? {
-        custom_words: customWords
-      } : null;
+      // ⭐ Build effect_config with 2-Layer System
+      const effectConfig = {
+        background_effect: backgroundEffect !== 'none' ? backgroundEffect : null,
+        active_effect: activeEffect !== 'none' ? activeEffect : null,
+        custom_words: customWords.length > 0 ? customWords : null,
+      };
 
       const response = await messageService.createMessage({
         user_key: user?.user_key,
@@ -734,10 +778,10 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         message_title: autoTitle, // ⭐ 자동 생성된 제목
         message_content: messageContent,
         text_animation: 'typing', // ⭐ 항상 타이핑 효과
-        particle_effect: particleEffect,
+        particle_effect: activeEffect, // ⭐ 2-Layer System: activeEffect (backward compatibility)
         bg_music: bgMusic || 'none',
         bg_music_url: bgMusicUrl,
-        effect_config: effectConfig, // ⭐ Include custom words
+        effect_config: effectConfig, // ⭐ 2-Layer System: background_effect, active_effect, custom_words
         persona_name: selectedPersona?.persona_name,
         persona_image_url: selectedPersona?.selected_dress_image_url,
         persona_video_url: selectedPersona?.selected_dress_video_url,
@@ -790,7 +834,8 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     customWords,
     user,
     selectedPersona,
-    particleEffect,
+    backgroundEffect, // ⭐ 2-Layer System: Layer 1
+    activeEffect, // ⭐ 2-Layer System: Layer 2
     bgMusic,
     bgMusicUrl,
     setHasNewMessage,
@@ -839,9 +884,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // 2️⃣ VALIDATION: Partial Selection (Content only, no effects)
+    // 2️⃣ VALIDATION: Partial Selection (Content only, no effects) - 2-Layer System
     // ═══════════════════════════════════════════════════════════════════════════
-    const hasEffects = particleEffect !== 'none' || bgMusic !== 'none';
+    const hasEffects = backgroundEffect !== 'none' || activeEffect !== 'none' || bgMusic !== 'none';
     
     if (!hasEffects) {
       console.log('⚠️ [MessageCreationOverlay] No effects selected (partial)');
@@ -849,6 +894,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       // Build status message
       const statusMessage = `
 📝 ${t('message.validation.status_content')}: ${t('message.validation.status_complete')}
+🌌 ${t('message.validation.status_background')}: ${t('message.validation.status_not_selected')}
 ✨ ${t('message.validation.status_particle')}: ${t('message.validation.status_not_selected')}
 🎵 ${t('message.validation.status_music')}: ${t('message.validation.status_not_selected')}
       `.trim();
@@ -875,22 +921,27 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // 3️⃣ VALIDATION: Final Confirmation (All options selected)
+    // 3️⃣ VALIDATION: Final Confirmation (All options selected) - 2-Layer System
     // ═══════════════════════════════════════════════════════════════════════════
     console.log('✅ [MessageCreationOverlay] All options selected, showing final confirmation');
     
     // Get effect labels for display
-    const particleLabel = PARTICLE_EFFECT_GROUPS
+    const backgroundLabel = BACKGROUND_EFFECT_GROUPS
       .flatMap(g => g.items)
-      .find(item => item.id === particleEffect)?.label || particleEffect;
+      .find(item => item.id === backgroundEffect)?.label || backgroundEffect;
+    
+    const activeLabel = ACTIVE_EFFECT_GROUPS
+      .flatMap(g => g.items)
+      .find(item => item.id === activeEffect)?.label || activeEffect;
     
     const musicLabel = bgMusic !== 'none' ? bgMusic : t('message.validation.status_not_selected');
     
     // Build detailed status message
     const detailedStatus = `
 📝 ${t('message.validation.status_content')}: ${t('message.validation.status_complete')}
-✨ ${t('message.validation.status_particle')}: ${particleLabel}
-${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') && customWords.length > 0 
+🌌 ${t('message.validation.status_background')}: ${backgroundLabel !== 'none' ? backgroundLabel : t('message.validation.status_not_selected')}
+✨ ${t('message.validation.status_particle')}: ${activeLabel !== 'none' ? activeLabel : t('message.validation.status_not_selected')}
+${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && customWords.length > 0 
   ? `   💬 ${t('message.validation.status_custom_words')}: ${customWords.join(', ')}`
   : ''}
 🎵 ${t('message.validation.status_music')}: ${musicLabel}
@@ -916,7 +967,8 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
     });
   }, [
     messageContent,
-    particleEffect,
+    backgroundEffect, // ⭐ 2-Layer System: Layer 1
+    activeEffect, // ⭐ 2-Layer System: Layer 2
     bgMusic,
     customWords,
     triggerContentShake,

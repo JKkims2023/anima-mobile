@@ -1,26 +1,18 @@
 /**
- * 🎨 Effect Groups Configuration (2-Layer System)
+ * 🎨 Effect Groups Configuration
  * 
  * Complete grouped structure for all effect selection panels:
  * - Text Animations (4 groups: Gentle, Dynamic, Impactful, Playful)
- * - Background Effects (3 groups: Light & Glow, Atmosphere) ⭐ NEW: Layer 1
- * - Active Effects (6 groups: Love, Celebration, Nature, Comfort, Custom Words) ⭐ Layer 2
+ * - Particle Effects (5 groups: Love, Celebration, Nature, Comfort, Others)
  * - Background Music (3 groups: Default, User Generated, Favorites)
- * 
- * 2-Layer System Architecture:
- * Layer 1 (Background): Ambient, soft effects (z-index: 10)
- *   → Aurora, Neon Light, Gradient, Fog, Shimmer
- * Layer 2 (Active): Dynamic, engaging effects (z-index: 50)
- *   → Hearts, Fireworks, Snow, Floating Words, etc.
  * 
  * Design Principles:
  * - Emotion-based categorization
- * - Multiple effects can be combined (Layer 1 + Layer 2 + Music)
+ * - Accordion structure for better UX
  * - i18n support for all labels
  * - Consistent with Next.js web version
  * 
  * @author JK & Hero Nexus AI
- * @date 2024-12-10 (2-Layer System)
  */
 
 import { t } from 'i18next';
@@ -221,132 +213,21 @@ export const TEXT_ANIMATION_GROUPS = [
 ];
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🌌 BACKGROUND EFFECT GROUPS (3 groups, NEW!)
+// ✨ PARTICLE EFFECT GROUPS (5 groups, 12+ effects total)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /**
- * Background Effect Groups (Layer 1)
+ * Particle Effect Groups
  * 
- * Soft, ambient effects that fill the background:
- * 1. None: No background effect (standalone)
- * 2. Light & Glow (✨): Aurora, neon light, gradient flow
- * 3. Atmosphere (🌫️): Fog, mist, shimmer
- * 
- * Design Principles:
- * - Low z-index (behind active effects)
- * - Gentle, slow animations
- * - Sets the emotional mood/atmosphere
- * - Does not distract from message content
- */
-export const BACKGROUND_EFFECT_GROUPS = [
-  // ─────────────────────────────────────────────────────────────────────
-  // Standalone: None
-  // ─────────────────────────────────────────────────────────────────────
-  {
-    id: 'none',
-    type: 'standalone',
-    items: [
-      { 
-        id: 'none', 
-        label: () => t('effects.background.none', '없음'),
-        emoji: '⚫',
-        description: () => t('effects.background.none_desc', '배경 효과 없음'),
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────────────
-  // Group 1: Light & Glow (빛 & 광채) ✨
-  // ─────────────────────────────────────────────────────────────────────
-  {
-    id: 'light_glow',
-    type: 'group',
-    title: () => t('effects.background_group.light_glow', '빛 & 광채'),
-    emoji: '✨',
-    description: () => t('effects.background_group.light_glow_desc', '부드러운 빛의 효과'),
-    defaultOpen: true,
-    items: [
-      { 
-        id: 'aurora', 
-        label: () => t('effects.background.aurora', '오로라'),
-        emoji: '🌌',
-        description: '신비로운 오로라 빛',
-        mood: 'mystical',
-        isNew: true,
-        recommended: true, // ⭐ Most emotional background effect
-      },
-      { 
-        id: 'neon_light', 
-        label: () => t('effects.background.neon_light', '네온 라이트'),
-        emoji: '💡',
-        description: '네온 사인 같은 빛',
-        mood: 'vibrant',
-        isNew: true,
-      },
-      { 
-        id: 'gradient_flow', 
-        label: () => t('effects.background.gradient_flow', '그라디언트'),
-        emoji: '🌈',
-        description: '흐르는 그라디언트',
-        mood: 'dreamy',
-        isNew: true,
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────────────
-  // Group 2: Atmosphere (분위기) 🌫️
-  // ─────────────────────────────────────────────────────────────────────
-  {
-    id: 'atmosphere',
-    type: 'group',
-    title: () => t('effects.background_group.atmosphere', '분위기'),
-    emoji: '🌫️',
-    description: () => t('effects.background_group.atmosphere_desc', '은은한 분위기 연출'),
-    defaultOpen: false,
-    items: [
-      { 
-        id: 'fog', 
-        label: () => t('effects.background.fog', '안개'),
-        emoji: '🌫️',
-        description: '몽환적인 안개',
-        mood: 'mysterious',
-        isNew: true,
-      },
-      { 
-        id: 'shimmer', 
-        label: () => t('effects.background.shimmer', '반짝임'),
-        emoji: '✨',
-        description: '은은한 반짝임',
-        mood: 'gentle',
-        isNew: true,
-      },
-    ],
-  },
-];
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✨ ACTIVE EFFECT GROUPS (Layer 2 - 기존 PARTICLE_EFFECT_GROUPS)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-/**
- * Active Effect Groups (Layer 2)
- * 
- * Dynamic, moving effects that draw attention:
- * 1. None: No active effect (standalone)
+ * Categorized by emotion and theme:
+ * 1. None: No particle effect (standalone)
  * 2. Love & Romance (💕): Hearts and romantic particles
  * 3. Celebration & Joy (🎉): Confetti, sparkles, fireworks
  * 4. Nature & Season (🌿): Snow, rain, sakura, leaves
  * 5. Comfort & Hope (🕯️): Warm light, stars, fireflies
- * 6. Custom Words (💬): Floating/scrolling user words
- * 
- * Design Principles:
- * - Higher z-index (above background effects)
- * - Active, engaging animations
- * - Eye-catching and memorable
- * - Enhances message emotion
+ * 6. Others (🎨): Miscellaneous effects (for future expansion)
  */
-export const ACTIVE_EFFECT_GROUPS = [
+export const PARTICLE_EFFECT_GROUPS = [
   // ─────────────────────────────────────────────────────────────────────
   // Standalone: None
   // ─────────────────────────────────────────────────────────────────────
@@ -749,17 +630,11 @@ export const EFFECT_STATS = {
     recommended: getRecommendedEffects(TEXT_ANIMATION_GROUPS).length,
     new: getNewEffects(TEXT_ANIMATION_GROUPS).length,
   },
-  backgroundEffects: {
-    totalGroups: BACKGROUND_EFFECT_GROUPS.length,
-    totalEffects: getAllEffectIds(BACKGROUND_EFFECT_GROUPS).length,
-    recommended: getRecommendedEffects(BACKGROUND_EFFECT_GROUPS).length,
-    new: getNewEffects(BACKGROUND_EFFECT_GROUPS).length,
-  },
-  activeEffects: {
-    totalGroups: ACTIVE_EFFECT_GROUPS.length,
-    totalEffects: getAllEffectIds(ACTIVE_EFFECT_GROUPS).length,
-    recommended: getRecommendedEffects(ACTIVE_EFFECT_GROUPS).length,
-    new: getNewEffects(ACTIVE_EFFECT_GROUPS).length,
+  particleEffects: {
+    totalGroups: PARTICLE_EFFECT_GROUPS.length,
+    totalEffects: getAllEffectIds(PARTICLE_EFFECT_GROUPS).length,
+    recommended: getRecommendedEffects(PARTICLE_EFFECT_GROUPS).length,
+    new: getNewEffects(PARTICLE_EFFECT_GROUPS).length,
   },
   music: {
     totalGroups: MUSIC_GROUPS.length,
@@ -770,23 +645,6 @@ export const EFFECT_STATS = {
 
 // Log stats in development
 if (__DEV__) {
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🎨 [Effect Groups] 2-Layer System Statistics:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📝 Text Animations:', EFFECT_STATS.textAnimations);
-  console.log('🌌 Background Effects (Layer 1):', EFFECT_STATS.backgroundEffects);
-  console.log('✨ Active Effects (Layer 2):', EFFECT_STATS.activeEffects);
-  console.log('🎵 Music:', EFFECT_STATS.music);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🎨 [Effect Groups] Statistics:', EFFECT_STATS);
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🔄 BACKWARD COMPATIBILITY (for existing code)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-/**
- * @deprecated Use ACTIVE_EFFECT_GROUPS instead
- * Maintained for backward compatibility with existing code
- */
-export const PARTICLE_EFFECT_GROUPS = ACTIVE_EFFECT_GROUPS;
 
