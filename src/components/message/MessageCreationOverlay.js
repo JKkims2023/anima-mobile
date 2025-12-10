@@ -94,6 +94,16 @@ import {
   ACTIVE_EFFECT_GROUPS,      // ⭐ NEW: Layer 2 (기존 PARTICLE)
 } from '../../constants/effect-groups';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ⭐ NEW: Text Effect Click System (4 Core Effects)
+// ═══════════════════════════════════════════════════════════════════════════
+const TEXT_EFFECTS = [
+  { id: 'typing', label: '타이핑', emoji: '⌨️', description: '타이핑하듯 등장' },
+  { id: 'fade_in', label: '페이드인', emoji: '✨', description: '부드럽게 나타남' },
+  { id: 'slide_cross', label: '슬라이드', emoji: '➡️', description: '좌측에서 등장' },
+  { id: 'breath', label: '숨쉬기', emoji: '💓', description: '살아 숨쉬듯 변화' },
+];
+
 /**
  * MessageCreationOverlay Component
  * 
@@ -122,7 +132,8 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // State Management (2-Layer System)
   // ═══════════════════════════════════════════════════════════════════════════
   const [messageContent, setMessageContent] = useState('');
-  const [textAnimation, setTextAnimation] = useState('typing'); // ⭐ 항상 타이핑 효과
+  const [textAnimation, setTextAnimation] = useState('typing'); // ⭐ 기본값: 타이핑
+  const [textEffectIndex, setTextEffectIndex] = useState(0); // ⭐ NEW: Current text effect index (0-6)
   
   // ⭐ 2-Layer Effect States
   const [backgroundEffect, setBackgroundEffect] = useState('none'); // ⭐ NEW: Layer 1 (배경 효과)
@@ -503,114 +514,29 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     switch (textAnimation) {
       case 'fade_in':
         textOpacity.value = 0;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
-        break;
-
-      case 'breath':
-        textScale.value = withDelay(2000, 
-          withSequence(
-            withTiming(1.05, { duration: 1000 }),
-            withTiming(0.95, { duration: 1000 }),
-            withTiming(1, { duration: 1000 })
-          )
-        );
-        break;
-
-      case 'blur_focus':
-        textOpacity.value = 0.3;
-        textScale.value = 0.95;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 1000 }));
-        textScale.value = withDelay(2000, withTiming(1, { duration: 1000 }));
-        break;
-
-      case 'letter_drop':
-        textTranslateY.value = -100;
-        textOpacity.value = 0;
-        textTranslateY.value = withDelay(2000, withSpring(0, { damping: 8 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 400 }));
-        break;
-
-      case 'rotate_in':
-        textRotate.value = 180;
-        textOpacity.value = 0;
-        textRotate.value = withDelay(2000, withSpring(0, { damping: 10 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 600 }));
-        break;
-
-      case 'scale_in':
-        textScale.value = 0;
-        textScale.value = withDelay(2000, withSpring(1, { damping: 10 }));
-        break;
-
-      case 'split':
-        textScale.value = 0;
-        textTranslateX.value = withDelay(2000,
-          withSequence(
-            withTiming(-50, { duration: 300 }),
-            withTiming(0, { duration: 300 })
-          )
-        );
-        textScale.value = withDelay(2000, withSpring(1, { damping: 8 }));
-        break;
-
-      case 'glow_pulse':
-        textScale.value = withDelay(2000,
-          withSequence(
-            withTiming(1.2, { duration: 400 }),
-            withTiming(1, { duration: 400 })
-          )
-        );
-        textOpacity.value = withDelay(2000,
-          withSequence(
-            withTiming(0.7, { duration: 400 }),
-            withTiming(1, { duration: 400 })
-          )
-        );
+        textOpacity.value = withTiming(1, { duration: 800 }); // ⭐ NO DELAY
         break;
 
       case 'slide_cross':
-        textTranslateX.value = -300;
-        textTranslateX.value = withDelay(2000, withSpring(0, { damping: 12 }));
-        break;
-
-      case 'wave':
-        textTranslateY.value = withDelay(2000,
-          withSequence(
-            withTiming(-10, { duration: 200 }),
-            withTiming(10, { duration: 200 }),
-            withTiming(-10, { duration: 200 }),
-            withTiming(0, { duration: 200 })
-          )
-        );
-        break;
-
-      case 'stagger':
         textTranslateX.value = -50;
         textOpacity.value = 0;
-        textTranslateX.value = withDelay(2000, withSpring(0, { damping: 15 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 600 }));
+        textTranslateX.value = withSpring(0, { damping: 15 }); // ⭐ NO DELAY
+        textOpacity.value = withTiming(1, { duration: 600 }); // ⭐ NO DELAY
         break;
 
-      case 'flip':
-        textRotate.value = 90;
-        textOpacity.value = 0;
-        textRotate.value = withDelay(2000, withSpring(0, { damping: 12 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 300 }));
-        break;
-
-      case 'rainbow':
-        textScale.value = withDelay(2000,
-          withSequence(
-            withTiming(1.1, { duration: 300 }),
-            withTiming(0.9, { duration: 300 }),
-            withTiming(1, { duration: 300 })
-          )
+      case 'breath':
+        // ⭐ Breathing animation (ONE cycle, NO DELAY)
+        textScale.value = withSequence(
+          withTiming(1.05, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
         );
         break;
 
       default:
+        // ⭐ Default to fade-in (NO DELAY)
         textOpacity.value = 0;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
+        textOpacity.value = withTiming(1, { duration: 800 });
         break;
     }
   }, [textAnimation, messageContent]);
@@ -631,6 +557,29 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const filterNonEmptyGroups = (groups) => {
     return groups.filter(group => group.items && group.items.length > 0);
   };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Text Effect Click Handler (Simple & Clear)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleTextEffectClick = useCallback(() => {
+    if (!messageContent) return; // Only allow if content exists
+
+    setTextEffectIndex((prev) => {
+      const newIndex = (prev + 1) % TEXT_EFFECTS.length;
+      const newEffect = TEXT_EFFECTS[newIndex];
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(`👆 [Click] Text Effect Changed: ${newEffect.label} (${newIndex + 1}/${TEXT_EFFECTS.length})`);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // ⭐ Immediately set new effect (NO DELAY)
+      setTextAnimation(newEffect.id);
+      
+      // ⭐ Haptic feedback
+      HapticService.selection();
+      
+      return newIndex;
+    });
+  }, [messageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Selection Panel (2-Layer System)
@@ -1163,9 +1112,10 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
           ]}>
             {/* ⭐ Title 제거 - 제목과 본문 통합 */}
             
-            {/* Content with Animation (타이핑 효과 고정) */}
+            {/* Content with Animation */}
             <TouchableOpacity onPress={() => contentInputRef.current?.present()}>
               <Animated.View style={animatedTextStyle}>
+                {/* ⭐ Standard Text Display */}
                 <CustomText type="title" style={styles.content}>
                   {typingText ? (
                     <>
@@ -1178,6 +1128,19 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
                 </CustomText>
               </Animated.View>
             </TouchableOpacity>
+            
+            {/* ⭐ NEW: Text Effect Change Button (Replaces swipe) */}
+            {typingText && (
+              <TouchableOpacity 
+                style={styles.effectChangeButton}
+                onPress={handleTextEffectClick}
+                activeOpacity={0.7}
+              >
+                <CustomText style={styles.effectChangeButtonText}>
+                  👆 {TEXT_EFFECTS[textEffectIndex].emoji} {TEXT_EFFECTS[textEffectIndex].label}
+                </CustomText>
+              </TouchableOpacity>
+            )}
           </Animated.View>
         </LinearGradient>
       </Animated.View>
@@ -1585,6 +1548,24 @@ const styles = StyleSheet.create({
   },
   guideText: {
     fontSize: scale(18),
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  // ⭐ NEW: Text Effect Change Button (Click to change)
+  effectChangeButton: {
+    marginTop: verticalScale(12),
+    alignSelf: 'flex-start', // ⭐ 클릭 가이드와 동일한 위치 (좌측)
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  effectChangeButtonText: {
+    fontSize: scale(18), // ⭐ 클릭 가이드와 동일한 크기
     color: '#FFFFFF',
     fontWeight: '600',
   },
