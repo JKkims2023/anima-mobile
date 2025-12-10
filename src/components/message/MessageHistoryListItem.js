@@ -98,17 +98,11 @@ const MessageHistoryListItem = ({ message, onPress }) => {
             style={[styles.title, { color: currentTheme.textPrimary }]}
             numberOfLines={1}
             ellipsizeMode="tail"
+            maxLength={10}
           >
             {message_title || t('history.untitled')}
           </CustomText>
           
-          {/* Reply Count Badge */}
-          {reply_count > 0 && (
-            <View style={styles.replyBadge}>
-              <Icon name="chatbubble" size={scale(12)} color="#FFFFFF" />
-              <CustomText style={styles.replyCount}>{reply_count}</CustomText>
-            </View>
-          )}
         </View>
 
         {/* Persona Name */}
@@ -131,19 +125,27 @@ const MessageHistoryListItem = ({ message, onPress }) => {
           <View style={styles.stat}>
             <Icon name="share-social-outline" size={scale(14)} color={currentTheme.textSecondary} />
             <CustomText style={[styles.statText, { color: currentTheme.textSecondary }]}>
-              {share_count}회
+              {share_count}
             </CustomText>
           </View>
 
-          {favorite_yn === 'Y' && (
-            <View style={styles.stat}>
-              <Icon name="star" size={scale(14)} color={COLORS.gold} />
-              <CustomText style={[styles.statText, { color: COLORS.gold }]}>
-                {t('history.favorite')}
-              </CustomText>
+          {/* Reply Count Badge */}
+          {reply_count > 0 && (
+            <View style={styles.replyBadge}>
+              <Icon name="chatbubble" size={scale(12)} color="#FFFFFF" />
+              <CustomText style={styles.replyCount}>{reply_count}</CustomText>
             </View>
           )}
         </View>
+        {favorite_yn === 'Y' && (
+          <View style={[styles.stat, { marginTop: verticalScale(4) }]}>
+            <Icon name="star" size={scale(14)} color={COLORS.gold} />
+            <CustomText style={[styles.statText, { color: COLORS.gold }]}>
+              {t('history.favorite')}
+            </CustomText>
+          </View>
+        )}
+
       </View>
 
       {/* Arrow */}
@@ -213,11 +215,12 @@ const styles = StyleSheet.create({
     marginRight: scale(8),
   },
   replyBadge: {
+    minWidth:verticalScale(40),
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.neonBlue,
     paddingHorizontal: scale(8),
-    paddingVertical: verticalScale(4),
+    paddingVertical: verticalScale(2),
     borderRadius: moderateScale(12),
     gap: scale(4),
   },
@@ -229,6 +232,7 @@ const styles = StyleSheet.create({
   personaName: {
     fontSize: moderateScale(13),
     marginBottom: verticalScale(6),
+    display: 'none',
   },
   statsRow: {
     flexDirection: 'row',
@@ -239,6 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(4),
+
   },
   statText: {
     fontSize: moderateScale(12),
