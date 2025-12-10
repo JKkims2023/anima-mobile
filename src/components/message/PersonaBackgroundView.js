@@ -15,7 +15,7 @@ import React, { useRef, useEffect, useState, memo } from 'react';
 import { View, StyleSheet, Image, Animated as RNAnimated } from 'react-native';
 import Video from 'react-native-video';
 import FastImage from 'react-native-fast-image';
-import { scale } from '../../utils/responsive-utils';
+import { scale, verticalScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 
 const PersonaBackgroundView = memo(({
@@ -115,7 +115,8 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.BG_PRIMARY,
-    marginTop: 120,
+    marginTop: Platform.OS === 'ios' ? verticalScale(115) : verticalScale(88),
+
   },
   video: {
     ...StyleSheet.absoluteFillObject,

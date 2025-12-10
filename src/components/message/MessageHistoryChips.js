@@ -81,7 +81,7 @@ const MessageHistoryChips = memo(({
       <TouchableOpacity
         style={[
           styles.chip,
-          replyCount > 0 && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+          false && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
         ]}
         onPress={handleCommentPress}
         activeOpacity={0.7}
@@ -91,7 +91,7 @@ const MessageHistoryChips = memo(({
           size={scale(20)}
           color={currentTheme.mainColor}
         />
-        {replyCount > 0 && (
+        {false && (
           <View style={styles.badge}>
             <CustomText style={styles.badgeText}>{replyCount}</CustomText>
           </View>

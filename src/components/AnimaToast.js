@@ -26,7 +26,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from './CustomText';
-import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
+import { scale, moderateScale, platformPadding, verticalScale } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -228,6 +228,8 @@ const styles = StyleSheet.create({
     right: scale(16),
     zIndex: 9999,
     alignItems: 'center',
+    marginTop:verticalScale(70),
+
   },
   touchable: {
     width: TOAST_WIDTH,
@@ -246,8 +248,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: scale(12),
-    elevation: 0,
-    opacity: 0.6,
+//    elevation: 0,
+//    opacity: 0.6,
   },
   toast: {
     flexDirection: 'row',
@@ -257,6 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(16),
     borderWidth: 1,
     minHeight: scale(64),
+
   },
   iconContainer: {
     width: scale(32),

@@ -41,6 +41,7 @@ import messageService from '../services/api/messageService';
 import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
+import HistoryHelpSheet from '../components/persona/HistoryHelpSheet';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -65,7 +66,8 @@ const HistoryScreen = ({ navigation }) => {
 
   // ✅ FlashList ref
   const flashListRef = useRef(null);
-
+  const helpSheetRef = useRef(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ✅ Messages state
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
@@ -261,6 +263,14 @@ const HistoryScreen = ({ navigation }) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle help press
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleHelpPress = () => {
+    HapticService.light();
+
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render filter chip
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFilterChip = (filter, label, icon) => {
@@ -363,19 +373,19 @@ const HistoryScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity
           style={styles.searchButton}
-          onPress={toggleSearch}
+          onPress={() => setIsHelpOpen(true)}
           activeOpacity={0.7}
         >
           <Icon 
-            name={isSearchVisible ? "close" : "search"} 
-            size={scale(24)} 
+            name={"help-circle-outline"} 
+            size={scale(30)} 
             color={currentTheme.mainColor} 
           />
         </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
-      {isSearchVisible && (
+      {true && (
         <View style={[styles.searchContainer, { backgroundColor: currentTheme.cardBackground }]}>
           <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} style={styles.searchIcon} />
           <TextInput
@@ -453,6 +463,19 @@ const HistoryScreen = ({ navigation }) => {
           onMessageUpdate={handleMessageUpdate}
         />
       )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Help Sheet */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <View style={styles.sheetContainer}>
+        <HistoryHelpSheet
+          ref={helpSheetRef}
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+
+        />
+      </View>
+
     </SafeScreen>
   );
 };
@@ -464,7 +487,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
+    paddingBottom: platformPadding(0),
     paddingHorizontal: platformPadding(20),
   },
   headerContent: {
@@ -475,10 +498,12 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     // color set dynamically
+    display: 'none',
   },
   searchButton: {
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
+    marginTop: Platform.OS === 'ios' ? verticalScale(-5) : verticalScale(-5),
   },
 
   // Search
@@ -490,9 +515,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(10),
     borderRadius: moderateScale(12),
+    marginLeft: scale(5),
   },
   searchIcon: {
     marginRight: scale(8),
+
   },
   searchInput: {
     flex: 1,

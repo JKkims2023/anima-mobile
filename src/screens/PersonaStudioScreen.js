@@ -48,6 +48,8 @@ import PersonaCreationLoadingOverlay from '../components/persona/PersonaCreation
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
+import MainHelpSheet from '../components/persona/MainHelpSheet';
+
 import { 
   createPersona,
   checkPersonaStatus,
@@ -107,6 +109,8 @@ const PersonaStudioScreen = () => {
   const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
   const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ NEW: Loading overlay for persona creation
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const helpSheetRef = useRef(null);
   const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
@@ -948,6 +952,15 @@ const PersonaStudioScreen = () => {
         >
           <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
         </TouchableOpacity>
+
+        {/* Search Icon */}
+        <TouchableOpacity
+          style={[styles.searchButton, { marginLeft: verticalScale(-5) }]}
+          onPress={() => setIsHelpOpen(true)}
+          activeOpacity={0.7}
+        >
+          <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+        </TouchableOpacity>
       </View>
       
       {/* Container */}
@@ -972,6 +985,7 @@ const PersonaStudioScreen = () => {
             enabled={true}
             isMessageMode={false}
             onCreatePersona={handleAddPersona}
+            filterMode={filterMode}
           />
         </View>
         
@@ -1028,6 +1042,18 @@ const PersonaStudioScreen = () => {
         <ChoicePersonaSheet
           isOpen={isPersonaCreationOpen}
           onClose={handlePersonaCreationClose}
+          onCreateStart={handlePersonaCreationStart}
+        />
+      </View>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Help Sheet */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <View style={styles.sheetContainer}>
+        <MainHelpSheet
+          ref={helpSheetRef}
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
           onCreateStart={handlePersonaCreationStart}
         />
       </View>

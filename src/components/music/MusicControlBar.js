@@ -156,7 +156,7 @@ const MusicControlBar = ({ musicUrl, isPlaying = false, onPlayingChange }) => {
 
   return (
     <View 
-      style={[styles.container, { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}
+      style={[styles.container]}
       pointerEvents="auto"
     >
       {/* Hidden Audio Player */}
@@ -255,15 +255,15 @@ const styles = StyleSheet.create({
     right: scale(16),
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(12),
-    borderRadius: moderateScale(12),
+
     gap: verticalScale(10),
     zIndex: 999, // ⭐ CRITICAL: Highest priority for touch events
-    elevation: 999, // ⭐ Android highest priority
+
     // Shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+//    shadowColor: '#000',
+//    shadowOffset: { width: 0, height: 2 },
+//    shadowOpacity: 0.3,
+//    shadowRadius: 4,
   },
   hiddenVideo: {
     width: 0,
@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
   progressSection: {
     flex: 1,
     gap: verticalScale(4),
+    display: 'none',
   },
   progressSlider: {
     width: '100%',
@@ -314,6 +315,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(10),
     paddingHorizontal: scale(4),
+    display: 'none',
   },
   volumeSlider: {
     flex: 1,

@@ -62,6 +62,7 @@ const PersonaSwipeViewer = forwardRef(({
   isMessageMode = false,
   availableHeight = SCREEN_HEIGHT,
   onCreatePersona = () => {},
+  filterMode = 'default',
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -193,6 +194,8 @@ const PersonaSwipeViewer = forwardRef(({
   // Empty state (no personas)
   if (!personas || personas.length === 0) {
     return (
+      <>
+      {filterMode === 'user' ? (
       <View style={[styles.container, styles.centered]}>
         
         <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
@@ -204,6 +207,22 @@ const PersonaSwipeViewer = forwardRef(({
           </CustomText>
         </TouchableOpacity>
       </View>
+    
+      ) : (
+
+      <View style={[styles.container, styles.centered]}>
+            
+      <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
+        {t('persona.no_favorite_personas')}
+      </CustomText>
+      <View style={{ marginTop: 8, textAlign: 'center', marginLeft: verticalScale(20), marginRight: verticalScale(20) }}>
+        <CustomText type="middle" style={{ color: currentTheme.mainColor, marginTop: 8, textAlign: 'center' }}>
+          {t('persona.create_favorite_persona')}
+        </CustomText>
+      </View>
+    </View>
+    )}
+   </>
     );
   }
 
@@ -222,10 +241,7 @@ const PersonaSwipeViewer = forwardRef(({
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollToIndexFailed={(info) => {
-          // Handle scrollToIndex failure (item not rendered yet)
-          if (__DEV__) {
-            console.warn('[PersonaSwipeViewer] ⚠️ scrollToIndex failed:', info);
-          }
+          
           
           // Fallback: scroll to offset
           flatListRef.current?.scrollToOffset({

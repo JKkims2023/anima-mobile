@@ -557,6 +557,14 @@ const MusicScreen = () => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle help press
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleHelpPress = () => {
+    HapticService.light();
+
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render empty state
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderEmpty = () => {
@@ -579,7 +587,7 @@ const MusicScreen = () => {
   // Render header
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderHeader = () => (
-    <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
+    <View style={[styles.header, { paddingTop: insets.top + verticalScale(15) }]}>
       {/* Title */}
       <View style={styles.headerTitleRow}>
         <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
@@ -589,16 +597,16 @@ const MusicScreen = () => {
         {/* Search Icon */}
         <TouchableOpacity
           style={styles.searchIconButton}
-          onPress={() => searchInputRef.current?.focus()}
+          onPress={handleHelpPress}
           activeOpacity={0.7}
         >
-          <Icon name="search" size={scale(24)} color={currentTheme.mainColor} />
+          <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
         </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
       <View style={[styles.searchBar, { backgroundColor: currentTheme.cardBackground }]}>
-        <Icon name="search-outline" size={scale(20)} color={currentTheme.textSecondary} />
+        <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} />
         <TextInput
           ref={searchInputRef}
           style={[styles.searchInput, { color: currentTheme.textPrimary }]}
@@ -774,6 +782,7 @@ const styles = StyleSheet.create({
   },
   searchIconButton: {
     padding: scale(8),
+
   },
 
   // Search Bar
@@ -783,11 +792,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(10),
     borderRadius: moderateScale(12),
+    marginTop: verticalScale(-15),
+    marginLeft: scale(-13),
     gap: scale(8),
   },
   searchInput: {
     flex: 1,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(15),
     paddingVertical: 0,
   },
 

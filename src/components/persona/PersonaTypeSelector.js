@@ -72,13 +72,13 @@ const PersonaTypeSelector = ({
       };
     } else if (isUserMode) {
       return {
-        emoji: '👤',
+        emoji: '✨',
         label: t('message.select_user_mode'),
         count: userCount,
       };
     } else {
       return {
-        emoji: '🌐',
+        emoji: '🆓',
         label: t('message.select_default_mode'),
         count: defaultCount,
       };

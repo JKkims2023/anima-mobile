@@ -256,7 +256,7 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
         <CustomText style={[styles.emptyText, { color: currentTheme.textPrimary }]}>
           {t('reply.no_replies')}
         </CustomText>
-        <CustomText style={[styles.emptySubtext, { color: currentTheme.textSecondary }]}>
+        <CustomText style={[styles.emptySubtext, { color: currentTheme.textSecondary, display: 'none' }]}>
           {t('reply.be_first_to_reply')}
         </CustomText>
       </View>
@@ -272,8 +272,8 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
       <View style={[styles.statsCard, { backgroundColor: currentTheme.cardBackground }]}>
         <View style={styles.statsHeader}>
           <Icon name="chatbubbles" size={scale(24)} color={currentTheme.mainColor} />
-          <CustomText type="big" bold style={[styles.statsTitle, { color: currentTheme.textPrimary }]}>
-            {t('reply.total_replies', { count: stats.total })}
+          <CustomText type="title" bold style={[styles.statsTitle, { color: currentTheme.textPrimary }]}>
+            {t('reply.total_replies', { count: replies.length })}
           </CustomText>
         </View>
 
@@ -314,7 +314,7 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
       {/* Back Button */}
       <View style={styles.backButtonContainer}>
         <CustomButton
-          text={t('reply.back_to_message')}
+          title={t('common.back')}
           onPress={onClose}
           leftIcon={<Icon name="arrow-back" size={scale(20)} color="#FFFFFF" />}
         />
@@ -326,6 +326,8 @@ const ReplyListView = ({ messageKey, userKey, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: verticalScale(40),
+
   },
   
   // Stats Card
@@ -470,6 +472,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(32),
     gap: verticalScale(12),
+    height: verticalScale(500),
   },
   emptyText: {
     fontSize: moderateScale(16),
@@ -484,7 +487,7 @@ const styles = StyleSheet.create({
   // Back Button
   backButtonContainer: {
     position: 'absolute',
-    bottom: verticalScale(20),
+    bottom: verticalScale(40),
     left: scale(20),
     right: scale(20),
   },

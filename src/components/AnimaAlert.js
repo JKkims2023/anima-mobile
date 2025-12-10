@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
   },
   emoji: {
-    fontSize: moderateScale(48),
+    fontSize: moderateScale(38),
   },
   title: {
     color: COLORS.TEXT_PRIMARY,

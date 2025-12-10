@@ -14,6 +14,7 @@
       "message_mode": "메세지 편집",
       "studio": "뮤직 스튜디오",
       "history": "메세지 히스토리",
+      "history_detail": "보낸 메세지",
       "point": "포인트 스토어",
       "settings": "설정"
     },
@@ -39,6 +40,7 @@
     "ko": "한국어"
   },
   "common": {
+    "back": "뒤로가기",
     "notification": "알림",
     "messageHistory": "메시지 기록",
     "diary": "다이어리",
@@ -1710,7 +1712,7 @@
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",
       "exit_message_mode_description": "메시지 작성을 취소하면 모든 작업이 초기화됩니다.",
       "exit_message_creation": "메시지 제작을 중단하시겠습니까?",
-      "exit_message_creation_description": "작성 중인 메시지가 있습니다.\n정말 나가시겠습니까?\n\n모든 내용이 사라집니다.",
+      "exit_message_creation_description": "작성 중인 메시지가 있습니다.\n모든 내용이 사라집니다.",
       "continue_writing": "계속 작성",
       "exit": "확인",
       "cancel": "취소"
@@ -1902,7 +1904,9 @@
       "default": "일반"
     },
     "no_personas": "아직 생성한 페르소나가 없습니다",
+    "no_favorite_personas": "아직 즐겨찾기한 페르소나가 없습니다",
     "create_persona": "첫 페르소나 생성하기",
+    "create_favorite_persona": "페르소나 정보를 클릭하면 즐겨찾기 기능을 사용할 수 있습니다!",
     "estimated_time": "남은시간"
   },
   "search": {
@@ -1988,5 +1992,29 @@
     "comfort_desc": "위로의 메시지에 적합한 페르소나 입니다.",
     "sadness": "슬픔",
     "sadness_desc": "슬픔의 메시지에 적합한 페르소나 입니다."
+  },
+  "help": {
+    "ai_help": "더 자세한 도움말은 중앙 AI버튼을 클릭후, 채팅을 통해 확인할수 있습니다! 💬",
+    "main_help": {
+      "title": "메세지 제작 가이드",
+      "description": "메세지 배경 페르소나는 메세지의 전체 분위기를 좌우하는 핵심 요소입니다!",
+      "section_title_one": "배경 페르소나",
+      "default_persona": "기본",
+      "default_persona_desc": "ANIMA가 준비한 기본 페르소나를 사용할 수 있습니다. 사용 후, 나만의 페르소나를 제작해보세요!",
+      "user_persona": "사용자 제작",
+      "user_persona_desc": "내 사진, 또는 이미지를 업로드하여 나만의 유니크한 메세지 배경을 만들 수 있습니다.",
+      "section_title_two": "배경에 생동감을 더하세요!",
+      "convert_video": "제작한 페르소나는 이미지, 원하면 원클릭으로 살아 숨쉬는 배경 영상으로 업그레이드 가능합니다. 영상으로 변환하려면 하단의 페르소나 영역을 클릭하세요! 🎥"
+    },
+    "message_creation_help": {
+      "title": "메세지 편집 도움말",
+      "description": "어려워하지 마세요! 마법처럼 단지 몇번의 클릭으로, 당신만의 유니크한 메세지를 작성하고 공유할 수 있습니다!",
+      "section_title_one": "메세지는 대신 작성해주지 않아요!",
+      "section_title_one_desc": "카톡, 인스타를 이용한 단순한 문장이 아닌, 배경에 어울리는 정성이 담긴 메세지를 작성해주세요!",
+      "section_title_two": "✨ 효과를 추가하세요!",
+      "section_title_two_desc": "ANIMA가 준비한 수십가지 다양한 효과들을 추가하여, 더 특별한 메세지를 만들 수 있습니다!",
+      "section_title_three": "🎵 음악으로 감성을 더하세요!",
+      "section_title_three_desc": "ANIMA의 기본제공 음원이나, 여러분이 직접 작곡한 음원을 추가하여, 더 특별한 메세지를 만들 수 있습니다! 음원은 스튜디오 메뉴에서 확인할 수 있습니다."
+    }
   }
 }

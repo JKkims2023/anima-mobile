@@ -79,8 +79,10 @@ import EffectListView from '../EffectListView'; // ⭐ NEW: Effect list display
 import CustomBottomSheet from '../CustomBottomSheet';
 import WordInputOverlay from './WordInputOverlay'; // ⭐ FIXED: Modal-based for Korean input stability // ⭐ NEW: Custom words input
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconSearch from 'react-native-vector-icons/Ionicons';
 import IconCreate from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../../styles/commonstyles';
+import MessageHelpSheet from '../persona/MessageHelpSheet';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -95,7 +97,7 @@ import { TEXT_ANIMATION_GROUPS, PARTICLE_EFFECT_GROUPS } from '../../constants/e
  * @param {function} onClose - Callback when overlay should close
  */
 const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
-  const { theme } = useTheme();
+  const { theme,currentTheme } = useTheme();
   const { user } = useUser();
   const { showAlert, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima();
   const { t } = useTranslation();
@@ -105,6 +107,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // Refs
   // ═══════════════════════════════════════════════════════════════════════════
   const contentInputRef = useRef(null);
+  const helpSheetRef = useRef(null);
   const particleEffectSheetRef = useRef(null);
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
@@ -122,7 +125,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isParticleSheetOpen, setIsParticleSheetOpen] = useState(false);
   const [selectedParticleGroup, setSelectedParticleGroup] = useState('none'); // ⭐ NEW: Floating chip navigation (기본: 없음)
-
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ═══════════════════════════════════════════════════════════════════════════
   // Sequential Animation (악마의 디테일 🎨)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1006,8 +1009,9 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
       )}
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + Platform.OS === 'ios' ? verticalScale(10) : verticalScale(45) }]}>
+      <View style={[styles.header, { marginTop: insets.top + Platform.OS === 'ios' ? verticalScale(10) : verticalScale(25) }]}>
     
+        <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
         <TouchableOpacity style={styles.backButton} onPress={onClose}>
           <Icon name="arrow-left" size={scale(24)} color={theme.textPrimary || '#FFFFFF'} />
         </TouchableOpacity>
@@ -1015,9 +1019,10 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
           <CustomText type="big" bold style={[styles.headerTitle, { color: theme.textPrimary || '#FFFFFF' }]}>
             {t('navigation.title.message_mode')}
           </CustomText>
-          <CustomText type="middle" style={[styles.headerSubtitle, { color: theme.textSecondary || 'rgba(255,255,255,0.7)' }]}>
-            {t('navigation.subtitle.message_mode')}
-          </CustomText>
+          <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => {setIsHelpOpen(true);}}>
+            <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+          </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -1278,6 +1283,19 @@ ${(particleEffect === 'floating_words' || particleEffect === 'scrolling_words') 
           </TouchableOpacity>
         </>
       )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Help Sheet */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <View style={styles.sheetContainer}>
+        <MessageHelpSheet
+          ref={helpSheetRef}
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+
+        />
+      </View>
+
     </Animated.View>
   );
 };
@@ -1315,7 +1333,8 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(0),
+    flexDirection: 'row',
+    marginTop: Platform.OS === 'ios' ? verticalScale(3) : verticalScale(3),
   },
   headerTitle: {
     marginBottom: scale(2),
@@ -1437,6 +1456,21 @@ const styles = StyleSheet.create({
     fontSize: scale(18),
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  // ⭐ Z-INDEX: 999999 - Bottom Sheet Container (HIGHEST PRIORITY)
+  sheetContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999999,
+    elevation: 999, // ⭐ Android maximum elevation
+    pointerEvents: 'box-none', // ⭐ Allow touches to pass through when sheet is closed
+  },
+  helpButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
   },
 });
 

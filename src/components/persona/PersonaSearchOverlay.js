@@ -35,9 +35,9 @@ const PERSONA_CATEGORIES = [
   { key: 'hope', emoji: '✨' },
   { key: 'cheer_up', emoji: '📣' },
   { key: 'congrats', emoji: '🎉' },
-  { key: 'birthday', emoji: '🎂' },
-  { key: 'christmas', emoji: '🎄' },
-  { key: 'new_year', emoji: '🎊' },
+//  { key: 'birthday', emoji: '🎂' },
+//  { key: 'christmas', emoji: '🎄' },
+//  { key: 'new_year', emoji: '🎊' },
   { key: 'romantic', emoji: '💕' },
   { key: 'comfort', emoji: '🤗' },
   { key: 'sadness', emoji: '😢' },
@@ -109,9 +109,9 @@ const PersonaSearchOverlay = ({
       setIsCategoryDropdownOpen(false);
       setFilteredPersonas(personas);
       // Delay to ensure modal is fully rendered
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 300);
+//      setTimeout(() => {
+//        inputRef.current?.focus();
+//      }, 300);
     }
   }, [visible, personas]);
 
@@ -208,11 +208,11 @@ const PersonaSearchOverlay = ({
 
         {/* Persona Info */}
         <View style={styles.personaInfo}>
-          <CustomText type="body" bold style={{ color: theme.textPrimary }}>
+          <CustomText type="title" bold style={{ color: theme.textPrimary }}>
             {persona.persona_name}
           </CustomText>
           <CustomText
-            type="small"
+            type="normal"
             style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}
           >
             {persona.persona_category || t('persona.category.default')}
@@ -251,10 +251,10 @@ const PersonaSearchOverlay = ({
           activeOpacity={0.7}
         >
           <View style={styles.categoryButtonContent}>
-            <CustomText type="body" style={{ color: theme.textPrimary }}>
-              {selectedCategoryData?.emoji} {t(`category_type.${selectedCategory}`)}
+            <CustomText type="title" bold style={{ color: theme.textPrimary }}>
+              {selectedCategoryData?.emoji}  {t(`category_type.${selectedCategory}`)}
             </CustomText>
-            <CustomText type="small" style={{ color: theme.textSecondary, marginLeft: scale(8) }}>
+            <CustomText type="middle" style={{ color: theme.textSecondary, marginLeft: scale(8) }}>
               ({categoryCounts[selectedCategory] || 0})
             </CustomText>
           </View>
@@ -294,15 +294,15 @@ const PersonaSearchOverlay = ({
                 >
                   <View style={styles.dropdownItemContent}>
                     <CustomText
-                      type="body"
+                      type="title"
                       style={{
                         color: isSelected ? theme.mainColor : theme.textPrimary,
                       }}
                     >
-                      {category.emoji} {t(`category_type.${category.key}`)}
+                      {category.emoji}  {t(`category_type.${category.key}`)}
                     </CustomText>
                     <CustomText
-                      type="small"
+                      type="middle"
                       style={{
                         color: isSelected ? theme.mainColor : theme.textSecondary,
                         marginLeft: scale(8),
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     right: platformPadding(16),
     borderRadius: scale(12),
     borderWidth: 1,
-    maxHeight: verticalScale(300), // ⭐ Scrollable if too many items
+    maxHeight: verticalScale(700), // ⭐ Scrollable if too many items
     zIndex: 1001,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },

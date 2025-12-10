@@ -82,7 +82,7 @@ import { COLORS } from '../../styles/commonstyles';
  * @param {function} onMessageUpdate - Callback when message is updated (favorite, delete)
  */
 const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) => {
-  const { theme } = useTheme();
+  const { currentTheme } = useTheme();
   const { user } = useUser();
   const { showAlert, showToast } = useAnima();
   const { t } = useTranslation();
@@ -607,6 +607,12 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
     console.log('[MessageDetailOverlay] Music playing state changed:', isPlaying);
   };
 
+  // Handle help press
+  const handleHelpPress = () => {
+    HapticService.light();
+
+  };
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Render: Don't render if not visible
   // ═══════════════════════════════════════════════════════════════════════════
@@ -679,7 +685,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
             pointerEvents="box-none"
           >
             {/* Title */}
-            {message_title ? (
+            {false ? (
               <Animated.View style={animatedTextStyle}>
                 <CustomText type="big" bold style={styles.title}>
                   {message_title}
@@ -740,6 +746,19 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         >
           <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
         </TouchableOpacity>
+
+        <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+          {t('navigation.title.history_detail')}
+        </CustomText>
+        
+        {/* Search Icon */}
+        <TouchableOpacity
+          style={[{ marginLeft: 'auto' }]}
+          onPress={handleHelpPress}
+          activeOpacity={0.7}
+        >
+          <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+        </TouchableOpacity>
       </View>
 
       {/* ⭐ Music Control Bar (최상위 레벨, FlipCard 밖) */}
@@ -755,7 +774,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
       {!isFlipped && (
         <Animated.View style={[
           styles.chipsContainer,
-          { top: insets.top + verticalScale(120) },
+          { top: insets.top + verticalScale(0) },
           chipsContainerAnimatedStyle
         ]}>
           <MessageHistoryChips
@@ -795,18 +814,14 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: scale(16),
     paddingBottom: verticalScale(12),
     zIndex: 1000,
   },
   backButton: {
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginRight: scale(0),
+    padding: scale(8),
+    marginLeft: scale(-15),
   },
   gradient: {
     justifyContent: 'flex-end',
@@ -815,7 +830,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: scale(20),
-    paddingBottom: verticalScale(140), // ⭐ Chips 아래 공간 확보
+    paddingTop: verticalScale(40),
+    paddingBottom: verticalScale(80), // ⭐ Chips 아래 공간 확보
   },
   title: {
     color: COLORS.TEXT_PRIMARY || '#FFFFFF',
@@ -826,7 +842,7 @@ const styles = StyleSheet.create({
     textShadowRadius: scale(4),
   },
   content: {
-    fontSize: scale(16),
+    fontSize: Platform.OS === 'ios' ? scale(16) : scale(18),
     color: COLORS.TEXT_PRIMARY || '#FFFFFF',
     textAlign: 'left',
     lineHeight: scale(24),
