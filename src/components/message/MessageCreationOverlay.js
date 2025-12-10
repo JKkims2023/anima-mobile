@@ -1037,6 +1037,16 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* 🌌 Layer 1: Background Effect (배경 레이어) */}
       {/* ═══════════════════════════════════════════════════════════════ */}
+      {(() => {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🌌 [MessageCreationOverlay] Background Effect Render Check');
+        console.log('  - backgroundEffect:', backgroundEffect);
+        console.log('  - isBackgroundSheetOpen:', isBackgroundSheetOpen);
+        console.log('  - isActive will be:', !isBackgroundSheetOpen);
+        console.log('  - Condition (backgroundEffect && backgroundEffect !== "none"):', backgroundEffect && backgroundEffect !== 'none');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return null;
+      })()}
       {backgroundEffect && backgroundEffect !== 'none' && (
         <BackgroundEffect 
           type={backgroundEffect} 
