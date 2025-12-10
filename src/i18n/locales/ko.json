@@ -1696,7 +1696,8 @@
       "confirm_title": "메시지 생성 확인",
       "confirm_partial": "현재 상태로 생성하시겠습니까?",
       "status_content": "메시지",
-      "status_particle": "파티클 효과",
+      "status_background": "배경 효과",
+      "status_particle": "액티브 효과",
       "status_music": "배경 음악",
       "status_custom_words": "커스텀 단어",
       "status_complete": "✅ 입력 완료",
@@ -1727,7 +1728,9 @@
   "message_preview": {
     "title": "미리보기",
     "text_animation": "텍스트 효과",
-    "particle_effect": "파티클 효과",
+    "background_effect": "배경 효과",
+    "active_effect": "액티브 효과",
+    "particle_effect": "액티브 효과",
     "bg_music": "배경 음원"
   },
   "effects": {
@@ -1740,6 +1743,12 @@
       "impactful_desc": "강렬하고 인상적인",
       "playful": "경쾌한",
       "playful_desc": "재미있고 경쾌한"
+    },
+    "background_group": {
+      "light_glow": "빛 & 광채",
+      "light_glow_desc": "부드러운 빛의 효과",
+      "atmosphere": "분위기",
+      "atmosphere_desc": "은은한 분위기 연출"
     },
     "particle_group": {
       "love_romance": "사랑 & 로맨스",
@@ -1778,6 +1787,15 @@
       "split": "Split",
       "glow_pulse": "Glow Pulse",
       "rainbow": "Rainbow"
+    },
+    "background": {
+      "none": "없음",
+      "none_desc": "배경 효과 없음",
+      "aurora": "오로라",
+      "neon_light": "네온 라이트",
+      "gradient_flow": "그라디언트",
+      "fog": "안개",
+      "shimmer": "반짝임"
     },
     "particle": {
       "none": "없음",

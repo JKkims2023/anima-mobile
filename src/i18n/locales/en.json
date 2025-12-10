@@ -1740,7 +1740,8 @@
       "confirm_title": "Confirm Message Creation",
       "confirm_partial": "Create with current settings?",
       "status_content": "Message",
-      "status_particle": "Particle Effect",
+      "status_background": "Background Effect",
+      "status_particle": "Active Effect",
       "status_music": "Background Music",
       "status_custom_words": "Custom Words",
       "status_complete": "✅ Complete",
@@ -1792,7 +1793,9 @@
   "message_preview": {
     "title": "Preview",
     "text_animation": "Text Effect",
-    "particle_effect": "Particle Effect",
+    "background_effect": "Background Effect",
+    "active_effect": "Active Effect",
+    "particle_effect": "Active Effect",
     "bg_music": "Background Music"
   },
   "effects": {
@@ -1805,6 +1808,12 @@
       "impactful_desc": "Strong and impressive",
       "playful": "Playful",
       "playful_desc": "Fun and cheerful"
+    },
+    "background_group": {
+      "light_glow": "Light & Glow",
+      "light_glow_desc": "Soft light effects",
+      "atmosphere": "Atmosphere",
+      "atmosphere_desc": "Ambient atmosphere"
     },
     "particle_group": {
       "love_romance": "Love & Romance",
@@ -1843,6 +1852,24 @@
       "split": "Split",
       "glow_pulse": "Glow Pulse",
       "rainbow": "Rainbow"
+    },
+    "background": {
+      "none": "None",
+      "none_desc": "No background effect",
+      "aurora": "Aurora",
+      "neon_light": "Neon Light",
+      "gradient_flow": "Gradient Flow",
+      "fog": "Fog",
+      "shimmer": "Shimmer"
+    },
+    "background": {
+      "none": "None",
+      "none_desc": "No background effect",
+      "aurora": "Aurora",
+      "neon_light": "Neon Light",
+      "gradient_flow": "Gradient Flow",
+      "fog": "Fog",
+      "shimmer": "Shimmer"
     },
     "particle": {
       "none": "None",

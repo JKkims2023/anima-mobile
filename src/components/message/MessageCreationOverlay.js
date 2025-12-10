@@ -1035,9 +1035,19 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* Particle Effect (독립적 애니메이션) */}
+      {/* 🌌 Layer 1: Background Effect (배경 레이어) */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {particleEffect && particleEffect !== 'none' && (
+      {backgroundEffect && backgroundEffect !== 'none' && (
+        <BackgroundEffect 
+          type={backgroundEffect} 
+          isActive={!isBackgroundSheetOpen} // ⭐ 바텀시트 열릴 때 비활성화
+        />
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ✨ Layer 2: Active Effect (액티브 레이어) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {activeEffect && activeEffect !== 'none' && (
         <Animated.View 
           style={[
             {
@@ -1046,15 +1056,15 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
               left: 0,
               right: 0,
               bottom: 0,
-              zIndex: 50, // ⭐ Background 위, Gradient 아래
+              zIndex: 50, // ⭐ Layer 2: Above BackgroundEffect (z-index: 10)
             },
             particleAnimatedStyle
           ]}
           pointerEvents="none"
         >
-          <ParticleEffect 
-            type={particleEffect} 
-            isActive={!isParticleSheetOpen} // ⭐ 바텀시트 열릴 때 비활성화
+          <ActiveEffect 
+            type={activeEffect} 
+            isActive={!isActiveSheetOpen} // ⭐ 바텀시트 열릴 때 비활성화
             customWords={customWords} // ⭐ Pass custom words for floating_words and scrolling_words
           />
         </Animated.View>
@@ -1174,34 +1184,46 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
         </Animated.View>
       )}
 
-      {/* ⭐ Quick Action Chips with Sequential Bounce Animation */}
+      {/* ⭐ Quick Action Chips with Sequential Bounce Animation (2-Layer System) */}
       <Animated.View style={[
         styles.quickChipsContainer, 
         { top: insets.top + verticalScale(120) },
         chipsContainerAnimatedStyle
       ]}>
-        {/* ⭐ Text Animation Chip 제거 - 타이핑 효과 자동 적용 */}
-
-        {/* Particle Effect Chip */}
+        {/* 🌌 Chip 1: Background Effect (Layer 1) */}
         <Animated.View style={chip1AnimatedStyle}>
           <TouchableOpacity
             style={[
               styles.quickChip,
-              particleEffect !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+              backgroundEffect !== 'none' && { backgroundColor: 'rgba(102, 126, 234, 0.25)' }
             ]}
-            onPress={handleParticleEffectChipPress}
+            onPress={handleBackgroundEffectChipPress}
+            activeOpacity={0.7}
+          >
+            <Icon name="creation" size={scale(20)} color="#667eea" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* ✨ Chip 2: Active Effect (Layer 2) */}
+        <Animated.View style={chip2AnimatedStyle}>
+          <TouchableOpacity
+            style={[
+              styles.quickChip,
+              activeEffect !== 'none' && { backgroundColor: 'rgba(255, 215, 0, 0.2)' }
+            ]}
+            onPress={handleActiveEffectChipPress}
             activeOpacity={0.7}
           >
             <Icon name="shimmer" size={scale(20)} color="gold" />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Background Music Chip */}
-        <Animated.View style={chip2AnimatedStyle}>
+        {/* 🎵 Chip 3: Background Music */}
+        <Animated.View style={chip3AnimatedStyle}>
           <TouchableOpacity
             style={[
               styles.quickChip,
-              bgMusic !== 'none' && { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+              bgMusic !== 'none' && { backgroundColor: 'rgba(255, 0, 0, 0.2)' }
             ]}
             onPress={handleBgMusicChipPress}
             activeOpacity={0.7}
@@ -1210,9 +1232,9 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ⭐ Share Chip (Only visible after message creation) */}
+        {/* 📤 Chip 4: Share (Only visible after message creation) */}
         {createdMessageUrl && (
-          <Animated.View style={chip3AnimatedStyle}>
+          <Animated.View style={chip4AnimatedStyle}>
             <TouchableOpacity
               style={[
                 styles.quickChip,
@@ -1227,55 +1249,101 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
         )}
       </Animated.View>
 
-      {/* ⭐ Particle Effect BottomSheet (Floating Chip Navigation) */}
+      {/* 🌌 Background Effect BottomSheet (Layer 1 - Floating Chip Navigation) */}
       <CustomBottomSheet
-        ref={particleEffectSheetRef}
-        title={t('message_preview.particle_effect')}
+        ref={backgroundEffectSheetRef}
+        title={t('message_preview.background_effect')}
         snapPoints={['70%']}
         enableDynamicSizing={false}
         onDismiss={() => {
-          console.log('[MessageCreationOverlay] Particle effect sheet dismissed');
-          setIsParticleSheetOpen(false);
+          console.log('[MessageCreationOverlay] Background effect sheet dismissed');
+          setIsBackgroundSheetOpen(false);
         }}
         onChange={(index) => {
-          setIsParticleSheetOpen(index >= 0);
+          setIsBackgroundSheetOpen(index >= 0);
         }}
-
         buttons={[
           {
             title: t('common.close'),
             type: 'primary',
             onPress: () => {
-              particleEffectSheetRef.current?.dismiss();
+              backgroundEffectSheetRef.current?.dismiss();
               HapticService.light();
             }
           }
-          
         ]}
       >
         {/* ⭐ Floating Chip Navigation (Top) */}
         <FloatingChipNavigation
-          groups={filterNonEmptyGroups(PARTICLE_EFFECT_GROUPS).map(group => ({
+          groups={filterNonEmptyGroups(BACKGROUND_EFFECT_GROUPS).map(group => ({
             id: group.id,
-            // ⭐ For standalone type (like "none"), use first item's emoji and label
             emoji: group.emoji || (group.items && group.items[0]?.emoji),
             title: group.title || (group.items && group.items[0]?.label),
           }))}
-          selectedGroupId={selectedParticleGroup}
+          selectedGroupId={selectedBackgroundGroup}
           onSelectGroup={(groupId) => {
-            setSelectedParticleGroup(groupId);
-            console.log('[MessageCreationOverlay] Particle group changed:', groupId);
+            setSelectedBackgroundGroup(groupId);
+            console.log('[MessageCreationOverlay] Background group changed:', groupId);
           }}
         />
 
         {/* ⭐ Effect List View (Bottom) */}
         <EffectListView
           items={(() => {
-            const group = PARTICLE_EFFECT_GROUPS.find(g => g.id === selectedParticleGroup);
+            const group = BACKGROUND_EFFECT_GROUPS.find(g => g.id === selectedBackgroundGroup);
             return group ? group.items : [];
           })()}
-          selectedValue={particleEffect}
-          onSelect={handleParticleEffectSelect}
+          selectedValue={backgroundEffect}
+          onSelect={handleBackgroundEffectSelect}
+        />
+      </CustomBottomSheet>
+
+      {/* ✨ Active Effect BottomSheet (Layer 2 - Floating Chip Navigation) */}
+      <CustomBottomSheet
+        ref={activeEffectSheetRef}
+        title={t('message_preview.active_effect')}
+        snapPoints={['70%']}
+        enableDynamicSizing={false}
+        onDismiss={() => {
+          console.log('[MessageCreationOverlay] Active effect sheet dismissed');
+          setIsActiveSheetOpen(false);
+        }}
+        onChange={(index) => {
+          setIsActiveSheetOpen(index >= 0);
+        }}
+        buttons={[
+          {
+            title: t('common.close'),
+            type: 'primary',
+            onPress: () => {
+              activeEffectSheetRef.current?.dismiss();
+              HapticService.light();
+            }
+          }
+        ]}
+      >
+        {/* ⭐ Floating Chip Navigation (Top) */}
+        <FloatingChipNavigation
+          groups={filterNonEmptyGroups(ACTIVE_EFFECT_GROUPS).map(group => ({
+            id: group.id,
+            emoji: group.emoji || (group.items && group.items[0]?.emoji),
+            title: group.title || (group.items && group.items[0]?.label),
+          }))}
+          selectedGroupId={selectedActiveGroup}
+          onSelectGroup={(groupId) => {
+            setSelectedActiveGroup(groupId);
+            console.log('[MessageCreationOverlay] Active group changed:', groupId);
+          }}
+        />
+
+        {/* ⭐ Effect List View (Bottom) */}
+        <EffectListView
+          items={(() => {
+            const group = ACTIVE_EFFECT_GROUPS.find(g => g.id === selectedActiveGroup);
+            return group ? group.items : [];
+          })()}
+          selectedValue={activeEffect}
+          onSelect={handleActiveEffectSelect}
         />
       </CustomBottomSheet>
 
@@ -1527,4 +1595,5 @@ const styles = StyleSheet.create({
 });
 
 export default MessageCreationOverlay;
+
 
