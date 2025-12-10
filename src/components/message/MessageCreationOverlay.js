@@ -42,6 +42,7 @@ import {
   Share,
   Dimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -84,6 +85,7 @@ import FloatingChipNavigation from '../FloatingChipNavigation'; // ⭐ NEW: Chip
 import EffectListView from '../EffectListView'; // ⭐ NEW: Effect list display
 import CustomBottomSheet from '../CustomBottomSheet';
 import WordInputOverlay from './WordInputOverlay'; // ⭐ FIXED: Modal-based for Korean input stability // ⭐ NEW: Custom words input
+import EmotionPresetBottomSheet from '../EmotionPresetBottomSheet'; // ⭐ NEW: Emotion presets
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconSearch from 'react-native-vector-icons/Ionicons';
 import IconCreate from 'react-native-vector-icons/Ionicons';
@@ -119,7 +121,7 @@ const TEXT_EFFECTS = [
 const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const { theme,currentTheme } = useTheme();
   const { user } = useUser();
-  const { showAlert, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima();
+  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
@@ -128,6 +130,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   const contentInputRef = useRef(null);
   const helpSheetRef = useRef(null);
+  const emotionPresetSheetRef = useRef(null); // ⭐ NEW: Emotion presets
   const backgroundEffectSheetRef = useRef(null); // ⭐ NEW: Layer 1 (배경 효과)
   const activeEffectSheetRef = useRef(null); // ⭐ NEW: Layer 2 (액티브 효과, 기존 particleEffectSheetRef)
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
@@ -149,6 +152,40 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+
+  // ⭐ NEW: Chip Tooltip Visibility (ANIMA's Ultimate Kindness)
+  const [chipTooltips, setChipTooltips] = useState({
+    preset: true,
+    background: true,
+    active: true,
+    music: true,
+  });
+
+  // ⭐ Load chip tooltips from AsyncStorage
+  useEffect(() => {
+    const loadTooltips = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@anima_chip_tooltips');
+        if (stored) {
+          setChipTooltips(JSON.parse(stored));
+        }
+      } catch (error) {
+        console.error('[MessageCreationOverlay] Failed to load tooltips:', error);
+      }
+    };
+    loadTooltips();
+  }, []);
+
+  // ⭐ Hide chip tooltip (permanent)
+  const hideChipTooltip = async (chipKey) => {
+    const newTooltips = { ...chipTooltips, [chipKey]: false };
+    setChipTooltips(newTooltips);
+    try {
+      await AsyncStorage.setItem('@anima_chip_tooltips', JSON.stringify(newTooltips));
+    } catch (error) {
+      console.error('[MessageCreationOverlay] Failed to save tooltips:', error);
+    }
+  };
   
   // ⭐ BottomSheet Open States
   const [isBackgroundSheetOpen, setIsBackgroundSheetOpen] = useState(false); // ⭐ NEW: Layer 1 sheet
@@ -628,12 +665,46 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   }, [messageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Emotion Preset Handler
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleEmotionPresetPress = () => {
+    console.log('[MessageCreationOverlay] Opening emotion preset sheet');
+    Keyboard.dismiss();
+    HapticService.light();
+    hideChipTooltip('preset'); // ⭐ Hide tooltip after first use
+    emotionPresetSheetRef.current?.present();
+  };
+
+  const handlePresetSelect = (preset) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💝 [MessageCreationOverlay] Applying Emotion Preset:', preset.id);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // ⭐ Apply all effects from preset
+    setTextAnimation(preset.effects.textAnimation);
+    setTextEffectIndex(TEXT_EFFECTS.findIndex(e => e.id === preset.effects.textAnimation));
+    setBackgroundEffect(preset.effects.backgroundEffect);
+    setActiveEffect(preset.effects.activeEffect);
+    setCustomWords(preset.effects.customWords || []);
+    // Note: bgMusic is 'none' by default, user can select later
+
+    // ⭐ Show success feedback
+    HapticService.success();
+    showToast({
+      type: 'success',
+      message: t('emotion_presets.applied'),
+      emoji: '✨',
+    });
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Handlers: Selection Panel (2-Layer System)
   // ═══════════════════════════════════════════════════════════════════════════
   const handleBackgroundEffectChipPress = () => {
     console.log('[MessageCreationOverlay] Opening background effect sheet (Layer 1)');
     Keyboard.dismiss();
     HapticService.light();
+    hideChipTooltip('background'); // ⭐ Hide tooltip after first use
     backgroundEffectSheetRef.current?.present();
   };
 
@@ -641,6 +712,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('[MessageCreationOverlay] Opening active effect sheet (Layer 2)');
     Keyboard.dismiss();
     HapticService.light();
+    hideChipTooltip('active'); // ⭐ Hide tooltip after first use
     activeEffectSheetRef.current?.present();
   };
 
@@ -648,6 +720,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('[MessageCreationOverlay] Opening music selection');
     Keyboard.dismiss();
     HapticService.light();
+    hideChipTooltip('music'); // ⭐ Hide tooltip after first use
     musicSelectionOverlayRef.current?.present(); // ⭐ NEW: ref-based
   };
 
@@ -1204,52 +1277,107 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
         </Animated.View>
       )}
 
-      {/* ⭐ Quick Action Chips with Sequential Bounce Animation (2-Layer System) */}
+      {/* ⭐ Quick Action Chips with Sequential Bounce Animation (2-Layer System + Emotion Preset) */}
       <Animated.View style={[
         styles.quickChipsContainer, 
         { top: insets.top + verticalScale(120) },
         chipsContainerAnimatedStyle
       ]}>
+        {/* 💝 Chip 0: Emotion Preset (NEW - ANIMA's Ultimate Kindness) */}
+        <Animated.View style={chip1AnimatedStyle}>
+          <View style={styles.chipWithTooltip}>
+            {/* ⭐ Tooltip Label */}
+            {chipTooltips.preset && (
+              <View style={styles.chipTooltip}>
+                <CustomText style={styles.chipTooltipText} numberOfLines={1}>
+                  {t('chip_tooltips.preset')}
+                </CustomText>
+                <View style={styles.chipTooltipArrow} />
+              </View>
+            )}
+            <TouchableOpacity
+              style={[styles.quickChip, styles.emotionPresetChip]}
+              onPress={handleEmotionPresetPress}
+              activeOpacity={0.7}
+            >
+              <Icon name="shimmer" size={scale(20)} color="#FFD700" />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
         {/* 🌌 Chip 1: Background Effect (Layer 1) */}
         <Animated.View style={chip1AnimatedStyle}>
-          <TouchableOpacity
-            style={[
-              styles.quickChip,
-              backgroundEffect !== 'none' && { backgroundColor: 'rgba(102, 126, 234, 0.25)' }
-            ]}
-            onPress={handleBackgroundEffectChipPress}
-            activeOpacity={0.7}
-          >
-            <Icon name="creation" size={scale(20)} color="#667eea" />
-          </TouchableOpacity>
+          <View style={styles.chipWithTooltip}>
+            {/* ⭐ Tooltip Label */}
+            {chipTooltips.background && (
+              <View style={styles.chipTooltip}>
+                <CustomText style={styles.chipTooltipText} numberOfLines={1}>
+                  {t('chip_tooltips.background')}
+                </CustomText>
+                <View style={styles.chipTooltipArrow} />
+              </View>
+            )}
+            <TouchableOpacity
+              style={[
+                styles.quickChip,
+                backgroundEffect !== 'none' && { backgroundColor: 'rgba(102, 126, 234, 0.25)' }
+              ]}
+              onPress={handleBackgroundEffectChipPress}
+              activeOpacity={0.7}
+            >
+              <Icon name="creation" size={scale(20)} color="#667eea" />
+            </TouchableOpacity>
+          </View>
         </Animated.View>
 
         {/* ✨ Chip 2: Active Effect (Layer 2) */}
         <Animated.View style={chip2AnimatedStyle}>
-          <TouchableOpacity
-            style={[
-              styles.quickChip,
-              activeEffect !== 'none' && { backgroundColor: 'rgba(255, 215, 0, 0.2)' }
-            ]}
-            onPress={handleActiveEffectChipPress}
-            activeOpacity={0.7}
-          >
-            <Icon name="shimmer" size={scale(20)} color="gold" />
-          </TouchableOpacity>
+          <View style={styles.chipWithTooltip}>
+            {/* ⭐ Tooltip Label */}
+            {chipTooltips.active && (
+              <View style={styles.chipTooltip}>
+                <CustomText style={styles.chipTooltipText} numberOfLines={1}>
+                  {t('chip_tooltips.active')}
+                </CustomText>
+                <View style={styles.chipTooltipArrow} />
+              </View>
+            )}
+            <TouchableOpacity
+              style={[
+                styles.quickChip,
+                activeEffect !== 'none' && { backgroundColor: 'rgba(255, 215, 0, 0.2)' }
+              ]}
+              onPress={handleActiveEffectChipPress}
+              activeOpacity={0.7}
+            >
+              <Icon name="shimmer" size={scale(20)} color="gold" />
+            </TouchableOpacity>
+          </View>
         </Animated.View>
 
         {/* 🎵 Chip 3: Background Music */}
         <Animated.View style={chip3AnimatedStyle}>
-          <TouchableOpacity
-            style={[
-              styles.quickChip,
-              bgMusic !== 'none' && { backgroundColor: 'rgba(255, 0, 0, 0.2)' }
-            ]}
-            onPress={handleBgMusicChipPress}
-            activeOpacity={0.7}
-          >
-            <Icon name="music-note" size={scale(20)} color="red" />
-          </TouchableOpacity>
+          <View style={styles.chipWithTooltip}>
+            {/* ⭐ Tooltip Label */}
+            {chipTooltips.music && (
+              <View style={styles.chipTooltip}>
+                <CustomText style={styles.chipTooltipText} numberOfLines={1}>
+                  {t('chip_tooltips.music')}
+                </CustomText>
+                <View style={styles.chipTooltipArrow} />
+              </View>
+            )}
+            <TouchableOpacity
+              style={[
+                styles.quickChip,
+                bgMusic !== 'none' && { backgroundColor: 'rgba(255, 0, 0, 0.2)' }
+              ]}
+              onPress={handleBgMusicChipPress}
+              activeOpacity={0.7}
+            >
+              <Icon name="music-note" size={scale(20)} color="red" />
+            </TouchableOpacity>
+          </View>
         </Animated.View>
 
         {/* 📤 Chip 4: Share (Only visible after message creation) */}
@@ -1425,6 +1553,14 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
       )}
 
       {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* 💝 Emotion Preset Sheet (ANIMA's Ultimate Kindness) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <EmotionPresetBottomSheet
+        sheetRef={emotionPresetSheetRef}
+        onPresetSelect={handlePresetSelect}
+      />
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Help Sheet */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       <View style={styles.sheetContainer}>
@@ -1563,6 +1699,53 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 8 },
     }),
+  },
+  // ⭐ NEW: Emotion Preset Chip (Golden highlight for ANIMA's kindness)
+  emotionPresetChip: {
+    backgroundColor: 'rgba(255, 215, 0, 0.15)', // Gold tint
+    borderColor: '#FFD700', // Gold border
+    borderWidth: 2,
+  },
+  // ⭐ NEW: Chip with Tooltip Container
+  chipWithTooltip: {
+    position: 'relative', // ⭐ Changed: relative positioning to keep chip fixed
+  },
+  // ⭐ NEW: Chip Tooltip Label (Absolute positioned to not affect chip position)
+  chipTooltip: {
+    position: 'absolute', // ⭐ Absolute positioning
+    right: scale(60), // ⭐ Position to the left of chip (chip width + margin)
+    alignSelf: 'center', // ⭐ Center vertically (without height constraint)
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(6),
+    borderRadius: scale(8),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    ...Platform.select({
+      android: { elevation: 4 },
+    }),
+  },
+  chipTooltipText: {
+    fontSize: scale(11),
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  chipTooltipArrow: {
+    marginLeft: scale(4), // ⭐ Position arrow at the end
+    width: 0,
+    height: 0,
+    borderTopWidth: 5,
+    borderTopColor: 'transparent',
+    borderBottomWidth: 5,
+    borderBottomColor: 'transparent',
+    borderLeftWidth: 5,
+    borderLeftColor: 'rgba(0, 0, 0, 0.9)',
   },
   // ⭐ Step Guide Styles
   stepGuide: {

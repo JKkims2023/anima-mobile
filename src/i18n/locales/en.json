@@ -2052,6 +2052,60 @@
       "newest": "Newest",
       "oldest": "Oldest"
     }
+  },
+  "emotion_presets": {
+    "title": "Emotion Presets",
+    "subtitle": "One-click optimal combinations!",
+    "apply": "Apply This Combo",
+    "applied": "Preset applied! ✨",
+    "congrats": {
+      "label": "Congrats",
+      "description": "For joy and celebration"
+    },
+    "thanks": {
+      "label": "Thanks",
+      "description": "For gratitude and appreciation"
+    },
+    "love": {
+      "label": "Love",
+      "description": "For love and affection"
+    },
+    "comfort": {
+      "label": "Comfort",
+      "description": "For comfort and empathy"
+    }
+  },
+  "text_animation": {
+    "typing": "Typing",
+    "fade_in": "Fade In",
+    "slide_cross": "Slide",
+    "breath": "Breath"
+  },
+  "background_effects": {
+    "sun": {
+      "title": "Sun"
+    },
+    "aurora": {
+      "title": "Aurora"
+    },
+    "neon": {
+      "title": "Neon"
+    },
+    "gradient": {
+      "title": "Gradient"
+    }
+  },
+  "active_effects": {
+    "confetti": "Confetti",
+    "hearts": "Hearts",
+    "sparkles": "Sparkles",
+    "snow": "Snow"
+  },
+  "chip_tooltips": {
+    "preset": "ANIMA's Pick",
+    "background": "Background",
+    "active": "Effects",
+    "music": "Music"
   }
 }
 
