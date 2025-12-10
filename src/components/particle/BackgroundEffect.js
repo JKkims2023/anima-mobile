@@ -1,42 +1,51 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🌌 BackgroundEffect - Layer 1 (Ambient Background Effects)
+ * 🌌 BackgroundEffect - Layer 1 (Directional Gradient Effects)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
+ * ⭐ NEW UX: 사용자가 빛의 방향과 색상을 직관적으로 선택!
+ * 
  * Purpose:
- * - Soft, ambient effects that fill the entire screen background
- * - Sets the emotional mood/atmosphere
- * - Low z-index (behind active effects)
- * - Gentle, slow animations
+ * - Directional gradient effects from 4 corners
+ * - User-friendly: "Sun from Top Left" = 상단 좌측에서 햇빛
+ * - Gentle, slow pulsing animations
+ * - Does not invade system/header area
  * 
- * Effects:
- * 1. Aurora - Mystical aurora borealis lights
- * 2. Neon Light - Vibrant neon glow
- * 3. Gradient Flow - Dreamy flowing gradients
- * 4. Fog - Mysterious misty atmosphere
- * 5. Shimmer - Gentle sparkling ambiance
+ * Structure:
+ * - 4 Groups: Sun, Aurora, Neon, Gradient
+ * - 4 Directions per group: Top Left, Top Right, Bottom Left, Bottom Right
+ * - Total: 16 effects (4 × 4)
  * 
- * Design Principles:
- * - Does not distract from message content
- * - Enhances emotional connection
- * - Smooth, seamless loops
- * - Performance optimized (low fps acceptable)
+ * Design Philosophy:
+ * - Sun (☀️): Warm golden tones (따뜻한 햇빛)
+ * - Aurora (🌌): Mystical purple-blue tones (신비로운 오로라)
+ * - Neon (💡): Vibrant neon colors (화려한 네온)
+ * - Gradient (🌈): Dreamy pastel tones (부드러운 파스텔)
+ * 
+ * Animation:
+ * - Opacity pulsing: 0.3 → 0.6 (gentle breathing)
+ * - Duration: 2-6 seconds (depends on mood)
+ * - Easing: Easing.inOut(Easing.ease)
+ * - No movement, only intensity change
  * 
  * @author JK & Hero Nexus AI
- * @date 2024-12-10 (2-Layer System)
+ * @date 2024-12-10 (Directional Gradient System)
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
-  withSequence,
   Easing,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
+import { verticalScale } from '../../utils/responsive-utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Main Component
@@ -50,44 +59,53 @@ const BackgroundEffect = ({ type, isActive = true }) => {
     return null;
   }
 
-  switch (type) {
-    case 'aurora':
-      return <Aurora />;
-    case 'neon_light':
-      return <NeonLight />;
-    case 'gradient_flow':
-      return <GradientFlow />;
-    case 'fog':
-      return <Fog />;
-    case 'shimmer':
-      return <Shimmer />;
-    default:
-      console.warn(`🌌 [BackgroundEffect] Unknown effect type: ${type}`);
-      return null;
-  }
+  // ═══════════════════════════════════════════════════════════════════════
+  // Sun Effects (태양) ☀️
+  // ═══════════════════════════════════════════════════════════════════════
+  if (type === 'sun_top_left') return <SunTopLeft />;
+  if (type === 'sun_top_right') return <SunTopRight />;
+  if (type === 'sun_bottom_left') return <SunBottomLeft />;
+  if (type === 'sun_bottom_right') return <SunBottomRight />;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Aurora Effects (오로라) 🌌
+  // ═══════════════════════════════════════════════════════════════════════
+  if (type === 'aurora_top_left') return <AuroraTopLeft />;
+  if (type === 'aurora_top_right') return <AuroraTopRight />;
+  if (type === 'aurora_bottom_left') return <AuroraBottomLeft />;
+  if (type === 'aurora_bottom_right') return <AuroraBottomRight />;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Neon Effects (네온 라이트) 💡
+  // ═══════════════════════════════════════════════════════════════════════
+  if (type === 'neon_top_left') return <NeonTopLeft />;
+  if (type === 'neon_top_right') return <NeonTopRight />;
+  if (type === 'neon_bottom_left') return <NeonBottomLeft />;
+  if (type === 'neon_bottom_right') return <NeonBottomRight />;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Gradient Effects (그라디언트) 🌈
+  // ═══════════════════════════════════════════════════════════════════════
+  if (type === 'gradient_top_left') return <GradientTopLeft />;
+  if (type === 'gradient_top_right') return <GradientTopRight />;
+  if (type === 'gradient_bottom_left') return <GradientBottomLeft />;
+  if (type === 'gradient_bottom_right') return <GradientBottomRight />;
+
+  console.warn(`🌌 [BackgroundEffect] Unknown effect type: ${type}`);
+  return null;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Effect 1: Aurora (오로라) 🌌
+// ☀️ Sun Effects (태양 - 따뜻한 골든 톤)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const Aurora = () => {
+const SunTopLeft = () => {
   const opacity = useSharedValue(0.3);
-  const translateY = useSharedValue(0);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    console.log('🌌 [Aurora] Starting animation');
-    
-    // Opacity pulsing (slow, gentle)
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-
-    // Vertical flow (very slow)
-    translateY.value = withRepeat(
-      withTiming(80, { duration: 12000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -95,16 +113,110 @@ const Aurora = () => {
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
       <LinearGradient
-        colors={['#667eea', '#764ba2', '#f093fb', '#4facfe']}
-        locations={[0, 0.33, 0.66, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 0, y: 0 }}  // ⭐ 좌상단에서 시작
+        end={{ x: 1, y: 1 }}    // ⭐ 우하단으로
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const SunTopRight = () => {
+  const opacity = useSharedValue(0.3);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 0 }}  // ⭐ 우상단에서 시작
+        end={{ x: 0, y: 1 }}    // ⭐ 좌하단으로
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const SunBottomLeft = () => {
+  const opacity = useSharedValue(0.3);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 0, y: 1 }}  // ⭐ 좌하단에서 시작
+        end={{ x: 1, y: 0 }}    // ⭐ 우상단으로
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const SunBottomRight = () => {
+  const opacity = useSharedValue(0.3);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 1 }}  // ⭐ 우하단에서 시작
+        end={{ x: 0, y: 0 }}    // ⭐ 좌상단으로
         style={styles.gradient}
       />
     </Animated.View>
@@ -112,47 +224,32 @@ const Aurora = () => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Effect 2: Neon Light (네온 라이트) 💡
+// 🌌 Aurora Effects (오로라 - 신비로운 보라-파랑 톤)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const NeonLight = () => {
+const AuroraTopLeft = () => {
   const opacity = useSharedValue(0.4);
-  const scale = useSharedValue(1);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    console.log('💡 [NeonLight] Starting animation');
-    
-    // Pulsing glow
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.8, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.4, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-      ),
+      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
       -1,
-      false
-    );
-
-    // Subtle scale pulse
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.05, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+      true
     );
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ scale: scale.value }],
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
       <LinearGradient
-        colors={['#ff0080', '#ff8c00', '#40e0d0']}
-        locations={[0, 0.5, 1]}
+        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑 (태양과 확실히 구분)
+        locations={[0, 0.3, 0.6, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -161,27 +258,13 @@ const NeonLight = () => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Effect 3: Gradient Flow (그라디언트 흐름) 🌈
-// ═══════════════════════════════════════════════════════════════════════════
-
-const GradientFlow = () => {
-  const translateX = useSharedValue(0);
-  const opacity = useSharedValue(0.5);
+const AuroraTopRight = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    console.log('🌈 [GradientFlow] Starting animation');
-    
-    // Horizontal flow
-    translateX.value = withRepeat(
-      withTiming(100, { duration: 8000, easing: Easing.linear }),
-      -1,
-      false
-    );
-
-    // Gentle opacity pulse
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -189,14 +272,112 @@ const GradientFlow = () => {
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateX: translateX.value }],
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
       <LinearGradient
-        colors={['#a8edea', '#fed6e3', '#a6c1ee', '#fbc2eb']}
-        locations={[0, 0.33, 0.66, 1]}
+        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const AuroraBottomLeft = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const AuroraBottomRight = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 💡 Neon Effects (네온 라이트 - 화려한 네온 컬러)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const NeonTopLeft = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
+        locations={[0, 0.3, 0.6, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -205,27 +386,13 @@ const GradientFlow = () => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Effect 4: Fog (안개) 🌫️
-// ═══════════════════════════════════════════════════════════════════════════
-
-const Fog = () => {
-  const opacity = useSharedValue(0.3);
-  const translateX = useSharedValue(0);
+const NeonTopRight = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    console.log('🌫️ [Fog] Starting animation');
-    
-    // Very slow horizontal drift
-    translateX.value = withRepeat(
-      withTiming(50, { duration: 15000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-
-    // Subtle opacity variation
     opacity.value = withRepeat(
-      withTiming(0.5, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -233,14 +400,112 @@ const Fog = () => {
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateX: translateX.value }],
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
       <LinearGradient
-        colors={['#3b3f5c', '#2c2e3e', '#3b3f5c']}
-        locations={[0, 0.5, 1]}
+        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const NeonBottomLeft = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const NeonBottomRight = () => {
+  const opacity = useSharedValue(0.4);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🌈 Gradient Effects (그라디언트 - 부드러운 파스텔 톤)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const GradientTopLeft = () => {
+  const opacity = useSharedValue(0.35);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
+        locations={[0, 0.3, 0.6, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -249,24 +514,15 @@ const Fog = () => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Effect 5: Shimmer (반짝임) ✨
-// ═══════════════════════════════════════════════════════════════════════════
-
-const Shimmer = () => {
-  const opacity = useSharedValue(0.2);
+const GradientTopRight = () => {
+  const opacity = useSharedValue(0.35);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    console.log('✨ [Shimmer] Starting animation');
-    
-    // Gentle twinkling
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.5, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.2, { duration: 2000, easing: Easing.inOut(Easing.ease) })
-      ),
+      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
       -1,
-      false
+      true
     );
   }, []);
 
@@ -275,12 +531,76 @@ const Shimmer = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
       <LinearGradient
-        colors={['#ffeaa7', '#fdcb6e', '#fab1a0', '#fd79a8']}
-        locations={[0, 0.33, 0.66, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const GradientBottomLeft = () => {
+  const opacity = useSharedValue(0.35);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradient}
+      />
+    </Animated.View>
+  );
+};
+
+const GradientBottomRight = () => {
+  const opacity = useSharedValue(0.35);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.container, animatedStyle, {
+      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    }]}>
+      <LinearGradient
+        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
+        locations={[0, 0.3, 0.6, 1]}
+        start={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 0 }}
         style={styles.gradient}
       />
     </Animated.View>
@@ -294,16 +614,20 @@ const Shimmer = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 10, // ⭐ Layer 1: Behind active effects (z-index: 50)
+    zIndex: 10, // Layer 1: Background
   },
   gradient: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });
 
-export default BackgroundEffect;
+// ═══════════════════════════════════════════════════════════════════════════
+// Export
+// ═══════════════════════════════════════════════════════════════════════════
 
+export default React.memo(BackgroundEffect);

@@ -256,69 +256,186 @@ export const BACKGROUND_EFFECT_GROUPS = [
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // Group 1: Light & Glow (빛 & 광채) ✨
+  // Group 1: Sun (태양) ☀️
+  // ⭐ NEW UX: 사용자가 빛의 방향을 직관적으로 선택!
   // ─────────────────────────────────────────────────────────────────────
   {
-    id: 'light_glow',
+    id: 'sun',
     type: 'group',
-    title: () => t('effects.background_group.light_glow', '빛 & 광채'),
-    emoji: '✨',
-    description: () => t('effects.background_group.light_glow_desc', '부드러운 빛의 효과'),
+    title: () => t('effects.background_group.sun', '태양'),
+    emoji: '☀️',
+    description: () => t('effects.background_group.sun_desc', '따뜻한 햇빛'),
     defaultOpen: true,
     items: [
       { 
-        id: 'aurora', 
-        label: () => t('effects.background.aurora', '오로라'),
-        emoji: '🌌',
-        description: '신비로운 오로라 빛',
-        mood: 'mystical',
+        id: 'sun_top_left', 
+        label: () => t('effects.background.sun_top_left', '상단 좌측'),
+        emoji: '↖️',
+        description: '좌측 상단에서 햇빛',
+        mood: 'warm',
         isNew: true,
-        recommended: true, // ⭐ Most emotional background effect
+        recommended: true, // ⭐ Most natural sun position
       },
       { 
-        id: 'neon_light', 
-        label: () => t('effects.background.neon_light', '네온 라이트'),
-        emoji: '💡',
-        description: '네온 사인 같은 빛',
-        mood: 'vibrant',
+        id: 'sun_top_right', 
+        label: () => t('effects.background.sun_top_right', '상단 우측'),
+        emoji: '↗️',
+        description: '우측 상단에서 햇빛',
+        mood: 'warm',
         isNew: true,
       },
       { 
-        id: 'gradient_flow', 
-        label: () => t('effects.background.gradient_flow', '그라디언트'),
-        emoji: '🌈',
-        description: '흐르는 그라디언트',
-        mood: 'dreamy',
+        id: 'sun_bottom_left', 
+        label: () => t('effects.background.sun_bottom_left', '하단 좌측'),
+        emoji: '↙️',
+        description: '좌측 하단에서 햇빛',
+        mood: 'warm',
+        isNew: true,
+      },
+      { 
+        id: 'sun_bottom_right', 
+        label: () => t('effects.background.sun_bottom_right', '하단 우측'),
+        emoji: '↘️',
+        description: '우측 하단에서 햇빛',
+        mood: 'warm',
         isNew: true,
       },
     ],
   },
 
   // ─────────────────────────────────────────────────────────────────────
-  // Group 2: Atmosphere (분위기) 🌫️
+  // Group 2: Aurora (오로라) 🌌
   // ─────────────────────────────────────────────────────────────────────
   {
-    id: 'atmosphere',
+    id: 'aurora',
     type: 'group',
-    title: () => t('effects.background_group.atmosphere', '분위기'),
-    emoji: '🌫️',
-    description: () => t('effects.background_group.atmosphere_desc', '은은한 분위기 연출'),
+    title: () => t('effects.background_group.aurora', '오로라'),
+    emoji: '🌌',
+    description: () => t('effects.background_group.aurora_desc', '신비로운 오로라 빛'),
     defaultOpen: false,
     items: [
       { 
-        id: 'fog', 
-        label: () => t('effects.background.fog', '안개'),
-        emoji: '🌫️',
-        description: '몽환적인 안개',
-        mood: 'mysterious',
+        id: 'aurora_top_left', 
+        label: () => t('effects.background.aurora_top_left', '상단 좌측'),
+        emoji: '↖️',
+        description: '좌측 상단에서 오로라',
+        mood: 'mystical',
         isNew: true,
       },
       { 
-        id: 'shimmer', 
-        label: () => t('effects.background.shimmer', '반짝임'),
-        emoji: '✨',
-        description: '은은한 반짝임',
-        mood: 'gentle',
+        id: 'aurora_top_right', 
+        label: () => t('effects.background.aurora_top_right', '상단 우측'),
+        emoji: '↗️',
+        description: '우측 상단에서 오로라',
+        mood: 'mystical',
+        isNew: true,
+      },
+      { 
+        id: 'aurora_bottom_left', 
+        label: () => t('effects.background.aurora_bottom_left', '하단 좌측'),
+        emoji: '↙️',
+        description: '좌측 하단에서 오로라',
+        mood: 'mystical',
+        isNew: true,
+      },
+      { 
+        id: 'aurora_bottom_right', 
+        label: () => t('effects.background.aurora_bottom_right', '하단 우측'),
+        emoji: '↘️',
+        description: '우측 하단에서 오로라',
+        mood: 'mystical',
+        isNew: true,
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Group 3: Neon Light (네온 라이트) 💡
+  // ─────────────────────────────────────────────────────────────────────
+  {
+    id: 'neon',
+    type: 'group',
+    title: () => t('effects.background_group.neon', '네온 라이트'),
+    emoji: '💡',
+    description: () => t('effects.background_group.neon_desc', '화려한 네온 빛'),
+    defaultOpen: false,
+    items: [
+      { 
+        id: 'neon_top_left', 
+        label: () => t('effects.background.neon_top_left', '상단 좌측'),
+        emoji: '↖️',
+        description: '좌측 상단에서 네온 빛',
+        mood: 'vibrant',
+        isNew: true,
+      },
+      { 
+        id: 'neon_top_right', 
+        label: () => t('effects.background.neon_top_right', '상단 우측'),
+        emoji: '↗️',
+        description: '우측 상단에서 네온 빛',
+        mood: 'vibrant',
+        isNew: true,
+      },
+      { 
+        id: 'neon_bottom_left', 
+        label: () => t('effects.background.neon_bottom_left', '하단 좌측'),
+        emoji: '↙️',
+        description: '좌측 하단에서 네온 빛',
+        mood: 'vibrant',
+        isNew: true,
+      },
+      { 
+        id: 'neon_bottom_right', 
+        label: () => t('effects.background.neon_bottom_right', '하단 우측'),
+        emoji: '↘️',
+        description: '우측 하단에서 네온 빛',
+        mood: 'vibrant',
+        isNew: true,
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Group 4: Gradient (그라디언트) 🌈
+  // ─────────────────────────────────────────────────────────────────────
+  {
+    id: 'gradient',
+    type: 'group',
+    title: () => t('effects.background_group.gradient', '그라디언트'),
+    emoji: '🌈',
+    description: () => t('effects.background_group.gradient_desc', '부드러운 색상 조화'),
+    defaultOpen: false,
+    items: [
+      { 
+        id: 'gradient_top_left', 
+        label: () => t('effects.background.gradient_top_left', '상단 좌측'),
+        emoji: '↖️',
+        description: '좌측 상단에서 그라디언트',
+        mood: 'dreamy',
+        isNew: true,
+      },
+      { 
+        id: 'gradient_top_right', 
+        label: () => t('effects.background.gradient_top_right', '상단 우측'),
+        emoji: '↗️',
+        description: '우측 상단에서 그라디언트',
+        mood: 'dreamy',
+        isNew: true,
+      },
+      { 
+        id: 'gradient_bottom_left', 
+        label: () => t('effects.background.gradient_bottom_left', '하단 좌측'),
+        emoji: '↙️',
+        description: '좌측 하단에서 그라디언트',
+        mood: 'dreamy',
+        isNew: true,
+      },
+      { 
+        id: 'gradient_bottom_right', 
+        label: () => t('effects.background.gradient_bottom_right', '하단 우측'),
+        emoji: '↘️',
+        description: '우측 하단에서 그라디언트',
+        mood: 'dreamy',
         isNew: true,
       },
     ],

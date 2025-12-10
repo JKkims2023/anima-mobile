@@ -1745,10 +1745,14 @@
       "playful_desc": "재미있고 경쾌한"
     },
     "background_group": {
-      "light_glow": "빛 & 광채",
-      "light_glow_desc": "부드러운 빛의 효과",
-      "atmosphere": "분위기",
-      "atmosphere_desc": "은은한 분위기 연출"
+      "sun": "태양",
+      "sun_desc": "따뜻한 햇빛",
+      "aurora": "오로라",
+      "aurora_desc": "신비로운 오로라 빛",
+      "neon": "네온 라이트",
+      "neon_desc": "화려한 네온 빛",
+      "gradient": "그라디언트",
+      "gradient_desc": "부드러운 색상 조화"
     },
     "particle_group": {
       "love_romance": "사랑 & 로맨스",
@@ -1791,11 +1795,22 @@
     "background": {
       "none": "없음",
       "none_desc": "배경 효과 없음",
-      "aurora": "오로라",
-      "neon_light": "네온 라이트",
-      "gradient_flow": "그라디언트",
-      "fog": "안개",
-      "shimmer": "반짝임"
+      "sun_top_left": "상단 좌측",
+      "sun_top_right": "상단 우측",
+      "sun_bottom_left": "하단 좌측",
+      "sun_bottom_right": "하단 우측",
+      "aurora_top_left": "상단 좌측",
+      "aurora_top_right": "상단 우측",
+      "aurora_bottom_left": "하단 좌측",
+      "aurora_bottom_right": "하단 우측",
+      "neon_top_left": "상단 좌측",
+      "neon_top_right": "상단 우측",
+      "neon_bottom_left": "하단 좌측",
+      "neon_bottom_right": "하단 우측",
+      "gradient_top_left": "상단 좌측",
+      "gradient_top_right": "상단 우측",
+      "gradient_bottom_left": "하단 좌측",
+      "gradient_bottom_right": "하단 우측"
     },
     "particle": {
       "none": "없음",

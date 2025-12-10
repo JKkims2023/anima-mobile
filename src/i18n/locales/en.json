@@ -1810,10 +1810,14 @@
       "playful_desc": "Fun and cheerful"
     },
     "background_group": {
-      "light_glow": "Light & Glow",
-      "light_glow_desc": "Soft light effects",
-      "atmosphere": "Atmosphere",
-      "atmosphere_desc": "Ambient atmosphere"
+      "sun": "Sun",
+      "sun_desc": "Warm sunlight",
+      "aurora": "Aurora",
+      "aurora_desc": "Mystical aurora",
+      "neon": "Neon Light",
+      "neon_desc": "Vibrant neon",
+      "gradient": "Gradient",
+      "gradient_desc": "Smooth color blend"
     },
     "particle_group": {
       "love_romance": "Love & Romance",
@@ -1856,20 +1860,22 @@
     "background": {
       "none": "None",
       "none_desc": "No background effect",
-      "aurora": "Aurora",
-      "neon_light": "Neon Light",
-      "gradient_flow": "Gradient Flow",
-      "fog": "Fog",
-      "shimmer": "Shimmer"
-    },
-    "background": {
-      "none": "None",
-      "none_desc": "No background effect",
-      "aurora": "Aurora",
-      "neon_light": "Neon Light",
-      "gradient_flow": "Gradient Flow",
-      "fog": "Fog",
-      "shimmer": "Shimmer"
+      "sun_top_left": "Top Left",
+      "sun_top_right": "Top Right",
+      "sun_bottom_left": "Bottom Left",
+      "sun_bottom_right": "Bottom Right",
+      "aurora_top_left": "Top Left",
+      "aurora_top_right": "Top Right",
+      "aurora_bottom_left": "Bottom Left",
+      "aurora_bottom_right": "Bottom Right",
+      "neon_top_left": "Top Left",
+      "neon_top_right": "Top Right",
+      "neon_bottom_left": "Bottom Left",
+      "neon_bottom_right": "Bottom Right",
+      "gradient_top_left": "Top Left",
+      "gradient_top_right": "Top Right",
+      "gradient_bottom_left": "Bottom Left",
+      "gradient_bottom_right": "Bottom Right"
     },
     "particle": {
       "none": "None",
