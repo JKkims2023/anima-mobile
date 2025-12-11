@@ -448,6 +448,7 @@ const styles = StyleSheet.create({
     // ✅ Removed height: SCREEN_HEIGHT to match SAGE behavior
     // This allows chatOverlay bottom positioning to work correctly
     backgroundColor: '#000000',
+    overflow: 'hidden', // ⭐ CRITICAL FIX: Prevent absolute children from overflowing into other FlashList items
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
