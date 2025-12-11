@@ -144,11 +144,23 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
         >
           <View style={styles.paginationContent}>
             <View style={styles.paginationLeft}>
+
+              <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(10)}}>
               {/* Number Display */}
               <CustomText type="title" bold style={styles.paginationText}>
                 {currentIndex + 1} / {totalCount}
               </CustomText>
-              
+              {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
+              {showScrollToTop && (
+                <View style={styles.scrollToTopIcon}>
+                  <Icon 
+                    name="arrow-up-circle" 
+                    size={scale(30)} 
+                    color={theme.mainColor} 
+                  />
+                </View>
+              )}
+              </View>
               {/* Progress Bar */}
               <View style={styles.progressBarContainer}>
                 <View 
@@ -163,16 +175,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
               </View>
             </View>
             
-            {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
-            {showScrollToTop && (
-              <View style={styles.scrollToTopIcon}>
-                <Icon 
-                  name="arrow-up-circle" 
-                  size={scale(26)} 
-                  color={theme.mainColor} 
-                />
-              </View>
-            )}
+  
           </View>
         </TouchableOpacity>
       )}
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
   // ⭐ Pagination Container (Clickable for scroll to top)
   paginationContainer: {
     width: '100%',
-    paddingHorizontal: scale(16),
+    paddingHorizontal: scale(0),
     paddingVertical: verticalScale(10),
     marginBottom: verticalScale(2),
     // ⭐ NO border, NO background - Pure integration with gradient
@@ -260,7 +263,6 @@ const styles = StyleSheet.create({
   paginationContent: {
     flexDirection: 'row',
     alignItems: 'flex-start', // ⭐ Changed from 'center' to 'flex-start' to prevent arrow from being pushed down
-    justifyContent: 'space-between',
     width: '100%',
   },
   
