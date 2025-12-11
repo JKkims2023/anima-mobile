@@ -1831,6 +1831,8 @@
       "comfort_hope_desc": "Comfort and hope",
       "custom_words": "Custom Words",
       "custom_words_desc": "Personalize with your words",
+      "food_drink": "Food & Drink",
+      "food_drink_desc": "For social moments",
       "retro": "Retro",
       "retro_desc": "Vintage analog effects",
       "others": "Others",
@@ -1897,6 +1899,7 @@
       "fireflies": "Fireflies",
       "floating_words": "Floating Words",
       "scrolling_words": "Scrolling Words",
+      "cheers_toast": "Cheers Toast",
       "tv_noise_weak": "TV Noise (Weak)",
       "tv_noise_medium": "TV Noise (Medium)",
       "tv_noise_strong": "TV Noise (Strong)"

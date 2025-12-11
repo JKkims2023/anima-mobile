@@ -45,7 +45,8 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform } from 'react-native';
+import LottieView from 'lottie-react-native'; // ⭐ NEW: Lottie animations
 import Confetti from './Confetti';
 import Fireworks from './Fireworks'; // ⭐ NEW: Dynamic fireworks
 import Hearts from './Hearts';
@@ -137,6 +138,25 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
         // ⭐ NEW: User's custom words scrolling left to right
         console.log('💬➡️ [ParticleEffect] Using ScrollingWords with:', customWords);
         return <ScrollingWords key="scrolling_words" words={customWords.length > 0 ? customWords : ['사랑해', '고마워']} />;
+      
+      // ─────────────────────────────────────────────────────────────────────
+      // 🍻 Food & Drink (Lottie Animations)
+      // ─────────────────────────────────────────────────────────────────────
+      case 'cheers_toast':
+        // ⭐ NEW: Cheers toast animation (Lottie)
+        console.log('🍻 [ActiveEffect] Cheers Toast (Lottie)');
+        return (
+          <LottieView
+            key="cheers_toast"
+            source={require('../../assets/animations/cheers-toast.json')}
+            autoPlay
+            loop={false}
+            style={{
+              width: SCREEN_WIDTH,
+              height: SCREEN_HEIGHT,
+            }}
+          />
+        );
       
       // ─────────────────────────────────────────────────────────────────────
       // 📺 Retro (Vintage)

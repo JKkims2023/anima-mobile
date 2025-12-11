@@ -36,6 +36,7 @@
     "@shopify/flash-list": "^2.2.0",
     "axios": "^1.13.2",
     "i18next": "^25.6.1",
+    "lottie-react-native": "^7.3.4",
     "react": "19.0.0",
     "react-i18next": "^15.7.4",
     "react-image-picker": "^1.1.1",
