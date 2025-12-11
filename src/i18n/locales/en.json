@@ -1919,6 +1919,7 @@
     "favorite": "Favorite",
     "favorite_added": "Added to favorites",
     "favorite_removed": "Removed from favorites",
+    "refreshed": "Persona list has been refreshed",
     "settings": {
       "title": "Persona Settings",
       "no_persona": "No Persona",
@@ -2001,6 +2002,11 @@
     },
     "category": {
       "default": "General"
+    },
+    "filter": {
+      "default": "Default Personas",
+      "user": "My Personas",
+      "favorite": "Favorites"
     }
   },
   "category_type": {

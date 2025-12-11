@@ -24,6 +24,7 @@ import {
   Dimensions,
   StyleSheet,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -47,6 +48,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Function} props.onChatWithPersona - Callback when "Chat with this 자아" is pressed
  * @param {boolean} props.enabled - Whether swipe gestures are enabled (default: true)
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
+ * @param {boolean} props.refreshing - Whether the list is refreshing (pull-to-refresh)
+ * @param {Function} props.onRefresh - Callback when user pulls to refresh
  */
 const PersonaSwipeViewer = forwardRef(({ 
   personas,
@@ -63,6 +66,8 @@ const PersonaSwipeViewer = forwardRef(({
   availableHeight = SCREEN_HEIGHT,
   onCreatePersona = () => {},
   filterMode = 'default',
+  refreshing = false, // ⭐ NEW: Pull-to-refresh state
+  onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -253,6 +258,15 @@ const PersonaSwipeViewer = forwardRef(({
         snapToOffsets={snapToOffsets} // ⭐ NEW: Replaces pagingEnabled for FlashList
         snapToAlignment="start"
         scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={currentTheme.mainColor || '#4285F4'}
+            colors={[currentTheme.mainColor || '#4285F4']}
+            progressBackgroundColor={currentTheme.backgroundColor || '#000'}
+          />
+        }
       />
 
       {/* Pagination Indicator */}

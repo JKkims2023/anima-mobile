@@ -1854,6 +1854,7 @@
     "favorite": "즐겨찾기",
     "favorite_added": "즐겨찾기에 추가되었습니다",
     "favorite_removed": "즐겨찾기에서 제거되었습니다",
+    "refreshed": "페르소나 목록이 새로고침되었습니다",
     "settings": {
       "title": "페르소나 설정",
       "no_persona": "페르소나 없음",
@@ -1945,7 +1946,12 @@
     "no_favorite_personas": "아직 즐겨찾기한 페르소나가 없습니다",
     "create_persona": "첫 페르소나 생성하기",
     "create_favorite_persona": "페르소나 정보를 클릭하면 즐겨찾기 기능을 사용할 수 있습니다!",
-    "estimated_time": "남은시간"
+    "estimated_time": "남은시간",
+    "filter": {
+      "default": "기본 페르소나",
+      "user": "내가 만든 페르소나",
+      "favorite": "즐겨찾기"
+    }
   },
   "search": {
     "placeholder": {

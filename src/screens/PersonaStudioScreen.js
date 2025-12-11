@@ -28,6 +28,13 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  runOnJS 
+} from 'react-native-reanimated';
 import SafeScreen from '../components/SafeScreen';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
@@ -112,6 +119,7 @@ const PersonaStudioScreen = () => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const helpSheetRef = useRef(null);
   const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
+  const [isRefreshing, setIsRefreshing] = useState(false); // ⭐ NEW: Pull-to-refresh state
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -217,6 +225,43 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
   // ═══════════════════════════════════════════════════════════════════════
+  
+  // ⭐ NEW: Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔄 [PersonaStudioScreen] Pull-to-refresh triggered');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    setIsRefreshing(true);
+    HapticService.light();
+    
+    try {
+      // Reload persona list from API
+      await initializePersonas();
+      
+      HapticService.success();
+      showToast({
+        type: 'success',
+        emoji: '✅',
+        message: t('persona.refreshed'),
+      });
+      
+      if (__DEV__) {
+        console.log('✅ [PersonaStudioScreen] Persona list refreshed');
+      }
+    } catch (error) {
+      console.error('❌ [PersonaStudioScreen] Refresh error:', error);
+      HapticService.warning();
+      showToast({
+        type: 'error',
+        emoji: '⚠️',
+        message: t('errors.generic'),
+      });
+    } finally {
+      setIsRefreshing(false);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    }
+  }, [initializePersonas, showToast, t]);
   
   // Handle persona change from PersonaSwipeViewer
   const handlePersonaChange = useCallback((newIndex) => {
@@ -560,7 +605,20 @@ const PersonaStudioScreen = () => {
     
     // Reset to first persona when filter changes
     setCurrentPersonaIndex(0);
-  }, []);
+    
+    // Show toast for filter change
+    const filterNames = {
+      default: t('persona.filter.default'),
+      user: t('persona.filter.user'),
+      favorite: t('persona.filter.favorite'),
+    };
+    
+    showToast({
+      type: 'info',
+      emoji: mode === 'favorite' ? '⭐' : mode === 'user' ? '👤' : '🎭',
+      message: filterNames[mode] || mode,
+    });
+  }, [t, showToast]);
 
   const handleCreatePersona = useCallback(() => {
     
@@ -923,7 +981,55 @@ const PersonaStudioScreen = () => {
       user: userPersonas.length,
       favorite: favoritePersonas.length,
     };
-  }, [personasWithDefaults]); 
+  }, [personasWithDefaults]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // HORIZONTAL SWIPE GESTURE (Filter Mode Change)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // ⭐ Cycle through filter modes: default → user → favorite → default
+  const cycleFilterMode = useCallback((direction) => {
+    const modes = ['default', 'user', 'favorite'];
+    const currentIndex = modes.indexOf(filterMode);
+    
+    let nextIndex;
+    if (direction === 'left') {
+      // Swipe left: next mode
+      nextIndex = (currentIndex + 1) % modes.length;
+    } else {
+      // Swipe right: previous mode
+      nextIndex = (currentIndex - 1 + modes.length) % modes.length;
+    }
+    
+    const nextMode = modes[nextIndex];
+    
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 👆 Swipe detected:', direction, '→', nextMode);
+    }
+    
+    handleFilterModeChange(nextMode);
+  }, [filterMode, handleFilterModeChange]);
+  
+  // ⭐ Horizontal swipe gesture handler (with direction constraints)
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-80, 80]) // ⭐ CRITICAL: Activate only on horizontal movement (80px threshold)
+    .failOffsetY([-30, 30]) // ⭐ CRITICAL: Cancel if vertical movement detected (30px threshold)
+    .onEnd((event) => {
+      const { translationX, velocityX } = event;
+      
+      // ⭐ Detect swipe direction based on translation and velocity
+      const isSignificant = Math.abs(translationX) > 100 || Math.abs(velocityX) > 500;
+      
+      if (isSignificant) {
+        if (translationX > 0) {
+          // Swipe right: previous filter
+          runOnJS(cycleFilterMode)('right');
+        } else {
+          // Swipe left: next filter
+          runOnJS(cycleFilterMode)('left');
+        }
+      }
+    }); 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -963,12 +1069,13 @@ const PersonaStudioScreen = () => {
         </TouchableOpacity>
       </View>
       
-      {/* Container */}
-      <View style={styles.container}>
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.baseLayer}>
+      {/* Container with Horizontal Swipe Gesture */}
+      <GestureDetector gesture={panGesture}>
+        <View style={styles.container}>
+          {/* ═════════════════════════════════════════════════════════════════ */}
+          {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
+          {/* ═════════════════════════════════════════════════════════════════ */}
+          <View style={styles.baseLayer}>
           <PersonaSwipeViewer 
             key={`swiper-${currentFilteredPersonas.map(p => p.persona_key).join('-')}`} // ⭐ Force re-mount when personas change
             ref={swiperRef}
@@ -986,6 +1093,8 @@ const PersonaStudioScreen = () => {
             isMessageMode={false}
             onCreatePersona={handleAddPersona}
             filterMode={filterMode}
+            refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
+            onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback
           />
         </View>
         
@@ -1033,7 +1142,8 @@ const PersonaStudioScreen = () => {
           />
         </View>
 
-      </View>
+        </View>
+      </GestureDetector>
       
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Persona Creation Sheet (Absolute positioning with max z-index) */}
