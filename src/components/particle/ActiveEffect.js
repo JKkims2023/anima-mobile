@@ -57,6 +57,8 @@ import RainSoft from './RainSoft';
 import FloatingWords from './FloatingWords'; // ⭐ NEW: Custom words floating up
 import ScrollingWords from './ScrollingWords'; // ⭐ NEW: Custom words scrolling
 import TVNoise from './TVNoise'; // ⭐ NEW: Analog TV static effect
+import { verticalScale } from '../../utils/responsive-utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -67,7 +69,7 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
   console.log('  - isActive:', isActive);
   console.log('  - customWords:', customWords);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
+  const insets = useSafeAreaInsets();
   // No effect
   if (type === 'none' || !isActive) {
     console.log('🌙 [ParticleEffect] No effect or inactive');
@@ -161,7 +163,7 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
   };
 
   return (
-    <View style={styles.container} pointerEvents="none">
+    <View style={[styles.container, { paddingTop: Platform.OS === 'ios' ? verticalScale(210) : verticalScale(180) }]} pointerEvents="none">
       {renderParticleEffect()}
     </View>
   );

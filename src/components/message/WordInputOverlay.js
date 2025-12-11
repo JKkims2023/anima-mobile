@@ -291,7 +291,7 @@ const WordInputOverlay = forwardRef(({
           {/* Word Count */}
           <View style={styles.wordCountContainer}>
             <CustomText style={styles.wordCount}>
-              {words.length} / {MAX_WORDS} {t('common.words') || '단어'}
+              {words.length} / {MAX_WORDS} 
             </CustomText>
           </View>
 
