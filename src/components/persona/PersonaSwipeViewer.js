@@ -188,7 +188,9 @@ const PersonaSwipeViewer = forwardRef(({
   }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity, availableHeight, onCheckStatus]);
 
   // ✅ Key extractor (optimized)
-  const keyExtractor = useCallback((item) => item.persona_key, []);
+  // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes
+  // This prevents FlashList from reusing components with stale BlurView state
+  const keyExtractor = useCallback((item) => `${item.persona_key}-${item.done_yn}`, []);
 
   const handleCreatePersona = useCallback(() => {
     

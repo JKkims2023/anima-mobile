@@ -73,6 +73,7 @@ const PersonaCardView = ({
   const videoOpacity = useRef(new Animated.Value(0)).current;
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
+  const timerIntervalRef = useRef(null); // ⭐ NEW: Ref to store interval ID for cleanup
   
   const HEADER_HEIGHT = verticalScale(80); // 헤더 높이 (타이틀 + 서브타이틀 + 패딩)
   const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
@@ -103,11 +104,25 @@ const PersonaCardView = ({
 
   // ⭐ NEW: Timer logic for persona creation
   useEffect(() => {
-    // ⭐ CRITICAL FIX: Reset state when persona changes!
-    // This prevents state from previous persona from leaking into next persona
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('⏱️  [PersonaCardView] TIMER USEEFFECT TRIGGERED');
+    console.log('  - Persona:', persona?.persona_name);
+    console.log('  - persona_key:', persona?.persona_key);
+    console.log('  - done_yn:', persona?.done_yn);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // ⭐ CRITICAL: Clear any existing interval IMMEDIATELY
+    if (timerIntervalRef.current) {
+      console.log('  - 🧹 Clearing previous interval:', timerIntervalRef.current);
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    
+    // ⭐ CRITICAL FIX: Reset state when persona changes or is complete
     if (persona?.done_yn !== 'N') {
+      console.log('  - ✅ Persona complete, resetting state');
       setRemainingSeconds(null);
-      setIsCheckingStatus(false); // ⭐ Also reset checking status
+      setIsCheckingStatus(false);
       return;
     }
 
@@ -128,26 +143,35 @@ const PersonaCardView = ({
 
     // Initial calculation
     const initialRemaining = calculateRemainingTime();
+    console.log('  - ⏱️  Initial remaining:', initialRemaining);
     setRemainingSeconds(initialRemaining);
 
     // ⭐ FIX: Stop timer if already at 0
     if (initialRemaining === 0) {
+      console.log('  - ⏹️  Timer already at 0, not starting interval');
       return;
     }
 
     // Update every second
-    const interval = setInterval(() => {
+    console.log('  - ▶️  Starting interval timer');
+    timerIntervalRef.current = setInterval(() => {
       const remaining = calculateRemainingTime();
       setRemainingSeconds(remaining);
       
       // ⭐ FIX: Stop interval when reaching 0
       if (remaining === 0) {
-        clearInterval(interval);
+        console.log('  - ⏹️  Timer reached 0, clearing interval');
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
     }, 1000);
 
     return () => {
-      clearInterval(interval);
+      console.log('  - 🧹 Cleanup: clearing interval for', persona?.persona_name);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
     };
   }, [
     persona?.persona_key, // ⭐ CRITICAL FIX: Reset when persona changes!
@@ -332,6 +356,7 @@ const PersonaCardView = ({
       )}
 
       {/* ⭐ NEW: Incomplete Persona UI (Blur + Timer + Check Button) */}
+      {/* ⭐ CRITICAL FIX: Always render, control visibility with opacity/pointerEvents */}
       {(() => {
         const shouldShowBlur = persona?.done_yn === 'N';
         
@@ -345,54 +370,68 @@ const PersonaCardView = ({
         console.log('  - isCheckingStatus:', isCheckingStatus);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        return shouldShowBlur;
-      })() && (
-        <View style={styles.incompleteOverlay}>
-          <BlurView
-            style={styles.blurContainer}
-            blurType="light"
-            blurAmount={30}
-            reducedTransparencyFallbackColor="rgba(255, 255, 255, 0.3)"
-          />
-          <View style={styles.timerContainer}>
-            <CustomText type="title" bold style={styles.generatingText}>
-              ⏳ {t('persona.creation.generating')}
-            </CustomText>
-            
-            {remainingSeconds > 0 ? (
-              <CustomText type="title" bold style={styles.timerText}>
-                {t('persona.creation.remaining_time', { time: remainingSeconds })}
+        // ⭐ ULTIMATE FIX: Control BlurView with blurAmount (0 = no blur)
+        // BlurView is a Native component - conditional rendering doesn't work with FlashList
+        // Solution: Always render, but set blurAmount=0 to disable blur effect
+        return (
+          <View 
+            style={[
+              styles.incompleteOverlay,
+              !shouldShowBlur && { opacity: 0, pointerEvents: 'none' }
+            ]}
+          >
+            <BlurView
+              style={styles.blurContainer}
+              blurType="light"
+              blurAmount={shouldShowBlur ? 30 : 0} // ⭐ CRITICAL: Dynamic blur control
+              reducedTransparencyFallbackColor={
+                shouldShowBlur 
+                  ? "rgba(255, 255, 255, 0.3)" 
+                  : "transparent"
+              }
+            />
+            {shouldShowBlur && (
+            <View style={styles.timerContainer}>
+              <CustomText type="title" bold style={styles.generatingText}>
+                ⏳ {t('persona.creation.generating')}
               </CustomText>
-            ) : (
-              <TouchableOpacity
-                style={[
-                  styles.checkButton,
-                  isCheckingStatus && styles.checkButtonDisabled
-                ]}
-                onPress={() => {
-                  if (!isCheckingStatus && onCheckStatus) {
-                    HapticService.success();
-                    setIsCheckingStatus(true);
-                    onCheckStatus(persona, () => {
-                      setIsCheckingStatus(false);
-                    });
-                  }
-                }}
-                disabled={isCheckingStatus}
-                activeOpacity={0.7}
-              >
-                {isCheckingStatus ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <CustomText type="middle" bold style={styles.checkButtonText}>
-                    {t('persona.creation.check_status')}
-                  </CustomText>
+              
+              {remainingSeconds > 0 ? (
+                <CustomText type="title" bold style={styles.timerText}>
+                  {t('persona.creation.remaining_time', { time: remainingSeconds })}
+                </CustomText>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    styles.checkButton,
+                    isCheckingStatus && styles.checkButtonDisabled
+                  ]}
+                  onPress={() => {
+                    if (!isCheckingStatus && onCheckStatus) {
+                      HapticService.success();
+                      setIsCheckingStatus(true);
+                      onCheckStatus(persona, () => {
+                        setIsCheckingStatus(false);
+                      });
+                    }
+                  }}
+                  disabled={isCheckingStatus}
+                  activeOpacity={0.7}
+                >
+                  {isCheckingStatus ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <CustomText type="middle" bold style={styles.checkButtonText}>
+                      {t('persona.creation.check_status')}
+                    </CustomText>
                 )}
               </TouchableOpacity>
             )}
+            </View>
+            )}
           </View>
-        </View>
-      )}
+        );
+      })()}
 
       {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
     </View>
@@ -650,20 +689,11 @@ const styles = StyleSheet.create({
   },
 });
 
-// ✅ Memoize PersonaCardView to prevent unnecessary re-renders
-// Only re-render when critical props change
-export default memo(PersonaCardView, (prevProps, nextProps) => {
-  // Return true if props are equal (prevent re-render)
-  // Return false if props are different (allow re-render)
-  return (
-    prevProps.persona.persona_key === nextProps.persona.persona_key &&
-    prevProps.persona.done_yn === nextProps.persona.done_yn && // ⭐ CRITICAL: Re-render when creation completes
-    prevProps.persona.time_done_yn === nextProps.persona.time_done_yn && // ⭐ CRITICAL: Re-render when timer completes
-    prevProps.persona.persona_url === nextProps.persona.persona_url && // ⭐ CRITICAL: Re-render when main image URL updates
-    prevProps.persona.original_url === nextProps.persona.original_url && // ⭐ CRITICAL: Re-render when original image updates
-    prevProps.persona.selected_dress_image_url === nextProps.persona.selected_dress_image_url && // ⭐ CRITICAL: Re-render when generated image updates
-    prevProps.isActive === nextProps.isActive &&
-    prevProps.isScreenFocused === nextProps.isScreenFocused // ⭐ CRITICAL: Check isScreenFocused for video control
-  );
-});
+// ✅ CRITICAL FIX: Remove React.memo comparison function
+// Problem: memo was blocking re-renders even when done_yn changed in API data
+// - New refresh: API returns correct data, but memo blocks render
+// - Manual update: setState forces render, memo is bypassed
+// Solution: Remove memo or use simpler comparison
+// For now: DISABLE memo to ensure BlurView always updates correctly
+export default PersonaCardView;
 
