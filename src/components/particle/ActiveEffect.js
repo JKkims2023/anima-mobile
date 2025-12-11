@@ -44,7 +44,7 @@
  * @date 2024-12-10 (2-Layer System)
  */
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import LottieView from 'lottie-react-native'; // ⭐ NEW: Lottie animations
 import Confetti from './Confetti';
@@ -62,6 +62,74 @@ import { verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// ⭐ NEW: CheersToastEffect Component (Plays twice, then hides)
+const CheersToastEffect = () => {
+  const lottieRef = useRef(null);
+  const [playCount, setPlayCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(true); // ⭐ NEW: Visibility control
+  
+  useEffect(() => {
+    console.log('🍻 [CheersToastEffect] Mounted, play count:', playCount);
+    // Start first play on mount
+    if (playCount === 0) {
+      lottieRef.current?.play();
+      console.log('🍻 [CheersToastEffect] Starting first play');
+    }
+  }, []);
+  
+  const handleAnimationFinish = () => {
+    console.log('🍻 [CheersToastEffect] Animation finished, play count:', playCount);
+    
+    if (playCount === 0) {
+      // First play finished, play again!
+      console.log('🍻 [CheersToastEffect] Playing second time (건배! 건배!)');
+      setPlayCount(1);
+      setTimeout(() => {
+        lottieRef.current?.play();
+      }, 100); // Small delay for smooth restart
+    } else {
+      // Second play finished, hide component!
+      console.log('🍻 [CheersToastEffect] Completed 2x plays! Hiding component... 🎉');
+      setTimeout(() => {
+        setIsVisible(false);
+        console.log('🍻 [CheersToastEffect] Component hidden (clean finish)');
+      }, 500); // ⭐ Wait 500ms before hiding (smooth fade-out effect)
+    }
+  };
+  
+  // ⭐ Hide component after 2 plays
+  if (!isVisible) {
+    console.log('🍻 [CheersToastEffect] Component is hidden (no render)');
+    return null;
+  }
+  
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: SCREEN_WIDTH,
+        height: SCREEN_HEIGHT,
+        justifyContent: 'center', // ⭐ Vertical center
+        alignItems: 'center', // ⭐ Horizontal center
+        zIndex: 100, // Above other effects
+      }}
+    >
+      <LottieView
+        ref={lottieRef}
+        source={require('../../assets/animations/cheers-toast.json')}
+        loop={false}
+        style={{
+          width: SCREEN_WIDTH * 0.8, // ⭐ 80% width for better centering
+          height: SCREEN_HEIGHT * 0.6, // ⭐ 60% height (centered vertically)
+        }}
+        onAnimationFinish={handleAnimationFinish}
+      />
+    </View>
+  );
+};
 
 const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -143,20 +211,9 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
       // 🍻 Food & Drink (Lottie Animations)
       // ─────────────────────────────────────────────────────────────────────
       case 'cheers_toast':
-        // ⭐ NEW: Cheers toast animation (Lottie)
-        console.log('🍻 [ActiveEffect] Cheers Toast (Lottie)');
-        return (
-          <LottieView
-            key="cheers_toast"
-            source={require('../../assets/animations/cheers-toast.json')}
-            autoPlay
-            loop={false}
-            style={{
-              width: SCREEN_WIDTH,
-              height: SCREEN_HEIGHT,
-            }}
-          />
-        );
+        // ⭐ NEW: Cheers toast animation (Lottie) - Play twice!
+        console.log('🍻 [ActiveEffect] Cheers Toast (Lottie) - 2x repeat');
+        return <CheersToastEffect key="cheers_toast" />;
       
       // ─────────────────────────────────────────────────────────────────────
       // 📺 Retro (Vintage)
