@@ -103,9 +103,11 @@ const PersonaCardView = ({
 
   // ⭐ NEW: Timer logic for persona creation
   useEffect(() => {
-    // Only run if persona is incomplete
+    // ⭐ CRITICAL FIX: Reset state when persona changes!
+    // This prevents state from previous persona from leaking into next persona
     if (persona?.done_yn !== 'N') {
       setRemainingSeconds(null);
+      setIsCheckingStatus(false); // ⭐ Also reset checking status
       return;
     }
 
@@ -147,7 +149,13 @@ const PersonaCardView = ({
     return () => {
       clearInterval(interval);
     };
-  }, [persona?.done_yn, persona?.created_date, persona?.estimate_time, persona?.persona_name]);
+  }, [
+    persona?.persona_key, // ⭐ CRITICAL FIX: Reset when persona changes!
+    persona?.done_yn, 
+    persona?.created_date, 
+    persona?.estimate_time, 
+    persona?.persona_name
+  ]);
 
   // ✅ Determine media source (Video or Image) - Memoized
   const { hasVideo, videoUrl, imageUrl } = useMemo(() => {
@@ -324,7 +332,21 @@ const PersonaCardView = ({
       )}
 
       {/* ⭐ NEW: Incomplete Persona UI (Blur + Timer + Check Button) */}
-      {persona?.done_yn === 'N' && (
+      {(() => {
+        const shouldShowBlur = persona?.done_yn === 'N';
+        
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔍 [PersonaCardView] BLUR CHECK');
+        console.log('  - Persona:', persona?.persona_name);
+        console.log('  - persona_key:', persona?.persona_key);
+        console.log('  - done_yn:', persona?.done_yn);
+        console.log('  - shouldShowBlur:', shouldShowBlur);
+        console.log('  - remainingSeconds:', remainingSeconds);
+        console.log('  - isCheckingStatus:', isCheckingStatus);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        return shouldShowBlur;
+      })() && (
         <View style={styles.incompleteOverlay}>
           <BlurView
             style={styles.blurContainer}

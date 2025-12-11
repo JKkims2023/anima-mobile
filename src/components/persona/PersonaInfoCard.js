@@ -153,7 +153,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" style={styles.description} numberOfLines={2}>
               {
-              persona?.default_yn === 'N' ? t('persona.creation.creating') : t('category_type.' + persona?.category_type + '_desc')}
+              persona?.donet_yn === 'N' ? t('persona.creation.creating') : t('category_type.' + persona?.category_type + '_desc')}
             </CustomText>
           </View>
         </View>
