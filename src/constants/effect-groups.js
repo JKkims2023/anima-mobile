@@ -661,6 +661,7 @@ export const ACTIVE_EFFECT_GROUPS = [
   // Group 6: Retro (레트로) 📺
   // ⭐ NEW: Analog TV noise effects for vintage vibes
   // ─────────────────────────────────────────────────────────────────────
+  /*
   {
     id: 'retro',
     type: 'group',
@@ -696,6 +697,7 @@ export const ACTIVE_EFFECT_GROUPS = [
       },
     ],
   },
+  */
 
   // ─────────────────────────────────────────────────────────────────────
   // Group 7: Others (기타) 🎨

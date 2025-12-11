@@ -66,7 +66,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
+import { scale, moderateScale, platformPadding, verticalScale } from '../utils/responsive-utils';
 import CustomText from './CustomText';
 import CustomButton from './CustomButton';
 const commonstyles = require('../styles/commonstyles');
@@ -110,6 +110,8 @@ const CustomBottomSheet = forwardRef((props, ref) => {
 
   // Safe area insets
   const insets = useSafeAreaInsets();
+
+  const [footerHeight, setFooterHeight] = useState(0);
 
   // Theme colors (ANIMA 기본 테마: Dark Mode - Deep Blue)
   const theme = commonstyles.darkTheme;
@@ -240,14 +242,24 @@ const CustomBottomSheet = forwardRef((props, ref) => {
     (props) => {
       if (!buttons || buttons.length === 0) return null;
 
+      const handleFooterLayout = (event) => {
+        const { height } = event.nativeEvent.layout;
+        // 푸터 높이가 변경되었을 때만 state 업데이트 (불필요한 리렌더링 방지)
+        if (height !== footerHeight) {
+          setFooterHeight(height);
+        }
+      };
+
       return (
-        <BottomSheetFooter {...props} bottomInset={insets.bottom}>
+        <BottomSheetFooter {...props} bottomInset={0}>
           <View 
+            onLayout={handleFooterLayout}
             style={[
               styles.footer, 
               { 
                 backgroundColor: theme.backgroundColor,
                 borderTopColor: theme.borderPrimary,
+                paddingBottom: insets.bottom + platformPadding(16)
               },
               footerStyle
             ]}
@@ -271,7 +283,7 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         </BottomSheetFooter>
       );
     },
-    [buttons, insets.bottom, theme, footerStyle]
+    [buttons, insets.bottom, theme, footerStyle, footerHeight]
   );
 
   // ==================== Handle Component ====================
@@ -366,11 +378,14 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         contentContainerStyle={[
           styles.contentContainer,
           contentContainerStyle,
+          { paddingBottom: insets.bottom + footerHeight, marginBottom: 1000  }
+
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {children}
+ 
       </BottomSheetScrollView>
     </BottomSheetModal>
   );
@@ -409,7 +424,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(100), // Extra space for footer
+//    paddingBottom: platformPadding(100), // Extra space for footer
   },
 
   // ==================== Footer ====================

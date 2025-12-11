@@ -1756,13 +1756,13 @@
       "gradient_desc": "부드러운 색상 조화"
     },
     "particle_group": {
-      "love_romance": "사랑 & 로맨스",
+      "love_romance": "사랑",
       "love_romance_desc": "사랑과 로맨스를 표현",
-      "celebration_joy": "축하 & 기쁨",
+      "celebration_joy": "축하",
       "celebration_joy_desc": "축하와 기쁨의 순간",
-      "nature_season": "자연 & 계절",
+      "nature_season": "자연",
       "nature_season_desc": "자연과 계절의 아름다움",
-      "comfort_hope": "위로 & 희망",
+      "comfort_hope": "위로",
       "comfort_hope_desc": "위로와 희망을 전하는",
       "custom_words": "나만의 단어",
       "custom_words_desc": "특별한 단어로 감동을",

@@ -46,9 +46,16 @@ const EmotionPresetBottomSheet = ({ sheetRef, onPresetSelect }) => {
   return (
     <CustomBottomSheet
       ref={sheetRef}
-      snapPoints={['75%']}
+      snapPoints={['85%']}
       title={t('emotion_presets.title')}
       subtitle={t('emotion_presets.subtitle')}
+      buttons={[
+        {
+          title: t('common.close'),
+          onPress: () => sheetRef.current?.dismiss(),
+          type: 'primary',
+        },
+      ]}
     >
       <ScrollView
         style={styles.scrollView}
@@ -133,7 +140,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: scale(16),
+    padding: scale(0),
     paddingBottom: verticalScale(40),
   },
   presetCard: {
@@ -159,6 +166,12 @@ const styles = StyleSheet.create({
   },
   emoji: {
     marginRight: scale(12),
+    width: scale(50),
+    height: scale(50),
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerText: {
     flex: 1,
@@ -179,12 +192,14 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(12),
   },
   effectsContainer: {
+    flex: 1,
+    flexDirection: 'row',
     marginBottom: verticalScale(12),
   },
   effectRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: verticalScale(8),
+    marginRight: scale(10),
   },
   effectLabel: {
     fontSize: scale(14),
