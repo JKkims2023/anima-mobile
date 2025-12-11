@@ -42,6 +42,7 @@ import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet';
 import MusicPlayerSheet from '../components/music/MusicPlayerSheet';
+import ProcessingLoadingOverlay from '../components/persona/ProcessingLoadingOverlay'; // ⭐ NEW: Universal loading overlay
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
@@ -95,6 +96,7 @@ const MusicScreen = () => {
   // Creating state
   const [isCreating, setIsCreating] = useState(false);
   const [creatingMusicKey, setCreatingMusicKey] = useState(null);
+  const [isProcessingMusic, setIsProcessingMusic] = useState(false); // ⭐ NEW: Loading overlay for music generation
 
   // Selected music for player
   const [selectedMusic, setSelectedMusic] = useState(null);
@@ -269,7 +271,7 @@ const MusicScreen = () => {
   const handleMusicUpdate = async (music, action) => {
     if (action === 'delete') {
       try {
-        const result = await musicService.deleteMusic(music.music_key);
+        const result = await musicService.deleteMusic(music.music_key, user?.user_key);
 
         if (result.success) {
           // ⭐ Real-time state update
@@ -374,6 +376,12 @@ const MusicScreen = () => {
   // Handle music creation submit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleMusicCreationSubmit = async (formData) => {
+    // ⭐ Show processing overlay
+    setIsProcessingMusic(true);
+    
+    // Close creator sheet
+    creatorSheetRef.current?.dismiss();
+    
     try {
       const result = await musicService.createMusic({
         user_key: user.user_key,
@@ -400,12 +408,18 @@ const MusicScreen = () => {
         setIsCreating(true);
         setCreatingMusicKey(newMusic.music_key);
 
+        // ⭐ Hide processing overlay
+        setIsProcessingMusic(false);
+
         showToast({
           type: 'success',
           message: t('music.toast.create_started'),
           emoji: '🎵',
         });
       } else {
+        // ⭐ Hide processing overlay on failure
+        setIsProcessingMusic(false);
+        
         showToast({
           type: 'error',
           message: t('music.toast.create_failed'),
@@ -414,6 +428,10 @@ const MusicScreen = () => {
       }
     } catch (error) {
       console.error('[MusicScreen] Create music error:', error);
+      
+      // ⭐ Hide processing overlay on error
+      setIsProcessingMusic(false);
+      
       showToast({
         type: 'error',
         message: t('music.toast.create_failed'),
@@ -760,6 +778,12 @@ const MusicScreen = () => {
         ref={playerSheetRef}
         music={selectedMusic}
         onMusicUpdate={handleMusicUpdate}
+      />
+
+      {/* Processing Loading Overlay (Music Generation) */}
+      <ProcessingLoadingOverlay
+        visible={isProcessingMusic}
+        message={t('music.creating_message')}
       />
     </SafeScreen>
   );

@@ -69,20 +69,15 @@ const ScrollingWord = ({ delay = 0, word, startY, duration, size, color }) => {
         },
       ]}
     >
-      <View style={[styles.wordBubble, { 
-        backgroundColor: 'rgba(0, 0, 0, 0.85)', // ⭐ FIXED: Much darker (was 0.4, now 0.85)
-        borderColor: color,
-        borderWidth: 3, // ⭐ Thicker border
-      }]}>
-        <CustomText 
-          style={[styles.wordText, { 
-            fontSize: size,
-            color: '#FFFFFF', // ⭐ FIXED: White text (was color)
-          }]}
-        >
-          {word}
-        </CustomText>
-      </View>
+      {/* ⭐ Removed View wrapper (wordBubble) - no background/border needed! */}
+      <CustomText 
+        style={[styles.wordText, { 
+          fontSize: size + 4, // ⭐ Slightly bigger
+          color: color, // ⭐ Use vibrant color directly
+        }]}
+      >
+        {word}
+      </CustomText>
     </Animated.View>
   );
 };
@@ -130,23 +125,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
   },
-  wordBubble: {
-    paddingHorizontal: 16, // ⭐ Slightly bigger
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 3, // ⭐ Thicker border (was 2)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 }, // ⭐ Stronger shadow
-    shadowOpacity: 0.8, // ⭐ Stronger shadow (was 0.4)
-    shadowRadius: 10, // ⭐ Stronger shadow (was 6)
-    elevation: 8, // ⭐ Stronger elevation (was 5)
-  },
   wordText: {
-    fontWeight: '900', // ⭐ Bolder (was '800')
-    letterSpacing: 1.2, // ⭐ Slightly more spacing
-    textShadowColor: 'rgba(0, 0, 0, 0.9)', // ⭐ Stronger text shadow (was 0.5)
-    textShadowOffset: { width: 0, height: 2 }, // ⭐ Stronger shadow (was 1)
-    textShadowRadius: 4, // ⭐ Stronger shadow (was 3)
+    fontWeight: '900',
+    letterSpacing: 1.5,
+    // ⭐ Multi-layer text shadow for strong visibility (no background/border!)
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15, // ⭐ Very strong blur shadow
+    // ⭐ Note: React Native doesn't support multiple text shadows like web,
+    // but strong single shadow + elevation provides similar effect
+    elevation: 10, // ⭐ Strong elevation for Android
+    shadowColor: '#000', // ⭐ iOS shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    paddingHorizontal: 4, // ⭐ Minimal padding
+    paddingVertical: 2,
   },
 });
 

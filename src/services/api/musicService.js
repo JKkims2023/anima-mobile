@@ -146,12 +146,12 @@ export async function checkMusicStatus(music_key, request_key) {
  * @param {string} music_key - Music key
  * @returns {Promise<{success: boolean, errorCode?: string}>}
  */
-export async function deleteMusic(music_key) {
-  console.log('🗑️ [musicService] Deleting music:', music_key);
+export async function deleteMusic(music_key, user_key) {
+  console.log('🗑️ [musicService] Deleting music:', music_key, user_key);
   
   try {
     const response = await apiClient.post(MUSIC_ENDPOINTS.DELETE, {
-      user_key: (await require('./authService').default.getUserKey()),
+      user_key: user_key,
       music_key,
     });
 

@@ -1,9 +1,15 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎨 PersonaCreationLoadingOverlay Component
+ * 🎨 ProcessingLoadingOverlay Component (Universal Loading Overlay)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * Emotional loading overlay for persona creation
+ * Emotional loading overlay for ANY long-running process
+ * 
+ * Use Cases:
+ * - Persona creation
+ * - Video conversion
+ * - Music generation
+ * - Any other async process
  * 
  * Features:
  * - Breathing circle animation (scale + glow)
@@ -11,13 +17,15 @@
  * - Gradient text
  * - Fade in/out transition
  * - Emotional messaging
+ * - ⭐ Android back button blocking (prevents exit during processing)
  * 
  * @author JK & Hero Nexus
  * @date 2025-12-09
+ * @updated 2025-12-11 - Made universal for all processing types
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Modal } from 'react-native';
+import { View, StyleSheet, Modal, BackHandler } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
@@ -30,10 +38,13 @@ import Animated, {
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import Sparkles from '../particle/Sparkles';
+import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: For showToast
+import HapticService from '../../utils/HapticService'; // ⭐ NEW: For haptic feedback
 import { scale, verticalScale } from '../../utils/responsive-utils';
 
-const PersonaCreationLoadingOverlay = ({ visible, message }) => {
+const ProcessingLoadingOverlay = ({ visible, message }) => {
   const { t } = useTranslation();
+  const { showToast } = useAnima(); // ⭐ NEW: Toast for back button warning
   
   // Animations
   const overlayOpacity = useSharedValue(0);
@@ -41,6 +52,9 @@ const PersonaCreationLoadingOverlay = ({ visible, message }) => {
   const circleOpacity = useSharedValue(0.6);
   const glowOpacity = useSharedValue(0.3);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Animation Effect
+  // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (visible) {
       // Fade in overlay
@@ -79,6 +93,40 @@ const PersonaCreationLoadingOverlay = ({ visible, message }) => {
       overlayOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [visible]);
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ⭐ Android Back Button Blocking (CRITICAL: Prevent exit during creation)
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!visible) return; // Only block when overlay is visible
+    
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🛡️ [ProcessingLoadingOverlay] Android back button BLOCKED');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      console.log('⚠️ [ProcessingLoadingOverlay] User tried to exit during processing!');
+      
+      // Haptic warning
+      HapticService.warning();
+      
+      // Show toast message
+      showToast({
+        type: 'warning',
+        emoji: '⏳',
+        message: t('persona.creation.processing_please_wait'),
+      });
+      
+      // ⭐ CRITICAL: Return true to prevent default back behavior
+      return true;
+    });
+    
+    // Cleanup listener on unmount or when overlay closes
+    return () => {
+      console.log('✅ [ProcessingLoadingOverlay] Android back button UNBLOCKED');
+      backHandler.remove();
+    };
+  }, [visible, showToast, t]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
@@ -213,5 +261,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PersonaCreationLoadingOverlay;
+export default ProcessingLoadingOverlay;
 

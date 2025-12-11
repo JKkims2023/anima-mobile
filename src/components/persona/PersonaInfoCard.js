@@ -23,6 +23,7 @@ import HapticService from '../../utils/HapticService';
 import GradientOverlay from '../GradientOverlay';
 import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext';
+import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress bar color
 import FastImage from 'react-native-fast-image';
 /**
  * PersonaInfoCard Component
@@ -30,12 +31,17 @@ import FastImage from 'react-native-fast-image';
  * @param {Object} props.persona - 자아 object
  * @param {Function} props.onChatPress - Callback when chat button is pressed
  * @param {Function} props.onFavoriteToggle - Callback when favorite is toggled
+ * @param {Number} props.currentIndex - Current persona index (0-based)
+ * @param {Number} props.totalCount - Total personas count
+ * @param {Function} props.onScrollToTop - Callback to scroll to first persona
  */
-const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
+const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { showAlert } = useAnima();
+  const { currentTheme: theme } = useTheme(); // ⭐ NEW: For progress bar color
 
+  // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
     console.log('persona', persona);
   }, [persona,persona?.persona_key,persona?.done_yn]);
@@ -102,6 +108,22 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
   if (!persona) {
     return null;
   }
+  
+  // ⭐ Calculate progress percentage for progress bar
+  const progressPercentage = totalCount > 0 ? ((currentIndex + 1) / totalCount) * 100 : 0;
+  
+  // ⭐ Check if "Scroll to Top" button should be visible
+  const showScrollToTop = currentIndex >= 3;
+  
+  // ⭐ Handle scroll to top
+  const handleScrollToTop = () => {
+    if (!showScrollToTop) return; // Safety check
+    
+    HapticService.medium();
+    console.log('[PersonaInfoCard] 🔝 Scroll to top requested (index >= 3)');
+    onScrollToTop?.();
+  };
+  
   return (
     <GradientOverlay
    //   colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
@@ -112,6 +134,49 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
         },
       ]}
     >
+      {/* ⭐ Pagination Indicator (Clickable when index >= 3) */}
+      {totalCount > 1 && (
+        <TouchableOpacity
+          style={styles.paginationContainer}
+          onPress={handleScrollToTop}
+          activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
+          disabled={!showScrollToTop}
+        >
+          <View style={styles.paginationContent}>
+            <View style={styles.paginationLeft}>
+              {/* Number Display */}
+              <CustomText type="title" bold style={styles.paginationText}>
+                {currentIndex + 1} / {totalCount}
+              </CustomText>
+              
+              {/* Progress Bar */}
+              <View style={styles.progressBarContainer}>
+                <View 
+                  style={[
+                    styles.progressBarFill,
+                    { 
+                      width: `${progressPercentage}%`,
+                      backgroundColor: theme.mainColor,
+                    }
+                  ]} 
+                />
+              </View>
+            </View>
+            
+            {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
+            {showScrollToTop && (
+              <View style={styles.scrollToTopIcon}>
+                <Icon 
+                  name="arrow-up-circle" 
+                  size={scale(26)} 
+                  color={theme.mainColor} 
+                />
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      )}
+      
       <TouchableOpacity onPress={handleSettingsPress}>
       <View style={styles.content}>
         {/* Persona Image */}
@@ -178,10 +243,63 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingTop: verticalScale(40),
+    paddingTop: verticalScale(20), // ⭐ Reduced: Make room for pagination
     paddingHorizontal: scale(20),
     zIndex: 100,
   },
+  
+  // ⭐ Pagination Container (Clickable for scroll to top)
+  paginationContainer: {
+    width: '100%',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    marginBottom: verticalScale(2),
+    // ⭐ NO border, NO background - Pure integration with gradient
+  },
+  
+  paginationContent: {
+    flexDirection: 'row',
+    alignItems: 'flex-start', // ⭐ Changed from 'center' to 'flex-start' to prevent arrow from being pushed down
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  
+  paginationLeft: {
+    flexDirection: 'column',
+    gap: scale(6),
+    flex: 1,
+    // alignSelf removed - not needed with parent alignItems: 'flex-start'
+  },
+  
+  paginationText: {
+    color: '#FFFFFF',
+    fontSize: scale(22),
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  
+  progressBarContainer: {
+    width: scale(60), // Fixed width for clean look
+    height: scale(3),
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: scale(2),
+    overflow: 'hidden',
+  },
+  
+  progressBarFill: {
+    height: '100%',
+    borderRadius: scale(2),
+    // backgroundColor is set dynamically (theme.mainColor)
+  },
+  
+  scrollToTopIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: scale(10), // ⭐ Optimal spacing from pagination text
+  },
+  
   content: {
     flexDirection: 'row',
     alignItems: 'center',

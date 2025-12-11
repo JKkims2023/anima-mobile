@@ -147,6 +147,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [backgroundEffect, setBackgroundEffect] = useState('none'); // ⭐ NEW: Layer 1 (배경 효과)
   const [activeEffect, setActiveEffect] = useState('none'); // ⭐ NEW: Layer 2 (액티브 효과, 기존 particleEffect)
   const [customWords, setCustomWords] = useState([]); // ⭐ User's custom words for active effects
+  const [pendingActiveEffect, setPendingActiveEffect] = useState(null); // ⭐ NEW: Temporarily store effect until words are confirmed
   
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState('');
@@ -748,7 +749,8 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
 
     if (requiresCustomWords) {
       console.log('💬 [MessageCreationOverlay] Effect requires custom words, opening word input sheet');
-      setActiveEffect(effectId); // ⭐ CRITICAL FIX: Set immediately!
+      console.log('   🔍 Effect NOT applied yet, waiting for user confirmation');
+      setPendingActiveEffect(effectId); // ⭐ FIXED: Store temporarily, don't apply yet!
       HapticService.selection();
       activeEffectSheetRef.current?.dismiss();
       // Small delay to ensure active sheet is fully dismissed
@@ -758,6 +760,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       return;
     }
 
+    // ⭐ Normal effects: Apply immediately
     setActiveEffect(effectId);
     HapticService.selection();
     activeEffectSheetRef.current?.dismiss();
@@ -770,10 +773,19 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const handleWordsSave = (words) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('💬 [MessageCreationOverlay] Custom Words Saved:', words);
-    console.log('  - Current activeEffect:', activeEffect);
+    console.log('  - pendingActiveEffect:', pendingActiveEffect);
+    console.log('  - Words:', words);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     setCustomWords(words);
-    // ⭐ FIXED: No need to set activeEffect again, already set in handleActiveEffectSelect
+    
+    // ⭐ CRITICAL FIX: Now apply the pending effect!
+    if (pendingActiveEffect) {
+      console.log('✅ [MessageCreationOverlay] Applying pending effect:', pendingActiveEffect);
+      setActiveEffect(pendingActiveEffect);
+      setPendingActiveEffect(null); // Clear pending state
+    }
+    
     HapticService.success();
     setShowChipsGuide(false); // Hide chips guide
   };

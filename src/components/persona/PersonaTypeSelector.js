@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 2,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center', // ⭐ Changed: Center alignment for single chip
     justifyContent: 'space-between',
     paddingHorizontal: platformPadding(16),
     paddingTop: platformPadding(16),
@@ -185,7 +185,6 @@ const styles = StyleSheet.create({
 
   // ⭐ Single Chip (Toggleable)
   singleChip: {
-
     flexDirection: 'row',
     alignItems: 'center',
     width: 'auto',

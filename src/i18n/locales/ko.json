@@ -1512,6 +1512,7 @@
     "creating_subtitle": "잠시만 기다려주세요",
     "creating_in_progress": "음원 생성이 진행 중입니다. 잠시만 기다려주세요.",
     "creating": "생성 중",
+    "creating_message": "음원을 생성하고 있습니다...",
     "playing_title": "재생 중",
     "select_title": "음원 선택",
     "search_placeholder": "음원 제목, 태그 검색...",
@@ -1855,6 +1856,13 @@
     "favorite_added": "즐겨찾기에 추가되었습니다",
     "favorite_removed": "즐겨찾기에서 제거되었습니다",
     "refreshed": "페르소나 목록이 새로고침되었습니다",
+    "video_converting_tooltip": "영상 변환이 진행 중입니다",
+    "search_placeholder": "페르소나 이름, 카테고리 검색...",
+    "filter": {
+      "default": "기본",
+      "user": "사용자",
+      "favorite": "즐겨찾기"
+    },
     "settings": {
       "title": "페르소나 설정",
       "no_persona": "페르소나 없음",
@@ -1898,6 +1906,10 @@
       "point_cost": "생성 비용",
       "point_time": "예상 시간",
       "create_button": "생성하기",
+      "creating": "페르소나를 생성하고 있습니다...",
+      "please_wait": "잠시만 기다려주세요",
+      "processing_please_wait": "처리 중입니다. 잠시만 기다려주세요",
+      "video_converting_message": "영상을 변환하고 있습니다...",
       "started_toast": "{{name}} 생성이 시작되었습니다! 약 {{time}}초 후 확인 가능합니다 ⏳",
       "check_status": "상태 확인",
       "generating": "생성 중...",

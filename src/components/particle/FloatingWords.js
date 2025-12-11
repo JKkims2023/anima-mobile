@@ -17,6 +17,7 @@ import Animated, {
   withTiming,
   withRepeat,
   withDelay,
+  withSequence,
   Easing,
 } from 'react-native-reanimated';
 import CustomText from '../CustomText';
@@ -46,9 +47,9 @@ const FloatingWord = ({
   pulseScale,       // ⭐ NEW: Each word has different pulse size
   pulseDuration,    // ⭐ NEW: Each word has different pulse speed
 }) => {
-  const translateY = useSharedValue(SCREEN_HEIGHT + 50);
+  const translateY = useSharedValue(SCREEN_HEIGHT + 50); // ⭐ Start from below screen
   const translateX = useSharedValue(0);
-  const scale = useSharedValue(0);
+  const scale = useSharedValue(1); // ⭐ FIXED: Start at full size (was 0)
   const opacity = useSharedValue(0.9);
 
   useEffect(() => {
@@ -78,26 +79,27 @@ const FloatingWord = ({
       )
     );
 
-    // Subtle pulse
+    // Subtle pulse (1.0 ↔ pulseScale)
     scale.value = withDelay(
       delay,
       withRepeat(
-        withTiming(pulseScale, { // ⭐ Each word has different pulse size
-          duration: pulseDuration, // ⭐ Each word has different pulse speed
-          easing: Easing.inOut(Easing.ease),
-        }),
+        withSequence(
+          withTiming(pulseScale, { // ⭐ Each word has different pulse size
+            duration: pulseDuration / 2,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          withTiming(1, {
+            duration: pulseDuration / 2,
+            easing: Easing.inOut(Easing.ease),
+          })
+        ),
         -1,
-        true
+        false
       )
     );
 
-    // Fade in
-    opacity.value = withDelay(
-      delay,
-      withTiming(0.9, {
-        duration: 500,
-      })
-    );
+    // Already visible (no fade in needed)
+    opacity.value = 0.9;
   }, [delay, riseDuration, swingAmplitude, swingDuration, pulseScale, pulseDuration]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -119,20 +121,15 @@ const FloatingWord = ({
         },
       ]}
     >
-      <View style={[styles.wordBubble, { 
-        backgroundColor: 'rgba(0, 0, 0, 0.85)', // ⭐ FIXED: Much darker (was 0.3, now 0.85)
-        borderColor: color,
-        borderWidth: 3, // ⭐ Thicker border
-      }]}>
-        <CustomText 
-          style={[styles.wordText, { 
-            fontSize: size,
-            color: '#FFFFFF', // ⭐ FIXED: White text (was color)
-          }]}
-        >
-          {word}
-        </CustomText>
-      </View>
+      {/* ⭐ Removed View wrapper (wordBubble) - no background/border needed! */}
+      <CustomText 
+        style={[styles.wordText, { 
+          fontSize: size + 4, // ⭐ Slightly bigger
+          color: color, // ⭐ Use vibrant color directly
+        }]}
+      >
+        {word}
+      </CustomText>
     </Animated.View>
   );
 };
@@ -187,23 +184,22 @@ const styles = StyleSheet.create({
   wordContainer: {
     position: 'absolute',
   },
-  wordBubble: {
-    paddingHorizontal: 14, // ⭐ Slightly bigger
-    paddingVertical: 8,
-    borderRadius: 18,
-    borderWidth: 3, // ⭐ Thicker border (was 1.5)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 }, // ⭐ Stronger shadow
-    shadowOpacity: 0.8, // ⭐ Stronger shadow (was 0.3)
-    shadowRadius: 8, // ⭐ Stronger shadow (was 4)
-    elevation: 6, // ⭐ Stronger elevation (was 3)
-  },
   wordText: {
-    fontWeight: '900', // ⭐ Bolder (was '700')
-    letterSpacing: 1, // ⭐ More spacing (was 0.5)
-    textShadowColor: 'rgba(0, 0, 0, 0.9)', // ⭐ Stronger text shadow (was 0.3)
-    textShadowOffset: { width: 0, height: 2 }, // ⭐ Stronger shadow (was 1)
-    textShadowRadius: 4, // ⭐ Stronger shadow (was 2)
+    fontWeight: '900',
+    letterSpacing: 1.5,
+    // ⭐ Multi-layer text shadow for strong visibility (no background/border!)
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15, // ⭐ Very strong blur shadow
+    // ⭐ Note: React Native doesn't support multiple text shadows like web,
+    // but strong single shadow + elevation provides similar effect
+    elevation: 10, // ⭐ Strong elevation for Android
+    shadowColor: '#000', // ⭐ iOS shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    paddingHorizontal: 4, // ⭐ Minimal padding
+    paddingVertical: 2,
   },
 });
 

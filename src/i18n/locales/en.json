@@ -1525,6 +1525,7 @@
     "creating_subtitle": "Please wait a moment",
     "creating_in_progress": "Music generation in progress. Please wait.",
     "creating": "Creating",
+    "creating_message": "Generating your music...",
     "playing_title": "Now Playing",
     "search_placeholder": "Search by title, tag...",
     "system": "System",
@@ -1920,6 +1921,13 @@
     "favorite_added": "Added to favorites",
     "favorite_removed": "Removed from favorites",
     "refreshed": "Persona list has been refreshed",
+    "video_converting_tooltip": "Video conversion in progress",
+    "search_placeholder": "Search by name, category...",
+    "filter": {
+      "default": "Default",
+      "user": "User",
+      "favorite": "Favorite"
+    },
     "settings": {
       "title": "Persona Settings",
       "no_persona": "No Persona",
@@ -1968,6 +1976,10 @@
       "started_toast": "{{name}} creation started! Available in about {{time}} seconds ⏳",
       "check_status": "Check Status",
       "generating": "Generating...",
+      "creating": "Creating your persona...",
+      "please_wait": "Please wait a moment",
+      "processing_please_wait": "Processing. Please wait",
+      "video_converting_message": "Converting video...",
       "remaining_time": "Remaining: {{time}}s",
       "success": "{{name}} creation completed! 🎉",
       "still_processing": "{{name}} is still being generated. Please check again later ⏳",

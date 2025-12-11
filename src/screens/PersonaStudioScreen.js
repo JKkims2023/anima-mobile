@@ -23,7 +23,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
@@ -44,14 +44,13 @@ import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
 import PersonaSelectorButton from '../components/persona/PersonaSelectorButton';
 import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel';
-import PersonaSearchOverlay from '../components/persona/PersonaSearchOverlay';
 import PersonaTypeSelector from '../components/persona/PersonaTypeSelector';
 import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet';
 import CategorySelectionSheet from '../components/persona/CategorySelectionSheet';
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
 import MessageCreationOverlay from '../components/message/MessageCreationOverlay';
-import PersonaCreationLoadingOverlay from '../components/persona/PersonaCreationLoadingOverlay';
+import ProcessingLoadingOverlay from '../components/persona/ProcessingLoadingOverlay'; // ⭐ RENAMED: Universal loading overlay
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
@@ -68,6 +67,21 @@ import {
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// EMOTION CATEGORY CONSTANTS (from PersonaSearchOverlay)
+// ═══════════════════════════════════════════════════════════════════════════
+const PERSONA_CATEGORIES = [
+  { key: 'all', emoji: '🌐' },
+  { key: 'normal', emoji: '☀️' },
+  { key: 'thanks', emoji: '🙏' },
+  { key: 'apologize', emoji: '🙇' },
+  { key: 'hope', emoji: '✨' },
+  { key: 'cheer_up', emoji: '📣' },
+  { key: 'congrats', emoji: '🎉' },
+  { key: 'romantic', emoji: '💕' },
+  { key: 'comfort', emoji: '🤗' },
+  { key: 'sadness', emoji: '😢' },
+];
 
 const PersonaStudioScreen = () => {
   const { t } = useTranslation();
@@ -109,13 +123,18 @@ const PersonaStudioScreen = () => {
   const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false);
   const [settingsPersona, setSettingsPersona] = useState(null);
   const nameInputRef = useRef(null);
-  const [isSearchOverlayVisible, setIsSearchOverlayVisible] = useState(false);
+  const searchInputRef = useRef(null); // ⭐ NEW: Search input ref
+  const [searchQuery, setSearchQuery] = useState(''); // ⭐ NEW: Real-time search query
+  const [selectedCategory, setSelectedCategory] = useState('all'); // ⭐ NEW: Emotion category filter
+  const [isCategoryDropdownVisible, setIsCategoryDropdownVisible] = useState(false); // ⭐ NEW: Category dropdown
   const swiperRef = useRef(null);
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
-  const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ NEW: Loading overlay for persona creation
+  const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ Loading overlay for persona creation
+  const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
+  const [processingMessage, setProcessingMessage] = useState(''); // ⭐ NEW: Dynamic message for processing overlay
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const helpSheetRef = useRef(null);
   const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
@@ -125,6 +144,20 @@ const PersonaStudioScreen = () => {
   useEffect(() => {
     setIsMessageCreationActive(isMessageCreationVisible);
   }, [isMessageCreationVisible, setIsMessageCreationActive]);
+  
+  // ⭐ NEW: Android back button handler for category dropdown
+  useEffect(() => {
+    if (!isCategoryDropdownVisible) return;
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      console.log('[PersonaStudioScreen] 🔙 Back button pressed, closing category dropdown');
+      HapticService.light();
+      setIsCategoryDropdownVisible(false);
+      return true; // Prevent default back behavior
+    });
+    
+    return () => backHandler.remove();
+  }, [isCategoryDropdownVisible]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
@@ -197,20 +230,35 @@ const PersonaStudioScreen = () => {
   }, [personas, DEFAULT_PERSONAS]);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // FILTERED PERSONAS (Based on filterMode: 'default' | 'user' | 'favorite')
+  // FILTERED PERSONAS (Based on filterMode + Emotion Category + searchQuery)
   // ═══════════════════════════════════════════════════════════════════════
   const currentFilteredPersonas = useMemo(() => {
+    let filtered = [];
+    
+    // ⭐ STEP 1: Filter by mode (default/user/favorite)
     if (filterMode === 'favorite') {
-      // Show all personas where favorite_yn === 'Y'
-      return personasWithDefaults.filter(p => p.favorite_yn === 'Y');
+      filtered = personasWithDefaults.filter(p => p.favorite_yn === 'Y');
     } else if (filterMode === 'user') {
-      // Show user-created personas (default_yn === 'N')
-      return personasWithDefaults.filter(p => p.default_yn === 'N');
+      filtered = personasWithDefaults.filter(p => p.default_yn === 'N');
     } else {
-      // Show default personas (default_yn === 'Y')
-      return personasWithDefaults.filter(p => p.default_yn === 'Y');
+      filtered = personasWithDefaults.filter(p => p.default_yn === 'Y');
     }
-  }, [personasWithDefaults, filterMode]);
+    
+    // ⭐ STEP 2: Filter by emotion category
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(p => p.category_type === selectedCategory);
+    }
+    
+    // ⭐ STEP 3: Filter by search query (Real-time!)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.persona_name?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [personasWithDefaults, filterMode, selectedCategory, searchQuery]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
@@ -221,6 +269,26 @@ const PersonaStudioScreen = () => {
       setCurrentPersona(currentFilteredPersonas[validIndex]);
     }
   }, [currentPersonaIndex, currentFilteredPersonas]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Check if current persona is video converting (메시지 작성 불가 조건)
+  // ═══════════════════════════════════════════════════════════════════════
+  const isVideoConverting = useMemo(() => {
+    if (!currentPersona) return false;
+    
+    // ❌ 메시지 작성 불가: 비디오 URL이 있지만 변환이 완료되지 않음
+    const isConverting = 
+      currentPersona.selected_dress_video_url !== null && 
+      currentPersona.selected_dress_video_convert_done === 'N';
+    
+    if (__DEV__ && isConverting) {
+      console.log('[PersonaStudioScreen] 🎬 Video converting for:', currentPersona.persona_name);
+      console.log('  - video_url:', currentPersona.selected_dress_video_url);
+      console.log('  - convert_done:', currentPersona.selected_dress_video_convert_done);
+    }
+    
+    return isConverting;
+  }, [currentPersona]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
@@ -577,22 +645,6 @@ const PersonaStudioScreen = () => {
   const handleQuickSettings = useCallback(() => {
     navigation.navigate('Settings');
   }, [navigation]);
-  
-  // Search (검색) - Persona search only
-  const handleSearchOpen = useCallback(() => {
-    HapticService.light();
-    setIsSearchOverlayVisible(true);
-  }, []);
-  
-  const handleSearchClose = useCallback(() => {
-    setIsSearchOverlayVisible(false);
-  }, []);
-  
-  const handleSearchSelectPersona = useCallback((persona, index) => {
-    if (swiperRef.current) {
-      swiperRef.current.scrollToIndex({ index, animated: true });
-    }
-  }, []);
 
 
   const handleFilterModeChange = useCallback((mode) => {
@@ -801,6 +853,13 @@ const PersonaStudioScreen = () => {
       });
     }
     
+    // ⭐ Show processing overlay
+    setProcessingMessage(t('persona.video_converting_message'));
+    setIsConvertingVideo(true);
+    
+    // Close settings sheet
+    setIsPersonaSettingsOpen(false);
+    
     try {
       const result = await convertPersonaVideo(
         persona.persona_key,
@@ -815,6 +874,7 @@ const PersonaStudioScreen = () => {
           p.persona_key === persona.persona_key
             ? { 
                 ...p, 
+                selected_dress_video_url: result.data.data,
                 selected_dress_video_convert_done: 'N', // Conversion in progress
                 bric_convert_key: result.request_key,
               }
@@ -825,13 +885,14 @@ const PersonaStudioScreen = () => {
         if (currentPersona?.persona_key === persona.persona_key) {
           setCurrentPersona(prev => ({ 
             ...prev, 
+            selected_dress_video_url: result.data.data,
             selected_dress_video_convert_done: 'N',
             bric_convert_key: result.request_key,
           }));
         }
         
-        // ✅ Close settings sheet after successful conversion start
-        setIsPersonaSettingsOpen(false);
+        // ⭐ Hide processing overlay
+        setIsConvertingVideo(false);
         
         showToast({
           type: 'success',
@@ -850,6 +911,10 @@ const PersonaStudioScreen = () => {
       }
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Video convert error:', error);
+      
+      // ⭐ Hide processing overlay on error
+      setIsConvertingVideo(false);
+      
       showToast({
         type: 'error',
         message: error.response?.data?.message || t('errors.generic'),
@@ -1041,32 +1106,124 @@ const PersonaStudioScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
-      {/* Header with Search Icon */}
+      {/* Header with Search Bar + Category */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <CustomText type="big" bold style={styles.headerTitle}>
-            {t('navigation.title.home')}
-          </CustomText>
-          <CustomText type="middle" style={styles.headerSubtitle}>
-            {t('navigation.subtitle.home')}
-          </CustomText>
+        {/* Title Row */}
+        <View style={styles.headerTitleRow}>
+          <View style={styles.headerContent}>
+            <CustomText type="big" bold style={styles.headerTitle}>
+              {t('navigation.title.home')}
+            </CustomText>
+            <CustomText type="middle" style={styles.headerSubtitle}>
+              {t('navigation.subtitle.home')}
+            </CustomText>
+          </View>
+          
+          {/* Help Icon */}
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() => setIsHelpOpen(true)}
+            activeOpacity={0.7}
+          >
+            <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={handleSearchOpen}
-          activeOpacity={0.7}
-        >
-          <IconSearch name="search-outline" size={scale(24)} color={currentTheme.mainColor} />
-        </TouchableOpacity>
 
-        {/* Search Icon */}
-        <TouchableOpacity
-          style={[styles.searchButton, { marginLeft: verticalScale(-5) }]}
-          onPress={() => setIsHelpOpen(true)}
-          activeOpacity={0.7}
-        >
-          <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
-        </TouchableOpacity>
+        {/* ⭐ Search Bar + Category Dropdown (Row layout) */}
+        <View style={styles.searchRow}>
+          {/* Search Bar */}
+          <View style={[styles.searchBar, { backgroundColor: currentTheme.cardBackground }]}>
+            <IconSearch name="search" size={scale(18)} color={currentTheme.textSecondary} />
+            <TextInput
+              ref={searchInputRef}
+              style={[styles.searchInput, { color: currentTheme.textPrimary }]}
+              placeholder={t('persona.search_placeholder')}
+              placeholderTextColor={currentTheme.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.7}>
+                <IconSearch name="close-circle" size={scale(18)} color={currentTheme.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* ⭐ Emotion Category Dropdown Button */}
+          <TouchableOpacity
+            style={[styles.categoryButton, { backgroundColor: currentTheme.cardBackground }]}
+            onPress={() => {
+              HapticService.light();
+              setIsCategoryDropdownVisible(!isCategoryDropdownVisible);
+            }}
+            activeOpacity={0.7}
+          >
+            <CustomText style={[styles.categoryButtonText, { color: currentTheme.textPrimary }]}>
+              {PERSONA_CATEGORIES.find(c => c.key === selectedCategory)?.emoji}
+            </CustomText>
+            <IconSearch 
+              name={isCategoryDropdownVisible ? "chevron-up" : "chevron-down"} 
+              size={scale(18)} 
+              color={currentTheme.mainColor} 
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* ⭐ Emotion Category Dropdown Overlay (with outside click detection) */}
+        {isCategoryDropdownVisible && (
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              console.log('[PersonaStudioScreen] 👆 Outside dropdown clicked, closing');
+              HapticService.light();
+              setIsCategoryDropdownVisible(false);
+            }}
+          >
+            <View style={styles.categoryDropdownBackdrop}>
+              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                <View style={[styles.categoryDropdown, { backgroundColor: currentTheme.cardBackground }]}>
+                  {PERSONA_CATEGORIES.map((category) => {
+                    const isSelected = category.key === selectedCategory;
+                    
+                    return (
+                      <TouchableOpacity
+                        key={category.key}
+                        style={[
+                          styles.categoryDropdownItem,
+                          isSelected && styles.categoryDropdownItemActive
+                        ]}
+                        onPress={() => {
+                          HapticService.light();
+                          setSelectedCategory(category.key);
+                          setIsCategoryDropdownVisible(false);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <CustomText style={{ fontSize: scale(18) }}>
+                          {category.emoji}
+                        </CustomText>
+                        <CustomText 
+                          type="middle" 
+                          bold={isSelected}
+                          style={[
+                            styles.categoryDropdownText,
+                            { color: isSelected ? currentTheme.mainColor : currentTheme.textPrimary }
+                          ]}
+                        >
+                          {t(`category_type.${category.key}`)}
+                        </CustomText>
+                        {isSelected && (
+                          <IconSearch name="checkmark" size={scale(20)} color={currentTheme.mainColor} />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
       </View>
       
       {/* Container with Horizontal Swipe Gesture */}
@@ -1107,6 +1264,7 @@ const PersonaStudioScreen = () => {
               onVideoClick={handleQuickVideo}
               onMessageClick={handleQuickMessage}
               onSettingsClick={handleQuickSettings}
+              isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
             />
           </View>
         )}
@@ -1128,7 +1286,7 @@ const PersonaStudioScreen = () => {
           onCreatePersona={handleAddPersona}
         />
 
-        {/* PersonaTypeSelector */}
+        {/* PersonaTypeSelector (Filter Mode: default/user/favorite) */}
         <View style={styles.typeSelectorOverlay}>
           <PersonaTypeSelector
             isUserMode={filterMode === 'user'}
@@ -1169,11 +1327,19 @@ const PersonaStudioScreen = () => {
       </View>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* Persona Creation Loading Overlay (Emotional & Breathing) */}
+      {/* Processing Loading Overlay (Universal: Persona / Video / Music) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <PersonaCreationLoadingOverlay
+      
+      {/* Persona Creation */}
+      <ProcessingLoadingOverlay
         visible={isCreatingPersona}
         message={t('persona.creation.creating')}
+      />
+      
+      {/* Video Conversion */}
+      <ProcessingLoadingOverlay
+        visible={isConvertingVideo}
+        message={processingMessage}
       />
 
 
@@ -1213,15 +1379,6 @@ const PersonaStudioScreen = () => {
       maxLength={20}
       leftIcon="account-edit"
       onSave={handlePersonaNameSave}
-    />
-    
-    {/* Persona Search Overlay */}
-    <PersonaSearchOverlay
-      visible={isSearchOverlayVisible}
-      personas={currentFilteredPersonas}
-      onClose={handleSearchClose}
-      onSelectPersona={handleSearchSelectPersona}
-      currentPersonaKey={currentPersona?.persona_key}
     />
     
     {/* ═════════════════════════════════════════════════════════════════ */}
@@ -1365,15 +1522,18 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flexDirection: 'row', // ⭐ Horizontal layout for title + search button
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: platformPadding(20),
-    paddingBottom: platformPadding(16),
     paddingHorizontal: platformPadding(20),
+    paddingTop: platformPadding(20),
+    paddingBottom: platformPadding(12),
+    gap: verticalScale(10),
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerContent: {
-    flex: 1, // ⭐ Take remaining space
+    flex: 1,
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
@@ -1383,9 +1543,90 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     display: 'none',
   },
-  searchButton: {
+  helpButton: {
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
+  },
+  
+  // ⭐ NEW: Search Row (Search Bar + Category Button)
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: verticalScale(-10),
+    marginBottom: verticalScale(0),
+  },
+  
+  // Search Bar (reduced height)
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(0),
+    paddingVertical: verticalScale(0),
+    gap: scale(8),
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: scale(14),
+    paddingVertical: 0,
+  },
+  
+  // ⭐ NEW: Emotion Category Dropdown Button
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(8),
+    borderRadius: scale(10),
+    gap: scale(6),
+    minWidth: scale(60),
+    justifyContent: 'center',
+  },
+  categoryButtonText: {
+    fontSize: scale(18),
+  },
+  
+  // ⭐ NEW: Category Dropdown Backdrop (for outside click detection)
+  categoryDropdownBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: 'transparent', // Transparent but clickable
+  },
+  
+  // ⭐ NEW: Category Dropdown Overlay
+  categoryDropdown: {
+    position: 'absolute',
+    top: verticalScale(100),
+    right: platformPadding(20),
+    width: scale(200),
+    borderRadius: scale(12),
+    paddingVertical: verticalScale(8),
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  categoryDropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(12),
+    gap: scale(12),
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  categoryDropdownItemActive: {
+    backgroundColor: 'rgba(96, 165, 250, 0.15)',
+  },
+  categoryDropdownText: {
+    flex: 1,
+    marginLeft: scale(8),
   },
   moreButton: {
     marginLeft: platformPadding(2),
