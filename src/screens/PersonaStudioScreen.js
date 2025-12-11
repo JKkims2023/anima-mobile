@@ -308,12 +308,13 @@ const PersonaStudioScreen = () => {
       await initializePersonas();
       
       HapticService.success();
+      /*
       showToast({
         type: 'success',
         emoji: '✅',
         message: t('persona.refreshed'),
       });
-      
+      */
       if (__DEV__) {
         console.log('✅ [PersonaStudioScreen] Persona list refreshed');
       }
@@ -580,14 +581,6 @@ const PersonaStudioScreen = () => {
   
   // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Opens MessageCreationOverlay
   const handleQuickMessage = useCallback(() => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎬 [PersonaStudioScreen] OPENING MESSAGE CREATION OVERLAY');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Current State:');
-    console.log('  - isScreenFocused:', isScreenFocused);
-    console.log('  - isMessageCreationVisible (before):', isMessageCreationVisible);
-    console.log('  - currentPersona:', currentPersona?.persona_name);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     HapticService.success();
     setIsMessageCreationVisible(true); // ⭐ Open overlay instead of message mode
@@ -597,50 +590,13 @@ const PersonaStudioScreen = () => {
   
   // ⭐ NEW: Close Message Creation Overlay
   const handleCloseMessageCreation = useCallback(() => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔙 [PersonaStudioScreen] CLOSING MESSAGE CREATION OVERLAY');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Current State:');
-    console.log('  - isScreenFocused:', isScreenFocused);
-    console.log('  - isMessageCreationVisible (before):', isMessageCreationVisible);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+ 
     HapticService.light();
     setIsMessageCreationVisible(false);
     
     console.log('✅ [PersonaStudioScreen] setIsMessageCreationVisible(false) called');
   }, [isScreenFocused, isMessageCreationVisible]);
 
-  // ⭐ NEW: Handle Message Creation Exit with Confirmation
-  const handleExitMessageCreationWithConfirmation = useCallback(() => {
-    console.log('[PersonaStudioScreen] 🚪 Exit request with confirmation');
-    
-    showAlert({
-      title: t('message.alert.exit_message_creation'),
-      emoji: '⚠️',
-      message: t('message.alert.exit_message_creation_description'),
-      buttons: [
-        {
-          text: t('message.alert.continue_writing'),
-          style: 'cancel',
-          onPress: () => {
-            console.log('[PersonaStudioScreen] User chose to continue writing');
-            HapticService.light();
-          }
-        },
-        {
-          text: t('message.alert.exit'),
-          style: 'destructive',
-          onPress: () => {
-            console.log('[PersonaStudioScreen] User confirmed exit');
-            HapticService.medium();
-            handleCloseMessageCreation();
-          }
-        }
-      ]
-    });
-  }, [showAlert, handleCloseMessageCreation, t]);
-  
   // Settings (설정)
   const handleQuickSettings = useCallback(() => {
     navigation.navigate('Settings');
@@ -664,12 +620,14 @@ const PersonaStudioScreen = () => {
       user: t('persona.filter.user'),
       favorite: t('persona.filter.favorite'),
     };
-    
+ 
+    /*
     showToast({
       type: 'info',
       emoji: mode === 'favorite' ? '⭐' : mode === 'user' ? '👤' : '🎭',
       message: filterNames[mode] || mode,
     });
+    */
   }, [t, showToast]);
 
   const handleCreatePersona = useCallback(() => {

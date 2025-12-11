@@ -219,7 +219,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             
           </View>
           <View style={styles.descriptionContainer}>
-            <CustomText type="middle" style={styles.description} numberOfLines={2}>
+            <CustomText type="middle" bold style={styles.description} numberOfLines={2}>
               {
               persona?.donet_yn === 'N' ? t('persona.creation.creating') : t('category_type.' + persona?.category_type + '_desc')}
             </CustomText>
@@ -333,7 +333,8 @@ const styles = StyleSheet.create({
   },
   description: {
 
-    fontWeight: '400',
+    fontSize: scale(16),
+ //   fontWeight: '400',
     color: 'rgba(255, 255, 255, 0.85)',
     lineHeight: scale(18),
     textShadowColor: 'rgba(0, 0, 0, 0.5)',

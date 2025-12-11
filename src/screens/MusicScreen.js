@@ -208,6 +208,10 @@ const MusicScreen = () => {
   const handleCheckMusicStatus = async (music) => {
     try {
 
+      console.log(music);
+      console.log('music_key', music.music_key);
+      console.log('request_key', music.request_key);
+
       const result = await musicService.checkMusicStatus(music.music_key, music.request_key);
 
       if (result.success) {
@@ -225,7 +229,7 @@ const MusicScreen = () => {
                   // Update list
                   setMusicList(prev => prev.map(m =>
                     m.music_key === music.music_key
-                      ? { ...m, status: 'completed', music_url: result.data.music_url }
+                      ? { ...m, status: 'completed' }
                       : m
                   ));
                   
@@ -401,7 +405,8 @@ const MusicScreen = () => {
           estimated_time: result.data.estimated_time || 30,
           is_default: 'N',
           created_at: new Date().toISOString(),
-          music_url: null,
+          music_url: result.data.music_url,
+          request_key: result.data.request_key,
         };
 
         setMusicList(prev => [newMusic, ...prev]);
@@ -492,7 +497,7 @@ const MusicScreen = () => {
             { backgroundColor: isCreating ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)' }
           ]}>
             <Icon
-              name={isCreating ? "hourglass-outline" : "musical-notes"}
+              name={isCreating ? "hourglass-outline" : item.music_type === 'vocal' ? "mic-sharp" : "musical-notes-sharp"}
               size={scale(28)}
               color={isCreating ? '#FB923C' : currentTheme.mainColor}
             />
@@ -508,7 +513,7 @@ const MusicScreen = () => {
 
         {/* Music Info */}
         <View style={styles.musicInfo}>
-          <CustomText type="middle" bold style={[styles.musicTitle, { color: currentTheme.textPrimary }]}>
+          <CustomText type="title" bold style={[styles.musicTitle, { color: currentTheme.textPrimary }]}>
             {item.music_title || t('music.untitled')}
           </CustomText>
           
@@ -519,6 +524,11 @@ const MusicScreen = () => {
                 {item.music_type === 'vocal' ? '🎤 Vocal' : '🎹 Instrumental'}
               </CustomText>
             </View>
+
+            {/* Creation Date */}
+            <CustomText style={[styles.musicDate, { color: currentTheme.textSecondary }]}>
+              {formatDate(item.created_at)}
+            </CustomText>
 
             {/* Creating Status */}
             {isCreating && (
@@ -549,10 +559,6 @@ const MusicScreen = () => {
             )}
           </View>
 
-          {/* Creation Date */}
-          <CustomText style={[styles.musicDate, { color: currentTheme.textSecondary }]}>
-            {formatDate(item.created_at)}
-          </CustomText>
         </View>
 
         {/* Chevron */}
@@ -893,6 +899,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(8),
     paddingVertical: verticalScale(3),
     borderRadius: moderateScale(6),
+    display: 'none',
   },
   typeText: {
     fontSize: moderateScale(11),

@@ -297,7 +297,7 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
               { backgroundColor: 'rgba(59, 130, 246, 0.15)' }
             ]}>
               <Icon
-                name={isPlaying ? "musical-notes" : "musical-note"}
+                name={music.music_type === 'vocal' ? 'mic-sharp' : 'musical-notes-sharp'}
                 size={scale(30)}
                 color={currentTheme.mainColor}
               />
@@ -330,20 +330,27 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
           {/* Meta Info */}
           <View style={styles.metaRow}>
             {/* Type Badge */}
-            <View style={[styles.badge, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+            <View style={[styles.badge, {display: 'none', backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
               <CustomText style={[styles.badgeText, { color: '#A855F7' }]}>
                 {music.music_type === 'vocal' ? '🎤 Vocal' : '🎹 Instrumental'}
               </CustomText>
             </View>
 
             {/* System Badge */}
-            {music.is_default === 'Y' && (
-              <View style={[styles.badge, { backgroundColor: 'rgba(251, 191, 36, 0.15)' }]}>
+            {music.is_default === 'Y' ? (
+              <View style={[styles.badge, {marginRight: scale(10), backgroundColor: 'rgba(251, 191, 36, 0.15)' }]}>
                 <CustomText style={[styles.badgeText, { color: '#FBBF24' }]}>
                   🌟 {t('music.system')}
                 </CustomText>
               </View>
-            )}
+            )
+          : (
+            <View style={[styles.badge, {marginRight: scale(10), backgroundColor: 'rgba(251, 191, 36, 0.15)' }]}>
+              <CustomText style={[styles.badgeText, { color: '#FBBF24' }]}>
+                {t('music.filter_user')}
+              </CustomText>
+            </View>
+          )}
           </View>
 
           {/* Date */}
@@ -520,7 +527,7 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: moderateScale(13),
-    marginLeft: verticalScale(10),
+    marginLeft: verticalScale(0),
     marginBottom: verticalScale(4),
   },
   favoriteButton: {
