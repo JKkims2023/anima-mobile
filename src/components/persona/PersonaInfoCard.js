@@ -23,6 +23,7 @@ import HapticService from '../../utils/HapticService';
 import GradientOverlay from '../GradientOverlay';
 import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext';
+import FastImage from 'react-native-fast-image';
 /**
  * PersonaInfoCard Component
  * @param {Object} props
@@ -113,6 +114,25 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
     >
       <TouchableOpacity onPress={handleSettingsPress}>
       <View style={styles.content}>
+        {/* Persona Image */}
+        <FastImage
+          source={{ uri: persona?.persona_url }}
+          style={styles.personaImage}
+          resizeMode="cover"
+        />
+        {/* Favorite Icon (⭐ ALL personas including default) */}
+        <TouchableOpacity
+            onPress={handleFavoritePress}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
+          >
+            <Icon 
+              name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
+              size={scale(60)} 
+              color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
+            />
+          </TouchableOpacity>
         {/* Left: Info */}
         <View style={styles.infoSection}>
           {/* Name */}
@@ -129,19 +149,6 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle }) => {
               style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }} 
             />
             
-            {/* Favorite Icon (⭐ ALL personas including default) */}
-            <TouchableOpacity
-              onPress={handleFavoritePress}
-              activeOpacity={0.7}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
-            >
-              <Icon 
-                name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
-                size={scale(24)} 
-                color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
-              />
-            </TouchableOpacity>
           </View>
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" style={styles.description} numberOfLines={2}>
@@ -179,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(16),
-    marginBottom: verticalScale(10),
+    marginBottom: verticalScale(30),
   },
   nameContainer: {
     flexDirection: 'row',
@@ -202,6 +209,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+    fontStyle: 'italic',
   },
   description: {
 
@@ -228,6 +236,14 @@ const styles = StyleSheet.create({
     // ✅ Border
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  personaImage: {
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    display: 'none',
   },
 });
 

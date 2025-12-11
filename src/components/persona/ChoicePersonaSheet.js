@@ -41,6 +41,7 @@ import { COLORS } from '../../styles/commonstyles';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
+import { useAnima } from '../../contexts/AnimaContext';
 
 const ChoicePersonaSheet = ({
   isOpen,
@@ -49,7 +50,10 @@ const ChoicePersonaSheet = ({
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
+  const { showAlert } = useAnima();
   const bottomSheetRef = useRef(null);
+
+
   
   // ✅ Modal Refs for Input Overlays
   const nameInputRef = useRef(null);
@@ -217,7 +221,7 @@ const ChoicePersonaSheet = ({
       return false;
     }
 
-  if (value.length > 50) {
+  if (value.length > 80) {
     setDescriptionError('too_long');
     descriptionCheckScale.value = withTiming(0, { duration: 200 });
     return false;
@@ -297,6 +301,43 @@ const ChoicePersonaSheet = ({
     onClose();
   }, [photo, name, description, gender, validateName, validateDescription, onCreateStart, onClose]);
 
+  const handleValidationSuccess = () => {
+
+
+    if (!photo) {
+      HapticService.warning();
+      // TODO: Show toast
+      console.log('[ChoicePersonaSheet] Photo required');
+      return;
+    }
+
+    if (!validateName(name)) {
+      HapticService.warning();
+      console.log('[ChoicePersonaSheet] Name validation failed');
+      return;
+    }
+
+    if (!validateDescription(description)) {
+      HapticService.warning();
+      console.log('[ChoicePersonaSheet] Description validation failed');
+      return;
+    }
+
+    HapticService.success();
+
+    showAlert({
+      title: t('point.create_persona.title', '페르소나 생성'),
+      message: t('point.create_persona.message', '페르소나 생성이 완료되었습니다. 페르소나 생성 화면으로 이동합니다.', { cost: 100 }),
+      buttons: [
+        { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
+        { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
+          handleCreate();
+        } },
+
+      ],
+    });
+  };
+
 
   // ═══════════════════════════════════════════════════════════════════════
   // ANIMATED STYLES
@@ -344,7 +385,7 @@ const ChoicePersonaSheet = ({
         {
           title: t('persona.creation.create_button', '생성하기'),
           type: 'primary',
-          onPress: handleCreate,
+          onPress: handleValidationSuccess,
         }
       ]}
     >
@@ -453,9 +494,9 @@ const ChoicePersonaSheet = ({
               {/* Character count */}
               <CustomText 
                 type="small"
-                style={{ color: description.length >= 50 ? '#F59E0B' : currentTheme.textTertiary }}
+                style={{ color: description.length >= 80 ? '#F59E0B' : currentTheme.textTertiary }}
               >
-                {description.length}/50
+                {description.length}/80
               </CustomText>
 
               {/* Validation indicator */}
@@ -476,7 +517,7 @@ const ChoicePersonaSheet = ({
             <CustomText type="small" style={styles.nameErrorText}>
               {descriptionError === 'required' 
                 ? t('persona.creation.description_error_required', '설명을 입력해주세요')
-                : t('persona.creation.description_error_too_long', '설명은 50자 이하로 입력해주세요')
+                : t('persona.creation.description_error_too_long', '설명은 80자 이하로 입력해주세요')
               }
             </CustomText>
           )}
@@ -659,21 +700,8 @@ const ChoicePersonaSheet = ({
           </Animated.View>
         </View>
 
-
       </View>
 
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* FOOTER: Create Button                                              */}
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      <View style={[styles.footer, { backgroundColor: currentTheme.backgroundColor, display: 'none' }]}>
-        <CustomButton
-          title={t('persona.creation.create_button', '생성하기')}
-          onPress={handleCreate}
-          disabled={!photo || !name || !!nameError}
-          style={styles.createButton}
-          leftIcon={<Icon name="sparkles" size={moderateScale(20)} color={COLORS.TEXT_PRIMARY} />}
-        />
-      </View>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Input Modal Overlays                                                */}

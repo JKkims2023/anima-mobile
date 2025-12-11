@@ -2109,5 +2109,16 @@
     "background": "배경효과",
     "active": "특수효과",
     "music": "음원"
+  },
+  "point": {
+    "create_persona":{
+      "title": "페르소나 생성",
+      "message": "페르소나 생성 시, {{cost}}P가 차감됩니다. 동의하고 생성하시겠습니까?"
+    },
+    "point_not_enough": {
+      "title": "포인트 부족",
+      "message": "포인트가 부족합니다. 포인트를 충전하세요.",
+      "move_to_payment": "포인트 충전"
+    }
   }
 }
