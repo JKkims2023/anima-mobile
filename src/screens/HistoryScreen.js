@@ -91,10 +91,24 @@ const HistoryScreen = ({ navigation }) => {
   // ⭐ Clear new message badge on screen focus
   useFocusEffect(
     useCallback(() => {
-      console.log('✅ [HistoryScreen] Clearing new message badge');
+      console.log('✅ [HistoryScreen] Screen focused - Clearing new message badge');
       setHasNewMessage(false);
       setCreatedMessageUrl('');
     }, [setHasNewMessage, setCreatedMessageUrl])
+  );
+
+  // ⭐ NEW: Close MessageDetailOverlay when navigating away (Tab bar)
+  useFocusEffect(
+    useCallback(() => {
+      // Cleanup function runs when screen loses focus (blur)
+      return () => {
+        console.log('🌙 [HistoryScreen] Screen blurred - Closing MessageDetailOverlay');
+        if (isMessageDetailVisible) {
+          setIsMessageDetailVisible(false);
+          setSelectedMessage(null);
+        }
+      };
+    }, [isMessageDetailVisible])
   );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
