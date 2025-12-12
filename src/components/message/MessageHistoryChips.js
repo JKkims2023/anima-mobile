@@ -154,12 +154,14 @@ MessageHistoryChips.displayName = 'MessageHistoryChips';
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: verticalScale(120), // Below header
-    right: scale(16),
+    // ⭐ Position managed by parent (MessageDetailOverlay chipsContainer)
+    // position: 'absolute', // ← Removed
+    // top: verticalScale(120), // ← Removed
+    // right: scale(16), // ← Removed
     gap: verticalScale(10),
     zIndex: 100,
     elevation: 10, // Android
+    // backgroundColor: 'red', // 🔴 DEBUG: Removed
   },
   chip: {
     width: scale(52),

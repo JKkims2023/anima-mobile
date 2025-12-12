@@ -89,12 +89,18 @@ const FlipCard = ({
   return (
     <>
       {/* Front (메시지) */}
-      <Animated.View style={[styles.card, style, frontAnimatedStyle]} pointerEvents="box-none">
+      <Animated.View 
+        style={[styles.card, style, frontAnimatedStyle]} 
+        pointerEvents={isFlipped ? 'none' : 'auto'} // ⭐ Disable touch when flipped
+      >
         {front}
       </Animated.View>
 
       {/* Back (댓글) */}
-      <Animated.View style={[styles.card, styles.cardBack, style, backAnimatedStyle]} pointerEvents="box-none">
+      <Animated.View 
+        style={[styles.card, styles.cardBack, style, backAnimatedStyle]} 
+        pointerEvents={isFlipped ? 'auto' : 'none'} // ⭐ Enable touch only when flipped
+      >
         {back}
       </Animated.View>
     </>

@@ -308,16 +308,20 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // Front View (WebView - Message)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFront = () => (
-    <View style={styles.frontContainer}>
+    <View style={styles.frontContainer} pointerEvents="box-none">
       {/* Header with LinearGradient Background */}
-      <View style={[styles.headerGradientContainer, { paddingTop: insets.top }]}>
+      <View 
+        style={[styles.headerGradientContainer, { paddingTop: insets.top }]}
+        pointerEvents="box-none" // ⭐ Allow touches to pass through
+      >
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
           locations={[0, 0.6, 1]}
           style={styles.headerGradient}
+          pointerEvents="box-none" // ⭐ Allow touches to pass through gradient
         >
-          <View style={styles.header}>
-            <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
+          <View style={styles.header} pointerEvents="box-none">
+            <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}} pointerEvents="box-none">
               <TouchableOpacity
                 style={styles.backButton}
                 onPress={handleBack}
@@ -326,7 +330,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
                 <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
               </TouchableOpacity>
 
-              <View style={styles.headerContent}>
+              <View style={styles.headerContent} pointerEvents="box-none">
                 <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
                   {t('navigation.title.history_detail')}
                 </CustomText>
@@ -414,7 +418,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         <Animated.View 
           style={[
             styles.chipsContainer,
-            { top: insets.top + verticalScale(0) },
+            { top: insets.top + verticalScale(120) }, // ⭐ Below header
             chipsContainerAnimatedStyle
           ]}
           pointerEvents="box-none" // ⭐ Allow touches to pass through to WebView
@@ -460,14 +464,14 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   headerGradient: {
-    paddingBottom: verticalScale(20),
+
   },
   header: {
     marginTop: verticalScale(10),
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(20),
-    paddingBottom: verticalScale(16),
+    paddingBottom: verticalScale(10),
   },
   backButton: {
     marginRight: scale(0),
@@ -478,6 +482,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginTop: Platform.OS === 'ios' ? verticalScale(3) : verticalScale(3),
+
   },
   headerTitle: {
     marginBottom: scale(2),
@@ -507,9 +512,12 @@ const styles = StyleSheet.create({
   },
   chipsContainer: {
     position: 'absolute',
-    right: 0,
+    right: scale(16), // ⭐ Fixed right position
     zIndex: 10001, // ⭐ Above header
     elevation: 100,
+    marginTop: verticalScale(20),
+    // backgroundColor: 'blue', // 🔵 DEBUG: Removed
+    // opacity: 0.5, // Removed
   },
 });
 
