@@ -13,7 +13,8 @@
  * showAlert({ title: '로그아웃', message: '떠나실 건가요?', ... });
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimaToast from '../components/AnimaToast';
 import AnimaAlert from '../components/AnimaAlert';
 
@@ -47,6 +48,51 @@ export const AnimaProvider = ({ children }) => {
   
   // ⭐ Message Creation Active state (for Tab Bar blocking)
   const [isMessageCreationActive, setIsMessageCreationActive] = useState(false);
+  
+  // ⭐ NEW: Show Default Personas setting
+  const [showDefaultPersonas, setShowDefaultPersonas] = useState(true); // Default: true (show all 3 modes)
+  
+  // ⭐ Load showDefaultPersonas from AsyncStorage on mount
+  useEffect(() => {
+    loadDefaultPersonasSetting();
+  }, []);
+  
+  const loadDefaultPersonasSetting = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@anima_show_default_personas');
+      
+      if (stored !== null) {
+        setShowDefaultPersonas(stored === 'true');
+        if (__DEV__) {
+          console.log('[AnimaContext] Loaded showDefaultPersonas:', stored === 'true');
+        }
+      } else {
+        // First launch: default to true
+        setShowDefaultPersonas(true);
+        await AsyncStorage.setItem('@anima_show_default_personas', 'true');
+        if (__DEV__) {
+          console.log('[AnimaContext] First launch: showDefaultPersonas = true');
+        }
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to load showDefaultPersonas:', error);
+      setShowDefaultPersonas(true); // Fallback to true
+    }
+  };
+  
+  // ⭐ Update showDefaultPersonas and save to AsyncStorage
+  const updateShowDefaultPersonas = useCallback(async (value) => {
+    setShowDefaultPersonas(value);
+    
+    try {
+      await AsyncStorage.setItem('@anima_show_default_personas', value.toString());
+      if (__DEV__) {
+        console.log('[AnimaContext] Saved showDefaultPersonas:', value);
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to save showDefaultPersonas:', error);
+    }
+  }, []);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Toast Functions
@@ -136,6 +182,8 @@ export const AnimaProvider = ({ children }) => {
     setCreatedMessageUrl,
     isMessageCreationActive,
     setIsMessageCreationActive,
+    showDefaultPersonas,
+    updateShowDefaultPersonas,
   };
 
   return (

@@ -89,7 +89,7 @@ const PersonaStudioScreen = () => {
   const { currentTheme } = useTheme();
   const { personas, setPersonas, selectedPersona: contextSelectedPersona, initializePersonas } = usePersona();
   const { user } = useUser();
-  const { showToast, showAlert, setIsMessageCreationActive } = useAnima(); // ⭐ For Tab Bar blocking
+  const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
   
@@ -130,7 +130,7 @@ const PersonaStudioScreen = () => {
   const swiperRef = useRef(null);
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
-  const [filterMode, setFilterMode] = useState('default'); // 'default' | 'user' | 'favorite'
+  const [filterMode, setFilterMode] = useState(showDefaultPersonas ? 'default' : 'user'); // ⭐ Dynamic initial value
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
   const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ Loading overlay for persona creation
   const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
@@ -144,6 +144,19 @@ const PersonaStudioScreen = () => {
   useEffect(() => {
     setIsMessageCreationActive(isMessageCreationVisible);
   }, [isMessageCreationVisible, setIsMessageCreationActive]);
+  
+  // ⭐ NEW: Auto-adjust filterMode when showDefaultPersonas changes
+  useEffect(() => {
+    if (!showDefaultPersonas && filterMode === 'default') {
+      // If default personas are hidden and current mode is 'default', switch to 'user'
+      setFilterMode('user');
+      setCurrentPersonaIndex(0); // Reset to first persona
+      
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🎭 Default personas hidden, switching to user mode');
+      }
+    }
+  }, [showDefaultPersonas, filterMode]);
   
   // ⭐ NEW: Android back button handler for category dropdown
   useEffect(() => {
@@ -1010,9 +1023,13 @@ const PersonaStudioScreen = () => {
   // HORIZONTAL SWIPE GESTURE (Filter Mode Change)
   // ═══════════════════════════════════════════════════════════════════════
   
-  // ⭐ Cycle through filter modes: default → user → favorite → default
+  // ⭐ Cycle through filter modes: default → user → favorite → default (or user → favorite → user)
   const cycleFilterMode = useCallback((direction) => {
-    const modes = ['default', 'user', 'favorite'];
+    // ⭐ Dynamic modes based on showDefaultPersonas
+    const modes = showDefaultPersonas 
+      ? ['default', 'user', 'favorite'] // 3 modes
+      : ['user', 'favorite']; // 2 modes
+    
     const currentIndex = modes.indexOf(filterMode);
     
     let nextIndex;
@@ -1028,10 +1045,11 @@ const PersonaStudioScreen = () => {
     
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 👆 Swipe detected:', direction, '→', nextMode);
+      console.log('  Available modes:', modes);
     }
     
     handleFilterModeChange(nextMode);
-  }, [filterMode, handleFilterModeChange]);
+  }, [filterMode, showDefaultPersonas, handleFilterModeChange]);
   
   // ⭐ Horizontal swipe gesture handler (with direction constraints)
   const panGesture = Gesture.Pan()
@@ -1255,6 +1273,7 @@ const PersonaStudioScreen = () => {
             onTypeChange={handleFilterModeChange}
             onCreatePress={handleCreatePersona}
             showCreateButton={true}
+            showDefaultMode={showDefaultPersonas} // ⭐ NEW: Control default mode visibility
           />
         </View>
 

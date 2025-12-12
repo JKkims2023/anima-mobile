@@ -1461,7 +1461,9 @@
       "push_notification": "Push 알림",
       "push_description": "새로운 메시지와 업데이트 알림을 받습니다",
       "haptic": "햅틱(진동)",
-      "haptic_description": "터치 시 진동 피드백을 제공합니다"
+      "haptic_description": "터치 시 진동 피드백을 제공합니다",
+      "default_personas": "기본 페르소나 사용",
+      "default_personas_description": "SAGE, Nexus 등 기본 페르소나를 표시합니다"
     },
     "terms": {
       "title": "📋 이용약관",

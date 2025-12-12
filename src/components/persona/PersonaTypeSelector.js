@@ -37,23 +37,36 @@ const PersonaTypeSelector = ({
   onTypeChange,
   onCreatePress,
   showCreateButton = true,
+  showDefaultMode = true, // ⭐ NEW: Control default mode visibility
 }) => {
   const { t } = useTranslation();
   const { currentTheme: theme } = useTheme();
 
-  // ⭐ Cycle through modes: default -> user -> favorite -> default
+  // ⭐ Cycle through modes: default -> user -> favorite -> default (or user -> favorite -> user)
   const handleModeToggle = () => {
     HapticService.light();
     
-    if (!isUserMode && !isFavoriteMode) {
-      // Currently default, switch to user
-      onTypeChange?.('user');
-    } else if (isUserMode && !isFavoriteMode) {
-      // Currently user, switch to favorite
-      onTypeChange?.('favorite');
+    if (showDefaultMode) {
+      // 3-mode cycle: default → user → favorite → default
+      if (!isUserMode && !isFavoriteMode) {
+        // Currently default, switch to user
+        onTypeChange?.('user');
+      } else if (isUserMode && !isFavoriteMode) {
+        // Currently user, switch to favorite
+        onTypeChange?.('favorite');
+      } else {
+        // Currently favorite, switch to default
+        onTypeChange?.('default');
+      }
     } else {
-      // Currently favorite, switch to default
-      onTypeChange?.('default');
+      // 2-mode cycle: user → favorite → user
+      if (isUserMode && !isFavoriteMode) {
+        // Currently user, switch to favorite
+        onTypeChange?.('favorite');
+      } else {
+        // Currently favorite, switch to user
+        onTypeChange?.('user');
+      }
     }
   };
 

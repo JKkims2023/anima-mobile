@@ -39,7 +39,7 @@ const SettingsScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated, loading: userLoading, logout } = useUser();
-  const { showToast, showAlert } = useAnima();
+  const { showToast, showAlert, showDefaultPersonas, updateShowDefaultPersonas } = useAnima();
 
   // ✅ Local state for settings
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -102,6 +102,22 @@ const SettingsScreen = () => {
       }
     } catch (error) {
       console.error('[Settings] Failed to save haptic setting:', error);
+    }
+  };
+  
+  // ⭐ NEW: Handle Default Personas toggle
+  const handleDefaultPersonasToggle = async (value) => {
+    try {
+      // ⭐ Update AnimaContext state (also saves to AsyncStorage)
+      await updateShowDefaultPersonas(value);
+      
+      HapticService.light();
+      
+      if (__DEV__) {
+        console.log('[Settings] Default Personas toggled:', value);
+      }
+    } catch (error) {
+      console.error('[Settings] Failed to save default personas setting:', error);
     }
   };
 
@@ -263,11 +279,23 @@ const SettingsScreen = () => {
                 icon="📳"
                 title={t('settings.service.haptic')}
                 description={t('settings.service.haptic_description')}
-                showBorder={false}
+                showBorder={true}
                 rightComponent={
                   <CustomSwitch
                     value={hapticEnabled}
                     onValueChange={handleHapticToggle}
+                  />
+                }
+              />
+              <SettingsItem
+                icon="🎭"
+                title={t('settings.service.default_personas')}
+                description={t('settings.service.default_personas_description')}
+                showBorder={false}
+                rightComponent={
+                  <CustomSwitch
+                    value={showDefaultPersonas}
+                    onValueChange={handleDefaultPersonasToggle}
                   />
                 }
               />
