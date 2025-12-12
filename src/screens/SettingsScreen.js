@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -205,6 +205,17 @@ const SettingsScreen = ({ navigation }) => {
     HapticService.light();
     navigation.navigate('WebView', { type: 'app_info' });
   };
+  
+  // ⭐ NEW: Handle Point Purchase press
+  const handlePointPurchasePress = () => {
+    HapticService.light();
+    // TODO: Navigate to Point Purchase screen or open payment overlay
+    showToast({
+      type: 'info',
+      emoji: '💰',
+      message: t('settings.points.purchase_coming_soon'),
+    });
+  };
 
   // ✅ If NOT authenticated, show FULL-SCREEN login
   if (!isAuthenticated && !userLoading) {
@@ -239,9 +250,10 @@ const SettingsScreen = ({ navigation }) => {
         ) : (
           <>
             {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            {/* 1️⃣ User Profile Card */}
+            {/* 1️⃣ User Profile Card (with Points) */}
             {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
             <SettingsCard>
+              {/* User Profile */}
               <View style={styles.profileContainer}>
                 {/* Avatar */}
                 <View style={styles.avatarContainer}>
@@ -261,6 +273,38 @@ const SettingsScreen = ({ navigation }) => {
                   <CustomText type="small" style={styles.userEmail}>
                     {user?.user_email}
                   </CustomText>
+                </View>
+              </View>
+              
+              {/* ⭐ NEW: Points Section */}
+              <View style={styles.pointsSection}>
+                {/* Points Display */}
+                <View style={styles.pointsDisplay}>
+                  <View style={styles.pointsInfo}>
+                    <CustomText type="small" style={styles.pointsLabel}>
+                      {t('settings.points.my_points')}
+                    </CustomText>
+                    <View style={styles.pointsValueContainer}>
+                      <CustomText type="big" bold style={styles.pointsValue}>
+                        {user?.point?.toLocaleString() || '0'}
+                      </CustomText>
+                      <CustomText type="normal" style={styles.pointsUnit}>
+                        P
+                      </CustomText>
+                    </View>
+                  </View>
+                  
+                  {/* Purchase Button */}
+                  <TouchableOpacity
+                    style={styles.pointsPurchaseButton}
+                    onPress={handlePointPurchasePress}
+                    activeOpacity={0.7}
+                  >
+                    <Icon name="cart-plus" size={scale(20)} color="#fff" />
+                    <CustomText type="small" bold style={styles.pointsPurchaseText}>
+                      {t('settings.points.purchase')}
+                    </CustomText>
+                  </TouchableOpacity>
                 </View>
               </View>
             </SettingsCard>
@@ -482,6 +526,63 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     color: COLORS.TEXT_SECONDARY,
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Points Section ⭐ NEW
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  pointsSection: {
+    paddingHorizontal: platformPadding(16),
+    paddingBottom: platformPadding(20),
+    paddingTop: platformPadding(12),
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  pointsDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  pointsInfo: {
+    flex: 1,
+  },
+  pointsLabel: {
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: scale(4),
+  },
+  pointsValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  pointsValue: {
+    color: COLORS.DEEP_BLUE,
+    fontSize: moderateScale(28),
+    marginRight: scale(4),
+  },
+  pointsUnit: {
+    color: COLORS.DEEP_BLUE,
+    fontSize: moderateScale(16),
+    fontWeight: '600',
+  },
+  pointsPurchaseButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.DEEP_BLUE,
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(16),
+    borderRadius: moderateScale(8),
+    shadowColor: COLORS.DEEP_BLUE,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  pointsPurchaseText: {
+    color: '#FFFFFF',
+    marginLeft: scale(6),
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

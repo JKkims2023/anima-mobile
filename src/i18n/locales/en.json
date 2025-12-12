@@ -1626,7 +1626,14 @@
       "haptic": "Haptic Feedback",
       "haptic_description": "Provide vibration feedback on touch",
       "default_personas": "Show Default Personas",
-      "default_personas_description": "Display default personas like SAGE and Nexus"
+      "default_personas_description": "Display default personas like SAGE and Nexus",
+      "default_personas_enabled": "Default personas enabled",
+      "default_personas_disabled": "Default personas disabled"
+    },
+    "points": {
+      "my_points": "My Points",
+      "purchase": "Purchase",
+      "purchase_coming_soon": "Point purchase feature coming soon"
     },
     "terms": {
       "title": "📋 Terms & Policies",

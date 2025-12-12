@@ -1463,7 +1463,14 @@
       "haptic": "햅틱(진동)",
       "haptic_description": "터치 시 진동 피드백을 제공합니다",
       "default_personas": "기본 페르소나 사용",
-      "default_personas_description": "SAGE, Nexus 등 기본 페르소나를 표시합니다"
+      "default_personas_description": "SAGE, Nexus 등 기본 페르소나를 표시합니다",
+      "default_personas_enabled": "기본 페르소나가 활성화되었습니다",
+      "default_personas_disabled": "기본 페르소나가 비활성화되었습니다"
+    },
+    "points": {
+      "my_points": "보유 포인트",
+      "purchase": "충전하기",
+      "purchase_coming_soon": "포인트 충전 기능 준비 중입니다"
     },
     "terms": {
       "title": "📋 이용약관",
