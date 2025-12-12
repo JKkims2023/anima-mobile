@@ -45,6 +45,7 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Contexts & Services
@@ -369,29 +370,44 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         back={renderBack()}
       />
 
-      {/* Header (Back Button Only) */}
-      <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBack}
-          activeOpacity={0.7}
+      {/* Header with LinearGradient Background */}
+      <Animated.View style={[
+        styles.headerGradientContainer, 
+        { paddingTop: insets.top }
+      ]}>
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
+          locations={[0, 0.6, 1]}
+          style={styles.headerGradient}
         >
-          <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
-        </TouchableOpacity>
+          <View style={[styles.header, { marginTop: insets.top + (Platform.OS === 'ios' ? verticalScale(10) : verticalScale(25)) }]}>
+            <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={handleBack}
+                activeOpacity={0.7}
+              >
+                <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
+              </TouchableOpacity>
 
-        <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
-          {t('navigation.title.history_detail')}
-        </CustomText>
-        
-        {/* Help Icon */}
-        <TouchableOpacity
-          style={[{ marginLeft: 'auto' }]}
-          onPress={handleHelpPress}
-          activeOpacity={0.7}
-        >
-          <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
-        </TouchableOpacity>
-      </View>
+              <View style={styles.headerContent}>
+                <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+                  {t('navigation.title.history_detail')}
+                </CustomText>
+                
+                {/* Help Icon */}
+                <TouchableOpacity
+                  style={[{ marginLeft: 'auto' }]}
+                  onPress={handleHelpPress}
+                  activeOpacity={0.7}
+                >
+                  <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </LinearGradient>
+      </Animated.View>
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
       {!isFlipped && (
@@ -430,25 +446,34 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
+  headerGradientContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    zIndex: 10000, // ⭐ Above WebView
+  },
+  headerGradient: {
+    paddingBottom: verticalScale(20),
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: scale(16),
-    paddingBottom: verticalScale(12),
-    zIndex: 10000, // ⭐ Above WebView
-    backgroundColor: 'transparent',
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(16),
   },
   backButton: {
     marginRight: scale(0),
     padding: scale(8),
     marginLeft: scale(-15),
   },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    marginTop: Platform.OS === 'ios' ? verticalScale(3) : verticalScale(3),
+  },
   headerTitle: {
-    marginLeft: scale(8),
+    marginBottom: scale(2),
   },
   webViewContainer: {
     flex: 1,
