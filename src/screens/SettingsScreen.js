@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../components/CustomText';
 import CustomButton from '../components/CustomButton';
 import CustomSwitch from '../components/CustomSwitch';
@@ -180,19 +181,19 @@ const SettingsScreen = () => {
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
     >
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Header (Fixed) */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <View style={styles.header}>
+        <CustomText type="big" bold style={styles.headerTitle}>
+          {t('settings.title')}
+        </CustomText>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-        {/* Header */}
-        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-        <View style={styles.header}>
-          <CustomText type="big" bold style={styles.headerTitle}>
-            {t('settings.title')}
-          </CustomText>
-        </View>
-
         {userLoading ? (
           <CustomText type="normal" style={styles.loadingText}>
             {t('common.loading')}...
@@ -288,7 +289,7 @@ const SettingsScreen = () => {
                   onPress={handleLogout}
                   style={styles.dangerButton}
                   textStyle={styles.logoutButtonText}
-                  leftIcon="exit-to-app"
+                  leftIcon={<Icon name="exit-to-app" size={scale(20)} color={COLORS.TEXT_PRIMARY} />}
                 />
 
                 {/* Withdrawal Button */}
@@ -299,7 +300,7 @@ const SettingsScreen = () => {
                     onPress={handleWithdrawal}
                     style={[styles.dangerButton, styles.withdrawalButton]}
                     textStyle={styles.withdrawalButtonText}
-                    leftIcon="account-remove"
+                    leftIcon={<Icon name="account-remove" size={scale(20)} color="#EF4444" />}
                   />
                 ) : (
                   <View style={styles.withdrawConfirmContainer}>
@@ -337,11 +338,14 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: platformPadding(20),
-    paddingTop: platformPadding(20),
+    paddingTop: platformPadding(10), // ⭐ Reduced (header is now fixed)
     paddingBottom: platformPadding(40),
   },
   header: {
-    marginBottom: scale(24),
+    paddingHorizontal: platformPadding(20),
+    paddingTop: platformPadding(20),
+    paddingBottom: scale(16),
+    backgroundColor: COLORS.BACKGROUND || '#000', // ⭐ Fixed background
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
