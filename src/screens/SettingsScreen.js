@@ -28,6 +28,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import AuthSection from '../components/auth/AuthSection';
+import HapticService from '../utils/HapticService';
 import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
@@ -54,13 +55,16 @@ const SettingsScreen = () => {
   const loadSettings = async () => {
     try {
       const pushSetting = await AsyncStorage.getItem('@anima_push_enabled');
-      const hapticSetting = await AsyncStorage.getItem('@anima_haptic_enabled');
 
       if (pushSetting !== null) {
         setPushEnabled(pushSetting === 'true');
       }
-      if (hapticSetting !== null) {
-        setHapticEnabled(hapticSetting === 'true');
+      
+      // ⭐ Load haptic setting from HapticService (already initialized on app start)
+      setHapticEnabled(HapticService.isEnabled());
+      
+      if (__DEV__) {
+        console.log('[Settings] Loaded haptic setting:', HapticService.isEnabled());
       }
     } catch (error) {
       console.error('[Settings] Failed to load settings:', error);
@@ -81,9 +85,21 @@ const SettingsScreen = () => {
   // ✅ Handle Haptic toggle
   const handleHapticToggle = async (value) => {
     setHapticEnabled(value);
+    
     try {
-      await AsyncStorage.setItem('@anima_haptic_enabled', value.toString());
-      // TODO: Update haptic feedback settings
+      // ⭐ Update HapticService state (also saves to AsyncStorage)
+      if (value) {
+        await HapticService.enable();
+        // ⭐ Give feedback when enabling!
+        HapticService.light();
+      } else {
+        await HapticService.disable();
+        // No feedback when disabling (obviously!)
+      }
+      
+      if (__DEV__) {
+        console.log('[Settings] Haptic toggled:', value);
+      }
     } catch (error) {
       console.error('[Settings] Failed to save haptic setting:', error);
     }

@@ -42,6 +42,9 @@ import TabNavigator from './src/navigation/TabNavigator';
 // Import Animated Splash Screen
 import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
 
+// Import HapticService
+import HapticService from './src/utils/HapticService';
+
 function App(): React.JSX.Element {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -66,6 +69,15 @@ function App(): React.JSX.Element {
       })
       .catch((error) => {
         console.log('⚠️ [Firebase Messaging] Permission error:', error);
+      });
+
+    // ⭐ Initialize HapticService (load settings from AsyncStorage)
+    HapticService.initialize()
+      .then(() => {
+        console.log('✅ [HapticService] Initialized:', HapticService.isEnabled());
+      })
+      .catch((error) => {
+        console.error('❌ [HapticService] Initialization error:', error);
       });
   }, []);
 

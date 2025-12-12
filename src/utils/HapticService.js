@@ -18,10 +18,16 @@
 
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 📐 Haptic Configuration
 // ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * AsyncStorage key for haptic settings
+ */
+const HAPTIC_STORAGE_KEY = '@anima_haptic_enabled';
 
 /**
  * Haptic options for consistent behavior
@@ -76,22 +82,68 @@ class HapticService {
   static enabled = true;
 
   /**
-   * Enable haptic feedback
+   * Initialize haptic service by loading settings from AsyncStorage
+   * Should be called on app startup
    */
-  static enable() {
-    this.enabled = true;
-    if (__DEV__) {
-      console.log('🎯 [Haptic] Enabled');
+  static async initialize() {
+    try {
+      const storedValue = await AsyncStorage.getItem(HAPTIC_STORAGE_KEY);
+      
+      if (storedValue !== null) {
+        this.enabled = storedValue === 'true';
+        if (__DEV__) {
+          console.log('🎯 [Haptic] Loaded from storage:', this.enabled);
+        }
+      } else {
+        // First launch: default to enabled and save it
+        this.enabled = true;
+        await AsyncStorage.setItem(HAPTIC_STORAGE_KEY, 'true');
+        if (__DEV__) {
+          console.log('🎯 [Haptic] First launch: Enabled by default');
+        }
+      }
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('🎯 [Haptic] Failed to load settings:', error);
+      }
+      // Fallback to enabled on error
+      this.enabled = true;
     }
   }
 
   /**
-   * Disable haptic feedback
+   * Enable haptic feedback and save to AsyncStorage
    */
-  static disable() {
+  static async enable() {
+    this.enabled = true;
+    
+    try {
+      await AsyncStorage.setItem(HAPTIC_STORAGE_KEY, 'true');
+      if (__DEV__) {
+        console.log('🎯 [Haptic] Enabled & saved to storage');
+      }
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('🎯 [Haptic] Failed to save enabled state:', error);
+      }
+    }
+  }
+
+  /**
+   * Disable haptic feedback and save to AsyncStorage
+   */
+  static async disable() {
     this.enabled = false;
-    if (__DEV__) {
-      console.log('🎯 [Haptic] Disabled');
+    
+    try {
+      await AsyncStorage.setItem(HAPTIC_STORAGE_KEY, 'false');
+      if (__DEV__) {
+        console.log('🎯 [Haptic] Disabled & saved to storage');
+      }
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('🎯 [Haptic] Failed to save disabled state:', error);
+      }
     }
   }
 
