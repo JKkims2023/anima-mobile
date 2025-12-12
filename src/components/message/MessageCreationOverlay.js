@@ -744,11 +744,12 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('✨ [MessageCreationOverlay] Active Effect Selected (Layer 2):', effectId);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // ⭐ Check if this effect requires custom words
-    const requiresCustomWords = effectId === 'floating_words' || effectId === 'scrolling_words';
+    // ⭐ Check if this effect requires custom words/messages
+    const requiresCustomWords = effectId === 'floating_words' || effectId === 'scrolling_words' || effectId === 'fading_messages';
 
     if (requiresCustomWords) {
-      console.log('💬 [MessageCreationOverlay] Effect requires custom words, opening word input sheet');
+      console.log('💬 [MessageCreationOverlay] Effect requires custom input, opening word input sheet');
+      console.log('   🔍 Effect type:', effectId);
       console.log('   🔍 Effect NOT applied yet, waiting for user confirmation');
       setPendingActiveEffect(effectId); // ⭐ FIXED: Store temporarily, don't apply yet!
       HapticService.selection();
@@ -1507,13 +1508,14 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
         />
       </CustomBottomSheet>
 
-      {/* ⭐ Custom Words Input Overlay (Modal-based for Korean input stability) */}
+      {/* ⭐ Custom Words/Messages Input Overlay (Modal-based for Korean input stability) */}
       <WordInputOverlay
         ref={wordInputSheetRef}
         initialWords={customWords}
         onSave={handleWordsSave}
-        title="나만의 단어 입력"
-        placeholder="단어 입력 (최대 15자)"
+        title={pendingActiveEffect === 'fading_messages' ? '나만의 문장 입력' : '나만의 단어 입력'}
+        placeholder={pendingActiveEffect === 'fading_messages' ? '문장 입력 (최대 30자)' : '단어 입력 (최대 15자)'}
+        maxLength={pendingActiveEffect === 'fading_messages' ? 30 : 15}
       />
 
       {/* Message Input Overlays */}

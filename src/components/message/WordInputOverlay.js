@@ -44,6 +44,7 @@ const WordInputOverlay = forwardRef(({
   title,
   placeholder,
   initialWords = [],
+  maxLength = 15, // ⭐ NEW: Dynamic max length (15 for words, 30 for sentences)
   onSave,
 }, ref) => {
   const { t } = useTranslation();
@@ -269,7 +270,7 @@ const WordInputOverlay = forwardRef(({
               onSubmitEditing={handleAddWord}
               placeholder={placeholder}
               placeholderTextColor="rgba(156, 163, 175, 0.6)"
-              maxLength={15} // Max length for a single word
+              maxLength={maxLength} // ⭐ Dynamic max length (15 for words, 30 for sentences)
               autoFocus={false}
               autoCorrect={false}
               autoCapitalize="sentences"
