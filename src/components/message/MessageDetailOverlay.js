@@ -1,31 +1,28 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎯 MessageDetailOverlay - Full Screen Overlay for Message Viewing
+ * 🎯 MessageDetailOverlay - WebView-Based Message Viewing
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Purpose:
- * - Full-screen overlay with fade-in animation
- * - Covers entire screen including tab bar (z-index: 9999)
- * - Replaces Stack Navigation (MessageDetailScreen)
- * - Based on MessageCreationOverlay architecture
+ * - Full-screen overlay with WebView for perfect stability
+ * - No video/music conflicts (handled by browser engine)
+ * - 100% consistency with KakaoTalk shared links
+ * - Single codebase maintenance (Web only)
  * 
  * Features:
- * - Sequential animations (Background → Gradient → Content → Chips)
- * - Persona background (Image/Video)
- * - 14 text animations (fade_in, typing, scale_in, slide_cross, breath, etc.)
- * - Particle effects (including floating_words, scrolling_words with customWords)
- * - Background music playback
- * - Quick Action Chips (Comment, Favorite, Share, Delete)
+ * - WebView rendering (Front Face)
+ * - Quick Action Chips (RN): Comment, Favorite, Share, Delete
  * - 180° Flip Card (Message ⟷ Reply List)
  * - Android back button support
+ * - Real-time sync with HistoryScreen
  * 
  * Design Pattern:
- * - Overlay architecture (same as MessageCreationOverlay)
- * - State-based visibility control
- * - Real-time sync with HistoryScreen (onMessageUpdate callback)
+ * - WebView for content display (stable, unified)
+ * - RN for native features (Haptic, Share, Flip)
+ * - Overlay architecture (z-index: 9999)
  * 
  * @author JK & Hero Nexus AI
- * @date 2024-12-09
+ * @date 2024-12-12 (WebView Refactor)
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -35,23 +32,19 @@ import {
   TouchableOpacity,
   BackHandler,
   Platform,
-  Share,
+  ActivityIndicator,
   Dimensions,
 } from 'react-native';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
-  withSequence,
   withDelay,
   Easing,
 } from 'react-native-reanimated';
-import LinearGradient from 'react-native-linear-gradient';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Contexts & Services
@@ -67,14 +60,13 @@ import messageService from '../../services/api/messageService';
 // Components
 // ═══════════════════════════════════════════════════════════════════════════
 import CustomText from '../CustomText';
-import PersonaBackgroundView from './PersonaBackgroundView';
-import ParticleEffect from '../particle/ParticleEffect';
 import MessageHistoryChips from './MessageHistoryChips';
 import FlipCard from './FlipCard';
 import ReplyListView from './ReplyListView';
-import MusicControlBar from '../music/MusicControlBar'; // ⭐ NEW: Compact music player controls
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../../styles/commonstyles';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 /**
  * MessageDetailOverlay Component
@@ -90,18 +82,20 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   const { showAlert, showToast } = useAnima();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const webViewRef = useRef(null);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management
   // ═══════════════════════════════════════════════════════════════════════════
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false); // ⭐ 180° flip for comment view
   const [localMessage, setLocalMessage] = useState(message); // ⭐ Local message state for UI updates
+  const [isWebViewLoading, setIsWebViewLoading] = useState(true); // ⭐ WebView loading state
 
   // ⭐ Update localMessage when message prop changes
   useEffect(() => {
     if (message) {
       setLocalMessage(message);
+      setIsWebViewLoading(true); // Reset loading state
     }
   }, [message]);
 
@@ -109,376 +103,65 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // Extract message data
   // ═══════════════════════════════════════════════════════════════════════════
   const {
-    message_title = '',
-    message_content = '',
-    persona_key,
-    persona_name = 'Unknown',
-    persona_image_url,
-    persona_video_url,
-    convert_yn = 'N',
-    text_animation = 'fade_in',
-    particle_effect = 'none',
-    bg_music = 'none',
-    bg_music_url = null,
-    effect_config = null,
+    share_url,
+    message_key,
   } = localMessage || {};
 
-  // ⭐ Extract customWords from effect_config
-  const customWords = effect_config?.custom_words || [];
-
-  // ⭐ Create persona object for PersonaBackgroundView
-  const persona = {
-    persona_key,
-    persona_name,
-    selected_dress_image_url: persona_image_url,
-    selected_dress_video_url: persona_video_url,
-    selected_dress_video_convert_yn: convert_yn || 'N',
-  };
-
   // ═══════════════════════════════════════════════════════════════════════════
-  // Sequential Animation (악마의 디테일 🎨)
+  // Sequential Animation (Simplified for WebView)
   // ═══════════════════════════════════════════════════════════════════════════
   const overlayOpacity = useSharedValue(0); // 전체 오버레이
-  const gradientOpacity = useSharedValue(0); // 하단 그라디언트
-  const contentTranslateX = useSharedValue(300); // 텍스트 영역 (우측에서 시작)
-  const contentOpacity = useSharedValue(0); // 텍스트 영역 투명도
-  const chip1TranslateY = useSharedValue(100); // 첫 번째 칩
-  const chip2TranslateY = useSharedValue(100); // 두 번째 칩
-  const chip3TranslateY = useSharedValue(100); // 세 번째 칩
-  const chip4TranslateY = useSharedValue(100); // 네 번째 칩
-  const chipsOpacity = useSharedValue(0); // 칩셋 전체 투명도
-
-  // ⭐ Particle Effect Animation (별도 제어)
-  const particleOpacity = useSharedValue(0); // 파티클 투명도
+  const chipsOpacity = useSharedValue(0); // 칩셋 투명도
 
   useEffect(() => {
     if (visible) {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('✨ [MessageDetailOverlay] Starting sequential animation');
-      console.log('   🎬 Timeline:');
-      console.log('   0초: 📷 Background Fade In (300ms)');
-      console.log('   1초: ⬆️ Gradient Fade In (800ms)');
-      console.log('   1.8초: ➡️ Content Slide In (600ms)');
-      console.log('   2.4초: 🎪 Chips Bounce In (순차)');
+      console.log('✨ [MessageDetailOverlay] Opening with WebView');
+      console.log('   🌐 URL:', share_url);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      // 📷 Step 0: Reset all values
+      // Reset
       overlayOpacity.value = 0;
-      gradientOpacity.value = 0;
-      contentTranslateX.value = 300;
-      contentOpacity.value = 0;
-      chip1TranslateY.value = 100;
-      chip2TranslateY.value = 100;
-      chip3TranslateY.value = 100;
-      chip4TranslateY.value = 100;
       chipsOpacity.value = 0;
       
-      // 📷 Step 1: Background 부드럽게 표시 (300ms)
+      // Fade in overlay
       overlayOpacity.value = withTiming(1, { 
         duration: 300, 
         easing: Easing.out(Easing.ease) 
       });
       
-      // ⬆️ Step 2: Gradient Fade In (1초 후, 800ms 동안)
-      gradientOpacity.value = withDelay(
-        1000, 
-        withTiming(1, { 
-          duration: 800, 
-          easing: Easing.out(Easing.ease) 
-        })
-      );
-      
-      // ➡️ Step 3: Content 슬라이드 인 (1.8초 후, 600ms 동안)
-      contentTranslateX.value = withDelay(
-        1800,
-        withSpring(0, { 
-          damping: 15, 
-          stiffness: 100 
-        })
-      );
-      contentOpacity.value = withDelay(
-        1800,
-        withTiming(1, { duration: 400 })
-      );
-      
-      // 🎪 Step 4: Chips 순차적 바운스 (2.4초 후)
-      const chipDelay = 2400;
-      const chipInterval = 100; // 각 칩 사이 간격
-      
-      chipsOpacity.value = withDelay(chipDelay, withTiming(1, { duration: 200 }));
-      
-      chip1TranslateY.value = withDelay(
-        chipDelay,
-        withSpring(0, { damping: 8, stiffness: 150 })
-      );
-      
-      chip2TranslateY.value = withDelay(
-        chipDelay + chipInterval,
-        withSpring(0, { damping: 8, stiffness: 150 })
-      );
-      
-      chip3TranslateY.value = withDelay(
-        chipDelay + chipInterval * 2,
-        withSpring(0, { damping: 8, stiffness: 150 })
-      );
-      
-      chip4TranslateY.value = withDelay(
-        chipDelay + chipInterval * 3,
-        withSpring(0, { damping: 8, stiffness: 150 })
-      );
-      
-      // 🎨 Particle Effect: Gradient와 동시에 표시 (1초 후)
-      particleOpacity.value = withDelay(
-        1000,
-        withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
-      );
+      // Chips appear after WebView loads (controlled by onLoadEnd)
       
     } else {
-      console.log('🌙 [MessageDetailOverlay] Closing with fade-out (400ms)');
+      console.log('🌙 [MessageDetailOverlay] Closing WebView overlay');
       overlayOpacity.value = withTiming(0, { 
         duration: 400,
         easing: Easing.in(Easing.ease) 
       });
-      particleOpacity.value = withTiming(0, { duration: 400 });
+      chipsOpacity.value = withTiming(0, { duration: 300 });
     }
   }, [visible]);
+
+  // ⭐ Show chips after WebView loads
+  const handleWebViewLoadEnd = () => {
+    console.log('✅ [MessageDetailOverlay] WebView loaded successfully');
+    setIsWebViewLoading(false);
+    
+    // Show chips with delay
+    chipsOpacity.value = withDelay(
+      500,
+      withTiming(1, { duration: 400, easing: Easing.out(Easing.ease) })
+    );
+  };
 
   // Animated Styles
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
   }));
 
-  const gradientAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: gradientOpacity.value,
-  }));
-
-  const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-    transform: [{ translateX: contentTranslateX.value }],
-  }));
-
   const chipsContainerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: chipsOpacity.value,
   }));
-
-  const chip1AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: chip1TranslateY.value }],
-  }));
-
-  const chip2AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: chip2TranslateY.value }],
-  }));
-
-  const chip3AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: chip3TranslateY.value }],
-  }));
-
-  const chip4AnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: chip4TranslateY.value }],
-  }));
-
-  // ⭐ Particle Effect Animated Style
-  const particleAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: particleOpacity.value,
-  }));
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Text Animation Values & Logic (14 effects)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const [typingText, setTypingText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
-  const typingIndexRef = useRef(0);
-  const typingIntervalRef = useRef(null);
-  const cursorIntervalRef = useRef(null);
-
-  const textOpacity = useSharedValue(1);
-  const textScale = useSharedValue(1);
-  const textTranslateX = useSharedValue(0);
-  const textTranslateY = useSharedValue(0);
-  const textRotate = useSharedValue(0);
-
-  // ⭐ Trigger Animation: 2초 후 효과 발생
-  useEffect(() => {
-    if (!message_content) return;
-
-    console.log('[MessageDetailOverlay] 🎬 Text animation:', text_animation);
-
-    // ⭐ Typing Animation (special case)
-    if (text_animation === 'typing') {
-      typingIndexRef.current = 0;
-      setTypingText('');
-
-      const typingTimeout = setTimeout(() => {
-        typingIntervalRef.current = setInterval(() => {
-          typingIndexRef.current += 1;
-          if (typingIndexRef.current <= message_content.length) {
-            setTypingText(message_content.substring(0, typingIndexRef.current));
-          } else {
-            clearInterval(typingIntervalRef.current);
-          }
-        }, 50);
-
-        cursorIntervalRef.current = setInterval(() => {
-          setShowCursor((prev) => !prev);
-        }, 500);
-      }, 2000);
-
-      return () => {
-        clearTimeout(typingTimeout);
-        clearInterval(typingIntervalRef.current);
-        clearInterval(cursorIntervalRef.current);
-      };
-    }
-
-    // ⭐ Other Animations: Reset & Trigger after 2 seconds
-    setTypingText(message_content);
-
-    // Reset all values
-    textOpacity.value = 1;
-    textScale.value = 1;
-    textTranslateX.value = 0;
-    textTranslateY.value = 0;
-    textRotate.value = 0;
-
-    switch (text_animation) {
-      case 'fade_in':
-        textOpacity.value = 0;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
-        break;
-
-      case 'breath':
-        textScale.value = withDelay(2000, 
-          withSequence(
-            withTiming(1.05, { duration: 1000 }),
-            withTiming(0.95, { duration: 1000 }),
-            withTiming(1, { duration: 1000 })
-          )
-        );
-        break;
-
-      case 'blur_focus':
-        textOpacity.value = 0.3;
-        textScale.value = 0.95;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 1000 }));
-        textScale.value = withDelay(2000, withTiming(1, { duration: 1000 }));
-        break;
-
-      case 'letter_drop':
-        textTranslateY.value = -100;
-        textOpacity.value = 0;
-        textTranslateY.value = withDelay(2000, withSpring(0, { damping: 8 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 400 }));
-        break;
-
-      case 'rotate_in':
-        textRotate.value = 180;
-        textOpacity.value = 0;
-        textRotate.value = withDelay(2000, withSpring(0, { damping: 10 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 600 }));
-        break;
-
-      case 'scale_in':
-        textScale.value = 0;
-        textScale.value = withDelay(2000, withSpring(1, { damping: 10 }));
-        break;
-
-      case 'split':
-        textScale.value = 0;
-        textTranslateX.value = withDelay(2000,
-          withSequence(
-            withTiming(-50, { duration: 300 }),
-            withTiming(0, { duration: 300 })
-          )
-        );
-        textScale.value = withDelay(2000, withSpring(1, { damping: 8 }));
-        break;
-
-      case 'glow_pulse':
-        textScale.value = withDelay(2000,
-          withSequence(
-            withTiming(1.2, { duration: 400 }),
-            withTiming(1, { duration: 400 })
-          )
-        );
-        textOpacity.value = withDelay(2000,
-          withSequence(
-            withTiming(0.7, { duration: 400 }),
-            withTiming(1, { duration: 400 })
-          )
-        );
-        break;
-
-      case 'slide_cross':
-        // ⭐ Start from completely off-screen (left side)
-        textTranslateX.value = -SCREEN_WIDTH;
-        textTranslateX.value = withDelay(2000, withSpring(0, { damping: 12 }));
-        break;
-
-      case 'wave':
-        textTranslateY.value = withDelay(2000,
-          withSequence(
-            withTiming(-10, { duration: 200 }),
-            withTiming(10, { duration: 200 }),
-            withTiming(-10, { duration: 200 }),
-            withTiming(0, { duration: 200 })
-          )
-        );
-        break;
-
-      case 'stagger':
-        textTranslateX.value = -50;
-        textOpacity.value = 0;
-        textTranslateX.value = withDelay(2000, withSpring(0, { damping: 15 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 600 }));
-        break;
-
-      case 'flip':
-        textRotate.value = 90;
-        textOpacity.value = 0;
-        textRotate.value = withDelay(2000, withSpring(0, { damping: 12 }));
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 300 }));
-        break;
-
-      case 'rainbow':
-        textScale.value = withDelay(2000,
-          withSequence(
-            withTiming(1.1, { duration: 300 }),
-            withTiming(0.9, { duration: 300 }),
-            withTiming(1, { duration: 300 })
-          )
-        );
-        break;
-
-      default:
-        textOpacity.value = 0;
-        textOpacity.value = withDelay(2000, withTiming(1, { duration: 800 }));
-        break;
-    }
-  }, [text_animation, message_content]);
-
-  const animatedTextStyle = useAnimatedStyle(() => ({
-    opacity: text_animation === 'typing' ? 1 : textOpacity.value,
-    transform: [
-      { scale: textScale.value },
-      { translateX: textTranslateX.value },
-      { translateY: textTranslateY.value },
-      { rotate: `${textRotate.value}deg` },
-    ],
-  }));
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Auto-play music on mount
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    if (bg_music_url && bg_music_url !== 'none' && visible) {
-      setIsMusicPlaying(true);
-    }
-
-    return () => {
-      // Stop music on unmount
-      setIsMusicPlaying(false);
-    };
-  }, [bg_music_url, visible]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Android Back Button Handler (with flip support)
@@ -605,118 +288,63 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
     });
   };
 
-  // Handle music playing change (from MusicControlBar)
-  const handleMusicPlayingChange = (isPlaying) => {
-    setIsMusicPlaying(isPlaying);
-    console.log('[MessageDetailOverlay] Music playing state changed:', isPlaying);
-  };
-
   // Handle help press
   const handleHelpPress = () => {
     HapticService.light();
-
+    showToast({
+      type: 'info',
+      message: t('message.history.help_message', '메시지를 감상하세요!'),
+      emoji: '💡',
+    });
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Render: Don't render if not visible
   // ═══════════════════════════════════════════════════════════════════════════
-  if (!visible || !localMessage) return null;
+  if (!visible || !localMessage || !share_url) return null;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Front View (Message)
+  // Front View (WebView - Message)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFront = () => (
-    <>
-      {/* Background: Persona Image/Video */}
-      <PersonaBackgroundView
-        persona={persona}
-        isScreenFocused={!isFlipped}
-        opacity={1}
-        videoKey={localMessage?.message_key}
-      />
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* Particle Effect (독립적 애니메이션) */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {particle_effect && particle_effect !== 'none' && (
-        <Animated.View 
-          style={[
-            {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 50,
-            },
-            particleAnimatedStyle
-          ]}
-          pointerEvents="none"
-        >
-          <ParticleEffect 
-            type={particle_effect} 
-            isActive={!isFlipped} // ⭐ 플립 시 비활성화
-            customWords={customWords} // ⭐ Pass custom words for floating_words and scrolling_words
-          />
-        </Animated.View>
+    <View style={styles.webViewContainer}>
+      {/* Loading Indicator */}
+      {isWebViewLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={currentTheme.mainColor} />
+          <CustomText type="middle" style={[styles.loadingText, { color: currentTheme.textSecondary }]}>
+            {t('common.loading', 'Loading...')}
+          </CustomText>
+        </View>
       )}
 
-      {/* ⭐ Gradient Overlay with Sequential Animation */}
-      <Animated.View 
-        style={[
-          { 
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-          },
-          gradientAnimatedStyle
-        ]}
-        pointerEvents="box-none"
-      >
-        <LinearGradient
-          colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.9)']}
-          locations={[0, 0.4, 1]}
-          style={styles.gradient}
-          pointerEvents="box-none"
-        >
-          {/* ⭐ Content with Slide Animation */}
-          <Animated.View 
-            style={[
-              styles.contentContainer, 
-              contentAnimatedStyle
-            ]}
-            pointerEvents="box-none"
-          >
-            {/* Title */}
-            {false ? (
-              <Animated.View style={animatedTextStyle}>
-                <CustomText type="big" bold style={styles.title}>
-                  {message_title}
-                </CustomText>
-              </Animated.View>
-            ) : null}
-
-            {/* Content */}
-            {message_content ? (
-              <Animated.View style={animatedTextStyle}>
-                <CustomText type="middle" style={styles.content}>
-                  {text_animation === 'typing' ? (
-                    <>
-                      {typingText}
-                      {showCursor && <CustomText style={styles.cursor}>▌</CustomText>}
-                    </>
-                  ) : (
-                    message_content
-                  )}
-                </CustomText>
-              </Animated.View>
-            ) : null}
-
-          </Animated.View>
-        </LinearGradient>
-      </Animated.View>
-    </>
+      {/* WebView */}
+      <WebView
+        ref={webViewRef}
+        source={{ uri: share_url }}
+        style={styles.webView}
+        onLoadEnd={handleWebViewLoadEnd}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error('❌ [MessageDetailOverlay] WebView error:', nativeEvent);
+          setIsWebViewLoading(false);
+        }}
+        // ⭐ Media playback settings
+        allowsInlineMediaPlayback={true}
+        mediaPlaybackRequiresUserAction={false}
+        // ⭐ Performance settings
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={false}
+        // ⭐ iOS settings
+        allowsBackForwardNavigationGestures={false}
+        bounces={false}
+        // ⭐ Android settings
+        mixedContentMode="compatibility"
+        // ⭐ Disable zoom
+        scalesPageToFit={Platform.OS === 'android'}
+      />
+    </View>
   );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -734,14 +362,14 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
 
   return (
     <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
-      {/* FlipCard: Front (Message) / Back (Replies) */}
+      {/* FlipCard: Front (WebView) / Back (Replies) */}
       <FlipCard
         isFlipped={isFlipped}
         front={renderFront()}
         back={renderBack()}
       />
 
-      {/* Header (Back Button Only) - Music controls moved to MusicControlBar */}
+      {/* Header (Back Button Only) */}
       <View style={[styles.header, { paddingTop: insets.top + verticalScale(10) }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -755,7 +383,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
           {t('navigation.title.history_detail')}
         </CustomText>
         
-        {/* Search Icon */}
+        {/* Help Icon */}
         <TouchableOpacity
           style={[{ marginLeft: 'auto' }]}
           onPress={handleHelpPress}
@@ -764,15 +392,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
           <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
         </TouchableOpacity>
       </View>
-
-      {/* ⭐ Music Control Bar (최상위 레벨, FlipCard 밖) */}
-      {!isFlipped && bg_music_url && bg_music_url !== 'none' && (
-        <MusicControlBar
-          musicUrl={bg_music_url}
-          isPlaying={isMusicPlaying}
-          onPlayingChange={handleMusicPlayingChange}
-        />
-      )}
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
       {!isFlipped && (
@@ -820,50 +439,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingBottom: verticalScale(12),
-    zIndex: 1000,
+    zIndex: 10000, // ⭐ Above WebView
+    backgroundColor: 'transparent',
   },
   backButton: {
     marginRight: scale(0),
     padding: scale(8),
     marginLeft: scale(-15),
   },
-  gradient: {
-    justifyContent: 'flex-end',
-    marginTop: 'auto',
-    height: 'auto',
+  headerTitle: {
+    marginLeft: scale(8),
   },
-  contentContainer: {
-    paddingHorizontal: scale(20),
-    paddingTop: verticalScale(40),
-    paddingBottom: verticalScale(80), // ⭐ Chips 아래 공간 확보
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND || '#000',
   },
-  title: {
-    color: COLORS.TEXT_PRIMARY || '#FFFFFF',
-    textAlign: 'left',
-    marginBottom: verticalScale(12),
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: scale(2) },
-    textShadowRadius: scale(4),
+  webView: {
+    flex: 1,
+    backgroundColor: 'transparent',
   },
-  content: {
-    fontSize: Platform.OS === 'ios' ? scale(16) : scale(18),
-    color: COLORS.TEXT_PRIMARY || '#FFFFFF',
-    textAlign: 'left',
-    lineHeight: scale(24),
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: scale(1) },
-    textShadowRadius: scale(3),
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.BACKGROUND || '#000',
+    zIndex: 1,
   },
-  cursor: {
-    color: '#FFFFFF',
+  loadingText: {
+    marginTop: verticalScale(16),
+    fontSize: scale(16),
   },
   chipsContainer: {
     position: 'absolute',
     right: 0,
-    zIndex: 100,
+    zIndex: 10001, // ⭐ Above header
     elevation: 100,
   },
 });
 
 export default MessageDetailOverlay;
-
