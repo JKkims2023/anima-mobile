@@ -13,9 +13,10 @@
  * Design: Modern Card Style with ANIMA branding
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../components/CustomText';
@@ -29,7 +30,7 @@ import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import AuthSection from '../components/auth/AuthSection';
 import HapticService from '../utils/HapticService';
-import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
+import { scale, moderateScale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
 /**
@@ -38,18 +39,62 @@ import { COLORS } from '../styles/commonstyles';
 const SettingsScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
-  const { user, isAuthenticated, loading: userLoading, logout } = useUser();
+  const { user, isAuthenticated, loading: userLoading, logout, refreshUser } = useUser();
   const { showToast, showAlert, showDefaultPersonas, updateShowDefaultPersonas } = useAnima();
 
   // ✅ Local state for settings
   const [pushEnabled, setPushEnabled] = useState(false);
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
+  
+  // ⭐ useRef to prevent duplicate refresh calls
+  const isRefreshingRef = useRef(false);
 
   // ✅ Load settings from AsyncStorage on mount
   React.useEffect(() => {
     loadSettings();
   }, []);
+
+  // ⭐ NEW: Refresh user data when screen is focused (ONCE per focus)
+  useFocusEffect(
+    useCallback(() => {
+      // ⭐ Only refresh if authenticated and not already refreshing
+      if (isAuthenticated && refreshUser && !isRefreshingRef.current) {
+        console.log('🔄 [SettingsScreen] Screen focused - Refreshing user data...');
+        
+        // ⭐ Set flag to prevent duplicate calls
+        isRefreshingRef.current = true;
+        
+        // ⭐ Wrap in try-catch to prevent auto-logout on error
+        (async () => {
+          try {
+            const updatedUser = await refreshUser();
+            console.log('✅ [SettingsScreen] User data refreshed:', updatedUser?.user_id);
+            console.log('💰 [SettingsScreen] Updated points:', updatedUser?.user_point);
+          } catch (error) {
+            // ⭐ Log error but don't logout
+            // This prevents infinite login loop
+            console.warn('⚠️  [SettingsScreen] Failed to refresh user data (non-critical):', error.message);
+            
+            // ⭐ Don't show toast for minor errors
+            // User can still see cached point value
+          } finally {
+            // ⭐ Reset flag after 1 second (prevent rapid re-calls)
+            setTimeout(() => {
+              isRefreshingRef.current = false;
+            }, 1000);
+          }
+        })();
+      }
+      
+      // ⭐ Cleanup: Reset flag when screen is blurred
+      return () => {
+        isRefreshingRef.current = false;
+      };
+    }, [isAuthenticated, refreshUser])
+    // ⭐ Removed: user, showToast from dependencies
+    // This prevents infinite loop caused by setUser() updating user state
+  );
 
   // ✅ Load settings
   const loadSettings = async () => {
@@ -286,7 +331,7 @@ const SettingsScreen = ({ navigation }) => {
                     </CustomText>
                     <View style={styles.pointsValueContainer}>
                       <CustomText type="big" bold style={styles.pointsValue}>
-                        {user?.point?.toLocaleString() || '0'}
+                        {user?.user_point?.toLocaleString() || '0'}
                       </CustomText>
                       <CustomText type="normal" style={styles.pointsUnit}>
                         P

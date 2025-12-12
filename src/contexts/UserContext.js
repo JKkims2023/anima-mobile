@@ -53,7 +53,7 @@ export const UserProvider = ({ children }) => {
           console.log('✅ [ANIMA] Auto-login SUCCESSFUL');
           console.log('👤 [ANIMA] User:', userData.user_id);
           console.log('📧 [ANIMA] Email:', userData.user_email);
-          console.log('💰 [ANIMA] Points:', userData.point);
+          console.log('💰 [ANIMA] Points:', userData.user_point);
         } else {
           setUser(null);
           setIsAuthenticated(false);
@@ -224,13 +224,27 @@ export const UserProvider = ({ children }) => {
    */
   const refreshUser = useCallback(async () => {
     try {
-      const response = await authService.verifyToken();
+      // ⭐ Step 1: Get token from storage
+      const token = await authService.getToken();
+      
+      if (!token) {
+        console.warn('[UserContext] No token found - Cannot refresh');
+        throw new Error('No authentication token');
+      }
+      
+      if (__DEV__) {
+        console.log('[UserContext] Refreshing user with token:', token.substring(0, 20) + '...');
+      }
+      
+      // ⭐ Step 2: Verify token with API
+      const response = await authService.verifyToken(token);
       
       if (response.success && response.data && response.data.user) {
         setUser(response.data.user);
         
         if (__DEV__) {
           console.log('[UserContext] User info refreshed');
+          console.log('💰 [UserContext] Updated points:', response.data.user.user_point);
         }
         
         return response.data.user;
@@ -240,8 +254,12 @@ export const UserProvider = ({ children }) => {
     } catch (error) {
       console.error('[UserContext] Refresh user error:', error);
       
-      // If token is invalid, logout
-      await logout();
+      // ⭐ Only logout if token is ACTUALLY invalid (401 error)
+      // Don't logout on network errors or other issues
+      if (error.message.includes('token') || error.message.includes('Invalid') || error.message.includes('Expired')) {
+        console.warn('[UserContext] Token invalid - Logging out');
+        await logout();
+      }
       
       throw error;
     }
