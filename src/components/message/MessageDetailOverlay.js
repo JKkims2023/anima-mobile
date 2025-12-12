@@ -411,11 +411,14 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
       {!isFlipped && (
-        <Animated.View style={[
-          styles.chipsContainer,
-          { top: insets.top + verticalScale(0) },
-          chipsContainerAnimatedStyle
-        ]}>
+        <Animated.View 
+          style={[
+            styles.chipsContainer,
+            { top: insets.top + verticalScale(0) },
+            chipsContainerAnimatedStyle
+          ]}
+          pointerEvents="box-none" // ⭐ Allow touches to pass through to WebView
+        >
           <MessageHistoryChips
             message={localMessage}
             onCommentPress={handleCommentPress}
