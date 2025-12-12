@@ -308,78 +308,85 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // Front View (WebView - Message)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFront = () => (
-
-    <View>
+    <View style={StyleSheet.absoluteFill}>
       {/* Header with LinearGradient Background */}
       <Animated.View style={[
-      styles.headerGradientContainer, 
-      { paddingTop: insets.top }
+        styles.headerGradientContainer, 
+        { paddingTop: insets.top }
       ]}>
-        <View style={[styles.header,  ]}>
-          <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={handleBack}
-              activeOpacity={0.7}
-            >
-              <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            <View style={styles.headerContent}>
-              <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
-                {t('navigation.title.history_detail')}
-              </CustomText>
-              
-              {/* Help Icon */}
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
+          locations={[0, 0.6, 1]}
+          style={styles.headerGradient}
+        >
+          <View style={[styles.header]}>
+            <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
               <TouchableOpacity
-                style={[{ marginLeft: 'auto' }]}
-                onPress={handleHelpPress}
+                style={styles.backButton}
+                onPress={handleBack}
                 activeOpacity={0.7}
               >
-                <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+                <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
               </TouchableOpacity>
+
+              <View style={styles.headerContent}>
+                <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+                  {t('navigation.title.history_detail')}
+                </CustomText>
+                
+                {/* Help Icon */}
+                <TouchableOpacity
+                  style={[{ marginLeft: 'auto' }]}
+                  onPress={handleHelpPress}
+                  activeOpacity={0.7}
+                >
+                  <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </LinearGradient>
       </Animated.View>
-    <View style={styles.webViewContainer}>
-      {/* Loading Indicator */}
-      {isWebViewLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={currentTheme.mainColor} />
-          <CustomText type="middle" style={[styles.loadingText, { color: currentTheme.textSecondary }]}>
-            {t('common.loading', 'Loading...')}
-          </CustomText>
-        </View>
-      )}
 
-      {/* WebView */}
-      <WebView
-        ref={webViewRef}
-        source={{ uri: share_url }}
-        style={styles.webView}
-        onLoadEnd={handleWebViewLoadEnd}
-        onError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.error('❌ [MessageDetailOverlay] WebView error:', nativeEvent);
-          setIsWebViewLoading(false);
-        }}
-        // ⭐ Media playback settings
-        allowsInlineMediaPlayback={true}
-        mediaPlaybackRequiresUserAction={false}
-        // ⭐ Performance settings
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={false}
-        // ⭐ iOS settings
-        allowsBackForwardNavigationGestures={false}
-        bounces={false}
-        // ⭐ Android settings
-        mixedContentMode="compatibility"
-        // ⭐ Disable zoom
-        scalesPageToFit={Platform.OS === 'android'}
-      />
-    </View>
+      {/* WebView Container */}
+      <View style={styles.webViewContainer}>
+        {/* Loading Indicator */}
+        {isWebViewLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={currentTheme.mainColor} />
+            <CustomText type="middle" style={[styles.loadingText, { color: currentTheme.textSecondary }]}>
+              {t('common.loading', 'Loading...')}
+            </CustomText>
+          </View>
+        )}
+
+        {/* WebView */}
+        <WebView
+          ref={webViewRef}
+          source={{ uri: share_url }}
+          style={styles.webView}
+          onLoadEnd={handleWebViewLoadEnd}
+          onError={(syntheticEvent) => {
+            const { nativeEvent } = syntheticEvent;
+            console.error('❌ [MessageDetailOverlay] WebView error:', nativeEvent);
+            setIsWebViewLoading(false);
+          }}
+          // ⭐ Media playback settings
+          allowsInlineMediaPlayback={true}
+          mediaPlaybackRequiresUserAction={false}
+          // ⭐ Performance settings
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={false}
+          // ⭐ iOS settings
+          allowsBackForwardNavigationGestures={false}
+          bounces={false}
+          // ⭐ Android settings
+          mixedContentMode="compatibility"
+          // ⭐ Disable zoom
+          scalesPageToFit={Platform.OS === 'android'}
+        />
+      </View>
     </View>
   );
 
@@ -443,7 +450,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerGradientContainer: {
-    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 10000, // ⭐ Above WebView
   },
   headerGradient: {
@@ -470,10 +480,8 @@ const styles = StyleSheet.create({
     marginBottom: scale(2),
   },
   webViewContainer: {
-
+    flex: 1,
     backgroundColor: COLORS.BACKGROUND || '#000',
-    height: '100%',
-    width: '100%',
   },
   webView: {
     flex: 1,
