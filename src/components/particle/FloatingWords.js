@@ -58,8 +58,8 @@ const FloatingWord = ({
       delay,
       withRepeat(
         withTiming(-100, {
-          duration: riseDuration, // ⭐ Each word has different speed
-          easing: Easing.linear,
+          duration: riseDuration, // ⭐ Each word has different speed (12~22s, same as web)
+          easing: Easing.inOut(Easing.ease), // ⭐ Smooth easing (same as web's easeInOut)
         }),
         -1,
         false
@@ -124,7 +124,7 @@ const FloatingWord = ({
       {/* ⭐ Removed View wrapper (wordBubble) - no background/border needed! */}
       <CustomText 
         style={[styles.wordText, { 
-          fontSize: size + 4, // ⭐ Slightly bigger
+          fontSize: size + 1, // ⭐ Slightly bigger (same as web)
           color: color, // ⭐ Use vibrant color directly
         }]}
       >
@@ -136,24 +136,20 @@ const FloatingWord = ({
 
 // Main FloatingWords component
 const FloatingWords = ({ words = ['사랑해', '고마워'] }) => {
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('💬 [FloatingWords] Rendering with words:', words);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-  // Generate word particles (3-5 instances per word)
-  const wordParticles = Array.from({ length: 15 }, (_, i) => ({
+  // Generate word particles (2-3 instances per word, optimized for performance)
+  const wordParticles = Array.from({ length: 12 }, (_, i) => ({
     key: i,
     word: words[Math.floor(Math.random() * words.length)],
     delay: Math.random() * 4000,
     startX: Math.random() * SCREEN_WIDTH,
     size: 18,
     color: COLORS[i % COLORS.length],
-    // ⭐ NEW: Each word has unique animation properties!
-    riseDuration: 5000 + Math.random() * 4000,      // 5~9초 (각자 다름!)
-    swingAmplitude: (Math.random() * 40 - 20),      // -20 ~ 20 (각자 다름!)
-    swingDuration: 2000 + Math.random() * 3000,     // 2~5초 (각자 다름!)
-    pulseScale: 1.05 + Math.random() * 0.15,        // 1.05~1.2 (각자 다름!)
-    pulseDuration: 1500 + Math.random() * 2000,     // 1.5~3.5초 (각자 다름!)
+    // Each word has unique animation properties for natural, organic movement (same as web)
+    riseDuration: 12000 + Math.random() * 10000,    // 12~22s (slow, natural rise - same as web)
+    swingAmplitude: (Math.random() * 20 - 10),      // -10 ~ 10 (gentle sway - same as web)
+    swingDuration: 5000 + Math.random() * 5000,     // 5~10s (slow swing - same as web)
+    pulseScale: 1.03 + Math.random() * 0.07,        // 1.03~1.1 (subtle pulse - same as web)
+    pulseDuration: 3000 + Math.random() * 4000,     // 3~7s (slow pulse - same as web)
   }));
 
   return (

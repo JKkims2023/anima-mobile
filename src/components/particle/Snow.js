@@ -1,17 +1,18 @@
 /**
- * ❄️ Snow / Sakura / Leaves Particle Effect
+ * ❄️ Snow / Sakura / Leaves / Beer Bottles Particle Effect
  * 
  * Gentle particles falling from top
  * Supports multiple variants:
  * - snow: White snowflakes ❄️
  * - sakura: Pink cherry blossoms 🌸
  * - leaves: Orange/brown autumn leaves 🍂
+ * - beer_bottles: Beer bottles & drinks 🍺🍻🍾🍷 (emoji)
  * 
  * @author JK & Hero Nexus AI
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -29,19 +30,26 @@ const VARIANTS = {
   snow: {
     icon: 'snowflake',
     color: '#FFFFFF',
+    useEmoji: false,
   },
   sakura: {
     icon: 'flower',
     color: '#FFB7C5', // Pink cherry blossom
+    useEmoji: false,
   },
   leaves: {
     icon: 'leaf',
     color: '#D2691E', // Chocolate brown / autumn orange
+    useEmoji: false,
+  },
+  beer_bottles: {
+    emojis: ['🍺', '🍻', '🍾', '🍷', '🥂', '🍶'], // ⭐ Beer, wine, sake, champagne
+    useEmoji: true,
   },
 };
 
-// Single particle (snowflake / sakura / leaf)
-const Snowflake = ({ delay = 0, startX, size, icon, color }) => {
+// Single particle (snowflake / sakura / leaf / emoji)
+const Snowflake = ({ delay = 0, startX, size, icon, color, emoji, useEmoji = false }) => {
   const translateY = useSharedValue(-50);
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
@@ -107,7 +115,13 @@ const Snowflake = ({ delay = 0, startX, size, icon, color }) => {
         },
       ]}
     >
-      <Icon name={icon} size={size} color={color} />
+      {useEmoji ? (
+        <Text style={{ fontSize: size }}>
+          {emoji}
+        </Text>
+      ) : (
+        <Icon name={icon} size={size} color={color} />
+      )}
     </Animated.View>
   );
 };
@@ -118,17 +132,31 @@ const Snow = ({ variant = 'snow' }) => {
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('❄️ [Snow] Rendering with variant:', variant);
-  console.log('  - icon:', config.icon);
-  console.log('  - color:', config.color);
+  console.log('  - useEmoji:', config.useEmoji);
+  if (config.useEmoji) {
+    console.log('  - emojis:', config.emojis);
+  } else {
+    console.log('  - icon:', config.icon);
+    console.log('  - color:', config.color);
+  }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  // Generate 25 particles
-  const particles = Array.from({ length: 25 }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 4000,
-    startX: Math.random() * SCREEN_WIDTH,
-    size: 15 + Math.random() * 10,
-  }));
+  // Generate 25 particles (or 30 for beer bottles for more festive effect)
+  const particleCount = config.useEmoji ? 30 : 25;
+  const particles = Array.from({ length: particleCount }, (_, i) => {
+    // For emoji variants, randomly select an emoji for each particle
+    const emoji = config.useEmoji 
+      ? config.emojis[Math.floor(Math.random() * config.emojis.length)]
+      : null;
+    
+    return {
+      key: i,
+      delay: Math.random() * 4000,
+      startX: Math.random() * SCREEN_WIDTH,
+      size: config.useEmoji ? (25 + Math.random() * 15) : (15 + Math.random() * 10), // Larger for emojis
+      emoji,
+    };
+  });
 
   return (
     <View style={styles.container}>
@@ -140,6 +168,8 @@ const Snow = ({ variant = 'snow' }) => {
           size={particle.size}
           icon={config.icon}
           color={config.color}
+          emoji={particle.emoji}
+          useEmoji={config.useEmoji}
         />
       ))}
     </View>

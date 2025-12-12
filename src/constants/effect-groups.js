@@ -673,11 +673,11 @@ export const ACTIVE_EFFECT_GROUPS = [
         id: 'cheers_toast', 
         label: () => t('effects.particle.cheers_toast', '건배'),
         emoji: '🍻',
-        description: '술잔이 부딪치며 건배',
+        description: '건배 후 술병이 떨어지는 축제', // ⭐ Updated: Shows combo effect
         mood: 'social',
         isNew: true,
-        recommended: true, // ⭐ First food effect!
-        isLottie: true, // ⭐ CRITICAL: This is a Lottie animation
+        recommended: true,
+        isLottie: true, // ⭐ Lottie + Particle combo
       },
       // ⭐ Reserved for future food/drink effects:
       // - coffee_steam (커피 김)
