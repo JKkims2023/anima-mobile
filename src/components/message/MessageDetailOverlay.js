@@ -308,18 +308,15 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // Front View (WebView - Message)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFront = () => (
-    <View style={StyleSheet.absoluteFill}>
+    <View style={styles.frontContainer}>
       {/* Header with LinearGradient Background */}
-      <Animated.View style={[
-        styles.headerGradientContainer, 
-        { paddingTop: insets.top }
-      ]}>
+      <View style={[styles.headerGradientContainer, { paddingTop: insets.top }]}>
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
           locations={[0, 0.6, 1]}
           style={styles.headerGradient}
         >
-          <View style={[styles.header]}>
+          <View style={styles.header}>
             <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
               <TouchableOpacity
                 style={styles.backButton}
@@ -346,9 +343,9 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
             </View>
           </View>
         </LinearGradient>
-      </Animated.View>
+      </View>
 
-      {/* WebView Container */}
+      {/* WebView Container - Takes remaining space */}
       <View style={styles.webViewContainer}>
         {/* Loading Indicator */}
         {isWebViewLoading && (
@@ -449,12 +446,15 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  frontContainer: {
+    flex: 1,
+    flexDirection: 'column', // ⭐ Column layout
+    backgroundColor: COLORS.BACKGROUND || '#000',
+  },
   headerGradientContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10000, // ⭐ Above WebView
+    // ⭐ NOT absolute - takes space in column layout
+    width: '100%',
+    zIndex: 1000,
   },
   headerGradient: {
     paddingBottom: verticalScale(20),
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(2),
   },
   webViewContainer: {
-    flex: 1,
+    flex: 1, // ⭐ Takes remaining space after header
     backgroundColor: COLORS.BACKGROUND || '#000',
   },
   webView: {
