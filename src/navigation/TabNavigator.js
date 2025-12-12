@@ -14,6 +14,7 @@ import HistoryScreen from '../screens/HistoryScreen'; // ⭐ NEW: Message Histor
 import MessageDetailScreen from '../screens/MessageDetailScreen'; // ⭐ NEW: Message Detail
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import WebViewScreen from '../screens/WebViewScreen'; // ⭐ NEW: WebView for Terms, Privacy, About
 
 // Import Custom TabBar
 import CustomTabBar from '../components/navigation/CustomTabBar';
@@ -45,6 +46,29 @@ const HistoryStack = () => {
       <Stack.Screen 
         name="MessageDetail" 
         component={MessageDetailScreen}
+      />
+    </Stack.Navigator>
+  );
+};
+
+/**
+ * ⭐ NEW: SettingsStack - Stack Navigator for Settings Tab
+ * Allows navigation from SettingsScreen -> WebViewScreen
+ */
+const SettingsStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen 
+        name="SettingsList" 
+        component={SettingsScreen}
+      />
+      <Stack.Screen 
+        name="WebView" 
+        component={WebViewScreen}
       />
     </Stack.Navigator>
   );
@@ -124,12 +148,21 @@ const TabNavigator = () => {
       />
      
       
-      {/* Tab 5: Settings */}
+      {/* Tab 5: Settings (with Stack) */}
       <Tab.Screen 
         name="Settings" 
-        component={SettingsScreen}
-        options={{ 
-          title: t('navigation.settings') || '설정',
+        component={SettingsStack}
+        options={({ route }) => {
+          // Get the currently active route name in the stack
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'SettingsList';
+          
+          return {
+            title: t('navigation.settings') || '설정',
+            // Hide tab bar when in WebView screen
+            tabBarStyle: routeName === 'WebView' 
+              ? { display: 'none' } 
+              : undefined,
+          };
         }}
       />
     </Tab.Navigator>

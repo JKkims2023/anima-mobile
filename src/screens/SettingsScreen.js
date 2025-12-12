@@ -35,7 +35,7 @@ import { COLORS } from '../styles/commonstyles';
 /**
  * ⚙️ SettingsScreen Component
  */
-const SettingsScreen = () => {
+const SettingsScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated, loading: userLoading, logout } = useUser();
@@ -184,20 +184,26 @@ const SettingsScreen = () => {
 
   // ✅ Handle Terms press
   const handleTermsPress = () => {
-    // TODO: Navigate to Terms screen or open web link
-    Alert.alert(
-      t('settings.terms.service_terms'),
-      t('settings.terms.coming_soon')
-    );
+    HapticService.light();
+    navigation.navigate('WebView', { type: 'terms' });
   };
 
   // ✅ Handle Privacy Policy press
   const handlePrivacyPress = () => {
-    // TODO: Navigate to Privacy Policy screen or open web link
-    Alert.alert(
-      t('settings.terms.privacy_policy'),
-      t('settings.terms.coming_soon')
-    );
+    HapticService.light();
+    navigation.navigate('WebView', { type: 'privacy' });
+  };
+  
+  // ⭐ NEW: Handle Service Introduction press
+  const handleServiceIntroPress = () => {
+    HapticService.light();
+    navigation.navigate('WebView', { type: 'service_intro' });
+  };
+  
+  // ⭐ NEW: Handle App Info press
+  const handleAppInfoPress = () => {
+    HapticService.light();
+    navigation.navigate('WebView', { type: 'app_info' });
   };
 
   // ✅ If NOT authenticated, show FULL-SCREEN login
@@ -322,7 +328,27 @@ const SettingsScreen = () => {
             </SettingsCard>
 
             {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            {/* 4️⃣ Danger Zone */}
+            {/* 4️⃣ About ANIMA */}
+            {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+            <SettingsCard title={t('settings.about.title')}>
+              <SettingsItem
+                icon="💙"
+                title={t('settings.about.service_intro')}
+                description={t('settings.about.service_intro_description')}
+                onPress={handleServiceIntroPress}
+                showBorder={true}
+              />
+              <SettingsItem
+                icon="ℹ️"
+                title={t('settings.about.app_info')}
+                description={t('settings.about.app_info_description')}
+                onPress={handleAppInfoPress}
+                showBorder={false}
+              />
+            </SettingsCard>
+
+            {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+            {/* 5️⃣ Danger Zone */}
             {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
             <SettingsCard title={t('settings.danger.title')}>
               <View style={styles.dangerContent}>

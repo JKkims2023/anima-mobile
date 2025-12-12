@@ -1473,6 +1473,13 @@
       "privacy_policy_description": "개인정보 처리 및 보호 정책을 확인하세요",
       "coming_soon": "준비 중입니다. 곧 만나요!"
     },
+    "about": {
+      "title": "📖 서비스 소개",
+      "service_intro": "ANIMA 소개",
+      "service_intro_description": "Hero Nexus가 전하는 ANIMA 이야기",
+      "app_info": "앱 정보",
+      "app_info_description": "버전 및 개발자 정보"
+    },
     "danger": {
       "title": "⚠️ 위험 영역"
     },
