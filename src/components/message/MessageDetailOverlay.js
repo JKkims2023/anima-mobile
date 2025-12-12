@@ -308,6 +308,40 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
   // Front View (WebView - Message)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderFront = () => (
+
+    <View>
+      {/* Header with LinearGradient Background */}
+      <Animated.View style={[
+      styles.headerGradientContainer, 
+      { paddingTop: insets.top }
+      ]}>
+        <View style={[styles.header,  ]}>
+          <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBack}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={styles.headerContent}>
+              <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+                {t('navigation.title.history_detail')}
+              </CustomText>
+              
+              {/* Help Icon */}
+              <TouchableOpacity
+                style={[{ marginLeft: 'auto' }]}
+                onPress={handleHelpPress}
+                activeOpacity={0.7}
+              >
+                <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Animated.View>
     <View style={styles.webViewContainer}>
       {/* Loading Indicator */}
       {isWebViewLoading && (
@@ -346,6 +380,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         scalesPageToFit={Platform.OS === 'android'}
       />
     </View>
+    </View>
   );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -369,45 +404,6 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         front={renderFront()}
         back={renderBack()}
       />
-
-      {/* Header with LinearGradient Background */}
-      <Animated.View style={[
-        styles.headerGradientContainer, 
-        { paddingTop: insets.top }
-      ]}>
-        <LinearGradient
-          colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
-          locations={[0, 0.6, 1]}
-          style={styles.headerGradient}
-        >
-          <View style={[styles.header, { marginTop: insets.top + (Platform.OS === 'ios' ? verticalScale(10) : verticalScale(25)) }]}>
-            <View style={{flex: 1, flexDirection: 'row', marginTop: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(0)}}>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={handleBack}
-                activeOpacity={0.7}
-              >
-                <Icon name="arrow-back" size={scale(28)} color="#FFFFFF" />
-              </TouchableOpacity>
-
-              <View style={styles.headerContent}>
-                <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
-                  {t('navigation.title.history_detail')}
-                </CustomText>
-                
-                {/* Help Icon */}
-                <TouchableOpacity
-                  style={[{ marginLeft: 'auto' }]}
-                  onPress={handleHelpPress}
-                  activeOpacity={0.7}
-                >
-                  <Icon name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-      </Animated.View>
 
       {/* Quick Action Chips (우측 중앙) - Only visible when not flipped */}
       {!isFlipped && (
@@ -447,16 +443,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerGradientContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    width: '100%',
     zIndex: 10000, // ⭐ Above WebView
   },
   headerGradient: {
     paddingBottom: verticalScale(20),
   },
   header: {
+    marginTop: verticalScale(10),
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(20),
@@ -476,8 +470,10 @@ const styles = StyleSheet.create({
     marginBottom: scale(2),
   },
   webViewContainer: {
-    flex: 1,
+
     backgroundColor: COLORS.BACKGROUND || '#000',
+    height: '100%',
+    width: '100%',
   },
   webView: {
     flex: 1,
