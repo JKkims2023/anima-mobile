@@ -654,6 +654,15 @@ export const ACTIVE_EFFECT_GROUPS = [
         isNew: true,
         requiresCustomWords: true, // ⭐ CRITICAL: Requires user input
       },
+      { 
+        id: 'fading_messages', 
+        label: () => t('effects.particle.fading_messages', '잔잔한 문장'),
+        emoji: '💬✨',
+        description: '문장들이 순차적으로 나타났다 사라짐',
+        mood: 'emotional',
+        isNew: true,
+        requiresCustomWords: true, // ⭐ CRITICAL: Requires user input (sentences)
+      },
     ],
   },
 

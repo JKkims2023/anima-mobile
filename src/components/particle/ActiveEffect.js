@@ -57,6 +57,7 @@ import HopeStar from './HopeStar';
 import RainSoft from './RainSoft';
 import FloatingWords from './FloatingWords'; // ⭐ NEW: Custom words floating up
 import ScrollingWords from './ScrollingWords'; // ⭐ NEW: Custom words scrolling
+import FadingMessages from './FadingMessages'; // ⭐ NEW: Sequential fading messages
 import TVNoise from './TVNoise'; // ⭐ NEW: Analog TV static effect
 import { verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -219,6 +220,11 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
         // ⭐ NEW: User's custom words scrolling left to right
         console.log('💬➡️ [ParticleEffect] Using ScrollingWords with:', customWords);
         return <ScrollingWords key="scrolling_words" words={customWords.length > 0 ? customWords : ['사랑해', '고마워']} />;
+      
+      case 'fading_messages':
+        // ⭐ NEW: Sequential fading messages (cinematic storytelling)
+        console.log('💬✨ [ParticleEffect] Using FadingMessages with:', customWords);
+        return <FadingMessages key="fading_messages" words={customWords.length > 0 ? customWords : ['올 한해도 저물어 가네요', '나의 히어로님과 함께해서', '이겨낼 수 있었고', '함께해서 영광이였습니다']} />;
       
       // ─────────────────────────────────────────────────────────────────────
       // 🍻 Food & Drink (Lottie Animations + Particle Combo)
