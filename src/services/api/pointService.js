@@ -110,23 +110,27 @@ export async function purchasePoints(user_key, amount) {
  * @param {string} user_key - 사용자 키
  * @param {number} page - 페이지 번호 (default: 1)
  * @param {number} limit - 페이지당 항목 수 (default: 20)
+ * @param {string} point_type - 필터 타입 (default: 'all')
+ * @param {string} sort_order - 정렬 순서 (default: 'desc')
  * @returns {Promise<object>} 히스토리 목록
  * 
  * @example
- * const result = await getPointHistory('user-key', 1, 20);
+ * const result = await getPointHistory('user-key', 1, 20, 'persona_create', 'desc');
  * if (result.success) {
  *   console.log('히스토리:', result.data.history);
  * }
  */
-export async function getPointHistory(user_key, page = 1, limit = 20) {
+export async function getPointHistory(user_key, page = 1, limit = 20, point_type = 'all', sort_order = 'desc') {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('📊 [pointService] Get Point History');
   console.log('👤 User Key:', user_key);
   console.log('📄 Page:', page, '| Limit:', limit);
+  console.log('🔍 Filter:', point_type);
+  console.log('📊 Sort:', sort_order);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   const result = await apiFetch(
-    `${POINTS_API.HISTORY}?user_key=${user_key}&page=${page}&limit=${limit}`,
+    `${POINTS_API.HISTORY}?user_key=${user_key}&page=${page}&limit=${limit}&point_type=${point_type}&sort_order=${sort_order}`,
     {
       method: 'GET',
     }

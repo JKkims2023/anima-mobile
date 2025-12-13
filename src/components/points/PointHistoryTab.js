@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from '@react-navigation/native';
 import CustomText from '../CustomText';
@@ -20,6 +20,24 @@ import { useAnima } from '../../contexts/AnimaContext';
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import { getPointHistory } from '../../services/api/pointService';
+import HapticService from '../../utils/HapticService';
+
+// ⭐ Filter Options
+const FILTER_OPTIONS = [
+  { value: 'all', label: 'points.filter.all', emoji: '📊' },
+  { value: 'persona_create', label: 'points.filter.persona_create', emoji: '🎭' },
+  { value: 'video_convert', label: 'points.filter.video_convert', emoji: '🎬' },
+  { value: 'music_create', label: 'points.filter.music_create', emoji: '🎵' },
+  { value: 'premium_join', label: 'points.filter.premium', emoji: '👑' },
+  { value: 'point_gift', label: 'points.filter.gift_sent', emoji: '🎁' },
+  { value: 'point_received', label: 'points.filter.gift_received', emoji: '💝' },
+];
+
+// ⭐ Sort Options
+const SORT_OPTIONS = [
+  { value: 'desc', label: 'points.sort.newest', emoji: '⬇️' },
+  { value: 'asc', label: 'points.sort.oldest', emoji: '⬆️' },
+];
 
 /**
  * 📊 PointHistoryTab Component
@@ -37,6 +55,12 @@ const PointHistoryTab = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [hasError, setHasError] = useState(false);
+  
+  // ⭐ Filter & Sort State
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedSort, setSelectedSort] = useState('desc');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   
   // ⭐ Prevent infinite loop - 완전히 다른 방식
   const isLoadingRef = useRef(false);
@@ -64,8 +88,17 @@ const PointHistoryTab = () => {
   );
 
   // ✅ Load History
-  const loadHistory = async (pageNum = 1, isRefresh = false) => {
-    console.log('[PointHistoryTab] loadHistory called', { pageNum, isRefresh, isLoading: isLoadingRef.current });
+  const loadHistory = async (pageNum = 1, isRefresh = false, filterType = null, sortOrder = null) => {
+    const filter = filterType || selectedFilter;
+    const sort = sortOrder || selectedSort;
+    
+    console.log('[PointHistoryTab] loadHistory called', { 
+      pageNum, 
+      isRefresh, 
+      filter, 
+      sort,
+      isLoading: isLoadingRef.current 
+    });
     
     if (!user?.user_key) {
       console.log('[PointHistoryTab] No user_key, aborting');
@@ -90,7 +123,7 @@ const PointHistoryTab = () => {
     }
 
     try {
-      const result = await getPointHistory(user.user_key, pageNum, 20);
+      const result = await getPointHistory(user.user_key, pageNum, 20, filter, sort);
 
       if (result.success) {
         const newHistory = result.data.history || [];
@@ -141,6 +174,30 @@ const PointHistoryTab = () => {
       console.log('[PointHistoryTab] Loading more...');
       loadHistory(page + 1, false);
     }
+  };
+
+  // ⭐ Handle Filter Change
+  const handleFilterChange = (filter) => {
+    console.log('[PointHistoryTab] Filter changed:', filter);
+    HapticService.light();
+    setSelectedFilter(filter);
+    setShowFilterDropdown(false);
+    // Reset and reload
+    setHistory([]);
+    setPage(1);
+    loadHistory(1, false, filter, selectedSort);
+  };
+
+  // ⭐ Handle Sort Change
+  const handleSortChange = (sort) => {
+    console.log('[PointHistoryTab] Sort changed:', sort);
+    HapticService.light();
+    setSelectedSort(sort);
+    setShowSortDropdown(false);
+    // Reset and reload
+    setHistory([]);
+    setPage(1);
+    loadHistory(1, false, selectedFilter, sort);
   };
 
   // ✅ Render History Item
@@ -232,6 +289,130 @@ const PointHistoryTab = () => {
 
   return (
     <View style={styles.container}>
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Filter & Sort Bar */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <View style={styles.filterBar}>
+        {/* Filter Dropdown */}
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => {
+            HapticService.light();
+            setShowFilterDropdown(!showFilterDropdown);
+            setShowSortDropdown(false);
+          }}
+          activeOpacity={0.7}
+        >
+          <CustomText type="tiny" style={styles.filterButtonEmoji}>
+            {FILTER_OPTIONS.find(f => f.value === selectedFilter)?.emoji || '📊'}
+          </CustomText>
+          <CustomText type="small" style={styles.filterButtonText}>
+            {t(FILTER_OPTIONS.find(f => f.value === selectedFilter)?.label || 'points.filter.all')}
+          </CustomText>
+          <CustomText type="tiny" style={styles.filterButtonIcon}>
+            {showFilterDropdown ? '▲' : '▼'}
+          </CustomText>
+        </TouchableOpacity>
+
+        {/* Sort Dropdown */}
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => {
+            HapticService.light();
+            setShowSortDropdown(!showSortDropdown);
+            setShowFilterDropdown(false);
+          }}
+          activeOpacity={0.7}
+        >
+          <CustomText type="tiny" style={styles.filterButtonEmoji}>
+            {SORT_OPTIONS.find(s => s.value === selectedSort)?.emoji || '⬇️'}
+          </CustomText>
+          <CustomText type="small" style={styles.filterButtonText}>
+            {t(SORT_OPTIONS.find(s => s.value === selectedSort)?.label || 'points.sort.newest')}
+          </CustomText>
+          <CustomText type="tiny" style={styles.filterButtonIcon}>
+            {showSortDropdown ? '▲' : '▼'}
+          </CustomText>
+        </TouchableOpacity>
+      </View>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Filter Dropdown Menu */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {showFilterDropdown && (
+        <View style={styles.dropdownMenu}>
+          {FILTER_OPTIONS.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.dropdownItem,
+                selectedFilter === option.value && styles.dropdownItemActive,
+              ]}
+              onPress={() => handleFilterChange(option.value)}
+              activeOpacity={0.7}
+            >
+              <CustomText type="normal" style={styles.dropdownItemEmoji}>
+                {option.emoji}
+              </CustomText>
+              <CustomText
+                type="normal"
+                style={[
+                  styles.dropdownItemText,
+                  selectedFilter === option.value && styles.dropdownItemTextActive,
+                ]}
+              >
+                {t(option.label)}
+              </CustomText>
+              {selectedFilter === option.value && (
+                <CustomText type="normal" style={styles.dropdownItemCheck}>
+                  ✓
+                </CustomText>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Sort Dropdown Menu */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {showSortDropdown && (
+        <View style={styles.dropdownMenu}>
+          {SORT_OPTIONS.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.dropdownItem,
+                selectedSort === option.value && styles.dropdownItemActive,
+              ]}
+              onPress={() => handleSortChange(option.value)}
+              activeOpacity={0.7}
+            >
+              <CustomText type="normal" style={styles.dropdownItemEmoji}>
+                {option.emoji}
+              </CustomText>
+              <CustomText
+                type="normal"
+                style={[
+                  styles.dropdownItemText,
+                  selectedSort === option.value && styles.dropdownItemTextActive,
+                ]}
+              >
+                {t(option.label)}
+              </CustomText>
+              {selectedSort === option.value && (
+                <CustomText type="normal" style={styles.dropdownItemCheck}>
+                  ✓
+                </CustomText>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* History List */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {loading && page === 1 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
@@ -271,6 +452,81 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: platformPadding(20),
     paddingBottom: platformPadding(40),
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Filter & Sort Bar
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  filterBar: {
+    flexDirection: 'row',
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: platformPadding(12),
+    gap: scale(12),
+  },
+  filterButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: moderateScale(10),
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(96, 165, 250, 0.3)',
+  },
+  filterButtonEmoji: {
+    fontSize: moderateScale(18),
+    marginRight: scale(6),
+  },
+  filterButtonText: {
+    color: COLORS.TEXT_PRIMARY,
+    flex: 1,
+  },
+  filterButtonIcon: {
+    color: COLORS.DEEP_BLUE,
+    fontSize: moderateScale(12),
+    marginLeft: scale(4),
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Dropdown Menu
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  dropdownMenu: {
+    marginHorizontal: platformPadding(20),
+    marginBottom: platformPadding(12),
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(96, 165, 250, 0.4)',
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: platformPadding(14),
+    paddingHorizontal: scale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  dropdownItemActive: {
+    backgroundColor: 'rgba(96, 165, 250, 0.15)',
+  },
+  dropdownItemEmoji: {
+    fontSize: moderateScale(20),
+    marginRight: scale(12),
+  },
+  dropdownItemText: {
+    flex: 1,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  dropdownItemTextActive: {
+    color: COLORS.DEEP_BLUE,
+    fontWeight: '600',
+  },
+  dropdownItemCheck: {
+    color: COLORS.DEEP_BLUE,
+    fontSize: moderateScale(18),
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

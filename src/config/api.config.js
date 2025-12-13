@@ -16,7 +16,7 @@
  * Production: idol-companion backend URL
  * Development: Can be overridden with environment variable
  */
-export const API_BASE_URL = process.env.API_BASE_URL || 'https://idol-companion.com';
+export const API_BASE_URL = process.env.API_BASE_URL || 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app';
 
 // ==================== API Endpoints ====================
 

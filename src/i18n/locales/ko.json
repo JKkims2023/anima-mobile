@@ -2194,6 +2194,19 @@
       "premium_cancel": "프리미엄 취소",
       "point_gift": "포인트 선물",
       "point_received": "포인트 받음"
+    },
+    "filter": {
+      "all": "전체",
+      "persona_create": "페르소나 생성",
+      "video_convert": "영상 전환",
+      "music_create": "음원 생성",
+      "premium": "프리미엄 업그레이드",
+      "gift_sent": "포인트 선물(제공)",
+      "gift_received": "포인트 선물(받음)"
+    },
+    "sort": {
+      "newest": "최신순",
+      "oldest": "오래된순"
     }
   }
 }

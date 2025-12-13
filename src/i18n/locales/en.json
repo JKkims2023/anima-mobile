@@ -2173,6 +2173,19 @@
       "premium_cancel": "Premium Cancelled",
       "point_gift": "Points Gifted",
       "point_received": "Points Received"
+    },
+    "filter": {
+      "all": "All",
+      "persona_create": "Persona",
+      "video_convert": "Video",
+      "music_create": "Music",
+      "premium": "Premium",
+      "gift_sent": "Gifted",
+      "gift_received": "Received"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest"
     }
   }
 }
