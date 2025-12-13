@@ -40,15 +40,21 @@ const PointsScreen = ({ navigation }) => {
   // ✅ Tab state
   const [activeTab, setActiveTab] = useState('purchase'); // 'purchase' | 'history'
 
-  // ✅ Refresh user data when screen is focused
+  // ✅ Refresh user data when screen is focused (한 번만!)
   useFocusEffect(
     useCallback(() => {
-      if (user && refreshUser) {
+      console.log('[PointsScreen] Screen focused - refreshing user data');
+      if (refreshUser) {
         refreshUser().catch(err => {
           console.warn('[PointsScreen] Failed to refresh user:', err);
         });
       }
-    }, [user, refreshUser])
+      
+      // Cleanup on unfocus
+      return () => {
+        console.log('[PointsScreen] Screen unfocused');
+      };
+    }, []) // ⭐ 빈 배열! user, refreshUser 의존성 제거
   );
 
   // ✅ Handle Tab Change

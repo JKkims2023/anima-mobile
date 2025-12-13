@@ -9,9 +9,10 @@
  * @author JK & Hero Nexus
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 import CustomText from '../CustomText';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
@@ -31,30 +32,45 @@ const PointHistoryTab = () => {
 
   // ✅ State
   const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [hasError, setHasError] = useState(false);
   
-  // ⭐ Prevent infinite loop
-  const loadedRef = useRef(false);
+  // ⭐ Prevent infinite loop - 완전히 다른 방식
   const isLoadingRef = useRef(false);
+  const hasLoadedOnceRef = useRef(false);
 
-  // ✅ Load History on Mount
-  useEffect(() => {
-    // ⭐ Prevent multiple loads
-    if (!user?.user_key || loadedRef.current || isLoadingRef.current) {
-      return;
-    }
-    
-    loadedRef.current = true;
-    loadHistory();
-  }, [user?.user_key]);
+  // ✅ Load History on Focus (React Navigation)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('[PointHistoryTab] Tab focused');
+      
+      // ⭐ 첫 로딩만 자동으로, 이후는 Pull-to-Refresh만
+      if (!hasLoadedOnceRef.current && user?.user_key) {
+        console.log('[PointHistoryTab] First load - auto loading');
+        hasLoadedOnceRef.current = true;
+        loadHistory();
+      } else {
+        console.log('[PointHistoryTab] Already loaded - use Pull-to-Refresh');
+      }
+
+      // Cleanup on unfocus
+      return () => {
+        console.log('[PointHistoryTab] Tab unfocused');
+      };
+    }, []) // ⭐ 빈 배열! user 의존성 제거
+  );
 
   // ✅ Load History
   const loadHistory = async (pageNum = 1, isRefresh = false) => {
+    console.log('[PointHistoryTab] loadHistory called', { pageNum, isRefresh, isLoading: isLoadingRef.current });
+    
     if (!user?.user_key) {
+      console.log('[PointHistoryTab] No user_key, aborting');
       setLoading(false);
+      setHasError(true);
       return;
     }
 
@@ -65,6 +81,7 @@ const PointHistoryTab = () => {
     }
 
     isLoadingRef.current = true;
+    setHasError(false);
 
     if (isRefresh) {
       setRefreshing(true);
@@ -86,35 +103,42 @@ const PointHistoryTab = () => {
 
         setHasMore(result.data.pagination?.has_next || false);
         setPage(pageNum);
+        setHasError(false);
+        
+        console.log('[PointHistoryTab] History loaded successfully:', newHistory.length, 'items');
       } else {
         throw new Error(result.message);
       }
     } catch (error) {
       console.error('[PointHistoryTab] Load error:', error);
+      setHasError(true);
       
-      // ⭐ Only show error toast, don't retry automatically
-      showToast({
-        type: 'error',
-        emoji: '❌',
-        message: t('points.history_error', '히스토리를 불러오지 못했습니다'),
-      });
+      // ⭐ Only show error toast once, don't retry automatically
+      if (!hasError) {
+        showToast({
+          type: 'error',
+          emoji: '❌',
+          message: t('points.history_error', '히스토리를 불러오지 못했습니다'),
+        });
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
       isLoadingRef.current = false;
+      console.log('[PointHistoryTab] loadHistory finished');
     }
   };
 
   // ✅ Handle Refresh
   const handleRefresh = () => {
-    // ⭐ Reset loaded flag to allow refresh
-    loadedRef.current = false;
+    console.log('[PointHistoryTab] Manual refresh triggered');
     loadHistory(1, true);
   };
 
   // ✅ Handle Load More
   const handleLoadMore = () => {
-    if (!loading && !isLoadingRef.current && hasMore) {
+    if (!loading && !isLoadingRef.current && hasMore && !hasError) {
+      console.log('[PointHistoryTab] Loading more...');
       loadHistory(page + 1, false);
     }
   };
