@@ -1627,16 +1627,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent', // Transparent but clickable
   },
   
-  // ⭐ NEW: Category Dropdown Overlay (ANIMA 감성 - PointHistoryTab과 동일)
+  // ⭐ NEW: Category Dropdown Overlay (ANIMA 감성 - 진한 블루 배경)
   categoryDropdown: {
     position: 'absolute',
     top: verticalScale(100),
     right: platformPadding(20),
     width: scale(200),
-    backgroundColor: 'rgba(255, 255, 255, 0.08)', // ⭐ 불투명 배경
+    backgroundColor: 'rgba(13, 17, 23, 0.95)', // ⭐ 진한 배경 (이미지/비디오 위에서도 잘 보임)
     borderRadius: scale(12),
     borderWidth: 1,
-    borderColor: 'rgba(96, 165, 250, 0.4)', // ⭐ ANIMA 감성 테두리
+    borderColor: 'rgba(96, 165, 250, 0.5)', // ⭐ ANIMA 감성 블루 테두리
     overflow: 'hidden',
     zIndex: 1000,
     elevation: 5,
