@@ -254,12 +254,7 @@ const SettingsScreen = ({ navigation }) => {
   // ⭐ NEW: Handle Point Purchase press
   const handlePointPurchasePress = () => {
     HapticService.light();
-    // TODO: Navigate to Point Purchase screen or open payment overlay
-    showToast({
-      type: 'info',
-      emoji: '💰',
-      message: t('settings.points.purchase_coming_soon'),
-    });
+    navigation.navigate('Points');
   };
 
   // ✅ If NOT authenticated, show FULL-SCREEN login

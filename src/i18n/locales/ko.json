@@ -2165,5 +2165,35 @@
       "message": "포인트가 부족합니다. 포인트를 충전하세요.",
       "move_to_payment": "포인트 충전"
     }
+  },
+  "points": {
+    "title": "포인트",
+    "my_points": "보유 포인트",
+    "purchase_tab": "충전",
+    "history_tab": "히스토리",
+    "select_amount": "충전할 금액을 선택하세요",
+    "select_package": "충전할 포인트를 선택해주세요",
+    "purchase": "충전하기",
+    "purchasing": "충전 중...",
+    "purchase_button": "{{amount}} P 충전하기",
+    "purchase_confirm_title": "포인트 충전",
+    "purchase_confirm_message": "{{amount}} P를 충전하시겠습니까?",
+    "purchase_success": "{{amount}} P가 충전되었습니다!",
+    "purchase_error": "충전에 실패했습니다",
+    "info": "포인트는 페르소나 생성, 음원 제작 등에 사용됩니다",
+    "history_empty_title": "아직 히스토리가 없습니다",
+    "history_empty_description": "포인트를 충전하거나 사용하면\n여기에 표시됩니다",
+    "history_error": "히스토리를 불러오지 못했습니다",
+    "loading_history": "히스토리를 불러오는 중...",
+    "type": {
+      "persona_create": "페르소나 생성",
+      "video_convert": "영상 전환",
+      "music_create": "음원 생성",
+      "point_purchase": "포인트 충전",
+      "premium_join": "프리미엄 가입",
+      "premium_cancel": "프리미엄 취소",
+      "point_gift": "포인트 선물",
+      "point_received": "포인트 받음"
+    }
   }
 }

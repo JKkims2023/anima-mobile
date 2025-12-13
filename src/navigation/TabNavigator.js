@@ -15,6 +15,7 @@ import MessageDetailScreen from '../screens/MessageDetailScreen'; // ⭐ NEW: Me
 import PeekScreen from '../screens/PeekScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import WebViewScreen from '../screens/WebViewScreen'; // ⭐ NEW: WebView for Terms, Privacy, About
+import PointsScreen from '../screens/PointsScreen'; // ⭐ NEW: Points Purchase & History
 
 // Import Custom TabBar
 import CustomTabBar from '../components/navigation/CustomTabBar';
@@ -53,7 +54,7 @@ const HistoryStack = () => {
 
 /**
  * ⭐ NEW: SettingsStack - Stack Navigator for Settings Tab
- * Allows navigation from SettingsScreen -> WebViewScreen
+ * Allows navigation from SettingsScreen -> WebViewScreen, PointsScreen
  */
 const SettingsStack = () => {
   return (
@@ -69,6 +70,10 @@ const SettingsStack = () => {
       <Stack.Screen 
         name="WebView" 
         component={WebViewScreen}
+      />
+      <Stack.Screen 
+        name="Points" 
+        component={PointsScreen}
       />
     </Stack.Navigator>
   );
@@ -158,8 +163,8 @@ const TabNavigator = () => {
           
           return {
             title: t('navigation.settings') || '설정',
-            // Hide tab bar when in WebView screen
-            tabBarStyle: routeName === 'WebView' 
+            // Hide tab bar when in WebView or Points screen
+            tabBarStyle: (routeName === 'WebView' || routeName === 'Points')
               ? { display: 'none' } 
               : undefined,
           };

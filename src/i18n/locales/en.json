@@ -2144,6 +2144,36 @@
     "background": "Background",
     "active": "Effects",
     "music": "Music"
+  },
+  "points": {
+    "title": "Points",
+    "my_points": "My Points",
+    "purchase_tab": "Purchase",
+    "history_tab": "History",
+    "select_amount": "Select amount to purchase",
+    "select_package": "Please select points to purchase",
+    "purchase": "Purchase",
+    "purchasing": "Purchasing...",
+    "purchase_button": "Purchase {{amount}} P",
+    "purchase_confirm_title": "Point Purchase",
+    "purchase_confirm_message": "Would you like to purchase {{amount}} P?",
+    "purchase_success": "{{amount}} P has been added!",
+    "purchase_error": "Purchase failed",
+    "info": "Points are used for persona creation, music generation, etc.",
+    "history_empty_title": "No history yet",
+    "history_empty_description": "Your purchase and usage history\nwill appear here",
+    "history_error": "Failed to load history",
+    "loading_history": "Loading history...",
+    "type": {
+      "persona_create": "Persona Created",
+      "video_convert": "Video Converted",
+      "music_create": "Music Created",
+      "point_purchase": "Points Purchased",
+      "premium_join": "Premium Joined",
+      "premium_cancel": "Premium Cancelled",
+      "point_gift": "Points Gifted",
+      "point_received": "Points Received"
+    }
   }
 }
 
