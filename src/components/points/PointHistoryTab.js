@@ -9,7 +9,7 @@
  * @author JK & Hero Nexus
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import CustomText from '../CustomText';
@@ -35,15 +35,36 @@ const PointHistoryTab = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  
+  // ⭐ Prevent infinite loop
+  const loadedRef = useRef(false);
+  const isLoadingRef = useRef(false);
 
   // ✅ Load History on Mount
   useEffect(() => {
+    // ⭐ Prevent multiple loads
+    if (!user?.user_key || loadedRef.current || isLoadingRef.current) {
+      return;
+    }
+    
+    loadedRef.current = true;
     loadHistory();
-  }, []);
+  }, [user?.user_key]);
 
   // ✅ Load History
   const loadHistory = async (pageNum = 1, isRefresh = false) => {
-    if (!user?.user_key) return;
+    if (!user?.user_key) {
+      setLoading(false);
+      return;
+    }
+
+    // ⭐ Prevent multiple simultaneous loads
+    if (isLoadingRef.current) {
+      console.log('[PointHistoryTab] Already loading, skipping...');
+      return;
+    }
+
+    isLoadingRef.current = true;
 
     if (isRefresh) {
       setRefreshing(true);
@@ -70,6 +91,8 @@ const PointHistoryTab = () => {
       }
     } catch (error) {
       console.error('[PointHistoryTab] Load error:', error);
+      
+      // ⭐ Only show error toast, don't retry automatically
       showToast({
         type: 'error',
         emoji: '❌',
@@ -78,17 +101,20 @@ const PointHistoryTab = () => {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      isLoadingRef.current = false;
     }
   };
 
   // ✅ Handle Refresh
   const handleRefresh = () => {
+    // ⭐ Reset loaded flag to allow refresh
+    loadedRef.current = false;
     loadHistory(1, true);
   };
 
   // ✅ Handle Load More
   const handleLoadMore = () => {
-    if (!loading && hasMore) {
+    if (!loading && !isLoadingRef.current && hasMore) {
       loadHistory(page + 1, false);
     }
   };

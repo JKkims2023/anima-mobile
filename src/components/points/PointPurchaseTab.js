@@ -57,18 +57,18 @@ const PointPurchaseTab = () => {
   const { showToast, showAlert } = useAnima();
 
   // ✅ State
-  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0); // ⭐ 누적 금액
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle Package Select
+  // ✅ Handle Package Select (누적)
   const handlePackageSelect = (amount) => {
     HapticService.light();
-    setSelectedAmount(amount);
+    setTotalAmount(prev => prev + amount); // ⭐ 누적!
   };
 
   // ✅ Handle Purchase
   const handlePurchase = async () => {
-    if (!selectedAmount) {
+    if (!totalAmount || totalAmount === 0) {
       showToast({
         type: 'info',
         emoji: '💡',
@@ -80,7 +80,7 @@ const PointPurchaseTab = () => {
     // Show confirmation
     showAlert({
       title: t('points.purchase_confirm_title', '포인트 충전'),
-      message: t('points.purchase_confirm_message', `${selectedAmount.toLocaleString()} P를 충전하시겠습니까?`),
+      message: t('points.purchase_confirm_message', `${totalAmount.toLocaleString()} P를 충전하시겠습니까?`),
       emoji: '💰',
       buttons: [
         {
@@ -95,6 +95,12 @@ const PointPurchaseTab = () => {
         },
       ],
     });
+  };
+
+  // ⭐ Handle Reset (초기화)
+  const handleReset = () => {
+    HapticService.light();
+    setTotalAmount(0);
   };
 
   // ✅ Execute Purchase
@@ -112,7 +118,7 @@ const PointPurchaseTab = () => {
     HapticService.medium();
 
     try {
-      const result = await purchasePoints(user.user_key, selectedAmount);
+      const result = await purchasePoints(user.user_key, totalAmount);
 
       if (result.success) {
         // ✅ Success!
@@ -124,11 +130,11 @@ const PointPurchaseTab = () => {
         showToast({
           type: 'success',
           emoji: '🎉',
-          message: t('points.purchase_success', `${selectedAmount.toLocaleString()} P가 충전되었습니다!`),
+          message: t('points.purchase_success', `${totalAmount.toLocaleString()} P가 충전되었습니다!`),
         });
 
-        // Reset selection
-        setSelectedAmount(null);
+        // Reset total
+        setTotalAmount(0);
       } else {
         throw new Error(result.message);
       }
@@ -159,15 +165,33 @@ const PointPurchaseTab = () => {
         {t('points.select_amount', '충전할 금액을 선택하세요')}
       </CustomText>
 
+      {/* ⭐ 누적 금액 표시 */}
+      {totalAmount > 0 && (
+        <View style={styles.totalAmountCard}>
+          <View style={styles.totalAmountHeader}>
+            <CustomText type="normal" style={styles.totalAmountLabel}>
+              💰 충전할 포인트
+            </CustomText>
+            <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
+              <CustomText type="tiny" style={styles.resetButtonText}>
+                초기화
+              </CustomText>
+            </TouchableOpacity>
+          </View>
+          <CustomText type="huge" bold style={styles.totalAmountValue}>
+            {totalAmount.toLocaleString()} P
+          </CustomText>
+        </View>
+      )}
+
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* Packages */}
+      {/* Packages (누적 방식) */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {POINT_PACKAGES.map((pkg) => (
         <TouchableOpacity
           key={pkg.amount}
           style={[
             styles.packageCard,
-            selectedAmount === pkg.amount && styles.packageCardSelected,
             { borderColor: pkg.color },
           ]}
           onPress={() => handlePackageSelect(pkg.amount)}
@@ -193,19 +217,10 @@ const PointPurchaseTab = () => {
                 {pkg.label}
               </CustomText>
               <CustomText type="big" bold style={[styles.packageAmount, { color: pkg.color }]}>
-                {pkg.amount.toLocaleString()} P
+                +{pkg.amount.toLocaleString()} P
               </CustomText>
             </View>
           </View>
-
-          {/* Checkmark */}
-          {selectedAmount === pkg.amount && (
-            <View style={[styles.checkmark, { backgroundColor: pkg.color }]}>
-              <CustomText type="normal" style={styles.checkmarkText}>
-                ✓
-              </CustomText>
-            </View>
-          )}
         </TouchableOpacity>
       ))}
 
@@ -216,16 +231,16 @@ const PointPurchaseTab = () => {
         title={
           loading
             ? t('points.purchasing', '충전 중...')
-            : selectedAmount
-            ? t('points.purchase_button', `${selectedAmount.toLocaleString()} P 충전하기`)
+            : totalAmount > 0
+            ? t('points.purchase_button', `${totalAmount.toLocaleString()} P 충전하기`)
             : t('points.select_package', '충전할 포인트를 선택해주세요')
         }
         onPress={handlePurchase}
         style={[
           styles.purchaseButton,
-          !selectedAmount && styles.purchaseButtonDisabled,
+          totalAmount === 0 && styles.purchaseButtonDisabled,
         ]}
-        disabled={!selectedAmount || loading}
+        disabled={totalAmount === 0 || loading}
         type="primary"
       />
 
@@ -267,6 +282,42 @@ const styles = StyleSheet.create({
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Total Amount Card
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  totalAmountCard: {
+    backgroundColor: 'rgba(96, 165, 250, 0.15)',
+    borderRadius: moderateScale(16),
+    padding: platformPadding(20),
+    marginBottom: platformPadding(24),
+    borderWidth: 2,
+    borderColor: COLORS.DEEP_BLUE,
+  },
+  totalAmountHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: platformPadding(8),
+  },
+  totalAmountLabel: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  totalAmountValue: {
+    color: COLORS.DEEP_BLUE,
+    fontSize: moderateScale(36),
+  },
+  resetButton: {
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: moderateScale(8),
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  resetButtonText: {
+    color: '#EF4444',
+  },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Package Card
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   packageCard: {
@@ -277,10 +328,6 @@ const styles = StyleSheet.create({
     marginBottom: platformPadding(16),
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  packageCardSelected: {
-    backgroundColor: 'rgba(96, 165, 250, 0.1)',
-    borderWidth: 2,
   },
   packageContent: {
     flexDirection: 'row',
@@ -310,20 +357,6 @@ const styles = StyleSheet.create({
   },
   popularBadgeText: {
     color: '#FFFFFF',
-  },
-  checkmark: {
-    position: 'absolute',
-    top: scale(16),
-    right: scale(16),
-    width: scale(28),
-    height: scale(28),
-    borderRadius: moderateScale(14),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkmarkText: {
-    color: '#FFFFFF',
-    fontSize: moderateScale(16),
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
