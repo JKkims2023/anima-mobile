@@ -151,7 +151,7 @@ const CenterAIButton = ({
             <View style={[styles.personaIcon, {
               borderColor: '#FFFFFF', // ✅ White border for contrast
             }]}>
-              {personaVideoUrl ? (
+              {false ? (
                 // ✅ Video (if available)
                 <Video
                   source={{ uri: personaVideoUrl }}
@@ -166,7 +166,7 @@ const CenterAIButton = ({
                     }
                   }}
                 />
-              ) : personaImageUrl ? (
+              ) : false ? (
                 // ✅ Image (fallback)
                 <Image
                   source={{ uri: personaImageUrl }}
@@ -175,7 +175,7 @@ const CenterAIButton = ({
                 />
               ) : (
                 // ✅ Placeholder (no image or video)
-                <CustomText style={styles.personaPlaceholder}>🎭</CustomText>
+                <CustomText style={styles.personaPlaceholder}>✨</CustomText>
               )}
             </View>
             <CustomText 
@@ -310,8 +310,8 @@ const styles = StyleSheet.create({
   },
   
   personaPlaceholder: {
-    fontSize: scale(28),
-    lineHeight: scale(28),
+    fontSize: scale(24),
+    lineHeight: scale(24),
   },
   
   // ═══════════════════════════════════════════════════════════════════════════

@@ -24,6 +24,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import HapticService from '../../utils/HapticService';
+import amountService from '../../services/api/amountService';
+import { useUser } from '../../contexts/UserContext';
 
 const PersonaSettingsSheet = ({
   isOpen = false,
@@ -38,7 +40,7 @@ const PersonaSettingsSheet = ({
   const { currentTheme: theme } = useTheme();
   const { showAlert, showToast } = useAnima();
   const bottomSheetRef = useRef(null);
-
+  const { user } = useUser();
   // ═══════════════════════════════════════════════════════════════════════
   // CONTROL BOTTOM SHEET WITH isOpen PROP
   // ═══════════════════════════════════════════════════════════════════════
@@ -81,21 +83,40 @@ const PersonaSettingsSheet = ({
     // ⚠️ Don't close here - close after category change is saved
   };
 
-  const handleVideoConvert = () => {
-    HapticService.light();
-    
-    if (!canConvertVideo) {
-      showToast({
-        type: 'warning',
-        message: t('persona.settings.video_already_converted'),
-        emoji: '✅',
+  const handleVideoConvert = async () => {
+  
+    try{
+
+      let video_amount = 0;
+      
+      if (!canConvertVideo) {
+
+        showToast({
+          type: 'warning',
+          message: t('persona.settings.video_already_converted'),
+          emoji: '✅',
+        });
+        return;
+      }
+
+      const serviceData = await amountService.getServiceData({
+        user_key: user.user_key,
       });
-      return;
-    }
+
+      if (!serviceData.success) {
+        HapticService.warning();
+        console.log('[PersonaSettingsSheet] Service data fetch failed');
+        return;
+
+      }else{
+        
+        video_amount = serviceData.data.video_amount;
+      
+      }
 
     showAlert({
       title: t('persona.settings.video_convert_confirm_title'),
-      message: t('persona.settings.video_convert_confirm_message'),
+      message: t('persona.settings.video_convert_confirm_message', { cost: video_amount }),
       emoji: '🎬',
       buttons: [
         {
@@ -111,6 +132,17 @@ const PersonaSettingsSheet = ({
         },
       ],
     });
+
+    } catch (error) {
+      console.error('[PersonaSettingsSheet] Video convert error:', error);
+      HapticService.warning();
+      showToast({
+        type: 'error',
+        message: error.message,
+          emoji: '⚠️',
+      });
+    }
+  
   };
 
   const handleDelete = () => {

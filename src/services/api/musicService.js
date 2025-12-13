@@ -94,7 +94,7 @@ export async function createMusic(params) {
     } else {
       return {
         success: false,
-        errorCode: response.data.errorCode || 'MUSIC_CREATE_ERROR',
+        errorCode: response.data.error_code || 'MUSIC_CREATE_ERROR',
       };
     }
   } catch (error) {

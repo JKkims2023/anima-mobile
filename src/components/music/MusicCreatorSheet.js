@@ -23,16 +23,19 @@ import { useAnima } from '../../contexts/AnimaContext';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
-
+import amountService from '../../services/api/amountService';
+import { useUser } from '../../contexts/UserContext';
+import { useNavigation } from '@react-navigation/native';
 /**
  * MusicCreatorSheet Component
  */
 const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
-  const { showToast } = useAnima();
+  const { showToast, showAlert } = useAnima();
   const bottomSheetRef = useRef(null);
-
+  const { user } = useUser();
+  const navigation = useNavigation();
   // Input overlay refs
   const titleInputRef = useRef(null);
   const promptInputRef = useRef(null);
@@ -77,39 +80,96 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
   };
 
   // Handle submit
-  const handleSubmit = () => {
-    // Validation
-    if (!title.trim()) {
+  const handleSubmit = async () => {
+
+    try{
+      // Validation
+      if (!title.trim()) {
+        showToast({
+          type: 'warning',
+          message: t('music.creator.validation.title_required'),
+          emoji: '⚠️',
+        });
+        return;
+      }
+
+      if (!prompt.trim()) {
+        showToast({
+          type: 'warning',
+          message: t('music.creator.validation.prompt_required'),
+          emoji: '⚠️',
+        });
+        return;
+      }
+
+      if (!user || !user?.user_key) {
+
+        console.log('[MusicCreatorSheet] User key not found');
+        HapticService.warning();
+        showToast({
+          type: 'error',
+          message: t('music.creator.user_key_error'),
+          emoji: '⚠️',
+        });
+
+        navigation.navigate('Settings');
+        return;
+      }
+
+      const serviceData = await amountService.getServiceData({
+        user_key: user.user_key,
+      });
+
+      let music_amount = 0;
+
+      if (!serviceData.success) {
+        HapticService.warning();
+        console.log('[MusicCreatorSheet] Service data fetch failed');
+        return;
+      }else{
+        
+        music_amount = serviceData.data.music_amount;
+      
+      }
+
+      HapticService.success();
+
+      showAlert({
+        title: t('music.creator.submit_confirm_title'),
+        message: t('music.creator.submit_confirm_message', { cost: music_amount }),
+        emoji: '🎵',
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: t('common.confirm'),
+            onPress: () => {
+              onSubmit?.({
+                music_type: musicType,
+                music_title: title.trim(),
+                prompt: prompt.trim(),
+                lyrics: musicType === 'vocal' ? lyrics.trim() : '',
+              });
+              // Close sheet and reset form
+              bottomSheetRef.current?.dismiss();
+              handleClose();
+            },
+          },
+        ],
+      });
+
+    } catch (error) {
+
+      console.error('[MusicCreatorSheet] Validation error:', error);
+      HapticService.warning();
       showToast({
-        type: 'warning',
-        message: t('music.creator.validation.title_required'),
+        type: 'error',
+        message: error.message,
         emoji: '⚠️',
       });
-      return;
     }
-
-    if (!prompt.trim()) {
-      showToast({
-        type: 'warning',
-        message: t('music.creator.validation.prompt_required'),
-        emoji: '⚠️',
-      });
-      return;
-    }
-
-    HapticService.success();
-
-    // Submit data
-    onSubmit?.({
-      music_type: musicType,
-      music_title: title.trim(),
-      prompt: prompt.trim(),
-      lyrics: musicType === 'vocal' ? lyrics.trim() : '',
-    });
-
-    // Close sheet and reset form
-    bottomSheetRef.current?.dismiss();
-    handleClose();
   };
 
   const lyricsContainerStyle = {

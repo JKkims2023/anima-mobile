@@ -42,7 +42,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
 import { useAnima } from '../../contexts/AnimaContext';
-
+import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../../contexts/UserContext';
+import amountService from '../../services/api/amountService';
 const ChoicePersonaSheet = ({
   isOpen,
   onClose,
@@ -50,9 +52,10 @@ const ChoicePersonaSheet = ({
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
-  const { showAlert } = useAnima();
+  const { showAlert, showToast } = useAnima();
   const bottomSheetRef = useRef(null);
-
+  const navigation = useNavigation();
+  const { user } = useUser();
 
   
   // ✅ Modal Refs for Input Overlays
@@ -301,41 +304,97 @@ const ChoicePersonaSheet = ({
     onClose();
   }, [photo, name, description, gender, validateName, validateDescription, onCreateStart, onClose]);
 
-  const handleValidationSuccess = () => {
+  const handleValidationSuccess = async () => {
+
+    try{
+
+      let memory_amount = 0;
+
+      if (!validateName(name)) {
+        HapticService.warning();
+        showToast({
+          type: 'error',
+          message: t('persona.creation.name_error', '이름을 입력해주세요'),
+        });
+        return;
+      }
+
+      if (!validateDescription(description)) {
+        HapticService.warning();
+        showToast({
+          type: 'error',
+          message: t('persona.creation.description_error', '설명을 입력해주세요'),
+        });
+        return;
+      }
+
+      if (!photo) {
+        HapticService.warning();
+        // TODO: Show toast
+
+        showToast({
+          type: 'error',
+          message: t('persona.creation.photo_error', '사진을 선택해주세요'),
+        });
+        HapticService.warning();
+        return;
+      }
 
 
-    if (!photo) {
+      if (!user || !user?.user_key) {
+
+        console.log('[ChoicePersonaSheet] User key not found');
+        HapticService.warning();
+        showToast({
+          type: 'error',
+          message: t('persona.creation.user_key_error', '로그인 후 이 용해주세요'),
+        });
+
+        navigation.navigate('Settings');
+        return;
+      }
+
+
+      const serviceData = await amountService.getServiceData({
+        user_key: user.user_key,
+      });
+
+      console.log('[ChoicePersonaSheet] Service data:', serviceData);
+
+      if (!serviceData.success) {
+        HapticService.warning();
+        console.log('[ChoicePersonaSheet] Service data fetch failed');
+        return;
+      
+      }else{
+
+        memory_amount = serviceData.data.memory_amount;
+
+      }
+
+      HapticService.success();
+
+      showAlert({
+        title: t('point.create_persona.title', '페르소나 생성'),
+        message: t('point.create_persona.message', '페르소나 생성이 완료되었습니다. 페르소나 생성 화면으로 이동합니다.', { cost: memory_amount }),
+        buttons: [
+          { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
+          { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
+            handleCreate();
+          } },
+
+        ],
+      });
+
+    } catch (error) {
+      console.error('[ChoicePersonaSheet] Validation error:', error);
       HapticService.warning();
-      // TODO: Show toast
-      console.log('[ChoicePersonaSheet] Photo required');
-      return;
+      showToast({
+        type: 'error',
+        emoji: '⚠️',
+        message: error.message,
+      });
     }
-
-    if (!validateName(name)) {
-      HapticService.warning();
-      console.log('[ChoicePersonaSheet] Name validation failed');
-      return;
-    }
-
-    if (!validateDescription(description)) {
-      HapticService.warning();
-      console.log('[ChoicePersonaSheet] Description validation failed');
-      return;
-    }
-
-    HapticService.success();
-
-    showAlert({
-      title: t('point.create_persona.title', '페르소나 생성'),
-      message: t('point.create_persona.message', '페르소나 생성이 완료되었습니다. 페르소나 생성 화면으로 이동합니다.', { cost: 100 }),
-      buttons: [
-        { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
-        { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
-          handleCreate();
-        } },
-
-      ],
-    });
   };
 
 

@@ -50,6 +50,8 @@ import musicService from '../services/api/musicService';
 import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
+import { useNavigation } from '@react-navigation/native';
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = verticalScale(120);
@@ -74,6 +76,7 @@ const MusicScreen = () => {
   const { user, isAuthenticated } = useUser();
   const { showAlert, showToast } = useAnima();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   // Refs
   const flashListRef = useRef(null);
@@ -387,6 +390,7 @@ const MusicScreen = () => {
     creatorSheetRef.current?.dismiss();
     
     try {
+      
       const result = await musicService.createMusic({
         user_key: user.user_key,
         music_title: formData.music_title,
@@ -425,11 +429,47 @@ const MusicScreen = () => {
         // ⭐ Hide processing overlay on failure
         setIsProcessingMusic(false);
         
-        showToast({
-          type: 'error',
-          message: t('music.toast.create_failed'),
-          emoji: '❌',
-        });
+        console.log('response.error_code : ', result);
+        
+        switch(result.errorCode){
+          case 'INSUFFICIENT_POINT':
+            showAlert ({
+              title: t('common.not_enough_point_title'),
+              message: t('common.not_enough_point'),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+                    navigation.navigate('Settings');
+                  },
+                },
+              ],
+            });
+            break;
+          default:
+            showAlert ({
+              title: t('common.error_title'),
+              message: t('common.error'),
+              buttons: [
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+ 
+                  },
+                },
+              ],
+            });
+            break;  
+        }
+
+        return;
+
       }
     } catch (error) {
       console.error('[MusicScreen] Create music error:', error);

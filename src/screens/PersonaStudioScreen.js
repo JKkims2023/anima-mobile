@@ -455,7 +455,36 @@ const PersonaStudioScreen = () => {
       });
       
       if (!response.success) {
-        throw new Error(response.error || 'Persona creation failed');
+
+        setIsCreatingPersona(false);
+        console.log('response.error_code : ', response.error_code);
+
+        switch(response.error_code){
+          case 'INSUFFICIENT_POINT':
+            showAlert ({
+              title: t('common.not_enough_point_title'),
+              message: t('common.not_enough_point'),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+                    navigation.navigate('Settings');
+                  },
+                },
+              ],
+            });
+            break;
+          default:
+           throw new Error(response.error || 'Persona creation failed');
+            break;  
+        }
+
+        return;
       }
       
       const { persona_key, estimate_time, persona_url, memory_key, bric_key } = response.data;
@@ -490,10 +519,12 @@ const PersonaStudioScreen = () => {
       
       // ⭐ Hide loading overlay on error
       setIsCreatingPersona(false);
+
+      let error_info = t('common.error');
       
       showToast({
         type: 'error',
-        message: t('persona.creation.errors.creation_failed'),
+        message: error_info,
         emoji: '⚠️',
       });
       HapticService.warning();
@@ -552,14 +583,6 @@ const PersonaStudioScreen = () => {
     }
   }, [showToast, t, initializePersonas]);
   
-  // Handle settings
-  const handleSettingsPress = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ⚙️ Settings pressed');
-    }
-    
-    navigation.navigate('Settings');
-  }, [navigation]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // QUICK ACTION CHIP HANDLERS
@@ -878,7 +901,37 @@ const PersonaStudioScreen = () => {
           });
         }
       } else {
-        throw new Error(result.message || 'Video conversion failed');
+
+        setIsConvertingVideo(false);
+        console.log('response.error_code : ', result.error_code);
+        
+        switch(result.error_code){
+          case 'INSUFFICIENT_POINT':
+            showAlert ({
+              title: t('common.not_enough_point_title'),
+              message: t('common.not_enough_point'),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+                    navigation.navigate('Settings');
+                  },
+                },
+              ],
+            });
+            break;
+          default:
+           throw new Error(result.error || 'Video conversion failed');
+            break;  
+        }
+
+        return;
+
       }
     } catch (error) {
       console.error('[PersonaStudioScreen] ❌ Video convert error:', error);

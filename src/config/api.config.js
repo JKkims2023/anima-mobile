@@ -21,6 +21,12 @@ export const API_BASE_URL = process.env.API_BASE_URL || 'https://idol-companion.
 // ==================== API Endpoints ====================
 
 /**
+ * Amount Endpoints
+ */
+export const AMOUNT_ENDPOINTS = {
+  GET_SERVICE_DATA: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/service',
+};
+/**
  * Authentication Endpoints
  */
 export const AUTH_ENDPOINTS = {
@@ -243,5 +249,6 @@ export default {
   MESSAGE_ENDPOINTS,
   MUSIC_ENDPOINTS,
   HEALTH_ENDPOINT,
+  AMOUNT_ENDPOINTS,
 };
 
