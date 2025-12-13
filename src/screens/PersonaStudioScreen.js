@@ -1211,7 +1211,7 @@ const PersonaStudioScreen = () => {
           >
             <View style={styles.categoryDropdownBackdrop}>
               <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                <View style={[styles.categoryDropdown, { backgroundColor: currentTheme.cardBackground }]}>
+                <View style={styles.categoryDropdown}>
                   {PERSONA_CATEGORIES.map((category) => {
                     const isSelected = category.key === selectedCategory;
                     
@@ -1627,14 +1627,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent', // Transparent but clickable
   },
   
-  // ⭐ NEW: Category Dropdown Overlay
+  // ⭐ NEW: Category Dropdown Overlay (ANIMA 감성 - PointHistoryTab과 동일)
   categoryDropdown: {
     position: 'absolute',
     top: verticalScale(100),
     right: platformPadding(20),
     width: scale(200),
+    backgroundColor: 'rgba(255, 255, 255, 0.08)', // ⭐ 불투명 배경
     borderRadius: scale(12),
-    paddingVertical: verticalScale(8),
+    borderWidth: 1,
+    borderColor: 'rgba(96, 165, 250, 0.4)', // ⭐ ANIMA 감성 테두리
+    overflow: 'hidden',
     zIndex: 1000,
     elevation: 5,
     shadowColor: '#000',
@@ -1646,13 +1649,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(12),
+    paddingVertical: verticalScale(14), // ⭐ 높이 증가
     gap: scale(12),
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomWidth: 1, // ⭐ 테두리 두께 증가
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)', // ⭐ 더 미묘한 구분선
   },
   categoryDropdownItemActive: {
-    backgroundColor: 'rgba(96, 165, 250, 0.15)',
+    backgroundColor: 'rgba(96, 165, 250, 0.15)', // ⭐ ANIMA 감성 하이라이트
   },
   categoryDropdownText: {
     flex: 1,
