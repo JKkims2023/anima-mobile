@@ -321,23 +321,34 @@ class NotificationService {
       }
 
       // Foreground message handler - all platforms
+      console.log('[FCM] 🔔 Registering foreground message handler...');
       messaging().onMessage(async remoteMessage => {
-        console.log('[FCM] 📨 Foreground message received:', remoteMessage);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('[FCM] 📨 FOREGROUND MESSAGE RECEIVED!');
+        console.log('[FCM] Platform:', Platform.OS);
+        console.log('[FCM] Message:', JSON.stringify(remoteMessage, null, 2));
+        console.log('[FCM] Title:', remoteMessage.notification?.title);
+        console.log('[FCM] Body:', remoteMessage.notification?.body);
+        console.log('[FCM] Data:', remoteMessage.data);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         // Filter invalid messages
         if (!remoteMessage.notification || 
             !remoteMessage.notification.title || 
             !remoteMessage.notification.body) {
-          console.log('[FCM] Invalid foreground message, ignoring');
+          console.log('[FCM] ⚠️  Invalid foreground message, ignoring');
           return;
         }
         
         if (Platform.OS === 'android') {
+          console.log('[FCM] 🤖 Handling Android foreground message...');
           this.handleAndroidForegroundMessage(remoteMessage);
         } else if (Platform.OS === 'ios') {
+          console.log('[FCM] 🍎 Handling iOS foreground message...');
           this.handleIOSForegroundMessage(remoteMessage);
         }
       });
+      console.log('[FCM] ✅ Foreground message handler registered');
 
       // Background message handler
       this.setupBackgroundMessageHandler();
@@ -523,14 +534,22 @@ class NotificationService {
   // Setup background message handler
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   private setupBackgroundMessageHandler(): void {
+    console.log('[FCM] 🌙 Registering background message handler...');
     messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('[FCM] 🌙 Background message received:', remoteMessage);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[FCM] 🌙 BACKGROUND MESSAGE RECEIVED!');
+      console.log('[FCM] Platform:', Platform.OS);
+      console.log('[FCM] Message:', JSON.stringify(remoteMessage, null, 2));
+      console.log('[FCM] Title:', remoteMessage.notification?.title);
+      console.log('[FCM] Body:', remoteMessage.notification?.body);
+      console.log('[FCM] Data:', remoteMessage.data);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       // Filter invalid messages
       if (!remoteMessage.notification || 
           !remoteMessage.notification.title || 
           !remoteMessage.notification.body) {
-        console.log('[FCM] Invalid background message, ignoring');
+        console.log('[FCM] ⚠️  Invalid background message, ignoring');
         return Promise.resolve();
       }
       
