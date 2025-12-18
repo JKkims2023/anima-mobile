@@ -150,16 +150,21 @@ class NotificationService {
       
       if (granted) {
         console.log('[FCM] ✅ Permission granted! Setting up messaging...');
-        // Set up FCM immediately after permission is granted
-        await this.setupMessaging();
-        await this.getFCMToken();
+        try {
+          // Set up FCM immediately after permission is granted
+          await this.setupMessaging();
+          await this.getFCMToken();
+        } catch (setupError: any) {
+          // ⭐ Don't fail permission flow if FCM setup fails (e.g., iOS Simulator)
+          console.log('[FCM] ⚠️  FCM setup failed (may be iOS Simulator), but permission is granted');
+        }
       } else {
         console.log('[FCM] ⚠️  Permission denied by user');
       }
       
       return granted;
     } catch (error) {
-      console.error('[FCM] Permission request with context error:', error);
+      console.log('[FCM] ⚠️  Permission request error (non-critical):', error);
       return false;
     }
   }
@@ -185,8 +190,16 @@ class NotificationService {
       const hasPermission = await this.checkPermissionStatus();
       if (hasPermission) {
         console.log('[FCM] ✅ Permission already granted, setting up messaging');
-        await this.setupMessaging();
-        await this.getFCMToken();
+        try {
+          await this.setupMessaging();
+          await this.getFCMToken();
+        } catch (setupError: any) {
+          // ⭐ Don't fail initialization if FCM setup fails (e.g., iOS Simulator)
+          console.log('[FCM] ⚠️  FCM setup failed, but app will continue normally');
+          if (Platform.OS === 'ios') {
+            console.log('[FCM] 💡 Tip: Test push notifications on a real iOS device');
+          }
+        }
       } else {
         console.log('[FCM] ℹ️  No permission yet, waiting for user action');
       }
@@ -194,8 +207,10 @@ class NotificationService {
       this.initialized = true;
       return true;
     } catch (error) {
-      console.error('[FCM] Initialize without permission error:', error);
-      return false;
+      console.log('[FCM] ⚠️  Initialize error (non-critical):', error);
+      // Still mark as initialized so app can continue
+      this.initialized = true;
+      return true; // Return true to allow app to continue
     }
   }
 
@@ -221,8 +236,10 @@ class NotificationService {
         try {
           await messaging().registerDeviceForRemoteMessages();
           await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (apnsError) {
-          console.error('[FCM] APNs registration error:', apnsError);
+        } catch (apnsError: any) {
+          console.log('[FCM] ℹ️  APNs registration not available (likely iOS Simulator)');
+          // iOS Simulator doesn't support APNs, return saved token or null
+          return savedToken || null;
         }
       } else {
         const hasPermission = await this.requestUserPermission();
@@ -245,12 +262,21 @@ class NotificationService {
         
         console.log('[FCM] ✅ Token obtained:', fcmToken.substring(0, 20) + '...');
         return fcmToken;
-      } catch (tokenError) {
+      } catch (tokenError: any) {
+        // ⭐ Handle iOS Simulator gracefully
+        if (tokenError?.code === 'messaging/unregistered') {
+          console.log('[FCM] ℹ️  FCM not available on iOS Simulator - This is normal');
+          console.log('[FCM] 📱 Please test on a real iOS device for push notifications');
+          return savedToken || null;
+        }
+        
         console.error('[FCM] Token request error:', tokenError);
         if (savedToken) {
           return savedToken;
         }
-        throw tokenError;
+        
+        // Don't throw error, return null gracefully
+        return null;
       }
     } catch (error: any) {
       console.error('[FCM] getFCMToken error:', error.message);
