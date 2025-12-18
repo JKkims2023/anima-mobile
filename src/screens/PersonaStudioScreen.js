@@ -131,8 +131,7 @@ const PersonaStudioScreen = () => {
   // ⭐ NEW: Pre-permission for notifications
   const [showPermissionSheet, setShowPermissionSheet] = useState(false);
   const [permissionContext, setPermissionContext] = useState('persona_creation'); // ⭐ NEW: Dynamic context
-  const pendingPersonaDataRef = useRef(null);
-  const pendingActionRef = useRef(null); // ⭐ NEW: For video conversion and other actions
+  const pendingActionRef = useRef(null); // ⭐ NEW: For all pending actions (persona creation, video conversion, etc.)
   const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false);
   const [settingsPersona, setSettingsPersona] = useState(null);
   const nameInputRef = useRef(null);
@@ -418,7 +417,7 @@ const PersonaStudioScreen = () => {
   }, [currentFilteredPersonas]);
   
   // Handle add persona
-  const handleAddPersona = useCallback(() => {
+  const handleAddPersona = useCallback(async () => {
     console.log('[PersonaStudioScreen] 📸 Add persona requested');
     
     // ⭐ Check if user is logged in
@@ -434,33 +433,36 @@ const PersonaStudioScreen = () => {
       return;
     }
     
-    console.log('[PersonaStudioScreen] ✅ User logged in, opening persona creation sheet');
+    console.log('[PersonaStudioScreen] ✅ User logged in, checking notification permission');
     HapticService.light();
-    setIsPersonaCreationOpen(true);
-  }, [user, showToast, t, navigation]);
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ⭐ NEW: Pre-permission check before persona creation
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handlePersonaCreationStartWithPermission = useCallback(async (data) => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💙 [PersonaStudioScreen] Pre-permission check for persona creation');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // 1️⃣ Check if notification permission is already granted
+    // ⭐ NEW: Check notification permission FIRST (before opening sheet)
     const hasPermission = await checkNotificationPermission();
+    const hasRequested = await hasRequestedNotificationPermission();
     
-    if (!hasPermission) {
+    if (!hasPermission && !hasRequested) {
       console.log('⚠️  [PersonaStudioScreen] No permission, showing Pre-permission sheet');
-      // 2️⃣ Save pending data and show pre-permission sheet
-      setPermissionContext('persona_creation'); // ⭐ Set context
-      pendingPersonaDataRef.current = data;
+      // Set context and show permission sheet
+      setPermissionContext('persona_creation');
+      pendingActionRef.current = () => setIsPersonaCreationOpen(true);
       setShowPermissionSheet(true);
       return;
     }
     
-    console.log('✅ [PersonaStudioScreen] Permission already granted, proceeding');
-    // 3️⃣ Permission already granted, proceed directly
+    // Permission already granted or requested, open creation sheet directly
+    console.log('[PersonaStudioScreen] ✅ Permission checked, opening persona creation sheet');
+    setIsPersonaCreationOpen(true);
+  }, [user, showToast, t, navigation]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ MODIFIED: Permission check already done in handleAddPersona
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handlePersonaCreationStartWithPermission = useCallback(async (data) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [PersonaStudioScreen] Persona creation started (permission already checked)');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Permission already checked in handleAddPersona, proceed directly
     handlePersonaCreationStart(data);
   }, []);
   
@@ -479,35 +481,23 @@ const PersonaStudioScreen = () => {
       });
     }
     
-    // Proceed with pending action (persona creation or video conversion)
-    if (pendingPersonaDataRef.current) {
-      handlePersonaCreationStart(pendingPersonaDataRef.current);
-      pendingPersonaDataRef.current = null;
-    }
-    
-    // ⭐ NEW: Execute pending action (for video conversion and other features)
+    // Execute pending action (open creation sheet, start video conversion, etc.)
     if (pendingActionRef.current) {
       pendingActionRef.current();
       pendingActionRef.current = null;
     }
-  }, [permissionContext, showToast, t, handlePersonaCreationStart]);
+  }, [permissionContext, showToast, t]);
   
   // ⭐ NEW: Handle "Later" button in pre-permission sheet
   const handlePermissionDeny = useCallback(() => {
     setShowPermissionSheet(false);
     
-    // Proceed with pending action even without permission
-    if (pendingPersonaDataRef.current) {
-      handlePersonaCreationStart(pendingPersonaDataRef.current);
-      pendingPersonaDataRef.current = null;
-    }
-    
-    // ⭐ NEW: Execute pending action (for video conversion and other features)
+    // Execute pending action even without permission
     if (pendingActionRef.current) {
       pendingActionRef.current();
       pendingActionRef.current = null;
     }
-  }, [handlePersonaCreationStart]);
+  }, []);
   
   // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
   const handlePersonaCreationStart = useCallback(async (data) => {
