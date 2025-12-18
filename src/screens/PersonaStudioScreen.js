@@ -67,6 +67,13 @@ import {
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
 
+// Import Push Notification helpers
+import { 
+  checkNotificationPermission,
+  requestNotificationPermissionWithContext 
+} from '../utils/pushNotification';
+import NotificationPermissionSheet from '../components/NotificationPermissionSheet';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // EMOTION CATEGORY CONSTANTS (from PersonaSearchOverlay)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -120,6 +127,9 @@ const PersonaStudioScreen = () => {
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
+  // ⭐ NEW: Pre-permission for notifications
+  const [showPermissionSheet, setShowPermissionSheet] = useState(false);
+  const pendingPersonaDataRef = useRef(null);
   const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false);
   const [settingsPersona, setSettingsPersona] = useState(null);
   const nameInputRef = useRef(null);
@@ -425,6 +435,63 @@ const PersonaStudioScreen = () => {
     HapticService.light();
     setIsPersonaCreationOpen(true);
   }, [user, showToast, t, navigation]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Pre-permission check before persona creation
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handlePersonaCreationStartWithPermission = useCallback(async (data) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💙 [PersonaStudioScreen] Pre-permission check for persona creation');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // 1️⃣ Check if notification permission is already granted
+    const hasPermission = await checkNotificationPermission();
+    
+    if (!hasPermission) {
+      console.log('⚠️  [PersonaStudioScreen] No permission, showing Pre-permission sheet');
+      // 2️⃣ Save pending data and show pre-permission sheet
+      pendingPersonaDataRef.current = data;
+      setShowPermissionSheet(true);
+      return;
+    }
+    
+    console.log('✅ [PersonaStudioScreen] Permission already granted, proceeding');
+    // 3️⃣ Permission already granted, proceed directly
+    handlePersonaCreationStart(data);
+  }, []);
+  
+  // ⭐ NEW: Handle "Allow" button in pre-permission sheet
+  const handlePermissionAllow = useCallback(async () => {
+    setShowPermissionSheet(false);
+    
+    // Request system permission
+    const granted = await requestNotificationPermissionWithContext('persona_creation');
+    
+    if (granted) {
+      showToast({ 
+        type: 'success', 
+        emoji: '💙', 
+        message: t('notification_permission.enabled') || '알림이 활성화되었습니다' 
+      });
+    }
+    
+    // Proceed with persona creation regardless of permission result
+    if (pendingPersonaDataRef.current) {
+      handlePersonaCreationStart(pendingPersonaDataRef.current);
+      pendingPersonaDataRef.current = null;
+    }
+  }, [showToast, t]);
+  
+  // ⭐ NEW: Handle "Later" button in pre-permission sheet
+  const handlePermissionDeny = useCallback(() => {
+    setShowPermissionSheet(false);
+    
+    // Proceed with persona creation even without permission
+    if (pendingPersonaDataRef.current) {
+      handlePersonaCreationStart(pendingPersonaDataRef.current);
+      pendingPersonaDataRef.current = null;
+    }
+  }, []);
   
   // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
   const handlePersonaCreationStart = useCallback(async (data) => {
@@ -1340,7 +1407,7 @@ const PersonaStudioScreen = () => {
         <ChoicePersonaSheet
           isOpen={isPersonaCreationOpen}
           onClose={handlePersonaCreationClose}
-          onCreateStart={handlePersonaCreationStart}
+          onCreateStart={handlePersonaCreationStartWithPermission}
         />
       </View>
 
@@ -1352,7 +1419,7 @@ const PersonaStudioScreen = () => {
           ref={helpSheetRef}
           isOpen={isHelpOpen}
           onClose={() => setIsHelpOpen(false)}
-          onCreateStart={handlePersonaCreationStart}
+          onCreateStart={handlePersonaCreationStartWithPermission}
         />
       </View>
 
@@ -1421,6 +1488,16 @@ const PersonaStudioScreen = () => {
         onClose={handleCloseMessageCreation}
       />
     )}
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* ⭐ NEW: Notification Permission Sheet (Pre-permission for persona creation) */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <NotificationPermissionSheet
+      visible={showPermissionSheet}
+      context="persona_creation"
+      onAllow={handlePermissionAllow}
+      onDeny={handlePermissionDeny}
+    />
     </>
   );
 };

@@ -50,7 +50,7 @@ const POINT_PACKAGES = [
 /**
  * 💰 PointPurchaseTab Component
  */
-const PointPurchaseTab = () => {
+const PointPurchaseTab = ({ onCancel }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, refreshUser } = useUser();
@@ -80,7 +80,7 @@ const PointPurchaseTab = () => {
     // Show confirmation
     showAlert({
       title: t('points.purchase_confirm_title', '포인트 충전'),
-      message: t('points.purchase_confirm_message', `${totalAmount.toLocaleString()} P를 충전하시겠습니까?`),
+      message: t('points.purchase_confirm_message', `${totalAmount.toLocaleString()}`),
       emoji: '💰',
       buttons: [
         {
@@ -166,7 +166,7 @@ const PointPurchaseTab = () => {
       </CustomText>
 
       {/* ⭐ 누적 금액 표시 */}
-      {totalAmount > 0 && (
+      {true && (
         <View style={styles.totalAmountCard}>
           <View style={styles.totalAmountHeader}>
             <CustomText type="normal" style={styles.totalAmountLabel}>
@@ -174,7 +174,7 @@ const PointPurchaseTab = () => {
             </CustomText>
             <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
               <CustomText type="tiny" style={styles.resetButtonText}>
-                초기화
+                X
               </CustomText>
             </TouchableOpacity>
           </View>
@@ -184,23 +184,20 @@ const PointPurchaseTab = () => {
         </View>
       )}
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* Packages (누적 방식) */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {POINT_PACKAGES.map((pkg) => (
+      <View style={styles.packageContainer}>
+
         <TouchableOpacity
-          key={pkg.amount}
           style={[
             styles.packageCard,
-            { borderColor: pkg.color },
+            { borderColor: POINT_PACKAGES[0].color },
           ]}
-          onPress={() => handlePackageSelect(pkg.amount)}
+          onPress={() => handlePackageSelect(POINT_PACKAGES[0].amount)}
           activeOpacity={0.7}
           disabled={loading}
         >
           {/* Popular Badge */}
-          {pkg.popular && (
-            <View style={[styles.popularBadge, { backgroundColor: pkg.color }]}>
+          {false && (
+            <View style={[styles.popularBadge, { backgroundColor: POINT_PACKAGES[0].color }]}>
               <CustomText type="tiny" bold style={styles.popularBadgeText}>
                 인기
               </CustomText>
@@ -210,39 +207,127 @@ const PointPurchaseTab = () => {
           {/* Content */}
           <View style={styles.packageContent}>
             <CustomText type="huge" style={styles.packageEmoji}>
-              {pkg.emoji}
+              {POINT_PACKAGES[0].emoji}
             </CustomText>
             <View style={styles.packageInfo}>
               <CustomText type="small" style={styles.packageLabel}>
-                {pkg.label}
+                {POINT_PACKAGES[0].label}
               </CustomText>
-              <CustomText type="big" bold style={[styles.packageAmount, { color: pkg.color }]}>
-                +{pkg.amount.toLocaleString()} P
+              <CustomText type="big" bold style={[styles.packageAmount, { color: POINT_PACKAGES[0].color }]}>
+                +{POINT_PACKAGES[0].amount.toLocaleString()} P
               </CustomText>
             </View>
           </View>
         </TouchableOpacity>
-      ))}
+
+        <TouchableOpacity
+          style={[
+            styles.packageCard,
+            { borderColor: POINT_PACKAGES[1].color },
+          ]}
+          onPress={() => handlePackageSelect(POINT_PACKAGES[1].amount)}
+          activeOpacity={0.7}
+          disabled={loading}
+        >
+          {/* Popular Badge */}
+          {false && (
+            <View style={[styles.popularBadge, { backgroundColor: POINT_PACKAGES[1].color }]}>
+              <CustomText type="tiny" bold style={styles.popularBadgeText}>
+                인기
+              </CustomText>
+            </View>
+          )}
+
+          {/* Content */}
+          <View style={styles.packageContent}>
+            <CustomText type="huge" style={styles.packageEmoji}>
+              {POINT_PACKAGES[1].emoji}
+            </CustomText>
+            <View style={styles.packageInfo}>
+              <CustomText type="small" style={styles.packageLabel}>
+                {POINT_PACKAGES[1].label}
+              </CustomText>
+              <CustomText type="big" bold style={[styles.packageAmount, { color: POINT_PACKAGES[1].color }]}>
+                +{POINT_PACKAGES[1].amount.toLocaleString()} P
+              </CustomText>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+      </View>
+
+      <TouchableOpacity
+          style={[
+            styles.packageCard,
+            { borderColor: POINT_PACKAGES[2].color },
+          ]}
+          onPress={() => handlePackageSelect(POINT_PACKAGES[2].amount)}
+          activeOpacity={0.7}
+          disabled={loading}
+        >
+          {/* Popular Badge */}
+          {false && (
+            <View style={[styles.popularBadge, { backgroundColor: POINT_PACKAGES[2].color }]}>
+              <CustomText type="tiny" bold style={styles.popularBadgeText}>
+                인기
+              </CustomText>
+            </View>
+          )}
+
+          {/* Content */}
+          <View style={styles.packageContent}>
+            <CustomText type="huge" style={styles.packageEmoji}>
+              {POINT_PACKAGES[2].emoji}
+            </CustomText>
+            <View style={styles.packageInfo}>
+              <CustomText type="small" style={styles.packageLabel}>
+                {POINT_PACKAGES[2].label}
+              </CustomText>
+              <CustomText type="big" bold style={[styles.packageAmount, { color: POINT_PACKAGES[2].color }]}>
+                +{POINT_PACKAGES[2].amount.toLocaleString()} P
+              </CustomText>
+            </View>
+          </View>
+      </TouchableOpacity>
+
+
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* Purchase Button */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <View style={styles.purchaseButtonContainer}>
       <CustomButton
-        title={
-          loading
-            ? t('points.purchasing', '충전 중...')
-            : totalAmount > 0
-            ? t('points.purchase_button', `${totalAmount.toLocaleString()} P 충전하기`)
-            : t('points.select_package', '충전할 포인트를 선택해주세요')
-        }
-        onPress={handlePurchase}
-        style={[
-          styles.purchaseButton,
-          totalAmount === 0 && styles.purchaseButtonDisabled,
-        ]}
-        disabled={totalAmount === 0 || loading}
-        type="primary"
-      />
+          title={
+            t('common.cancel', '취소')
+          }
+          onPress={onCancel}
+          style={{
+            flex: 1,
+            marginRight: platformPadding(5),
+          }}
+          fullWidth={true}
+          type="outline"
+        />
+        <CustomButton
+          title={
+            loading
+              ? t('points.purchasing', '충전 중...')
+              : t('points.purchase_button')
+              
+          }
+          onPress={handlePurchase}
+          style={[{
+            
+              flex: 1,
+              marginLeft: platformPadding(5),
+            },
+            totalAmount === 0 && styles.purchaseButtonDisabled,
+          ]}
+          disabled={totalAmount === 0 || loading}
+          type="primary"
+          fullWidth
+        />
+      </View>
 
       {loading && (
         <ActivityIndicator
@@ -303,7 +388,7 @@ const styles = StyleSheet.create({
   },
   totalAmountValue: {
     color: COLORS.DEEP_BLUE,
-    fontSize: moderateScale(36),
+    fontSize: moderateScale(28),
   },
   resetButton: {
     paddingHorizontal: scale(12),
@@ -321,7 +406,7 @@ const styles = StyleSheet.create({
   // Package Card
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   packageCard: {
-    position: 'relative',
+    flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: moderateScale(16),
     padding: platformPadding(20),
@@ -334,8 +419,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   packageEmoji: {
-    fontSize: moderateScale(48),
+    fontSize: moderateScale(32),
     marginRight: scale(16),
+    display: 'none',
   },
   packageInfo: {
     flex: 1,
@@ -343,13 +429,15 @@ const styles = StyleSheet.create({
   packageLabel: {
     color: COLORS.TEXT_SECONDARY,
     marginBottom: scale(4),
+    display: 'none',
   },
   packageAmount: {
     fontSize: moderateScale(28),
   },
   popularBadge: {
     position: 'absolute',
-    top: scale(-8),
+
+    
     right: scale(16),
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(4),
@@ -382,11 +470,24 @@ const styles = StyleSheet.create({
     padding: platformPadding(16),
     borderWidth: 1,
     borderColor: 'rgba(96, 165, 250, 0.3)',
+    display: 'none',
   },
   infoText: {
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     lineHeight: moderateScale(20),
+  },
+  packageContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: platformPadding(16),
+  },
+  purchaseButtonContainer: {
+    marginTop: platformPadding(10),
+    marginBottom: platformPadding(20),
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
 });
 

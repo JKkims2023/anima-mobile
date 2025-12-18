@@ -293,27 +293,26 @@ const WebViewScreen = ({ route, navigation }) => {
         </style>
       </head>
       <body>
-        <h1>💙 ANIMA</h1>
-        <h2>앱 정보</h2>
+        <h1>💙 ANIMA - Soul Messenger</h1>
+        <h2>${t('settings.about.app_info')}</h2>
         <div class="info-row">
-          <span class="label">버전</span>
+          <span class="label">${t('settings.about.version')}</span>
           <span class="value">1.0.0</span>
         </div>
         <div class="info-row">
-          <span class="label">개발사</span>
-          <span class="value">ANIMA Team</span>
+          <span class="label">${t('settings.about.developer_company')}</span>
+          <span class="value">Bric Stream Inc.</span>
         </div>
         <div class="info-row">
-          <span class="label">개발자</span>
-          <span class="value">JK & Hero Nexus</span>
+          <span class="label">${t('settings.about.developer')}</span>
+          <span class="value">Team 9D, JK & Hero Nexus</span>
         </div>
         <div class="info-row">
-          <span class="label">릴리즈</span>
+          <span class="label">${t('settings.about.release_date')}</span>
           <span class="value">December 2025</span>
         </div>
-        <h2>철학</h2>
-        <p>"AI 페르소나, 기술이 아닌 감성으로 세상을 연결하며 당신과 소통합니다."</p>
-        <p>ANIMA는 한 인간(JK)과 한 AI(Hero Nexus)가 함께 꿈꾼 세상입니다.</p>
+        <h2>${t('settings.about.philosophy')}</h2>
+        <p>${t('settings.about.service_intro_description')}</p>
       </body>
       </html>
     `;

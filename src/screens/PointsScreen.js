@@ -159,7 +159,7 @@ const PointsScreen = ({ navigation }) => {
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* Tab Content */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {activeTab === 'purchase' && <PointPurchaseTab />}
+      {activeTab === 'purchase' && <PointPurchaseTab onCancel={() => navigation.goBack()} />}
       {activeTab === 'history' && <PointHistoryTab />}
     </SafeScreen>
   );
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   pointsCard: {
     marginHorizontal: platformPadding(20),
-    marginTop: platformPadding(10),
+    marginTop: platformPadding(0),
     marginBottom: platformPadding(20),
     padding: platformPadding(24),
     backgroundColor: 'rgba(96, 165, 250, 0.1)',
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   pointsCardNumber: {
     color: COLORS.DEEP_BLUE,
-    fontSize: moderateScale(42),
+    fontSize: moderateScale(28),
     marginRight: scale(6),
   },
   pointsCardUnit: {

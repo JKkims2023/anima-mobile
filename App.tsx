@@ -45,6 +45,9 @@ import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
 // Import HapticService
 import HapticService from './src/utils/HapticService';
 
+// Import Push Notification Service
+import { initializeNotificationsWithoutPermission } from './src/utils/pushNotification';
+
 function App(): React.JSX.Element {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -61,14 +64,18 @@ function App(): React.JSX.Element {
       console.error('❌ [Firebase] Initialization error:', error);
     }
 
-    // Request notification permission (optional)
-    messaging()
-      .requestPermission()
-      .then((authStatus) => {
-        console.log('📱 [Firebase Messaging] Permission status:', authStatus);
+    // ⭐ Initialize Push Notifications WITHOUT requesting permission
+    // Permission will be requested when user performs specific actions (persona creation, etc.)
+    initializeNotificationsWithoutPermission()
+      .then((success) => {
+        if (success) {
+          console.log('✅ [PushNotification] Initialized without permission request');
+        } else {
+          console.log('⚠️  [PushNotification] Initialization completed with warnings');
+        }
       })
       .catch((error) => {
-        console.log('⚠️ [Firebase Messaging] Permission error:', error);
+        console.error('❌ [PushNotification] Initialization error:', error);
       });
 
     // ⭐ Initialize HapticService (load settings from AsyncStorage)

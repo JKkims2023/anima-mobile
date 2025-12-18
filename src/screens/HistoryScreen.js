@@ -408,7 +408,7 @@ const HistoryScreen = ({ navigation }) => {
             placeholderTextColor={currentTheme.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            autoFocus
+            
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (

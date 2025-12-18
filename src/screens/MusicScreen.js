@@ -769,7 +769,7 @@ const MusicScreen = () => {
           <ActivityIndicator size="large" color={COLORS.neonBlue} />
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
+        <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor, height: '100%' }}>
           <FlashList
             ref={flashListRef}
             data={filteredMusicList}
@@ -929,6 +929,8 @@ const styles = StyleSheet.create({
   },
   musicTitle: {
     // color set dynamically
+    fontSize: moderateScale(16),
+    fontWeight: '600',
   },
   musicMeta: {
     flexDirection: 'row',
@@ -996,8 +998,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     paddingHorizontal: scale(32),
     gap: verticalScale(12),
+    marginTop: verticalScale(100),
+    height: '100%',
+
   },
   emptyTitle: {
     textAlign: 'center',

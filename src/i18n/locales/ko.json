@@ -1486,9 +1486,14 @@
     "about": {
       "title": "📖 서비스 소개",
       "service_intro": "ANIMA 소개",
-      "service_intro_description": "Hero Nexus가 전하는 ANIMA 이야기",
+      "version": "버전",
+      "philosophy": "철학",
+      "service_intro_description": "AI 페르소나, 기술이 아닌 감성으로 세상을 연결하며 당신과 소통합니다.",
       "app_info": "앱 정보",
-      "app_info_description": "버전 및 개발자 정보"
+      "app_info_description": "버전 및 개발자 정보",
+      "developer": "개발팀",
+      "developer_company": "개발사",
+      "release_date": "릴리즈"
     },
     "danger": {
       "title": "⚠️ 위험 영역"
@@ -2175,7 +2180,7 @@
     "select_package": "충전할 포인트를 선택해주세요",
     "purchase": "충전하기",
     "purchasing": "충전 중...",
-    "purchase_button": "{{amount}} P 충전하기",
+    "purchase_button": "충전하기",
     "purchase_confirm_title": "포인트 충전",
     "purchase_confirm_message": "{{amount}} P를 충전하시겠습니까?",
     "purchase_success": "{{amount}} P가 충전되었습니다!",
@@ -2208,5 +2213,33 @@
       "newest": "최신순",
       "oldest": "오래된순"
     }
+  },
+  "notification_permission": {
+    "persona_creation": {
+      "emoji": "✨",
+      "title": "페르소나 생성 완료 알림",
+      "message": "페르소나 생성이 완료되면\n알림으로 알려드릴까요?",
+      "benefit": "💙 생성 완료 시 즉시 확인하고\n대화를 시작할 수 있어요"
+    },
+    "video_conversion": {
+      "emoji": "🎬",
+      "title": "영상 변환 완료 알림",
+      "message": "영상 변환이 완료되면\n알림으로 알려드릴까요?",
+      "benefit": "🎬 변환 완료 시 즉시 확인하고\n멋진 영상을 감상하세요"
+    },
+    "music_creation": {
+      "emoji": "🎵",
+      "title": "음악 생성 완료 알림",
+      "message": "음악 생성이 완료되면\n알림으로 알려드릴까요?",
+      "benefit": "🎵 생성 완료 시 즉시 확인하고\n당신만의 음악을 들어보세요"
+    },
+    "general": {
+      "emoji": "💙",
+      "title": "알림 받기",
+      "message": "ANIMA의 중요한 소식을\n알림으로 받아보시겠어요?",
+      "benefit": "💙 새로운 기능과 업데이트를\n가장 먼저 만나보세요"
+    },
+    "allow": "네, 알림 받을게요",
+    "later": "나중에 할게요"
   }
 }

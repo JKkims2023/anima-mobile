@@ -1723,10 +1723,12 @@ const styles = StyleSheet.create({
   // ⭐ NEW: Chip with Tooltip Container
   chipWithTooltip: {
     position: 'relative', // ⭐ Changed: relative positioning to keep chip fixed
+    width: 'auto',
   },
   // ⭐ NEW: Chip Tooltip Label (Absolute positioned to not affect chip position)
   chipTooltip: {
     position: 'absolute', // ⭐ Absolute positioning
+    top: verticalScale(10),
     right: scale(60), // ⭐ Position to the left of chip (chip width + margin)
     alignSelf: 'center', // ⭐ Center vertically (without height constraint)
     flexDirection: 'row',
@@ -1741,14 +1743,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    width: 'auto',
     ...Platform.select({
       android: { elevation: 4 },
     }),
   },
   chipTooltipText: {
-    fontSize: scale(11),
+    fontSize: scale(14),
     color: '#FFFFFF',
     fontWeight: '600',
+    width: 'auto',
   },
   chipTooltipArrow: {
     marginLeft: scale(4), // ⭐ Position arrow at the end

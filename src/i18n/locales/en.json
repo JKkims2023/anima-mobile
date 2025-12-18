@@ -2187,6 +2187,34 @@
       "newest": "Newest",
       "oldest": "Oldest"
     }
+  },
+  "notification_permission": {
+    "persona_creation": {
+      "emoji": "✨",
+      "title": "Persona Creation Complete",
+      "message": "Get notified when your\npersona is ready?",
+      "benefit": "💙 Start chatting immediately when\nyour persona is complete"
+    },
+    "video_conversion": {
+      "emoji": "🎬",
+      "title": "Video Conversion Complete",
+      "message": "Get notified when your\nvideo is ready?",
+      "benefit": "🎬 Watch your amazing video as soon\nas it's ready"
+    },
+    "music_creation": {
+      "emoji": "🎵",
+      "title": "Music Creation Complete",
+      "message": "Get notified when your\nmusic is ready?",
+      "benefit": "🎵 Listen to your unique music as\nsoon as it's created"
+    },
+    "general": {
+      "emoji": "💙",
+      "title": "Enable Notifications",
+      "message": "Stay updated with important\nnews from ANIMA?",
+      "benefit": "💙 Be the first to know about\nnew features and updates"
+    },
+    "allow": "Yes, notify me",
+    "later": "Maybe later"
   }
 }
 
