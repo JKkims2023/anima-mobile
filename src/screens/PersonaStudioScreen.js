@@ -70,7 +70,8 @@ import { COLORS } from '../styles/commonstyles';
 // Import Push Notification helpers
 import { 
   checkNotificationPermission,
-  requestNotificationPermissionWithContext 
+  requestNotificationPermissionWithContext,
+  hasRequestedNotificationPermission
 } from '../utils/pushNotification';
 import NotificationPermissionSheet from '../components/NotificationPermissionSheet';
 
@@ -129,7 +130,9 @@ const PersonaStudioScreen = () => {
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
   // ⭐ NEW: Pre-permission for notifications
   const [showPermissionSheet, setShowPermissionSheet] = useState(false);
+  const [permissionContext, setPermissionContext] = useState('persona_creation'); // ⭐ NEW: Dynamic context
   const pendingPersonaDataRef = useRef(null);
+  const pendingActionRef = useRef(null); // ⭐ NEW: For video conversion and other actions
   const [isCategorySelectionOpen, setIsCategorySelectionOpen] = useState(false);
   const [settingsPersona, setSettingsPersona] = useState(null);
   const nameInputRef = useRef(null);
@@ -450,6 +453,7 @@ const PersonaStudioScreen = () => {
     if (!hasPermission) {
       console.log('⚠️  [PersonaStudioScreen] No permission, showing Pre-permission sheet');
       // 2️⃣ Save pending data and show pre-permission sheet
+      setPermissionContext('persona_creation'); // ⭐ Set context
       pendingPersonaDataRef.current = data;
       setShowPermissionSheet(true);
       return;
@@ -464,8 +468,8 @@ const PersonaStudioScreen = () => {
   const handlePermissionAllow = useCallback(async () => {
     setShowPermissionSheet(false);
     
-    // Request system permission
-    const granted = await requestNotificationPermissionWithContext('persona_creation');
+    // Request system permission with dynamic context
+    const granted = await requestNotificationPermissionWithContext(permissionContext);
     
     if (granted) {
       showToast({ 
@@ -475,23 +479,35 @@ const PersonaStudioScreen = () => {
       });
     }
     
-    // Proceed with persona creation regardless of permission result
+    // Proceed with pending action (persona creation or video conversion)
     if (pendingPersonaDataRef.current) {
       handlePersonaCreationStart(pendingPersonaDataRef.current);
       pendingPersonaDataRef.current = null;
     }
-  }, [showToast, t]);
+    
+    // ⭐ NEW: Execute pending action (for video conversion and other features)
+    if (pendingActionRef.current) {
+      pendingActionRef.current();
+      pendingActionRef.current = null;
+    }
+  }, [permissionContext, showToast, t, handlePersonaCreationStart]);
   
   // ⭐ NEW: Handle "Later" button in pre-permission sheet
   const handlePermissionDeny = useCallback(() => {
     setShowPermissionSheet(false);
     
-    // Proceed with persona creation even without permission
+    // Proceed with pending action even without permission
     if (pendingPersonaDataRef.current) {
       handlePersonaCreationStart(pendingPersonaDataRef.current);
       pendingPersonaDataRef.current = null;
     }
-  }, []);
+    
+    // ⭐ NEW: Execute pending action (for video conversion and other features)
+    if (pendingActionRef.current) {
+      pendingActionRef.current();
+      pendingActionRef.current = null;
+    }
+  }, [handlePersonaCreationStart]);
   
   // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
   const handlePersonaCreationStart = useCallback(async (data) => {
@@ -902,7 +918,8 @@ const PersonaStudioScreen = () => {
     }
   }, [settingsPersona, currentPersona, user, setPersonas, showToast, t]);
   
-  const handlePersonaVideoConvert = useCallback(async (persona) => {
+  // ⭐ Internal function: Actual video conversion logic
+  const handlePersonaVideoConvertInternal = useCallback(async (persona) => {
     if (!user?.user_key) return;
     
     if (__DEV__) {
@@ -1013,6 +1030,25 @@ const PersonaStudioScreen = () => {
       });
     }
   }, [user, currentPersona, setPersonas, showToast, t]);
+
+  // ⭐ NEW: Wrapper function with permission check
+  const handlePersonaVideoConvert = useCallback(async (persona) => {
+    // Check notification permission before video conversion
+    const hasPermission = await checkNotificationPermission();
+    const hasRequested = await hasRequestedNotificationPermission();
+    
+    if (!hasPermission && !hasRequested) {
+      // Set context for video conversion
+      setPermissionContext('video_conversion');
+      // Store persona data for later execution
+      pendingActionRef.current = () => handlePersonaVideoConvertInternal(persona);
+      setShowPermissionSheet(true);
+      return;
+    }
+    
+    // Permission already granted or requested, proceed with conversion
+    handlePersonaVideoConvertInternal(persona);
+  }, [handlePersonaVideoConvertInternal]);
   
   const handlePersonaDelete = useCallback(async (persona) => {
     if (!user?.user_key) return;
@@ -1494,7 +1530,7 @@ const PersonaStudioScreen = () => {
     {/* ═════════════════════════════════════════════════════════════════ */}
     <NotificationPermissionSheet
       visible={showPermissionSheet}
-      context="persona_creation"
+      context={permissionContext}
       onAllow={handlePermissionAllow}
       onDeny={handlePermissionDeny}
     />
