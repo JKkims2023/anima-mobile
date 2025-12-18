@@ -134,9 +134,11 @@ const NotificationPermissionSheet = ({
               {/* Background gradient */}
               <LinearGradient
                 colors={[
-                  currentTheme.cardBackground,
-                  currentTheme.cardBackground,
+                  currentTheme.cardBackground || 'rgba(13, 17, 23, 0.95)',
+                  currentTheme.cardBackground || 'rgba(13, 17, 23, 0.95)',
                 ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
                 style={styles.sheet}
               >
                 {/* Decorative top bar */}
