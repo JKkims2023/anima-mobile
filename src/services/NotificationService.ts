@@ -225,29 +225,15 @@ class NotificationService {
         this.lastToken = savedToken;
       }
       
-      // iOS: Register for remote messages
-      if (Platform.OS === 'ios') {
-        const hasPermission = await this.requestUserPermission();
-        if (!hasPermission) {
-          console.log('[FCM] No permission for iOS, returning saved token');
-          return savedToken || null;
-        }
-        
-        try {
-          await messaging().registerDeviceForRemoteMessages();
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (apnsError: any) {
-          console.log('[FCM] ℹ️  APNs registration not available (likely iOS Simulator)');
-          // iOS Simulator doesn't support APNs, return saved token or null
-          return savedToken || null;
-        }
-      } else {
-        const hasPermission = await this.requestUserPermission();
-        if (!hasPermission) {
-          console.log('[FCM] No permission, push notifications will be limited');
-          return savedToken || null;
-        }
+      // Check permission (both iOS and Android)
+      const hasPermission = await this.requestUserPermission();
+      if (!hasPermission) {
+        console.log('[FCM] No permission, returning saved token');
+        return savedToken || null;
       }
+      
+      // ⭐ Note: Firebase auto-registers for APNs on iOS
+      // No need to call registerDeviceForRemoteMessages() manually
 
       // Request FCM token
       try {
