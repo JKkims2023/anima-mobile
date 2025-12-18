@@ -14,7 +14,9 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+# ⭐ Firebase static framework configuration
 use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
 
 target 'AnimaMobile' do
   config = use_native_modules!
