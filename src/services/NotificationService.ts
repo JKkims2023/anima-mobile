@@ -81,7 +81,12 @@ class NotificationService {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   async requestUserPermission(): Promise<boolean> {
     try {
+      console.log('[FCM] 🔔 requestUserPermission called');
+      console.log(`[FCM] Platform: ${Platform.OS}`);
+      
       if (Platform.OS === 'ios') {
+        console.log('[FCM] iOS: Calling messaging().requestPermission()...');
+        
         // iOS permission request
         const authStatus = await messaging().requestPermission({
           alert: true,
@@ -92,17 +97,26 @@ class NotificationService {
           sound: true,
         });
 
+        console.log('[FCM] iOS: authStatus =', authStatus);
+        console.log('[FCM] iOS: AuthorizationStatus.AUTHORIZED =', messaging.AuthorizationStatus.AUTHORIZED);
+        console.log('[FCM] iOS: AuthorizationStatus.PROVISIONAL =', messaging.AuthorizationStatus.PROVISIONAL);
+
         const isAuthorized = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-          
+        
+        console.log(`[FCM] iOS: isAuthorized = ${isAuthorized}`);
         return isAuthorized;
       } else if (Platform.OS === 'android') {
+        console.log('[FCM] Android: Checking version...');
         // Android permission request - only needed for Android 13+ (API 33)
         const androidVersion = typeof Platform.Version === 'string' 
           ? parseInt(Platform.Version, 10) 
           : Platform.Version;
-          
+        
+        console.log(`[FCM] Android: Version = ${androidVersion}`);
+        
         if (androidVersion >= 33) {
+          console.log('[FCM] Android 13+: Requesting POST_NOTIFICATIONS permission...');
           const permission = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
             {
@@ -113,17 +127,21 @@ class NotificationService {
               buttonPositive: "허용"
             }
           );
+          console.log(`[FCM] Android: Permission result = ${permission}`);
           const granted = permission === PermissionsAndroid.RESULTS.GRANTED;
+          console.log(`[FCM] Android: granted = ${granted}`);
           return granted;
         }
         
         // Android 12 and below don't need permission
+        console.log('[FCM] Android 12-: No permission needed, returning true');
         return true;
       }
       
+      console.log('[FCM] ⚠️  Unknown platform, returning false');
       return false;
     } catch (error) {
-      console.error('[FCM] Permission request error:', error);
+      console.error('[FCM] ❌ Permission request error:', error);
       return false;
     }
   }
@@ -133,20 +151,31 @@ class NotificationService {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   async requestPermissionWithContext(context: string = 'general'): Promise<boolean> {
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log(`[FCM] 💙 Requesting permission with context: ${context}`);
+      console.log(`[FCM] Platform: ${Platform.OS}`);
+      
+      // Check current permission status
+      const currentStatus = await this.checkPermissionStatus();
+      console.log(`[FCM] Current permission status: ${currentStatus}`);
       
       // If already requested, just check status
       const hasRequested = await this.hasRequestedPermission();
+      console.log(`[FCM] Has requested before: ${hasRequested}`);
+      
       if (hasRequested) {
         console.log('[FCM] Permission already requested, checking status');
-        return await this.checkPermissionStatus();
+        return currentStatus;
       }
       
       // First time requesting
+      console.log('[FCM] 🚀 First time requesting permission, calling requestUserPermission()...');
       const granted = await this.requestUserPermission();
+      console.log(`[FCM] Permission result: ${granted ? 'GRANTED' : 'DENIED'}`);
       
       // Mark as requested
       await this.markPermissionRequested();
+      console.log('[FCM] ✅ Marked as requested in AsyncStorage');
       
       if (granted) {
         console.log('[FCM] ✅ Permission granted! Setting up messaging...');
@@ -162,6 +191,7 @@ class NotificationService {
         console.log('[FCM] ⚠️  Permission denied by user');
       }
       
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return granted;
     } catch (error) {
       console.log('[FCM] ⚠️  Permission request error (non-critical):', error);
@@ -246,7 +276,7 @@ class NotificationService {
         this.lastToken = fcmToken;
         await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, fcmToken);
         
-        console.log('[FCM] ✅ Token obtained:', fcmToken.substring(0, 20) + '...');
+        console.log('[FCM] ✅ Token obtained:', fcmToken);
         return fcmToken;
       } catch (tokenError: any) {
         // ⭐ Handle iOS Simulator gracefully
