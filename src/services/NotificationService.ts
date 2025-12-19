@@ -504,6 +504,9 @@ class NotificationService {
 
       // Import API config dynamically
       const { FCM_ENDPOINTS } = require('../config/api.config');
+
+      console.log('FCM_ENDPOINTS', FCM_ENDPOINTS);
+      console.log('FCM_ENDPOINTS.UPDATE_TOKEN', FCM_ENDPOINTS.UPDATE_TOKEN);
       
       // Call backend API
       const response = await fetch(FCM_ENDPOINTS.UPDATE_TOKEN, {
@@ -530,12 +533,12 @@ class NotificationService {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return true;
       } else {
-        console.error('[FCM] ❌ Server update failed:', data.error);
+        console.log('[FCM] ❌ Server update failed:', data.error);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return false;
       }
     } catch (error) {
-      console.error('[FCM] ❌ Update token on server error:', error);
+      console.log('[FCM] ❌ Update token on server error:', error);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     }
@@ -564,7 +567,7 @@ class NotificationService {
           console.log('[FCM] ✅ Notification channel created');
         }
       } catch (error) {
-        console.error('[FCM] Create notification channel error:', error);
+        console.log('[FCM] Create notification channel error:', error);
         throw error;
       }
     }
@@ -619,7 +622,7 @@ class NotificationService {
         Vibration.vibrate([300, 500, 300, 500]);
         return Promise.resolve();
       } catch (error) {
-        console.error('[FCM] Background message handler error:', error);
+        console.log('[FCM] Background message handler error:', error);
         return Promise.resolve();
       }
     });
@@ -668,7 +671,7 @@ class NotificationService {
 
       return true;
     } catch (error) {
-      console.error('[FCM] Display notification error:', error);
+      console.log('[FCM] Display notification error:', error);
       return false;
     }
   }
@@ -681,7 +684,7 @@ class NotificationService {
       await notifee.cancelNotification(notificationId);
       return true;
     } catch (error) {
-      console.error('[FCM] Cancel notification error:', error);
+      console.log('[FCM] Cancel notification error:', error);
       return false;
     }
   }
@@ -694,7 +697,7 @@ class NotificationService {
       await notifee.cancelAllNotifications();
       return true;
     } catch (error) {
-      console.error('[FCM] Cancel all notifications error:', error);
+      console.log('[FCM] Cancel all notifications error:', error);
       return false;
     }
   }
@@ -708,7 +711,7 @@ class NotificationService {
         await notifee.setBadgeCount(count);
         return true;
       } catch (error) {
-        console.error('[FCM] Set badge count error:', error);
+        console.log('[FCM] Set badge count error:', error);
         return false;
       }
     }
