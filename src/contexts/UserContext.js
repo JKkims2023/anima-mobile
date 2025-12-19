@@ -54,6 +54,17 @@ export const UserProvider = ({ children }) => {
           console.log('👤 [ANIMA] User:', userData.user_id);
           console.log('📧 [ANIMA] Email:', userData.user_email);
           console.log('💰 [ANIMA] Points:', userData.user_point);
+
+          // ⭐ NEW: Update FCM token on server after auto-login
+          if (userData.user_key) {
+            try {
+              const { updateFCMTokenOnServer } = require('../services/fcmTokenService');
+              console.log('[ANIMA] 🔔 Updating FCM token on server...');
+              await updateFCMTokenOnServer(userData.user_key);
+            } catch (error) {
+              console.warn('[ANIMA] ⚠️  FCM token update failed (non-critical):', error.message);
+            }
+          }
         } else {
           setUser(null);
           setIsAuthenticated(false);
@@ -203,7 +214,7 @@ export const UserProvider = ({ children }) => {
    * 
    * @param {object} userData - Complete user data
    */
-  const setAuthenticatedUser = useCallback((userData) => {
+  const setAuthenticatedUser = useCallback(async (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
     
@@ -213,6 +224,17 @@ export const UserProvider = ({ children }) => {
     console.log('📧 [UserContext] Email:', userData.user_email);
     console.log('💰 [UserContext] Points:', userData.user_point);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // ⭐ NEW: Update FCM token on server after authentication
+    if (userData.user_key) {
+      try {
+        const { updateFCMTokenOnServer } = require('../services/fcmTokenService');
+        console.log('[UserContext] 🔔 Updating FCM token on server...');
+        await updateFCMTokenOnServer(userData.user_key);
+      } catch (error) {
+        console.warn('[UserContext] ⚠️  FCM token update failed (non-critical):', error.message);
+      }
+    }
   }, []);
 
   // ==================== Refresh User Info ====================

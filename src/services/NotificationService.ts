@@ -486,18 +486,58 @@ class NotificationService {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Update token on server
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  async updateTokenOnServer(token: string): Promise<void> {
+  async updateTokenOnServer(token: string, user_key: string): Promise<boolean> {
     try {
-      // TODO: Call ANIMA backend API to update FCM token
-      console.log('[FCM] TODO: Update token on server:', token.substring(0, 20) + '...');
-      // Example:
-      // await fetch('https://your-api.com/api/fcm/token', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ token, user_key: 'xxx' })
-      // });
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[FCM] 📤 Updating token on server...');
+      console.log('[FCM] Token:', token.substring(0, 20) + '...');
+      console.log('[FCM] User Key:', user_key);
+      console.log('[FCM] Platform:', Platform.OS);
+
+      // Check if token has changed (compare with AsyncStorage)
+      const lastSentToken = await AsyncStorage.getItem('@anima_last_sent_fcm_token');
+      if (lastSentToken === token) {
+        console.log('[FCM] ℹ️  Token unchanged, skipping server update');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return true;
+      }
+
+      // Import API config dynamically
+      const { FCM_ENDPOINTS } = require('../config/api.config');
+      
+      // Call backend API
+      const response = await fetch(FCM_ENDPOINTS.UPDATE_TOKEN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_key,
+          token,
+          platform: Platform.OS,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('[FCM] ✅ Token updated on server successfully');
+        console.log('[FCM] Updated:', data.data?.updated);
+        
+        // Save last sent token to AsyncStorage
+        await AsyncStorage.setItem('@anima_last_sent_fcm_token', token);
+        console.log('[FCM] ✅ Last sent token saved to AsyncStorage');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return true;
+      } else {
+        console.error('[FCM] ❌ Server update failed:', data.error);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return false;
+      }
     } catch (error) {
-      console.error('[FCM] Update token on server error:', error);
+      console.error('[FCM] ❌ Update token on server error:', error);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      return false;
     }
   }
 

@@ -197,6 +197,13 @@ export const MUSIC_ENDPOINTS = {
 };
 
 /**
+ * FCM (Firebase Cloud Messaging) Endpoints
+ */
+export const FCM_ENDPOINTS = {
+  UPDATE_TOKEN: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/fcm/token', // ⭐ Update FCM push token
+};
+
+/**
  * Health Check
  */
 export const HEALTH_ENDPOINT = '/api/health';
@@ -248,6 +255,7 @@ export default {
   STUDY_ENDPOINTS,
   MESSAGE_ENDPOINTS,
   MUSIC_ENDPOINTS,
+  FCM_ENDPOINTS, // ⭐ NEW: FCM endpoints
   HEALTH_ENDPOINT,
   AMOUNT_ENDPOINTS,
 };
