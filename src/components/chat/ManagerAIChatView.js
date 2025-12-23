@@ -533,7 +533,7 @@ const ManagerAIChatView = ({ videoUrl, imageUrl, hasVideo, isPreview = false, is
       });
 
       if (response.success) {
-        const aiResponse = response.data?.data || response.data?.message || 'I understand your question. Let me help you with that.';
+        const aiResponse = response.data?.answer || 'I understand your question. Let me help you with that.';
         
         // ✅ Set AI state to 'talking'
         setSageState('talking');

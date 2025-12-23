@@ -106,11 +106,11 @@ const ManagerAIOverlay = ({
         question: text,
       });
       
-      if (response.success && response.data?.data) {
+      if (response.success && response.data?.answer) {
         setIsTyping(true);
         setTypingMessage('');
         
-        const answer = response.data.data;
+        const answer = response.data.answer;
         let currentIndex = 0;
         
         const typeInterval = setInterval(() => {
