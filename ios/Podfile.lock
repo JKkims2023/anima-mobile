@@ -2190,6 +2190,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNNotifee (9.1.8):
+    - React-Core
+    - RNNotifee/NotifeeCore (= 9.1.8)
+  - RNNotifee/NotifeeCore (9.1.8):
+    - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - DoubleConversion
     - glog
@@ -2592,6 +2597,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2801,6 +2807,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-google-signin/google-signin"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNNotifee:
+    :path: "../node_modules/@notifee/react-native"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -2918,12 +2926,13 @@ SPEC CHECKSUMS:
   RNAppleAuthentication: 9027af8aa92b4719ef1b6030a8e954d37079473a
   RNCAsyncStorage: c1dca434eda758348a549efb46822b4091d76804
   RNFastImage: 462a183c4b0b6b26fdfd639e1ed6ba37536c3b87
-  RNFBApp: 6ea10ef8a45c43cd75d580599484c0931e6c3683
-  RNFBAuth: 3dec5ed9a2570fd63e738bcd7d8c3d39b053f6b2
-  RNFBMessaging: 10f37d2c5d9fe83e8f275322062803532faa4609
+  RNFBApp: 32f7425af42aef99472dd46e14222cb0a8a17504
+  RNFBAuth: 5387b9fea1877a72152734fd73bd3d6531d7aab9
+  RNFBMessaging: 993c913f7a037104b5ae02cadf7fc191545ceb51
   RNGestureHandler: 25497ebfd01b3021bd7211127376181e7b7db7d3
   RNGoogleSignin: 9a3687206bd121982d42993da2063f5a271e383c
   RNLocalize: a821a246fea291a2f3d62ac4373f7d763a53a8f5
+  RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
   RNReactNativeHapticFeedback: 1597ab4e15cabb38f0f0c62faa17a5e295430170
   RNReanimated: be205e2a2a8da6b282d97896b7500ad530c7d286
   RNScreens: e1459f3520b0e9a4f9ba6ee52fdb4a1f398be7d5
@@ -2935,6 +2944,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 50518ade05048235d91a78b803336dbb5b159d5d
 
-PODFILE CHECKSUM: e609218bffd6bec8b40409749835cd84c3ea8e1a
+PODFILE CHECKSUM: 39274378f36aa92b381ac5e4a73e61b2c7ff69ba
 
 COCOAPODS: 1.16.2

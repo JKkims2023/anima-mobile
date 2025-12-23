@@ -26,7 +26,6 @@ import Video from 'react-native-video';
 import { useTranslation } from 'react-i18next';
 import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 import { chatApi, errorHandler } from '../../services/api';
-import { getUserKey } from '../../utils/storage';
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import ChatHeightToggle from './ChatHeightToggle';
@@ -35,6 +34,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useQuickAction } from '../../contexts/QuickActionContext';
 import { useChat } from '../../contexts/ChatContext';
+import { useUser } from '../../contexts/UserContext';
 import { 
   TAB_BAR, 
   CHAT_INPUT, 
@@ -219,6 +219,7 @@ const ManagerAIChatView = ({ videoUrl, imageUrl, hasVideo, isPreview = false, is
   const { mode, personas } = usePersona(); // ✅ Get mode and personas for dynamic greeting
   const { isQuickMode } = useQuickAction(); // ✅ Get quick mode state
   const { setSageState } = useChat(); // ✅ Get AI state setter
+  const { user } = useUser(); // ✅ Get user info from context
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
   const [chatOpacityValue, setChatOpacityValue] = useState(1);
   
@@ -505,8 +506,25 @@ const ManagerAIChatView = ({ videoUrl, imageUrl, hasVideo, isPreview = false, is
     setIsLoading(true);
 
     try {
-      // 2. Get user key from storage
-      const userKey = await getUserKey();
+      // 2. Get user key from context
+      const userKey = user?.user_key;
+      console.log('🔑 [ManagerAIChatView] User Key:', userKey);
+      
+      // Check if user_key exists
+      if (!userKey) {
+        console.error('❌ [ManagerAIChatView] No user_key found! User not logged in.');
+        // Show error message to user
+        const errorMessage = {
+          id: Date.now().toString(),
+          type: 'assistant',
+          text: '⚠️ 로그인이 필요합니다. 사용자 정보를 찾을 수 없습니다.',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setMessageVersion(prev => prev + 1);
+        setIsLoading(false);
+        return;
+      }
       
       // 3. Call Manager AI API
       const response = await chatApi.sendManagerAIMessage({

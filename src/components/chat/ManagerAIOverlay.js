@@ -36,10 +36,10 @@ import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
 import { chatApi } from '../../services/api';
-import { getUserKey } from '../../utils/storage';
 import { scale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
+import { useUser } from '../../contexts/UserContext';
 
 /**
  * ManagerAIOverlay Component (Simplified)
@@ -51,6 +51,7 @@ const ManagerAIOverlay = ({
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { user } = useUser(); // ✅ Get user info from context
   
   // ✅ Chat state (Simplified)
   const [messages, setMessages] = useState([]);
@@ -91,9 +92,17 @@ const ManagerAIOverlay = ({
     setIsLoading(true);
     
     try {
-      const userKey = await getUserKey();
+      const userKey = user?.user_key;
+      
+      // Check if user is logged in
+      if (!userKey) {
+        console.error('❌ [ManagerAIOverlay] No user_key found! User not logged in.');
+        setIsLoading(false);
+        return;
+      }
+      
       const response = await chatApi.sendManagerAIMessage({
-        user_key: userKey || 'guest',
+        user_key: userKey,
         question: text,
       });
       
