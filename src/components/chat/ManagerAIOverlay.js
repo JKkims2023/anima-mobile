@@ -168,7 +168,13 @@ const ManagerAIOverlay = ({
     setMessageVersion(prev => prev + 1);
     setIsLoading(true);
 
-    console.log('user: ', user);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💬 [ManagerAIOverlay] handleSend called');
+    console.log('   user:', user ? user.user_id : 'null');
+    console.log('   user_key:', user?.user_key);
+    console.log('   persona:', persona ? persona.persona_name : 'null');
+    console.log('   persona_key:', persona?.persona_key);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     try {
       const userKey = user?.user_key;
@@ -176,6 +182,16 @@ const ManagerAIOverlay = ({
       // Check if user is logged in
       if (!userKey) {
         console.error('❌ [ManagerAIOverlay] No user_key found! User not logged in.');
+        
+        // Show user-friendly error message
+        const errorMessage = {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          text: '⚠️ 로그인 정보를 찾을 수 없습니다. 앱을 재시작해주세요.',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setMessageVersion(prev => prev + 1);
         setIsLoading(false);
         return;
       }
@@ -239,7 +255,7 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, [t, user, persona]); // ⭐ FIX: Add user and persona to dependencies
   
   // ✅ Handle close (Simplified)
   const handleClose = useCallback(() => {
