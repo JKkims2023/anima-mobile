@@ -51,6 +51,7 @@ const ManagerAIOverlay = ({
   visible = false, 
   onClose,
   context = 'home',
+  persona = null, // ⭐ NEW: Selected persona (from PersonaContext)
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -178,6 +179,7 @@ const ManagerAIOverlay = ({
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
         question: text,
+        persona_key: persona?.persona_key || null, // ⭐ NEW: Include persona_key
       });
       
       if (response.success && response.data?.answer) {
@@ -285,8 +287,13 @@ const ManagerAIOverlay = ({
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <CustomText type="big" bold style={styles.headerTitle}>
-                  💙 SAGE AI
+                  {persona ? `🎭 ${persona.persona_name}` : '💙 SAGE AI'}
                 </CustomText>
+                {persona?.identity_name && (
+                  <CustomText type="small" style={styles.headerSubtitle}>
+                    {t('persona.identity.as', '자아')}: {persona.identity_name}
+                  </CustomText>
+                )}
               </View>
               
               <TouchableOpacity 
@@ -442,6 +449,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
+  },
+  headerSubtitle: {
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: verticalScale(4),
+    opacity: 0.7,
   },
   closeButton: {
     padding: scale(8),

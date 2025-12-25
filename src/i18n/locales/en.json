@@ -2020,6 +2020,7 @@
       "title": "AI Identity Settings",
       "subtitle": "Set persona identity",
       "description": "When identity is enabled, this AI will speak and act like the specified person.",
+      "as": "As",
       "enable": "Enable Identity",
       "enabled_hint": "AI operates with the configured identity",
       "disabled_hint": "AI operates with default persona",

@@ -1964,6 +1964,7 @@
       "title": "AI 자아 설정",
       "subtitle": "페르소나의 자아를 설정합니다",
       "description": "자아 설정을 활성화하면, 이 AI가 설정한 인물처럼 말하고 행동합니다.",
+      "as": "자아",
       "enable": "자아 설정 활성화",
       "enabled_hint": "AI가 설정한 자아로 작동합니다",
       "disabled_hint": "AI가 기본 페르소나로 작동합니다",

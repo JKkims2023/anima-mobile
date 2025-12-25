@@ -303,6 +303,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         visible={isManagerOverlayVisible}
         onClose={handleOverlayClose}
         context={getCurrentContext()}
+        persona={selectedPersona} // ⭐ NEW: Pass selected persona
       />
     </View>
   );
