@@ -48,6 +48,7 @@ const ManagerAIOverlay = ({
   visible = false, 
   onClose,
   context = 'home',
+  onAISettings, // 🆕 AI Settings callback
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -75,6 +76,10 @@ const ManagerAIOverlay = ({
       setMessageVersion(1);
     }
   }, [visible, context, t]);
+
+  useEffect(() => {
+    console.log('user: ', user);
+  }, [user]);
   
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
@@ -90,6 +95,8 @@ const ManagerAIOverlay = ({
     setMessages(prev => [...prev, userMessage]);
     setMessageVersion(prev => prev + 1);
     setIsLoading(true);
+
+    console.log('user: ', user);
     
     try {
       const userKey = user?.user_key;
@@ -240,6 +247,7 @@ const ManagerAIOverlay = ({
                 onSend={handleSend}
                 disabled={isLoading || isTyping}
                 placeholder={t('chatBottomSheet.placeholder')}
+                onAISettings={onAISettings} // 🆕 AI Settings callback
               />
             </View>
           </View>

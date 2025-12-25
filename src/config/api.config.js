@@ -70,6 +70,10 @@ export const PERSONA_ENDPOINTS = {
  * Chat Endpoints
  */
 export const CHAT_ENDPOINTS = {
+  // ⭐ ANIMA v2.0 Chat API (New!)
+  ANIMA_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat',
+  
+  // Legacy endpoints (deprecated)
   MANAGER_QUESTION: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/manager-question',
   PERSONA_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/persona-chat',
   MEMORY_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/memory-chat',

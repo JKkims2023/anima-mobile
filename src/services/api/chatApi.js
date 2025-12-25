@@ -2,48 +2,111 @@
  * Chat API Service
  * 
  * Features:
- * - Manager AI chat
+ * - Manager AI chat (ANIMA v2.0)
  * - Persona chat
  * - Memory chat
  * - Public AI chat
  * 
  * Uses:
- * - Manager AI (SAGE) communication
+ * - Manager AI (SAGE) communication with RAG & session management
  * - Persona chat interface
  * - Memory-based conversations
+ * 
+ * Version: 2.0 (ANIMA Chat API)
  */
 
 import apiClient from './apiClient';
 import { CHAT_ENDPOINTS } from '../../config/api.config';
 import { logError } from './errorHandler';
 
+// Session management (in-memory)
+let currentSessionId = null;
+
 /**
- * Send message to Manager AI (SAGE)
+ * Send message to Manager AI (SAGE) - ANIMA v2.0
+ * 
+ * Features:
+ * - RAG (Retrieval-Augmented Generation) with Pinecone knowledge base
+ * - Session management for conversation continuity
+ * - Tier-based AI model selection
+ * - User preferences integration
+ * 
  * @param {Object} params - Request parameters
- * @param {string} params.question - User's question
- * @param {string} params.user_key - User key (optional if logged in)
- * @returns {Promise<Object>} - AI response
+ * @param {string} params.question - User's question/message
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (default: 'SAGE')
+ * @param {boolean} params.newSession - Force new session (default: false)
+ * @returns {Promise<Object>} - AI response with metadata
  */
-export const sendManagerAIMessage = async ({ question, user_key }) => {
+export const sendManagerAIMessage = async ({ 
+  question, 
+  user_key, 
+  persona_key = 'SAGE',
+  newSession = false 
+}) => {
   try {
-    const response = await apiClient.post(CHAT_ENDPOINTS.MANAGER_QUESTION, {
-      question,
+    // Reset session if requested
+    if (newSession) {
+      currentSessionId = null;
+    }
+
+    // Call ANIMA v2.0 Chat API
+    const response = await apiClient.post(CHAT_ENDPOINTS.ANIMA_CHAT, {
       user_key,
+      message: question,
+      session_id: currentSessionId,
+      persona_key,
     });
 
-    console.log('response', response);
-    
+    console.log('[ANIMA Chat] Response:', response.data);
+
+    // Save session_id for conversation continuity
+    if (response.data.data?.session_id) {
+      currentSessionId = response.data.data.session_id;
+      console.log('[ANIMA Chat] Session ID:', currentSessionId);
+    }
+
+    // Map response to expected format (backward compatibility)
     return {
       success: true,
-      data: response.data,
+      data: {
+        // Core response
+        answer: response.data.data?.message || '',
+        
+        // Metadata (new in v2.0)
+        session_id: response.data.data?.session_id,
+        model: response.data.data?.model,
+        tier: response.data.data?.tier,
+        knowledge_used: response.data.data?.knowledge_used || [],
+        
+        // Performance metrics
+        response_time_ms: response.data.metadata?.response_time_ms,
+        tokens: response.data.metadata?.tokens,
+        cost: response.data.metadata?.cost,
+      },
     };
   } catch (error) {
-    logError('Manager AI Chat', error);
+    logError('ANIMA Chat', error);
     return {
       success: false,
-      error: error.response?.data || { error_code: 'MANAGER_AI_ERROR' },
+      error: error.response?.data || { error_code: 'ANIMA_CHAT_ERROR' },
     };
   }
+};
+
+/**
+ * Reset current session (start new conversation)
+ */
+export const resetManagerAISession = () => {
+  currentSessionId = null;
+  console.log('[ANIMA Chat] Session reset');
+};
+
+/**
+ * Get current session ID
+ */
+export const getCurrentSessionId = () => {
+  return currentSessionId;
 };
 
 /**
@@ -137,10 +200,68 @@ export const sendPublicAIMessage = async ({ persona_key, question, session_id })
   }
 };
 
+/**
+ * Get AI preferences for user
+ * 
+ * @param {string} user_key - User key
+ * @returns {Promise<Object>} - User's AI preferences
+ */
+export const getAIPreferences = async (user_key) => {
+  try {
+    const response = await apiClient.get(`/api/user/ai-preferences?user_key=${user_key}`);
+    
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  } catch (error) {
+    logError('Get AI Preferences', error);
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'GET_PREFERENCES_ERROR' },
+    };
+  }
+};
+
+/**
+ * Update AI preferences for user
+ * 
+ * @param {string} user_key - User key
+ * @param {Object} settings - AI settings
+ * @param {string} settings.speech_style - Speech style (formal/friendly/casual/sibling)
+ * @param {string} settings.response_style - Response style (warm/motivational/logical/humorous)
+ * @param {string} settings.advice_level - Advice level (minimal/gentle/active/strong)
+ * @returns {Promise<Object>} - Updated preferences
+ */
+export const updateAIPreferences = async (user_key, settings) => {
+  try {
+    const response = await apiClient.post('/api/user/ai-preferences', {
+      user_key,
+      ...settings,
+    });
+    
+    return {
+      success: true,
+      data: response.data.data,
+      message: response.data.message,
+    };
+  } catch (error) {
+    logError('Update AI Preferences', error);
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'UPDATE_PREFERENCES_ERROR' },
+    };
+  }
+};
+
 export default {
   sendManagerAIMessage,
+  resetManagerAISession,
+  getCurrentSessionId,
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,
+  getAIPreferences,
+  updateAIPreferences,
 };
 

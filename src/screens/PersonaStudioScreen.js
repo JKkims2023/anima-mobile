@@ -526,6 +526,8 @@ const PersonaStudioScreen = () => {
         gender: data.gender,
         photo: data.file,
       });
+
+      console.log('response: ', response);
       
       if (!response.success) {
 

@@ -29,6 +29,7 @@ const ChatInputBar = memo(({
   placeholder,
   onToggleChatHeight,
   onToggleChatVisibility,
+  onAISettings, // 🆕 AI Settings callback
   chatHeight = 'medium',
   isChatVisible = true,
 }) => {
@@ -84,35 +85,59 @@ const ChatInputBar = memo(({
       {/* Settings Menu */}
       {isSettingsMenuOpen && (
         <View style={styles.settingsMenu}>
+          {/* 🆕 AI 성격 설정 */}
+          {onAISettings && (
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  onAISettings?.();
+                  setIsSettingsMenuOpen(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.menuIcon}>🎭</Text>
+                <Text style={styles.menuText}>AI 성격 설정</Text>
+              </TouchableOpacity>
+              
+              {/* 구분선 */}
+              <View style={styles.menuDivider} />
+            </>
+          )}
+          
           {/* 채팅창 높이 조절 */}
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => {
-              onToggleChatHeight?.();
-              setIsSettingsMenuOpen(false);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.menuIcon}>📏</Text>
-            <Text style={styles.menuText}>
-              채팅창 높이: {chatHeight === 'tall' ? '높게' : '중간'}
-            </Text>
-          </TouchableOpacity>
+          {onToggleChatHeight && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                onToggleChatHeight?.();
+                setIsSettingsMenuOpen(false);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.menuIcon}>📏</Text>
+              <Text style={styles.menuText}>
+                채팅창 높이: {chatHeight === 'tall' ? '높게' : '중간'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* 채팅창 감추기/보이기 */}
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => {
-              onToggleChatVisibility?.();
-              setIsSettingsMenuOpen(false);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.menuIcon}>{isChatVisible ? '👁️' : '👁️‍🗨️'}</Text>
-            <Text style={styles.menuText}>
-              {isChatVisible ? '채팅창 감추기' : '채팅창 보이기'}
-            </Text>
-          </TouchableOpacity>
+          {onToggleChatVisibility && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                onToggleChatVisibility?.();
+                setIsSettingsMenuOpen(false);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.menuIcon}>{isChatVisible ? '👁️' : '👁️‍🗨️'}</Text>
+              <Text style={styles.menuText}>
+                {isChatVisible ? '채팅창 감추기' : '채팅창 보이기'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -248,6 +273,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     lineHeight: platformLineHeight(moderateScale(15)), // ✅ Platform-aware lineHeight
     fontWeight: '500',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: verticalScale(8),
   },
   container: {
     flexDirection: 'row',
