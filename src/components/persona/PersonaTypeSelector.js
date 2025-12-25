@@ -46,8 +46,10 @@ const PersonaTypeSelector = ({
   const handleModeToggle = () => {
     HapticService.light();
     
-    if (showDefaultMode) {
+    if (!isUserMode) {
       // 3-mode cycle: default → user → favorite → default
+
+      /*
       if (!isUserMode && !isFavoriteMode) {
         // Currently default, switch to user
         onTypeChange?.('user');
@@ -58,7 +60,10 @@ const PersonaTypeSelector = ({
         // Currently favorite, switch to default
         onTypeChange?.('default');
       }
+      */
+      onTypeChange?.('user');
     } else {
+      /*
       // 2-mode cycle: user → favorite → user
       if (isUserMode && !isFavoriteMode) {
         // Currently user, switch to favorite
@@ -67,6 +72,8 @@ const PersonaTypeSelector = ({
         // Currently favorite, switch to user
         onTypeChange?.('user');
       }
+      */
+      onTypeChange?.('default');
     }
   };
 

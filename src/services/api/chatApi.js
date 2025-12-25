@@ -85,6 +85,9 @@ export const sendManagerAIMessage = async ({
         // Core response
         answer: response.data.data?.message || '',
         
+        // ⭐ NEW: Continuous conversation support
+        continue_conversation: response.data.data?.continue_conversation || false,
+        
         // Metadata (new in v2.0)
         session_id: response.data.data?.session_id,
         model: response.data.data?.model,

@@ -18,7 +18,7 @@
  * @version 2.0 - Simplified & Optimized
  */
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { 
   View, 
   Modal, 
@@ -66,7 +66,7 @@ const ManagerAIOverlay = ({
   
   // ⭐ NEW: Continuous conversation state
   const [isAIContinuing, setIsAIContinuing] = useState(false);
-  const [aiContinueCount, setAiContinueCount] = useState(0);
+  const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
   
   // 🆕 Settings panel state
   const [showSettings, setShowSettings] = useState(false);
@@ -161,20 +161,30 @@ const ManagerAIOverlay = ({
   const handleAIContinue = useCallback(async (userKey) => {
     const MAX_CONTINUES = 5; // Maximum 5 continuous messages
     
-    if (aiContinueCount >= MAX_CONTINUES) {
+    // ⭐ Check count using ref
+    if (aiContinueCountRef.current >= MAX_CONTINUES) {
       console.log('⚠️ [ManagerAIOverlay] Max continuous messages reached');
       setIsAIContinuing(false);
-      setAiContinueCount(0);
+      aiContinueCountRef.current = 0; // Reset
       setIsLoading(false);
       return;
     }
     
+    // ⭐ Increment count
+    aiContinueCountRef.current += 1;
+    const currentCount = aiContinueCountRef.current;
+    
+    console.log('');
+    console.log('🚀🚀🚀 [handleAIContinue] CALLED! 🚀🚀🚀');
+    console.log('   userKey:', userKey);
+    console.log('   aiContinueCount:', currentCount);
+    console.log('');
+    
     setIsAIContinuing(true);
-    setAiContinueCount(prev => prev + 1);
     setIsLoading(true);
     
     try {
-      console.log(`🔄 [ManagerAIOverlay] Requesting AI to continue (${aiContinueCount + 1}/${MAX_CONTINUES})...`);
+      console.log(`🔄 [ManagerAIOverlay] Requesting AI to continue (${currentCount}/${MAX_CONTINUES})...`);
       
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
@@ -218,24 +228,24 @@ const ManagerAIOverlay = ({
             } else {
               // Conversation ended
               setIsAIContinuing(false);
-              setAiContinueCount(0);
+              aiContinueCountRef.current = 0; // ⭐ Reset ref
               console.log('✅ [ManagerAIOverlay] AI conversation completed');
             }
           }
         }, 30);
       } else {
         setIsAIContinuing(false);
-        setAiContinueCount(0);
+        aiContinueCountRef.current = 0; // ⭐ Reset ref
         setIsLoading(false);
       }
       
     } catch (error) {
       console.error('[ManagerAIOverlay] AI continue error:', error);
       setIsAIContinuing(false);
-      setAiContinueCount(0);
+      aiContinueCountRef.current = 0; // ⭐ Reset ref
       setIsLoading(false);
     }
-  }, [persona, aiContinueCount, chatApi]);
+  }, [persona, chatApi]); // ⭐ Removed aiContinueCount from dependencies
   
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
@@ -291,6 +301,14 @@ const ManagerAIOverlay = ({
         setTypingMessage('');
         
         const answer = response.data.answer;
+        const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
+        
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📩 [ManagerAIOverlay] Response received:');
+        console.log('   answer length:', answer.length);
+        console.log('   continue_conversation:', shouldContinue);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
         let currentIndex = 0;
         
         const typeInterval = setInterval(() => {
@@ -313,11 +331,21 @@ const ManagerAIOverlay = ({
             setTypingMessage('');
             
             // ⭐ NEW: Check if AI wants to continue talking
-            if (response.data.continue_conversation) {
-              console.log('🔄 [ManagerAIOverlay] AI wants to continue...');
+            console.log('🔍 [ManagerAIOverlay] Checking shouldContinue:', shouldContinue);
+            if (shouldContinue) {
+              console.log('🔄 [ManagerAIOverlay] AI wants to continue, calling handleAIContinue...');
+              
+              // ⭐ Show loading indicator
+              setIsLoading(true);
+              setIsTyping(true);
+              setTypingMessage('...');
+              
               setTimeout(() => {
                 handleAIContinue(userKey);
               }, 800); // Small delay for natural feel
+            } else {
+              console.log('✋ [ManagerAIOverlay] AI finished, no continuation needed');
+              aiContinueCountRef.current = 0; // ⭐ Reset counter
             }
           }
         }, 30);

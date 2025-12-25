@@ -74,14 +74,14 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   
   // ⭐ Debug log
   if (__DEV__) {
-    console.log('🔍 [CustomTabBar] shouldHideTabBar:', shouldHideTabBar);
-    console.log('🔍 [CustomTabBar] currentHomeRouteName:', currentHomeRouteName);
-    console.log('🔍 [CustomTabBar] currentHistoryRouteName:', currentHistoryRouteName);
+   // console.log('🔍 [CustomTabBar] shouldHideTabBar:', shouldHideTabBar);
+   // console.log('🔍 [CustomTabBar] currentHomeRouteName:', currentHomeRouteName);
+   // console.log('🔍 [CustomTabBar] currentHistoryRouteName:', currentHistoryRouteName);
   }
   
   // ⭐ Return null if tab bar should be hidden
   if (shouldHideTabBar) {
-    console.log('✅ [CustomTabBar] Hiding tab bar!');
+   // console.log('✅ [CustomTabBar] Hiding tab bar!');
     return null;
   }
   
@@ -101,6 +101,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   
   // ✅ Handle Center AI Button Press
   const handleCenterButtonPress = () => {
+    /*
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('💙 [CenterAIButton] Pressed');
     console.log('📋 [CenterAIButton] Current Tab:', state.routes[state.index]?.name);
@@ -109,7 +110,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     console.log('🔑 [CenterAIButton] persona_key:', selectedPersona?.persona_key);
     console.log('🧠 [CenterAIButton] identity_name:', selectedPersona?.identity_name);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+    */
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
@@ -196,13 +197,14 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           const onPress = () => {
             // ⭐ CRITICAL FIX: Block navigation if message creation is active
             if (isMessageCreationActive && !isFocused) {
+              /*
               console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
               console.log('🚨 [CustomTabBar] TAB PRESS BLOCKED!');
               console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
               console.log('  - isMessageCreationActive:', isMessageCreationActive);
               console.log('  - Target tab:', tab.label);
               console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-              
+              */
               HapticService.warning();
               
               // Show confirmation dialog
@@ -215,7 +217,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
                     text: t('message.alert.continue_writing'),
                     style: 'cancel',
                     onPress: () => {
-                      console.log('[CustomTabBar] ✅ User chose to continue writing');
+              //        console.log('[CustomTabBar] ✅ User chose to continue writing');
                       HapticService.light();
                     }
                   },
@@ -223,7 +225,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
                     text: t('message.alert.exit'),
                     style: 'destructive',
                     onPress: () => {
-                      console.log('[CustomTabBar] ✅ User confirmed exit, navigating to:', tab.label);
+              //        console.log('[CustomTabBar] ✅ User confirmed exit, navigating to:', tab.label);
                       HapticService.medium();
                       
                       // Navigate to target tab

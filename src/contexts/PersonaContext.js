@@ -32,12 +32,13 @@ export const PersonaProvider = ({ children }) => {
   // ⭐ FIX: initializePersonas MUST depend on 'user' to avoid closure capture
   const initializePersonas = useCallback(async () => {
     try {
+      /*
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🎭 [PersonaContext] initializePersonas called');
       console.log('👤 [PersonaContext] user:', user ? user.user_id : 'null');
       console.log('🔑 [PersonaContext] user_key:', user ? user.user_key : 'null');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
+      */
       setIsLoading(true);
 
 
@@ -66,7 +67,7 @@ export const PersonaProvider = ({ children }) => {
 
         const userPersonas = await getPersonaList(user != null ? user?.user_key : 'empty');
         
-        console.log('✅ [PersonaContext] User personas loaded:', userPersonas.length);
+       // console.log('✅ [PersonaContext] User personas loaded:', userPersonas.length);
 
         // ✅ Combine: Manager AI first, then user personas
         const allPersonas = [
@@ -77,10 +78,11 @@ export const PersonaProvider = ({ children }) => {
           }))
         ];
 
+       /*
         console.log('✅ [PersonaContext] Total personas:', allPersonas.length);
         console.log('📊 [PersonaContext] Names:', allPersonas.map(p => p.persona_name).join(', '));
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
+        */
         setPersonas(allPersonas);
       } catch (apiError) {
         console.error('❌ [PersonaContext] API error:', apiError);
@@ -114,12 +116,12 @@ export const PersonaProvider = ({ children }) => {
         setSelectedIndex(0); // ✅ First persona (no SAGE in PersonaSwipeViewer)
         
         if (__DEV__) {
-          console.log('[PersonaContext] 🔄 Switched to Persona mode');
+         // console.log('[PersonaContext] 🔄 Switched to Persona mode');
         }
       } else {
         // No personas: stay in SAGE mode
         if (__DEV__) {
-          console.log('[PersonaContext] ⚠️ No personas available. Stay in SAGE mode.');
+         // console.log('[PersonaContext] ⚠️ No personas available. Stay in SAGE mode.');
         }
         // TODO: Show create persona message
       }
@@ -129,7 +131,7 @@ export const PersonaProvider = ({ children }) => {
       setSelectedIndex(0); // ✅ Index doesn't matter for SAGE mode
       
       if (__DEV__) {
-        console.log('[PersonaContext] 🔄 Switched to SAGE mode');
+       // console.log('[PersonaContext] 🔄 Switched to SAGE mode');
       }
     }
   }, [mode, personas.length]);
@@ -140,6 +142,7 @@ export const PersonaProvider = ({ children }) => {
 
   // 🔍 DEBUG: Log selectedPersona changes
   useEffect(() => {
+    /*
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎭 [PersonaContext] selectedPersona changed');
     console.log('   Index:', selectedIndex);
@@ -149,6 +152,7 @@ export const PersonaProvider = ({ children }) => {
     console.log('   identity_name:', effectivePersona?.identity_name);
     console.log('   identity_enabled:', effectivePersona?.identity_enabled);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    */
   }, [selectedPersona, effectivePersona, selectedIndex]);
 
   // ✅ Memoize context value to prevent unnecessary re-renders

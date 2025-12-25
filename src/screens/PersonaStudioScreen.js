@@ -1499,13 +1499,14 @@ const PersonaStudioScreen = () => {
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* Category Selection Sheet */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* ═════════════════════════════════════════════════════════════════ 
     <CategorySelectionSheet
       isOpen={isCategorySelectionOpen}
       currentCategory={settingsPersona?.category_type || 'normal'}
       onClose={() => setIsCategorySelectionOpen(false)}
       onSelectCategory={handleCategorySelect}
     />
+    */}
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* MessageInputOverlay for Name Change (Always rendered, ref-based) */}

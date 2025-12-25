@@ -109,11 +109,13 @@ const PersonaSwipeViewer = forwardRef(({
 
   // ⭐ DEBUG: Log isScreenFocused prop changes
   useEffect(() => {
+    /*
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎥 [PersonaSwipeViewer] isScreenFocused changed:', isScreenFocused);
     console.log('  - Current persona:', currentPersona?.persona_name);
     console.log('  - Will pass to PersonaCardView:', isScreenFocused);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    */
   }, [isScreenFocused, currentPersona]);
 
   // ✅ Restore saved index on mount (after remount from screen focus)
@@ -127,7 +129,7 @@ const PersonaSwipeViewer = forwardRef(({
         });
         
         if (__DEV__) {
-          console.log('[PersonaSwipeViewer] 🔄 Restored index:', initialIndex);
+         // console.log('[PersonaSwipeViewer] 🔄 Restored index:', initialIndex);
         }
       }, 100);
       
@@ -139,7 +141,7 @@ const PersonaSwipeViewer = forwardRef(({
   useEffect(() => {
     if (!isInitialMount.current && initialIndex !== lastScrolledIndex.current && flatListRef.current) {
       if (__DEV__) {
-        console.log('[PersonaSwipeViewer] 🎯 External index change detected:', initialIndex);
+       // console.log('[PersonaSwipeViewer] 🎯 External index change detected:', initialIndex);
       }
       
       // Scroll to new index with animation
@@ -166,7 +168,7 @@ const PersonaSwipeViewer = forwardRef(({
       onIndexChange(index); // ✅ Notify parent
 
       if (__DEV__ && personas && personas[index]) {
-        console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
+       // console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
       }
     }
   }, [selectedIndex, personas, onIndexChange, availableHeight]);

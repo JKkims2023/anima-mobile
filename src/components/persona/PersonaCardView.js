@@ -104,23 +104,24 @@ const PersonaCardView = ({
 
   // ⭐ NEW: Timer logic for persona creation
   useEffect(() => {
+    /*
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('⏱️  [PersonaCardView] TIMER USEEFFECT TRIGGERED');
     console.log('  - Persona:', persona?.persona_name);
     console.log('  - persona_key:', persona?.persona_key);
     console.log('  - done_yn:', persona?.done_yn);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+    */
     // ⭐ CRITICAL: Clear any existing interval IMMEDIATELY
     if (timerIntervalRef.current) {
-      console.log('  - 🧹 Clearing previous interval:', timerIntervalRef.current);
+     // console.log('  - 🧹 Clearing previous interval:', timerIntervalRef.current);
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
     
     // ⭐ CRITICAL FIX: Reset state when persona changes or is complete
     if (persona?.done_yn !== 'N') {
-      console.log('  - ✅ Persona complete, resetting state');
+     // console.log('  - ✅ Persona complete, resetting state');
       setRemainingSeconds(null);
       setIsCheckingStatus(false);
       return;
@@ -129,7 +130,7 @@ const PersonaCardView = ({
     // Calculate remaining time based on server data
     const calculateRemainingTime = () => {
       if (!persona.created_date || !persona.estimate_time) {
-        console.warn('[PersonaCardView] Missing created_date or estimate_time:', persona);
+     //   console.warn('[PersonaCardView] Missing created_date or estimate_time:', persona);
         return 0;
       }
 
@@ -143,31 +144,29 @@ const PersonaCardView = ({
 
     // Initial calculation
     const initialRemaining = calculateRemainingTime();
-    console.log('  - ⏱️  Initial remaining:', initialRemaining);
+
     setRemainingSeconds(initialRemaining);
 
     // ⭐ FIX: Stop timer if already at 0
     if (initialRemaining === 0) {
-      console.log('  - ⏹️  Timer already at 0, not starting interval');
+     // console.log('  - ⏹️  Timer already at 0, not starting interval');
       return;
     }
 
     // Update every second
-    console.log('  - ▶️  Starting interval timer');
     timerIntervalRef.current = setInterval(() => {
       const remaining = calculateRemainingTime();
       setRemainingSeconds(remaining);
       
       // ⭐ FIX: Stop interval when reaching 0
       if (remaining === 0) {
-        console.log('  - ⏹️  Timer reached 0, clearing interval');
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
       }
     }, 1000);
 
     return () => {
-      console.log('  - 🧹 Cleanup: clearing interval for', persona?.persona_name);
+
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
@@ -197,17 +196,6 @@ const PersonaCardView = ({
       ? persona?.original_url 
       : (persona?.selected_dress_image_url || persona?.original_url);
     
-    // ⭐ DEBUG: ALWAYS log image URL for debugging
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🖼️ [PersonaCardView] Image URL (ALL CASES):');
-    console.log('  - Persona:', persona.persona_name);
-    console.log('  - done_yn:', persona?.done_yn);
-    console.log('  - selected_dress_image_url:', persona?.selected_dress_image_url);
-    console.log('  - original_url:', persona?.original_url);
-    console.log('  - Final imageUrl:', imageUrl);
-    console.log('  - imageUrl type:', typeof imageUrl);
-    console.log('  - imageUrl is truthy?', !!imageUrl);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     return { hasVideo, videoUrl, imageUrl };
   }, [
@@ -228,7 +216,7 @@ const PersonaCardView = ({
     const shouldShow = isScreenFocused && modeOpacityValue > 0;
     const opacityValue = shouldShow ? 1 : 0;
     containerOpacity.setValue(opacityValue);
-    
+    /*
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎨 [PersonaCardView] Container Opacity UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -243,19 +231,20 @@ const PersonaCardView = ({
     console.log('isActive:', isActive);
     console.log('done_yn:', persona?.done_yn);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    */
   }, [isScreenFocused, modeOpacityValue, persona.persona_name]);
 
   // ✅ Handle video load
   const handleVideoLoad = () => {
     if (__DEV__) {
-      console.log('[PersonaCardView] 🎬 Video Loaded:', persona.persona_name);
+   //   console.log('[PersonaCardView] 🎬 Video Loaded:', persona.persona_name);
     }
     setVideoLoaded(true);
     // Fade in video (instant for now to debug)
     videoOpacity.setValue(1);
     
     if (__DEV__) {
-      console.log('[PersonaCardView] 🎥 Video Opacity Set to 1:', persona.persona_name);
+     // console.log('[PersonaCardView] 🎥 Video Opacity Set to 1:', persona.persona_name);
     }
   };
 
@@ -313,10 +302,10 @@ const PersonaCardView = ({
         style={styles.backgroundMedia}
         resizeMode="cover"
         onLoad={() => {
-          console.log('✅ [PersonaCardView] Image LOADED:', persona.persona_name, imageUrl);
+     //     console.log('✅ [PersonaCardView] Image LOADED:', persona.persona_name, imageUrl);
         }}
         onError={(error) => {
-          console.error('❌ [PersonaCardView] Image ERROR:', persona.persona_name, imageUrl, error);
+     //     console.error('❌ [PersonaCardView] Image ERROR:', persona.persona_name, imageUrl, error);
         }}
       />
 
@@ -348,7 +337,7 @@ const PersonaCardView = ({
             onLoad={handleVideoLoad}
             onError={(error) => {
               if (__DEV__) {
-                console.error('[PersonaCardView] Video Error:', persona.persona_name, error);
+             //   console.error('[PersonaCardView] Video Error:', persona.persona_name, error);
               }
             }}
           />
@@ -360,6 +349,7 @@ const PersonaCardView = ({
       {(() => {
         const shouldShowBlur = persona?.done_yn === 'N';
         
+        /*
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('🔍 [PersonaCardView] BLUR CHECK');
         console.log('  - Persona:', persona?.persona_name);
@@ -369,7 +359,7 @@ const PersonaCardView = ({
         console.log('  - remainingSeconds:', remainingSeconds);
         console.log('  - isCheckingStatus:', isCheckingStatus);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
+        */
         // ⭐ ULTIMATE FIX: Control BlurView with blurAmount (0 = no blur)
         // BlurView is a Native component - conditional rendering doesn't work with FlashList
         // Solution: Always render, but set blurAmount=0 to disable blur effect
