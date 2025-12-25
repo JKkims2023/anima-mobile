@@ -2016,6 +2016,28 @@
         "status_check_failed": "Status check failed. Please try again"
       }
     },
+    "identity": {
+      "title": "AI Identity Settings",
+      "subtitle": "Set persona identity",
+      "description": "When identity is enabled, this AI will speak and act like the specified person.",
+      "enable": "Enable Identity",
+      "enabled_hint": "AI operates with the configured identity",
+      "disabled_hint": "AI operates with default persona",
+      "name_label": "Identity Name",
+      "name_placeholder": "e.g. BTS V, Kim Taehyung",
+      "content_label": "Identity Description",
+      "content_placeholder": "Example:\n\nKim Taehyung (V) has a warm and thoughtful personality. He is artistic and emotional, with a unique charm.\n\nSpeaking Style:\n- Thinks deeply and speaks slowly\n- Uses metaphorical and poetic expressions\n- Shows affection to fans with phrases like \"ARMY~\", \"Miss you\"\n\nPersonality:\n- Very affectionate with friends\n- Prefers genuine and honest conversations\n- Loves art and creativity",
+      "content_hint": "💡 Include personality, speaking style, values, and behavior patterns",
+      "blocked_title": "Default AI",
+      "blocked_message": "Cannot set identity for default AI (SAGE, NEXUS).",
+      "load_failed": "Failed to load identity settings.",
+      "save_failed": "Failed to save identity settings.",
+      "save_success": "Identity settings saved successfully.",
+      "unsaved_title": "Unsaved Changes",
+      "unsaved_message": "Are you sure you want to close without saving your changes?",
+      "close_without_save": "Close",
+      "invalid_content": "Identity description must be between 50 and 1000 characters."
+    },
     "loading": {
       "title": "Creating your persona",
       "analyzing": "Analyzing the photo...",

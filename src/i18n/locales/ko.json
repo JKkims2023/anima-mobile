@@ -1960,6 +1960,28 @@
       "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요"
  
     },
+    "identity": {
+      "title": "AI 자아 설정",
+      "subtitle": "페르소나의 자아를 설정합니다",
+      "description": "자아 설정을 활성화하면, 이 AI가 설정한 인물처럼 말하고 행동합니다.",
+      "enable": "자아 설정 활성화",
+      "enabled_hint": "AI가 설정한 자아로 작동합니다",
+      "disabled_hint": "AI가 기본 페르소나로 작동합니다",
+      "name_label": "자아 이름",
+      "name_placeholder": "예: BTS 뷔, 김태형",
+      "content_label": "자아 설명",
+      "content_placeholder": "예시:\n\n김태형(뷔)는 따뜻하고 사려 깊은 성격입니다. 예술적이고 감성적이며, 4차원적인 매력이 있습니다.\n\n말투 특징:\n- 생각을 많이 하며 천천히 말함\n- 은유적이고 시적인 표현 사용\n- 팬들에게 \"아미들아~\", \"보고싶어요\" 등 애정 표현\n\n성격 특징:\n- 친구들에게 애정이 넘침\n- 진솔하고 솔직한 대화 선호\n- 예술과 창의성을 사랑함",
+      "content_hint": "💡 성격, 말투, 가치관, 행동 패턴을 포함해주세요",
+      "blocked_title": "기본 AI",
+      "blocked_message": "기본 AI (SAGE, NEXUS)는 자아 설정이 불가능합니다.",
+      "load_failed": "자아 설정을 불러오는데 실패했습니다.",
+      "save_failed": "자아 설정 저장에 실패했습니다.",
+      "save_success": "자아 설정이 저장되었습니다.",
+      "unsaved_title": "저장하지 않은 변경사항",
+      "unsaved_message": "변경사항을 저장하지 않고 닫으시겠습니까?",
+      "close_without_save": "닫기",
+      "invalid_content": "자아 설명은 최소 50자, 최대 1000자여야 합니다."
+    },
     "loading": {
       "title": "당신의 페르소나를 만들고 있어요",
       "analyzing": "사진을 분석하고 있어요...",
