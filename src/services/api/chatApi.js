@@ -20,7 +20,8 @@ import { CHAT_ENDPOINTS } from '../../config/api.config';
 import { logError } from './errorHandler';
 
 // Session management (in-memory)
-let currentSessionId = null;
+// ⭐ FIX: Store sessions per persona to prevent cross-talk
+let sessionsByPersona = {};
 
 /**
  * Send message to Manager AI (SAGE) - ANIMA v2.0
@@ -45,10 +46,20 @@ export const sendManagerAIMessage = async ({
   newSession = false 
 }) => {
   try {
+    // ⭐ FIX: Get session_id for this specific persona
+    let currentSessionId = sessionsByPersona[persona_key];
+    
     // Reset session if requested
     if (newSession) {
       currentSessionId = null;
+      delete sessionsByPersona[persona_key];
     }
+
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`💬 [ANIMA Chat] Sending message`);
+    console.log(`   persona_key: ${persona_key}`);
+    console.log(`   session_id: ${currentSessionId || 'NEW'}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
     // Call ANIMA v2.0 Chat API
     const response = await apiClient.post(CHAT_ENDPOINTS.ANIMA_CHAT, {
@@ -60,10 +71,11 @@ export const sendManagerAIMessage = async ({
 
     console.log('[ANIMA Chat] Response:', response.data);
 
-    // Save session_id for conversation continuity
+    // ⭐ FIX: Save session_id for THIS persona only
     if (response.data.data?.session_id) {
-      currentSessionId = response.data.data.session_id;
-      console.log('[ANIMA Chat] Session ID:', currentSessionId);
+      sessionsByPersona[persona_key] = response.data.data.session_id;
+      console.log(`✅ [ANIMA Chat] Session saved for persona: ${persona_key}`);
+      console.log(`   Session ID: ${response.data.data.session_id}`);
     }
 
     // Map response to expected format (backward compatibility)
@@ -96,17 +108,28 @@ export const sendManagerAIMessage = async ({
 
 /**
  * Reset current session (start new conversation)
+ * ⭐ FIX: Support resetting specific persona session
  */
-export const resetManagerAISession = () => {
-  currentSessionId = null;
-  console.log('[ANIMA Chat] Session reset');
+export const resetManagerAISession = (persona_key = null) => {
+  if (persona_key) {
+    delete sessionsByPersona[persona_key];
+    console.log(`[ANIMA Chat] Session reset for persona: ${persona_key}`);
+  } else {
+    sessionsByPersona = {};
+    console.log('[ANIMA Chat] All sessions reset');
+  }
 };
 
 /**
- * Get current session ID
+ * Get current session ID for a specific persona
+ * ⭐ FIX: Support getting persona-specific session
  */
-export const getCurrentSessionId = () => {
-  return currentSessionId;
+export const getCurrentSessionId = (persona_key = null) => {
+  if (persona_key) {
+    return sessionsByPersona[persona_key] || null;
+  }
+  // Backward compatibility: return first available session
+  return Object.values(sessionsByPersona)[0] || null;
 };
 
 /**
