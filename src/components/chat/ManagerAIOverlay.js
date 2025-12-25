@@ -28,6 +28,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -36,10 +38,11 @@ import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
 import { chatApi } from '../../services/api';
-import { scale, moderateScale, platformPadding } from '../../utils/responsive-utils';
+import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
+import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 
 /**
  * ManagerAIOverlay Component (Simplified)
@@ -48,7 +51,6 @@ const ManagerAIOverlay = ({
   visible = false, 
   onClose,
   context = 'home',
-  onAISettings, // 🆕 AI Settings callback
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -60,6 +62,12 @@ const ManagerAIOverlay = ({
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [messageVersion, setMessageVersion] = useState(0);
+  
+  // 🆕 Settings panel state
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
   
   // ✅ Initialize with greeting message (Only once when visible changes)
   useEffect(() => {
@@ -80,6 +88,65 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     console.log('user: ', user);
   }, [user]);
+  
+  // 🆕 Load AI settings when overlay opens
+  useEffect(() => {
+    if (visible && user?.user_key) {
+      loadAISettings();
+    }
+  }, [visible, user?.user_key]);
+  
+  // 🆕 Load AI settings
+  const loadAISettings = async () => {
+    try {
+      setLoadingSettings(true);
+      const response = await chatApi.getAIPreferences(user.user_key);
+      
+      if (response.success) {
+        setSettings({
+          speech_style: response.data.speech_style || DEFAULT_SETTINGS.speech_style,
+          response_style: response.data.response_style || DEFAULT_SETTINGS.response_style,
+          advice_level: response.data.advice_level || DEFAULT_SETTINGS.advice_level,
+        });
+      }
+    } catch (error) {
+      console.error('[ManagerAI] Load settings error:', error);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+  
+  // 🆕 Update AI setting
+  const updateSetting = async (key, value) => {
+    // Optimistic update
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    HapticService.light();
+    
+    try {
+      setSavingSettings(true);
+      const response = await chatApi.updateAIPreferences(user.user_key, newSettings);
+      
+      if (response.success) {
+        HapticService.success();
+      } else {
+        throw new Error('Update failed');
+      }
+    } catch (error) {
+      console.error('[ManagerAI] Update settings error:', error);
+      // Revert on error
+      setSettings(settings);
+      HapticService.error();
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+  
+  // 🆕 Toggle settings panel
+  const handleToggleSettings = useCallback(() => {
+    setShowSettings(prev => !prev);
+    HapticService.light();
+  }, []);
   
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
@@ -241,13 +308,97 @@ const ManagerAIOverlay = ({
               />
             </View>
             
+            {/* 🆕 Settings Panel */}
+            {showSettings && (
+              <View style={styles.settingsPanel}>
+                <View style={styles.settingsPanelHeader}>
+                  <CustomText type="medium" bold style={styles.settingsPanelTitle}>
+                    🎭 AI 성격 설정
+                  </CustomText>
+                  <TouchableOpacity
+                    onPress={handleToggleSettings}
+                    style={styles.settingsCloseButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Icon name="close" size={moderateScale(24)} color={COLORS.TEXT_PRIMARY} />
+                  </TouchableOpacity>
+                </View>
+                
+                <ScrollView
+                  style={styles.settingsPanelScroll}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {loadingSettings ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+                      <CustomText type="small" style={styles.loadingText}>
+                        설정 불러오는 중...
+                      </CustomText>
+                    </View>
+                  ) : (
+                    <>
+                      {SETTING_CATEGORIES.map((category) => (
+                        <View key={category.key} style={styles.settingCategory}>
+                          <CustomText type="small" bold style={styles.categoryTitle}>
+                            {category.title}
+                          </CustomText>
+                          <View style={styles.optionsRow}>
+                            {category.options.map((option) => {
+                              const isSelected = settings[category.key] === option.id;
+                              return (
+                                <TouchableOpacity
+                                  key={option.id}
+                                  style={[
+                                    styles.optionChip,
+                                    isSelected && styles.optionChipSelected,
+                                  ]}
+                                  onPress={() => updateSetting(category.key, option.id)}
+                                  disabled={savingSettings}
+                                  activeOpacity={0.7}
+                                >
+                                  <CustomText style={styles.optionEmoji}>
+                                    {option.emoji}
+                                  </CustomText>
+                                  <CustomText
+                                    type="small"
+                                    style={[
+                                      styles.optionName,
+                                      isSelected && styles.optionNameSelected,
+                                    ]}
+                                  >
+                                    {option.name}
+                                  </CustomText>
+                                  {isSelected && (
+                                    <CustomText style={styles.checkmark}>✓</CustomText>
+                                  )}
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      ))}
+                      
+                      {savingSettings && (
+                        <View style={styles.savingIndicator}>
+                          <ActivityIndicator size="small" color="#FFF" />
+                          <CustomText type="small" style={styles.savingText}>
+                            저장 중...
+                          </CustomText>
+                        </View>
+                      )}
+                    </>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+            
             {/* ✅ Chat Input Bar */}
             <View style={styles.inputContainer}>
               <ChatInputBar
                 onSend={handleSend}
                 disabled={isLoading || isTyping}
                 placeholder={t('chatBottomSheet.placeholder')}
-                onAISettings={onAISettings} // 🆕 AI Settings callback
+                onAISettings={handleToggleSettings} // 🆕 Toggle settings panel
               />
             </View>
           </View>
@@ -305,6 +456,116 @@ const styles = StyleSheet.create({
     paddingTop: platformPadding(10),
 
 
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Settings Panel
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  settingsPanel: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? verticalScale(70) : verticalScale(60),
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.DEEP_BLUE_DARK,
+    borderTopLeftRadius: moderateScale(20),
+    borderTopRightRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    maxHeight: verticalScale(400),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  settingsPanelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: platformPadding(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(59, 130, 246, 0.2)',
+  },
+  settingsPanelTitle: {
+    color: COLORS.TEXT_PRIMARY,
+  },
+  settingsCloseButton: {
+    padding: scale(4),
+  },
+  settingsPanelScroll: {
+    maxHeight: verticalScale(300),
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(40),
+    gap: moderateScale(12),
+  },
+  loadingText: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  
+  // Setting Category
+  settingCategory: {
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: platformPadding(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  categoryTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: verticalScale(12),
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: moderateScale(8),
+  },
+  
+  // Option Chip
+  optionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: moderateScale(20),
+    paddingHorizontal: platformPadding(12),
+    paddingVertical: platformPadding(8),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    gap: moderateScale(6),
+  },
+  optionChipSelected: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: 'rgba(59, 130, 246, 0.5)',
+  },
+  optionEmoji: {
+    fontSize: moderateScale(16),
+  },
+  optionName: {
+    color: COLORS.TEXT_PRIMARY,
+    fontSize: moderateScale(13),
+  },
+  optionNameSelected: {
+    color: '#3B82F6',
+    fontWeight: '600',
+  },
+  checkmark: {
+    fontSize: moderateScale(14),
+    color: '#3B82F6',
+  },
+  
+  // Saving indicator
+  savingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(16),
+    gap: moderateScale(8),
+  },
+  savingText: {
+    color: '#22C55E',
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
