@@ -2036,7 +2036,20 @@
       "unsaved_title": "Unsaved Changes",
       "unsaved_message": "Are you sure you want to close without saving your changes?",
       "close_without_save": "Close",
-      "invalid_content": "Identity description must be between 50 and 1000 characters."
+      "invalid_content": "Identity description must be between 50 and 1000 characters.",
+      "tab_user_input": "Manual Input",
+      "tab_wikipedia": "Wikipedia Search",
+      "search_label": "Search",
+      "search_placeholder": "e.g. BTS V, Kim Taehyung",
+      "search_button": "Search",
+      "searching": "Searching...",
+      "search_failed": "Wikipedia search failed.",
+      "no_results": "No results found.",
+      "converting": "AI converting...",
+      "preview_title": "Preview",
+      "preview_hint": "You can review and edit the result.",
+      "apply_button": "Apply This Content",
+      "edit_result": "Edit Result"
     },
     "loading": {
       "title": "Creating your persona",

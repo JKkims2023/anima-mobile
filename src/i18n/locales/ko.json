@@ -1980,7 +1980,20 @@
       "unsaved_title": "저장하지 않은 변경사항",
       "unsaved_message": "변경사항을 저장하지 않고 닫으시겠습니까?",
       "close_without_save": "닫기",
-      "invalid_content": "자아 설명은 최소 50자, 최대 1000자여야 합니다."
+      "invalid_content": "자아 설명은 최소 50자, 최대 1000자여야 합니다.",
+      "tab_user_input": "직접 입력",
+      "tab_wikipedia": "Wikipedia 검색",
+      "search_label": "검색어",
+      "search_placeholder": "예: BTS 뷔, 김태형",
+      "search_button": "검색",
+      "searching": "검색 중...",
+      "search_failed": "Wikipedia 검색에 실패했습니다.",
+      "no_results": "검색 결과가 없습니다.",
+      "converting": "AI 변환 중...",
+      "preview_title": "미리보기",
+      "preview_hint": "결과를 확인하고 수정할 수 있습니다.",
+      "apply_button": "이 내용 적용하기",
+      "edit_result": "결과 수정하기"
     },
     "loading": {
       "title": "당신의 페르소나를 만들고 있어요",
