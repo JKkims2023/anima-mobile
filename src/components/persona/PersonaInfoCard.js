@@ -12,7 +12,7 @@
  * @date 2024-11-22
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext';
 import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress bar color
 import FastImage from 'react-native-fast-image';
+import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 /**
  * PersonaInfoCard Component
  * @param {Object} props
@@ -40,6 +41,9 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   const { t } = useTranslation();
   const { showAlert } = useAnima();
   const { currentTheme: theme } = useTheme(); // ⭐ NEW: For progress bar color
+
+  // ⭐ NEW: Identity sheet state
+  const [showIdentitySheet, setShowIdentitySheet] = useState(false);
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
@@ -84,11 +88,20 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
     return parts.join(' • ');
   };
   const handleSettingsPress = () => {
-
+    // ⭐ Block default personas (SAGE, NEXUS)
     if (persona?.default_yn === 'Y') {
+      showAlert({
+        emoji: '🚫',
+        title: t('persona.identity.blocked_title') || '기본 AI',
+        message: t('persona.identity.blocked_message') || '기본 AI (SAGE, NEXUS)는 자아 설정이 불가능합니다.',
+        buttons: [
+          { text: t('common.confirm') || '확인', onPress: () => {} },
+        ],
+      });
       return;
     }
 
+    // ⭐ Block processing personas
     if(persona?.done_yn === 'N') {
       showAlert({
         emoji: '⏳',
@@ -101,8 +114,15 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
       return;
     }
 
-    onChatPress(persona);
+    // ⭐ NEW: Open identity sheet
+    HapticService.medium();
+    setShowIdentitySheet(true);
+  };
 
+  // ⭐ NEW: Handle identity save
+  const handleIdentitySave = (data) => {
+    console.log('[PersonaInfoCard] Identity saved:', data);
+    // Optionally refresh persona data here
   };
 
   if (!persona) {
@@ -125,6 +145,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   };
   
   return (
+    <>
     <GradientOverlay
    //   colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
       style={[
@@ -237,6 +258,15 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
       </View>
       </TouchableOpacity>
     </GradientOverlay>
+
+    {/* ⭐ NEW: Identity Settings Sheet */}
+    <PersonaIdentitySheet
+      visible={showIdentitySheet}
+      onClose={() => setShowIdentitySheet(false)}
+      persona={persona}
+      onSave={handleIdentitySave}
+    />
+    </>
   );
 };
 
