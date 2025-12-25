@@ -95,7 +95,7 @@ const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const { personas, setPersonas, selectedPersona: contextSelectedPersona, initializePersonas } = usePersona();
+  const { personas, setPersonas, selectedPersona: contextSelectedPersona, setSelectedIndex, setSelectedPersona, initializePersonas } = usePersona();
   const { user } = useUser();
   const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
@@ -361,11 +361,25 @@ const PersonaStudioScreen = () => {
   const handlePersonaChange = useCallback((newIndex) => {
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 📍 Persona index changed:', newIndex);
+      console.log('   filterMode:', filterMode);
+      console.log('   currentFilteredPersonas length:', currentFilteredPersonas.length);
     }
     
     savedIndexRef.current = newIndex;
     setCurrentPersonaIndex(newIndex);
-  }, []);
+    setSelectedIndex(newIndex); // Update index (legacy support)
+    
+    // ⭐ NEW: Update actual persona object in PersonaContext
+    const actualPersona = currentFilteredPersonas[newIndex];
+    if (actualPersona) {
+      setSelectedPersona(actualPersona);
+      if (__DEV__) {
+        console.log('✅ [PersonaStudioScreen] Set selectedPersona:', actualPersona.persona_name);
+        console.log('   persona_key:', actualPersona.persona_key);
+        console.log('   identity_name:', actualPersona.identity_name);
+      }
+    }
+  }, [setSelectedIndex, setSelectedPersona, filterMode, currentFilteredPersonas]);
   
   // ⭐ NEW: Handle panel toggle (PersonaSelectorButton click)
   const handlePanelToggle = useCallback(() => {

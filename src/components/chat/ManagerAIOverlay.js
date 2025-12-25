@@ -89,6 +89,10 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     console.log('user: ', user);
   }, [user]);
+
+  useEffect(() => {
+    console.log('persona: ', persona);
+  }, [persona]);
   
   // 🆕 Load AI settings when overlay opens
   useEffect(() => {

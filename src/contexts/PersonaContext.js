@@ -24,6 +24,7 @@ const DEV_USER_KEY = '5e3ee6dd-7809-4f04-9cee-cc32bfaf0512';
 export const PersonaProvider = ({ children }) => {
   const [personas, setPersonas] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedPersona, setSelectedPersona] = useState(null); // ⭐ NEW: Direct persona storage
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
   const { user } = useUser();
@@ -133,7 +134,22 @@ export const PersonaProvider = ({ children }) => {
     }
   }, [mode, personas.length]);
 
-  const selectedPersona = personas[selectedIndex] || null;
+  // ⭐ FIX: Use direct selectedPersona state (set by PersonaStudioScreen)
+  // Fallback to personas[selectedIndex] if not set
+  const effectivePersona = selectedPersona || personas[selectedIndex] || null;
+
+  // 🔍 DEBUG: Log selectedPersona changes
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎭 [PersonaContext] selectedPersona changed');
+    console.log('   Index:', selectedIndex);
+    console.log('   Direct Persona:', selectedPersona ? selectedPersona.persona_name : 'null');
+    console.log('   Effective Persona:', effectivePersona ? effectivePersona.persona_name : 'null');
+    console.log('   persona_key:', effectivePersona?.persona_key);
+    console.log('   identity_name:', effectivePersona?.identity_name);
+    console.log('   identity_enabled:', effectivePersona?.identity_enabled);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [selectedPersona, effectivePersona, selectedIndex]);
 
   // ✅ Memoize context value to prevent unnecessary re-renders
   const value = useMemo(() => ({
@@ -141,12 +157,13 @@ export const PersonaProvider = ({ children }) => {
     setPersonas,
     selectedIndex,
     setSelectedIndex,
-    selectedPersona,
+    selectedPersona: effectivePersona, // ⭐ FIX: Use effectivePersona
+    setSelectedPersona, // ⭐ NEW: Expose setSelectedPersona
     isLoading,
     mode,
     switchMode,
     initializePersonas, // ⭐ NEW: Expose initializePersonas for manual refresh
-  }), [personas, selectedIndex, selectedPersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, initializePersonas]);
+  }), [personas, selectedIndex, effectivePersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, setSelectedPersona, initializePersonas]);
 
   return (
     <PersonaContext.Provider value={value}>

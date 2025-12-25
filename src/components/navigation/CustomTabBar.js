@@ -105,6 +105,9 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     console.log('💙 [CenterAIButton] Pressed');
     console.log('📋 [CenterAIButton] Current Tab:', state.routes[state.index]?.name);
     console.log('📋 [CenterAIButton] Context:', getCurrentContext());
+    console.log('🎭 [CenterAIButton] selectedPersona:', selectedPersona ? selectedPersona.persona_name : 'null');
+    console.log('🔑 [CenterAIButton] persona_key:', selectedPersona?.persona_key);
+    console.log('🧠 [CenterAIButton] identity_name:', selectedPersona?.identity_name);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // ✅ Haptic feedback
