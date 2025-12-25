@@ -285,6 +285,7 @@ const ManagerAIOverlay = ({
         
         if (response.success && response.data?.answer) {
           const answer = response.data.answer;
+          const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
           
           // Type out the response
           setTypingMessage('');
@@ -302,6 +303,10 @@ const ManagerAIOverlay = ({
                 role: 'assistant',
                 text: answer,
                 timestamp: new Date().toISOString(),
+                // ⭐ NEW: Rich media content
+                images: richContent.images,
+                videos: richContent.videos,
+                links: richContent.links,
               };
               
               setMessages(prev => [...prev, aiMessage]);
@@ -372,6 +377,7 @@ const ManagerAIOverlay = ({
         setTypingMessage('');
         
         const answer = response.data.answer;
+        const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
         let currentIndex = 0;
         
         const typeInterval = setInterval(() => {
@@ -386,6 +392,10 @@ const ManagerAIOverlay = ({
               role: 'assistant',
               text: answer,
               timestamp: new Date().toISOString(),
+              // ⭐ NEW: Rich media content
+              images: richContent.images,
+              videos: richContent.videos,
+              links: richContent.links,
             };
             
             setMessages(prev => [...prev, aiMessage]);
@@ -483,11 +493,13 @@ const ManagerAIOverlay = ({
         
         const answer = response.data.answer;
         const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
+        const richContent = response.data.rich_content || { images: [], videos: [], links: [] }; // ⭐ Rich media
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
         console.log('   answer length:', answer.length);
         console.log('   continue_conversation:', shouldContinue);
+        console.log('   rich_content:', richContent);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         let currentIndex = 0;
@@ -504,6 +516,10 @@ const ManagerAIOverlay = ({
               role: 'assistant',
               text: answer,
               timestamp: new Date().toISOString(),
+              // ⭐ NEW: Rich media content
+              images: richContent.images,
+              videos: richContent.videos,
+              links: richContent.links,
             };
             
             setMessages(prev => [...prev, aiMessage]);

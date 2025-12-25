@@ -19,11 +19,12 @@
  */
 
 import React, { useRef, useEffect, memo } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, Linking } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
 import { moderateScale, verticalScale, platformLineHeight, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // SAGE Avatar URL
 const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png';
@@ -59,6 +60,7 @@ const MessageItem = memo(({ message }) => {
           },
         ]}
       >
+        {/* Text Message */}
         <Text
           style={[
             styles.messageText,
@@ -70,6 +72,66 @@ const MessageItem = memo(({ message }) => {
         >
           {message.text}
         </Text>
+        
+        {/* 🖼️ Images */}
+        {message.images && message.images.length > 0 && message.images.map((img, idx) => (
+          <TouchableOpacity
+            key={idx}
+            onPress={() => Linking.openURL(img.url)}
+            style={styles.imageContainer}
+          >
+            <Image
+              source={{ uri: img.url }}
+              style={styles.chatImage}
+              resizeMode="cover"
+            />
+            {img.caption && (
+              <Text style={[styles.imageCaption, { color: currentTheme.textColor }]}>
+                {img.caption}
+              </Text>
+            )}
+          </TouchableOpacity>
+        ))}
+        
+        {/* 🎥 Videos */}
+        {message.videos && message.videos.length > 0 && message.videos.map((video, idx) => (
+          <TouchableOpacity
+            key={idx}
+            onPress={() => Linking.openURL(video.url)}
+            style={styles.videoContainer}
+          >
+            <View>
+              <Image
+                source={{ uri: video.thumbnail }}
+                style={styles.videoThumbnail}
+              />
+              <View style={styles.playButtonOverlay}>
+                <Icon name="play-circle" size={moderateScale(50)} color="rgba(255,255,255,0.9)" />
+              </View>
+            </View>
+            <Text style={[styles.videoTitle, { color: currentTheme.textColor }]} numberOfLines={2}>
+              🎥 {video.title}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        
+        {/* 🔗 Links */}
+        {message.links && message.links.length > 0 && message.links.map((link, idx) => (
+          <TouchableOpacity
+            key={idx}
+            onPress={() => Linking.openURL(link.url)}
+            style={styles.linkPreview}
+          >
+            <View style={styles.linkContent}>
+              <Text style={[styles.linkTitle, { color: currentTheme.textColor }]} numberOfLines={1}>
+                {link.title}
+              </Text>
+              <Text style={[styles.linkDomain, { color: currentTheme.textColor }]}>
+                🔗 {link.domain}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
         
         {/* Timestamp (optional) */}
         {message.timestamp && (
@@ -407,6 +469,64 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: moderateScale(12),
     opacity: 0.7,
+  },
+  // 🖼️ Image styles
+  imageContainer: {
+    marginTop: verticalScale(8),
+    borderRadius: moderateScale(8),
+    overflow: 'hidden',
+  },
+  chatImage: {
+    width: '100%',
+    height: verticalScale(150),
+    borderRadius: moderateScale(8),
+  },
+  imageCaption: {
+    marginTop: verticalScale(4),
+    fontSize: moderateScale(12),
+    opacity: 0.7,
+  },
+  // 🎥 Video styles
+  videoContainer: {
+    marginTop: verticalScale(8),
+    borderRadius: moderateScale(8),
+    overflow: 'hidden',
+  },
+  videoThumbnail: {
+    width: '100%',
+    height: verticalScale(150),
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: moderateScale(-25),
+    marginTop: moderateScale(-25),
+  },
+  videoTitle: {
+    marginTop: verticalScale(4),
+    fontSize: moderateScale(13),
+    fontWeight: '600',
+  },
+  // 🔗 Link styles
+  linkPreview: {
+    marginTop: verticalScale(8),
+    borderRadius: moderateScale(8),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    overflow: 'hidden',
+  },
+  linkContent: {
+    padding: moderateScale(10),
+  },
+  linkTitle: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+    marginBottom: verticalScale(4),
+  },
+  linkDomain: {
+    fontSize: moderateScale(11),
+    opacity: 0.5,
   },
   typingText: {
     fontSize: moderateScale(14),

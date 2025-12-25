@@ -88,6 +88,13 @@ export const sendManagerAIMessage = async ({
         // ⭐ NEW: Continuous conversation support
         continue_conversation: response.data.data?.continue_conversation || false,
         
+        // ⭐ NEW: Rich media content (images, videos, links)
+        rich_content: response.data.data?.rich_content || {
+          images: [],
+          videos: [],
+          links: [],
+        },
+        
         // Metadata (new in v2.0)
         session_id: response.data.data?.session_id,
         model: response.data.data?.model,
