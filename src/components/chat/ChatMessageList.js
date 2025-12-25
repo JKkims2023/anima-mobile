@@ -234,7 +234,10 @@ const ChatMessageList = ({
   completedMessages = [], 
   typingMessage = null, 
   messageVersion = 0,
-  isLoading = false 
+  isLoading = false,
+  onLoadMore = null, // ⭐ NEW: Callback for loading more history
+  loadingHistory = false, // ⭐ NEW: Loading more history indicator
+  hasMoreHistory = false, // ⭐ NEW: Has more history to load
 }) => {
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
@@ -248,6 +251,19 @@ const ChatMessageList = ({
       }, 50);
     }
   }, [completedMessages.length, messageVersion, typingMessage]);
+
+  // ⭐ NEW: Handle scroll to top (load more history)
+  const handleScroll = (event) => {
+    if (!onLoadMore || !hasMoreHistory || loadingHistory) return;
+    
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    
+    // Check if scrolled to top (with threshold)
+    if (contentOffset.y <= 100) {
+      console.log('📜 [ChatMessageList] Reached top, loading more history...');
+      onLoadMore();
+    }
+  };
 
   // Render message item
   const renderItem = ({ item }) => <MessageItem message={item} />;
@@ -263,6 +279,20 @@ const ChatMessageList = ({
       </Text>
     </View>
   );
+  
+  // ⭐ NEW: Loading header (when loading more history)
+  const renderListHeader = () => {
+    if (!loadingHistory || !hasMoreHistory) return null;
+    
+    return (
+      <View style={styles.loadingHeader}>
+        <ActivityIndicator size="small" color={currentTheme.primaryColor || '#3B82F6'} />
+        <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
+          {t('chat.loading_history') || 'Loading...'}
+        </Text>
+      </View>
+    );
+  };
 
   // ✅ Add typing indicator as a message if loading (but not typing)
   const messagesWithIndicator = isLoading && !typingMessage
@@ -286,6 +316,9 @@ const ChatMessageList = ({
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
+        ListHeaderComponent={renderListHeader} // ⭐ NEW: Loading indicator at top
+        onScroll={handleScroll} // ⭐ NEW: Infinite scroll
+        scrollEventThrottle={400} // ⭐ NEW: Throttle scroll events
         // ✅ CRITICAL: Prevent keyboard dismiss on Android
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
@@ -363,6 +396,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: moderateScale(8),
+  },
+  loadingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(10),
+    gap: moderateScale(8),
+  },
+  loadingText: {
+    fontSize: moderateScale(12),
+    opacity: 0.7,
   },
   typingText: {
     fontSize: moderateScale(14),

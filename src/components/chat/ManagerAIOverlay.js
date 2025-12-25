@@ -68,27 +68,25 @@ const ManagerAIOverlay = ({
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
   
+  // ⭐ NEW: Chat history state
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
+  const [historyOffset, setHistoryOffset] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
   // 🆕 Settings panel state
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   
-  // ✅ Initialize with greeting message (Only once when visible changes)
+  // ⭐ NEW: Load chat history or show welcome message
   useEffect(() => {
-    if (visible && messages.length === 0) {
-      const greetingKey = `managerAI.greeting.${context}`;
-      const greeting = t(greetingKey);
-      
-      setMessages([{
-        id: 'greeting',
-        role: 'assistant',
-        text: greeting,
-        timestamp: new Date().toISOString(),
-      }]);
-      setMessageVersion(1);
+    if (visible && isInitialLoad && user?.user_key) {
+      loadChatHistory();
+      setIsInitialLoad(false);
     }
-  }, [visible, context, t]);
+  }, [visible, isInitialLoad, user?.user_key, persona?.persona_key]);
 
   useEffect(() => {
     console.log('user: ', user);
@@ -156,6 +154,183 @@ const ManagerAIOverlay = ({
     setShowSettings(prev => !prev);
     HapticService.light();
   }, []);
+  
+  // ⭐ NEW: Load chat history
+  const loadChatHistory = useCallback(async (isLoadMore = false) => {
+    if (loadingHistory) return;
+    
+    try {
+      setLoadingHistory(true);
+      const userKey = user?.user_key;
+      const personaKey = persona?.persona_key || 'SAGE';
+      
+      if (!userKey) {
+        console.log('⚠️ [Chat History] No user_key found');
+        showWelcomeMessage();
+        return;
+      }
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📜 [Chat History] Loading history');
+      console.log(`   user_key: ${userKey}`);
+      console.log(`   persona_key: ${personaKey}`);
+      console.log(`   offset: ${isLoadMore ? historyOffset : 0}`);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const response = await chatApi.getChatHistory({
+        user_key: userKey,
+        persona_key: personaKey,
+        limit: isLoadMore ? 20 : 100,
+        offset: isLoadMore ? historyOffset : 0,
+      });
+      
+      if (response.success && response.data.messages.length > 0) {
+        const historyMessages = response.data.messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          text: msg.text,
+          timestamp: msg.timestamp,
+        }));
+        
+        console.log(`✅ [Chat History] Loaded ${historyMessages.length} messages`);
+        
+        if (isLoadMore) {
+          // Prepend to existing messages
+          setMessages(prev => [...historyMessages, ...prev]);
+          setHistoryOffset(prev => prev + historyMessages.length);
+        } else {
+          // Initial load
+          setMessages(historyMessages);
+          setHistoryOffset(historyMessages.length);
+          setMessageVersion(historyMessages.length);
+          
+          // ⭐ AI auto conversation starter (after 1 second)
+          setTimeout(() => {
+            startAIConversation(userKey);
+          }, 1000);
+        }
+        
+        setHasMoreHistory(response.data.hasMore);
+      } else {
+        console.log('✅ [Chat History] No history found');
+        showWelcomeMessage();
+      }
+    } catch (error) {
+      console.error('❌ [Chat History] Error:', error);
+      showWelcomeMessage();
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [user, persona, loadingHistory, historyOffset]);
+  
+  // ⭐ NEW: Show welcome message with typing effect
+  const showWelcomeMessage = useCallback(() => {
+    const greetingKey = `managerAI.greeting.${context}`;
+    const greeting = t(greetingKey);
+    
+    console.log('👋 [Chat] Showing welcome message');
+    
+    // Type out greeting
+    setIsTyping(true);
+    setTypingMessage('');
+    
+    let currentIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (currentIndex < greeting.length) {
+        setTypingMessage(greeting.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+        
+        const greetingMessage = {
+          id: 'greeting',
+          role: 'assistant',
+          text: greeting,
+          timestamp: new Date().toISOString(),
+        };
+        
+        setMessages([greetingMessage]);
+        setMessageVersion(1);
+        setIsTyping(false);
+        setTypingMessage('');
+      }
+    }, 30);
+  }, [context, t]);
+  
+  // ⭐ NEW: AI auto conversation starter
+  const startAIConversation = useCallback(async (userKey) => {
+    console.log('🤖 [Chat] Starting AI conversation...');
+    
+    // Show loading with animated dots
+    setIsLoading(true);
+    setIsTyping(true);
+    setTypingMessage('');
+    
+    // Animate dots
+    let dots = '';
+    const dotInterval = setInterval(() => {
+      dots = dots.length < 3 ? dots + '.' : '';
+      setTypingMessage(dots);
+    }, 300);
+    
+    setTimeout(async () => {
+      clearInterval(dotInterval);
+      
+      try {
+        const response = await chatApi.sendManagerAIMessage({
+          user_key: userKey,
+          question: '[AUTO_START]', // Special marker for AI to start conversation
+          persona_key: persona?.persona_key || null,
+        });
+        
+        if (response.success && response.data?.answer) {
+          const answer = response.data.answer;
+          
+          // Type out the response
+          setTypingMessage('');
+          let currentIndex = 0;
+          
+          const typeInterval = setInterval(() => {
+            if (currentIndex < answer.length) {
+              setTypingMessage(answer.substring(0, currentIndex + 1));
+              currentIndex++;
+            } else {
+              clearInterval(typeInterval);
+              
+              const aiMessage = {
+                id: `ai-start-${Date.now()}`,
+                role: 'assistant',
+                text: answer,
+                timestamp: new Date().toISOString(),
+              };
+              
+              setMessages(prev => [...prev, aiMessage]);
+              setMessageVersion(prev => prev + 1);
+              setIsTyping(false);
+              setTypingMessage('');
+              setIsLoading(false);
+              
+              // Check for continuation
+              if (response.data.continue_conversation) {
+                setTimeout(() => {
+                  handleAIContinue(userKey);
+                }, 800);
+              }
+            }
+          }, 30);
+        } else {
+          setIsLoading(false);
+          setIsTyping(false);
+          setTypingMessage('');
+        }
+      } catch (error) {
+        console.error('❌ [Chat] Auto start error:', error);
+        setIsLoading(false);
+        setIsTyping(false);
+        setTypingMessage('');
+      }
+    }, 800);
+  }, [persona, chatApi]);
   
   // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
@@ -517,6 +692,9 @@ const ManagerAIOverlay = ({
                 typingMessage={isTyping ? typingMessage : null}
                 messageVersion={messageVersion}
                 isLoading={isLoading}
+                onLoadMore={() => loadChatHistory(true)} // ⭐ NEW: Load more history
+                loadingHistory={loadingHistory} // ⭐ NEW: Loading indicator
+                hasMoreHistory={hasMoreHistory} // ⭐ NEW: Has more to load
               />
             </View>
             

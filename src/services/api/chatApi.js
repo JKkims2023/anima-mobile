@@ -280,10 +280,46 @@ export const updateAIPreferences = async (user_key, settings) => {
   }
 };
 
+/**
+ * ⭐ NEW: Get chat history for a user and persona
+ * 
+ * @param {Object} params
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (defaults to SAGE)
+ * @param {number} params.limit - Number of messages to fetch (default 100)
+ * @param {number} params.offset - Offset for pagination (default 0)
+ * @returns {Promise<Object>} - Chat history
+ */
+export const getChatHistory = async ({ user_key, persona_key = 'SAGE', limit = 100, offset = 0 }) => {
+  try {
+    const params = new URLSearchParams({
+      user_key,
+      persona_key,
+      limit: limit.toString(),
+      offset: offset.toString(),
+    });
+    
+    const response = await apiClient.get(`/api/anima/chat/history?${params}`);
+    
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  } catch (error) {
+    logError('Get Chat History', error);
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'GET_HISTORY_ERROR' },
+      data: { messages: [], hasMore: false, total: 0 },
+    };
+  }
+};
+
 export default {
   sendManagerAIMessage,
   resetManagerAISession,
   getCurrentSessionId,
+  getChatHistory,
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,
