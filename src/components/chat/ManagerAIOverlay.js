@@ -30,6 +30,7 @@ import {
   ScrollView,
   Animated,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +73,7 @@ const ManagerAIOverlay = ({
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const [historyOffset, setHistoryOffset] = useState(0);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [currentPersonaKey, setCurrentPersonaKey] = useState(null); // ⭐ Track current persona
   
   // 🆕 Settings panel state
   const [showSettings, setShowSettings] = useState(false);
@@ -80,13 +81,23 @@ const ManagerAIOverlay = ({
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   
-  // ⭐ NEW: Load chat history or show welcome message
+  // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
-    if (visible && isInitialLoad && user?.user_key) {
-      loadChatHistory();
-      setIsInitialLoad(false);
+    const personaKey = persona?.persona_key || 'SAGE';
+    
+    // Load history if:
+    // 1. Overlay becomes visible
+    // 2. Persona changes
+    if (visible && user?.user_key) {
+      if (currentPersonaKey !== personaKey) {
+        console.log(`🔄 [Chat History] Persona changed: ${currentPersonaKey} → ${personaKey}`);
+        setCurrentPersonaKey(personaKey);
+        setMessages([]); // Clear previous persona's messages
+        setHistoryOffset(0); // Reset offset
+        loadChatHistory();
+      }
     }
-  }, [visible, isInitialLoad, user?.user_key, persona?.persona_key]);
+  }, [visible, user?.user_key, persona?.persona_key, currentPersonaKey]);
 
   useEffect(() => {
     console.log('user: ', user);
@@ -167,6 +178,7 @@ const ManagerAIOverlay = ({
       if (!userKey) {
         console.log('⚠️ [Chat History] No user_key found');
         showWelcomeMessage();
+        setLoadingHistory(false);
         return;
       }
       
@@ -174,6 +186,7 @@ const ManagerAIOverlay = ({
       console.log('📜 [Chat History] Loading history');
       console.log(`   user_key: ${userKey}`);
       console.log(`   persona_key: ${personaKey}`);
+      console.log(`   isLoadMore: ${isLoadMore}`);
       console.log(`   offset: ${isLoadMore ? historyOffset : 0}`);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
@@ -193,6 +206,8 @@ const ManagerAIOverlay = ({
         }));
         
         console.log(`✅ [Chat History] Loaded ${historyMessages.length} messages`);
+        console.log(`   Total messages in response: ${response.data.total}`);
+        console.log(`   Has more: ${response.data.hasMore}`);
         
         if (isLoadMore) {
           // Prepend to existing messages
@@ -212,7 +227,7 @@ const ManagerAIOverlay = ({
         
         setHasMoreHistory(response.data.hasMore);
       } else {
-        console.log('✅ [Chat History] No history found');
+        console.log('✅ [Chat History] No history found for this persona');
         showWelcomeMessage();
       }
     } catch (error) {
@@ -221,7 +236,7 @@ const ManagerAIOverlay = ({
     } finally {
       setLoadingHistory(false);
     }
-  }, [user, persona, loadingHistory, historyOffset]);
+  }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage, startAIConversation]);
   
   // ⭐ NEW: Show welcome message with typing effect
   const showWelcomeMessage = useCallback(() => {
@@ -595,7 +610,7 @@ const ManagerAIOverlay = ({
             onPress: () => {
               // Force stop AI conversation
               setIsAIContinuing(false);
-              setAiContinueCount(0);
+              aiContinueCountRef.current = 0; // ⭐ Reset ref
               setIsLoading(false);
               setIsTyping(false);
               
@@ -607,6 +622,8 @@ const ManagerAIOverlay = ({
                 setMessages([]);
                 setTypingMessage('');
                 setIsTyping(false);
+                setIsAIContinuing(false);
+                aiContinueCountRef.current = 0;
                 setMessageVersion(0);
               }, 200);
               
