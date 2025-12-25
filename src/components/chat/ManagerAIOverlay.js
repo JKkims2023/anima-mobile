@@ -222,7 +222,20 @@ const ManagerAIOverlay = ({
             // Check if AI wants to continue AGAIN
             if (response.data.continue_conversation) {
               console.log('🔄 [ManagerAIOverlay] AI wants to continue again...');
+              
+              // ⭐ Show typing animation with dots
+              setIsTyping(true);
+              setTypingMessage('');
+              
+              // Animate dots
+              let dots = '';
+              const dotInterval = setInterval(() => {
+                dots = dots.length < 3 ? dots + '.' : '';
+                setTypingMessage(dots);
+              }, 300);
+              
               setTimeout(() => {
+                clearInterval(dotInterval);
                 handleAIContinue(userKey);
               }, 800);
             } else {
@@ -335,12 +348,20 @@ const ManagerAIOverlay = ({
             if (shouldContinue) {
               console.log('🔄 [ManagerAIOverlay] AI wants to continue, calling handleAIContinue...');
               
-              // ⭐ Show loading indicator
+              // ⭐ Show typing animation with dots
               setIsLoading(true);
               setIsTyping(true);
-              setTypingMessage('...');
+              setTypingMessage('');
+              
+              // Animate dots
+              let dots = '';
+              const dotInterval = setInterval(() => {
+                dots = dots.length < 3 ? dots + '.' : '';
+                setTypingMessage(dots);
+              }, 300);
               
               setTimeout(() => {
+                clearInterval(dotInterval);
                 handleAIContinue(userKey);
               }, 800); // Small delay for natural feel
             } else {
