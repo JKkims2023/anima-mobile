@@ -64,6 +64,10 @@ const ManagerAIOverlay = ({
   const [isTyping, setIsTyping] = useState(false);
   const [messageVersion, setMessageVersion] = useState(0);
   
+  // ⭐ NEW: Continuous conversation state
+  const [isAIContinuing, setIsAIContinuing] = useState(false);
+  const [aiContinueCount, setAiContinueCount] = useState(0);
+  
   // 🆕 Settings panel state
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -153,6 +157,86 @@ const ManagerAIOverlay = ({
     HapticService.light();
   }, []);
   
+  // ⭐ NEW: Handle AI continuous conversation
+  const handleAIContinue = useCallback(async (userKey) => {
+    const MAX_CONTINUES = 5; // Maximum 5 continuous messages
+    
+    if (aiContinueCount >= MAX_CONTINUES) {
+      console.log('⚠️ [ManagerAIOverlay] Max continuous messages reached');
+      setIsAIContinuing(false);
+      setAiContinueCount(0);
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsAIContinuing(true);
+    setAiContinueCount(prev => prev + 1);
+    setIsLoading(true);
+    
+    try {
+      console.log(`🔄 [ManagerAIOverlay] Requesting AI to continue (${aiContinueCount + 1}/${MAX_CONTINUES})...`);
+      
+      const response = await chatApi.sendManagerAIMessage({
+        user_key: userKey,
+        question: '[CONTINUE]', // Special marker
+        persona_key: persona?.persona_key || null,
+      });
+      
+      if (response.success && response.data?.answer) {
+        setIsTyping(true);
+        setTypingMessage('');
+        
+        const answer = response.data.answer;
+        let currentIndex = 0;
+        
+        const typeInterval = setInterval(() => {
+          if (currentIndex < answer.length) {
+            setTypingMessage(answer.substring(0, currentIndex + 1));
+            currentIndex++;
+          } else {
+            clearInterval(typeInterval);
+            
+            const aiMessage = {
+              id: `ai-continue-${Date.now()}`,
+              role: 'assistant',
+              text: answer,
+              timestamp: new Date().toISOString(),
+            };
+            
+            setMessages(prev => [...prev, aiMessage]);
+            setMessageVersion(prev => prev + 1);
+            setIsTyping(false);
+            setTypingMessage('');
+            setIsLoading(false);
+            
+            // Check if AI wants to continue AGAIN
+            if (response.data.continue_conversation) {
+              console.log('🔄 [ManagerAIOverlay] AI wants to continue again...');
+              setTimeout(() => {
+                handleAIContinue(userKey);
+              }, 800);
+            } else {
+              // Conversation ended
+              setIsAIContinuing(false);
+              setAiContinueCount(0);
+              console.log('✅ [ManagerAIOverlay] AI conversation completed');
+            }
+          }
+        }, 30);
+      } else {
+        setIsAIContinuing(false);
+        setAiContinueCount(0);
+        setIsLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('[ManagerAIOverlay] AI continue error:', error);
+      setIsAIContinuing(false);
+      setAiContinueCount(0);
+      setIsLoading(false);
+    }
+  }, [persona, aiContinueCount, chatApi]);
+  
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
     HapticService.medium();
@@ -227,6 +311,14 @@ const ManagerAIOverlay = ({
             setMessageVersion(prev => prev + 1);
             setIsTyping(false);
             setTypingMessage('');
+            
+            // ⭐ NEW: Check if AI wants to continue talking
+            if (response.data.continue_conversation) {
+              console.log('🔄 [ManagerAIOverlay] AI wants to continue...');
+              setTimeout(() => {
+                handleAIContinue(userKey);
+              }, 800); // Small delay for natural feel
+            }
           }
         }, 30);
         
@@ -255,10 +347,54 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t, user, persona]); // ⭐ FIX: Add user and persona to dependencies
+  }, [t, user, persona, handleAIContinue]); // ⭐ FIX: Add handleAIContinue dependency
   
   // ✅ Handle close (Simplified)
   const handleClose = useCallback(() => {
+    // ⭐ NEW: Prevent closing if AI is continuing conversation
+    if (isAIContinuing || isLoading || isTyping) {
+      Alert.alert(
+        '💬 AI가 대화 중입니다',
+        'AI가 아직 답변을 완료하지 못했습니다.\n정말 채팅을 종료하시겠습니까?',
+        [
+          {
+            text: '계속 대화하기',
+            style: 'cancel',
+            onPress: () => {
+              HapticService.light();
+            }
+          },
+          {
+            text: '종료',
+            style: 'destructive',
+            onPress: () => {
+              // Force stop AI conversation
+              setIsAIContinuing(false);
+              setAiContinueCount(0);
+              setIsLoading(false);
+              setIsTyping(false);
+              
+              // Close overlay
+              HapticService.medium();
+              Keyboard.dismiss();
+              
+              setTimeout(() => {
+                setMessages([]);
+                setTypingMessage('');
+                setIsTyping(false);
+                setMessageVersion(0);
+              }, 200);
+              
+              if (onClose) {
+                onClose();
+              }
+            }
+          }
+        ]
+      );
+      return;
+    }
+    
     HapticService.light();
     Keyboard.dismiss();
     
@@ -273,7 +409,7 @@ const ManagerAIOverlay = ({
     if (onClose) {
       onClose();
     }
-  }, [onClose]);
+  }, [onClose, isAIContinuing, isLoading, isTyping]);
   
   if (!visible) return null;
   
@@ -423,7 +559,7 @@ const ManagerAIOverlay = ({
             <View style={styles.inputContainer}>
               <ChatInputBar
                 onSend={handleSend}
-                disabled={isLoading || isTyping}
+                disabled={isLoading || isTyping || isAIContinuing} // ⭐ NEW: Also disable when AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
                 onAISettings={handleToggleSettings} // 🆕 Toggle settings panel
               />
