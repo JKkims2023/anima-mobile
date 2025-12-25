@@ -219,10 +219,8 @@ const ManagerAIOverlay = ({
           setHistoryOffset(historyMessages.length);
           setMessageVersion(historyMessages.length);
           
-          // ⭐ AI auto conversation starter (after 1 second)
-          setTimeout(() => {
-            startAIConversation(userKey);
-          }, 1000);
+          // ⚠️ DON'T auto-start if there's already conversation history
+          console.log('✅ [Chat History] Loaded existing messages - skipping auto-start');
         }
         
         setHasMoreHistory(response.data.hasMore);
