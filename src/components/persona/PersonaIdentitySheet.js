@@ -127,6 +127,23 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
     }
   };
 
+  // ⭐ NEW: Reset all states when sheet closes
+  const resetStates = () => {
+    console.log('🔄 [PersonaIdentitySheet] Resetting all states');
+    
+    // Reset tab to default
+    setActiveTab('user_input');
+    
+    // Reset search states
+    setSearchQuery('');
+    setSearchResult(null);
+    setSearchError(null);
+    setIsSearching(false);
+    
+    // Note: Don't reset identity data (name, content) 
+    // because user might have edited them
+  };
+
   // Handle close with unsaved changes check
   const handleClose = () => {
     if (hasUnsavedChanges()) {
@@ -142,6 +159,7 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
             text: t('persona.identity.close_without_save', '닫기'),
             style: 'destructive',
             onPress: () => {
+              resetStates(); // ⭐ Reset states before closing
               bottomSheetRef.current?.dismiss();
               onClose?.();
             },
@@ -149,6 +167,7 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
         ]
       );
     } else {
+      resetStates(); // ⭐ Reset states before closing
       bottomSheetRef.current?.dismiss();
       onClose?.();
     }
@@ -199,6 +218,7 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
             {
               text: t('common.confirm', '확인'),
               onPress: () => {
+                resetStates(); // ⭐ Reset states after successful save
                 bottomSheetRef.current?.dismiss();
                 onClose?.();
                 onSave?.(response.data.data);
