@@ -18,13 +18,16 @@
  * @date 2024-11-21
  */
 
-import React, { useRef, useEffect, memo } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, Linking } from 'react-native';
+import React, { useRef, useEffect, memo, useCallback, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, Linking, Platform, Alert, ToastAndroid, Clipboard, Modal } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
 import { moderateScale, verticalScale, platformLineHeight, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/Ionicons';
+import HapticService from '../../utils/HapticService';
+import RNFS from 'react-native-fs';
+import { COLORS } from '../../styles/commonstyles';
 
 // SAGE Avatar URL
 const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png';
@@ -32,9 +35,23 @@ const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d16
 /**
  * Message Item Component (Memoized)
  */
-const MessageItem = memo(({ message }) => {
+const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
+
+  // 🆕 Copy text to clipboard
+  const handleCopyText = useCallback(() => {
+    if (message.text) {
+      Clipboard.setString(message.text);
+      HapticService.success();
+      
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('📋 복사되었습니다', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('📋 복사되었습니다', message.text.substring(0, 50) + '...');
+      }
+    }
+  }, [message.text]);
 
   return (
     <View style={[styles.messageRow, isUser && styles.messageRowReverse]}>
@@ -60,37 +77,52 @@ const MessageItem = memo(({ message }) => {
           },
         ]}
       >
-        {/* Text Message */}
+        {/* Text Message - 🆕 Long press to copy */}
         {message.text && (
-          <Text
-            style={[
-              styles.messageText,
-              {
-                color: currentTheme.textColor,
-                lineHeight: platformLineHeight(22),
-              },
-            ]}
+          <TouchableOpacity
+            onLongPress={handleCopyText}
+            activeOpacity={0.8}
+            delayLongPress={500}
           >
-            {message.text}
-          </Text>
+            <Text
+              style={[
+                styles.messageText,
+                {
+                  color: currentTheme.textColor,
+                  lineHeight: platformLineHeight(22),
+                },
+              ]}
+            >
+              {message.text}
+            </Text>
+          </TouchableOpacity>
         )}
         
-        {/* 🆕 User-sent Image (single image attached to message) */}
+        {/* 🆕 User-sent Image - Tap=fullscreen, Long press=download */}
         {message.image && (
-          <View style={styles.userImageContainer}>
+          <TouchableOpacity
+            style={styles.userImageContainer}
+            onPress={() => onImagePress?.(message.image.uri)}
+            onLongPress={() => onImageLongPress?.(message.image.uri)}
+            delayLongPress={500}
+            activeOpacity={0.8}
+          >
             <Image
               source={{ uri: message.image.uri }}
               style={styles.userSentImage}
               resizeMode="cover"
             />
-          </View>
+          </TouchableOpacity>
         )}
         
-        {/* 🖼️ Images (from AI rich content) */}
+        {/* 🖼️ Images (from AI rich content) - Tap=fullscreen, Long press=download */}
         {message.images && message.images.length > 0 && message.images.map((img, idx) => (
           <TouchableOpacity
             key={idx}
-            onPress={() => Linking.openURL(img.url)}
+            onPress={() => onImagePress?.(img.url)}
+            onLongPress={() => onImageLongPress?.(img.url)}
+            delayLongPress={500}
+            activeOpacity={0.8}
             style={styles.imageContainer}
           >
             <Image
@@ -161,6 +193,65 @@ const MessageItem = memo(({ message }) => {
 });
 
 MessageItem.displayName = 'MessageItem';
+
+/**
+ * 🆕 Image Viewer Modal Component
+ * Fullscreen image viewer with zoom and download
+ */
+const ImageViewerModal = memo(({ visible, imageUri, onClose, onDownload }) => {
+  const { currentTheme } = useTheme();
+  
+  return (
+    <Modal
+      visible={visible}
+      transparent={false}
+      animationType="fade"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <View style={styles.imageViewerContainer}>
+        {/* Header with close and download buttons */}
+        <View style={styles.imageViewerHeader}>
+          <TouchableOpacity
+            style={styles.imageViewerButton}
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <Icon name="close" size={moderateScale(28)} color="#FFF" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.imageViewerButton}
+            onPress={() => {
+              onDownload();
+              onClose();
+            }}
+            activeOpacity={0.7}
+          >
+            <Icon name="download-outline" size={moderateScale(28)} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Image */}
+        <View style={styles.imageViewerContent}>
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.fullscreenImage}
+            resizeMode="contain"
+          />
+        </View>
+        
+        {/* Hint text */}
+        <View style={styles.imageViewerFooter}>
+          <Text style={styles.imageViewerHint}>
+            💾 다운로드 버튼을 눌러 저장하세요
+          </Text>
+        </View>
+      </View>
+    </Modal>
+  );
+});
+ImageViewerModal.displayName = 'ImageViewerModal';
 
 /**
  * Typing Message Component (ISOLATED for performance)
@@ -317,6 +408,63 @@ const ChatMessageList = ({
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
+  
+  // 🆕 Image viewer state
+  const [selectedImageUri, setSelectedImageUri] = useState(null);
+  const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
+  
+  // 🆕 Handle image press (fullscreen viewer)
+  const handleImagePress = useCallback((imageUri) => {
+    setSelectedImageUri(imageUri);
+    setIsImageViewerVisible(true);
+    HapticService.light();
+  }, []);
+  
+  // 🆕 Handle image long press (download)
+  const handleImageLongPress = useCallback(async (imageUri) => {
+    HapticService.medium();
+    
+    try {
+      // Determine file extension
+      const extension = imageUri.includes('.png') ? 'png' : 'jpg';
+      const timestamp = Date.now();
+      const fileName = `ANIMA_${timestamp}.${extension}`;
+      
+      // Determine download path
+      const downloadPath = Platform.OS === 'ios'
+        ? `${RNFS.DocumentDirectoryPath}/${fileName}`
+        : `${RNFS.DownloadDirectoryPath}/${fileName}`;
+      
+      // Check if it's a local file (file://) or remote (http/https)
+      if (imageUri.startsWith('file://')) {
+        // Local file: copy to gallery
+        await RNFS.copyFile(imageUri.replace('file://', ''), downloadPath);
+      } else {
+        // Remote file: download
+        await RNFS.downloadFile({
+          fromUrl: imageUri,
+          toFile: downloadPath,
+        }).promise;
+      }
+      
+      HapticService.success();
+      
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(`✅ 저장되었습니다\n${fileName}`, ToastAndroid.LONG);
+      } else {
+        Alert.alert('✅ 저장되었습니다', fileName);
+      }
+    } catch (error) {
+      console.error('❌ [Image Download] Error:', error);
+      HapticService.error();
+      
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('❌ 저장 실패', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('❌ 저장 실패', error.message);
+      }
+    }
+  }, []);
 
   // ✅ Auto-scroll to bottom on new message or typing update
   useEffect(() => {
@@ -383,7 +531,13 @@ const ChatMessageList = ({
           if (item.role === 'typing') {
             return <TypingIndicator key="typing-indicator" />;
           }
-          return <MessageItem message={item} />;
+          return (
+            <MessageItem
+              message={item}
+              onImagePress={handleImagePress}
+              onImageLongPress={handleImageLongPress}
+            />
+          );
         }}
         keyExtractor={(item, index) => item.id || `message-${index}`}
         estimatedItemSize={verticalScale(80)} // ✅ Performance optimization
@@ -409,6 +563,19 @@ const ChatMessageList = ({
         <View style={styles.typingMessageContainer}>
           <TypingMessage text={typingMessage} />
         </View>
+      )}
+      
+      {/* 🆕 Image Viewer Modal */}
+      {isImageViewerVisible && selectedImageUri && (
+        <ImageViewerModal
+          visible={isImageViewerVisible}
+          imageUri={selectedImageUri}
+          onClose={() => {
+            setIsImageViewerVisible(false);
+            setSelectedImageUri(null);
+          }}
+          onDownload={() => handleImageLongPress(selectedImageUri)}
+        />
       )}
     </View>
   );
@@ -586,6 +753,46 @@ const styles = StyleSheet.create({
   typingMessageContainer: {
     paddingHorizontal: moderateScale(15),
     paddingBottom: verticalScale(10),
+  },
+  // 🆕 Image Viewer Modal styles
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  imageViewerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: moderateScale(20),
+    paddingTop: Platform.OS === 'ios' ? verticalScale(50) : verticalScale(20),
+    paddingBottom: verticalScale(10),
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  imageViewerButton: {
+    width: moderateScale(44),
+    height: moderateScale(44),
+    borderRadius: moderateScale(22),
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageViewerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullscreenImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageViewerFooter: {
+    paddingHorizontal: moderateScale(20),
+    paddingVertical: verticalScale(20),
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  imageViewerHint: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: moderateScale(14),
+    textAlign: 'center',
   },
 });
 

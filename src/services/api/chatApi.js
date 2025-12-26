@@ -31,19 +31,22 @@ let sessionsByPersona = {};
  * - Session management for conversation continuity
  * - Tier-based AI model selection
  * - User preferences integration
+ * - 🆕 Vision support (image analysis)
  * 
  * @param {Object} params - Request parameters
  * @param {string} params.question - User's question/message
  * @param {string} params.user_key - User key
  * @param {string} params.persona_key - Persona key (default: 'SAGE')
  * @param {boolean} params.newSession - Force new session (default: false)
+ * @param {Object} params.image - Optional image data { data: base64, mimeType: string }
  * @returns {Promise<Object>} - AI response with metadata
  */
 export const sendManagerAIMessage = async ({ 
   question, 
   user_key, 
   persona_key = 'SAGE',
-  newSession = false 
+  newSession = false,
+  image = null, // 🆕 Image data
 }) => {
   try {
     // ⭐ FIX: Get session_id for this specific persona
@@ -59,15 +62,25 @@ export const sendManagerAIMessage = async ({
     console.log(`💬 [ANIMA Chat] Sending message`);
     console.log(`   persona_key: ${persona_key}`);
     console.log(`   session_id: ${currentSessionId || 'NEW'}`);
+    if (image) {
+      console.log(`   📷 image: ${image.mimeType}, ${(image.data.length / 1024).toFixed(1)}KB`);
+    }
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
     // Call ANIMA v2.0 Chat API
-    const response = await apiClient.post(CHAT_ENDPOINTS.ANIMA_CHAT, {
+    const requestBody = {
       user_key,
       message: question,
       session_id: currentSessionId,
       persona_key,
-    });
+    };
+    
+    // 🆕 Include image data if present
+    if (image) {
+      requestBody.image = image;
+    }
+    
+    const response = await apiClient.post(CHAT_ENDPOINTS.ANIMA_CHAT, requestBody);
 
     console.log('[ANIMA Chat] Response:', response.data);
 

@@ -31,6 +31,7 @@ import {
   Animated,
   ActivityIndicator,
   Alert,
+  Image, // 🆕 For image preview
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -829,6 +830,32 @@ const ManagerAIOverlay = ({
               </View>
             )}
             
+            {/* 🆕 Image Preview (if selected) */}
+            {selectedImage && (
+              <View style={styles.imagePreviewContainer}>
+                <View style={styles.imagePreviewWrapper}>
+                  <Image
+                    source={{ uri: selectedImage.uri }}
+                    style={styles.selectedImagePreview}
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => {
+                      setSelectedImage(null);
+                      HapticService.light();
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Icon name="close-circle" size={moderateScale(28)} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
+                <CustomText type="small" style={styles.imagePreviewHint}>
+                  📷 이미지와 함께 메시지를 보내세요
+                </CustomText>
+              </View>
+            )}
+            
             {/* ✅ Chat Input Bar */}
             <View style={styles.inputContainer}>
               <ChatInputBar
@@ -1019,6 +1046,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: platformPadding(0),
     paddingTop: platformPadding(10),
     marginBottom: Platform.OS === 'ios' ? -10 : -50,
+  },
+  
+  // 🆕 Image Preview
+  imagePreviewContainer: {
+    paddingHorizontal: moderateScale(15),
+    paddingVertical: verticalScale(10),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  imagePreviewWrapper: {
+    position: 'relative',
+    alignSelf: 'flex-start',
+    borderRadius: moderateScale(12),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  selectedImagePreview: {
+    width: moderateScale(120),
+    height: moderateScale(120),
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: moderateScale(4),
+    right: moderateScale(4),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: moderateScale(14),
+  },
+  imagePreviewHint: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: verticalScale(8),
+    fontSize: moderateScale(12),
   },
 });
 
