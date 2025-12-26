@@ -499,7 +499,13 @@ const ChatMessageList = ({
   };
 
   // Render message item
-  const renderItem = ({ item }) => <MessageItem message={item} />;
+  const renderItem = ({ item }) => (
+    <MessageItem 
+      message={item} 
+      onImagePress={handleImagePress}
+      onImageLongPress={handleImageLongPress}
+    />
+  );
 
   // Key extractor
   const keyExtractor = (item, index) => item.id || `message-${index}`;
