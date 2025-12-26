@@ -375,12 +375,81 @@ export const closeChatSession = async ({ user_key, persona_key, session_id }) =>
   }
 };
 
+/**
+ * 🎁 Get pending emotional gifts for user
+ * @param {Object} params
+ * @param {string} params.user_key
+ * @param {string} params.persona_key
+ * @returns {Promise<Object>}
+ */
+export const getPendingGifts = async ({ user_key, persona_key }) => {
+  try {
+    console.log('🎁 [ChatAPI] Getting pending gifts...');
+    const response = await apiClient.get('/api/gifts/pending', {
+      params: { user_key, persona_key },
+    });
+    return { success: true, gifts: response.data.gifts || [] };
+  } catch (error) {
+    logError('Get Pending Gifts', error);
+    return { success: false, gifts: [] };
+  }
+};
+
+/**
+ * 🎁 Record user's reaction to a gift
+ * @param {Object} params
+ * @param {string} params.gift_id
+ * @param {string} params.reaction - 'loved' | 'liked' | 'viewed' | 'saved'
+ * @returns {Promise<Object>}
+ */
+export const reactToGift = async ({ gift_id, reaction }) => {
+  try {
+    console.log(`❤️  [ChatAPI] Reacting to gift: ${reaction}`);
+    const response = await apiClient.post('/api/gifts/react', {
+      gift_id,
+      reaction,
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    logError('React to Gift', error);
+    return { success: false, error: error.response?.data };
+  }
+};
+
+/**
+ * 🎁 Create test gift (for testing only)
+ * @param {Object} params
+ * @param {string} params.user_key
+ * @param {string} params.persona_key
+ * @param {string} params.emotion
+ * @param {string} params.personalMessage
+ * @returns {Promise<Object>}
+ */
+export const createTestGift = async ({ user_key, persona_key, emotion, personalMessage }) => {
+  try {
+    console.log('🎁 [ChatAPI] Creating test gift...');
+    const response = await apiClient.post('/api/gifts/test/create', {
+      user_key,
+      persona_key,
+      emotion,
+      personalMessage,
+    });
+    return { success: true, gift_id: response.data.gift_id };
+  } catch (error) {
+    logError('Create Test Gift', error);
+    return { success: false, error: error.response?.data };
+  }
+};
+
 export default {
   sendManagerAIMessage,
   resetManagerAISession,
   getCurrentSessionId,
   getChatHistory,
-  closeChatSession, // 🆕 NEW
+  closeChatSession,
+  getPendingGifts, // 🎁 NEW
+  reactToGift, // 🎁 NEW
+  createTestGift, // 🎁 NEW (for testing)
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,

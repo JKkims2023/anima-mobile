@@ -528,7 +528,7 @@ const ChatMessageList = ({
 
   // Empty state
   const renderEmptyState = () => (
-    <View style={[styles.messageBubble, styles.aiBubble, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
+    <View style={[styles.messageBubble, styles.aiBubble, { display: 'none', backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
       <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
         {t('manager_ai.empty_messages') || 'Start a conversation with SAGE'}
       </Text>

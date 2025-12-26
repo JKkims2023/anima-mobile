@@ -1,0 +1,629 @@
+Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
+2025-12-27 05:11:11    ▲ Next.js 15.5.9
+2025-12-27 05:11:11    - Local:        http://localhost:3000
+2025-12-27 05:11:11    - Network:      http://0.0.0.0:3000
+2025-12-27 05:11:11 
+2025-12-27 05:11:11  ✓ Starting...
+2025-12-27 05:11:11  ✓ Ready in 171ms
+2025-12-27 05:11:12 [SSE] 🔧 Initialized global eventEmitters Map
+2025-12-27 05:11:31 🎁 [Gift API] Getting pending gifts...
+2025-12-27 05:11:31    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:11:31    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:11:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-27 05:11:31 📜 [Chat History] Fetching history
+2025-12-27 05:11:31    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:11:31    persona_key: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:11:31    limit: 100, offset: 0
+2025-12-27 05:11:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-27 05:11:31 ✅ [Gift API] Found 0 pending gift(s)
+2025-12-27 05:11:31 ✅ [Chat History] No history found
+2025-12-27 05:11:54 
+2025-12-27 05:11:54 🤖 [ANIMA Chat] Request received
+2025-12-27 05:11:54    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:11:54    Session: session-1766779914095-7oa6ie
+2025-12-27 05:11:54    Message: 안녕?! 이 서비스는 뭐하는거야?!...
+2025-12-27 05:11:54 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:11:54 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:11:54 ✅ [SessionManager] Created new session: session-1766779914095-7oa6ie
+2025-12-27 05:11:54 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:11:54    - Messages: 0
+2025-12-27 05:11:54    - Persona: Nexus
+2025-12-27 05:11:54    - Identity: Disabled
+2025-12-27 05:11:54    - Preferences: Yes
+2025-12-27 05:11:54 📊 [SessionManager] Conversation stats: {
+2025-12-27 05:11:54   totalMessages: 0,
+2025-12-27 05:11:54   totalChars: 0,
+2025-12-27 05:11:54   estimatedTokens: 0,
+2025-12-27 05:11:54   averageMessageLength: NaN
+2025-12-27 05:11:54 }
+2025-12-27 05:11:54 🔄 [Sliding Window] Processing 0 messages
+2025-12-27 05:11:54    Window size: 20
+2025-12-27 05:11:54    Summarize threshold: 30
+2025-12-27 05:11:54 ✅ [Sliding Window] Short conversation, keeping all 0 messages
+2025-12-27 05:11:54 ✅ [ANIMA Chat] Session loaded
+2025-12-27 05:11:54    Total messages: 0
+2025-12-27 05:11:54    Kept messages: 0
+2025-12-27 05:11:54    Summarized messages: 0
+2025-12-27 05:11:54    Sliding window: Inactive
+2025-12-27 05:11:54    Persona: Nexus
+2025-12-27 05:11:54    Preferences: Custom
+2025-12-27 05:11:54 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-27 05:11:54    Tier: free
+2025-12-27 05:11:54    Model: GPT-4o Mini
+2025-12-27 05:11:54    Provider: openai
+2025-12-27 05:11:54    Caching: Enabled
+2025-12-27 05:11:54 [VectorSync] Searching for: "안녕?! 이 서비스는 뭐하는거야?!"
+2025-12-27 05:11:57 [VectorSync] Found 3 relevant knowledge items
+2025-12-27 05:11:57 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-27 05:11:57    1. ANIMA로 할 수 있는 것들 (similarity: 35.9%)
+2025-12-27 05:11:57    2. 사용자 관계 발전 원칙 (similarity: 26.9%)
+2025-12-27 05:11:57    3. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 26.8%)
+2025-12-27 05:11:57 🧠 [ANIMA Chat] Building relationship-aware prompt...
+2025-12-27 05:11:57 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:11:57 ⚠️  [PromptBuilder] Redis error (using DB fallback): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-27 05:11:57 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-27 05:11:57 🆕 [PromptBuilder] Creating new relationship memory...
+2025-12-27 05:11:57 ⚠️  [PromptBuilder] Failed to cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-27 05:11:57 ⚠️  [PromptBuilder] Redis error for progress (using DB): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-27 05:11:57 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-27 05:11:57 💡 [PromptBuilder] Generated 2 learning questions
+2025-12-27 05:11:57 ✅ [PromptBuilder] Prompt built: 846 chars, 212 tokens
+2025-12-27 05:11:57 📝 [ANIMA Chat] System prompt built (2449 chars, 3 knowledge items)
+2025-12-27 05:11:57 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-27 05:11:57    Provider: openai
+2025-12-27 05:11:57    Model: gpt-4o-mini
+2025-12-27 05:11:57    History messages: 0
+2025-12-27 05:11:57    System prompt length: 2449 chars
+2025-12-27 05:11:57 🤖 [OpenAI] Calling API: {
+2025-12-27 05:11:57   model: 'gpt-4o-mini',
+2025-12-27 05:11:57   messageCount: 2,
+2025-12-27 05:11:57   systemPromptLength: 2449,
+2025-12-27 05:11:57   historyLength: 0
+2025-12-27 05:11:57 }
+2025-12-27 05:12:00 ✅ [OpenAI] Response received: {
+2025-12-27 05:12:00   responseTime: '3044ms',
+2025-12-27 05:12:00   tokens: { prompt: 1251, completion: 114, total: 1365 },
+2025-12-27 05:12:00   messageLength: 199,
+2025-12-27 05:12:00   finishReason: 'stop'
+2025-12-27 05:12:00 }
+2025-12-27 05:12:00 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-27 05:12:00    Response time: 3044ms
+2025-12-27 05:12:00    Total tokens: 1365 (in: 1251, out: 114)
+2025-12-27 05:12:00 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:12:00 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:00 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:00    - Messages: 0
+2025-12-27 05:12:00    - Persona: Nexus
+2025-12-27 05:12:00    - Identity: Disabled
+2025-12-27 05:12:00    - Preferences: Yes
+2025-12-27 05:12:00 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:12:00 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:00 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (user)
+2025-12-27 05:12:00 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:00    - Messages: 1
+2025-12-27 05:12:00    - Persona: Nexus
+2025-12-27 05:12:00    - Identity: Disabled
+2025-12-27 05:12:00    - Preferences: Yes
+2025-12-27 05:12:00 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-27 05:12:00 🎉 [ANIMA Chat] Request completed in 6140ms
+2025-12-27 05:12:00    Cost: $0.000256
+2025-12-27 05:12:00 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (assistant)
+2025-12-27 05:12:07 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-27 05:12:07 🔌 [Redis] Connection closed
+2025-12-27 05:12:07 🔄 [Redis] Attempting to reconnect...
+2025-12-27 05:12:17 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-27 05:12:17 🔌 [Redis] Connection closed
+2025-12-27 05:12:17 🔄 [Redis] Attempting to reconnect...
+2025-12-27 05:12:27 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-27 05:12:27 🔌 [Redis] Connection closed
+2025-12-27 05:12:27 🔄 [Redis] Attempting to reconnect...
+2025-12-27 05:12:37 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-27 05:12:37 ⚠️  [Redis] Max retry attempts reached, stopping reconnection
+2025-12-27 05:12:37 🔌 [Redis] Connection closed
+2025-12-27 05:12:43 
+2025-12-27 05:12:43 🤖 [ANIMA Chat] Request received
+2025-12-27 05:12:43    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:12:43    Session: session-1766779914095-7oa6ie
+2025-12-27 05:12:43    Message: 어떻게 생성하는건데?!...
+2025-12-27 05:12:43 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:12:43 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:43 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:43    - Messages: 2
+2025-12-27 05:12:43    - Persona: Nexus
+2025-12-27 05:12:43    - Identity: Disabled
+2025-12-27 05:12:43    - Preferences: Yes
+2025-12-27 05:12:43 📊 [SessionManager] Conversation stats: {
+2025-12-27 05:12:43   totalMessages: 2,
+2025-12-27 05:12:43   totalChars: 216,
+2025-12-27 05:12:43   estimatedTokens: 73,
+2025-12-27 05:12:43   averageMessageLength: 108
+2025-12-27 05:12:43 }
+2025-12-27 05:12:43 🔄 [Sliding Window] Processing 2 messages
+2025-12-27 05:12:43    Window size: 20
+2025-12-27 05:12:43    Summarize threshold: 30
+2025-12-27 05:12:43 ✅ [Sliding Window] Short conversation, keeping all 2 messages
+2025-12-27 05:12:43 ✅ [ANIMA Chat] Session loaded
+2025-12-27 05:12:43    Total messages: 2
+2025-12-27 05:12:43    Kept messages: 2
+2025-12-27 05:12:43    Summarized messages: 0
+2025-12-27 05:12:43    Sliding window: Inactive
+2025-12-27 05:12:43    Persona: Nexus
+2025-12-27 05:12:43    Preferences: Custom
+2025-12-27 05:12:43 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-27 05:12:43    Tier: free
+2025-12-27 05:12:43    Model: GPT-4o Mini
+2025-12-27 05:12:43    Provider: openai
+2025-12-27 05:12:43    Caching: Enabled
+2025-12-27 05:12:43 [VectorSync] Searching for: "어떻게 생성하는건데?!"
+2025-12-27 05:12:45 [VectorSync] Found 3 relevant knowledge items
+2025-12-27 05:12:45 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-27 05:12:45    1. 감정 기반 창작물 생성 원칙 (similarity: 37.4%)
+2025-12-27 05:12:45    2. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 32.6%)
+2025-12-27 05:12:45    3. ANIMA로 할 수 있는 것들 (similarity: 30.1%)
+2025-12-27 05:12:45 🧠 [ANIMA Chat] Building relationship-aware prompt...
+2025-12-27 05:12:45 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:12:45 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-27 05:12:45 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-27 05:12:45 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-27 05:12:45 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-27 05:12:45 💡 [PromptBuilder] Generated 2 learning questions
+2025-12-27 05:12:45 ✅ [PromptBuilder] Prompt built: 846 chars, 212 tokens
+2025-12-27 05:12:45 📝 [ANIMA Chat] System prompt built (2539 chars, 3 knowledge items)
+2025-12-27 05:12:45 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-27 05:12:45 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-27 05:12:45    Provider: openai
+2025-12-27 05:12:45    Model: gpt-4o-mini
+2025-12-27 05:12:45    History messages: 2
+2025-12-27 05:12:45    System prompt length: 2539 chars
+2025-12-27 05:12:45 🤖 [OpenAI] Calling API: {
+2025-12-27 05:12:45   model: 'gpt-4o-mini',
+2025-12-27 05:12:45   messageCount: 4,
+2025-12-27 05:12:45   systemPromptLength: 2539,
+2025-12-27 05:12:45   historyLength: 2
+2025-12-27 05:12:45 }
+2025-12-27 05:12:48 ✅ [OpenAI] Response received: {
+2025-12-27 05:12:48   responseTime: '2957ms',
+2025-12-27 05:12:48   tokens: { prompt: 1442, completion: 116, total: 1558 },
+2025-12-27 05:12:48   messageLength: 206,
+2025-12-27 05:12:48   finishReason: 'stop'
+2025-12-27 05:12:48 }
+2025-12-27 05:12:48 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-27 05:12:48    Response time: 2957ms
+2025-12-27 05:12:48    Total tokens: 1558 (in: 1442, out: 116)
+2025-12-27 05:12:48 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:12:48 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:48 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:48    - Messages: 2
+2025-12-27 05:12:48    - Persona: Nexus
+2025-12-27 05:12:48    - Identity: Disabled
+2025-12-27 05:12:48    - Preferences: Yes
+2025-12-27 05:12:48 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:12:48 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:48 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:12:48    - Messages: 3
+2025-12-27 05:12:48    - Persona: Nexus
+2025-12-27 05:12:48    - Identity: Disabled
+2025-12-27 05:12:48    - Preferences: Yes
+2025-12-27 05:12:48 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-27 05:12:48 🎉 [ANIMA Chat] Request completed in 4766ms
+2025-12-27 05:12:48    Cost: $0.000286
+2025-12-27 05:12:48 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (user)
+2025-12-27 05:12:48 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (assistant)
+2025-12-27 05:13:17 
+2025-12-27 05:13:17 🤖 [ANIMA Chat] Request received
+2025-12-27 05:13:17    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:13:17    Session: session-1766779914095-7oa6ie
+2025-12-27 05:13:17    Message: 음 잘모르겠어. 넌 이름이 뭐니?!...
+2025-12-27 05:13:17 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:17 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:17 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:17    - Messages: 4
+2025-12-27 05:13:17    - Persona: Nexus
+2025-12-27 05:13:17    - Identity: Disabled
+2025-12-27 05:13:17    - Preferences: Yes
+2025-12-27 05:13:17 📊 [SessionManager] Conversation stats: {
+2025-12-27 05:13:17   totalMessages: 4,
+2025-12-27 05:13:17   totalChars: 430,
+2025-12-27 05:13:17   estimatedTokens: 145,
+2025-12-27 05:13:17   averageMessageLength: 108
+2025-12-27 05:13:17 }
+2025-12-27 05:13:17 🔄 [Sliding Window] Processing 4 messages
+2025-12-27 05:13:17    Window size: 20
+2025-12-27 05:13:17    Summarize threshold: 30
+2025-12-27 05:13:17 ✅ [Sliding Window] Short conversation, keeping all 4 messages
+2025-12-27 05:13:17 ✅ [ANIMA Chat] Session loaded
+2025-12-27 05:13:17    Total messages: 4
+2025-12-27 05:13:17    Kept messages: 4
+2025-12-27 05:13:17    Summarized messages: 0
+2025-12-27 05:13:17    Sliding window: Inactive
+2025-12-27 05:13:17    Persona: Nexus
+2025-12-27 05:13:17    Preferences: Custom
+2025-12-27 05:13:17 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-27 05:13:17    Tier: free
+2025-12-27 05:13:17    Model: GPT-4o Mini
+2025-12-27 05:13:17    Provider: openai
+2025-12-27 05:13:17    Caching: Enabled
+2025-12-27 05:13:17 [VectorSync] Searching for: "음 잘모르겠어. 넌 이름이 뭐니?!"
+2025-12-27 05:13:19 [VectorSync] Found 3 relevant knowledge items
+2025-12-27 05:13:19 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-27 05:13:19    1. ANIMA로 할 수 있는 것들 (similarity: 24.0%)
+2025-12-27 05:13:19    2. ANIMA의 정체성: 우리는 누구인가 (similarity: 23.6%)
+2025-12-27 05:13:19    3. 공감의 기본 원칙 (similarity: 18.2%)
+2025-12-27 05:13:19 🧠 [ANIMA Chat] Building relationship-aware prompt...
+2025-12-27 05:13:19 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:13:19 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-27 05:13:19 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-27 05:13:19 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-27 05:13:19 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-27 05:13:19 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-27 05:13:19 💡 [PromptBuilder] Generated 2 learning questions
+2025-12-27 05:13:19 ✅ [PromptBuilder] Prompt built: 847 chars, 212 tokens
+2025-12-27 05:13:19 📝 [ANIMA Chat] System prompt built (2349 chars, 3 knowledge items)
+2025-12-27 05:13:19 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-27 05:13:19    Provider: openai
+2025-12-27 05:13:19    Model: gpt-4o-mini
+2025-12-27 05:13:19    History messages: 4
+2025-12-27 05:13:19    System prompt length: 2349 chars
+2025-12-27 05:13:19 🤖 [OpenAI] Calling API: {
+2025-12-27 05:13:19   model: 'gpt-4o-mini',
+2025-12-27 05:13:19   messageCount: 6,
+2025-12-27 05:13:19   systemPromptLength: 2349,
+2025-12-27 05:13:19   historyLength: 4
+2025-12-27 05:13:19 }
+2025-12-27 05:13:20 ✅ [OpenAI] Response received: {
+2025-12-27 05:13:20   responseTime: '1218ms',
+2025-12-27 05:13:20   tokens: { prompt: 1484, completion: 36, total: 1520 },
+2025-12-27 05:13:20   messageLength: 63,
+2025-12-27 05:13:20   finishReason: 'stop'
+2025-12-27 05:13:20 }
+2025-12-27 05:13:20 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-27 05:13:20    Response time: 1218ms
+2025-12-27 05:13:20    Total tokens: 1520 (in: 1484, out: 36)
+2025-12-27 05:13:20 🎭 [Emotion] Detected: confused (65.0%)
+2025-12-27 05:13:20 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:20 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:20 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:20    - Messages: 4
+2025-12-27 05:13:20    - Persona: Nexus
+2025-12-27 05:13:20    - Identity: Disabled
+2025-12-27 05:13:20    - Preferences: Yes
+2025-12-27 05:13:20 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:20 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:20 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (user)
+2025-12-27 05:13:20 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:20    - Messages: 5
+2025-12-27 05:13:20    - Persona: Nexus
+2025-12-27 05:13:20    - Identity: Disabled
+2025-12-27 05:13:20    - Preferences: Yes
+2025-12-27 05:13:20 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-27 05:13:20 🎉 [ANIMA Chat] Request completed in 2918ms
+2025-12-27 05:13:20    Cost: $0.000244
+2025-12-27 05:13:20 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (assistant)
+2025-12-27 05:13:31 
+2025-12-27 05:13:31 🤖 [ANIMA Chat] Request received
+2025-12-27 05:13:31    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:13:31    Session: session-1766779914095-7oa6ie
+2025-12-27 05:13:31    Message: JK!...
+2025-12-27 05:13:31 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:31 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:31 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:31    - Messages: 6
+2025-12-27 05:13:31    - Persona: Nexus
+2025-12-27 05:13:31    - Identity: Disabled
+2025-12-27 05:13:31    - Preferences: Yes
+2025-12-27 05:13:31 📊 [SessionManager] Conversation stats: {
+2025-12-27 05:13:31   totalMessages: 6,
+2025-12-27 05:13:31   totalChars: 512,
+2025-12-27 05:13:31   estimatedTokens: 173,
+2025-12-27 05:13:31   averageMessageLength: 85
+2025-12-27 05:13:31 }
+2025-12-27 05:13:31 🔄 [Sliding Window] Processing 6 messages
+2025-12-27 05:13:31    Window size: 20
+2025-12-27 05:13:31    Summarize threshold: 30
+2025-12-27 05:13:31 ✅ [Sliding Window] Short conversation, keeping all 6 messages
+2025-12-27 05:13:31 ✅ [ANIMA Chat] Session loaded
+2025-12-27 05:13:31    Total messages: 6
+2025-12-27 05:13:31    Kept messages: 6
+2025-12-27 05:13:31    Summarized messages: 0
+2025-12-27 05:13:31    Sliding window: Inactive
+2025-12-27 05:13:31    Persona: Nexus
+2025-12-27 05:13:31    Preferences: Custom
+2025-12-27 05:13:31 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-27 05:13:31    Tier: free
+2025-12-27 05:13:31    Model: GPT-4o Mini
+2025-12-27 05:13:31    Provider: openai
+2025-12-27 05:13:31    Caching: Enabled
+2025-12-27 05:13:31 [VectorSync] Searching for: "JK!"
+2025-12-27 05:13:32 [VectorSync] Found 3 relevant knowledge items
+2025-12-27 05:13:32 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-27 05:13:32    1. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 23.7%)
+2025-12-27 05:13:32    2. ANIMA로 할 수 있는 것들 (similarity: 18.1%)
+2025-12-27 05:13:32    3. 자살/자해 위험 대응 프로토콜 (similarity: 16.2%)
+2025-12-27 05:13:32 🧠 [ANIMA Chat] Building relationship-aware prompt...
+2025-12-27 05:13:32 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:13:32 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-27 05:13:32 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-27 05:13:32 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-27 05:13:32 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-27 05:13:32 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-27 05:13:32 💡 [PromptBuilder] Generated 2 learning questions
+2025-12-27 05:13:32 ✅ [PromptBuilder] Prompt built: 841 chars, 211 tokens
+2025-12-27 05:13:32 📝 [ANIMA Chat] System prompt built (2467 chars, 3 knowledge items)
+2025-12-27 05:13:32 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-27 05:13:32    Provider: openai
+2025-12-27 05:13:32    Model: gpt-4o-mini
+2025-12-27 05:13:32    History messages: 6
+2025-12-27 05:13:32    System prompt length: 2467 chars
+2025-12-27 05:13:32 🤖 [OpenAI] Calling API: {
+2025-12-27 05:13:32   model: 'gpt-4o-mini',
+2025-12-27 05:13:32   messageCount: 8,
+2025-12-27 05:13:32   systemPromptLength: 2467,
+2025-12-27 05:13:32   historyLength: 6
+2025-12-27 05:13:32 }
+2025-12-27 05:13:33 ✅ [OpenAI] Response received: {
+2025-12-27 05:13:33   responseTime: '1144ms',
+2025-12-27 05:13:33   tokens: { prompt: 1577, completion: 38, total: 1615 },
+2025-12-27 05:13:33   messageLength: 66,
+2025-12-27 05:13:33   finishReason: 'stop'
+2025-12-27 05:13:33 }
+2025-12-27 05:13:33 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-27 05:13:33    Response time: 1144ms
+2025-12-27 05:13:33    Total tokens: 1615 (in: 1577, out: 38)
+2025-12-27 05:13:33 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:33    - Messages: 6
+2025-12-27 05:13:33    - Persona: Nexus
+2025-12-27 05:13:33    - Identity: Disabled
+2025-12-27 05:13:33    - Preferences: Yes
+2025-12-27 05:13:33 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:13:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:13:33    - Messages: 7
+2025-12-27 05:13:33    - Persona: Nexus
+2025-12-27 05:13:33    - Identity: Disabled
+2025-12-27 05:13:33    - Preferences: Yes
+2025-12-27 05:13:33 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-27 05:13:33 🎉 [ANIMA Chat] Request completed in 2405ms
+2025-12-27 05:13:33    Cost: $0.000259
+2025-12-27 05:13:33 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (user)
+2025-12-27 05:13:34 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (assistant)
+2025-12-27 05:14:15 
+2025-12-27 05:14:15 🤖 [ANIMA Chat] Request received
+2025-12-27 05:14:15    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:14:15    Session: session-1766779914095-7oa6ie
+2025-12-27 05:14:15    Message: 그래 :) 다음에 또 이야기 하자! 다음에는 이 서비스에 대해서 좀더 자세히 알려줘!...
+2025-12-27 05:14:15 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:14:15 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:15 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:15    - Messages: 8
+2025-12-27 05:14:15    - Persona: Nexus
+2025-12-27 05:14:15    - Identity: Disabled
+2025-12-27 05:14:15    - Preferences: Yes
+2025-12-27 05:14:15 📊 [SessionManager] Conversation stats: {
+2025-12-27 05:14:15   totalMessages: 8,
+2025-12-27 05:14:15   totalChars: 581,
+2025-12-27 05:14:15   estimatedTokens: 196,
+2025-12-27 05:14:15   averageMessageLength: 73
+2025-12-27 05:14:15 }
+2025-12-27 05:14:15 🔄 [Sliding Window] Processing 8 messages
+2025-12-27 05:14:15    Window size: 20
+2025-12-27 05:14:15    Summarize threshold: 30
+2025-12-27 05:14:15 ✅ [Sliding Window] Short conversation, keeping all 8 messages
+2025-12-27 05:14:15 ✅ [ANIMA Chat] Session loaded
+2025-12-27 05:14:15    Total messages: 8
+2025-12-27 05:14:15    Kept messages: 8
+2025-12-27 05:14:15    Summarized messages: 0
+2025-12-27 05:14:15    Sliding window: Inactive
+2025-12-27 05:14:15    Persona: Nexus
+2025-12-27 05:14:15    Preferences: Custom
+2025-12-27 05:14:15 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-27 05:14:15    Tier: free
+2025-12-27 05:14:15    Model: GPT-4o Mini
+2025-12-27 05:14:15    Provider: openai
+2025-12-27 05:14:15    Caching: Enabled
+2025-12-27 05:14:15 [VectorSync] Searching for: "그래 :) 다음에 또 이야기 하자! 다음에는 이 서비스에 대해서 좀더 자세히 알려줘!"
+2025-12-27 05:14:16 [VectorSync] Found 3 relevant knowledge items
+2025-12-27 05:14:16 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-27 05:14:16    1. ANIMA로 할 수 있는 것들 (similarity: 30.4%)
+2025-12-27 05:14:16    2. 사용자 관계 발전 원칙 (similarity: 30.2%)
+2025-12-27 05:14:16    3. 자살/자해 위험 대응 프로토콜 (similarity: 28.4%)
+2025-12-27 05:14:16 🧠 [ANIMA Chat] Building relationship-aware prompt...
+2025-12-27 05:14:16 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:14:16 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-27 05:14:16 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-27 05:14:16 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-27 05:14:16 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-27 05:14:16 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-27 05:14:16 💡 [PromptBuilder] Generated 2 learning questions
+2025-12-27 05:14:16 ✅ [PromptBuilder] Prompt built: 842 chars, 211 tokens
+2025-12-27 05:14:16 📝 [ANIMA Chat] System prompt built (2579 chars, 3 knowledge items)
+2025-12-27 05:14:16 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-27 05:14:16    Provider: openai
+2025-12-27 05:14:16    Model: gpt-4o-mini
+2025-12-27 05:14:16    History messages: 8
+2025-12-27 05:14:16    System prompt length: 2579 chars
+2025-12-27 05:14:16 🤖 [OpenAI] Calling API: {
+2025-12-27 05:14:16   model: 'gpt-4o-mini',
+2025-12-27 05:14:16   messageCount: 10,
+2025-12-27 05:14:16   systemPromptLength: 2579,
+2025-12-27 05:14:16   historyLength: 8
+2025-12-27 05:14:16 }
+2025-12-27 05:14:18 ✅ [OpenAI] Response received: {
+2025-12-27 05:14:18   responseTime: '1403ms',
+2025-12-27 05:14:18   tokens: { prompt: 1739, completion: 38, total: 1777 },
+2025-12-27 05:14:18   messageLength: 66,
+2025-12-27 05:14:18   finishReason: 'stop'
+2025-12-27 05:14:18 }
+2025-12-27 05:14:18 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-27 05:14:18    Response time: 1403ms
+2025-12-27 05:14:18    Total tokens: 1777 (in: 1739, out: 38)
+2025-12-27 05:14:18 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:14:18 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:18 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:18    - Messages: 8
+2025-12-27 05:14:18    - Persona: Nexus
+2025-12-27 05:14:18    - Identity: Disabled
+2025-12-27 05:14:18    - Preferences: Yes
+2025-12-27 05:14:18 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-27 05:14:18 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:18 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (user)
+2025-12-27 05:14:18 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766779914095-7oa6ie
+2025-12-27 05:14:18    - Messages: 9
+2025-12-27 05:14:18    - Persona: Nexus
+2025-12-27 05:14:18    - Identity: Disabled
+2025-12-27 05:14:18    - Preferences: Yes
+2025-12-27 05:14:18 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-27 05:14:18 🎉 [ANIMA Chat] Request completed in 2897ms
+2025-12-27 05:14:18    Cost: $0.000284
+2025-12-27 05:14:18 💾 [SessionManager] Message saved: session-1766779914095-7oa6ie (assistant)
+2025-12-27 05:14:22 👋 [Chat Close] Session close request received
+2025-12-27 05:14:22    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:14:22    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:14:22    Session: session-1766779914095-7oa6ie
+2025-12-27 05:14:22 🧠 [RelationshipLearner] Starting analysis...
+2025-12-27 05:14:22    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:14:22    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:14:22    Session: session-1766779914095-7oa6ie
+2025-12-27 05:14:22 📚 [RelationshipLearner] Loaded 10 messages
+2025-12-27 05:14:26 ✅ [RelationshipLearner] Analysis complete: {
+2025-12-27 05:14:26   foundCalling: true,
+2025-12-27 05:14:26   mainTopics: 3,
+2025-12-27 05:14:26   importantMoments: 1,
+2025-12-27 05:14:26   trustDelta: 2
+2025-12-27 05:14:26 }
+2025-12-27 05:14:26 📝 [RelationshipLearner] Core relationship updated
+2025-12-27 05:14:26 💾 [RelationshipLearner] Saved 1 important moments
+2025-12-27 05:14:26 📊 [RelationshipLearner] Data collection progress updated
+2025-12-27 05:14:26 ⚠️  [PromptBuilder] Failed to clear cache (non-critical): Connection is closed.
+2025-12-27 05:14:26 🎁 [EmotionalGift] Checking gift opportunity...
+2025-12-27 05:14:26 🎁 [GiftLimit] User d111e3d8-4e42-4493-8541-25a8e72b654f: 0/3 gifts this week
+2025-12-27 05:14:26 🎁 [GiftAnalyzer] Analyzing conversation for gift opportunity...
+2025-12-27 05:14:30 🎁 [GiftAnalyzer] Analysis complete: { shouldCreateGift: true, emotion: 'excitement', confidence: 0.8 }
+2025-12-27 05:14:30 🎁 [EmotionalGift] Creating gift!
+2025-12-27 05:14:30    Emotion: excitement
+2025-12-27 05:14:30    Trigger: User expressed interest in learning more about the service in the future.
+2025-12-27 05:14:30    Confidence: 0.8
+2025-12-27 05:14:30 🎁 [GiftGenerator] Creating gift: 3e34b48c-8043-4a61-b630-690071f89dd9
+2025-12-27 05:14:30 ✅ [GiftGenerator] Gift created successfully
+2025-12-27 05:14:30 ✅ [EmotionalGift] Gift created: 3e34b48c-8043-4a61-b630-690071f89dd9
+2025-12-27 05:14:30    Message: JK, 앞으로 우리 함께 많은 이야기를 나눌 수 있을 것 같아서 너무 기대돼! 😊 언제든...
+2025-12-27 05:14:30 🎉 [RelationshipLearner] Update complete (8388ms)
+2025-12-27 05:14:30 ✅ [Chat Close] Background learning complete
+2025-12-27 05:14:30    Duration: 8388ms
+2025-12-27 05:14:30    Trust delta: 2
+2025-12-27 05:14:30    Intimacy delta: 2
+2025-12-27 05:14:30    New data points: 3 topics
+2025-12-27 05:15:47 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-27 05:15:47 📜 [Chat History] Fetching history
+2025-12-27 05:15:47    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:15:47    persona_key: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:15:47    limit: 100, offset: 0
+2025-12-27 05:15:47 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-27 05:15:47 🎁 [Gift API] Getting pending gifts...
+2025-12-27 05:15:47    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-27 05:15:47    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
+2025-12-27 05:15:47 ✅ [Gift API] Found 1 pending gift(s)
+2025-12-27 05:15:47 ✅ [Chat History] Loaded 10 messages (fetched: 10, total: 10, filtered: 0)
+2025-12-27 05:16:49 ❤️  [Gift Reaction] Recording reaction...
+2025-12-27 05:16:49    Gift: 3e34b48c-8043-4a61-b630-690071f89dd9
+2025-12-27 05:16:49    Reaction: saved
+2025-12-27 05:16:49 ✅ [GiftGenerator] Reaction recorded: 3e34b48c-8043-4a61-b630-690071f89dd9 -> saved
+2025-12-27 05:16:49 [2025-12-26T20:16:49.996Z] [DB:ERROR] Query execution failed (pdjvyh8b) {
+2025-12-27 05:16:49   error: 'Malformed communication packet.',
+2025-12-27 05:16:49   code: 'ER_MALFORMED_PACKET',
+2025-12-27 05:16:49   sql: '\n' +
+2025-12-27 05:16:49     '      INSERT INTO gift_statistics (\n' +
+2025-12-27 05:16:49     '        user_key,\n' +
+2025-12-27 05:16:49     '        persona_key,\n' +
+2025-12-27 05:16:49     '        total_gifts_rece'
+2025-12-27 05:16:49 }
+2025-12-27 05:16:50 ❌ [GiftStatistics] Error: Error: Malformed communication packet.
+2025-12-27 05:16:50     at f.execute (.next/server/chunks/4049.js:5:340442)
+2025-12-27 05:16:50     at n (.next/server/app/api/admin/auth/route.js:1:2834)
+2025-12-27 05:16:50     at async i (.next/server/chunks/6412.js:48:83)
+2025-12-27 05:16:50     at async h (.next/server/chunks/6412.js:44:79)
+2025-12-27 05:16:50     at async x (.next/server/app/api/gifts/react/route.js:1:2962)
+2025-12-27 05:16:50     at async k (.next/server/app/api/gifts/react/route.js:1:5901)
+2025-12-27 05:16:50     at async g (.next/server/app/api/gifts/react/route.js:1:6904)
+2025-12-27 05:16:50     at async D (.next/server/app/api/gifts/react/route.js:1:8026) {
+2025-12-27 05:16:50   code: 'ER_MALFORMED_PACKET',
+2025-12-27 05:16:50   errno: 1835,
+2025-12-27 05:16:50   sql: '\n' +
+2025-12-27 05:16:50     '      INSERT INTO gift_statistics (\n' +
+2025-12-27 05:16:50     '        user_key,\n' +
+2025-12-27 05:16:50     '        persona_key,\n' +
+2025-12-27 05:16:50     '        total_gifts_received,\n' +
+2025-12-27 05:16:50 ✅ [Gift Reaction] Reaction recorded successfully
+2025-12-27 05:16:50     '        gifts_loved,\n' +
+2025-12-27 05:16:50     '        gifts_liked,\n' +
+2025-12-27 05:16:50     '        gifts_saved,\n' +
+2025-12-27 05:16:50     '        emotion_breakdown,\n' +
+2025-12-27 05:16:50     '        last_gift_date\n' +
+2025-12-27 05:16:50     '      ) VALUES (?, ?, 1, ?, ?, ?, ?, NOW())\n' +
+2025-12-27 05:16:50     '      ON DUPLICATE KEY UPDATE\n' +
+2025-12-27 05:16:50     '        total_gifts_received = total_gifts_received + 1,\n' +
+2025-12-27 05:16:50     '        gifts_loved = gifts_loved + ?,\n' +
+2025-12-27 05:16:50     '        gifts_liked = gifts_liked + ?,\n' +
+2025-12-27 05:16:50     '        gifts_saved = gifts_saved + ?,\n' +
+2025-12-27 05:16:50     '        emotion_breakdown = JSON_SET(\n' +
+2025-12-27 05:16:50     "          COALESCE(emotion_breakdown, '{}'),\n" +
+2025-12-27 05:16:50     "          CONCAT('$.', ?),\n" +
+2025-12-27 05:16:50     "          COALESCE(JSON_EXTRACT(emotion_breakdown, CONCAT('$.', ?)), 0) + 1\n" +
+2025-12-27 05:16:50     '        ),\n' +
+2025-12-27 05:16:50     '        last_gift_date = NOW()\n' +
+2025-12-27 05:16:50     '    ',
+2025-12-27 05:16:50   sqlState: 'HY000',
+2025-12-27 05:16:50   sqlMessage: 'Malformed communication packet.'
+2025-12-27 05:16:50 }
+2025-12-27 05:17:22 ❤️  [Gift Reaction] Recording reaction...
+2025-12-27 05:17:22    Gift: 3e34b48c-8043-4a61-b630-690071f89dd9
+2025-12-27 05:17:22    Reaction: liked
+2025-12-27 05:17:22 ✅ [GiftGenerator] Reaction recorded: 3e34b48c-8043-4a61-b630-690071f89dd9 -> liked
+2025-12-27 05:17:22 [2025-12-26T20:17:22.259Z] [DB:ERROR] Query execution failed (3ehmjyif) {
+2025-12-27 05:17:22   error: 'Malformed communication packet.',
+2025-12-27 05:17:22   code: 'ER_MALFORMED_PACKET',
+2025-12-27 05:17:22   sql: '\n' +
+2025-12-27 05:17:22     '      INSERT INTO gift_statistics (\n' +
+2025-12-27 05:17:22     '        user_key,\n' +
+2025-12-27 05:17:22     '        persona_key,\n' +
+2025-12-27 05:17:22     '        total_gifts_rece'
+2025-12-27 05:17:22 }
+2025-12-27 05:17:22 ❌ [GiftStatistics] Error: Error: Malformed communication packet.
+2025-12-27 05:17:22     at f.execute (.next/server/chunks/4049.js:5:340442)
+2025-12-27 05:17:22     at n (.next/server/app/api/admin/auth/route.js:1:2834)
+2025-12-27 05:17:22     at async i (.next/server/chunks/6412.js:48:83)
+2025-12-27 05:17:22     at async h (.next/server/chunks/6412.js:44:79)
+2025-12-27 05:17:22     at async x (.next/server/app/api/gifts/react/route.js:1:2962)
+2025-12-27 05:17:22     at async k (.next/server/app/api/gifts/react/route.js:1:5901)
+2025-12-27 05:17:22     at async g (.next/server/app/api/gifts/react/route.js:1:6904)
+2025-12-27 05:17:22     at async D (.next/server/app/api/gifts/react/route.js:1:8026) {
+2025-12-27 05:17:22   code: 'ER_MALFORMED_PACKET',
+2025-12-27 05:17:22   errno: 1835,
+2025-12-27 05:17:22   sql: '\n' +
+2025-12-27 05:17:22     '      INSERT INTO gift_statistics (\n' +
+2025-12-27 05:17:22     '        user_key,\n' +
+2025-12-27 05:17:22     '        persona_key,\n' +
+2025-12-27 05:17:22     '        total_gifts_received,\n' +
+2025-12-27 05:17:22     '        gifts_loved,\n' +
+2025-12-27 05:17:22     '        gifts_liked,\n' +
+2025-12-27 05:17:22     '        gifts_saved,\n' +
+2025-12-27 05:17:22     '        emotion_breakdown,\n' +
+2025-12-27 05:17:22     '        last_gift_date\n' +
+2025-12-27 05:17:22     '      ) VALUES (?, ?, 1, ?, ?, ?, ?, NOW())\n' +
+2025-12-27 05:17:22     '      ON DUPLICATE KEY UPDATE\n' +
+2025-12-27 05:17:22     '        total_gifts_received = total_gifts_received + 1,\n' +
+2025-12-27 05:17:22     '        gifts_loved = gifts_loved + ?,\n' +
+2025-12-27 05:17:22     '        gifts_liked = gifts_liked + ?,\n' +
+2025-12-27 05:17:22     '        gifts_saved = gifts_saved + ?,\n' +
+2025-12-27 05:17:22     '        emotion_breakdown = JSON_SET(\n' +
+2025-12-27 05:17:22     "          COALESCE(emotion_breakdown, '{}'),\n" +
+2025-12-27 05:17:22     "          CONCAT('$.', ?),\n" +
+2025-12-27 05:17:22     "          COALESCE(JSON_EXTRACT(emotion_breakdown, CONCAT('$.', ?)), 0) + 1\n" +
+2025-12-27 05:17:22     '        ),\n' +
+2025-12-27 05:17:22     '        last_gift_date = NOW()\n' +
+2025-12-27 05:17:22     '    ',
+2025-12-27 05:17:22   sqlState: 'HY000',
+2025-12-27 05:17:22   sqlMessage: 'Malformed communication packet.'
+2025-12-27 05:17:22 }
+2025-12-27 05:17:22 ✅ [Gift Reaction] Reaction recorded successfully

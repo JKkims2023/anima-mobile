@@ -103,7 +103,7 @@ export const isServerError = (error) => {
  */
 export const logError = (context, error) => {
   if (__DEV__) {
-    console.error(`[API Error - ${context}]`, {
+    console.log(`[API Error - ${context}]`, {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,

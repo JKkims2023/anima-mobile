@@ -78,7 +78,7 @@ apiClient.interceptors.response.use(
     if (__DEV__) {
 
       console.log('💌 [API Response Error]', error);
-      console.error('[API Response Error]', {
+      console.log('[API Response Error]', {
         url: error.config?.url,
         method: error.config?.method,
         status: error.response?.status,
@@ -95,33 +95,33 @@ apiClient.interceptors.response.use(
       switch (status) {
         case 401:
           // Unauthorized - Token expired or invalid
-          console.warn('[API] Unauthorized - Token may be expired');
+          console.log('[API] Unauthorized - Token may be expired');
           // TODO: Implement logout or token refresh logic
           break;
         case 403:
           // Forbidden
-          console.warn('[API] Forbidden - Access denied');
+          console.log('[API] Forbidden - Access denied');
           break;
         case 404:
           // Not Found
-          console.warn('[API] Not Found');
+          console.log('[API] Not Found');
           break;
         case 500:
         case 502:
         case 503:
         case 504:
           // Server Error
-          console.error('[API] Server Error:', status);
+          console.log('[API] Server Error:', status);
           break;
         default:
-          console.error('[API] Error:', status, data);
+          console.log('[API] Error:', status, data);
       }
     } else if (error.request) {
       // Request was made but no response received
-      console.error('[API] Network Error - No response received');
+      console.log('[API] Network Error - No response received');
     } else {
       // Something happened in setting up the request
-      console.error('[API] Request Setup Error:', error.message);
+      console.log('[API] Request Setup Error:', error.message);
     }
     
     return Promise.reject(error);
