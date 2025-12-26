@@ -97,10 +97,35 @@ export const ADVICE_LEVELS = [
   },
 ];
 
+export const VISION_SETTINGS = [
+  {
+    id: 'disabled',
+    emoji: '🚫',
+    name: '비활성화',
+    description: '이미지 분석 기능 끄기',
+    example: '텍스트 대화만 사용'
+  },
+  {
+    id: 'basic',
+    emoji: '📷',
+    name: '기본 분석',
+    description: '빠른 이미지 분석 (저해상도)',
+    example: '일반적인 설명, 빠른 속도'
+  },
+  {
+    id: 'detailed',
+    emoji: '🔍',
+    name: '상세 분석',
+    description: '정밀한 이미지 분석 (고해상도)',
+    example: '디테일한 설명, 느린 속도'
+  },
+];
+
 export const DEFAULT_SETTINGS = {
   speech_style: 'friendly',
   response_style: 'warm',
   advice_level: 'gentle',
+  vision_mode: 'basic', // Default to basic vision
 };
 
 export const SETTING_CATEGORIES = [
@@ -122,6 +147,12 @@ export const SETTING_CATEGORIES = [
     description: 'SAGE가 얼마나 조언할까요?',
     options: ADVICE_LEVELS
   },
+  {
+    key: 'vision_mode',
+    title: '🖼️ 이미지 분석',
+    description: '이미지를 어떻게 분석할까요?',
+    options: VISION_SETTINGS
+  },
 ];
 
 // Helper function to get option by id
@@ -130,6 +161,7 @@ export const getOptionById = (category, id) => {
     speech_style: SPEECH_STYLES,
     response_style: RESPONSE_STYLES,
     advice_level: ADVICE_LEVELS,
+    vision_mode: VISION_SETTINGS,
   };
   
   const options = categoryMap[category];
@@ -141,6 +173,7 @@ export const getPreviewText = (settings) => {
   const speechStyle = getOptionById('speech_style', settings.speech_style);
   const responseStyle = getOptionById('response_style', settings.response_style);
   const adviceLevel = getOptionById('advice_level', settings.advice_level);
+  const visionMode = getOptionById('vision_mode', settings.vision_mode);
   
   if (!speechStyle || !responseStyle || !adviceLevel) {
     return 'SAGE가 당신의 감정을 이해하고 함께 대화합니다.';
@@ -151,6 +184,10 @@ export const getPreviewText = (settings) => {
     `🎨 ${responseStyle.name}: ${responseStyle.description}`,
     `🧠 ${adviceLevel.name}: ${adviceLevel.description}`,
   ];
+  
+  if (visionMode) {
+    previews.push(`🖼️ ${visionMode.name}: ${visionMode.description}`);
+  }
   
   return previews.join('\n\n');
 };

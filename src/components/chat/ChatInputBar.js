@@ -16,15 +16,18 @@
  */
 
 import React, { useState, memo, useCallback } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
 import { moderateScale, verticalScale, platformLineHeight, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 
 const ChatInputBar = memo(({ 
   onSend, 
+  onImageSelect, // 🆕 Image selection callback
   disabled = false, 
   placeholder,
   onToggleChatHeight,
@@ -32,6 +35,7 @@ const ChatInputBar = memo(({
   onAISettings, // 🆕 AI Settings callback
   chatHeight = 'medium',
   isChatVisible = true,
+  visionMode = 'basic', // 🆕 Vision mode setting
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -79,6 +83,86 @@ const ChatInputBar = memo(({
   const handleToggleSettings = useCallback(() => {
     setIsSettingsMenuOpen(prev => !prev);
   }, []);
+
+  const handleImagePick = useCallback(async () => {
+    // Check if vision is disabled
+    if (visionMode === 'disabled') {
+      Alert.alert(
+        '이미지 분석 비활성화',
+        '이미지 분석 기능이 비활성화되어 있습니다.\n설정에서 활성화해주세요.',
+        [{ text: '확인' }]
+      );
+      return;
+    }
+
+    // Check if disabled
+    if (disabled) {
+      return;
+    }
+
+    try {
+      // 🎯 Haptic feedback for image selection
+      HapticService.light();
+
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: visionMode === 'detailed' ? 0.9 : 0.7,
+        maxWidth: visionMode === 'detailed' ? 1024 : 512,
+        maxHeight: visionMode === 'detailed' ? 1024 : 512,
+        includeBase64: false, // We'll read file manually for better control
+      });
+
+      if (result.didCancel) {
+        console.log('📷 [Image Picker] User cancelled');
+        return;
+      }
+
+      if (result.errorCode) {
+        console.error('📷 [Image Picker] Error:', result.errorMessage);
+        Alert.alert('이미지 선택 오류', result.errorMessage || '이미지를 선택할 수 없습니다.');
+        return;
+      }
+
+      if (result.assets && result.assets[0]) {
+        const image = result.assets[0];
+        console.log('📷 [Image Picker] Selected:', {
+          uri: image.uri,
+          type: image.type,
+          size: image.fileSize,
+          width: image.width,
+          height: image.height,
+        });
+
+        // Read file as base64
+        let base64Data;
+        if (Platform.OS === 'ios') {
+          // iOS uses file:// URI
+          const filePath = image.uri.replace('file://', '');
+          base64Data = await RNFS.readFile(filePath, 'base64');
+        } else {
+          // Android
+          base64Data = await RNFS.readFile(image.uri, 'base64');
+        }
+
+        // Call parent callback
+        onImageSelect?.({
+          uri: image.uri,
+          type: image.type || 'image/jpeg',
+          base64: base64Data,
+          width: image.width,
+          height: image.height,
+          fileSize: image.fileSize,
+        });
+
+        // 🎯 Success haptic
+        HapticService.success();
+      }
+    } catch (error) {
+      console.error('📷 [Image Picker] Exception:', error);
+      Alert.alert('오류', '이미지를 처리할 수 없습니다.');
+      HapticService.error();
+    }
+  }, [visionMode, disabled, onImageSelect]);
 
   return (
     <View style={styles.wrapper}>
@@ -143,6 +227,24 @@ const ChatInputBar = memo(({
 
       {/* Input Container */}
       <View style={[styles.container, { backgroundColor: 'rgba(255, 255, 255, 0.15)'}]}>
+        {/* 🆕 Image Picker Button */}
+        {onImageSelect && (
+          <TouchableOpacity
+            style={[
+              styles.imageButton,
+              {
+                opacity: disabled || visionMode === 'disabled' ? 0.3 : 1,
+                backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
+              },
+            ]}
+            onPress={handleImagePick}
+            disabled={disabled || visionMode === 'disabled'}
+            activeOpacity={0.7}
+          >
+            <Icon name="image" size={moderateScale(22)} color="#FFF" />
+          </TouchableOpacity>
+        )}
+
         {/* TextInput with auto-grow */}
         <TextInput
         style={[
@@ -304,6 +406,15 @@ const styles = StyleSheet.create({
       textAlignVertical: 'top',
       lineHeight: platformLineHeight(moderateScale(16)),
     }),
+  },
+  imageButton: {
+    width: moderateScale(44),
+    height: moderateScale(44),
+    borderRadius: moderateScale(22),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   sendButton: {
     width: moderateScale(44),

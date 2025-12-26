@@ -61,19 +61,32 @@ const MessageItem = memo(({ message }) => {
         ]}
       >
         {/* Text Message */}
-        <Text
-          style={[
-            styles.messageText,
-            {
-              color: currentTheme.textColor,
-              lineHeight: platformLineHeight(22),
-            },
-          ]}
-        >
-          {message.text}
-        </Text>
+        {message.text && (
+          <Text
+            style={[
+              styles.messageText,
+              {
+                color: currentTheme.textColor,
+                lineHeight: platformLineHeight(22),
+              },
+            ]}
+          >
+            {message.text}
+          </Text>
+        )}
         
-        {/* 🖼️ Images */}
+        {/* 🆕 User-sent Image (single image attached to message) */}
+        {message.image && (
+          <View style={styles.userImageContainer}>
+            <Image
+              source={{ uri: message.image.uri }}
+              style={styles.userSentImage}
+              resizeMode="cover"
+            />
+          </View>
+        )}
+        
+        {/* 🖼️ Images (from AI rich content) */}
         {message.images && message.images.length > 0 && message.images.map((img, idx) => (
           <TouchableOpacity
             key={idx}
@@ -471,6 +484,20 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   // 🖼️ Image styles
+  // 🆕 User-sent image styles
+  userImageContainer: {
+    marginTop: verticalScale(8),
+    borderRadius: moderateScale(12),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  userSentImage: {
+    width: '100%',
+    height: verticalScale(200),
+    borderRadius: moderateScale(12),
+  },
+  // 🖼️ AI-generated image styles
   imageContainer: {
     marginTop: verticalScale(8),
     borderRadius: moderateScale(8),

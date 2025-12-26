@@ -81,6 +81,9 @@ const ManagerAIOverlay = ({
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   
+  // 🆕 Vision state
+  const [selectedImage, setSelectedImage] = useState(null); // Holds selected image before sending
+  
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
@@ -350,6 +353,21 @@ const ManagerAIOverlay = ({
     }, 800);
   }, [persona, chatApi]);
   
+  // 🆕 Handle image selection
+  const handleImageSelect = useCallback((imageData) => {
+    console.log('📷 [ManagerAIOverlay] Image selected:', {
+      type: imageData.type,
+      size: imageData.fileSize,
+      dimensions: `${imageData.width}x${imageData.height}`,
+    });
+    
+    // Store image temporarily
+    setSelectedImage(imageData);
+    
+    // Success haptic feedback
+    HapticService.success();
+  }, []);
+  
   // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
     const MAX_CONTINUES = 5; // Maximum 5 continuous messages
@@ -460,6 +478,11 @@ const ManagerAIOverlay = ({
       role: 'user',
       text: text,
       timestamp: new Date().toISOString(),
+      // 🆕 Include selected image if available
+      image: selectedImage ? {
+        uri: selectedImage.uri,
+        type: selectedImage.type,
+      } : null,
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -498,7 +521,15 @@ const ManagerAIOverlay = ({
         user_key: userKey,
         question: text,
         persona_key: persona?.persona_key || null, // ⭐ NEW: Include persona_key
+        // 🆕 Include image data if available
+        image: selectedImage ? {
+          data: selectedImage.base64,
+          mimeType: selectedImage.type,
+        } : null,
       });
+      
+      // 🆕 Clear selected image after sending
+      setSelectedImage(null);
       
       if (response.success && response.data?.answer) {
         setIsTyping(true);
@@ -585,7 +616,7 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t, user, persona, handleAIContinue]); // ⭐ FIX: Add handleAIContinue dependency
+  }, [t, user, persona, handleAIContinue, selectedImage]); // ⭐ FIX: Add handleAIContinue & selectedImage dependencies
   
   // ✅ Handle close (Simplified)
   const handleClose = useCallback(() => {
@@ -802,9 +833,11 @@ const ManagerAIOverlay = ({
             <View style={styles.inputContainer}>
               <ChatInputBar
                 onSend={handleSend}
+                onImageSelect={handleImageSelect} // 🆕 Image selection callback
                 disabled={isLoading || isTyping || isAIContinuing} // ⭐ NEW: Also disable when AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
                 onAISettings={handleToggleSettings} // 🆕 Toggle settings panel
+                visionMode={settings.vision_mode} // 🆕 Vision mode setting
               />
             </View>
           </View>
