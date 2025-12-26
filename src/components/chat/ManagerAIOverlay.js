@@ -480,14 +480,19 @@ const ManagerAIOverlay = ({
   const handleSend = useCallback(async (text) => {
     HapticService.medium();
     
+    // 🆕 Create Data URI from base64 (avoid temporary file path issues)
+    const imageDataUri = selectedImage 
+      ? `data:${selectedImage.type};base64,${selectedImage.base64}`
+      : null;
+    
     const userMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       text: text,
       timestamp: new Date().toISOString(),
-      // 🆕 Include selected image if available
+      // 🆕 Include selected image if available (use Data URI instead of file path)
       image: selectedImage ? {
-        uri: selectedImage.uri,
+        uri: imageDataUri, // ⭐ FIX: Use Data URI instead of temporary file path
         type: selectedImage.type,
       } : null,
     };
@@ -495,6 +500,7 @@ const ManagerAIOverlay = ({
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('💬 [ManagerAIOverlay] handleSend called');
     console.log('📸 [Image Debug] selectedImage:', selectedImage);
+    console.log('📸 [Image Debug] imageDataUri length:', imageDataUri?.length || 0);
     console.log('📸 [Image Debug] userMessage.image:', userMessage.image);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
@@ -536,7 +542,7 @@ const ManagerAIOverlay = ({
         persona_key: persona?.persona_key || null, // ⭐ NEW: Include persona_key
         // 🆕 Include image data if available
         image: selectedImage ? {
-          uri: selectedImage.uri, // ⭐ CRITICAL: Include URI for history
+          uri: imageDataUri, // ⭐ FIX: Use Data URI for metadata storage
           data: selectedImage.base64,
           mimeType: selectedImage.type,
         } : null,
