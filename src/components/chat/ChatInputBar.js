@@ -36,6 +36,7 @@ const ChatInputBar = memo(({
   chatHeight = 'medium',
   isChatVisible = true,
   visionMode = 'basic', // 🆕 Vision mode setting
+  hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -50,13 +51,14 @@ const ChatInputBar = memo(({
 
   const handleSend = useCallback(() => {
     const trimmedText = text.trim();
-    if (trimmedText && !disabled) {
+    // 🆕 FIX: Allow sending if text OR image is present
+    if ((trimmedText || hasSelectedImage) && !disabled) {
       // 🎯 Haptic feedback for message send
       // Medium impact - satisfying confirmation of important action
       // Like pressing "send" on a letter - meaningful and decisive
       HapticService.medium();
       
-      onSend(trimmedText);
+      onSend(trimmedText || ''); // ⚠️ Send empty string if only image
       setText('');
       // ✅ Reset to minimum height/content after send
       if (Platform.OS === 'android') {
@@ -65,7 +67,7 @@ const ChatInputBar = memo(({
         setIosContentHeight(0);
       }
     }
-  }, [text, disabled, onSend, minHeight]);
+  }, [text, disabled, onSend, minHeight, hasSelectedImage]); // 🆕 Add hasSelectedImage dependency
 
   const handleTextChange = useCallback((newText) => {
     setText(newText);

@@ -40,6 +40,7 @@ import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
 import { chatApi } from '../../services/api';
+import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
@@ -89,6 +90,9 @@ const ManagerAIOverlay = ({
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [giftData, setGiftData] = useState(null);
   const [giftReacting, setGiftReacting] = useState(false);
+  
+  // 🎭 NEW: Persona Identity Automation state
+  const [pendingIdentityDraft, setPendingIdentityDraft] = useState(null);
   
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -399,19 +403,119 @@ const ManagerAIOverlay = ({
   }, [persona, chatApi]);
   
   // 🆕 Handle image selection
-  const handleImageSelect = useCallback((imageData) => {
+  const handleImageSelect = useCallback(async (imageData) => {
     console.log('📷 [ManagerAIOverlay] Image selected:', {
       type: imageData.type,
       size: imageData.fileSize,
       dimensions: `${imageData.width}x${imageData.height}`,
     });
     
+    // 🎭 Check if this is for persona creation
+    if (pendingIdentityDraft && pendingIdentityDraft.status === 'consent_given') {
+      console.log('🎭 [Persona Creation Mode] Image selected for persona creation!');
+      console.log('   Target Name:', pendingIdentityDraft.target_name);
+      console.log('   Draft ID:', pendingIdentityDraft.draft_id);
+      
+      // Call persona creation function
+      await createPersonaFromDraft(imageData);
+      return;
+    }
+    
+    // Normal image analysis mode
     // Store image temporarily
     setSelectedImage(imageData);
     
     // Success haptic feedback
     HapticService.success();
-  }, []);
+  }, [pendingIdentityDraft]);
+  
+  // 🎭 NEW: Create persona from identity draft
+  const createPersonaFromDraft = useCallback(async (imageData) => {
+    try {
+      setIsLoading(true);
+      console.log('🎭 [Persona Creation] Starting persona creation...');
+      
+      const userKey = user?.user_key;
+      if (!userKey) {
+        console.error('❌ [Persona Creation] No user_key found!');
+        Alert.alert('오류', '사용자 정보를 찾을 수 없습니다.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Get identity data from draft
+      const identityData = pendingIdentityDraft.identity_data || {};
+      
+      // Call persona creation API
+      console.log('📤 [Persona Creation] Calling createPersona API...');
+      const response = await createPersona(userKey, {
+        name: pendingIdentityDraft.target_name,
+        description: identityData.description || `${pendingIdentityDraft.target_name} 페르소나`,
+        gender: 'male', // Default, can be enhanced later
+        photo: {
+          uri: imageData.uri,
+          type: imageData.type,
+          base64: imageData.base64,
+        },
+        identity_draft_id: pendingIdentityDraft.draft_id,
+      });
+      
+      console.log('📥 [Persona Creation] API Response:', response);
+      
+      if (response.success) {
+        console.log('✅ [Persona Creation] Persona creation initiated!');
+        console.log('   Persona Key:', response.data?.persona_key);
+        console.log('   Estimate Time:', response.data?.estimate_time);
+        
+        // Send confirmation message to AI
+        console.log('📤 [Persona Creation] Sending confirmation message...');
+        const confirmResponse = await chatApi.sendManagerAIMessage({
+          user_key: userKey,
+          question: `[PERSONA_CREATION_IMAGE_UPLOADED:${pendingIdentityDraft.target_name}]`,
+          persona_key: persona?.persona_key || 'SAGE',
+        });
+        
+        if (confirmResponse.success && confirmResponse.data?.answer) {
+          // Display AI's completion message
+          const completionMessage = {
+            id: `ai-${Date.now()}`,
+            role: 'assistant',
+            text: confirmResponse.data.answer,
+            timestamp: new Date().toISOString(),
+          };
+          
+          setMessages(prev => [...prev, completionMessage]);
+          setMessageVersion(prev => prev + 1);
+          
+          console.log('✅ [Persona Creation] Completion message displayed');
+        }
+        
+        // Clear pending draft state
+        setPendingIdentityDraft(null);
+        
+        // Success haptic
+        HapticService.success();
+        
+      } else {
+        console.error('❌ [Persona Creation] Failed:', response.error);
+        Alert.alert(
+          '페르소나 생성 실패',
+          response.error || '페르소나 생성 중 오류가 발생했습니다.',
+          [{ text: '확인', style: 'default' }]
+        );
+      }
+      
+    } catch (error) {
+      console.error('❌ [Persona Creation] Error:', error);
+      Alert.alert(
+        '오류 발생',
+        '페르소나 생성 중 오류가 발생했습니다.',
+        [{ text: '확인', style: 'default' }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pendingIdentityDraft, user, persona, chatApi]);
   
   // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
@@ -596,13 +700,24 @@ const ManagerAIOverlay = ({
         const answer = response.data.answer;
         const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] }; // ⭐ Rich media
+        const identityDraftPending = response.data.identity_draft_pending || null; // 🎭 NEW: Identity draft flag
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
         console.log('   answer length:', answer.length);
         console.log('   continue_conversation:', shouldContinue);
         console.log('   rich_content:', richContent);
+        console.log('   identity_draft_pending:', identityDraftPending);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        // 🎭 NEW: Update pending identity draft state
+        if (identityDraftPending) {
+          console.log('🎭 [Identity Draft] Detected pending draft, updating state...');
+          console.log('   Draft ID:', identityDraftPending.draft_id);
+          console.log('   Target Name:', identityDraftPending.target_name);
+          console.log('   Status:', identityDraftPending.status);
+          setPendingIdentityDraft(identityDraftPending);
+        }
         
         let currentIndex = 0;
         
@@ -992,6 +1107,7 @@ const ManagerAIOverlay = ({
                 placeholder={t('chatBottomSheet.placeholder')}
                 onAISettings={handleToggleSettings} // 🆕 Toggle settings panel
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
+                hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
               />
             </View>
           </View>

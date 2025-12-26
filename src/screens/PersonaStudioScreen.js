@@ -531,6 +531,9 @@ const PersonaStudioScreen = () => {
     
     // ⭐ Show emotional loading overlay
     setIsCreatingPersona(true);
+
+    console.log('user', user);
+    console.log('key', user.user_key);
     
     try {
       // Call API to create persona
