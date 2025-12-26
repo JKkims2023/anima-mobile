@@ -91,13 +91,14 @@ const ManagerAIOverlay = ({
     
     // Load history if:
     // 1. Overlay becomes visible
-    // 2. Persona changes
+    // 2. Persona changes OR persona key was reset (null)
     if (visible && user?.user_key) {
       if (currentPersonaKey !== personaKey) {
         console.log(`🔄 [Chat History] Persona changed: ${currentPersonaKey} → ${personaKey}`);
         setCurrentPersonaKey(personaKey);
         setMessages([]); // Clear previous persona's messages
         setHistoryOffset(0); // Reset offset
+        setHasMoreHistory(false); // ⭐ Reset hasMore flag
         loadChatHistory();
       }
     }
@@ -207,6 +208,11 @@ const ManagerAIOverlay = ({
           role: msg.role,
           text: msg.text,
           timestamp: msg.timestamp,
+          // ⭐ CRITICAL: Include rich media from history
+          image: msg.image || null, // User-sent image
+          images: msg.images || [], // AI-generated images
+          videos: msg.videos || [], // AI-generated videos
+          links: msg.links || [], // AI-generated links
         }));
         
         console.log(`✅ [Chat History] Loaded ${historyMessages.length} messages`);
@@ -524,6 +530,7 @@ const ManagerAIOverlay = ({
         persona_key: persona?.persona_key || null, // ⭐ NEW: Include persona_key
         // 🆕 Include image data if available
         image: selectedImage ? {
+          uri: selectedImage.uri, // ⭐ CRITICAL: Include URI for history
           data: selectedImage.base64,
           mimeType: selectedImage.type,
         } : null,
@@ -655,6 +662,7 @@ const ManagerAIOverlay = ({
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
                 setMessageVersion(0);
+                setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
               }, 200);
               
               if (onClose) {
@@ -676,6 +684,7 @@ const ManagerAIOverlay = ({
       setTypingMessage('');
       setIsTyping(false);
       setMessageVersion(0);
+      setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
     }, 200);
     
     if (onClose) {

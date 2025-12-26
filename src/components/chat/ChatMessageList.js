@@ -100,19 +100,29 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
         
         {/* 🆕 User-sent Image - Tap=fullscreen, Long press=download */}
         {message.image && (
-          <TouchableOpacity
-            style={styles.userImageContainer}
-            onPress={() => onImagePress?.(message.image.uri)}
-            onLongPress={() => onImageLongPress?.(message.image.uri)}
-            delayLongPress={500}
-            activeOpacity={0.8}
-          >
-            <Image
-              source={{ uri: message.image.uri }}
-              style={styles.userSentImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+          <View style={styles.userImageContainer}>
+            {message.image.uri === 'placeholder' || !message.image.uri ? (
+              // 📦 Placeholder for history images (actual image not stored)
+              <View style={[styles.userSentImage, styles.imagePlaceholder]}>
+                <Icon name="image-outline" size={moderateScale(50)} color="rgba(255, 255, 255, 0.5)" />
+                <Text style={styles.placeholderText}>📷 이미지 전송됨</Text>
+              </View>
+            ) : (
+              // 🖼️ Real image (current session)
+              <TouchableOpacity
+                onPress={() => onImagePress?.(message.image.uri)}
+                onLongPress={() => onImageLongPress?.(message.image.uri)}
+                delayLongPress={500}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={{ uri: message.image.uri }}
+                  style={styles.userSentImage}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         )}
         
         {/* 🖼️ Images (from AI rich content) - Tap=fullscreen, Long press=download */}
@@ -663,6 +673,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: verticalScale(200),
     borderRadius: moderateScale(12),
+  },
+  // 📦 Image placeholder (for history)
+  imagePlaceholder: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: moderateScale(13),
+    marginTop: verticalScale(8),
   },
   // 🖼️ AI-generated image styles
   imageContainer: {
