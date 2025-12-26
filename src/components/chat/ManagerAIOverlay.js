@@ -640,6 +640,27 @@ const ManagerAIOverlay = ({
   
   // ✅ Handle close (Simplified)
   const handleClose = useCallback(() => {
+    // 🆕 Helper function to trigger background learning
+    const triggerBackgroundLearning = () => {
+      // Only trigger if we have meaningful conversation (3+ messages)
+      if (messages.length >= 3 && user?.user_key && persona?.persona_key) {
+        const session_id = chatApi.getCurrentSessionId(persona.persona_key);
+        
+        if (session_id) {
+          console.log('🧠 [ManagerAIOverlay] Triggering background learning...');
+          
+          // Fire-and-forget (don't wait for result)
+          chatApi.closeChatSession({
+            user_key: user.user_key,
+            persona_key: persona.persona_key,
+            session_id: session_id,
+          }).catch(err => {
+            console.warn('⚠️  [ManagerAIOverlay] Background learning failed (non-critical):', err.message);
+          });
+        }
+      }
+    };
+    
     // ⭐ NEW: Prevent closing if AI is continuing conversation
     if (isAIContinuing || isLoading || isTyping) {
       Alert.alert(
@@ -662,6 +683,9 @@ const ManagerAIOverlay = ({
               aiContinueCountRef.current = 0; // ⭐ Reset ref
               setIsLoading(false);
               setIsTyping(false);
+              
+              // 🆕 Trigger background learning before closing
+              triggerBackgroundLearning();
               
               // Close overlay
               HapticService.medium();
@@ -690,6 +714,9 @@ const ManagerAIOverlay = ({
     HapticService.light();
     Keyboard.dismiss();
     
+    // 🆕 Trigger background learning before closing
+    triggerBackgroundLearning();
+    
     // Clear messages on close
     setTimeout(() => {
       setMessages([]);
@@ -702,7 +729,7 @@ const ManagerAIOverlay = ({
     if (onClose) {
       onClose();
     }
-  }, [onClose, isAIContinuing, isLoading, isTyping]);
+  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona]);
   
   if (!visible) return null;
   

@@ -335,11 +335,52 @@ export const getChatHistory = async ({ user_key, persona_key = 'SAGE', limit = 1
   }
 };
 
+/**
+ * 🆕 Close chat session and trigger background learning
+ * 
+ * Called when user closes the chat overlay.
+ * Triggers relationship memory analysis and update (background, non-blocking).
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key
+ * @param {string} params.session_id - Session ID
+ * @returns {Promise<Object>} - Immediate success response
+ */
+export const closeChatSession = async ({ user_key, persona_key, session_id }) => {
+  try {
+    console.log('👋 [ChatAPI] Closing chat session (background learning)...');
+    console.log(`   Session: ${session_id}`);
+    
+    // Call background learning API (don't wait for result)
+    const response = await apiClient.post('/api/anima/chat/close', {
+      user_key,
+      persona_key,
+      session_id,
+    });
+    
+    console.log('✅ [ChatAPI] Chat close request sent');
+    
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    // Fail silently - don't affect UX
+    console.warn('⚠️  [ChatAPI] Chat close failed (non-critical):', error.message);
+    return {
+      success: true, // Return success anyway
+      data: { message: 'Chat closed (learning skipped)' },
+    };
+  }
+};
+
 export default {
   sendManagerAIMessage,
   resetManagerAISession,
   getCurrentSessionId,
   getChatHistory,
+  closeChatSession, // 🆕 NEW
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,
