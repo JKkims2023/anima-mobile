@@ -492,6 +492,12 @@ const ManagerAIOverlay = ({
       } : null,
     };
     
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💬 [ManagerAIOverlay] handleSend called');
+    console.log('📸 [Image Debug] selectedImage:', selectedImage);
+    console.log('📸 [Image Debug] userMessage.image:', userMessage.image);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     setMessages(prev => [...prev, userMessage]);
     setMessageVersion(prev => prev + 1);
     setIsLoading(true);

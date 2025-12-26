@@ -38,6 +38,14 @@ const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d16
 const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
+  
+  // 🐛 DEBUG: Log message data
+  if (message.image) {
+    console.log('🖼️ [MessageItem] Rendering message with image:');
+    console.log('   message.id:', message.id);
+    console.log('   message.image:', message.image);
+    console.log('   message.image.uri:', message.image.uri);
+  }
 
   // 🆕 Copy text to clipboard
   const handleCopyText = useCallback(() => {
@@ -110,8 +118,14 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
             ) : (
               // 🖼️ Real image (current session)
               <TouchableOpacity
-                onPress={() => onImagePress?.(message.image.uri)}
-                onLongPress={() => onImageLongPress?.(message.image.uri)}
+                onPress={() => {
+                  console.log('🖼️ [Image Press] URI:', message.image.uri);
+                  onImagePress?.(message.image.uri);
+                }}
+                onLongPress={() => {
+                  console.log('🖼️ [Image Long Press] URI:', message.image.uri);
+                  onImageLongPress?.(message.image.uri);
+                }}
                 delayLongPress={500}
                 activeOpacity={0.8}
               >
@@ -119,6 +133,8 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
                   source={{ uri: message.image.uri }}
                   style={styles.userSentImage}
                   resizeMode="cover"
+                  onLoad={() => console.log('✅ [Image] Loaded successfully:', message.image.uri)}
+                  onError={(e) => console.error('❌ [Image] Load failed:', e.nativeEvent.error, message.image.uri)}
                 />
               </TouchableOpacity>
             )}
@@ -670,15 +686,17 @@ const styles = StyleSheet.create({
   // 🆕 User-sent image styles
   userImageContainer: {
     marginTop: verticalScale(8),
+    width: moderateScale(200), // ⭐ FIX: Explicit width
     borderRadius: moderateScale(12),
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   userSentImage: {
-    width: '100%',
+    width: moderateScale(200), // ⭐ FIX: Explicit width
     height: verticalScale(200),
     borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // ⭐ DEBUG: Background color
   },
   // 📦 Image placeholder (for history)
   imagePlaceholder: {
@@ -694,13 +712,15 @@ const styles = StyleSheet.create({
   // 🖼️ AI-generated image styles
   imageContainer: {
     marginTop: verticalScale(8),
+    width: moderateScale(200), // ⭐ FIX: Explicit width
     borderRadius: moderateScale(8),
     overflow: 'hidden',
   },
   chatImage: {
-    width: '100%',
+    width: moderateScale(200), // ⭐ FIX: Explicit width
     height: verticalScale(150),
     borderRadius: moderateScale(8),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // ⭐ DEBUG: Background color
   },
   imageCaption: {
     marginTop: verticalScale(4),
