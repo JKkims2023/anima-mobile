@@ -85,6 +85,11 @@ const ManagerAIOverlay = ({
   // 🆕 Vision state
   const [selectedImage, setSelectedImage] = useState(null); // Holds selected image before sending
   
+  // 🎁 NEW: Emotional Gifts state
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftData, setGiftData] = useState(null);
+  const [giftReacting, setGiftReacting] = useState(false);
+  
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
@@ -100,6 +105,9 @@ const ManagerAIOverlay = ({
         setHistoryOffset(0); // Reset offset
         setHasMoreHistory(false); // ⭐ Reset hasMore flag
         loadChatHistory();
+        
+        // 🎁 Check for emotional gifts!
+        checkForGifts();
       }
     }
   }, [visible, user?.user_key, persona?.persona_key, currentPersonaKey]);
@@ -246,13 +254,43 @@ const ManagerAIOverlay = ({
     }
   }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage, startAIConversation]);
   
+  // 🎁 NEW: Check for emotional gifts
+  const checkForGifts = useCallback(async () => {
+    if (!user?.user_key) return;
+    
+    try {
+      console.log('🎁 [Gift Check] Checking for pending gifts...');
+      
+      const personaKey = persona?.persona_key || 'SAGE';
+      const result = await chatApi.getPendingGifts({
+        user_key: user.user_key,
+        persona_key: personaKey,
+      });
+      
+      if (result.success && result.gifts && result.gifts.length > 0) {
+        console.log('🎁 [Gift Check] Found gift!', result.gifts[0]);
+        setGiftData(result.gifts[0]);
+        
+        // Show gift modal after a short delay (let chat load first)
+        setTimeout(() => {
+          setShowGiftModal(true);
+          HapticService.success();
+        }, 1000);
+      } else {
+        console.log('ℹ️  [Gift Check] No pending gifts');
+      }
+    } catch (error) {
+      console.error('❌ [Gift Check] Error:', error);
+      // Fail silently - gifts are nice-to-have, not critical
+    }
+  }, [user, persona]);
+  
   // ⭐ NEW: Show welcome message with typing effect
   const showWelcomeMessage = useCallback(() => {
-    const greetingKey = `managerAI.greeting.${context}`;
+
+    const greetingKey = 'managerAI.public'; //`managerAI.greeting.${context}`;
     const greeting = t(greetingKey);
-    
-    console.log('👋 [Chat] Showing welcome message');
-    
+        
     // Type out greeting
     setIsTyping(true);
     setTypingMessage('');
@@ -639,6 +677,47 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage]); // ⭐ FIX: Add handleAIContinue & selectedImage dependencies
   
   // ✅ Handle close (Simplified)
+  // 🎁 NEW: Handle gift reaction
+  const handleGiftReaction = useCallback(async (reaction) => {
+    if (!giftData || giftReacting) return;
+    
+    try {
+      setGiftReacting(true);
+      console.log(`❤️  [Gift Reaction] Reacting with: ${reaction}`);
+      
+      await chatApi.reactToGift({
+        gift_id: giftData.gift_id,
+        reaction,
+      });
+      
+      console.log('✅ [Gift Reaction] Reaction recorded');
+      HapticService.success();
+      
+      // Close modal
+      setShowGiftModal(false);
+      setGiftData(null);
+      
+    } catch (error) {
+      console.error('❌ [Gift Reaction] Error:', error);
+      Alert.alert(
+        t('common.error'),
+        t('common.errorMessage')
+      );
+    } finally {
+      setGiftReacting(false);
+    }
+  }, [giftData, giftReacting, t]);
+  
+  // 🎁 NEW: Close gift modal without reaction
+  const handleGiftClose = useCallback(() => {
+    // Mark as viewed
+    if (giftData) {
+      handleGiftReaction('viewed');
+    } else {
+      setShowGiftModal(false);
+    }
+  }, [giftData, handleGiftReaction]);
+  
   const handleClose = useCallback(() => {
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
@@ -918,6 +997,96 @@ const ManagerAIOverlay = ({
           </View>
         </KeyboardAvoidingView>
       </View>
+      
+      {/* 🎁 Emotional Gift Modal */}
+      {showGiftModal && giftData && (
+        <Modal
+          visible={showGiftModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={handleGiftClose}
+        >
+          <View style={styles.giftModalOverlay}>
+            <View style={styles.giftModalContainer}>
+              {/* Header */}
+              <View style={styles.giftModalHeader}>
+                <CustomText style={styles.giftModalTitle}>
+                  🎁 {persona?.persona_name || 'SAGE'}님의 선물
+                </CustomText>
+                <TouchableOpacity onPress={handleGiftClose} style={styles.giftCloseButton}>
+                  <Icon name="close" size={moderateScale(24)} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              
+              {/* Gift Image */}
+              <View style={styles.giftImageContainer}>
+                {giftData.image_url ? (
+                  <Image 
+                    source={{ uri: giftData.image_url }}
+                    style={styles.giftImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.giftImagePlaceholder}>
+                    <Icon name="gift" size={moderateScale(80)} color="rgba(255,255,255,0.3)" />
+                  </View>
+                )}
+              </View>
+              
+              {/* AI Message */}
+              <ScrollView style={styles.giftMessageContainer}>
+                <CustomText style={styles.giftEmotion}>
+                  {giftData.ai_emotion === 'joy' && '😊 기쁨'}
+                  {giftData.ai_emotion === 'gratitude' && '🙏 감사'}
+                  {giftData.ai_emotion === 'love' && '💙 사랑'}
+                  {giftData.ai_emotion === 'empathy' && '🤗 공감'}
+                  {giftData.ai_emotion === 'excitement' && '🎉 설렘'}
+                  {giftData.ai_emotion === 'hope' && '✨ 희망'}
+                </CustomText>
+                <CustomText style={styles.giftMessage}>
+                  {giftData.ai_message}
+                </CustomText>
+              </ScrollView>
+              
+              {/* Reaction Buttons */}
+              <View style={styles.giftReactionContainer}>
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionLoved]}
+                  onPress={() => handleGiftReaction('loved')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="heart" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>사랑해요</CustomText>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionLiked]}
+                  onPress={() => handleGiftReaction('liked')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="thumbs-up" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>좋아요</CustomText>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionSaved]}
+                  onPress={() => handleGiftReaction('saved')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="bookmark" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>저장</CustomText>
+                </TouchableOpacity>
+              </View>
+              
+              {giftReacting && (
+                <View style={styles.giftLoadingOverlay}>
+                  <ActivityIndicator size="large" color="#fff" />
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+      )}
     </Modal>
   );
 };
@@ -973,6 +1142,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(10),
+
 
 
   },
@@ -1127,6 +1297,114 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
     marginTop: verticalScale(8),
     fontSize: moderateScale(12),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎁 Emotional Gift Modal
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  giftModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: moderateScale(20),
+  },
+  giftModalContainer: {
+    width: '100%',
+    maxWidth: moderateScale(400),
+    backgroundColor: 'rgba(30, 30, 30, 0.98)',
+    borderRadius: moderateScale(24),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: moderateScale(20),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftModalTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: '600',
+    color: '#fff',
+  },
+  giftCloseButton: {
+    padding: moderateScale(4),
+  },
+  giftImageContainer: {
+    width: '100%',
+    height: verticalScale(300),
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  giftImage: {
+    width: '100%',
+    height: '100%',
+  },
+  giftImagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  giftMessageContainer: {
+    maxHeight: verticalScale(200),
+    padding: moderateScale(20),
+  },
+  giftEmotion: {
+    fontSize: moderateScale(14),
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: verticalScale(8),
+    fontWeight: '500',
+  },
+  giftMessage: {
+    fontSize: moderateScale(16),
+    lineHeight: moderateScale(24),
+    color: '#fff',
+  },
+  giftReactionContainer: {
+    flexDirection: 'row',
+    padding: moderateScale(20),
+    gap: moderateScale(12),
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftReactionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(12),
+    gap: moderateScale(6),
+  },
+  giftReactionLoved: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.5)',
+  },
+  giftReactionLiked: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.5)',
+  },
+  giftReactionSaved: {
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.5)',
+  },
+  giftReactionText: {
+    color: '#fff',
+    fontSize: moderateScale(13),
+    fontWeight: '500',
+  },
+  giftLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
