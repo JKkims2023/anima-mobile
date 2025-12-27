@@ -51,6 +51,73 @@ import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings
 // import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
 
 /**
+ * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
+ * 
+ * @param {object} evolution - { field, value, action }
+ */
+const IdentityEvolutionOverlay = ({ evolution }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    // Fade in
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+    
+    // Fade out after 2 seconds
+    setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }, 2000);
+  }, []);
+  
+  // Field labels (i18n-ready)
+  const fieldLabels = {
+    personality: { icon: '🎭', text: '성격' },
+    speaking_style: { icon: '💬', text: '말투' },
+    interests: { icon: '💫', text: '관심사' },
+    name_ko: { icon: '✨', text: '이름' },
+    name_en: { icon: '✨', text: '이름' },
+    background: { icon: '🌟', text: '배경' },
+    profession: { icon: '👔', text: '직업' },
+    description: { icon: '📝', text: '설명' },
+  };
+  
+  const label = fieldLabels[evolution.field] || { icon: '✨', text: evolution.field };
+  
+  return (
+    <Animated.View
+      style={[
+        styles.evolutionOverlay,
+        {
+          opacity: fadeAnim,
+          transform: [
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.8, 1],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <CustomText type="huge" style={styles.evolutionIcon}>
+        {label.icon}
+      </CustomText>
+      <CustomText type="medium" bold style={styles.evolutionText}>
+        {label.text} 강화
+      </CustomText>
+    </Animated.View>
+  );
+};
+
+/**
  * ManagerAIOverlay Component (Simplified)
  */
 const ManagerAIOverlay = ({ 
@@ -93,6 +160,9 @@ const ManagerAIOverlay = ({
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [giftData, setGiftData] = useState(null);
   const [giftReacting, setGiftReacting] = useState(false);
+  
+  // 🌟 Identity Evolution Notification State
+  const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
   
   // 🗑️ TEMPORARILY DISABLED: Identity Guide state (during refactoring)
   // const [showIdentityGuide, setShowIdentityGuide] = useState(false);
@@ -743,6 +813,7 @@ const ManagerAIOverlay = ({
         const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] }; // ⭐ Rich media
         const identityDraftPending = response.data.identity_draft_pending || null; // 🎭 NEW: Identity draft flag
+        const identityEvolution = response.data.identity_evolution || null; // 🌟 NEW: Identity evolution notification
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
@@ -750,7 +821,36 @@ const ManagerAIOverlay = ({
         console.log('   continue_conversation:', shouldContinue);
         console.log('   rich_content:', richContent);
         console.log('   identity_draft_pending:', identityDraftPending);
+        console.log('   identity_evolution:', identityEvolution); // 🌟 NEW
+        console.log('   🔍 [DEBUG] identity_evolution type:', typeof identityEvolution); // 🔧 DEBUG
+        console.log('   🔍 [DEBUG] identity_evolution isArray:', Array.isArray(identityEvolution)); // 🔧 DEBUG
+        console.log('   🔍 [DEBUG] identity_evolution length:', identityEvolution?.length); // 🔧 DEBUG
+        console.log('   🔍 [DEBUG] identity_evolution JSON:', JSON.stringify(identityEvolution)); // 🔧 DEBUG
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        // 🌟 NEW: Show identity evolution notification (supports multiple tool calls)
+        if (identityEvolution) {
+          const evolutions = Array.isArray(identityEvolution) ? identityEvolution : [identityEvolution];
+          console.log(`🌟 [Identity Evolution] Showing ${evolutions.length} notification(s)...`);
+          
+          // Show each evolution sequentially with 2-second intervals
+          evolutions.forEach((evolution, index) => {
+            if (evolution && evolution.field) {
+              setTimeout(() => {
+                console.log(`   [${index + 1}/${evolutions.length}] Field: ${evolution.field}, Value: ${evolution.value}`);
+                setIdentityEvolutionDisplay(evolution);
+                
+                // Auto-hide after 2.5 seconds
+                setTimeout(() => {
+                  setIdentityEvolutionDisplay(null);
+                }, 2500);
+                
+                // Haptic feedback
+                HapticService.trigger('success');
+              }, index * 3000); // 3-second interval between each notification
+            }
+          });
+        }
         
         // 🎭 NEW: Update pending identity draft state
         if (identityDraftPending) {
@@ -1281,6 +1381,11 @@ const ManagerAIOverlay = ({
           </View>
         </Modal>
       )}
+      
+      {/* 🌟 Identity Evolution Notification Overlay */}
+      {identityEvolutionDisplay && (
+        <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
+      )}
     </Modal>
   );
 };
@@ -1599,6 +1704,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  // 🌟 Identity Evolution Overlay Styles
+  evolutionOverlay: {
+    position: 'absolute',
+    top: '40%',
+    left: '50%',
+    transform: [{ translateX: -scale(120) }, { translateY: -verticalScale(50) }],
+    width: scale(240),
+    height: verticalScale(100),
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    borderRadius: moderateScale(16),
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.6)', // Purple glow
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 10,
+    zIndex: 9999,
+  },
+  evolutionIcon: {
+    fontSize: moderateScale(40),
+    marginBottom: verticalScale(8),
+  },
+  evolutionText: {
+    color: '#FFFFFF',
+    fontSize: moderateScale(16),
+    letterSpacing: 0.5,
   },
 });
 

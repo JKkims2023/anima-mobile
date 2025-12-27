@@ -1294,7 +1294,7 @@ const PersonaStudioScreen = () => {
 
           {/* ⭐ Emotion Category Dropdown Button */}
           <TouchableOpacity
-            style={[styles.categoryButton, { backgroundColor: currentTheme.cardBackground }]}
+            style={[styles.categoryButton, {display: 'none', backgroundColor: currentTheme.cardBackground }]}
             onPress={() => {
               HapticService.light();
               setIsCategoryDropdownVisible(!isCategoryDropdownVisible);
@@ -1706,7 +1706,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: verticalScale(-10),
-    marginBottom: verticalScale(0),
+    marginBottom: verticalScale(10),
   },
   
   // Search Bar (reduced height)

@@ -16,6 +16,7 @@ import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IconBrain from 'react-native-vector-icons/FontAwesome5';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
@@ -216,8 +217,8 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
           >
-            <Icon 
-              name={persona?.favorite_yn === 'Y' ? 'star' : 'star-outline'} 
+            <IconBrain 
+              name={persona?.identity_description != null ? 'brain' : 'brain'} 
               size={scale(60)} 
               color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
             />
@@ -231,18 +232,18 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             </CustomText>
             
             {/* Settings Icon (Only for user-created personas) */}
-            <Icon 
-              name="settings" 
+            <IconBrain 
+              name="brain" 
               size={scale(20)} 
               color="#FFFFFF" 
-              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }} 
+              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'none' }} 
             />
             
           </View>
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" bold style={styles.description} numberOfLines={2}>
               {
-              persona?.donet_yn === 'N' ? t('persona.creation.creating') : t('category_type.' + persona?.category_type + '_desc')}
+              persona?.done_yn === 'N' ? t('persona.creation.creating') : persona?.default_yn === 'Y' ? t('category_type.' + persona?.category_type + '_desc') : persona?.identity_description != null ? persona?.identity_description : t('persona.creation.no_brain') }
             </CustomText>
           </View>
         </View>
