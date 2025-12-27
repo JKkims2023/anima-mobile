@@ -27,14 +27,9 @@ import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler,
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // ⭐ NEW: For create button
 import { useTranslation } from 'react-i18next';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
-  runOnJS 
-} from 'react-native-reanimated';
+// ❌ REMOVED: Gesture, GestureDetector, runOnJS (horizontal swipe removed)
 import SafeScreen from '../components/SafeScreen';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
@@ -42,9 +37,9 @@ import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
-import PersonaSelectorButton from '../components/persona/PersonaSelectorButton';
-import PersonaSelectorPanel from '../components/persona/PersonaSelectorPanel';
-import PersonaTypeSelector from '../components/persona/PersonaTypeSelector';
+// ❌ REMOVED: PersonaSelectorButton (UI simplified - single unified list)
+// ❌ REMOVED: PersonaSelectorPanel (UI simplified - single unified list)
+// ❌ REMOVED: PersonaTypeSelector (UI simplified - single unified list)
 import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet';
 import CategorySelectionSheet from '../components/persona/CategorySelectionSheet';
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
@@ -125,7 +120,7 @@ const PersonaStudioScreen = () => {
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
-  const [isPanelVisible, setIsPanelVisible] = useState(false);
+  // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
   // ⭐ NEW: Pre-permission for notifications
@@ -142,7 +137,7 @@ const PersonaStudioScreen = () => {
   const swiperRef = useRef(null);
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
-  const [filterMode, setFilterMode] = useState(showDefaultPersonas ? 'default' : 'user'); // ⭐ Dynamic initial value
+  // ❌ REMOVED: filterMode (UI simplified - single unified list)
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
   const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ Loading overlay for persona creation
   const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
@@ -157,18 +152,7 @@ const PersonaStudioScreen = () => {
     setIsMessageCreationActive(isMessageCreationVisible);
   }, [isMessageCreationVisible, setIsMessageCreationActive]);
   
-  // ⭐ NEW: Auto-adjust filterMode when showDefaultPersonas changes
-  useEffect(() => {
-    if (!showDefaultPersonas && filterMode === 'default') {
-      // If default personas are hidden and current mode is 'default', switch to 'user'
-      setFilterMode('user');
-      setCurrentPersonaIndex(0); // Reset to first persona
-      
-      if (__DEV__) {
-        console.log('[PersonaStudioScreen] 🎭 Default personas hidden, switching to user mode');
-      }
-    }
-  }, [showDefaultPersonas, filterMode]);
+  // ❌ REMOVED: filterMode auto-adjust (UI simplified - single unified list)
   
   // ⭐ NEW: Android back button handler for category dropdown
   useEffect(() => {
@@ -255,26 +239,24 @@ const PersonaStudioScreen = () => {
   }, [personas, DEFAULT_PERSONAS]);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // FILTERED PERSONAS (Based on filterMode + Emotion Category + searchQuery)
+  // ⭐ SIMPLIFIED: FILTERED PERSONAS (searchQuery only + showDefaultPersonas setting)
   // ═══════════════════════════════════════════════════════════════════════
   const currentFilteredPersonas = useMemo(() => {
-    let filtered = [];
+    let filtered = personasWithDefaults;
     
-    // ⭐ STEP 1: Filter by mode (default/user/favorite)
-    if (filterMode === 'favorite') {
-      filtered = personasWithDefaults.filter(p => p.favorite_yn === 'Y');
-    } else if (filterMode === 'user') {
-      filtered = personasWithDefaults.filter(p => p.default_yn === 'N');
-    } else {
-      filtered = personasWithDefaults.filter(p => p.default_yn === 'Y');
+    // ⭐ STEP 1: Filter by showDefaultPersonas setting (from AnimaContext)
+    // This determines if default personas (SAGE/Nexus) should be shown
+    if (!showDefaultPersonas) {
+      // Hide default personas if setting is OFF
+      filtered = filtered.filter(p => p.default_yn === 'N');
     }
     
-    // ⭐ STEP 2: Filter by emotion category
+    // ⭐ STEP 2: Filter by emotion category (optional, can be removed if not needed)
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(p => p.category_type === selectedCategory);
     }
     
-    // ⭐ STEP 3: Filter by search query (Real-time!)
+    // ⭐ STEP 3: Filter by search query (Real-time name search)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(p =>
@@ -283,7 +265,7 @@ const PersonaStudioScreen = () => {
     }
     
     return filtered;
-  }, [personasWithDefaults, filterMode, selectedCategory, searchQuery]);
+  }, [personasWithDefaults, showDefaultPersonas, selectedCategory, searchQuery]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
@@ -361,7 +343,6 @@ const PersonaStudioScreen = () => {
   const handlePersonaChange = useCallback((newIndex) => {
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 📍 Persona index changed:', newIndex);
-      console.log('   filterMode:', filterMode);
       console.log('   currentFilteredPersonas length:', currentFilteredPersonas.length);
     }
     
@@ -379,56 +360,9 @@ const PersonaStudioScreen = () => {
         console.log('   identity_name:', actualPersona.identity_name);
       }
     }
-  }, [setSelectedIndex, setSelectedPersona, filterMode, currentFilteredPersonas]);
+  }, [setSelectedIndex, setSelectedPersona, currentFilteredPersonas]);
   
-  // ⭐ NEW: Handle panel toggle (PersonaSelectorButton click)
-  const handlePanelToggle = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎭 Panel toggle clicked, current state:', isPanelVisible);
-    }
-    
-    HapticService.selection();
-    setIsPanelVisible(prev => !prev);
-  }, [isPanelVisible]);
-  
-  // ⭐ NEW: Handle panel close
-  const handlePanelClose = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📪 Panel closed');
-    }
-    
-    HapticService.light();
-    setIsPanelVisible(false);
-  }, []);
-  
-  // ⭐ NEW: Handle persona selection from PersonaSelectorPanel
-  const handlePersonaSelectFromPanel = useCallback((persona) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ✨ Persona selected from panel:', persona.persona_name);
-    }
-    
-    // Find index of selected persona in currentFilteredPersonas
-    const index = currentFilteredPersonas.findIndex(p => p.persona_key === persona.persona_key);
-    
-    if (index === -1) {
-      console.error('[PersonaStudioScreen] ❌ Persona not found:', persona.persona_key);
-      return;
-    }
-    
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ✨ Persona index:', index);
-    }
-    
-    // Update current persona
-    savedIndexRef.current = index;
-    setCurrentPersonaIndex(index);
-    setCurrentPersona(persona);
-    
-    // Close panel
-    setIsPanelVisible(false);
-    
-    HapticService.success();
-  }, [currentFilteredPersonas]);
+  // ❌ REMOVED: handlePanelToggle, handlePanelClose, handlePersonaSelectFromPanel (PersonaSelectorButton/Panel removed)
   
   // Handle add persona
   const handleAddPersona = useCallback(async () => {
@@ -731,32 +665,7 @@ const PersonaStudioScreen = () => {
   }, [navigation]);
 
 
-  const handleFilterModeChange = useCallback((mode) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🎭 Filter mode changed:', mode);
-    }
-    
-    HapticService.light();
-    setFilterMode(mode);
-    
-    // Reset to first persona when filter changes
-    setCurrentPersonaIndex(0);
-    
-    // Show toast for filter change
-    const filterNames = {
-      default: t('persona.filter.default'),
-      user: t('persona.filter.user'),
-      favorite: t('persona.filter.favorite'),
-    };
- 
-    /*
-    showToast({
-      type: 'info',
-      emoji: mode === 'favorite' ? '⭐' : mode === 'user' ? '👤' : '🎭',
-      message: filterNames[mode] || mode,
-    });
-    */
-  }, [t, showToast]);
+  // ❌ REMOVED: handleFilterModeChange (UI simplified - single unified list)
 
   const handleCreatePersona = useCallback(() => {
     
@@ -1171,71 +1080,9 @@ const PersonaStudioScreen = () => {
     }
   }, [user, currentPersona, setPersonas, showToast, t]);
 
-  // ⭐ Calculate counts for all filter modes
-  const personaCounts = useMemo(() => {
-    const defaultPersonas = personasWithDefaults.filter(p => p.default_yn === 'Y');
-    const userPersonas = personasWithDefaults.filter(p => p.default_yn === 'N');
-    const favoritePersonas = personasWithDefaults.filter(p => p.favorite_yn === 'Y');
-    
-    return {
-      default: defaultPersonas.length,
-      user: userPersonas.length,
-      favorite: favoritePersonas.length,
-    };
-  }, [personasWithDefaults]);
+  // ❌ REMOVED: personaCounts (filter modes removed, single unified list)
   
-  // ═══════════════════════════════════════════════════════════════════════
-  // HORIZONTAL SWIPE GESTURE (Filter Mode Change)
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  // ⭐ Cycle through filter modes: default → user → favorite → default (or user → favorite → user)
-  const cycleFilterMode = useCallback((direction) => {
-    // ⭐ Dynamic modes based on showDefaultPersonas
-    const modes = showDefaultPersonas 
-      ? ['default', 'user', 'favorite'] // 3 modes
-      : ['user', 'favorite']; // 2 modes
-    
-    const currentIndex = modes.indexOf(filterMode);
-    
-    let nextIndex;
-    if (direction === 'left') {
-      // Swipe left: next mode
-      nextIndex = (currentIndex + 1) % modes.length;
-    } else {
-      // Swipe right: previous mode
-      nextIndex = (currentIndex - 1 + modes.length) % modes.length;
-    }
-    
-    const nextMode = modes[nextIndex];
-    
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 👆 Swipe detected:', direction, '→', nextMode);
-      console.log('  Available modes:', modes);
-    }
-    
-    handleFilterModeChange(nextMode);
-  }, [filterMode, showDefaultPersonas, handleFilterModeChange]);
-  
-  // ⭐ Horizontal swipe gesture handler (with direction constraints)
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-80, 80]) // ⭐ CRITICAL: Activate only on horizontal movement (80px threshold)
-    .failOffsetY([-30, 30]) // ⭐ CRITICAL: Cancel if vertical movement detected (30px threshold)
-    .onEnd((event) => {
-      const { translationX, velocityX } = event;
-      
-      // ⭐ Detect swipe direction based on translation and velocity
-      const isSignificant = Math.abs(translationX) > 100 || Math.abs(velocityX) > 500;
-      
-      if (isSignificant) {
-        if (translationX > 0) {
-          // Swipe right: previous filter
-          runOnJS(cycleFilterMode)('right');
-        } else {
-          // Swipe left: next filter
-          runOnJS(cycleFilterMode)('left');
-        }
-      }
-    }); 
+  // ❌ REMOVED: Horizontal swipe gesture for filter mode change (UI simplified) 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
@@ -1367,9 +1214,9 @@ const PersonaStudioScreen = () => {
         )}
       </View>
       
-      {/* Container with Horizontal Swipe Gesture */}
-      <GestureDetector gesture={panGesture}>
-        <View style={styles.container}>
+      {/* ❌ REMOVED: GestureDetector for horizontal swipe (UI simplified) */}
+      {/* Main Container */}
+      <View style={styles.container}>
           {/* ═════════════════════════════════════════════════════════════════ */}
           {/* BASE LAYER (Z-INDEX: 1) - PersonaSwipeViewer                      */}
           {/* ═════════════════════════════════════════════════════════════════ */}
@@ -1390,7 +1237,6 @@ const PersonaStudioScreen = () => {
             enabled={true}
             isMessageMode={false}
             onCreatePersona={handleAddPersona}
-            filterMode={filterMode}
             refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
             onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback
           />
@@ -1410,40 +1256,26 @@ const PersonaStudioScreen = () => {
           </View>
         )}
 
-        {filterMode !== 'default' && (
-        <PersonaSelectorButton
-            isPersonaMode={false}
-            onPress={handlePanelToggle}
-        />
-        )}
-        
-        {/* PersonaSelectorPanel (Slide from Right) */}
-        <PersonaSelectorPanel
-          visible={isPanelVisible}
-          personas={currentFilteredPersonas}
-          onSelectPersona={handlePersonaSelectFromPanel}
-          onClose={handlePanelClose}
-          onViewAll={handleAddPersona}
-          onCreatePersona={handleAddPersona}
-        />
+        {/* ❌ REMOVED: PersonaSelectorButton (UI simplified) */}
+        {/* ❌ REMOVED: PersonaSelectorPanel (UI simplified) */}
 
-        {/* PersonaTypeSelector (Filter Mode: default/user/favorite) */}
+        {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
         <View style={styles.typeSelectorOverlay}>
-          <PersonaTypeSelector
-            isUserMode={filterMode === 'user'}
-            isFavoriteMode={filterMode === 'favorite'}
-            defaultCount={personaCounts.default}
-            userCount={personaCounts.user}
-            favoriteCount={personaCounts.favorite}
-            onTypeChange={handleFilterModeChange}
-            onCreatePress={handleCreatePersona}
-            showCreateButton={true}
-            showDefaultMode={showDefaultPersonas} // ⭐ NEW: Control default mode visibility
-          />
+          <View style={styles.createButtonContainer}>
+            <TouchableOpacity
+              style={[styles.createPersonaButton, { backgroundColor: currentTheme.mainColor }]}
+              onPress={handleCreatePersona}
+              activeOpacity={0.8}
+            >
+              <Icon name="add" size={scale(20)} color="#FFFFFF" />
+              <CustomText type="small" bold style={styles.createPersonaButtonText}>
+                {t('persona.create')}
+              </CustomText>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        </View>
-      </GestureDetector>
+      </View>
       
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Persona Creation Sheet (Absolute positioning with max z-index) */}
@@ -1790,7 +1622,7 @@ const styles = StyleSheet.create({
     display: 'none',
   },
 
-  // ⭐ PersonaTypeSelector Overlay
+  // ⭐ PersonaTypeSelector Overlay (now for Create Button)
   typeSelectorOverlay: {
     position: 'absolute',
     top: 0,
@@ -1798,6 +1630,27 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 999,
     elevation: 999,
+  },
+
+  // ⭐ NEW: Create Button Container (replaces PersonaTypeSelector)
+  createButtonContainer: {
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: verticalScale(10),
+    alignItems: 'flex-end', // Align to right (like PersonaTypeSelector create button)
+  },
+
+  // ⭐ NEW: Create Persona Button
+  createPersonaButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    borderRadius: scale(20),
+    gap: scale(6),
+  },
+
+  createPersonaButtonText: {
+    color: '#FFFFFF',
   },
 
 });
