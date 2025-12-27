@@ -450,7 +450,6 @@ export default {
   getPendingGifts, // 🎁 NEW
   reactToGift, // 🎁 NEW
   createTestGift, // 🎁 NEW (for testing)
-  getPendingIdentityDraft, // 🎭 NEW (identity draft check)
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,

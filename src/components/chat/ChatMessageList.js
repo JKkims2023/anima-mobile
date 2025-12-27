@@ -35,7 +35,7 @@ const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d16
 /**
  * Message Item Component (Memoized)
  */
-const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
+const MessageItem = memo(({ message, onImagePress, onImageLongPress, personaUrl }) => {
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
   
@@ -67,7 +67,7 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress }) => {
       {!isUser && (
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: SAGE_AVATAR_URL }}
+            source={{ uri: personaUrl }}
             style={styles.avatar}
           />
         </View>
@@ -283,7 +283,7 @@ ImageViewerModal.displayName = 'ImageViewerModal';
  * Typing Message Component (ISOLATED for performance)
  * Only this component re-renders during typing, not the entire list
  */
-const TypingMessage = memo(({ text }) => {
+const TypingMessage = memo(({ text, personaUrl }) => {
   const { currentTheme } = useTheme();
   const isUser = false; // Typing messages are always from AI
 
@@ -292,7 +292,7 @@ const TypingMessage = memo(({ text }) => {
       {/* AI Avatar */}
       <View style={styles.avatarContainer}>
         <Image
-          source={{ uri: SAGE_AVATAR_URL }}
+          source={{ uri: personaUrl || SAGE_AVATAR_URL }}
           style={styles.avatar}
         />
       </View>
@@ -328,7 +328,7 @@ TypingMessage.displayName = 'TypingMessage';
 /**
  * Typing Indicator Component (Web peek page style with wave animation)
  */
-const TypingIndicator = () => {
+const TypingIndicator = ({ personaUrl }) => {
   const { currentTheme } = useTheme();
   
   // ✅ Animated values for each dot (wave effect)
@@ -378,7 +378,7 @@ const TypingIndicator = () => {
       {/* SAGE Avatar */}
       <View style={styles.avatarContainer}>
         <Image
-          source={{ uri: SAGE_AVATAR_URL }}
+          source={{ uri: personaUrl || SAGE_AVATAR_URL }}
           style={styles.avatar}
         />
       </View>
@@ -430,6 +430,7 @@ const ChatMessageList = ({
   onLoadMore = null, // ⭐ NEW: Callback for loading more history
   loadingHistory = false, // ⭐ NEW: Loading more history indicator
   hasMoreHistory = false, // ⭐ NEW: Has more history to load
+  personaUrl = null,
 }) => {
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
@@ -520,6 +521,7 @@ const ChatMessageList = ({
       message={item} 
       onImagePress={handleImagePress}
       onImageLongPress={handleImageLongPress}
+      personaUrl={personaUrl}
     />
   );
 
@@ -561,13 +563,14 @@ const ChatMessageList = ({
         data={messagesWithIndicator}
         renderItem={({ item }) => {
           if (item.role === 'typing') {
-            return <TypingIndicator key="typing-indicator" />;
+            return <TypingIndicator personaUrl={personaUrl} key="typing-indicator" />;
           }
           return (
             <MessageItem
               message={item}
               onImagePress={handleImagePress}
               onImageLongPress={handleImageLongPress}
+              personaUrl={personaUrl}
             />
           );
         }}
@@ -593,7 +596,7 @@ const ChatMessageList = ({
       {/* ✅ Typing Message (ISOLATED: Only this re-renders during typing) */}
       {typingMessage && (
         <View style={styles.typingMessageContainer}>
-          <TypingMessage text={typingMessage} />
+          <TypingMessage text={typingMessage} personaUrl={personaUrl} />
         </View>
       )}
       

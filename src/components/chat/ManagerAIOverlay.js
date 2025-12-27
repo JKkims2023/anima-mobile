@@ -46,6 +46,8 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
+import IdentityGuideSheet from './IdentityGuideSheet'; // 🎭 NEW: Identity guide
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
 
 /**
  * ManagerAIOverlay Component (Simplified)
@@ -91,8 +93,13 @@ const ManagerAIOverlay = ({
   const [giftData, setGiftData] = useState(null);
   const [giftReacting, setGiftReacting] = useState(false);
   
-  // 🎭 NEW: Persona Identity Automation state
-  const [pendingIdentityDraft, setPendingIdentityDraft] = useState(null);
+  // 🎭 NEW: Identity Guide state
+  const identityGuideRef = useRef(null);
+  const [showIdentityGuide, setShowIdentityGuide] = useState(false);
+  const ANIMA_CORE_PERSONAS = [
+    '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
+    'af444146-e796-468c-8e2c-0daf4f9b9248', // NEXUS
+  ];
   
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -130,6 +137,48 @@ const ManagerAIOverlay = ({
       loadAISettings();
     }
   }, [visible, user?.user_key]);
+  
+  // 🎭 NEW: Check identity and show guide (for user-created personas without identity)
+  useEffect(() => {
+    const checkAndShowIdentityGuide = async () => {
+      if (!visible || !persona) return;
+      
+      // Only for user-created personas (not SAGE/NEXUS)
+      const isUserCreatedPersona = !ANIMA_CORE_PERSONAS.includes(persona.persona_key);
+      if (!isUserCreatedPersona) return;
+      
+      // Check if persona has identity
+      const hasIdentity = persona.identity_name && persona.identity_name.trim() !== '';
+      if (hasIdentity) return; // Has identity, no need for guide
+      
+      console.log('🎭 [Identity Guide] User-created persona without identity detected');
+      console.log('   Persona:', persona.persona_name);
+      console.log('   Checking AsyncStorage preference...');
+      
+      // Check if user has disabled the guide
+      try {
+        const dontShowKey = `identity_guide_dont_show_${persona.persona_key}`;
+        const dontShow = await AsyncStorage.getItem(dontShowKey);
+        
+        if (dontShow === 'true') {
+          console.log('ℹ️  [Identity Guide] User disabled guide for this persona');
+          return;
+        }
+        
+        // Show guide after a short delay (let chat load first)
+        console.log('✅ [Identity Guide] Showing guide...');
+        setTimeout(() => {
+          identityGuideRef.current?.present();
+          HapticService.light();
+        }, 1500); // 1.5초 후 표시
+        
+      } catch (error) {
+        console.error('❌ [Identity Guide] Error checking AsyncStorage:', error);
+      }
+    };
+    
+    checkAndShowIdentityGuide();
+  }, [visible, persona]);
   
   // 🆕 Load AI settings
   const loadAISettings = async () => {
@@ -410,26 +459,16 @@ const ManagerAIOverlay = ({
       dimensions: `${imageData.width}x${imageData.height}`,
     });
     
-    // 🎭 Check if this is for persona creation
-    if (pendingIdentityDraft && pendingIdentityDraft.status === 'consent_given') {
-      console.log('🎭 [Persona Creation Mode] Image selected for persona creation!');
-      console.log('   Target Name:', pendingIdentityDraft.target_name);
-      console.log('   Draft ID:', pendingIdentityDraft.draft_id);
-      
-      // Call persona creation function
-      await createPersonaFromDraft(imageData);
-      return;
-    }
-    
     // Normal image analysis mode
     // Store image temporarily
     setSelectedImage(imageData);
     
     // Success haptic feedback
     HapticService.success();
-  }, [pendingIdentityDraft]);
+  }, []);
   
-  // 🎭 NEW: Create persona from identity draft
+  /*
+  // 🗑️ DISABLED: Create persona from identity draft (복잡한 플로우 비활성화)
   const createPersonaFromDraft = useCallback(async (imageData) => {
     try {
       setIsLoading(true);
@@ -516,6 +555,7 @@ const ManagerAIOverlay = ({
       setIsLoading(false);
     }
   }, [pendingIdentityDraft, user, persona, chatApi]);
+  */
   
   // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
@@ -833,6 +873,28 @@ const ManagerAIOverlay = ({
     }
   }, [giftData, handleGiftReaction]);
   
+  // 🎭 NEW: Handle "Don't show again" for identity guide
+  const handleIdentityGuideDontShow = useCallback(async () => {
+    if (!persona) return;
+    
+    try {
+      const dontShowKey = `identity_guide_dont_show_${persona.persona_key}`;
+      await AsyncStorage.setItem(dontShowKey, 'true');
+      
+      console.log('✅ [Identity Guide] "Don\'t show again" preference saved');
+      HapticService.success();
+      
+    } catch (error) {
+      console.error('❌ [Identity Guide] Error saving preference:', error);
+    }
+  }, [persona]);
+  
+  // 🎭 NEW: Handle identity guide close (temporary)
+  const handleIdentityGuideClose = useCallback(() => {
+    console.log('ℹ️  [Identity Guide] Guide closed (will show again next time)');
+    HapticService.light();
+  }, []);
+  
   const handleClose = useCallback(() => {
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
@@ -985,6 +1047,7 @@ const ManagerAIOverlay = ({
                 onLoadMore={() => loadChatHistory(true)} // ⭐ NEW: Load more history
                 loadingHistory={loadingHistory} // ⭐ NEW: Loading indicator
                 hasMoreHistory={hasMoreHistory} // ⭐ NEW: Has more to load
+                personaUrl={persona?.selected_dress_image_url || persona?.original_url}
               />
             </View>
             
@@ -1113,6 +1176,14 @@ const ManagerAIOverlay = ({
           </View>
         </KeyboardAvoidingView>
       </View>
+      
+      {/* 🎭 Identity Guide Bottom Sheet */}
+      <IdentityGuideSheet
+        ref={identityGuideRef}
+        personaName={persona?.persona_name || 'AI'}
+        onDontShowAgain={handleIdentityGuideDontShow}
+        onClose={handleIdentityGuideClose}
+      />
       
       {/* 🎁 Emotional Gift Modal */}
       {showGiftModal && giftData && (
