@@ -114,6 +114,9 @@ export const sendManagerAIMessage = async ({
         tier: response.data.data?.tier,
         knowledge_used: response.data.data?.knowledge_used || [],
         
+        // 🌟 NEW: Identity evolution notification
+        identity_evolution: response.data.data?.identity_evolution || null,
+        
         // Performance metrics
         response_time_ms: response.data.metadata?.response_time_ms,
         tokens: response.data.metadata?.tokens,
