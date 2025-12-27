@@ -1177,13 +1177,23 @@ const ManagerAIOverlay = ({
         </KeyboardAvoidingView>
       </View>
       
-      {/* 🎭 Identity Guide Bottom Sheet */}
-      <IdentityGuideSheet
-        ref={identityGuideRef}
-        personaName={persona?.persona_name || 'AI'}
-        onDontShowAgain={handleIdentityGuideDontShow}
-        onClose={handleIdentityGuideClose}
-      />
+      {/* 🎭 Identity Guide Bottom Sheet (Separate Modal for z-index) */}
+      <Modal
+        visible={visible} // Only render when overlay is visible
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={() => {
+          // Don't close overlay when guide is dismissed
+        }}
+      >
+        <IdentityGuideSheet
+          ref={identityGuideRef}
+          personaName={persona?.persona_name || 'AI'}
+          onDontShowAgain={handleIdentityGuideDontShow}
+          onClose={handleIdentityGuideClose}
+        />
+      </Modal>
       
       {/* 🎁 Emotional Gift Modal */}
       {showGiftModal && giftData && (
