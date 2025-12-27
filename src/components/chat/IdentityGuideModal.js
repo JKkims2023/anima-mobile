@@ -91,12 +91,14 @@ const IdentityGuideModal = ({
       onRequestClose={handleClose}
     >
       {/* Backdrop */}
-      <TouchableOpacity 
-        style={styles.backdrop}
-        activeOpacity={1}
-        onPress={handleClose}
-      >
-        {/* Modal Container */}
+      <View style={styles.backdrop}>
+        <TouchableOpacity 
+          style={styles.backdropTouchable}
+          activeOpacity={1}
+          onPress={handleClose}
+        />
+        
+        {/* Modal Container - Block all touch propagation to backdrop */}
         <Animated.View 
           style={[
             styles.modalContainer,
@@ -105,15 +107,16 @@ const IdentityGuideModal = ({
               transform: [{ translateY: slideAnim }],
             },
           ]}
+          onStartShouldSetResponder={() => true}
+          onTouchEnd={(e) => e.stopPropagation()}
         >
-          <TouchableOpacity activeOpacity={1}>
-            {/* Handle */}
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
-            </View>
-            
-            {/* Header */}
-            <View style={styles.header}>
+          {/* Handle */}
+          <View style={styles.handleContainer}>
+            <View style={styles.handle} />
+          </View>
+          
+          {/* Header */}
+          <View style={styles.header}>
               <View style={styles.headerTextContainer}>
                 <CustomText type="big" bold style={styles.title}>
                   🎭 자아(Identity) 설정 가이드
@@ -127,8 +130,10 @@ const IdentityGuideModal = ({
             {/* Scrollable Content */}
             <ScrollView 
               style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={true}
               bounces={true}
+              scrollEnabled={true}
             >
               <View style={styles.content}>
                 {/* Section 1: Why Identity? */}
@@ -320,9 +325,8 @@ const IdentityGuideModal = ({
                 textStyle={styles.buttonPrimaryText}
               />
             </View>
-          </TouchableOpacity>
         </Animated.View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 };
@@ -330,14 +334,17 @@ const IdentityGuideModal = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'flex-end',
   },
+  backdropTouchable: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+  },
   modalContainer: {
-    backgroundColor: COLORS.DEEP_BLUE_DARK,
+    backgroundColor: '#0F172A', // ⭐ Slate 900 - Darker, more consistent with ANIMA design
     borderTopLeftRadius: moderateScale(24),
     borderTopRightRadius: moderateScale(24),
-    maxHeight: SCREEN_HEIGHT * 0.85,
+    maxHeight: SCREEN_HEIGHT * 0.75, // ⭐ Reduced to 75% for better SafeArea handling
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -354,9 +361,9 @@ const styles = StyleSheet.create({
   },
   handle: {
     width: scale(40),
-    height: verticalScale(4),
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: moderateScale(2),
+    height: verticalScale(5),
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: moderateScale(3),
   },
   header: {
     flexDirection: 'row',
@@ -378,29 +385,37 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
   },
   scrollView: {
-    maxHeight: SCREEN_HEIGHT * 0.5,
+    maxHeight: SCREEN_HEIGHT * 0.45, // ⭐ Fixed height for content area
+  },
+  scrollContent: {
+    paddingBottom: verticalScale(30), // ⭐ Extra padding at bottom for comfortable scrolling
   },
   content: {
     paddingHorizontal: platformPadding(20),
-    paddingVertical: verticalScale(20),
+    paddingTop: verticalScale(20),
+    paddingBottom: verticalScale(20), // ⭐ Balanced bottom padding
     gap: verticalScale(24),
   },
   
   // Section
   section: {
-    gap: verticalScale(16),
+    gap: verticalScale(14), // ⭐ Slightly reduced gap
+    marginBottom: verticalScale(8), // ⭐ Add margin between sections
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(12),
+    gap: scale(10),
+    marginBottom: verticalScale(4), // ⭐ Space after header
   },
   sectionTitle: {
     color: COLORS.TEXT_PRIMARY,
+    fontSize: moderateScale(18), // ⭐ Slightly larger
   },
   description: {
     color: COLORS.TEXT_SECONDARY,
-    lineHeight: moderateScale(22),
+    lineHeight: moderateScale(24), // ⭐ Improved line height
+    fontSize: moderateScale(14),
   },
   
   // Comparison
@@ -422,14 +437,14 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(12),
   },
   badgeWithout: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
   },
   badgeWith: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.25)',
   },
   badgeText: {
     color: COLORS.TEXT_PRIMARY,
@@ -497,9 +512,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(10),
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)', // ⭐ Green tint for examples
     padding: platformPadding(12),
-    borderRadius: moderateScale(8),
+    borderRadius: moderateScale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.15)',
   },
   exampleText: {
     color: COLORS.TEXT_PRIMARY,
@@ -571,19 +588,25 @@ const styles = StyleSheet.create({
   },
   buttonOutline: {
     flex: 1,
-    backgroundColor: 'transparent',
-    borderColor: COLORS.PRIMARY,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderColor: 'rgba(59, 130, 246, 0.4)',
     borderWidth: 1,
+    paddingVertical: verticalScale(14),
   },
   buttonOutlineText: {
-    color: COLORS.PRIMARY,
+    color: '#60A5FA',
+    fontSize: moderateScale(15),
+    fontWeight: '600',
   },
   buttonPrimary: {
     flex: 1,
-    backgroundColor: COLORS.PRIMARY,
+    backgroundColor: '#3B82F6',
+    paddingVertical: verticalScale(14),
   },
   buttonPrimaryText: {
-    color: COLORS.WHITE,
+    color: '#FFFFFF',
+    fontSize: moderateScale(15),
+    fontWeight: '600',
   },
 });
 
