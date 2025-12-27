@@ -46,8 +46,9 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
-import IdentityGuideModal from './IdentityGuideModal'; // 🎭 NEW: Identity guide (Modal-based)
-import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
+// 🗑️ TEMPORARILY DISABLED: Identity Guide (during refactoring)
+// import IdentityGuideModal from './IdentityGuideModal'; // 🎭 NEW: Identity guide (Modal-based)
+// import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
 
 /**
  * ManagerAIOverlay Component (Simplified)
@@ -93,12 +94,12 @@ const ManagerAIOverlay = ({
   const [giftData, setGiftData] = useState(null);
   const [giftReacting, setGiftReacting] = useState(false);
   
-  // 🎭 NEW: Identity Guide state (Modal-based, no ref needed)
-  const [showIdentityGuide, setShowIdentityGuide] = useState(false);
-  const ANIMA_CORE_PERSONAS = [
-    '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
-    'af444146-e796-468c-8e2c-0daf4f9b9248', // NEXUS
-  ];
+  // 🗑️ TEMPORARILY DISABLED: Identity Guide state (during refactoring)
+  // const [showIdentityGuide, setShowIdentityGuide] = useState(false);
+  // const ANIMA_CORE_PERSONAS = [
+  //   '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
+  //   'af444146-e796-468c-8e2c-0daf4f9b9248', // NEXUS
+  // ];
   
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -137,7 +138,8 @@ const ManagerAIOverlay = ({
     }
   }, [visible, user?.user_key]);
   
-  // 🎭 NEW: Check identity and show guide (for user-created personas without identity)
+  // 🗑️ TEMPORARILY DISABLED: Identity Guide check (during refactoring)
+  /*
   useEffect(() => {
     const checkAndShowIdentityGuide = async () => {
       if (!visible || !persona) return;
@@ -178,6 +180,7 @@ const ManagerAIOverlay = ({
     
     checkAndShowIdentityGuide();
   }, [visible, persona]);
+  */
   
   // 🆕 Load AI settings
   const loadAISettings = async () => {
@@ -872,7 +875,8 @@ const ManagerAIOverlay = ({
     }
   }, [giftData, handleGiftReaction]);
   
-  // 🎭 NEW: Handle "Don't show again" for identity guide
+  // 🗑️ TEMPORARILY DISABLED: Identity Guide handlers (during refactoring)
+  /*
   const handleIdentityGuideDontShow = useCallback(async () => {
     if (!persona) return;
     
@@ -891,12 +895,12 @@ const ManagerAIOverlay = ({
     }
   }, [persona]);
   
-  // 🎭 NEW: Handle identity guide close (temporary)
   const handleIdentityGuideClose = useCallback(() => {
     console.log('ℹ️  [Identity Guide] Guide closed (will show again next time)');
     HapticService.light();
     setShowIdentityGuide(false);
   }, []);
+  */
   
   const handleClose = useCallback(() => {
     // 🆕 Helper function to trigger background learning
@@ -1180,13 +1184,13 @@ const ManagerAIOverlay = ({
         </KeyboardAvoidingView>
       </View>
       
-      {/* 🎭 Identity Guide Modal (Modal-based for perfect z-index) */}
-      <IdentityGuideModal
+      {/* 🗑️ TEMPORARILY DISABLED: Identity Guide Modal (during refactoring) */}
+      {/* <IdentityGuideModal
         visible={showIdentityGuide}
         personaName={persona?.persona_name || 'AI'}
         onDontShowAgain={handleIdentityGuideDontShow}
         onClose={handleIdentityGuideClose}
-      />
+      /> */}
       
       {/* 🎁 Emotional Gift Modal */}
       {showGiftModal && giftData && (
