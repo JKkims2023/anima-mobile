@@ -186,8 +186,11 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
-        opacity={0.5}
+        opacity={0.8} // ⭐ Increased for better visibility over other modals
         pressBehavior="close"
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.9)', // ⭐ Explicit dark background
+        }}
       />
     ),
     []

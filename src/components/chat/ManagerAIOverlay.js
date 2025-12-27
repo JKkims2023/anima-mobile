@@ -46,7 +46,7 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
-import IdentityGuideSheet from './IdentityGuideSheet'; // 🎭 NEW: Identity guide
+import IdentityGuideModal from './IdentityGuideModal'; // 🎭 NEW: Identity guide (Modal-based)
 import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
 
 /**
@@ -93,8 +93,7 @@ const ManagerAIOverlay = ({
   const [giftData, setGiftData] = useState(null);
   const [giftReacting, setGiftReacting] = useState(false);
   
-  // 🎭 NEW: Identity Guide state
-  const identityGuideRef = useRef(null);
+  // 🎭 NEW: Identity Guide state (Modal-based, no ref needed)
   const [showIdentityGuide, setShowIdentityGuide] = useState(false);
   const ANIMA_CORE_PERSONAS = [
     '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
@@ -168,7 +167,7 @@ const ManagerAIOverlay = ({
         // Show guide after a short delay (let chat load first)
         console.log('✅ [Identity Guide] Showing guide...');
         setTimeout(() => {
-          identityGuideRef.current?.present();
+          setShowIdentityGuide(true);
           HapticService.light();
         }, 1500); // 1.5초 후 표시
         
@@ -884,6 +883,9 @@ const ManagerAIOverlay = ({
       console.log('✅ [Identity Guide] "Don\'t show again" preference saved');
       HapticService.success();
       
+      // Close modal
+      setShowIdentityGuide(false);
+      
     } catch (error) {
       console.error('❌ [Identity Guide] Error saving preference:', error);
     }
@@ -893,6 +895,7 @@ const ManagerAIOverlay = ({
   const handleIdentityGuideClose = useCallback(() => {
     console.log('ℹ️  [Identity Guide] Guide closed (will show again next time)');
     HapticService.light();
+    setShowIdentityGuide(false);
   }, []);
   
   const handleClose = useCallback(() => {
@@ -1177,23 +1180,13 @@ const ManagerAIOverlay = ({
         </KeyboardAvoidingView>
       </View>
       
-      {/* 🎭 Identity Guide Bottom Sheet (Separate Modal for z-index) */}
-      <Modal
-        visible={visible} // Only render when overlay is visible
-        transparent={true}
-        animationType="none"
-        statusBarTranslucent
-        onRequestClose={() => {
-          // Don't close overlay when guide is dismissed
-        }}
-      >
-        <IdentityGuideSheet
-          ref={identityGuideRef}
-          personaName={persona?.persona_name || 'AI'}
-          onDontShowAgain={handleIdentityGuideDontShow}
-          onClose={handleIdentityGuideClose}
-        />
-      </Modal>
+      {/* 🎭 Identity Guide Modal (Modal-based for perfect z-index) */}
+      <IdentityGuideModal
+        visible={showIdentityGuide}
+        personaName={persona?.persona_name || 'AI'}
+        onDontShowAgain={handleIdentityGuideDontShow}
+        onClose={handleIdentityGuideClose}
+      />
       
       {/* 🎁 Emotional Gift Modal */}
       {showGiftModal && giftData && (
