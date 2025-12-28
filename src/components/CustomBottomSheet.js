@@ -373,7 +373,7 @@ const CustomBottomSheet = forwardRef((props, ref) => {
       handleIndicatorStyle={handleIndicatorStyle}
       android_keyboardInputMode="adjustResize"
     >
-      {/* Header (optional) */}
+      {/* Header */}
       {renderHeader()}
 
       {/* Content */}
