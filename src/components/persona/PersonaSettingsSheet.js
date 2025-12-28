@@ -249,14 +249,6 @@ const PersonaSettingsSheet = ({
             iconColor: theme.mainColor,
           })}
 
-          {/* 카테고리 변경 */}
-          {renderSettingItem({
-            icon: 'tag',
-            title: t(`category_type.${persona?.category_type || 'normal'}`),
-            subtitle: null,
-            onPress: handleCategoryChange,
-            iconColor: '#FFA500',
-          })}
 
           {/* 영상 전환 */}
           {renderSettingItem({

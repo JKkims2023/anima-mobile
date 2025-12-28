@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: moderateScale(15),
+    paddingHorizontal: moderateScale(0),
     paddingTop: verticalScale(20),
     paddingBottom: verticalScale(0), // ✅ Space for input bar
   },

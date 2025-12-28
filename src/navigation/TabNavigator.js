@@ -10,6 +10,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PersonaScreen from '../screens/PersonaScreen';
 import PersonaStudioScreen from '../screens/PersonaStudioScreen'; // ⭐ Unified Persona Studio (with MessageCreationOverlay)
 import MusicScreen from '../screens/MusicScreen';
+import MemoryScreen from '../screens/MemoryScreen';
 import HistoryScreen from '../screens/HistoryScreen'; // ⭐ NEW: Message History
 import MessageDetailScreen from '../screens/MessageDetailScreen'; // ⭐ NEW: Message Detail
 import PeekScreen from '../screens/PeekScreen';
@@ -116,7 +117,16 @@ const TabNavigator = () => {
           // ⭐ No dynamic tabBarStyle needed (MessageCreationOverlay covers it with z-index)
         }}
       />
-      {/* Tab 4: History (with Stack) */}
+      {/* Tab 2: Memory */}
+      <Tab.Screen 
+        name="Memory" 
+        component={MemoryScreen}
+        options={{
+          title: t('navigation.memory') || '추억',
+        }}
+      />
+      
+      {/*
       <Tab.Screen 
         name="History" 
         component={HistoryStack}
@@ -133,6 +143,7 @@ const TabNavigator = () => {
           };
         }}
       />
+       Tab 4: History (with Stack) */}
        
       {/* Tab 3: AI (Center) - Placeholder */}
       <Tab.Screen 

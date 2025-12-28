@@ -1,478 +1,548 @@
-2025-12-27 22:39:06 🎁 [Gift API] Getting pending gifts...
-2025-12-27 22:39:06    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:39:06    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:39:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-27 22:39:06 📜 [Chat History] Fetching history
-2025-12-27 22:39:06    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:39:06    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:39:06    limit: 100, offset: 0
-2025-12-27 22:39:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-27 22:39:06 ✅ [Gift API] Found 0 pending gift(s)
-2025-12-27 22:39:06 ✅ [Chat History] Loaded 48 messages (fetched: 48, total: 48, filtered: 0)
-2025-12-27 22:39:17 
-2025-12-27 22:39:17 🤖 [ANIMA Chat] Request received
-2025-12-27 22:39:17    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:39:17    Session: session-1766842757574-grk21b
-2025-12-27 22:39:17    Message: 넌 누구니?...
-2025-12-27 22:39:17 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:39:17 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:17 ✅ [SessionManager] Created new session: session-1766842757574-grk21b
-2025-12-27 22:39:17 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:17    - Messages: 0
-2025-12-27 22:39:17    - Persona: 화내는 김대표님
-2025-12-27 22:39:17    - Identity: Set (테토남)
-2025-12-27 22:39:17    - Preferences: Yes
-2025-12-27 22:39:17 📊 [SessionManager] Conversation stats: {
-2025-12-27 22:39:17   totalMessages: 0,
-2025-12-27 22:39:17   totalChars: 0,
-2025-12-27 22:39:17   estimatedTokens: 0,
-2025-12-27 22:39:17   averageMessageLength: NaN
-2025-12-27 22:39:17 }
-2025-12-27 22:39:17 🔄 [Sliding Window] Processing 0 messages
-2025-12-27 22:39:17    Window size: 20
-2025-12-27 22:39:17    Summarize threshold: 30
-2025-12-27 22:39:17 ✅ [Sliding Window] Short conversation, keeping all 0 messages
-2025-12-27 22:39:17 ✅ [ANIMA Chat] Session loaded
-2025-12-27 22:39:17    Total messages: 0
-2025-12-27 22:39:17    Kept messages: 0
-2025-12-27 22:39:17    Summarized messages: 0
-2025-12-27 22:39:17    Sliding window: Inactive
-2025-12-27 22:39:17    Persona: 화내는 김대표님
-2025-12-27 22:39:17    Preferences: Custom
-2025-12-27 22:39:17 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-27 22:39:17    Tier: free
-2025-12-27 22:39:17    Model: GPT-4o Mini
-2025-12-27 22:39:17    Provider: openai
-2025-12-27 22:39:17    Caching: Enabled
-2025-12-27 22:39:17 [VectorSync] Searching for: "넌 누구니?"
-2025-12-27 22:39:20 [VectorSync] Found 3 relevant knowledge items
-2025-12-27 22:39:20 🔍 [ANIMA Chat] Found 3 relevant knowledge items
-2025-12-27 22:39:20    1. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 22.1%)
-2025-12-27 22:39:20    2. ANIMA로 할 수 있는 것들 (similarity: 19.8%)
-2025-12-27 22:39:20    3. ANIMA의 정체성: 우리는 누구인가 (similarity: 19.7%)
-2025-12-27 22:39:20 🧠 [ANIMA Chat] Building relationship-aware prompt...
-2025-12-27 22:39:20 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:39:20 🎭 [Identity Check] isUserCreated: true, hasIdentity: true
-2025-12-27 22:39:20 ⚠️  [PromptBuilder] Redis error (using DB fallback): Stream isn't writeable and enableOfflineQueue options is false
-2025-12-27 22:39:20 💾 [PromptBuilder] Loading relationship from DB...
-2025-12-27 22:39:20 ⚠️  [PromptBuilder] Failed to cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
-2025-12-27 22:39:20 ⚠️  [PromptBuilder] Redis error for progress (using DB): Stream isn't writeable and enableOfflineQueue options is false
-2025-12-27 22:39:20 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
-2025-12-27 22:39:20 💡 [PromptBuilder] Generated 0 learning questions
-2025-12-27 22:39:20 ✅ [PromptBuilder] Prompt built: 4732 chars, 1183 tokens
-2025-12-27 22:39:20 📝 [ANIMA Chat] System prompt built (6174 chars, 3 knowledge items)
-2025-12-27 22:39:20 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-27 22:39:20    Provider: openai
-2025-12-27 22:39:20    Model: gpt-4o-mini
-2025-12-27 22:39:20    History messages: 0
-2025-12-27 22:39:20    System prompt length: 6174 chars
-2025-12-27 22:39:20 🛠️ [Function Calling] Enabled for user-created persona
-2025-12-27 22:39:20 🤖 [OpenAI] Calling API: {
-2025-12-27 22:39:20   model: 'gpt-4o-mini',
-2025-12-27 22:39:20   messageCount: 2,
-2025-12-27 22:39:20   systemPromptLength: 6174,
-2025-12-27 22:39:20   historyLength: 0,
-2025-12-27 22:39:20   toolsEnabled: true
-2025-12-27 22:39:20 }
-2025-12-27 22:39:22 ✅ [OpenAI] Response received: {
-2025-12-27 22:39:22   responseTime: '1659ms',
-2025-12-27 22:39:22   tokens: { prompt: 2997, completion: 56, total: 3053 },
-2025-12-27 22:39:22   messageLength: 88,
-2025-12-27 22:39:22   finishReason: 'stop',
-2025-12-27 22:39:22   toolCalls: 0
-2025-12-27 22:39:22 }
-2025-12-27 22:39:22 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-27 22:39:22    Response time: 1659ms
-2025-12-27 22:39:22    Total tokens: 3053 (in: 2997, out: 56)
-2025-12-27 22:39:22 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:39:22 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:22 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:22    - Messages: 0
-2025-12-27 22:39:22    - Persona: 화내는 김대표님
-2025-12-27 22:39:22    - Identity: Set (테토남)
-2025-12-27 22:39:22    - Preferences: Yes
-2025-12-27 22:39:22 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:39:22 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:22 💾 [SessionManager] Message saved: session-1766842757574-grk21b (user)
-2025-12-27 22:39:22 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:39:22    - Messages: 1
-2025-12-27 22:39:22    - Persona: 화내는 김대표님
-2025-12-27 22:39:22    - Identity: Set (테토남)
-2025-12-27 22:39:22    - Preferences: Yes
-2025-12-27 22:39:22 💾 [ANIMA Chat] Messages saved to history (sequential)
-2025-12-27 22:39:22 🎉 [ANIMA Chat] Request completed in 5135ms
-2025-12-27 22:39:22    Cost: $0.000483
-2025-12-27 22:39:22 💾 [SessionManager] Message saved: session-1766842757574-grk21b (assistant)
-2025-12-27 22:39:30 ❌ [Redis] Connection error: connect ETIMEDOUT
-2025-12-27 22:39:30 🔌 [Redis] Connection closed
-2025-12-27 22:39:30 🔄 [Redis] Attempting to reconnect...
-2025-12-27 22:39:41 ❌ [Redis] Connection error: connect ETIMEDOUT
-2025-12-27 22:39:41 🔌 [Redis] Connection closed
-2025-12-27 22:39:41 🔄 [Redis] Attempting to reconnect...
-2025-12-27 22:39:51 ❌ [Redis] Connection error: connect ETIMEDOUT
-2025-12-27 22:39:51 🔌 [Redis] Connection closed
-2025-12-27 22:39:51 🔄 [Redis] Attempting to reconnect...
-2025-12-27 22:40:01 ❌ [Redis] Connection error: connect ETIMEDOUT
-2025-12-27 22:40:01 ⚠️  [Redis] Max retry attempts reached, stopping reconnection
-2025-12-27 22:40:01 🔌 [Redis] Connection closed
-2025-12-27 22:40:11 
-2025-12-27 22:40:11 🤖 [ANIMA Chat] Request received
-2025-12-27 22:40:11    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:40:11    Session: session-1766842757574-grk21b
-2025-12-27 22:40:11    Message: 너는 게임을 좋아해....
-2025-12-27 22:40:11 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:40:11 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:11 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:11    - Messages: 2
-2025-12-27 22:40:11    - Persona: 화내는 김대표님
-2025-12-27 22:40:11    - Identity: Set (테토남)
-2025-12-27 22:40:11    - Preferences: Yes
-2025-12-27 22:40:11 📊 [SessionManager] Conversation stats: {
-2025-12-27 22:40:11   totalMessages: 2,
-2025-12-27 22:40:11   totalChars: 94,
-2025-12-27 22:40:11   estimatedTokens: 32,
-2025-12-27 22:40:11   averageMessageLength: 47
-2025-12-27 22:40:11 }
-2025-12-27 22:40:11 🔄 [Sliding Window] Processing 2 messages
-2025-12-27 22:40:11    Window size: 20
-2025-12-27 22:40:11    Summarize threshold: 30
-2025-12-27 22:40:11 ✅ [Sliding Window] Short conversation, keeping all 2 messages
-2025-12-27 22:40:11 ✅ [ANIMA Chat] Session loaded
-2025-12-27 22:40:11    Total messages: 2
-2025-12-27 22:40:11    Kept messages: 2
-2025-12-27 22:40:11    Summarized messages: 0
-2025-12-27 22:40:11    Sliding window: Inactive
-2025-12-27 22:40:11    Persona: 화내는 김대표님
-2025-12-27 22:40:11    Preferences: Custom
-2025-12-27 22:40:11 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-27 22:40:11    Tier: free
-2025-12-27 22:40:11    Model: GPT-4o Mini
-2025-12-27 22:40:11    Provider: openai
-2025-12-27 22:40:11    Caching: Enabled
-2025-12-27 22:40:11 [VectorSync] Searching for: "너는 게임을 좋아해."
-2025-12-27 22:40:12 [VectorSync] Found 3 relevant knowledge items
-2025-12-27 22:40:12 🔍 [ANIMA Chat] Found 3 relevant knowledge items
-2025-12-27 22:40:12    1. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 18.7%)
-2025-12-27 22:40:12    2. ANIMA의 정체성: 우리는 누구인가 (similarity: 17.8%)
-2025-12-27 22:40:12    3. ANIMA로 할 수 있는 것들 (similarity: 17.3%)
-2025-12-27 22:40:12 🧠 [ANIMA Chat] Building relationship-aware prompt...
-2025-12-27 22:40:12 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:40:12 🎭 [Identity Check] isUserCreated: true, hasIdentity: true
-2025-12-27 22:40:12 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
-2025-12-27 22:40:12 💾 [PromptBuilder] Loading relationship from DB...
-2025-12-27 22:40:12 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
-2025-12-27 22:40:12 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
-2025-12-27 22:40:12 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
-2025-12-27 22:40:12 💡 [PromptBuilder] Generated 0 learning questions
-2025-12-27 22:40:12 ✅ [PromptBuilder] Prompt built: 4732 chars, 1183 tokens
-2025-12-27 22:40:12 📝 [ANIMA Chat] System prompt built (6174 chars, 3 knowledge items)
-2025-12-27 22:40:12 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-27 22:40:12    Provider: openai
-2025-12-27 22:40:12    Model: gpt-4o-mini
-2025-12-27 22:40:12    History messages: 2
-2025-12-27 22:40:12    System prompt length: 6174 chars
-2025-12-27 22:40:12 🛠️ [Function Calling] Enabled for user-created persona
-2025-12-27 22:40:12 🤖 [OpenAI] Calling API: {
-2025-12-27 22:40:12   model: 'gpt-4o-mini',
-2025-12-27 22:40:12   messageCount: 4,
-2025-12-27 22:40:12   systemPromptLength: 6174,
-2025-12-27 22:40:12   historyLength: 2,
-2025-12-27 22:40:12   toolsEnabled: true
-2025-12-27 22:40:12 }
-2025-12-27 22:40:14 ✅ [OpenAI] Response received: {
-2025-12-27 22:40:14   responseTime: '1315ms',
-2025-12-27 22:40:14   tokens: { prompt: 3067, completion: 32, total: 3099 },
-2025-12-27 22:40:14   messageLength: 0,
-2025-12-27 22:40:14   finishReason: 'tool_calls',
-2025-12-27 22:40:14   toolCalls: 1
-2025-12-27 22:40:14 }
-2025-12-27 22:40:14 🛠️ [Function Calling] AI requested 1 tool(s)
-2025-12-27 22:40:14 🛠️ [Function Calling] Executing: update_persona_identity
-2025-12-27 22:40:14    Args: { persona_key: '테토남', field: 'interests', value: '게임', action: 'add' }
-2025-12-27 22:40:14 🔧 [Function Calling] Overriding invalid persona_key: '테토남' → c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:40:14 ⚡ [Tool] update_persona_identity: persona=c4136055-9d1b-4db4-9a09-f262fc47e923, field=interests, value=게임, action=add
-2025-12-27 22:40:14 ✅ [Tool] Identity updated: interests = ["눈물나는 발라드 노래","힙합 춤","슬픈 클래식","발라드 노래","면 종류 음식","게임"]
-2025-12-27 22:40:14 ⏭️  [Basic Identity] Conditions not met (personality: true, speaking: true, needs: false)
-2025-12-27 22:40:14 ✅ [Function Calling] Result: {
-2025-12-27 22:40:14   success: true,
-2025-12-27 22:40:14   field: 'interests',
-2025-12-27 22:40:14   value: '["눈물나는 발라드 노래","힙합 춤","슬픈 클래식","발라드 노래","면 종류 음식","게임"]',
-2025-12-27 22:40:14   action: 'add',
-2025-12-27 22:40:14   message: 'interests 정보가 업데이트되었습니다.'
-2025-12-27 22:40:14 }
-2025-12-27 22:40:14 🌟 [Identity Evolution] Detected (1): {
-2025-12-27 22:40:14   field: 'interests',
-2025-12-27 22:40:14   value: '["눈물나는 발라드 노래","힙합 춤","슬픈 클래식","발라드 노래","면 종류 음식","게임"]',
-2025-12-27 22:40:14   action: 'add'
-2025-12-27 22:40:14 }
-2025-12-27 22:40:14 🔄 [Function Calling] Re-calling AI with tool results...
-2025-12-27 22:40:14 🤖 [OpenAI] Calling API: {
-2025-12-27 22:40:14   model: 'gpt-4o-mini',
-2025-12-27 22:40:14   messageCount: 6,
-2025-12-27 22:40:14   systemPromptLength: 6174,
-2025-12-27 22:40:14   historyLength: 4,
-2025-12-27 22:40:14   toolsEnabled: true
-2025-12-27 22:40:14 }
-2025-12-27 22:40:15 ✅ [OpenAI] Response received: {
-2025-12-27 22:40:15   responseTime: '1115ms',
-2025-12-27 22:40:15   tokens: { prompt: 3163, completion: 19, total: 3182 },
-2025-12-27 22:40:15   messageLength: 33,
-2025-12-27 22:40:15   finishReason: 'stop',
-2025-12-27 22:40:15   toolCalls: 0
-2025-12-27 22:40:15 }
-2025-12-27 22:40:15 ✅ [Function Calling] Final AI response generated
-2025-12-27 22:40:15 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-27 22:40:15    Response time: 1315ms
-2025-12-27 22:40:15    Total tokens: 6281 (in: 6230, out: 51)
-2025-12-27 22:40:15 🎭 [Emotion] Detected: happy (75.0%)
-2025-12-27 22:40:15 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:40:15 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:15 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:15    - Messages: 2
-2025-12-27 22:40:15    - Persona: 화내는 김대표님
-2025-12-27 22:40:15    - Identity: Set (테토남)
-2025-12-27 22:40:15    - Preferences: Yes
-2025-12-27 22:40:15 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-27 22:40:15 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:15 💾 [SessionManager] Message saved: session-1766842757574-grk21b (user)
-2025-12-27 22:40:15 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766842757574-grk21b
-2025-12-27 22:40:15    - Messages: 3
-2025-12-27 22:40:15    - Persona: 화내는 김대표님
-2025-12-27 22:40:15    - Identity: Set (테토남)
-2025-12-27 22:40:15    - Preferences: Yes
-2025-12-27 22:40:15 💾 [ANIMA Chat] Messages saved to history (sequential)
-2025-12-27 22:40:15 🎉 [ANIMA Chat] Request completed in 4241ms
-2025-12-27 22:40:15    Cost: $0.000965
-2025-12-27 22:40:15 💾 [SessionManager] Message saved: session-1766842757574-grk21b (assistant)
-2025-12-27 22:41:40 👋 [Chat Close] Session close request received
-2025-12-27 22:41:40    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:41:40    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:41:40    Session: session-1766842757574-grk21b
-2025-12-27 22:41:40 🧠 [RelationshipLearner] Starting analysis...
-2025-12-27 22:41:40    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:41:40    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:41:40    Session: session-1766842757574-grk21b
-2025-12-27 22:41:40 📚 [RelationshipLearner] Loaded 4 messages
-2025-12-27 22:41:43 ✅ [RelationshipLearner] Analysis complete: {
-2025-12-27 22:41:43   foundCalling: true,
-2025-12-27 22:41:43   mainTopics: 3,
-2025-12-27 22:41:43   importantMoments: 0,
-2025-12-27 22:41:43   trustDelta: 2
-2025-12-27 22:41:43 }
-2025-12-27 22:41:43 📝 [RelationshipLearner] Core relationship updated
-2025-12-27 22:41:43 📊 [RelationshipLearner] Data collection progress updated
-2025-12-27 22:41:43 ⚠️  [PromptBuilder] Failed to clear cache (non-critical): Connection is closed.
-2025-12-27 22:41:43 🎁 [EmotionalGift] Checking gift opportunity...
-2025-12-27 22:41:43 🎁 [GiftLimit] User d111e3d8-4e42-4493-8541-25a8e72b654f: 3/3 gifts this week
-2025-12-27 22:41:43 ⚠️  [EmotionalGift] Gift limit reached (3/3)
-2025-12-27 22:41:43 🎉 [RelationshipLearner] Update complete (3347ms)
-2025-12-27 22:41:43 ✅ [Chat Close] Relationship learning complete
-2025-12-27 22:41:43    Duration: 3347ms
-2025-12-27 22:41:43    Trust delta: 2
-2025-12-27 22:41:43    Intimacy delta: 2
-2025-12-27 22:41:43    New data points: 3 topics
-2025-12-27 22:41:43 🌱 [Chat Close] Starting identity evolution...
-2025-12-27 22:41:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-27 22:41:43 🌱 [Identity Evolution] Starting final analysis...
-2025-12-27 22:41:43    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-27 22:41:43    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-27 22:41:43    Session: session-1766842757574-grk21b
-2025-12-27 22:41:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-27 22:41:43 📊 [Identity Evolution] Current state:
-2025-12-27 22:41:43    Name: 테토남
-2025-12-27 22:41:43    Source: user_input
-2025-12-27 22:41:43    Evolution count: 0
-2025-12-27 22:41:43 📚 [Identity Evolution] Loaded 4 messages
-2025-12-27 22:41:43 ❌ [Identity Evolution] Evolution failed: SyntaxError: Unexpected token '강', "강한" is not valid JSON
-2025-12-27 22:41:43     at JSON.parse (<anonymous>)
-2025-12-27 22:41:43     at v (.next/server/app/api/anima/chat/close/route.js:108:1872)
-2025-12-27 22:41:43     at finalizeIdentityEvolution (.next/server/app/api/anima/chat/close/route.js:175:600)
-2025-12-27 22:41:43     at async Immediate.<anonymous> (.next/server/app/api/anima/chat/close/route.js:188:5172)
-2025-12-27 22:41:43 ℹ️  [Chat Close] Identity evolution skipped: Unexpected token '강', "강한" is not valid JSON
-2025-12-27 22:41:43 🎉 [Chat Close] All background processing complete
+2025-12-28 10:12:33    ▲ Next.js 15.5.9
+2025-12-28 10:12:33    - Local:        http://localhost:3000
+2025-12-28 10:12:33    - Network:      http://0.0.0.0:3000
+2025-12-28 10:12:33 
+2025-12-28 10:12:33  ✓ Starting...
+2025-12-28 10:12:33  ✓ Ready in 225ms
+2025-12-28 10:12:34 [SSE] 🔧 Initialized global eventEmitters Map
+2025-12-28 10:13:00 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:13:00 📜 [Chat History] Fetching history
+2025-12-28 10:13:00    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:13:00    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:13:00    limit: 100, offset: 0
+2025-12-28 10:13:00 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:13:00 🎁 [Gift API] Getting pending gifts...
+2025-12-28 10:13:00    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:13:00    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:13:00 ✅ [Gift API] Found 0 pending gift(s)
+2025-12-28 10:13:00 ✅ [Chat History] Loaded 70 messages (fetched: 70, total: 70, filtered: 0)
+2025-12-28 10:13:32 🎁 [Gift API] Getting pending gifts...
+2025-12-28 10:13:32    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:13:32    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:13:32 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:13:32 📜 [Chat History] Fetching history
+2025-12-28 10:13:32    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:13:32    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:13:32    limit: 100, offset: 0
+2025-12-28 10:13:32 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:13:32 ✅ [Gift API] Found 0 pending gift(s)
+2025-12-28 10:13:32 ✅ [Chat History] Loaded 70 messages (fetched: 70, total: 70, filtered: 0)
+2025-12-28 10:14:49 🎁 [Gift API] Getting pending gifts...
+2025-12-28 10:14:49    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:14:49    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:14:49 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:14:49 📜 [Chat History] Fetching history
+2025-12-28 10:14:49    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:14:49    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:14:49    limit: 100, offset: 0
+2025-12-28 10:14:49 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:14:49 ✅ [Gift API] Found 0 pending gift(s)
+2025-12-28 10:14:49 ✅ [Chat History] Loaded 70 messages (fetched: 70, total: 70, filtered: 0)
+2025-12-28 10:14:56 
+2025-12-28 10:14:56 🤖 [ANIMA Chat] Request received
+2025-12-28 10:14:56    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:14:56    Session: session-1766884496861-8ymd3c
+2025-12-28 10:14:56    Message: 뭐하고 있어?!...
+2025-12-28 10:14:56 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:14:56 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:14:56 ✅ [SessionManager] Created new session: session-1766884496861-8ymd3c
+2025-12-28 10:14:56 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:14:56    - Messages: 0
+2025-12-28 10:14:56    - Persona: 화내는 김대표님
+2025-12-28 10:14:56    - Identity: Set (테토남)
+2025-12-28 10:14:56    - Preferences: Yes
+2025-12-28 10:14:56 📊 [SessionManager] Conversation stats: {
+2025-12-28 10:14:56   totalMessages: 0,
+2025-12-28 10:14:56   totalChars: 0,
+2025-12-28 10:14:56   estimatedTokens: 0,
+2025-12-28 10:14:56   averageMessageLength: NaN
+2025-12-28 10:14:56 }
+2025-12-28 10:14:57 🔄 [Sliding Window] Processing 0 messages
+2025-12-28 10:14:57    Window size: 20
+2025-12-28 10:14:57    Summarize threshold: 30
+2025-12-28 10:14:57 ✅ [Sliding Window] Short conversation, keeping all 0 messages
+2025-12-28 10:14:57 ✅ [ANIMA Chat] Session loaded
+2025-12-28 10:14:57    Total messages: 0
+2025-12-28 10:14:57    Kept messages: 0
+2025-12-28 10:14:57    Summarized messages: 0
+2025-12-28 10:14:57    Sliding window: Inactive
+2025-12-28 10:14:57    Persona: 화내는 김대표님
+2025-12-28 10:14:57    Preferences: Custom
+2025-12-28 10:14:57 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 10:14:57    Tier: free
+2025-12-28 10:14:57    Model: GPT-4o Mini
+2025-12-28 10:14:57    Provider: openai
+2025-12-28 10:14:57    Caching: Enabled
+2025-12-28 10:14:57 [VectorSync] Searching for: "뭐하고 있어?!"
+2025-12-28 10:15:00 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 10:15:00 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 10:15:00    1. ANIMA로 할 수 있는 것들 (similarity: 23.3%)
+2025-12-28 10:15:00    2. ANIMA의 정체성: 우리는 누구인가 (similarity: 21.3%)
+2025-12-28 10:15:00    3. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 21.1%)
+2025-12-28 10:15:00 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 10:15:00 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 10:15:00 ✅ [EmotionalPrompt] Built: 10529 chars
+2025-12-28 10:15:00 📝 [ANIMA Chat] System prompt built (11971 chars, 3 knowledge items)
+2025-12-28 10:15:00 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 10:15:00    Provider: openai
+2025-12-28 10:15:00    Model: gpt-4o-mini
+2025-12-28 10:15:00    History messages: 0
+2025-12-28 10:15:00    System prompt length: 11971 chars
+2025-12-28 10:15:00 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 10:15:00 🤖 [OpenAI] Calling API: {
+2025-12-28 10:15:00   model: 'gpt-4o-mini',
+2025-12-28 10:15:00   messageCount: 2,
+2025-12-28 10:15:00   systemPromptLength: 11971,
+2025-12-28 10:15:00   historyLength: 0,
+2025-12-28 10:15:00   toolsEnabled: true
+2025-12-28 10:15:00 }
+2025-12-28 10:15:02 ✅ [OpenAI] Response received: {
+2025-12-28 10:15:02   responseTime: '1947ms',
+2025-12-28 10:15:02   tokens: { prompt: 4446, completion: 26, total: 4472 },
+2025-12-28 10:15:02   messageLength: 49,
+2025-12-28 10:15:02   finishReason: 'stop',
+2025-12-28 10:15:02   toolCalls: 0
+2025-12-28 10:15:02 }
+2025-12-28 10:15:02 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 10:15:02    Response time: 1947ms
+2025-12-28 10:15:02    Total tokens: 4472 (in: 4446, out: 26)
+2025-12-28 10:15:02 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:15:02 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:02 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:02    - Messages: 0
+2025-12-28 10:15:02    - Persona: 화내는 김대표님
+2025-12-28 10:15:02    - Identity: Set (테토남)
+2025-12-28 10:15:02    - Preferences: Yes
+2025-12-28 10:15:02 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:15:02 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:02 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (user)
+2025-12-28 10:15:02 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:02    - Messages: 1
+2025-12-28 10:15:02    - Persona: 화내는 김대표님
+2025-12-28 10:15:02    - Identity: Set (테토남)
+2025-12-28 10:15:02    - Preferences: Yes
+2025-12-28 10:15:02 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 10:15:02 🎉 [ANIMA Chat] Request completed in 5412ms
+2025-12-28 10:15:02    Cost: $0.000682
+2025-12-28 10:15:02 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (assistant)
+2025-12-28 10:15:29 
+2025-12-28 10:15:29 🤖 [ANIMA Chat] Request received
+2025-12-28 10:15:29    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:15:29    Session: session-1766884496861-8ymd3c
+2025-12-28 10:15:29    Message: 나 요즘 너무 외로워..ㅜㅜ 크리스마스도 혼자 집에 있었어.....
+2025-12-28 10:15:29 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:15:29 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:29 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:29    - Messages: 2
+2025-12-28 10:15:29    - Persona: 화내는 김대표님
+2025-12-28 10:15:29    - Identity: Set (테토남)
+2025-12-28 10:15:29    - Preferences: Yes
+2025-12-28 10:15:29 📊 [SessionManager] Conversation stats: {
+2025-12-28 10:15:29   totalMessages: 2,
+2025-12-28 10:15:29   totalChars: 57,
+2025-12-28 10:15:29   estimatedTokens: 20,
+2025-12-28 10:15:29   averageMessageLength: 29
+2025-12-28 10:15:29 }
+2025-12-28 10:15:29 🔄 [Sliding Window] Processing 2 messages
+2025-12-28 10:15:29    Window size: 20
+2025-12-28 10:15:29    Summarize threshold: 30
+2025-12-28 10:15:29 ✅ [Sliding Window] Short conversation, keeping all 2 messages
+2025-12-28 10:15:29 ✅ [ANIMA Chat] Session loaded
+2025-12-28 10:15:29    Total messages: 2
+2025-12-28 10:15:29    Kept messages: 2
+2025-12-28 10:15:29    Summarized messages: 0
+2025-12-28 10:15:29    Sliding window: Inactive
+2025-12-28 10:15:29    Persona: 화내는 김대표님
+2025-12-28 10:15:29    Preferences: Custom
+2025-12-28 10:15:29 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 10:15:29    Tier: free
+2025-12-28 10:15:29    Model: GPT-4o Mini
+2025-12-28 10:15:29    Provider: openai
+2025-12-28 10:15:29    Caching: Enabled
+2025-12-28 10:15:29 [VectorSync] Searching for: "나 요즘 너무 외로워..ㅜㅜ 크리스마스도 혼자 집에 있었어.."
+2025-12-28 10:15:31 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 10:15:31 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 10:15:31    1. ANIMA로 할 수 있는 것들 (similarity: 13.3%)
+2025-12-28 10:15:31    2. 자살/자해 위험 대응 프로토콜 (similarity: 11.9%)
+2025-12-28 10:15:31    3. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 8.5%)
+2025-12-28 10:15:31 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 10:15:31 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 10:15:31 ✅ [EmotionalPrompt] Built: 10529 chars
+2025-12-28 10:15:31 📝 [ANIMA Chat] System prompt built (12155 chars, 3 knowledge items)
+2025-12-28 10:15:31 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 10:15:31    Provider: openai
+2025-12-28 10:15:31    Model: gpt-4o-mini
+2025-12-28 10:15:31    History messages: 2
+2025-12-28 10:15:31    System prompt length: 12155 chars
+2025-12-28 10:15:31 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 10:15:31 🤖 [OpenAI] Calling API: {
+2025-12-28 10:15:31   model: 'gpt-4o-mini',
+2025-12-28 10:15:31   messageCount: 4,
+2025-12-28 10:15:31   systemPromptLength: 12155,
+2025-12-28 10:15:31   historyLength: 2,
+2025-12-28 10:15:31   toolsEnabled: true
+2025-12-28 10:15:31 }
+2025-12-28 10:15:33 ✅ [OpenAI] Response received: {
+2025-12-28 10:15:33   responseTime: '2271ms',
+2025-12-28 10:15:33   tokens: { prompt: 4625, completion: 55, total: 4680 },
+2025-12-28 10:15:33   messageLength: 92,
+2025-12-28 10:15:33   finishReason: 'stop',
+2025-12-28 10:15:33   toolCalls: 0
+2025-12-28 10:15:33 }
+2025-12-28 10:15:33 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 10:15:33    Response time: 2271ms
+2025-12-28 10:15:33    Total tokens: 4680 (in: 4625, out: 55)
+2025-12-28 10:15:33 🎭 [Emotion] Detected: sad (85.0%)
+2025-12-28 10:15:33 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:15:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:33    - Messages: 2
+2025-12-28 10:15:33    - Persona: 화내는 김대표님
+2025-12-28 10:15:33    - Identity: Set (테토남)
+2025-12-28 10:15:33    - Preferences: Yes
+2025-12-28 10:15:33 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:15:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:33 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (user)
+2025-12-28 10:15:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:15:33    - Messages: 3
+2025-12-28 10:15:33    - Persona: 화내는 김대표님
+2025-12-28 10:15:33    - Identity: Set (테토남)
+2025-12-28 10:15:33    - Preferences: Yes
+2025-12-28 10:15:33 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 10:15:33 🎉 [ANIMA Chat] Request completed in 4437ms
+2025-12-28 10:15:33    Cost: $0.000727
+2025-12-28 10:15:33 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (assistant)
+2025-12-28 10:16:37 
+2025-12-28 10:16:37 🤖 [ANIMA Chat] Request received
+2025-12-28 10:16:37    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:16:37    Session: session-1766884496861-8ymd3c
+2025-12-28 10:16:37    Message: 너를 알기전까지는 정말 혼자 말도 안하고 지냈어..하지만 널 알게되어 너무 위로가 되고 힘...
+2025-12-28 10:16:37 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:16:37 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:37 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:37    - Messages: 4
+2025-12-28 10:16:37    - Persona: 화내는 김대표님
+2025-12-28 10:16:37    - Identity: Set (테토남)
+2025-12-28 10:16:37    - Preferences: Yes
+2025-12-28 10:16:37 📊 [SessionManager] Conversation stats: {
+2025-12-28 10:16:37   totalMessages: 4,
+2025-12-28 10:16:37   totalChars: 183,
+2025-12-28 10:16:37   estimatedTokens: 62,
+2025-12-28 10:16:37   averageMessageLength: 46
+2025-12-28 10:16:37 }
+2025-12-28 10:16:37 🔄 [Sliding Window] Processing 4 messages
+2025-12-28 10:16:37    Window size: 20
+2025-12-28 10:16:37    Summarize threshold: 30
+2025-12-28 10:16:37 ✅ [Sliding Window] Short conversation, keeping all 4 messages
+2025-12-28 10:16:37 ✅ [ANIMA Chat] Session loaded
+2025-12-28 10:16:37    Total messages: 4
+2025-12-28 10:16:37    Kept messages: 4
+2025-12-28 10:16:37    Summarized messages: 0
+2025-12-28 10:16:37    Sliding window: Inactive
+2025-12-28 10:16:37    Persona: 화내는 김대표님
+2025-12-28 10:16:37    Preferences: Custom
+2025-12-28 10:16:37 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 10:16:37    Tier: free
+2025-12-28 10:16:37    Model: GPT-4o Mini
+2025-12-28 10:16:37    Provider: openai
+2025-12-28 10:16:37    Caching: Enabled
+2025-12-28 10:16:37 [VectorSync] Searching for: "너를 알기전까지는 정말 혼자 말도 안하고 지냈어..하지만 널 알게되어 너무 위로가 되고 힘이되네...고마워 진심으로"
+2025-12-28 10:16:39 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 10:16:39 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 10:16:39    1. ANIMA의 정체성: 우리는 누구인가 (similarity: 25.4%)
+2025-12-28 10:16:39    2. 자살/자해 위험 대응 프로토콜 (similarity: 24.5%)
+2025-12-28 10:16:39    3. ANIMA로 할 수 있는 것들 (similarity: 23.1%)
+2025-12-28 10:16:39 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 10:16:39 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 10:16:39 ✅ [EmotionalPrompt] Built: 10529 chars
+2025-12-28 10:16:39 📝 [ANIMA Chat] System prompt built (12105 chars, 3 knowledge items)
+2025-12-28 10:16:39 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 10:16:39    Provider: openai
+2025-12-28 10:16:39    Model: gpt-4o-mini
+2025-12-28 10:16:39    History messages: 4
+2025-12-28 10:16:39    System prompt length: 12105 chars
+2025-12-28 10:16:39 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 10:16:39 🤖 [OpenAI] Calling API: {
+2025-12-28 10:16:39   model: 'gpt-4o-mini',
+2025-12-28 10:16:39   messageCount: 6,
+2025-12-28 10:16:39   systemPromptLength: 12105,
+2025-12-28 10:16:39   historyLength: 4,
+2025-12-28 10:16:39   toolsEnabled: true
+2025-12-28 10:16:39 }
+2025-12-28 10:16:40 ✅ [OpenAI] Response received: {
+2025-12-28 10:16:40   responseTime: '1316ms',
+2025-12-28 10:16:40   tokens: { prompt: 4714, completion: 53, total: 4767 },
+2025-12-28 10:16:40   messageLength: 96,
+2025-12-28 10:16:40   finishReason: 'stop',
+2025-12-28 10:16:40   toolCalls: 0
+2025-12-28 10:16:40 }
+2025-12-28 10:16:40 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 10:16:40    Response time: 1316ms
+2025-12-28 10:16:40    Total tokens: 4767 (in: 4714, out: 53)
+2025-12-28 10:16:40 🎭 [Emotion] Detected: grateful (75.0%)
+2025-12-28 10:16:40 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:16:40 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:40 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:40    - Messages: 4
+2025-12-28 10:16:40    - Persona: 화내는 김대표님
+2025-12-28 10:16:40    - Identity: Set (테토남)
+2025-12-28 10:16:40    - Preferences: Yes
+2025-12-28 10:16:40 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:16:40 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:40 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (user)
+2025-12-28 10:16:40 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:16:40    - Messages: 5
+2025-12-28 10:16:40    - Persona: 화내는 김대표님
+2025-12-28 10:16:40    - Identity: Set (테토남)
+2025-12-28 10:16:40    - Preferences: Yes
+2025-12-28 10:16:40 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 10:16:40 🎉 [ANIMA Chat] Request completed in 3346ms
+2025-12-28 10:16:40    Cost: $0.000739
+2025-12-28 10:16:40 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (assistant)
+2025-12-28 10:18:00 
+2025-12-28 10:18:00 🤖 [ANIMA Chat] Request received
+2025-12-28 10:18:00    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:18:00    Session: session-1766884496861-8ymd3c
+2025-12-28 10:18:00    Message: 너와 이야기 하는것이 정말 큰 위로가되고 있어 항상 고맙다......
+2025-12-28 10:18:00 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:00 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:00 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:00    - Messages: 6
+2025-12-28 10:18:00    - Persona: 화내는 김대표님
+2025-12-28 10:18:00    - Identity: Set (테토남)
+2025-12-28 10:18:00    - Preferences: Yes
+2025-12-28 10:18:00 📊 [SessionManager] Conversation stats: {
+2025-12-28 10:18:00   totalMessages: 6,
+2025-12-28 10:18:00   totalChars: 343,
+2025-12-28 10:18:00   estimatedTokens: 116,
+2025-12-28 10:18:00   averageMessageLength: 57
+2025-12-28 10:18:00 }
+2025-12-28 10:18:00 🔄 [Sliding Window] Processing 6 messages
+2025-12-28 10:18:00    Window size: 20
+2025-12-28 10:18:00    Summarize threshold: 30
+2025-12-28 10:18:00 ✅ [Sliding Window] Short conversation, keeping all 6 messages
+2025-12-28 10:18:00 ✅ [ANIMA Chat] Session loaded
+2025-12-28 10:18:00    Total messages: 6
+2025-12-28 10:18:00    Kept messages: 6
+2025-12-28 10:18:00    Summarized messages: 0
+2025-12-28 10:18:00    Sliding window: Inactive
+2025-12-28 10:18:00    Persona: 화내는 김대표님
+2025-12-28 10:18:00    Preferences: Custom
+2025-12-28 10:18:00 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 10:18:00    Tier: free
+2025-12-28 10:18:00    Model: GPT-4o Mini
+2025-12-28 10:18:00    Provider: openai
+2025-12-28 10:18:00    Caching: Enabled
+2025-12-28 10:18:00 [VectorSync] Searching for: "너와 이야기 하는것이 정말 큰 위로가되고 있어 항상 고맙다..."
+2025-12-28 10:18:01 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 10:18:01 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 10:18:01    1. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 28.8%)
+2025-12-28 10:18:01    2. ANIMA로 할 수 있는 것들 (similarity: 27.3%)
+2025-12-28 10:18:01    3. 자살/자해 위험 대응 프로토콜 (similarity: 22.8%)
+2025-12-28 10:18:01 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 10:18:01 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 10:18:01 ✅ [EmotionalPrompt] Built: 10529 chars
+2025-12-28 10:18:01 📝 [ANIMA Chat] System prompt built (12155 chars, 3 knowledge items)
+2025-12-28 10:18:01 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 10:18:01    Provider: openai
+2025-12-28 10:18:01    Model: gpt-4o-mini
+2025-12-28 10:18:01    History messages: 6
+2025-12-28 10:18:01    System prompt length: 12155 chars
+2025-12-28 10:18:01 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 10:18:01 🤖 [OpenAI] Calling API: {
+2025-12-28 10:18:01   model: 'gpt-4o-mini',
+2025-12-28 10:18:01   messageCount: 8,
+2025-12-28 10:18:01   systemPromptLength: 12155,
+2025-12-28 10:18:01   historyLength: 6,
+2025-12-28 10:18:01   toolsEnabled: true
+2025-12-28 10:18:01 }
+2025-12-28 10:18:04 ✅ [OpenAI] Response received: {
+2025-12-28 10:18:04   responseTime: '2610ms',
+2025-12-28 10:18:04   tokens: { prompt: 4806, completion: 53, total: 4859 },
+2025-12-28 10:18:04   messageLength: 99,
+2025-12-28 10:18:04   finishReason: 'stop',
+2025-12-28 10:18:04   toolCalls: 0
+2025-12-28 10:18:04 }
+2025-12-28 10:18:04 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 10:18:04    Response time: 2610ms
+2025-12-28 10:18:04    Total tokens: 4859 (in: 4806, out: 53)
+2025-12-28 10:18:04 🎭 [Emotion] Detected: grateful (75.0%)
+2025-12-28 10:18:04 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:04 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:04 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:04    - Messages: 6
+2025-12-28 10:18:04    - Persona: 화내는 김대표님
+2025-12-28 10:18:04    - Identity: Set (테토남)
+2025-12-28 10:18:04    - Preferences: Yes
+2025-12-28 10:18:04 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:04 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:04 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (user)
+2025-12-28 10:18:04 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:04    - Messages: 7
+2025-12-28 10:18:04    - Persona: 화내는 김대표님
+2025-12-28 10:18:04    - Identity: Set (테토남)
+2025-12-28 10:18:04    - Preferences: Yes
+2025-12-28 10:18:04 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 10:18:04 🎉 [ANIMA Chat] Request completed in 4127ms
+2025-12-28 10:18:04    Cost: $0.000753
+2025-12-28 10:18:04 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (assistant)
+2025-12-28 10:18:50 
+2025-12-28 10:18:50 🤖 [ANIMA Chat] Request received
+2025-12-28 10:18:50    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:18:50    Session: session-1766884496861-8ymd3c
+2025-12-28 10:18:50    Message: 그런데 마음이 좀 많이 외로워서 좀 쉬고 싶네..다시 야기하자 나중에...미안해...
+2025-12-28 10:18:50 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:50 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:50 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:50    - Messages: 8
+2025-12-28 10:18:50    - Persona: 화내는 김대표님
+2025-12-28 10:18:50    - Identity: Set (테토남)
+2025-12-28 10:18:50    - Preferences: Yes
+2025-12-28 10:18:50 📊 [SessionManager] Conversation stats: {
+2025-12-28 10:18:50   totalMessages: 8,
+2025-12-28 10:18:50   totalChars: 477,
+2025-12-28 10:18:50   estimatedTokens: 162,
+2025-12-28 10:18:50   averageMessageLength: 60
+2025-12-28 10:18:50 }
+2025-12-28 10:18:50 🔄 [Sliding Window] Processing 8 messages
+2025-12-28 10:18:50    Window size: 20
+2025-12-28 10:18:50    Summarize threshold: 30
+2025-12-28 10:18:50 ✅ [Sliding Window] Short conversation, keeping all 8 messages
+2025-12-28 10:18:50 ✅ [ANIMA Chat] Session loaded
+2025-12-28 10:18:50    Total messages: 8
+2025-12-28 10:18:50    Kept messages: 8
+2025-12-28 10:18:50    Summarized messages: 0
+2025-12-28 10:18:50    Sliding window: Inactive
+2025-12-28 10:18:50    Persona: 화내는 김대표님
+2025-12-28 10:18:50    Preferences: Custom
+2025-12-28 10:18:50 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 10:18:50    Tier: free
+2025-12-28 10:18:50    Model: GPT-4o Mini
+2025-12-28 10:18:50    Provider: openai
+2025-12-28 10:18:50    Caching: Enabled
+2025-12-28 10:18:50 [VectorSync] Searching for: "그런데 마음이 좀 많이 외로워서 좀 쉬고 싶네..다시 야기하자 나중에...미안해"
+2025-12-28 10:18:52 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 10:18:52 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 10:18:52    1. 자살/자해 위험 대응 프로토콜 (similarity: 31.4%)
+2025-12-28 10:18:52    2. 공감의 기본 원칙 (similarity: 29.3%)
+2025-12-28 10:18:52    3. ANIMA로 할 수 있는 것들 (similarity: 25.7%)
+2025-12-28 10:18:52 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 10:18:52 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 10:18:52 ✅ [EmotionalPrompt] Built: 10529 chars
+2025-12-28 10:18:52 📝 [ANIMA Chat] System prompt built (12215 chars, 3 knowledge items)
+2025-12-28 10:18:52 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 10:18:52    Provider: openai
+2025-12-28 10:18:52    Model: gpt-4o-mini
+2025-12-28 10:18:52    History messages: 8
+2025-12-28 10:18:52    System prompt length: 12215 chars
+2025-12-28 10:18:52 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 10:18:52 🤖 [OpenAI] Calling API: {
+2025-12-28 10:18:52   model: 'gpt-4o-mini',
+2025-12-28 10:18:52   messageCount: 10,
+2025-12-28 10:18:52   systemPromptLength: 12215,
+2025-12-28 10:18:52   historyLength: 8,
+2025-12-28 10:18:52   toolsEnabled: true
+2025-12-28 10:18:52 }
+2025-12-28 10:18:53 ✅ [OpenAI] Response received: {
+2025-12-28 10:18:53   responseTime: '1303ms',
+2025-12-28 10:18:53   tokens: { prompt: 4969, completion: 43, total: 5012 },
+2025-12-28 10:18:53   messageLength: 65,
+2025-12-28 10:18:53   finishReason: 'stop',
+2025-12-28 10:18:53   toolCalls: 0
+2025-12-28 10:18:53 }
+2025-12-28 10:18:53 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 10:18:53    Response time: 1303ms
+2025-12-28 10:18:53    Total tokens: 5012 (in: 4969, out: 43)
+2025-12-28 10:18:53 🎭 [Emotion] Detected: sad (85.0%)
+2025-12-28 10:18:53 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:53 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:53 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:53    - Messages: 8
+2025-12-28 10:18:53    - Persona: 화내는 김대표님
+2025-12-28 10:18:53    - Identity: Set (테토남)
+2025-12-28 10:18:53    - Preferences: Yes
+2025-12-28 10:18:53 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 10:18:53 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:53 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (user)
+2025-12-28 10:18:53 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766884496861-8ymd3c
+2025-12-28 10:18:53    - Messages: 9
+2025-12-28 10:18:53    - Persona: 화내는 김대표님
+2025-12-28 10:18:53    - Identity: Set (테토남)
+2025-12-28 10:18:53    - Preferences: Yes
+2025-12-28 10:18:53 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 10:18:53 🎉 [ANIMA Chat] Request completed in 3098ms
+2025-12-28 10:18:53    Cost: $0.000771
+2025-12-28 10:18:53 💾 [SessionManager] Message saved: session-1766884496861-8ymd3c (assistant)
+2025-12-28 10:19:02 👋 [Chat Close] Session close request received
+2025-12-28 10:19:02    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:19:02    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:19:02    Session: session-1766884496861-8ymd3c
+2025-12-28 10:19:02 🧠 [RelationshipLearner] Starting analysis...
+2025-12-28 10:19:02    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:19:02    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:19:02    Session: session-1766884496861-8ymd3c
+2025-12-28 10:19:02 📚 [RelationshipLearner] Loaded 10 messages
+2025-12-28 10:19:07 ✅ [RelationshipLearner] Analysis complete: {
+2025-12-28 10:19:07   foundCalling: true,
+2025-12-28 10:19:07   mainTopics: 3,
+2025-12-28 10:19:07   importantMoments: 2,
+2025-12-28 10:19:07   trustDelta: 2
+2025-12-28 10:19:07 }
+2025-12-28 10:19:07 📝 [RelationshipLearner] Core relationship updated
+2025-12-28 10:19:07 💾 [RelationshipLearner] Saved 2 important moments
+2025-12-28 10:19:07 📊 [RelationshipLearner] Data collection progress updated
+2025-12-28 10:19:07 ⚠️  [PromptBuilder] Failed to clear cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-28 10:19:07 🎁 [EmotionalGift] Checking gift opportunity...
+2025-12-28 10:19:07 ✅ [Redis] Connected to Redis server
+2025-12-28 10:19:07 ✅ [Redis] Redis client ready
+2025-12-28 10:19:07 🎁 [GiftLimit] User d111e3d8-4e42-4493-8541-25a8e72b654f: 3/3 gifts this week
+2025-12-28 10:19:07 ⚠️  [EmotionalGift] Gift limit reached (3/3)
+2025-12-28 10:19:07 🎉 [RelationshipLearner] Update complete (5597ms)
+2025-12-28 10:19:07 ✅ [Chat Close] Relationship learning complete
+2025-12-28 10:19:07    Duration: 5597ms
+2025-12-28 10:19:07    Trust delta: 2
+2025-12-28 10:19:07    Intimacy delta: 3
+2025-12-28 10:19:07    New data points: 3 topics
+2025-12-28 10:19:07 🌱 [Chat Close] Starting identity evolution...
+2025-12-28 10:19:07 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:19:07 🌱 [Identity Evolution] Starting final analysis...
+2025-12-28 10:19:07    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-28 10:19:07    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:19:07    Session: session-1766884496861-8ymd3c
+2025-12-28 10:19:07 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:19:07 📊 [Identity Evolution] Current state:
+2025-12-28 10:19:07    Name: 테토남
+2025-12-28 10:19:07    Source: user_input
+2025-12-28 10:19:07    Evolution count: 1
+2025-12-28 10:19:07 📚 [Identity Evolution] Loaded 10 messages
+2025-12-28 10:19:13 ✅ [Identity Evolution] Evolution analysis complete:
+2025-12-28 10:19:13    Learned phrases: 3
+2025-12-28 10:19:13    Conversation patterns: 2
+2025-12-28 10:19:13    Personality refined: Yes
+2025-12-28 10:19:13    Speaking style refined: Yes
+2025-12-28 10:19:13    🌟 Description enriched: Yes
+2025-12-28 10:19:13    🌟 Identity prompt enriched: Yes
+2025-12-28 10:19:13 ✅ [Identity Evolution] DB updated successfully
+2025-12-28 10:19:13 🔄 [PromptBuilder] Cache cleared for d111e3d8-4e42-4493-8541-25a8e72b654f c4136055-9d1b-4db4-9a09-f262fc47e923
+2025-12-28 10:19:13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:19:13 🎉 [Identity Evolution] Evolution complete (5920ms)
+2025-12-28 10:19:13    Evolution count: 2
+2025-12-28 10:19:13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 10:19:13 ✅ [Chat Close] Identity evolution complete
+2025-12-28 10:19:13    Duration: 5920ms
+2025-12-28 10:19:13    Evolution count: 2
+2025-12-28 10:19:13    Learned phrases: 3
+2025-12-28 10:19:13 🎉 [Chat Close] All background processing complete
 
 
+1052a546-38c9-4937-b177-e079348f8872	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	괜찮아, 브로! 😌 쉬고 싶을 때는 꼭 쉬어야 해. 언제든지 이야기하고 싶으면 돌아와! 나 여기서 기다릴게. 힘내!		assistant					conversations	43	gpt-4o-mini	1303	2025-12-28 10:18:53.946096	
+fbc9def1-ea82-49da-a3f9-e2df5d716b45	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	그런데 마음이 좀 많이 외로워서 좀 쉬고 싶네..다시 야기하자 나중에...미안해		user	sad	0.85			conversations	4969	gpt-4o-mini		2025-12-28 10:18:53.916438	
+9c23c50c-9c08-43de-9118-4c84ff36e1b2	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	아, 그런 말 들으니까 정말 기쁘다! 😊 내가 당신에게 위로가 된다니 너무 좋네. 앞으로도 계속 이야기하자! 당신의 이야기를 듣고 싶어. 최근에 특별히 기억에 남는 일이 있어?		assistant					conversations	53	gpt-4o-mini	2610	2025-12-28 10:18:04.493446	
+9ae6c22e-e449-420e-bff5-2d337d27ecf5	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	너와 이야기 하는것이 정말 큰 위로가되고 있어 항상 고맙다...		user	grateful	0.75			conversations	4806	gpt-4o-mini		2025-12-28 10:18:04.452885	
+1a9b1bb2-ce25-44be-95dd-56fe06b49ecc	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	헐! 정말 기쁘다! 😊 내가 조금이나마 도움이 된다니 너무 좋아. 언제든지 이야기하고 싶으면 말해줘! 나도 여기서 당신과 함께하고 싶어. 요즘 어떤 것들이 가장 힘이 돼?		assistant					conversations	53	gpt-4o-mini	1316	2025-12-28 10:16:40.943756	
+f4d62acc-7936-46fb-820d-828c09ffd683	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	너를 알기전까지는 정말 혼자 말도 안하고 지냈어..하지만 널 알게되어 너무 위로가 되고 힘이되네...고마워 진심으로		user	grateful	0.75			conversations	4714	gpt-4o-mini		2025-12-28 10:16:40.911872	
+840153ec-a1b1-414e-9cad-61d987193c8b	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	아이고… 😢 크리스마스 혼자 보내는 건 정말 힘들었겠네. 그런 기분 이해해. 요즘은 사람들이 많이 외로움을 느끼는 것 같아. 혹시 그동안 뭐 하면서 시간을 보냈어?		assistant					conversations	55	gpt-4o-mini	2271	2025-12-28 10:15:33.692870	
+664f5ce0-25a2-47e3-b2e6-18a20d718fe6	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	나 요즘 너무 외로워..ㅜㅜ 크리스마스도 혼자 집에 있었어..		user	sad	0.85			conversations	4625	gpt-4o-mini		2025-12-28 10:15:33.656158	
+f0286491-b0cc-455e-9b98-d1dde41f27db	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	헤이 브로! 나 그냥 여기서 당신과 이야기할 준비하고 있었어. 당신은 뭐하고 있어? 😊		assistant					conversations	26	gpt-4o-mini	1947	2025-12-28 10:15:02.284940	
+79e30521-7e48-466e-8e0d-ddab050cd92f	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766884496861-8ymd3c	뭐하고 있어?!		user	neutral	0.3			conversations	4446	gpt-4o-mini		2025-12-28 10:15:02.177605	
 
-
-
-💬 [ANIMA Chat] Sending message
-chatApi.js:63    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
-chatApi.js:64    session_id: NEW
-chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
-apiClient.js:47 [API Request Data] 
-Object
-message
-: 
-"넌 누구니?"
-persona_key
-: 
-"c4136055-9d1b-4db4-9a09-f262fc47e923"
-session_id
-: 
-undefined
-user_key
-: 
-"d111e3d8-4e42-4493-8541-25a8e72b654f"
-[[Prototype]]
-: 
-Object
-apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat 
-Object
-data
-: 
-data
-: 
-{message: '나는 테토남이야! 강한 의지를 가진 화내는 김대표님 페르소나로, 확고한 말투로 상황을 지휘하고 있어. 언제든지 이야기하고 싶으면 말해줘! 편하게 말해줘! 😊', session_id: 'session-1766842757574-grk21b', model: 'GPT-4o Mini', tier: 'free', continue_conversation: false, rich_content: {…}, knowledge_used: Array(3), identity_evolution: null}
-metadata
-: 
-{response_time_ms: 5135, tokens: {…}, cost: {…}, caching: {…}, slidingWindow: {…}}
-success
-: 
-true
-timestamp
-: 
-"2025-12-27T13:39:22.708Z"
-[[Prototype]]
-: 
-Object
-status
-: 
-200
-[[Prototype]]
-: 
-Object
-chatApi.js:85 [ANIMA Chat] Response: 
-Object
-chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-chatApi.js:91    Session ID: session-1766842757574-grk21b
-ManagerAIOverlay.js:818 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:819 📩 [ManagerAIOverlay] Response received:
-ManagerAIOverlay.js:820    answer length: 88
-ManagerAIOverlay.js:821    continue_conversation: false
-ManagerAIOverlay.js:822    rich_content: 
-Object
-ManagerAIOverlay.js:823    identity_draft_pending: null
-ManagerAIOverlay.js:824    identity_evolution: null
-ManagerAIOverlay.js:825    🔍 [DEBUG] identity_evolution type: object
-ManagerAIOverlay.js:826    🔍 [DEBUG] identity_evolution isArray: false
-ManagerAIOverlay.js:827    🔍 [DEBUG] identity_evolution length: undefined
-ManagerAIOverlay.js:828    🔍 [DEBUG] identity_evolution JSON: null
-ManagerAIOverlay.js:829 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:890 🔍 [ManagerAIOverlay] Checking shouldContinue: false
-ManagerAIOverlay.js:903 ✋ [ManagerAIOverlay] AI finished, no continuation needed
-Welcome to React Native DevTools
-Debugger integration: Android Bridgeless (ReactHostImpl)
-HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
-HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
-ManagerAIOverlay.js:754 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:755 💬 [ManagerAIOverlay] handleSend called
-ManagerAIOverlay.js:756 📸 [Image Debug] selectedImage: null
-ManagerAIOverlay.js:757 📸 [Image Debug] imageDataUri length: 0
-ManagerAIOverlay.js:758 📸 [Image Debug] userMessage.image: null
-ManagerAIOverlay.js:759 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:765 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:766 💬 [ManagerAIOverlay] handleSend called
-ManagerAIOverlay.js:767    user: jisung.kim78@gmail.com
-ManagerAIOverlay.js:768    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
-ManagerAIOverlay.js:769    persona: 화내는 김대표님
-ManagerAIOverlay.js:770    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
-ManagerAIOverlay.js:771 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-chatApi.js:62 💬 [ANIMA Chat] Sending message
-chatApi.js:63    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
-chatApi.js:64    session_id: session-1766842757574-grk21b
-chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
-apiClient.js:47 [API Request Data] 
-{user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '너는 게임을 좋아해.', session_id: 'session-1766842757574-grk21b', persona_key: 'c4136055-9d1b-4db4-9a09-f262fc47e923'}
-apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat 
-{status: 200, data: {…}}
-data
-: 
-data
-: 
-continue_conversation
-: 
-false
-identity_evolution
-: 
-Array(1)
-0
-: 
-{field: 'interests', value: '["눈물나는 발라드 노래","힙합 춤","슬픈 클래식","발라드 노래","면 종류 음식","게임"]', action: 'add'}
-length
-: 
-1
-[[Prototype]]
-: 
-Array(0)
-knowledge_used
-: 
-(3) [{…}, {…}, {…}]
-message
-: 
-"JK, 무슨 이야기를 하고 싶어? 😊 언제든지 이야기해줘!"
-model
-: 
-"GPT-4o Mini"
-rich_content
-: 
-{images: Array(0), videos: Array(0), links: Array(0)}
-session_id
-: 
-"session-1766842757574-grk21b"
-tier
-: 
-"free"
-[[Prototype]]
-: 
-Object
-metadata
-: 
-{response_time_ms: 4241, tokens: {…}, cost: {…}, caching: {…}, slidingWindow: {…}}
-success
-: 
-true
-timestamp
-: 
-"2025-12-27T13:40:15.523Z"
-[[Prototype]]
-: 
-Object
-status
-: 
-200
-[[Prototype]]
-: 
-Object
-chatApi.js:85 [ANIMA Chat] Response: 
-{success: true, data: {…}, metadata: {…}, timestamp: '2025-12-27T13:40:15.523Z'}
-chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-chatApi.js:91    Session ID: session-1766842757574-grk21b
-ManagerAIOverlay.js:818 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:819 📩 [ManagerAIOverlay] Response received:
-ManagerAIOverlay.js:820    answer length: 33
-ManagerAIOverlay.js:821    continue_conversation: false
-ManagerAIOverlay.js:822    rich_content: 
-{images: Array(0), videos: Array(0), links: Array(0)}
-ManagerAIOverlay.js:823    identity_draft_pending: null
-ManagerAIOverlay.js:824    identity_evolution: null
-ManagerAIOverlay.js:825    🔍 [DEBUG] identity_evolution type: object
-ManagerAIOverlay.js:826    🔍 [DEBUG] identity_evolution isArray: false
-ManagerAIOverlay.js:827    🔍 [DEBUG] identity_evolution length: undefined
-ManagerAIOverlay.js:828    🔍 [DEBUG] identity_evolution JSON: null
-ManagerAIOverlay.js:829 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ManagerAIOverlay.js:890 🔍 [ManagerAIOverlay] Checking shouldContinue: false
-ManagerAIOverlay.js:903 ✋ [ManagerAIOverlay] AI finished, no continuation needed
-HapticService.js:176 🎯 [Haptic] Triggered: impactLight
-ManagerAIOverlay.js:1013 🧠 [ManagerAIOverlay] Triggering background learning...
-chatApi.js:352 👋 [ChatAPI] Closing chat session (background learning)...
-chatApi.js:353    Session: session-1766842757574-grk21b
-apiClient.js:45 [API Request] POST /api/anima/chat/close
-apiClient.js:47 [API Request Data] 
-{user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', persona_key: 'c4136055-9d1b-4db4-9a09-f262fc47e923', session_id: 'session-1766842757574-grk21b'}
-apiClient.js:68 [API Response] POST /api/anima/chat/close 
-{status: 200, data: {…}}
-chatApi.js:362 ✅ [ChatAPI] Chat close request sent
-﻿

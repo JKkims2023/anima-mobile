@@ -1293,7 +1293,7 @@ const ManagerAIOverlay = ({
       /> */}
       
       {/* 🎁 Emotional Gift Modal */}
-      {showGiftModal && giftData && (
+      {false && (
         <Modal
           visible={showGiftModal}
           transparent={true}

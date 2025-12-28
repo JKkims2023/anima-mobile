@@ -90,7 +90,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     const currentRouteName = state.routes[state.index]?.name || 'Home';
     const contextMap = {
       'Home': 'home',
-      'History': 'history',
+   //   'History': 'history',
+      'Memory': 'memory',
       'Music': 'music',
       'Settings': 'settings',
       'Persona': 'home', // Fallback to home context
@@ -101,16 +102,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   
   // ✅ Handle Center AI Button Press
   const handleCenterButtonPress = () => {
-    /*
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💙 [CenterAIButton] Pressed');
-    console.log('📋 [CenterAIButton] Current Tab:', state.routes[state.index]?.name);
-    console.log('📋 [CenterAIButton] Context:', getCurrentContext());
-    console.log('🎭 [CenterAIButton] selectedPersona:', selectedPersona ? selectedPersona.persona_name : 'null');
-    console.log('🔑 [CenterAIButton] persona_key:', selectedPersona?.persona_key);
-    console.log('🧠 [CenterAIButton] identity_name:', selectedPersona?.identity_name);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    */
+    
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
@@ -130,11 +122,19 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       label: t('navigation.home') || '홈',
       route: 'Home', // Navigate to Home (SAGE)
     },
+    /*
     { 
       key: 'History',
       icon: 'time-outline',
       label: t('navigation.history') || '히스토리',
       route: 'History', // Navigate to History screen
+    },
+    */
+    { 
+      key: 'Memory',
+      icon: 'gift-sharp',
+      label: t('navigation.memory') || '메모리',
+      route: 'Memory', // Navigate to Memory screen
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
     { 

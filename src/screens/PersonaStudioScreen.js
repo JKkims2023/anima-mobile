@@ -778,63 +778,6 @@ const PersonaStudioScreen = () => {
     setIsCategorySelectionOpen(true);
   }, []);
   
-  const handleCategorySelect = useCallback(async (newCategoryType) => {
-    if (!settingsPersona || !user?.user_key) return;
-    
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 🔄 Updating persona category:', {
-        persona_key: settingsPersona.persona_key,
-        old_category: settingsPersona.category_type,
-        new_category: newCategoryType,
-      });
-    }
-    
-    try {
-      const result = await updatePersonaBasic(
-        settingsPersona.persona_key,
-        user.user_key,
-        null, // name not changed
-        newCategoryType
-      );
-
-      if (result.success) {
-        // ✅ UPDATE LOCAL ARRAY ONLY (No re-rendering!)
-        setPersonas(prev => prev.map(p => 
-          p.persona_key === settingsPersona.persona_key
-            ? { ...p, category_type: newCategoryType }
-            : p
-        ));
-        
-        // Update currentPersona if it's the one being edited
-        if (currentPersona?.persona_key === settingsPersona.persona_key) {
-          setCurrentPersona(prev => ({ ...prev, category_type: newCategoryType }));
-        }
-        
-        // ✅ Close both sheets after successful update
-        setIsCategorySelectionOpen(false);
-        setIsPersonaSettingsOpen(false);
-        
-        showToast({
-          type: 'success',
-          message: t('persona.settings.category_changed'),
-          emoji: '✅',
-        });
-        
-        if (__DEV__) {
-          console.log('[PersonaStudioScreen] ✅ Category changed (local update only)');
-        }
-      } else {
-        throw new Error(result.message || 'Update failed');
-      }
-    } catch (error) {
-      console.error('[PersonaStudioScreen] ❌ Category change error:', error);
-      showToast({
-        type: 'error',
-        message: t('errors.generic'),
-        emoji: '⚠️',
-      });
-    }
-  }, [settingsPersona, currentPersona, user, setPersonas, showToast, t]);
   
   // ⭐ Internal function: Actual video conversion logic
   const handlePersonaVideoConvertInternal = useCallback(async (persona) => {

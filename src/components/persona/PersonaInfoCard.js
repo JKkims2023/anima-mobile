@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext';
 import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress bar color
 import FastImage from 'react-native-fast-image';
+import PersonaSettingsSheet from './PersonaSettingsSheet';
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 /**
  * PersonaInfoCard Component
@@ -42,6 +43,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   const { t } = useTranslation();
   const { showAlert } = useAnima();
   const { currentTheme: theme } = useTheme(); // ⭐ NEW: For progress bar color
+  const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
   // ⭐ NEW: Identity sheet state
   const [showIdentitySheet, setShowIdentitySheet] = useState(false);
@@ -79,7 +81,9 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
       onFavoriteToggle(persona);
     }
   };
-  
+  const handleBrainSettingsPress = () => {
+    setShowIdentitySheet(true);
+  };
   // ✅ Build description text
   const buildDescription = () => {
     const parts = [];
@@ -117,7 +121,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
 
     // ⭐ NEW: Open identity sheet
     HapticService.medium();
-    setShowIdentitySheet(true);
+    handleChatPress(true);
   };
 
   // ⭐ NEW: Handle identity save
@@ -212,7 +216,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
         />
         {/* Favorite Icon (⭐ ALL personas including default) */}
         <TouchableOpacity
-            onPress={handleFavoritePress}
+            onPress={handleBrainSettingsPress}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
@@ -220,7 +224,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             <IconBrain 
               name={persona?.identity_description != null ? 'brain' : 'brain'} 
               size={scale(60)} 
-              color={persona?.favorite_yn === 'Y' ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
+              color={persona?.identity_description != null ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
             />
           </TouchableOpacity>
         {/* Left: Info */}

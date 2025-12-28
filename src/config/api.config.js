@@ -93,6 +93,8 @@ export const MEMORY_ENDPOINTS = {
   SETTINGS: '/api/memory/settings',
   SHARE: '/api/memory/share',
   TOGGLE_PUBLIC: '/api/memory/toggle-public',
+  LIST: '/api/memory/gift',
+  DELETE: '/api/memory/delete-gift', // 🆕 Delete emotional gift
 };
 
 /**
@@ -199,6 +201,7 @@ export const MUSIC_ENDPOINTS = {
   DELETE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/delete',
   FAVORITE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/music/favorite',
 };
+
 
 /**
  * FCM (Firebase Cloud Messaging) Endpoints

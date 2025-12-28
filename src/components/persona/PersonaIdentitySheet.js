@@ -6,7 +6,6 @@
  * AI 자아 설정 바텀 시트
  * 
  * Features (Phase 1):
- * - Enable/Disable identity toggle
  * - User input mode with Modal Overlay (자음 분리 방지)
  * 
  * Features (Phase 2):
@@ -100,22 +99,9 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
       );
 
       if (response.data.success) {
-        const data = response.data.data;
-        const enabled = data.identity_enabled === 'Y';
-        const name = data.identity_name || '';
-        const content = data.identity_content || '';
-
-        setIdentityEnabled(enabled);
-        setIdentityName(name);
-        setIdentityContent(content);
-
-        // Save original data for change detection
-        setOriginalData({
-          identityEnabled: enabled,
-          identityName: name,
-          identityContent: content,
-        });
+        
       }
+
     } catch (error) {
       console.error('[PersonaIdentitySheet] Failed to load identity:', error);
       Alert.alert(
@@ -387,33 +373,6 @@ const PersonaIdentitySheet = ({ visible, onClose, persona, onSave }) => {
           </View>
         ) : (
           <>
-            {/* Description */}
-            <View style={styles.section}>
-              <CustomText type="middle" style={[styles.description, { color: currentTheme.textSecondary }]}>
-                {t('persona.identity.description', 
-                  '자아 설정을 활성화하면, 이 AI가 설정한 인물처럼 말하고 행동합니다.')}
-              </CustomText>
-            </View>
-
-            {/* Enable/Disable Switch */}
-            <View style={[styles.section, styles.switchContainer]}>
-              <View style={styles.switchLeft}>
-                <CustomText type="middle" bold>
-                  {t('persona.identity.enable', '자아 설정 활성화')}
-                </CustomText>
-                <CustomText type="small" style={{ color: currentTheme.textSecondary, marginTop: scale(4) }}>
-                  {identityEnabled
-                    ? (t('persona.identity.enabled_hint', 'AI가 설정한 자아로 작동합니다'))
-                    : (t('persona.identity.disabled_hint', 'AI가 기본 페르소나로 작동합니다'))}
-                </CustomText>
-              </View>
-              <Switch
-                value={identityEnabled}
-                onValueChange={handleToggleEnable}
-                trackColor={{ false: '#767577', true: currentTheme.mainColor }}
-                thumbColor={identityEnabled ? '#ffffff' : '#f4f3f4'}
-              />
-            </View>
 
             {/* Identity Input (only when enabled) */}
             {identityEnabled && (
