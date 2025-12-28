@@ -190,9 +190,14 @@ const MemoryScreen = () => {
     console.log('🎁 [MemoryScreen] Memory pressed:', memory);
     console.log('🎁 [MemoryScreen] playerSheetRef.current:', playerSheetRef.current);
     
-    // If memory is still creating, check status
-    if (memory.image_status === 'creating' || memory.image_status === 'pending' || memory.image_status === 'processing') {
-      console.log('⚠️ [MemoryScreen] Memory still creating, skipping...');
+    // Check if gift is still being created (based on gift_type)
+    const isCreating = memory.gift_type === 'music'
+      ? ['creating', 'pending', 'processing'].includes(memory.music_status)
+      : ['creating', 'pending', 'processing'].includes(memory.image_status);
+    
+    if (isCreating) {
+      console.log('⚠️ [MemoryScreen] Gift still creating, skipping...');
+      console.log(`   Type: ${memory.gift_type}, Status: ${memory.gift_type === 'music' ? memory.music_status : memory.image_status}`);
       return;
     }
 
@@ -275,16 +280,17 @@ const MemoryScreen = () => {
   // Render music item
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderItem = ({ item }) => {
-    // ⭐ NEW: Determine gift type and status
+    // ⭐ Determine gift type and status
     const giftType = item.gift_type || 'image';
     const isImageGift = giftType === 'image';
     const isMusicGift = giftType === 'music';
     
-    const isCreating = isImageGift
-      ? (item.image_status === 'creating' || item.image_status === 'pending' || item.image_status === 'processing')
-      : (item.music_status === 'generating' || item.music_status === 'pending');
+    // ⭐ Check if gift is still being created (consistent with handleMemoryPress)
+    const isCreating = isMusicGift
+      ? ['creating', 'pending', 'processing'].includes(item.music_status)
+      : ['creating', 'pending', 'processing'].includes(item.image_status);
     
-    // ⭐ NEW: Use different images based on gift type
+    // ⭐ Use different images based on gift type
     const displayImageUrl = isMusicGift ? item.persona_url : item.image_url;
      
     return (

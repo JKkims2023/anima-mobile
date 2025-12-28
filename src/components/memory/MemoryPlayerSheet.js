@@ -282,13 +282,13 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   // ⭐ Don't return null - this breaks ref forwarding
   // Instead, render an empty BottomSheet that can be opened later
   
-  if (!memory) {
+  if (false) {
     // Render empty BottomSheet for ref forwarding
     return (
       <CustomBottomSheet
         ref={bottomSheetRef}
         snapPoints={['90%']}
-        title={'From.' + memory.persona_name}
+        title={'From.' + memory?.persona_name}
         onClose={handleClose}
         buttons={[]}
         contentContainerStyle={styles.contentContainer}
@@ -389,7 +389,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             pointerEvents="none"
           >
             <BackgroundEffect 
-              effect={memory.background_effect} 
+              type={memory.background_effect}
               isActive={imageLoaded} 
             />
           </View>
@@ -421,7 +421,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             pointerEvents="none"
           >
             <ActiveEffect 
-              effect={memory.active_effect} 
+              type={memory.active_effect}
               isActive={imageLoaded}
             />
           </View>

@@ -208,6 +208,12 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
         // ⭐ New: Use Sparkles component for fireflies effect
         return <Sparkles key="fireflies" variant="fireflies" />;
       
+      case 'stars_floating':
+        // 🎨 NEW: Floating stars for emotional gifts (crisis comfort)
+        // Use Sparkles with fireflies variant for gentle floating stars
+        console.log('🌟 [ActiveEffect] Stars floating (gift effect)');
+        return <Sparkles key="stars_floating" variant="fireflies" />;
+      
       // ─────────────────────────────────────────────────────────────────────
       // 💬 Custom Words (Personal)
       // ─────────────────────────────────────────────────────────────────────
