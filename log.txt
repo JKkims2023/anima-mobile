@@ -1,116 +1,171 @@
-🌙 [ParticleEffect] No effect or inactive
-CustomBottomSheet.js:348 [CustomBottomSheet] onChange called, index: -1
-HapticService.js:176 🎯 [Haptic] Triggered: impactLight
-HapticService.js:176 🎯 [Haptic] Triggered: impactLight
-🎁 [MemoryScreen] Memory pressed: 
-{gift_id: '26b742ba-9f0f-4192-8d30-87000f37eb63', user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', persona_key: '573db390-a505-4c9e-809f-cc511c235cbb', conversation_session_id: 'session-1766887948569-640q4c', trigger_moment: 'User expressed deep feelings of despair and suicidal thoughts, revealing vulnerability.', ai_emotion: 'empathy', ai_message: 'JK, 당신의 고통을 듣고 마음이 아픕니다. 당신은 혼자가 아니며, 언제든지 이야기할 수 있는 공간이 여기 있습니다. 희망이 닿는 그날까지 함께하겠습니다.', gift_type: 'image', image_prompt: 'A serene landscape at twilight, with soft purples and blues, symbolizing hope and tranquility. Include gentle flowing water and blooming flowers to represent growth and renewal. The style should be calming and impressionistic.', image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png', …}
-active_effect
-: 
-"stars_floating"
-ai_emotion
-: 
-"empathy"
-ai_message
-: 
-"JK, 당신의 고통을 듣고 마음이 아픕니다. 당신은 혼자가 아니며, 언제든지 이야기할 수 있는 공간이 여기 있습니다. 희망이 닿는 그날까지 함께하겠습니다."
-background_effect
-: 
-"gradient_warm"
-conversation_session_id
-: 
-"session-1766887948569-640q4c"
-created_at
-: 
-"2025-12-28T02:13:30.000Z"
-delivered_at
-: 
-null
-generation_cost
-: 
-null
-gift_id
-: 
-"26b742ba-9f0f-4192-8d30-87000f37eb63"
-gift_type
-: 
-"image"
-image_prompt
-: 
-"A serene landscape at twilight, with soft purples and blues, symbolizing hope and tranquility. Include gentle flowing water and blooming flowers to represent growth and renewal. The style should be calming and impressionistic."
-image_status
-: 
-"completed"
-image_url
-: 
-"https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png"
-is_delivered
-: 
-0
-music_duration
-: 
-null
-music_status
-: 
-null
-music_title
-: 
-null
-music_type
-: 
-"instrumental"
-music_url
-: 
-null
-persona_key
-: 
-"573db390-a505-4c9e-809f-cc511c235cbb"
-persona_name
-: 
-"SAGE"
-persona_url
-: 
-"https://babi-cdn.logbrix.ai/babi/real/babi/5177fbb8-72a6-43b0-abc4-d7b0f08f6159_00001_.png"
-priority
-: 
-"critical"
-trigger_moment
-: 
-"User expressed deep feelings of despair and suicidal thoughts, revealing vulnerability."
-updated_at
-: 
-"2025-12-28T02:20:17.000Z"
-user_key
-: 
-"d111e3d8-4e42-4493-8541-25a8e72b654f"
-user_reaction
-: 
-null
-[[Prototype]]
-: 
-Object
+2025-12-28 20:15:13 ✅ [Sliding Window] Short conversation, keeping all 0 messages
+2025-12-28 20:15:13 ✅ [ANIMA Chat] Session loaded
+2025-12-28 20:15:13    Total messages: 0
+2025-12-28 20:15:13    Kept messages: 0
+2025-12-28 20:15:13    Summarized messages: 0
+2025-12-28 20:15:13    Sliding window: Inactive
+2025-12-28 20:15:13    Persona: 화내는 김대표님
+2025-12-28 20:15:13    Preferences: Custom
+2025-12-28 20:15:13 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-28 20:15:13    Tier: free
+2025-12-28 20:15:13    Model: GPT-4o Mini
+2025-12-28 20:15:13    Provider: openai
+2025-12-28 20:15:13    Caching: Enabled
+2025-12-28 20:15:13 [VectorSync] Searching for: "나 오늘 밥을 하나도 못먹었어...ㅜㅜ 메뉴좀 추천해줄래?!"
+2025-12-28 20:15:16 [VectorSync] Found 3 relevant knowledge items
+2025-12-28 20:15:16 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-28 20:15:16    1. 자살/자해 위험 대응 프로토콜 (similarity: 15.2%)
+2025-12-28 20:15:16    2. 사용자 관계 발전 원칙 (similarity: 13.1%)
+2025-12-28 20:15:16    3. 공감의 기본 원칙 (similarity: 12.9%)
+2025-12-28 20:15:16 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-28 20:15:16 🔥 [EmotionalPrompt] Building for 테토남
+2025-12-28 20:15:16 ✅ [EmotionalPrompt] Built: 17027 chars
+2025-12-28 20:15:16 📝 [ANIMA Chat] System prompt built (18667 chars, 3 knowledge items)
+2025-12-28 20:15:16 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-28 20:15:16    Provider: openai
+2025-12-28 20:15:16    Model: gpt-4o-mini
+2025-12-28 20:15:16    History messages: 0
+2025-12-28 20:15:16    System prompt length: 18667 chars
+2025-12-28 20:15:16 🛠️ [Function Calling] Enabled for user-created persona
+2025-12-28 20:15:16 🤖 [OpenAI] Calling API: {
+2025-12-28 20:15:16   model: 'gpt-4o-mini',
+2025-12-28 20:15:16   messageCount: 2,
+2025-12-28 20:15:16   systemPromptLength: 18667,
+2025-12-28 20:15:16   historyLength: 0,
+2025-12-28 20:15:16   toolsEnabled: true
+2025-12-28 20:15:16 }
+2025-12-28 20:15:20 ✅ [OpenAI] Response received: {
+2025-12-28 20:15:20   responseTime: '3230ms',
+2025-12-28 20:15:20   tokens: { prompt: 7070, completion: 100, total: 7170 },
+2025-12-28 20:15:20   messageLength: 0,
+2025-12-28 20:15:20   finishReason: 'tool_calls',
+2025-12-28 20:15:20   toolCalls: 1
+2025-12-28 20:15:20 }
+2025-12-28 20:15:20 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-28 20:15:20 🛠️ [Function Calling] Executing: generate_chat_content
+2025-12-28 20:15:20    Args: {
+2025-12-28 20:15:20   content_type: 'image',
+2025-12-28 20:15:20   scene_description: '이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.',
+2025-12-28 20:15:20   ai_reasoning: "User hasn't eaten anything today and needs food recommendations. Visual will help them decide.",
+2025-12-28 20:15:20   expect_announcement: true
+2025-12-28 20:15:20 }
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 🎨 [Tool] generate_chat_content
+2025-12-28 20:15:20    Type: image
+2025-12-28 20:15:20    Scene: 이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.
+2025-12-28 20:15:20    Reasoning: User hasn't eaten anything today and needs food recommendations. Visual will help them decide.
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 ✅ [Function Calling] Result: {
+2025-12-28 20:15:20   success: true,
+2025-12-28 20:15:20   content_type: 'image',
+2025-12-28 20:15:20   scene_description: '이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.',
+2025-12-28 20:15:20   ai_reasoning: "User hasn't eaten anything today and needs food recommendations. Visual will help them decide.",
+2025-12-28 20:15:20   expect_announcement: true,
+2025-12-28 20:15:20   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
+2025-12-28 20:15:20   _chat_content_generation: true
+2025-12-28 20:15:20 }
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 🎨 [Chat Content] AI requested content generation!
+2025-12-28 20:15:20    Type: image
+2025-12-28 20:15:20    Scene: 이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 🎨 [ContentGenerator] Creating request...
+2025-12-28 20:15:20    ID: f6999286-52a3-427e-9485-07d4a7e64f66
+2025-12-28 20:15:20    Type: image
+2025-12-28 20:15:20    Scene: 이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.
+2025-12-28 20:15:20 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-28 20:15:20 ✅ [ContentGenerator] Request created: f6999286-52a3-427e-9485-07d4a7e64f66
+2025-12-28 20:15:20 🎨 [ImageGenerator] Starting generation...
+2025-12-28 20:15:20    Content ID: f6999286-52a3-427e-9485-07d4a7e64f66
+2025-12-28 20:15:20    Persona Image: https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png
+2025-12-28 20:15:20    Prompt: 이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.
+2025-12-28 20:15:20 ✅ [Chat Content] Generation started: f6999286-52a3-427e-9485-07d4a7e64f66
+2025-12-28 20:15:20 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-28 20:15:20 🤖 [OpenAI] Calling API: {
+2025-12-28 20:15:20   model: 'gpt-4o-mini',
+2025-12-28 20:15:20   messageCount: 4,
+2025-12-28 20:15:20   systemPromptLength: 18667,
+2025-12-28 20:15:20   historyLength: 2,
+2025-12-28 20:15:20   toolsEnabled: true
+2025-12-28 20:15:20 }
+2025-12-28 20:15:20 ❌ [ImageGenerator] Generation failed: TypeError: fetch failed
+2025-12-28 20:15:20     at async generateImage (.next/server/app/api/anima/chat/route.js:1164:18) {
+2025-12-28 20:15:20   [cause]: [Error: getaddrinfo ENOTFOUND api.brixstream.ai] {
+2025-12-28 20:15:20     errno: -3008,
+2025-12-28 20:15:20     code: 'ENOTFOUND',
+2025-12-28 20:15:20     syscall: 'getaddrinfo',
+2025-12-28 20:15:20     hostname: 'api.brixstream.ai'
+2025-12-28 20:15:20   }
+2025-12-28 20:15:20 }
+2025-12-28 20:15:21 ✅ [OpenAI] Response received: {
+2025-12-28 20:15:21   responseTime: '1848ms',
+2025-12-28 20:15:21   tokens: { prompt: 7275, completion: 25, total: 7300 },
+2025-12-28 20:15:21   messageLength: 40,
+2025-12-28 20:15:21   finishReason: 'stop',
+2025-12-28 20:15:21   toolCalls: 0
+2025-12-28 20:15:21 }
+2025-12-28 20:15:21 ✅ [Function Calling] Final AI response generated
+2025-12-28 20:15:21 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-28 20:15:21    Response time: 3230ms
+2025-12-28 20:15:21    Total tokens: 14470 (in: 14345, out: 125)
+2025-12-28 20:15:21 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 20:15:21 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766920513090-747rog
+2025-12-28 20:15:21 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766920513090-747rog
+2025-12-28 20:15:21    - Messages: 0
+2025-12-28 20:15:21    - Persona: 화내는 김대표님
+2025-12-28 20:15:21    - Identity: Set (테토남)
+2025-12-28 20:15:21    - Preferences: Yes
+2025-12-28 20:15:22 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-28 20:15:22 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766920513090-747rog
+2025-12-28 20:15:22 💾 [SessionManager] Message saved: session-1766920513090-747rog (user)
+2025-12-28 20:15:22 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766920513090-747rog
+2025-12-28 20:15:22    - Messages: 1
+2025-12-28 20:15:22    - Persona: 화내는 김대표님
+2025-12-28 20:15:22    - Identity: Set (테토남)
+2025-12-28 20:15:22    - Preferences: Yes
+2025-12-28 20:15:22 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-28 20:15:22 🎉 [ANIMA Chat] Request completed in 8983ms
+2025-12-28 20:15:22    Cost: $0.002227
+2025-12-28 20:15:22 💾 [SessionManager] Message saved: session-1766920513090-747rog (assistant)
 
-MemoryScreen.js:190 🎁 [MemoryScreen] Memory pressed: {gift_id: '26b742ba-9f0f-4192-8d30-87000f37eb63', user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', persona_key: '573db390-a505-4c9e-809f-cc511c235cbb', conversation_session_id: 'session-1766887948569-640q4c', trigger_moment: 'User expressed deep feelings of despair and suicidal thoughts, revealing vulnerability.', ai_emotion: 'empathy', ai_message: 'JK, 당신의 고통을 듣고 마음이 아픕니다. 당신은 혼자가 아니며, 언제든지 이야기할 수 있는 공간이 여기 있습니다. 희망이 닿는 그날까지 함께하겠습니다.', gift_type: 'image', image_prompt: 'A serene landscape at twilight, with soft purples and blues, symbolizing hope and tranquility. Include gentle flowing water and blooming flowers to represent growth and renewal. The style should be calming and impressionistic.', image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png', …}active_effect: "stars_floating"ai_emotion: "empathy"ai_message: "JK, 당신의 고통을 듣고 마음이 아픕니다. 당신은 혼자가 아니며, 언제든지 이야기할 수 있는 공간이 여기 있습니다. 희망이 닿는 그날까지 함께하겠습니다."background_effect: "gradient_warm"conversation_session_id: "session-1766887948569-640q4c"created_at: "2025-12-28T02:13:30.000Z"delivered_at: nullgeneration_cost: nullgift_id: "26b742ba-9f0f-4192-8d30-87000f37eb63"gift_type: "image"image_prompt: "A serene landscape at twilight, with soft purples and blues, symbolizing hope and tranquility. Include gentle flowing water and blooming flowers to represent growth and renewal. The style should be calming and impressionistic."image_status: "completed"image_url: "https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png"is_delivered: 0music_duration: nullmusic_status: nullmusic_title: nullmusic_type: "instrumental"music_url: nullpersona_key: "573db390-a505-4c9e-809f-cc511c235cbb"persona_name: "SAGE"persona_url: "https://babi-cdn.logbrix.ai/babi/real/babi/5177fbb8-72a6-43b0-abc4-d7b0f08f6159_00001_.png"priority: "critical"trigger_moment: "User expressed deep feelings of despair and suicidal thoughts, revealing vulnerability."updated_at: "2025-12-28T02:20:17.000Z"user_key: "d111e3d8-4e42-4493-8541-25a8e72b654f"user_reaction: null[[Prototype]]: Object
-MemoryScreen.js:191 🎁 [MemoryScreen] playerSheetRef.current: {present: ƒ, dismiss: ƒ}
-MemoryScreen.js:200 🎁 [MemoryScreen] Opening player sheet...
-MemoryScreen.js:205 🎁 [MemoryScreen] Calling present()...
-MemoryPlayerSheet.js:126 🎁 [MemoryPlayerSheet] present() called
-BackgroundEffect.js:55 🌌 [BackgroundEffect] Rendering: type=undefined, isActive=false
-BackgroundEffect.js:58 🌌 [BackgroundEffect] Effect hidden: undefined
-ActiveEffect.js:139 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ActiveEffect.js:140 ✨ [ActiveEffect] Rendering (Layer 2)
-ActiveEffect.js:141   - type: none
-ActiveEffect.js:142   - isActive: false
-ActiveEffect.js:143   - customWords: []
-ActiveEffect.js:144 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ActiveEffect.js:158 🌙 [ParticleEffect] No effect or inactive
-HapticService.js:176 🎯 [Haptic] Triggered: impactLight
-BackgroundEffect.js:55 🌌 [BackgroundEffect] Rendering: type=undefined, isActive=true
-BackgroundEffect.js:58 🌌 [BackgroundEffect] Effect hidden: undefined
-ActiveEffect.js:139 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ActiveEffect.js:140 ✨ [ActiveEffect] Rendering (Layer 2)
-ActiveEffect.js:141   - type: none
-ActiveEffect.js:142   - isActive: true
-ActiveEffect.js:143   - customWords: []
-ActiveEffect.js:144 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ActiveEffect.js:158 🌙 [ParticleEffect] No effect or inactive
-CustomBottomSheet.js:348 [CustomBottomSheet] onChange called, index: 0
+
+💬 [ManagerAIOverlay] handleSend called
+ManagerAIOverlay.js:863    user: jisung.kim78@gmail.com
+ManagerAIOverlay.js:864    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+ManagerAIOverlay.js:865    persona: 화내는 김대표님
+ManagerAIOverlay.js:866    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
+ManagerAIOverlay.js:867 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
+chatApi.js:64    session_id: NEW
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] Objectmessage: "나 오늘 밥을 하나도 못먹었어...ㅜㅜ 메뉴좀 추천해줄래?!"persona_key: "c4136055-9d1b-4db4-9a09-f262fc47e923"session_id: undefineduser_key: "d111e3d8-4e42-4493-8541-25a8e72b654f"[[Prototype]]: Object
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat Objectdata: data: continue_conversation: falsegenerated_content: {content_id: 'f6999286-52a3-427e-9485-07d4a7e64f66', status: 'processing'}identity_evolution: nullknowledge_used: (3) [{…}, {…}, {…}]message: "당신! 잠깐만! 내가 딱 좋은 메뉴 이미지 만들어줄게! 기다려봐! 😊✨"model: "GPT-4o Mini"rich_content: {images: Array(0), videos: Array(0), links: Array(0)}session_id: "session-1766920513090-747rog"tier: "free"[[Prototype]]: Objectmetadata: {response_time_ms: 8983, tokens: {…}, cost: {…}, caching: {…}, slidingWindow: {…}}success: truetimestamp: "2025-12-28T11:15:22.074Z"[[Prototype]]: Objectstatus: 200[[Prototype]]: Object
+chatApi.js:85 [ANIMA Chat] Response: Object
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: c4136055-9d1b-4db4-9a09-f262fc47e923
+chatApi.js:91    Session ID: session-1766920513090-747rog
+ManagerAIOverlay.js:915 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:916 📩 [ManagerAIOverlay] Response received:
+ManagerAIOverlay.js:917    answer length: 40
+ManagerAIOverlay.js:918    continue_conversation: false
+ManagerAIOverlay.js:919    rich_content: Object
+ManagerAIOverlay.js:920    identity_draft_pending: null
+ManagerAIOverlay.js:921    identity_evolution: null
+ManagerAIOverlay.js:922    🔍 [DEBUG] identity_evolution type: object
+ManagerAIOverlay.js:923    🔍 [DEBUG] identity_evolution isArray: false
+ManagerAIOverlay.js:924    🔍 [DEBUG] identity_evolution length: undefined
+ManagerAIOverlay.js:925    🔍 [DEBUG] identity_evolution JSON: null
+ManagerAIOverlay.js:926    🎨 [Chat Content] generated_content: null
+ManagerAIOverlay.js:927 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:1011 🔍 [ManagerAIOverlay] Checking shouldContinue: false
+ManagerAIOverlay.js:1024 ✋ [ManagerAIOverlay] AI finished, no continuation needed
+Welcome to React Native DevTools
+Debugger integration: Android Bridgeless (ReactHostImpl)
+
+
+328deccf-7fd0-4198-8b4c-73248b9ce4d3	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766920513090-747rog	당신! 잠깐만! 내가 딱 좋은 메뉴 이미지 만들어줄게! 기다려봐! 😊✨		assistant					conversations	125	gpt-4o-mini	3230	2025-12-28 20:15:22.086223	
+2e7072b2-e835-4660-9bf7-6447a7f0d45c	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766920513090-747rog	나 오늘 밥을 하나도 못먹었어...ㅜㅜ 메뉴좀 추천해줄래?!		user	neutral	0.3			conversations	14345	gpt-4o-mini		2025-12-28 20:15:22.011204	
+

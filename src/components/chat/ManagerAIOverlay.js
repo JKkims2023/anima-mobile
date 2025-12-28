@@ -39,6 +39,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
+import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-time content
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -163,6 +164,9 @@ const ManagerAIOverlay = ({
   
   // 🌟 Identity Evolution Notification State
   const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
+  
+  // 🎨 NEW: Real-time Content Generation state
+  const [floatingContent, setFloatingContent] = useState(null); // { contentId, status, contentType, url }
   
   // 🗑️ TEMPORARILY DISABLED: Identity Guide state (during refactoring)
   // const [showIdentityGuide, setShowIdentityGuide] = useState(false);
@@ -523,6 +527,98 @@ const ManagerAIOverlay = ({
     }, 800);
   }, [persona, chatApi]);
   
+  // 🎨 NEW: Handle floating content button press (Check status on click)
+  const handleFloatingContentPress = useCallback(async () => {
+    if (!floatingContent) return;
+    
+    console.log('👁️  [Floating Content] Button clicked');
+    console.log('   Content ID:', floatingContent.contentId);
+    console.log('   Current Status:', floatingContent.status);
+    
+    try {
+      // Check current status
+      const statusData = await chatApi.getChatContentStatus(floatingContent.contentId);
+      
+      console.log('🔍 [Floating Content] Status checked:', statusData.status);
+      
+      if (statusData.status === 'completed') {
+        console.log('✅ [Floating Content] Content ready!');
+        console.log('   URL:', statusData.content_url);
+        
+        // Update state with URL
+        setFloatingContent(prev => ({
+          ...prev,
+          status: 'completed',
+          url: statusData.content_url
+        }));
+        
+        // Mark as clicked
+        await chatApi.markContentAsClicked(floatingContent.contentId);
+        
+        // TODO: Open fullscreen viewer with statusData.content_url
+        // For now, show alert
+        Alert.alert(
+          '🎨 생성 완료!',
+          '이미지가 준비되었습니다!\n(Fullscreen Viewer 곧 추가 예정)',
+          [
+            {
+              text: '닫기',
+              onPress: () => {
+                // Hide floating button after viewing
+                setFloatingContent(null);
+              }
+            }
+          ]
+        );
+        
+        // Haptic feedback
+        HapticService.trigger('success');
+      } else if (statusData.status === 'processing' || statusData.status === 'pending') {
+        console.log('⏳ [Floating Content] Still processing...');
+        
+        // Show "still generating" message
+        Alert.alert(
+          '⏳ 아직 생성 중입니다',
+          '조금만 더 기다려주세요!\n완료되면 다시 클릭해주세요.',
+          [{ text: '확인' }]
+        );
+        
+        // Haptic feedback
+        HapticService.trigger('impactLight');
+      } else if (statusData.status === 'failed') {
+        console.error('❌ [Floating Content] Generation failed');
+        
+        // Update state
+        setFloatingContent(prev => ({
+          ...prev,
+          status: 'failed'
+        }));
+        
+        // Show error message
+        Alert.alert(
+          '❌ 생성 실패',
+          '이미지 생성에 실패했습니다.\n다시 시도해주세요.',
+          [
+            {
+              text: '닫기',
+              onPress: () => setFloatingContent(null)
+            }
+          ]
+        );
+        
+        // Haptic feedback
+        HapticService.trigger('notificationError');
+      }
+    } catch (error) {
+      console.error('❌ [Floating Content] Error checking status:', error);
+      Alert.alert(
+        '오류',
+        '상태 확인 중 오류가 발생했습니다.',
+        [{ text: '확인' }]
+      );
+    }
+  }, [floatingContent, chatApi]);
+  
   // 🆕 Handle image selection
   const handleImageSelect = useCallback(async (imageData) => {
     console.log('📷 [ManagerAIOverlay] Image selected:', {
@@ -814,6 +910,7 @@ const ManagerAIOverlay = ({
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] }; // ⭐ Rich media
         const identityDraftPending = response.data.identity_draft_pending || null; // 🎭 NEW: Identity draft flag
         const identityEvolution = response.data.identity_evolution || null; // 🌟 NEW: Identity evolution notification
+        const generatedContent = response.data.generated_content || null; // 🎨 NEW: Real-time content generation
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
@@ -826,6 +923,7 @@ const ManagerAIOverlay = ({
         console.log('   🔍 [DEBUG] identity_evolution isArray:', Array.isArray(identityEvolution)); // 🔧 DEBUG
         console.log('   🔍 [DEBUG] identity_evolution length:', identityEvolution?.length); // 🔧 DEBUG
         console.log('   🔍 [DEBUG] identity_evolution JSON:', JSON.stringify(identityEvolution)); // 🔧 DEBUG
+        console.log('   🎨 [Chat Content] generated_content:', generatedContent); // 🎨 NEW
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         // 🌟 NEW: Show identity evolution notification (supports multiple tool calls)
@@ -859,6 +957,29 @@ const ManagerAIOverlay = ({
           console.log('   Target Name:', identityDraftPending.target_name);
           console.log('   Status:', identityDraftPending.status);
           setPendingIdentityDraft(identityDraftPending);
+        }
+        
+        // 🎨 NEW: Handle real-time content generation
+        if (generatedContent && generatedContent.content_id) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🎨 [Chat Content] AI generated content!');
+          console.log('   Content ID:', generatedContent.content_id);
+          console.log('   Initial Status:', generatedContent.status);
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          // Set floating content state
+          setFloatingContent({
+            contentId: generatedContent.content_id,
+            status: generatedContent.status || 'processing',
+            contentType: generatedContent.content_type || 'image',
+            url: null
+          });
+          
+          // 🔔 TODO: Push callback으로 status 업데이트 (향후)
+          // For now, user clicks button to check status
+          
+          // Haptic feedback
+          HapticService.trigger('success');
         }
         
         let currentIndex = 0;
@@ -1280,6 +1401,24 @@ const ManagerAIOverlay = ({
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
               />
             </View>
+            
+            {/* 🎨 NEW: Floating Content Button */}
+            {floatingContent && (
+              <FloatingContentButton
+                contentType={floatingContent.contentType}
+                status={floatingContent.status}
+                onPress={handleFloatingContentPress}
+                onRetry={() => {
+                  // Retry by hiding and letting user ask again
+                  setFloatingContent(null);
+                  Alert.alert(
+                    '🔄 재시도',
+                    '다시 요청해주세요!',
+                    [{ text: '확인' }]
+                  );
+                }}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </View>

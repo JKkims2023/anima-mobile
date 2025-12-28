@@ -117,6 +117,9 @@ export const sendManagerAIMessage = async ({
         // 🌟 NEW: Identity evolution notification
         identity_evolution: response.data.data?.identity_evolution || null,
         
+        // 🎨 NEW: Real-time chat content generation
+        generated_content: response.data.data?.generated_content || null,
+        
         // Performance metrics
         response_time_ms: response.data.metadata?.response_time_ms,
         tokens: response.data.metadata?.tokens,
@@ -444,15 +447,72 @@ export const createTestGift = async ({ user_key, persona_key, emotion, personalM
   }
 };
 
+/**
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * Real-time Chat Content Generation APIs
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ */
+
+/**
+ * Check daily content generation limit
+ * @param {string} user_key - User key
+ * @returns {Promise<Object>} - Limit info { allowed, limit, used, remaining }
+ */
+export const checkChatContentLimit = async (user_key) => {
+  try {
+    console.log('🎨 [ChatAPI] Checking content limit:', user_key);
+    const response = await apiClient.get(`/chat-content/check-limit?user_key=${user_key}`);
+    console.log('✅ [ChatAPI] Limit check result:', response.data);
+    return response.data;
+  } catch (error) {
+    logError('Check Chat Content Limit', error);
+    throw error;
+  }
+};
+
+/**
+ * Get content generation status
+ * @param {string} content_id - Content ID
+ * @returns {Promise<Object>} - Status info { status, content_url, ... }
+ */
+export const getChatContentStatus = async (content_id) => {
+  try {
+    const response = await apiClient.get(`/chat-content/status?content_id=${content_id}`);
+    return response.data;
+  } catch (error) {
+    logError('Get Chat Content Status', error);
+    throw error;
+  }
+};
+
+/**
+ * Mark content as clicked/viewed
+ * @param {string} content_id - Content ID
+ * @returns {Promise<Object>} - Success response
+ */
+export const markContentAsClicked = async (content_id) => {
+  try {
+    const response = await apiClient.post('/chat-content/mark-clicked', { content_id });
+    return response.data;
+  } catch (error) {
+    logError('Mark Content As Clicked', error);
+    // Non-critical error, don't throw
+    return { success: false };
+  }
+};
+
 export default {
   sendManagerAIMessage,
   resetManagerAISession,
   getCurrentSessionId,
   getChatHistory,
   closeChatSession,
-  getPendingGifts, // 🎁 NEW
-  reactToGift, // 🎁 NEW
-  createTestGift, // 🎁 NEW (for testing)
+  getPendingGifts, // 🎁 Emotional Gifts
+  reactToGift, // 🎁 Emotional Gifts
+  createTestGift, // 🎁 Emotional Gifts (for testing)
+  checkChatContentLimit, // 🎨 NEW: Real-time Content
+  getChatContentStatus, // 🎨 NEW: Real-time Content
+  markContentAsClicked, // 🎨 NEW: Real-time Content
   sendPersonaMessage,
   sendMemoryMessage,
   sendPublicAIMessage,

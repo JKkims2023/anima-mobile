@@ -302,23 +302,23 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     );
   }
   
-  const emotion = memory.ai_emotion || 'joy';
+  const emotion = memory?.ai_emotion || 'joy';
   const emotionEmoji = EMOTION_EMOJI[emotion] || '💙';
   const emotionLabel = EMOTION_LABEL[emotion] || '선물';
   
   // ⭐ NEW: Determine gift type and image source
-  const giftType = memory.gift_type || 'image'; // Default to 'image' for backwards compatibility
+  const giftType = memory?.gift_type || 'image'; // Default to 'image' for backwards compatibility
   const isImageGift = giftType === 'image';
   const isMusicGift = giftType === 'music';
   
   // For music gifts, use persona image as background
-  const displayImageUrl = isMusicGift ? memory.persona_url : memory.image_url;
+  const displayImageUrl = isMusicGift ? memory?.persona_url : memory?.image_url;
   
   return (
     <CustomBottomSheet
       ref={bottomSheetRef}
       snapPoints={['90%']}
-      title={'From. ' + memory.persona_name}
+      title={'From. ' + memory?.persona_name}
       subtitle={null}
       onClose={handleClose}
       buttons={[
@@ -350,10 +350,10 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         />
         
         {/* ⭐ NEW: Hidden audio player for music gifts */}
-        {isMusicGift && memory.music_url && (
+        {isMusicGift && memory?.music_url && (
           <Video
             ref={videoRef}
-            source={{ uri: memory.music_url }}
+            source={{ uri: memory?.music_url }}
             audioOnly={true}
             paused={!isPlaying}
             onLoad={(data) => {
@@ -376,7 +376,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         )}
         
         {/* 🎨 NEW: Background Effect Layer (z-index: 10) */}
-        {memory.background_effect && memory.background_effect !== 'none' && (
+        {memory?.background_effect && memory?.background_effect !== 'none' && (
           <View 
             style={{
               position: 'absolute',
@@ -389,7 +389,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             pointerEvents="none"
           >
             <BackgroundEffect 
-              type={memory.background_effect}
+              type={memory?.background_effect}
               isActive={imageLoaded} 
             />
           </View>
@@ -408,7 +408,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         />
         
         {/* 🎨 NEW: Active Effect Layer (z-index: 30) */}
-        {memory.active_effect && memory.active_effect !== 'none' && (
+        {memory?.active_effect && memory?.active_effect !== 'none' && (
           <View 
             style={{
               position: 'absolute',
@@ -421,7 +421,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             pointerEvents="none"
           >
             <ActiveEffect 
-              type={memory.active_effect}
+              type={memory?.active_effect}
               isActive={imageLoaded}
             />
           </View>
@@ -435,12 +435,12 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
               {isMusicGift ? '🎵' : emotionEmoji}
             </CustomText>
             <CustomText style={styles.emotionText}>
-              {isMusicGift ? (memory.music_title || '음악') : emotionLabel}
+              {isMusicGift ? (memory?.music_title || '음악') : emotionLabel}
             </CustomText>
           </View>
           
           {/* ⭐ NEW: Music Player Controls (only for music gifts) */}
-          {isMusicGift && memory.music_url && (
+          {isMusicGift && memory?.music_url && (
             <View style={styles.musicControls}>
               {/* Play/Pause Button */}
               <TouchableOpacity
@@ -482,11 +482,11 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           
           {/* AI Message */}
           <CustomText style={styles.giftMessage}>
-            {memory.ai_message}
+            {memory?.ai_message}
           </CustomText>
           
           {/* Persona Name */}
-          {memory.persona_name && (
+          {memory?.persona_name && (
             <CustomText style={styles.personaName}>
               - {memory.persona_name}
             </CustomText>
@@ -494,7 +494,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           
           {/* Date */}
           <CustomText style={styles.giftDate}>
-            {formatDate(memory.created_at)}
+            {formatDate(memory?.created_at)}
           </CustomText>
         </Animated.View>
         
