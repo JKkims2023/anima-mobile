@@ -1103,27 +1103,28 @@ const ManagerAIOverlay = ({
         }
         
         // 🎨 NEW: Handle real-time content generation (Pixabay is INSTANT!)
-        if (generatedContent && generatedContent.content_id) {
+        // ✅ STRATEGY: Add image directly to AI message bubble (not floating button!)
+        let generatedImageForBubble = null;
+        if (generatedContent && generatedContent.content_id && generatedContent.content_url) {
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.log('🎨 [Chat Content] AI generated content!');
+          console.log('🎨 [Chat Content] AI generated image (Pixabay)!');
           console.log('   Content ID:', generatedContent.content_id);
           console.log('   Status:', generatedContent.status);
-          console.log('   Content Type:', generatedContent.content_type);
-          console.log('   Content URL:', generatedContent.content_url || 'pending');
+          console.log('   Content URL:', generatedContent.content_url);
           console.log('   Metadata:', generatedContent.metadata);
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           
-          // ✅ Pixabay provides image INSTANTLY (no processing delay!)
-          setFloatingContent({
-            contentId: generatedContent.content_id,
-            status: generatedContent.status || 'completed', // ✅ Pixabay is instant!
-            contentType: generatedContent.content_type || 'image',
-            url: generatedContent.content_url || null, // ✅ Ready to display!
-            metadata: generatedContent.metadata || null // ✅ Credit info (tier-based display)
-          });
+          // ✅ Prepare image object for message bubble
+          generatedImageForBubble = {
+            url: generatedContent.content_url,
+            description: generatedContent.metadata?.photographer 
+              ? `📷 Photo by ${generatedContent.metadata.photographer}` 
+              : '🎨 AI Generated Image',
+            source: 'pixabay',
+            credit: generatedContent.metadata?.pageURL || null
+          };
           
-          // 🔔 Pixabay is instant - no callback needed!
-          // Image is ready immediately in floatingContent.url
+          console.log('✅ [Chat Content] Image will be added to AI message bubble!');
           
           // Haptic feedback
           HapticService.trigger('success');
@@ -1171,8 +1172,11 @@ const ManagerAIOverlay = ({
               role: 'assistant',
               text: answer,
               timestamp: new Date().toISOString(),
-              // ⭐ NEW: Rich media content
-              images: richContent.images,
+              // ⭐ NEW: Rich media content + Pixabay generated image!
+              images: [
+                ...richContent.images,
+                ...(generatedImageForBubble ? [generatedImageForBubble] : [])
+              ],
               videos: richContent.videos,
               links: richContent.links,
             };
@@ -1598,23 +1602,33 @@ const ManagerAIOverlay = ({
             </View>
             
             {/* 🎨 NEW: Floating Content Button */}
-            {floatingContent && (
-              <FloatingContentButton
-                contentType={floatingContent.contentType}
-                status={floatingContent.status}
-                isPlaying={floatingContent.isPlaying || false} // 🎵 NEW: Music playing state
-                onPress={handleFloatingContentPress}
-                onRetry={() => {
-                  // Retry by hiding and letting user ask again
-                  setFloatingContent(null);
-                  Alert.alert(
-                    '🔄 재시도',
-                    '다시 요청해주세요!',
-                    [{ text: '확인' }]
-                  );
-                }}
-              />
-            )}
+            {/* 🎵 NEW: Floating Content Button (ONLY for music, images now in chat bubble!) */}
+            {(() => {
+              // ✅ ONLY show floating button for MUSIC (images are in chat bubble now!)
+              if (floatingContent && floatingContent.contentType === 'music') {
+                console.log('🔍 [FloatingContent Render] Music player:', {
+                  track: floatingContent.track?.title,
+                  isPlaying: floatingContent.isPlaying
+                });
+                return (
+                  <FloatingContentButton
+                    contentType={floatingContent.contentType}
+                    status={floatingContent.status}
+                    isPlaying={floatingContent.isPlaying || false}
+                    onPress={handleFloatingContentPress}
+                    onRetry={() => {
+                      setFloatingContent(null);
+                      Alert.alert(
+                        '🔄 재시도',
+                        '다시 요청해주세요!',
+                        [{ text: '확인' }]
+                      );
+                    }}
+                  />
+                );
+              }
+              return null;
+            })()}
           </View>
         </KeyboardAvoidingView>
       </View>

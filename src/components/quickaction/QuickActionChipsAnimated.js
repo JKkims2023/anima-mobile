@@ -217,7 +217,9 @@ const QuickActionChipsAnimated = ({
         const animatedStyle = animatedStyles[index];
         
         return (
-          <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' : 'flex' }]}>
+          <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
+          currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' 
+          : 'flex' }]}>
             <TouchableOpacity
               style={[styles.chip, animatedStyle]}
               onPress={() => handlePress(action)}

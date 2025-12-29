@@ -530,6 +530,19 @@ const PersonaStudioScreen = () => {
     // ⭐ Show emotional loading overlay
     setIsCreatingPersona(true);
 
+    if(!user){
+      setIsCreatingPersona(false);
+      console.log('why user is not found?');
+      navigation.navigate('Settings');
+      HapticService.warning();
+      showToast({
+        type: 'error',
+        message: t('errors.login_required'),
+        emoji: '🔐',
+      });
+      return;
+    }
+
     console.log('user', user);
     console.log('key', user.user_key);
     
