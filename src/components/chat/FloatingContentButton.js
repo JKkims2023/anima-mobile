@@ -139,12 +139,16 @@ const FloatingContentButton = ({
   // Background color based on status
   const getBackgroundColor = () => {
     if (status === 'failed') {
-      return COLORS.error;
+      return COLORS.error; // Red for error
     }
     if (status === 'completed') {
-      return COLORS.primary;
+      if (contentType === 'music' && isPlaying) {
+        return '#FF6B6B'; // Vibrant red for playing music
+      }
+      return COLORS.primary; // Default primary
     }
-    return currentTheme.cardBackground;
+    // 🎨 Processing: Semi-transparent dark background (not fully transparent!)
+    return 'rgba(0, 0, 0, 0.75)'; // Dark semi-transparent
   };
 
   return (
@@ -207,7 +211,7 @@ const FloatingContentButton = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80, // Above message input
+    top: 80, // 🎯 Top right (below header)
     right: 16,
     zIndex: 1000,
     // Shadow
