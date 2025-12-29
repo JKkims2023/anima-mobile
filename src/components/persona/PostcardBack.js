@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 const PostcardBack = ({
   persona,
   onClose,
+  isVisible = false, // ⭐ NEW: Track visibility to trigger animation
 }) => {
   const { t } = useTranslation();
   const scaleAnim = useSharedValue(1);
@@ -55,40 +56,51 @@ const PostcardBack = ({
   // ⭐ Fallback message if no comment
   const displayComment = personaComment || t('postcard.no_memory_yet');
 
-  // ⭐ Sequential fade-in animation on mount
+  // ⭐ Sequential fade-in animation - triggered when isVisible becomes true
   useEffect(() => {
-    // 1. From (좌측 상단) - 300ms
-    fromOpacity.value = withTiming(1, { 
-      duration: 600, 
-      easing: Easing.out(Easing.ease) 
-    });
+    if (isVisible) {
+      // ⭐ Reset all values first
+      fromOpacity.value = 0;
+      stampOpacity.value = 0;
+      stampScale.value = 0.8;
+      messageOpacity.value = 0;
+      messageTranslateY.value = 20;
+      closeButtonOpacity.value = 0;
 
-    // 2. Stamp (우측 상단) - 500ms delay
-    stampOpacity.value = withDelay(
-      500,
-      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
-    );
-    stampScale.value = withDelay(
-      500,
-      withSpring(1, { damping: 12 })
-    );
+      // ⭐ Start sequential animation
+      // 1. From (좌측 상단) - 300ms
+      fromOpacity.value = withTiming(1, { 
+        duration: 600, 
+        easing: Easing.out(Easing.ease) 
+      });
 
-    // 3. Message (중앙) - 800ms delay
-    messageOpacity.value = withDelay(
-      800,
-      withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
-    );
-    messageTranslateY.value = withDelay(
-      800,
-      withTiming(0, { duration: 800, easing: Easing.out(Easing.cubic) })
-    );
+      // 2. Stamp (우측 상단) - 500ms delay
+      stampOpacity.value = withDelay(
+        500,
+        withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+      );
+      stampScale.value = withDelay(
+        500,
+        withSpring(1, { damping: 12 })
+      );
 
-    // 4. Close Button (하단) - 1200ms delay
-    closeButtonOpacity.value = withDelay(
-      1200,
-      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
-    );
-  }, []);
+      // 3. Message (중앙) - 800ms delay
+      messageOpacity.value = withDelay(
+        800,
+        withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+      );
+      messageTranslateY.value = withDelay(
+        800,
+        withTiming(0, { duration: 800, easing: Easing.out(Easing.cubic) })
+      );
+
+      // 4. Close Button (하단) - 1200ms delay
+      closeButtonOpacity.value = withDelay(
+        1200,
+        withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+      );
+    }
+  }, [isVisible]); // ⭐ Trigger animation when isVisible changes
 
   // ⭐ Pulse animation on close button press
   const handleClosePress = () => {

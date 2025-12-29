@@ -492,6 +492,7 @@ const PersonaCardView = forwardRef(({
         <PostcardBack
           persona={persona}
           onClose={flipToFront}
+          isVisible={isFlipped} // ⭐ NEW: Pass flip state to trigger animation
         />
       </Animated.View>
     </View>
