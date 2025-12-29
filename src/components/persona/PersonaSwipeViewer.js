@@ -68,6 +68,7 @@ const PersonaSwipeViewer = forwardRef(({
   filterMode = 'default',
   refreshing = false, // ⭐ NEW: Pull-to-refresh state
   onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback
+  personaCardRefs = null, // ⭐ NEW: Refs for PersonaCardView (for flip animation control)
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -188,6 +189,11 @@ const PersonaSwipeViewer = forwardRef(({
     return (
       <View style={[styles.personaItemContainer, { height: availableHeight }]}>
         <PersonaCardView 
+          ref={(ref) => {
+            if (personaCardRefs && item.persona_key) {
+              personaCardRefs.current[item.persona_key] = ref;
+            }
+          }}
           persona={item} 
           isActive={isActive}
           isScreenFocused={isScreenFocused}

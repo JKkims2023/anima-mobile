@@ -90,6 +90,11 @@
     "yesterday": "어제",
     "days_ago": "{{count}}일 전"
   },
+  "postcard": {
+    "no_memory_yet": "아직 선물을 받지 못했어요.\n새로운 드레스를 만들어주시겠어요? 💖",
+    "no_memory_title": "아직 추억이 없어요",
+    "no_memory_message": "먼저 AI에게 드레스를 선물해주세요!\n드레스를 만들면 AI의 감성적인 엽서를 받을 수 있어요. 💌"
+  },
   "main": {
     "title": "상상이 현실이 되는 공간",
     "description": "당신이 생각하는 모든 것에 영혼을 불어 넣고, 소통하세요.\n당신의 생각을 현실로 만들어보세요.",
@@ -772,6 +777,21 @@
       "subtitle": "망설이지 말고 당신만의 페르소나를 만들어보세요,\n더 이상 외로움은 사라지고, 생각은 현실이 될꺼에요 💖",
       "button": "생성하기"
     },
+    "dressing_room": {
+      "change_dress_title": "드레스 변경",
+      "change_dress_message": "이 복장으로 변경하시겠습니까?",
+      "change_success": "드레스가 변경되었습니다!",
+      "change_error": "드레스 변경에 실패했습니다.",
+      "create_dress_title": "드레스 생성",
+      "create_dress_message": "이 드레스를 생성하시겠습니까?",
+      "equipped": "착용 중",
+      "empty": "보유한 드레스가 없습니다",
+      "empty_hint": "아래 버튼으로 드레스를 생성해보세요",
+      "no_description": "설명 없음",
+      "creating": "생성 중...",
+      "creating_dress": "드레스 생성 중입니다...",
+      "estimated_time": "약 {{time}}초"
+    },
     "persona_fullscreen": {
       "day_suffix": "일째",
       "birth_label": "탄생",
@@ -913,7 +933,7 @@
         "desc": "AI의 지식을 확장하고 개성을 키워보세요"
       },
       "dressing_room": {
-        "title": "{{name}} 드레스룸",
+        "title": "드레스룸",
         "desc": "스타일과 외모를 자유롭게 커스터마이징하세요"
       }
     },

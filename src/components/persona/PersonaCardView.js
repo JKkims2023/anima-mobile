@@ -16,7 +16,7 @@
  * @date 2024-11-21
  */
 
-import React, { useState, useRef, useEffect, useMemo, memo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, memo, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -37,6 +37,7 @@ import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../styles/commonstyles';
+import PostcardBack from './PostcardBack'; // ⭐ NEW: Postcard component
 // PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -51,7 +52,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  * @param {Function} props.onCheckStatus - Callback when user clicks "Check Status" button
  */
-const PersonaCardView = ({ 
+const PersonaCardView = forwardRef(({ 
   persona, 
   isActive = false, 
   isScreenFocused = true,
@@ -61,7 +62,7 @@ const PersonaCardView = ({
   chatInputBottom = 0,
   availableHeight = SCREEN_HEIGHT,
   onCheckStatus, // ⭐ NEW: Callback for status check
-}) => {
+}, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
@@ -257,23 +258,51 @@ const PersonaCardView = ({
 
 
   // ✅ Handle card flip
-  const handleFlip = () => {
-    // 🎯 Haptic feedback
-    HapticService.light();
-
-    const toValue = isFlipped ? 0 : 1;
-
-    Animated.spring(flipAnim, {
-      toValue,
-      friction: 8,
-      tension: 10,
+  // ⭐ Flip to Back (for postcard view)
+  const flipToBack = () => {
+    if (isFlipped) return; // Already flipped
+    HapticService.medium();
+    
+    Animated.timing(flipAnim, {
+      toValue: 1,
+      duration: 600,
       useNativeDriver: true,
     }).start();
-
-    setIsFlipped(!isFlipped);
+    
+    setIsFlipped(true);
   };
 
-  // ✅ Interpolate rotation
+  // ⭐ Flip to Front (back to persona view)
+  const flipToFront = () => {
+    if (!isFlipped) return; // Already on front
+    HapticService.light();
+    
+    Animated.timing(flipAnim, {
+      toValue: 0,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+    
+    setIsFlipped(false);
+  };
+
+  // ⭐ Toggle flip (legacy method)
+  const handleFlip = () => {
+    if (isFlipped) {
+      flipToFront();
+    } else {
+      flipToBack();
+    }
+  };
+
+  // ⭐ Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    flipToBack,
+    flipToFront,
+    isFlipped,
+  }));
+
+  // ✅ Interpolate rotation for FULL SCREEN flip
   const frontRotation = flipAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg'],
@@ -281,33 +310,46 @@ const PersonaCardView = ({
 
   const backRotation = flipAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
+    outputRange: ['180deg', '360deg'], // ⭐ 360deg for complete rotation
   });
 
-  const frontOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0, 0],
-  });
+  // ⭐ Front Animated Style (iOS + Android compatible)
+  const frontAnimatedStyle = {
+    transform: [{ rotateY: frontRotation }],
+    backfaceVisibility: 'hidden', // ⭐ iOS CRITICAL FIX!
+    zIndex: isFlipped ? 1 : 2,
+  };
 
-  const backOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
-  });
+  // ⭐ Back Animated Style (iOS + Android compatible)
+  const backAnimatedStyle = {
+    transform: [{ rotateY: backRotation }],
+    backfaceVisibility: 'hidden', // ⭐ iOS CRITICAL FIX!
+    zIndex: isFlipped ? 2 : 1,
+  };
 
   return (
-    <View style={[styles.container, { height: availableHeight_local }]} pointerEvents="box-none">
-      {/* 1. Background Image (Native Image) - Testing if FastImage is the issue */}
-      <Image
-        source={{ uri: imageUrl }}
-        style={styles.backgroundMedia}
-        resizeMode="cover"
-        onLoad={() => {
-     //     console.log('✅ [PersonaCardView] Image LOADED:', persona.persona_name, imageUrl);
-        }}
-        onError={(error) => {
-     //     console.error('❌ [PersonaCardView] Image ERROR:', persona.persona_name, imageUrl, error);
-        }}
-      />
+    <View style={[styles.flipContainer, { height: availableHeight_local }]}>
+      {/* ⭐ FRONT VIEW - Original Persona Card */}
+      <Animated.View 
+        style={[
+          styles.container, 
+          { height: availableHeight_local },
+          frontAnimatedStyle
+        ]}
+        pointerEvents={isFlipped ? 'none' : 'box-none'}
+      >
+        {/* 1. Background Image (Native Image) - Testing if FastImage is the issue */}
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.backgroundMedia}
+          resizeMode="cover"
+          onLoad={() => {
+       //     console.log('✅ [PersonaCardView] Image LOADED:', persona.persona_name, imageUrl);
+          }}
+          onError={(error) => {
+       //     console.error('❌ [PersonaCardView] Image ERROR:', persona.persona_name, imageUrl, error);
+          }}
+        />
 
       {/* 2. Video Layer (Always render if hasVideo, control with opacity and paused) */}
       {hasVideo && (
@@ -423,22 +465,60 @@ const PersonaCardView = ({
         );
       })()}
 
-      {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
+        {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
+      </Animated.View>
+
+      {/* ⭐ BACK VIEW - Postcard */}
+      <Animated.View 
+        style={[
+          styles.backContainer,
+          { height: availableHeight_local },
+          backAnimatedStyle
+        ]}
+        pointerEvents={isFlipped ? 'box-none' : 'none'}
+      >
+        <PostcardBack
+          persona={persona}
+          onClose={flipToFront}
+        />
+      </Animated.View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   // ═══════════════════════════════════════════════════════════════════════════
-  // Main Container
+  // Flip Container (Perspective for 3D effect)
   // ═══════════════════════════════════════════════════════════════════════════
-  container: {
+  flipContainer: {
     flex: 1,
     width: SCREEN_WIDTH,
-    // ✅ Removed height: SCREEN_HEIGHT to match SAGE behavior
-    // This allows chatOverlay bottom positioning to work correctly
     backgroundColor: '#000000',
-    overflow: 'hidden', // ⭐ CRITICAL FIX: Prevent absolute children from overflowing into other FlashList items
+    overflow: 'visible', // ⭐ iOS CRITICAL: Allow 3D transformation
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Main Container (Front View)
+  // ═══════════════════════════════════════════════════════════════════════════
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: SCREEN_WIDTH,
+    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Back Container (Postcard View)
+  // ═══════════════════════════════════════════════════════════════════════════
+  backContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: SCREEN_WIDTH,
+    backgroundColor: '#000000',
+    overflow: 'hidden',
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

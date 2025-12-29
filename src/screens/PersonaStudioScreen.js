@@ -50,9 +50,11 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import MainHelpSheet from '../components/persona/MainHelpSheet';
+import DressManageSheer from '../components/persona/DressManageSheer';
 
 import { 
   createPersona,
+  createDress,
   checkPersonaStatus,
   updatePersonaBasic,
   convertPersonaVideo,
@@ -146,6 +148,8 @@ const PersonaStudioScreen = () => {
   const helpSheetRef = useRef(null);
   const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
   const [isRefreshing, setIsRefreshing] = useState(false); // ⭐ NEW: Pull-to-refresh state
+  const [isDressManagementOpen, setIsDressManagementOpen] = useState(false);
+  const [dressManagementData, setDressManagementData] = useState(null);
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -401,6 +405,31 @@ const PersonaStudioScreen = () => {
     console.log('[PersonaStudioScreen] ✅ Permission checked, opening persona creation sheet');
     setIsPersonaCreationOpen(true);
   }, [user, showToast, t, navigation]);
+
+  // Handle add persona
+  const handleAddDress = useCallback(async () => {
+    console.log('[PersonaStudioScreen] 📸 Add dress requested');
+    
+    // ⭐ Check if user is logged in
+    if (!user || !user.user_key) {
+      console.log('[PersonaStudioScreen] ⚠️ User not logged in, redirecting to Settings');
+      showToast({
+        type: 'warning',
+        message: t('errors.login_required'),
+        emoji: '🔐',
+      });
+      HapticService.warning();
+      navigation.navigate('Settings');
+      return;
+    }
+    
+    console.log('[PersonaStudioScreen] ✅ User logged in, checking notification permission');
+    HapticService.light();
+
+    // Permission already granted or requested, open creation sheet directly
+    console.log('[PersonaStudioScreen] ✅ Permission checked, opening persona dress sheet');
+    setIsDressManagementOpen(true);
+  }, [user, showToast, t, navigation]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ MODIFIED: Permission check already done in handleAddPersona
@@ -413,6 +442,19 @@ const PersonaStudioScreen = () => {
     // Permission already checked in handleAddPersona, proceed directly
     handlePersonaCreationStart(data);
   }, []);
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ MODIFIED: Permission check already done in handleAddPersona
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handlePersonaDressStartWithPermission = useCallback(async (data) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [PersonaStudioScreen] Persona dress started (permission already checked)');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Permission already checked in handleAddPersona, proceed directly
+    handleDressCreationStart(data);
+  }, []);
+
   
   // ⭐ NEW: Handle "Allow" button in pre-permission sheet
   const handlePermissionAllow = useCallback(async () => {
@@ -556,12 +598,180 @@ const PersonaStudioScreen = () => {
       HapticService.warning();
     }
   }, [user, showToast, t, initializePersonas]);
+
+  // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
+  const handleDressCreationStart = useCallback(async (data) => {
+
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [PersonaStudioScreen] Persona dress started');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Data:', {
+      name: data.name,
+      gender: data.gender,
+      description: data.description,
+      hasFile: !!data.file,
+    });
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Close creation sheet
+    setIsDressManagementOpen(false);
+    
+    // ⭐ Show emotional loading overlay
+    setIsCreatingPersona(true);
+//    setIsCreatingDress(true);
+
+
+console.log('currentPersona: ', currentPersona);
+    
+    try {
+      // Call API to create persona
+      const response = await createDress(user.user_key, {
+        persona_key: currentPersona?.persona_key,
+        name: data.name,
+        description: data.description,
+        gender: data.gender,
+        selected_dress_image_url: currentPersona?.selected_dress_image_url,
+      });
+
+      console.log('response: ', response);
+      
+      if (!response.success) {
+
+        setIsCreatingPersona(false);
+        console.log('response.error_code : ', response.error_code);
+
+        switch(response.error_code){
+          case 'INSUFFICIENT_POINT':
+            showAlert ({
+              title: t('common.not_enough_point_title'),
+              message: t('common.not_enough_point'),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+                    navigation.navigate('Settings');
+                  },
+                },
+              ],
+            });
+            break;
+          default:
+            throw new Error(response.error || 'Persona creation failed');
+            break;  
+        }
+
+        return;
+      }
+      
+      const { persona_key, estimate_time, persona_url, memory_key, bric_key } = response.data;
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ [PersonaStudioScreen] Persona creation initiated!');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Response:', {
+        persona_key,
+        estimate_time,
+        persona_url,
+        bric_key,
+        memory_key,
+      });
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // ⭐ Refresh persona list immediately (new persona will appear with original_url)
+      await initializePersonas();
+      
+      // ⭐ Hide loading overlay
+      setIsCreatingPersona(false);
+      
+      HapticService.success();
+      showToast({
+        type: 'success',
+        emoji: '✨',
+        message: t('persona.creation.success_initiated', { name: data.name }),
+      });
+      
+    } catch (error) {
+      console.error('[PersonaStudioScreen] ❌ Persona creation error:', error);
+      
+      // ⭐ Hide loading overlay on error
+      setIsCreatingPersona(false);
+
+      let error_info = t('common.error');
+      
+      showToast({
+        type: 'error',
+        message: error_info,
+        emoji: '⚠️',
+      });
+      HapticService.warning();
+    }
+  }, [user, showToast, t, initializePersonas]);
   
   // Handle persona creation close
   const handlePersonaCreationClose = useCallback(() => {
     HapticService.light();
     setIsPersonaCreationOpen(false);
   }, []);
+
+  // Handle persona dress close
+  const handlePersonaDressClose = useCallback(() => {
+    HapticService.light();
+    setIsDressManagementOpen(false);
+  }, []);
+  
+  // ⭐ Handle dress updated (로컬 상태 즉시 갱신)
+  const handleDressUpdated = useCallback((dressData) => {
+    console.log('[PersonaStudioScreen] 👗 Dress updated, refreshing local state...');
+    console.log('  Dress data:', dressData);
+    console.log('  Current persona:', currentPersona?.persona_key);
+    
+    if (!currentPersona) {
+      console.log('[PersonaStudioScreen] ⚠️ No current persona, skipping update');
+      return;
+    }
+    
+    // Update personas array
+    setPersonas(prevPersonas => {
+      const updatedPersonas = prevPersonas.map(p => {
+        if (p.persona_key === currentPersona.persona_key) {
+          console.log('[PersonaStudioScreen] ✅ Updating persona:', p.persona_key);
+          return {
+            ...p,
+            selected_dress_image_url: dressData.selected_dress_image_url,
+            selected_dress_video_url: dressData.selected_dress_video_url,
+            history_key: dressData.history_key,
+            persona_url: dressData.selected_dress_image_url, // ⭐ Main image also updated
+          };
+        }
+        return p;
+      });
+      
+      console.log('[PersonaStudioScreen] 📊 Personas updated, count:', updatedPersonas.length);
+      return updatedPersonas;
+    });
+    
+    // Update currentPersona ref
+    setCurrentPersona(prev => {
+      if (prev && prev.persona_key === currentPersona.persona_key) {
+        console.log('[PersonaStudioScreen] ✅ Updating currentPersona');
+        return {
+          ...prev,
+          selected_dress_image_url: dressData.selected_dress_image_url,
+          selected_dress_video_url: dressData.selected_dress_video_url,
+          history_key: dressData.history_key,
+          persona_url: dressData.selected_dress_image_url,
+        };
+      }
+      return prev;
+    });
+    
+    console.log('[PersonaStudioScreen] ✅ Local state updated successfully!');
+  }, [currentPersona]);
   
   // ⭐ NEW: Handle check persona status (from PersonaCardView timer)
   const handleCheckPersonaStatus = useCallback(async (persona, onComplete) => {
@@ -624,13 +834,60 @@ const PersonaStudioScreen = () => {
   }, []);
   
   // 2. Memory History (추억/히스토리)
+  // ⭐ Ref for PersonaCardView (to control flip animation)
+  const personaCardRefs = useRef({});
+
   const handleQuickHistory = useCallback(() => {
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 📚 Memory history clicked');
     }
     
-    // TODO: Navigate to memory history view
-  }, []);
+    HapticService.medium();
+
+
+    
+    // Get current persona
+    const currentPersona = currentFilteredPersonas[currentPersonaIndex];
+
+    console.log('currentPersonaIndex: ', currentPersonaIndex);
+    console.log('currentFilteredPersonas: ', currentFilteredPersonas);
+    console.log('currentPersona: ', currentPersona);
+
+    if (!currentPersona) {
+      console.warn('[PersonaStudioScreen] No current persona for history');
+      return;
+    }
+    
+    // Check if persona has persona_comment (from dress creation)
+    const hasComment = currentPersona.selected_dress_persona_comment && currentPersona.selected_dress_persona_comment.trim() !== '';
+    
+    if (!hasComment) {
+      // Show alert if no memory yet
+      showAlert({
+        title: t('postcard.no_memory_title'),
+        message: t('postcard.no_memory_message'),
+        emoji: '💭',
+        buttons: [
+          {
+            text: t('common.confirm'),
+            onPress: () => {},
+          },
+        ],
+      });
+      return;
+    }
+    
+    // Trigger flip animation on current PersonaCardView
+    const cardRef = personaCardRefs.current[currentPersona.persona_key];
+    if (cardRef && cardRef.flipToBack) {
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔄 Flipping persona card to postcard view');
+      }
+      cardRef.flipToBack();
+    } else {
+      console.warn('[PersonaStudioScreen] PersonaCardView ref not found:', currentPersona.persona_key);
+    }
+  }, [currentFilteredPersonas, currentPersonaIndex, showAlert, t]);
   
   // 3. Video Conversion (비디오 변환)
   const handleQuickVideo = useCallback(() => {
@@ -1023,12 +1280,6 @@ const PersonaStudioScreen = () => {
     }
   }, [user, currentPersona, setPersonas, showToast, t]);
 
-  // ❌ REMOVED: personaCounts (filter modes removed, single unified list)
-  
-  // ❌ REMOVED: Horizontal swipe gesture for filter mode change (UI simplified) 
-  // ═══════════════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════════════
   return (
     <>
     <SafeScreen 
@@ -1182,6 +1433,7 @@ const PersonaStudioScreen = () => {
             onCreatePersona={handleAddPersona}
             refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
             onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback
+            personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard view)
           />
         </View>
         
@@ -1192,7 +1444,7 @@ const PersonaStudioScreen = () => {
               onDressClick={handleQuickDress}
               onHistoryClick={handleQuickHistory}
               onVideoClick={handleQuickVideo}
-              onMessageClick={handleQuickMessage}
+              onMessageClick={handleAddDress}//{handleQuickMessage}
               onSettingsClick={handleQuickSettings}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
             />
@@ -1230,7 +1482,16 @@ const PersonaStudioScreen = () => {
           onCreateStart={handlePersonaCreationStartWithPermission}
         />
       </View>
-
+      <View style={styles.sheetContainer}>
+        <DressManageSheer
+          isOpen={isDressManagementOpen}
+          onClose={handlePersonaDressClose}
+          onCreateStart={handlePersonaDressStartWithPermission}
+          onDressUpdated={handleDressUpdated} // ⭐ 드레스 변경 시 로컬 상태 갱신
+          personaKey={currentPersona?.persona_key}
+          currentPersona={currentPersona} // ⭐ 현재 페르소나 전체 정보
+        />
+      </View>
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Help Sheet */}
       {/* ═════════════════════════════════════════════════════════════════ */}
