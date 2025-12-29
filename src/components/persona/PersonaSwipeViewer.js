@@ -265,7 +265,7 @@ const PersonaSwipeViewer = forwardRef(({
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
         estimatedItemSize={availableHeight} // ⭐ CRITICAL: Required for FlashList (each persona takes full height)
-        scrollEnabled={enabled} // ⭐ Control swipe gestures
+        scrollEnabled={enabled && !isPostcardVisible} // ⭐ Disable scroll when postcard is visible
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollToIndexFailed={(info) => {

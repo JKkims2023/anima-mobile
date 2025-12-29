@@ -14,12 +14,15 @@
  * @date 2025-01-29
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  withDelay,
   useSharedValue,
+  Easing,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../CustomText';
@@ -35,6 +38,14 @@ const PostcardBack = ({
   const { t } = useTranslation();
   const scaleAnim = useSharedValue(1);
 
+  // ⭐ Sequential fade-in animation values
+  const fromOpacity = useSharedValue(0);
+  const stampOpacity = useSharedValue(0);
+  const stampScale = useSharedValue(0.8);
+  const messageOpacity = useSharedValue(0);
+  const messageTranslateY = useSharedValue(20);
+  const closeButtonOpacity = useSharedValue(0);
+
   // ⭐ Get persona comment from selected dress
   const personaComment = persona?.selected_dress_persona_comment || '';
   const personaName = persona?.persona_name || 'AI';
@@ -42,6 +53,41 @@ const PostcardBack = ({
   
   // ⭐ Fallback message if no comment
   const displayComment = personaComment || t('postcard.no_memory_yet');
+
+  // ⭐ Sequential fade-in animation on mount
+  useEffect(() => {
+    // 1. From (좌측 상단) - 300ms
+    fromOpacity.value = withTiming(1, { 
+      duration: 600, 
+      easing: Easing.out(Easing.ease) 
+    });
+
+    // 2. Stamp (우측 상단) - 500ms delay
+    stampOpacity.value = withDelay(
+      500,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+    stampScale.value = withDelay(
+      500,
+      withSpring(1, { damping: 12 })
+    );
+
+    // 3. Message (중앙) - 800ms delay
+    messageOpacity.value = withDelay(
+      800,
+      withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) })
+    );
+    messageTranslateY.value = withDelay(
+      800,
+      withTiming(0, { duration: 800, easing: Easing.out(Easing.cubic) })
+    );
+
+    // 4. Close Button (하단) - 1200ms delay
+    closeButtonOpacity.value = withDelay(
+      1200,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) })
+    );
+  }, []);
 
   // ⭐ Pulse animation on close button press
   const handleClosePress = () => {
@@ -52,7 +98,23 @@ const PostcardBack = ({
     onClose();
   };
 
+  // ⭐ Animated Styles
+  const fromAnimStyle = useAnimatedStyle(() => ({
+    opacity: fromOpacity.value,
+  }));
+
+  const stampAnimStyle = useAnimatedStyle(() => ({
+    opacity: stampOpacity.value,
+    transform: [{ scale: stampScale.value }],
+  }));
+
+  const messageAnimStyle = useAnimatedStyle(() => ({
+    opacity: messageOpacity.value,
+    transform: [{ translateY: messageTranslateY.value }],
+  }));
+
   const closeButtonAnimStyle = useAnimatedStyle(() => ({
+    opacity: closeButtonOpacity.value,
     transform: [{ scale: scaleAnim.value }],
   }));
 
@@ -61,8 +123,19 @@ const PostcardBack = ({
       {/* ⭐ Vintage Postcard Background */}
       <View style={styles.postcardContainer}>
         
-        {/* ⭐ TOP SECTION: Stamp Area (우표 영역) */}
-        <View style={styles.stampArea}>
+        {/* ⭐ From (좌측 상단) - Animated */}
+        <Animated.View style={fromAnimStyle}>
+          <CustomText type="small" style={styles.fromLabel}>
+            From:
+          </CustomText>
+          <CustomText type="bodyB" style={styles.fromName}>
+            {personaName} 💖
+          </CustomText>
+        </Animated.View>
+
+        {/* ⭐ TOP SECTION: Stamp Area (우표 영역) - Animated */}
+        <Animated.View style={[styles.stampArea, stampAnimStyle]}>
+          
           <View style={styles.stamp}>
             {personaImage ? (
               <Image
@@ -77,11 +150,11 @@ const PostcardBack = ({
           <CustomText type="small" style={styles.stampLabel}>
             ANIMA
           </CustomText>
-        </View>
+        </Animated.View>
 
-        {/* ⭐ MIDDLE SECTION: Message Content (메시지 영역) */}
-        <ScrollView 
-          style={styles.messageScrollContainer}
+        {/* ⭐ MIDDLE SECTION: Message Content (메시지 영역) - Animated */}
+        <Animated.ScrollView 
+          style={[styles.messageScrollContainer, messageAnimStyle]}
           contentContainerStyle={styles.messageScrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -89,7 +162,7 @@ const PostcardBack = ({
           <Icon name="heart-outline" size={scale(32)} color={COLORS.PRIMARY_LIGHT} style={styles.decorativeIcon} />
           
           {/* AI Message */}
-          <CustomText type="bodyL" style={styles.messageText}>
+          <CustomText type="body" style={styles.messageText}>
             {displayComment}
           </CustomText>
           
@@ -99,19 +172,11 @@ const PostcardBack = ({
             <View style={styles.dividerLine} />
             <Icon name="star" size={scale(12)} color={COLORS.GOLD} />
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
 
         {/* ⭐ BOTTOM SECTION: From/To (발신/수신) */}
         <View style={styles.signatureArea}>
           <View style={styles.fromToContainer}>
-            <View style={styles.fromContainer}>
-              <CustomText type="small" style={styles.fromLabel}>
-                From:
-              </CustomText>
-              <CustomText type="bodyB" style={styles.fromName}>
-                {personaName} 💖
-              </CustomText>
-            </View>
             
             <View style={styles.toContainer}>
               <CustomText type="small" style={styles.toLabel}>
@@ -148,11 +213,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: scale(20),
+    paddingBottom: scale(70),
   },
   postcardContainer: {
     width: '100%',
+    height: '100%',
     maxWidth: scale(350),
     minHeight: verticalScale(500),
+
     backgroundColor: '#FFF8DC', // Cornsilk - 빈티지 크림색
     borderRadius: scale(16),
     padding: scale(24),
@@ -201,24 +269,26 @@ const styles = StyleSheet.create({
   
   // ⭐ Message Area (메시지)
   messageScrollContainer: {
-    marginTop: scale(40), // Space for stamp
+    marginTop: scale(20), // Space for stamp
     flex: 1,
+
   },
   messageScrollContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: scale(20),
   },
   decorativeIcon: {
     marginBottom: scale(16),
+    display: 'none',
   },
   messageText: {
     fontSize: moderateScale(18),
     lineHeight: moderateScale(28),
     color: '#2C1810', // Dark brown
-    textAlign: 'center',
+    textAlign: 'left',
     fontFamily: 'System', // iOS uses system handwriting-like font
     fontWeight: '400',
-    paddingHorizontal: scale(12),
+    paddingHorizontal: scale(0),
   },
   divider: {
     flexDirection: 'row',
