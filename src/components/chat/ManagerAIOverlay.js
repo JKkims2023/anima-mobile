@@ -36,6 +36,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Sound from 'react-native-sound'; // 🎵 NEW: Music playback
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
@@ -47,6 +48,9 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
+
+// 🎵 Enable playback in silence mode (iOS)
+Sound.setCategory('Playback');
 // 🗑️ TEMPORARILY DISABLED: Identity Guide (during refactoring)
 // import IdentityGuideModal from './IdentityGuideModal'; // 🎭 NEW: Identity guide (Modal-based)
 // import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
@@ -142,6 +146,9 @@ const ManagerAIOverlay = ({
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
   
+  // 🎵 NEW: Music player state
+  const soundInstanceRef = useRef(null); // Sound instance for music playback
+  
   // ⭐ NEW: Chat history state
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
@@ -211,6 +218,30 @@ const ManagerAIOverlay = ({
       loadAISettings();
     }
   }, [visible, user?.user_key]);
+  
+  // 🎵 NEW: Cleanup sound instance on unmount
+  useEffect(() => {
+    return () => {
+      // Release sound resources when component unmounts
+      if (soundInstanceRef.current) {
+        console.log('🗑️  [Music Player] Releasing sound resources...');
+        soundInstanceRef.current.stop();
+        soundInstanceRef.current.release();
+        soundInstanceRef.current = null;
+      }
+    };
+  }, []);
+  
+  // 🎵 NEW: Cleanup previous sound when floating content changes
+  useEffect(() => {
+    // If floatingContent changes (new music or cleared), stop and release previous sound
+    if (soundInstanceRef.current && floatingContent?.contentType !== 'music') {
+      console.log('🗑️  [Music Player] Cleaning up previous sound (content changed)...');
+      soundInstanceRef.current.stop();
+      soundInstanceRef.current.release();
+      soundInstanceRef.current = null;
+    }
+  }, [floatingContent?.contentId]); // Re-run when content ID changes
   
   // 🗑️ TEMPORARILY DISABLED: Identity Guide check (during refactoring)
   /*
@@ -536,19 +567,98 @@ const ManagerAIOverlay = ({
       console.log('🎵 [Music Player] Button clicked');
       console.log('   isPlaying:', floatingContent.isPlaying);
       console.log('   Track:', floatingContent.track.title);
-      
-      // Toggle playing state
-      setFloatingContent(prev => ({
-        ...prev,
-        isPlaying: !prev.isPlaying
-      }));
+      console.log('   URL:', floatingContent.track.url);
       
       // Haptic feedback
       HapticService.trigger('impactMedium');
       
-      // TODO: Integrate with actual music player (React Native Video/Sound)
-      // For now, just toggle the state for UI animation
-      console.log(`🎵 [Music Player] ${floatingContent.isPlaying ? 'Pausing' : 'Playing'}: ${floatingContent.track.url}`);
+      // 🎵 If currently playing, pause
+      if (floatingContent.isPlaying && soundInstanceRef.current) {
+        console.log('⏸️  [Music Player] Pausing...');
+        soundInstanceRef.current.pause();
+        
+        setFloatingContent(prev => ({
+          ...prev,
+          isPlaying: false
+        }));
+        
+        return;
+      }
+      
+      // 🎵 If paused (sound exists), resume
+      if (!floatingContent.isPlaying && soundInstanceRef.current) {
+        console.log('▶️  [Music Player] Resuming...');
+        soundInstanceRef.current.play((success) => {
+          if (!success) {
+            console.log('❌ [Music Player] Playback failed');
+            // Reset state on failure
+            setFloatingContent(prev => ({
+              ...prev,
+              isPlaying: false
+            }));
+          }
+        });
+        
+        setFloatingContent(prev => ({
+          ...prev,
+          isPlaying: true
+        }));
+        
+        return;
+      }
+      
+      // 🎵 First time: Load and play music from URL
+      console.log('🔄 [Music Player] Loading music from URL...');
+      
+      const sound = new Sound(
+        floatingContent.track.url,
+        null, // null for URL (not local file)
+        (error) => {
+          if (error) {
+            console.log('❌ [Music Player] Failed to load music:', error);
+            Alert.alert(
+              '음악 재생 실패',
+              '음악을 불러올 수 없습니다. 다시 시도해주세요.',
+              [{ text: '확인' }]
+            );
+            return;
+          }
+          
+          // Success: Music loaded
+          console.log('✅ [Music Player] Music loaded successfully!');
+          console.log(`   Duration: ${Math.floor(sound.getDuration() / 60)}:${String(Math.floor(sound.getDuration() % 60)).padStart(2, '0')}`);
+          
+          // Store sound instance
+          soundInstanceRef.current = sound;
+          
+          // Play music
+          sound.play((success) => {
+            if (success) {
+              console.log('✅ [Music Player] Playback finished successfully');
+              // Reset state when playback completes
+              setFloatingContent(prev => ({
+                ...prev,
+                isPlaying: false
+              }));
+              // Release resources
+              sound.release();
+              soundInstanceRef.current = null;
+            } else {
+              console.log('❌ [Music Player] Playback failed');
+              setFloatingContent(prev => ({
+                ...prev,
+                isPlaying: false
+              }));
+            }
+          });
+          
+          // Update state to playing
+          setFloatingContent(prev => ({
+            ...prev,
+            isPlaying: true
+          }));
+        }
+      );
       
       return; // ⭐ Early return to avoid image logic
     }
