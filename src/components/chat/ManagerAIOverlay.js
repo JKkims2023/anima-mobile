@@ -531,6 +531,29 @@ const ManagerAIOverlay = ({
   const handleFloatingContentPress = useCallback(async () => {
     if (!floatingContent) return;
     
+    // 🎵 NEW: Handle music player toggle (instant playback!)
+    if (floatingContent.contentType === 'music' && floatingContent.track) {
+      console.log('🎵 [Music Player] Button clicked');
+      console.log('   isPlaying:', floatingContent.isPlaying);
+      console.log('   Track:', floatingContent.track.title);
+      
+      // Toggle playing state
+      setFloatingContent(prev => ({
+        ...prev,
+        isPlaying: !prev.isPlaying
+      }));
+      
+      // Haptic feedback
+      HapticService.trigger('impactMedium');
+      
+      // TODO: Integrate with actual music player (React Native Video/Sound)
+      // For now, just toggle the state for UI animation
+      console.log(`🎵 [Music Player] ${floatingContent.isPlaying ? 'Pausing' : 'Playing'}: ${floatingContent.track.url}`);
+      
+      return; // ⭐ Early return to avoid image logic
+    }
+    
+    // 🎨 EXISTING: Handle image content (unchanged)
     console.log('👁️  [Floating Content] Button clicked');
     console.log('   Content ID:', floatingContent.contentId);
     console.log('   Current Status:', floatingContent.status);
@@ -911,6 +934,7 @@ const ManagerAIOverlay = ({
         const identityDraftPending = response.data.identity_draft_pending || null; // 🎭 NEW: Identity draft flag
         const identityEvolution = response.data.identity_evolution || null; // 🌟 NEW: Identity evolution notification
         const generatedContent = response.data.generated_content || null; // 🎨 NEW: Real-time content generation
+        const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
@@ -924,6 +948,7 @@ const ManagerAIOverlay = ({
         console.log('   🔍 [DEBUG] identity_evolution length:', identityEvolution?.length); // 🔧 DEBUG
         console.log('   🔍 [DEBUG] identity_evolution JSON:', JSON.stringify(identityEvolution)); // 🔧 DEBUG
         console.log('   🎨 [Chat Content] generated_content:', generatedContent); // 🎨 NEW
+        console.log('   🎵 [Music Search] music:', musicData); // 🎵 NEW
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         // 🌟 NEW: Show identity evolution notification (supports multiple tool calls)
@@ -977,6 +1002,34 @@ const ManagerAIOverlay = ({
           
           // 🔔 TODO: Push callback으로 status 업데이트 (향후)
           // For now, user clicks button to check status
+          
+          // Haptic feedback
+          HapticService.trigger('success');
+        }
+        
+        // 🎵 NEW: Handle real-time music search (instant!)
+        if (musicData && musicData.track) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🎵 [Music Search] AI recommended music!');
+          console.log('   Track:', musicData.track.title);
+          console.log('   Artist:', musicData.track.artist);
+          console.log('   Duration:', musicData.track.duration, 's');
+          console.log('   URL:', musicData.track.url);
+          console.log('   Emotion:', musicData.emotion);
+          console.log('   Mood:', musicData.mood || 'none');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          // Set floating content state (music is ready instantly!)
+          setFloatingContent({
+            contentType: 'music',
+            status: 'completed', // ⭐ Music is instant (no processing)
+            track: musicData.track,
+            alternatives: musicData.alternatives || [],
+            emotion: musicData.emotion,
+            mood: musicData.mood,
+            reasoning: musicData.reasoning,
+            isPlaying: false // Initially not playing
+          });
           
           // Haptic feedback
           HapticService.trigger('success');
@@ -1407,6 +1460,7 @@ const ManagerAIOverlay = ({
               <FloatingContentButton
                 contentType={floatingContent.contentType}
                 status={floatingContent.status}
+                isPlaying={floatingContent.isPlaying || false} // 🎵 NEW: Music playing state
                 onPress={handleFloatingContentPress}
                 onRetry={() => {
                   // Retry by hiding and letting user ask again

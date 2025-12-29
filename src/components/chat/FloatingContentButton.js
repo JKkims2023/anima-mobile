@@ -31,6 +31,7 @@ const { width } = Dimensions.get('window');
 const FloatingContentButton = ({
   contentType = 'image', // 'image' | 'music'
   status = 'processing', // 'processing' | 'completed' | 'failed'
+  isPlaying = false, // 🎵 NEW: For music player toggle
   onPress,
   onRetry,
   style,
@@ -70,9 +71,9 @@ const FloatingContentButton = ({
     HapticService.trigger('impactLight');
   }, []);
 
-  // Pulse animation for processing state
+  // Pulse animation for processing state or playing music
   useEffect(() => {
-    if (status === 'processing') {
+    if (status === 'processing' || (contentType === 'music' && isPlaying)) {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -91,7 +92,7 @@ const FloatingContentButton = ({
 
       return () => pulse.stop();
     }
-  }, [status]);
+  }, [status, contentType, isPlaying]); // 🎵 Added isPlaying dependency
 
   const handlePress = () => {
     if (status === 'completed') {
@@ -109,7 +110,11 @@ const FloatingContentButton = ({
       return 'alert-circle-outline';
     }
     if (contentType === 'music') {
-      return status === 'completed' ? 'musical-notes' : 'musical-notes-outline';
+      // 🎵 Music player icons (speaker)
+      if (status === 'processing') {
+        return 'musical-notes-outline'; // Searching for music
+      }
+      return isPlaying ? 'volume-high' : 'volume-mute'; // Playing / Paused
     }
     return status === 'completed' ? 'images' : 'image-outline';
   };
@@ -117,10 +122,14 @@ const FloatingContentButton = ({
   // Text based on status
   const getText = () => {
     if (status === 'processing') {
-      return contentType === 'image' ? '이미지 생성 중...' : '음악 생성 중...';
+      return contentType === 'image' ? '이미지 생성 중...' : '음악 검색 중...';
     }
     if (status === 'completed') {
-      return contentType === 'image' ? '이미지 보기 👁️' : '음악 듣기 🎵';
+      if (contentType === 'image') {
+        return '이미지 보기 👁️';
+      }
+      // 🎵 Music player text
+      return isPlaying ? '재생 중 🎵' : '음악 재생 ▶️';
     }
     if (status === 'failed') {
       return '생성 실패 🔄';
@@ -148,7 +157,7 @@ const FloatingContentButton = ({
           transform: [
             { scale: scaleAnim },
             { translateX: slideAnim },
-            { scale: status === 'processing' ? pulseAnim : 1 },
+            { scale: (status === 'processing' || (contentType === 'music' && isPlaying)) ? pulseAnim : 1 },
           ],
         },
       ]}
