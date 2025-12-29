@@ -32,6 +32,7 @@ import {
   ActivityIndicator,
   Alert,
   Image, // 🆕 For image preview
+  AppState, // 🎵 NEW: For background state detection
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -232,16 +233,48 @@ const ManagerAIOverlay = ({
     };
   }, []);
   
-  // 🎵 NEW: Cleanup previous sound when floating content changes
+  // 🎵 NEW: Cleanup previous sound when new music arrives or content cleared
   useEffect(() => {
-    // If floatingContent changes (new music or cleared), stop and release previous sound
-    if (soundInstanceRef.current && floatingContent?.contentType !== 'music') {
-      console.log('🗑️  [Music Player] Cleaning up previous sound (content changed)...');
+    // When new music arrives (track.id changes) or content cleared, stop previous sound
+    const currentTrackId = floatingContent?.track?.id;
+    
+    if (soundInstanceRef.current) {
+      // Always stop and release previous sound when track changes
+      console.log('🗑️  [Music Player] Cleaning up previous sound (new track or cleared)...');
       soundInstanceRef.current.stop();
       soundInstanceRef.current.release();
       soundInstanceRef.current = null;
+      
+      // Also reset playing state
+      if (floatingContent?.isPlaying) {
+        setFloatingContent(prev => prev ? ({ ...prev, isPlaying: false }) : null);
+      }
     }
-  }, [floatingContent?.contentId]); // Re-run when content ID changes
+  }, [floatingContent?.track?.id]); // Re-run when track ID changes (new music)
+  
+  // 🎵 NEW: Handle app state changes (pause music when app goes to background)
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      console.log('📱 [AppState] App state changed:', nextAppState);
+      
+      // If app goes to background or inactive, pause music
+      if ((nextAppState === 'background' || nextAppState === 'inactive') && soundInstanceRef.current) {
+        console.log('⏸️  [Music Player] App backgrounded, pausing music...');
+        soundInstanceRef.current.pause();
+        
+        // Update UI state
+        setFloatingContent(prev => prev ? ({ ...prev, isPlaying: false }) : null);
+      }
+    };
+    
+    // Subscribe to app state changes
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    // Cleanup
+    return () => {
+      subscription?.remove();
+    };
+  }, []); // Only run once on mount
   
   // 🗑️ TEMPORARILY DISABLED: Identity Guide check (during refactoring)
   /*
@@ -1287,6 +1320,17 @@ const ManagerAIOverlay = ({
   */
   
   const handleClose = useCallback(() => {
+    // 🎵 NEW: Stop and cleanup music when closing chat
+    if (soundInstanceRef.current) {
+      console.log('🗑️  [Music Player] Stopping music on chat close...');
+      soundInstanceRef.current.stop();
+      soundInstanceRef.current.release();
+      soundInstanceRef.current = null;
+    }
+    
+    // Clear floating content (music button)
+    setFloatingContent(null);
+    
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
       // Only trigger if we have meaningful conversation (3+ messages)
@@ -1325,6 +1369,15 @@ const ManagerAIOverlay = ({
             text: '종료',
             style: 'destructive',
             onPress: () => {
+              // 🎵 NEW: Stop music when force closing
+              if (soundInstanceRef.current) {
+                console.log('🗑️  [Music Player] Stopping music on force close...');
+                soundInstanceRef.current.stop();
+                soundInstanceRef.current.release();
+                soundInstanceRef.current = null;
+              }
+              setFloatingContent(null);
+              
               // Force stop AI conversation
               setIsAIContinuing(false);
               aiContinueCountRef.current = 0; // ⭐ Reset ref
