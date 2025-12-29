@@ -43,16 +43,18 @@ const QuickActionChipsAnimated = ({
   onMusicClick,      // ⭐ 6. Music
   onShareClick,      // ⭐ 7. Share
   isVideoConverting = false, // ⭐ NEW: Video converting state
+  currentPersona = null,
 }) => {
+  console.log('currentPersona: ', currentPersona);
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(false);
 
   const actions = [
-  //  { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
+    { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
 //    { id: 'share', icon: 'share', label: t('common.share'), onClick: onShareClick },
-//    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
+    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
 //    {id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick},
 //    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
   ];
@@ -215,7 +217,7 @@ const QuickActionChipsAnimated = ({
         const animatedStyle = animatedStyles[index];
         
         return (
-          <View key={action.id} style={styles.chipWrapper}>
+          <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' : 'flex' }]}>
             <TouchableOpacity
               style={[styles.chip, animatedStyle]}
               onPress={() => handlePress(action)}

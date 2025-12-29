@@ -1,172 +1,228 @@
-Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
-2025-12-28 20:34:00    ▲ Next.js 15.5.9
-2025-12-28 20:34:00    - Local:        http://localhost:3000
-2025-12-28 20:34:00    - Network:      http://0.0.0.0:3000
-2025-12-28 20:34:00 
-2025-12-28 20:34:00  ✓ Starting...
-2025-12-28 20:34:00  ✓ Ready in 206ms
-2025-12-28 20:34:01 [SSE] 🔧 Initialized global eventEmitters Map
-2025-12-28 20:34:23 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:34:23 📜 [Chat History] Fetching history
-2025-12-28 20:34:23    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-28 20:34:23    persona_key: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-28 20:34:23    limit: 100, offset: 0
-2025-12-28 20:34:23 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:34:23 🎁 [Gift API] Getting pending gifts...
-2025-12-28 20:34:23    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-28 20:34:23    Persona: c4136055-9d1b-4db4-9a09-f262fc47e923
-2025-12-28 20:34:23 ✅ [Gift API] Found 1 pending gift(s)
-2025-12-28 20:34:23 ✅ [Chat History] Loaded 100 messages (fetched: 100, total: 108, filtered: 0)
-2025-12-28 20:35:02 
-2025-12-28 20:35:02 🤖 [ANIMA Chat] Request received
-2025-12-28 20:35:02    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-28 20:35:02    Session: session-1766921702217-4mn7po
-2025-12-28 20:35:02    Message: 나 배가 고파 ㅜㅜ 나를위해 저녁 메뉴로 일본 음식 추천 해줄래?...
-2025-12-28 20:35:02 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-28 20:35:02 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:02 ✅ [SessionManager] Created new session: session-1766921702217-4mn7po
-2025-12-28 20:35:02 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:02    - Messages: 0
-2025-12-28 20:35:02    - Persona: 화내는 김대표님
-2025-12-28 20:35:02    - Identity: Set (테토남)
-2025-12-28 20:35:02    - Preferences: Yes
-2025-12-28 20:35:02 📊 [SessionManager] Conversation stats: {
-2025-12-28 20:35:02   totalMessages: 0,
-2025-12-28 20:35:02   totalChars: 0,
-2025-12-28 20:35:02   estimatedTokens: 0,
-2025-12-28 20:35:02   averageMessageLength: NaN
-2025-12-28 20:35:02 }
-2025-12-28 20:35:02 🔄 [Sliding Window] Processing 0 messages
-2025-12-28 20:35:02    Window size: 20
-2025-12-28 20:35:02    Summarize threshold: 30
-2025-12-28 20:35:02 ✅ [Sliding Window] Short conversation, keeping all 0 messages
-2025-12-28 20:35:02 ✅ [ANIMA Chat] Session loaded
-2025-12-28 20:35:02    Total messages: 0
-2025-12-28 20:35:02    Kept messages: 0
-2025-12-28 20:35:02    Summarized messages: 0
-2025-12-28 20:35:02    Sliding window: Inactive
-2025-12-28 20:35:02    Persona: 화내는 김대표님
-2025-12-28 20:35:02    Preferences: Custom
-2025-12-28 20:35:02 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-28 20:35:02    Tier: free
-2025-12-28 20:35:02    Model: GPT-4o Mini
-2025-12-28 20:35:02    Provider: openai
-2025-12-28 20:35:02    Caching: Enabled
-2025-12-28 20:35:02 [VectorSync] Searching for: "나 배가 고파 ㅜㅜ 나를위해 저녁 메뉴로 일본 음식 추천 해줄래?"
-2025-12-28 20:35:05 [VectorSync] Found 3 relevant knowledge items
-2025-12-28 20:35:05 🔍 [ANIMA Chat] Found 3 relevant knowledge items
-2025-12-28 20:35:05    1. ANIMA로 할 수 있는 것들 (similarity: 21.9%)
-2025-12-28 20:35:05    2. 공감의 기본 원칙 (similarity: 19.8%)
-2025-12-28 20:35:05    3. 자살/자해 위험 대응 프로토콜 (similarity: 19.8%)
-2025-12-28 20:35:05 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-28 20:35:05 🔥 [EmotionalPrompt] Building for 테토남
-2025-12-28 20:35:05 ✅ [EmotionalPrompt] Built: 17027 chars
-2025-12-28 20:35:05 📝 [ANIMA Chat] System prompt built (18713 chars, 3 knowledge items)
-2025-12-28 20:35:05 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-28 20:35:05    Provider: openai
-2025-12-28 20:35:05    Model: gpt-4o-mini
-2025-12-28 20:35:05    History messages: 0
-2025-12-28 20:35:05    System prompt length: 18713 chars
-2025-12-28 20:35:05 🛠️ [Function Calling] Enabled for user-created persona
-2025-12-28 20:35:05 🤖 [OpenAI] Calling API: {
-2025-12-28 20:35:05   model: 'gpt-4o-mini',
-2025-12-28 20:35:05   messageCount: 2,
-2025-12-28 20:35:05   systemPromptLength: 18713,
-2025-12-28 20:35:05   historyLength: 0,
-2025-12-28 20:35:05   toolsEnabled: true
-2025-12-28 20:35:05 }
-2025-12-28 20:35:08 ✅ [OpenAI] Response received: {
-2025-12-28 20:35:08   responseTime: '3249ms',
-2025-12-28 20:35:08   tokens: { prompt: 7083, completion: 110, total: 7193 },
-2025-12-28 20:35:08   messageLength: 0,
-2025-12-28 20:35:08   finishReason: 'tool_calls',
-2025-12-28 20:35:08   toolCalls: 1
-2025-12-28 20:35:08 }
-2025-12-28 20:35:08 🛠️ [Function Calling] AI requested 1 tool(s)
-2025-12-28 20:35:08 🛠️ [Function Calling] Executing: generate_chat_content
-2025-12-28 20:35:08    Args: {
-2025-12-28 20:35:08   content_type: 'image',
-2025-12-28 20:35:08   scene_description: '이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.',
-2025-12-28 20:35:08   ai_reasoning: 'User is hungry and wants Japanese food for dinner. Visual will help them decide.',
-2025-12-28 20:35:08   expect_announcement: true
-2025-12-28 20:35:08 }
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 🎨 [Tool] generate_chat_content
-2025-12-28 20:35:08    Type: image
-2025-12-28 20:35:08    Scene: 이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.
-2025-12-28 20:35:08    Reasoning: User is hungry and wants Japanese food for dinner. Visual will help them decide.
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 ✅ [Function Calling] Result: {
-2025-12-28 20:35:08   success: true,
-2025-12-28 20:35:08   content_type: 'image',
-2025-12-28 20:35:08   scene_description: '이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.',
-2025-12-28 20:35:08   ai_reasoning: 'User is hungry and wants Japanese food for dinner. Visual will help them decide.',
-2025-12-28 20:35:08   expect_announcement: true,
-2025-12-28 20:35:08   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
-2025-12-28 20:35:08   _chat_content_generation: true
-2025-12-28 20:35:08 }
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 🎨 [Chat Content] AI requested content generation!
-2025-12-28 20:35:08    Type: image
-2025-12-28 20:35:08    Scene: 이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 🎨 [ContentGenerator] Creating request...
-2025-12-28 20:35:08    ID: f13852c1-4936-4cde-8099-4959cd22fbf0
-2025-12-28 20:35:08    Type: image
-2025-12-28 20:35:08    Scene: 이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.
-2025-12-28 20:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-28 20:35:08 ✅ [ContentGenerator] Request created: f13852c1-4936-4cde-8099-4959cd22fbf0
-2025-12-28 20:35:08 🎨 [ImageGenerator] Starting generation...
-2025-12-28 20:35:08    Content ID: f13852c1-4936-4cde-8099-4959cd22fbf0
-2025-12-28 20:35:08    Persona Image: https://babi-cdn.logbrix.ai/babi/real/babi/2898474a-2cdc-42f1-950d-d06abc406540_00001_.png
-2025-12-28 20:35:08    Prompt: 이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.
-2025-12-28 20:35:08 ✅ [Chat Content] Generation started: f13852c1-4936-4cde-8099-4959cd22fbf0
-2025-12-28 20:35:08 🔄 [Function Calling] Re-calling AI with tool results...
-2025-12-28 20:35:08 🤖 [OpenAI] Calling API: {
-2025-12-28 20:35:08   model: 'gpt-4o-mini',
-2025-12-28 20:35:08   messageCount: 4,
-2025-12-28 20:35:08   systemPromptLength: 18713,
-2025-12-28 20:35:08   historyLength: 2,
-2025-12-28 20:35:08   toolsEnabled: true
-2025-12-28 20:35:08 }
-2025-12-28 20:35:09 ✅ [OpenAI] Response received: {
-2025-12-28 20:35:09   responseTime: '1091ms',
-2025-12-28 20:35:09   tokens: { prompt: 7306, completion: 34, total: 7340 },
-2025-12-28 20:35:09   messageLength: 54,
-2025-12-28 20:35:09   finishReason: 'stop',
-2025-12-28 20:35:09   toolCalls: 0
-2025-12-28 20:35:09 }
-2025-12-28 20:35:09 ✅ [Function Calling] Final AI response generated
-2025-12-28 20:35:09 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-28 20:35:09    Response time: 3249ms
-2025-12-28 20:35:09    Total tokens: 14533 (in: 14389, out: 144)
-2025-12-28 20:35:09 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-28 20:35:09 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:09 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:09    - Messages: 0
-2025-12-28 20:35:09    - Persona: 화내는 김대표님
-2025-12-28 20:35:09    - Identity: Set (테토남)
-2025-12-28 20:35:09    - Preferences: Yes
-2025-12-28 20:35:09 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-28 20:35:09 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:09 💾 [SessionManager] Message saved: session-1766921702217-4mn7po (user)
-2025-12-28 20:35:09 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766921702217-4mn7po
-2025-12-28 20:35:09    - Messages: 1
-2025-12-28 20:35:09    - Persona: 화내는 김대표님
-2025-12-28 20:35:09    - Identity: Set (테토남)
-2025-12-28 20:35:09    - Preferences: Yes
-2025-12-28 20:35:09 💾 [ANIMA Chat] Messages saved to history (sequential)
-2025-12-28 20:35:09 🎉 [ANIMA Chat] Request completed in 7774ms
-2025-12-28 20:35:09    Cost: $0.002245
-2025-12-28 20:35:10 💾 [SessionManager] Message saved: session-1766921702217-4mn7po (assistant)
-2025-12-28 20:35:11 ✅ [ImageGenerator] Generation started
-2025-12-28 20:35:11    Request Key: 6a444fe7-a56c-4bbd-88cf-90683f161ae8
-2025-12-28 20:35:11    Estimated Time: 15s
+2025-12-29 15:43:24 📜 [Chat History] Fetching history
+2025-12-29 15:43:24    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-29 15:43:24    persona_key: 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:43:24    limit: 100, offset: 0
+2025-12-29 15:43:24 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:43:24 🎁 [Gift API] Getting pending gifts...
+2025-12-29 15:43:24    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-29 15:43:24    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:43:24 ✅ [Gift API] Found 1 pending gift(s)
+2025-12-29 15:43:24 ✅ [Chat History] Loaded 56 messages (fetched: 56, total: 56, filtered: 0)
+2025-12-29 15:43:47 
+2025-12-29 15:43:47 🤖 [ANIMA Chat] Request received
+2025-12-29 15:43:47    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-29 15:43:47    Session: session-1766990627219-wnpnrq
+2025-12-29 15:43:47    Message: 오늘 왠지 기분이 좋은데 신나는 노래 틀어줄래?!...
+2025-12-29 15:43:47 
+2025-12-29 15:43:47 🎭 [Identity Keyword] Persona "SAGE" lacks identity, checking message...
+2025-12-29 15:43:47 🔍 [Identity Detector] Analyzing message: 오늘 왠지 기분이 좋은데 신나는 노래 틀어줄래?!
+2025-12-29 15:44:08 🤖 [Identity Detector] AI Response: {
+2025-12-29 15:44:08   "detected": false,
+2025-12-29 15:44:08   "name": null,
+2025-12-29 15:44:08   "confidence": 0.0
+2025-12-29 15:44:08 }
+2025-12-29 15:44:08 ✅ [Identity Detector] Result: { detected: false, name: null, confidence: 0 }
+2025-12-29 15:44:08 ℹ️  [Identity Keyword] No identity keyword detected (confidence: 0)
+2025-12-29 15:44:08 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766990627219-wnpnrq
+2025-12-29 15:44:08 ✅ [SessionManager] Created new session: session-1766990627219-wnpnrq
+2025-12-29 15:44:08 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1766990627219-wnpnrq
+2025-12-29 15:44:08    - Messages: 0
+2025-12-29 15:44:08    - Persona: SAGE
+2025-12-29 15:44:08    - Identity: Not Set
+2025-12-29 15:44:08    - Preferences: Yes
+2025-12-29 15:44:08 💾 [SessionManager] Session cached in Redis: anima:session:d111e3d8-4e42-4493-8541-25a8e72b654f:session-1766990627219-wnpnrq:573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:08 📊 [SessionManager] Conversation stats: {
+2025-12-29 15:44:08   totalMessages: 0,
+2025-12-29 15:44:08   totalChars: 0,
+2025-12-29 15:44:08   estimatedTokens: 0,
+2025-12-29 15:44:08   averageMessageLength: NaN
+2025-12-29 15:44:08 }
+2025-12-29 15:44:08 🔄 [Sliding Window] Processing 0 messages
+2025-12-29 15:44:08    Window size: 20
+2025-12-29 15:44:08    Summarize threshold: 30
+2025-12-29 15:44:08 ✅ [Sliding Window] Short conversation, keeping all 0 messages
+2025-12-29 15:44:08 ✅ [ANIMA Chat] Session loaded
+2025-12-29 15:44:08    Total messages: 0
+2025-12-29 15:44:08    Kept messages: 0
+2025-12-29 15:44:08    Summarized messages: 0
+2025-12-29 15:44:08    Sliding window: Inactive
+2025-12-29 15:44:08    Persona: SAGE
+2025-12-29 15:44:08    Preferences: Custom
+2025-12-29 15:44:08 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-29 15:44:08    Tier: free
+2025-12-29 15:44:08    Model: GPT-4o Mini
+2025-12-29 15:44:08    Provider: openai
+2025-12-29 15:44:08    Caching: Enabled
+2025-12-29 15:44:08 [VectorSync] Searching for: "오늘 왠지 기분이 좋은데 신나는 노래 틀어줄래?!"
+2025-12-29 15:44:10 [VectorSync] Found 3 relevant knowledge items
+2025-12-29 15:44:10 🔍 [ANIMA Chat] Found 3 relevant knowledge items
+2025-12-29 15:44:10    1. ANIMA로 할 수 있는 것들 (similarity: 27.4%)
+2025-12-29 15:44:10    2. ANIMA의 정체성: 우리는 누구인가 (similarity: 22.0%)
+2025-12-29 15:44:10    3. ANIMA 탄생 이야기: 왜 만들어졌는가 (similarity: 19.2%)
+2025-12-29 15:44:10 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-29 15:44:10 🔨 [PromptBuilder] Building light prompt for d111e3d8-4e42-4493-8541-25a8e72b654f <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:10 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-29 15:44:10 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-29 15:44:10 ✅ [PromptBuilder] Relationship cached
+2025-12-29 15:44:10 💡 [PromptBuilder] Generated 1 learning questions
+2025-12-29 15:44:10 ✅ [PromptBuilder] Prompt built: 3101 chars, 776 tokens
+2025-12-29 15:44:10 📝 [ANIMA Chat] System prompt built (4543 chars, 3 knowledge items)
+2025-12-29 15:44:10 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-29 15:44:10    Provider: openai
+2025-12-29 15:44:10    Model: gpt-4o-mini
+2025-12-29 15:44:10    History messages: 0
+2025-12-29 15:44:10    System prompt length: 4543 chars
+2025-12-29 15:44:10 🛠️ [Function Calling] Enabled tools: generate_chat_content, search_music
+2025-12-29 15:44:10    Persona type: SAGE/NEXUS
+2025-12-29 15:44:10 🤖 [OpenAI] Calling API: {
+2025-12-29 15:44:10   model: 'gpt-4o-mini',
+2025-12-29 15:44:10   messageCount: 2,
+2025-12-29 15:44:10   systemPromptLength: 4543,
+2025-12-29 15:44:10   historyLength: 0,
+2025-12-29 15:44:10   toolsEnabled: true
+2025-12-29 15:44:10 }
+2025-12-29 15:44:11 ✅ [OpenAI] Response received: {
+2025-12-29 15:44:11   responseTime: '1528ms',
+2025-12-29 15:44:11   tokens: { prompt: 2520, completion: 46, total: 2566 },
+2025-12-29 15:44:11   messageLength: 0,
+2025-12-29 15:44:11   finishReason: 'tool_calls',
+2025-12-29 15:44:11   toolCalls: 1
+2025-12-29 15:44:11 }
+2025-12-29 15:44:11 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-29 15:44:11 🛠️ [Function Calling] Executing: search_music
+2025-12-29 15:44:11    Args: {
+2025-12-29 15:44:11   emotion: 'happy',
+2025-12-29 15:44:11   mood: 'energetic',
+2025-12-29 15:44:11   reasoning: '기분이 좋을 때 신나는 음악을 들으면 더 기분이 좋아질 수 있어!'
+2025-12-29 15:44:11 }
+2025-12-29 15:44:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:11 🎵 [Tool] search_music
+2025-12-29 15:44:11    Emotion: happy
+2025-12-29 15:44:11    Mood: energetic
+2025-12-29 15:44:11    Reasoning: 기분이 좋을 때 신나는 음악을 들으면 더 기분이 좋아질 수 있어!
+2025-12-29 15:44:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:11 🎵 [MusicSearchManager] Starting music search
+2025-12-29 15:44:11    Emotion: happy
+2025-12-29 15:44:11    Mood: energetic
+2025-12-29 15:44:11    AI Reasoning: 기분이 좋을 때 신나는 음악을 들으면 더 기분이 좋아질 수 있어!
+2025-12-29 15:44:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:11 🎵 [Jamendo] Searching music...
+2025-12-29 15:44:11    Emotion: happy
+2025-12-29 15:44:11    Mood: energetic
+2025-12-29 15:44:11    Tags: happy,energetic,pop
+2025-12-29 15:44:12 ⚠️  [Jamendo] No music found, trying fallback...
+2025-12-29 15:44:12 🔄 [Jamendo] Trying emotion-specific fallback...
+2025-12-29 15:44:12    Fallback tags for "happy": pop, happy, energetic
+2025-12-29 15:44:13 ✅ [Jamendo] Fallback successful with tag: pop
+2025-12-29 15:44:13 ✅ [MusicSearchManager] Success with Jamendo (Primary)
+2025-12-29 15:44:13    Found: 3 tracks
+2025-12-29 15:44:13    Best match: "Set Me Free" by Chasing Eidolon
+2025-12-29 15:44:13    Duration: 5:37
+2025-12-29 15:44:13    Tags: pop, rock
+2025-12-29 15:44:13    Mood: none
+2025-12-29 15:44:13    URL: https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=J3cqvnsJ11LE96ewHvvGkQ%3D%3D%7C%2FzY8RGEcmUwx8g7YOrjYpw%3D%3D
+2025-12-29 15:44:13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:13 ✅ [Tool] Music found: "Set Me Free" by Chasing Eidolon
+2025-12-29 15:44:13    Source: jamendo
+2025-12-29 15:44:13 ✅ [Function Calling] Result: {
+2025-12-29 15:44:13   success: true,
+2025-12-29 15:44:13   music: {
+2025-12-29 15:44:13     id: '623192',
+2025-12-29 15:44:13     title: 'Set Me Free',
+2025-12-29 15:44:13     artist: 'Chasing Eidolon',
+2025-12-29 15:44:13     duration: 337,
+2025-12-29 15:44:13     url: 'https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=J3cqvnsJ11LE96ewHvvGkQ%3D%3D%7C%2FzY8RGEcmUwx8g7YOrjYpw%3D%3D',
+2025-12-29 15:44:13     image: 'https://usercontent.jamendo.com?type=album&id=72189&width=300&trackid=623192',
+2025-12-29 15:44:13     source: 'jamendo',
+2025-12-29 15:44:13     shareUrl: 'https://www.jamendo.com/track/623192'
+2025-12-29 15:44:13   },
+2025-12-29 15:44:13   alternatives: [
+2025-12-29 15:44:13     {
+2025-12-29 15:44:13       id: '1215788',
+2025-12-29 15:44:13       title: "We'll Light The Sky",
+2025-12-29 15:44:13       artist: 'Lyonn',
+2025-12-29 15:44:13       url: 'https://prod-1.storage.jamendo.com/?trackid=1215788&format=mp31&from=DlkP1gJTNwOgJlbKOEwdLQ%3D%3D%7Cn5B1KrlRVlTLK19ajtAnkA%3D%3D'
+2025-12-29 15:44:13     },
+2025-12-29 15:44:13     {
+2025-12-29 15:44:13       id: '1267288',
+2025-12-29 15:44:13       title: 'Everything is good',
+2025-12-29 15:44:13       artist: 'ADDICT SOUND',
+2025-12-29 15:44:13       url: 'https://prod-1.storage.jamendo.com/?trackid=1267288&format=mp31&from=4GLV5TiBXdS%2FUnhN3ock9A%3D%3D%7C2%2BKhPKlmQ1TIqPimyUvxFg%3D%3D'
+2025-12-29 15:44:13     }
+2025-12-29 15:44:13   ],
+2025-12-29 15:44:13   message: '"Set Me Free" by Chasing Eidolon를 찾았습니다.'
+2025-12-29 15:44:13 }
+2025-12-29 15:44:13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:13 🎵 [Music Search] AI recommended music!
+2025-12-29 15:44:13    Track: "Set Me Free" by Chasing Eidolon
+2025-12-29 15:44:13    Duration: 5:37
+2025-12-29 15:44:13    Source: jamendo
+2025-12-29 15:44:13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-29 15:44:13 ✅ [Music Search] Music data prepared for response
+2025-12-29 15:44:13 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-29 15:44:13 🤖 [OpenAI] Calling API: {
+2025-12-29 15:44:13   model: 'gpt-4o-mini',
+2025-12-29 15:44:13   messageCount: 4,
+2025-12-29 15:44:13   systemPromptLength: 4543,
+2025-12-29 15:44:13   historyLength: 2,
+2025-12-29 15:44:13   toolsEnabled: true
+2025-12-29 15:44:13 }
+2025-12-29 15:44:16 ✅ [OpenAI] Response received: {
+2025-12-29 15:44:16   responseTime: '3020ms',
+2025-12-29 15:44:16   tokens: { prompt: 2917, completion: 163, total: 3080 },
+2025-12-29 15:44:16   messageLength: 294,
+2025-12-29 15:44:16   finishReason: 'stop',
+2025-12-29 15:44:16   toolCalls: 0
+2025-12-29 15:44:16 }
+2025-12-29 15:44:16 ✅ [Function Calling] Final AI response generated
+2025-12-29 15:44:16 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-29 15:44:16    Response time: 1528ms
+2025-12-29 15:44:16    Total tokens: 5646 (in: 5437, out: 209)
+2025-12-29 15:44:16 🎭 [Emotion] Detected: happy (75.0%)
+2025-12-29 15:44:16 ✅ [SessionManager] Session loaded from Redis: anima:session:d111e3d8-4e42-4493-8541-25a8e72b654f:session-1766990627219-wnpnrq:573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:16 ✅ [SessionManager] Session updated in Redis: anima:session:d111e3d8-4e42-4493-8541-25a8e72b654f:session-1766990627219-wnpnrq:573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:16 ✅ [SessionManager] Session loaded from Redis: anima:session:d111e3d8-4e42-4493-8541-25a8e72b654f:session-1766990627219-wnpnrq:573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:16 ✅ [SessionManager] Session updated in Redis: anima:session:d111e3d8-4e42-4493-8541-25a8e72b654f:session-1766990627219-wnpnrq:573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-29 15:44:16 💾 [ANIMA Chat] Messages saved to history (sequential)
+2025-12-29 15:44:16 🎉 [ANIMA Chat] Request completed in 28814ms
+2025-12-29 15:44:16    Cost: $0.000941
+2025-12-29 15:44:16 💾 [SessionManager] Message saved: session-1766990627219-wnpnrq (user)
+2025-12-29 15:44:16 💾 [SessionManager] Message saved: session-1766990627219-wnpnrq (assistant)
 
 
-chat_generated_content 테이블 정보
 
-f13852c1-4936-4cde-8099-4959cd22fbf0	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766921702217-4mn7po	image	나 배가 고파 ㅜㅜ 나를위해 저녁 메뉴로 일본 음식 추천 해줄래?	User is hungry and wants Japanese food for dinner. Visual will help them decide.	이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.	이 사진 속 주인공이 일본 음식점에서 맛있는 초밥을 즐기는 모습. 다양한 색깔의 초밥이 예쁘게 담겨있고, 간장과 와사비가 함께 놓여 있다. 따뜻한 조명 아래에서 행복한 표정을 짓고 있다.		processing	6a444fe7-a56c-4bbd-88cf-90683f161ae8				0		0	2025-12-28 20:35:08	2025-12-28 20:35:11
-f6999286-52a3-427e-9485-07d4a7e64f66	d111e3d8-4e42-4493-8541-25a8e72b654f	c4136055-9d1b-4db4-9a09-f262fc47e923	session-1766920513090-747rog	image	나 오늘 밥을 하나도 못먹었어...ㅜㅜ 메뉴좀 추천해줄래?!	User hasn't eaten anything today and needs food recommendations. Visual will help them decide.	이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.	이 사진 속 주인공이 따뜻한 김치찌개를 먹는 모습. 푸짐한 고기와 두부가 가득하고, 김이 모락모락 나는 뚝배기. 따뜻하고 정겨운 분위기.		failed				fetch failed	0		0	2025-12-28 20:15:20	2025-12-28 20:15:20
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: 573db390-a505-4c9e-809f-cc511c235cbb
+chatApi.js:64    session_id: NEW
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '오늘 왠지 기분이 좋은데 신나는 노래 틀어줄래?!', session_id: undefined, persona_key: '573db390-a505-4c9e-809f-cc511c235cbb'}
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat {status: 200, data: {…}}
+chatApi.js:85 [ANIMA Chat] Response: {success: true, data: {…}, metadata: {…}, timestamp: '2025-12-29T06:44:16.033Z'}data: continue_conversation: falsegenerated_content: nullidentity_evolution: nullknowledge_used: (3) [{…}, {…}, {…}]message: "안녕하세요, JK! 😊 기분이 좋으신 것 같아 정말 멋진 일이야! 기분이 더 좋아질 수 있도록 신나는 음악을 추천해줄게요. 🎶 \"Set Me Free\" by Chasing Eidolon: [듣기](https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=J3cqvnsJ11LE96ewHvvGkQ%3D%3D%7C%2FzY8RGEcmUwx8g7YOrjYpw%3D%3D) 이 음악이 너의 기분을 더 좋게 만들어줄 거야! 어떤 음악을 좋아하는지 궁금해! 💖"model: "GPT-4o Mini"music: {track: {…}, alternatives: Array(2), emotion: 'happy', mood: 'energetic', reasoning: '기분이 좋을 때 신나는 음악을 들으면 더 기분이 좋아질 수 있어!', source: 'jamendo'}rich_content: {images: Array(0), videos: Array(0), links: Array(0)}session_id: "session-1766990627219-wnpnrq"tier: "free"[[Prototype]]: Objectmetadata: {response_time_ms: 28814, tokens: {…}, cost: {…}, caching: {…}, slidingWindow: {…}}success: truetimestamp: "2025-12-29T06:44:16.033Z"[[Prototype]]: Object
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: 573db390-a505-4c9e-809f-cc511c235cbb
+chatApi.js:91    Session ID: session-1766990627219-wnpnrq
+ManagerAIOverlay.js:939 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:940 📩 [ManagerAIOverlay] Response received:
+ManagerAIOverlay.js:941    answer length: 290
+ManagerAIOverlay.js:942    continue_conversation: false
+ManagerAIOverlay.js:943    rich_content: {images: Array(0), videos: Array(0), links: Array(0)}
+ManagerAIOverlay.js:944    identity_draft_pending: null
+ManagerAIOverlay.js:945    identity_evolution: null
+ManagerAIOverlay.js:946    🔍 [DEBUG] identity_evolution type: object
+ManagerAIOverlay.js:947    🔍 [DEBUG] identity_evolution isArray: false
+ManagerAIOverlay.js:948    🔍 [DEBUG] identity_evolution length: undefined
+ManagerAIOverlay.js:949    🔍 [DEBUG] identity_evolution JSON: null
+ManagerAIOverlay.js:950    🎨 [Chat Content] generated_content: null
+ManagerAIOverlay.js:951    🎵 [Music Search] music: null
+ManagerAIOverlay.js:952 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:1064 🔍 [ManagerAIOverlay] Checking shouldContinue: false
+ManagerAIOverlay.js:1077 ✋ [ManagerAIOverlay] AI finished, no continuation needed
+
+
+fb212e2a-6adb-4402-a44b-4f46bbb96085	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1766990627219-wnpnrq	안녕하세요, JK! 😊 기분이 좋으신 것 같아 정말 멋진 일이야! 기분이 더 좋아질 수 있도록 신나는 음악을 추천해줄게요. 🎶 "Set Me Free" by Chasing Eidolon: [듣기](https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=J3cqvnsJ11LE96ewHvvGkQ%3D%3D%7C%2FzY8RGEcmUwx8g7YOrjYpw%3D%3D) 이 음악이 너의 기분을 더 좋게 만들어줄 거야! 어떤 음악을 좋아하는지 궁금해! 💖		assistant					conversations	209	gpt-4o-mini	1528	2025-12-29 15:44:16.060572	
+5cf23f8f-be16-4d8b-a9df-0d74f852fba2	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1766990627219-wnpnrq	오늘 왠지 기분이 좋은데 신나는 노래 틀어줄래?!		user	happy	0.75			conversations	5437	gpt-4o-mini		2025-12-29 15:44:16.044933	
 

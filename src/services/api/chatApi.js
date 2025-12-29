@@ -120,6 +120,9 @@ export const sendManagerAIMessage = async ({
         // 🎨 NEW: Real-time chat content generation
         generated_content: response.data.data?.generated_content || null,
         
+        // 🎵 NEW: Real-time music search result
+        music: response.data.data?.music || null,
+        
         // Performance metrics
         response_time_ms: response.data.metadata?.response_time_ms,
         tokens: response.data.metadata?.tokens,

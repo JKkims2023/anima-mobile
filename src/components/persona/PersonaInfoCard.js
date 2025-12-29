@@ -219,7 +219,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             onPress={handleBrainSettingsPress}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            style={{ display: persona?.default_yn === 'Y' ? 'none' : 'flex' }}
+            style={{ display: persona?.default_yn === 'Y' ? 'none' : 'none' }}
           >
             <IconBrain 
               name={persona?.identity_description != null ? 'brain' : 'brain'} 

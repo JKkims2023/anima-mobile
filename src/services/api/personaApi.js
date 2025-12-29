@@ -163,6 +163,80 @@ export const createPersona = async (userKey, personaData) => {
 };
 
 /**
+ * Create a new persona
+ * @param {string} userKey - User's unique key
+ * @param {Object} personaData - Persona creation data
+ * @param {string} personaData.name - Persona name
+ * @param {string} personaData.gender - Gender ('male' or 'female')
+ * @param {Object} personaData.photo - Photo object { uri, type, name }
+ * @returns {Promise<Object>} Creation result with persona_key and estimate_time
+ */
+export const createDress = async (userKey, personaData) => {
+  try {
+
+    console.log('personaData: ', personaData);
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] Creating dress:', {
+        userKey,
+        persona_key: personaData.persona_key,
+        name: personaData.name,
+        description: personaData.description,
+        gender: personaData.gender,
+        hasPhoto_url: personaData.selected_dress_image_url,
+      });
+    }
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append('user_key', userKey);
+    formData.append('persona_key', personaData.persona_key);
+    formData.append('name', personaData.name);
+    formData.append('description', personaData.description);
+    formData.append('selectedType', personaData.gender); // 'male' or 'female'
+    formData.append('selected_dress_image_url', personaData.selected_dress_image_url); // 'male' or 'female'
+    
+    // ✅ selectedOptions 추가 (서버가 기대함)
+    formData.append('selectedOptions', JSON.stringify({
+      gender: personaData.gender,
+      style: '',
+      outfit: '',
+    }));
+    
+
+
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] FormData prepared:', {
+        user_key: userKey,
+        name: personaData.name,
+        description: personaData.description,
+        selectedType: personaData.gender,
+        selectedOptions: { gender: personaData.gender, style: '', outfit: '' },
+        hasPhoto_url: personaData.selected_dress_image_url,
+      });
+    }
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.CREATE_DRESS, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (__DEV__) {
+      console.log('🎭 [PersonaAPI] Persona created response:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    if (__DEV__) {
+      console.error('🎭 [PersonaAPI] Error creating persona:', error);
+      console.error('🎭 [PersonaAPI] Error response:', error.response?.data);
+    }
+    logError('Dress Creation', error);
+    throw error;
+  }
+};
+
+/**
  * Check persona creation status
  * @param {string} personaKey - Persona's unique key
  * @returns {Promise<Object>} Status information
@@ -195,7 +269,7 @@ export const getPersonaDressList = async (personaKey) => {
       persona_key: personaKey,
     });
 
-    return response.data?.data || response.data || [];
+    return response.data || { success: false, data: [] };
   } catch (error) {
     logError('Persona Dress List', error);
     throw error;
@@ -360,6 +434,41 @@ export const togglePersonaFavorite = async (personaKey, userKey) => {
   }
 };
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 👗 Update Persona Dress (복장 변경)
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {object} dressData - Dress data { media_url, video_url, memory_key }
+ * @returns {Promise<object>} { success: boolean }
+ */
+export const updatePersonaDress = async (personaKey, dressData) => {
+  try {
+    if (__DEV__) {
+      console.log('👗 [personaApi] Update persona dress:', {
+        personaKey,
+        dressData,
+      });
+    }
+
+    const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_DRESS, {
+      persona_key: personaKey,
+      selected_dress_image_url: dressData.media_url,
+      selected_dress_video_url: dressData.video_url,
+      history_key: dressData.memory_key,
+    });
+
+    if (__DEV__) {
+      console.log('✅ [personaApi] Update dress success:', response.data);
+    }
+
+    return response.data || {};
+  } catch (error) {
+    logError('Update Persona Dress', error);
+    throw error;
+  }
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -371,5 +480,6 @@ export default {
   convertPersonaVideo,
   deletePersona,
   togglePersonaFavorite,
+  updatePersonaDress,
 };
 

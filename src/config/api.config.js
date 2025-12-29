@@ -48,6 +48,7 @@ export const AUTH_ENDPOINTS = {
 export const PERSONA_ENDPOINTS = {
   LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/persona-list',
   CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/create',
+  CREATE_DRESS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/create-dress',
   DASHBOARD: '/api/persona/dashboard',
   CHECK_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status',
   CHECK_STATUS_FIRST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status-first',
@@ -57,6 +58,7 @@ export const PERSONA_ENDPOINTS = {
   REMOVE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/remove-persona',
   UPGRADE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/upgrade', // ⭐ Video conversion
   FAVORITE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/favorite', // ⭐ Toggle favorite
+  UPDATE_DRESS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/update-dress', // 👗 Update persona dress
   DRESS_LIST: '/api/persona/dress-list',
   UPDATE_DRESS_CODE: '/api/persona/update-dress-code',
   HASHTAGS: '/api/persona/hashtags',
