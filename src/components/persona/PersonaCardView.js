@@ -51,6 +51,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  * @param {Function} props.onCheckStatus - Callback when user clicks "Check Status" button
+ * @param {Function} props.onFlipChange - Callback when card flips (true = postcard visible, false = persona visible)
  */
 const PersonaCardView = forwardRef(({ 
   persona, 
@@ -62,6 +63,7 @@ const PersonaCardView = forwardRef(({
   chatInputBottom = 0,
   availableHeight = SCREEN_HEIGHT,
   onCheckStatus, // ⭐ NEW: Callback for status check
+  onFlipChange, // ⭐ NEW: Callback for flip state change
 }, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
@@ -270,6 +272,11 @@ const PersonaCardView = forwardRef(({
     }).start();
     
     setIsFlipped(true);
+    
+    // ⭐ Notify parent about flip state change
+    if (onFlipChange) {
+      onFlipChange(true); // true = postcard visible
+    }
   };
 
   // ⭐ Flip to Front (back to persona view)
@@ -284,6 +291,11 @@ const PersonaCardView = forwardRef(({
     }).start();
     
     setIsFlipped(false);
+    
+    // ⭐ Notify parent about flip state change
+    if (onFlipChange) {
+      onFlipChange(false); // false = persona visible
+    }
   };
 
   // ⭐ Toggle flip (legacy method)

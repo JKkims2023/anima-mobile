@@ -141,6 +141,7 @@ const PersonaStudioScreen = () => {
   const personaCreationDataRef = useRef(null);
   // ❌ REMOVED: filterMode (UI simplified - single unified list)
   const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
+  const [isPostcardVisible, setIsPostcardVisible] = useState(false); // ⭐ NEW: Postcard flip state
   const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ Loading overlay for persona creation
   const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
   const [processingMessage, setProcessingMessage] = useState(''); // ⭐ NEW: Dynamic message for processing overlay
@@ -158,19 +159,40 @@ const PersonaStudioScreen = () => {
   
   // ❌ REMOVED: filterMode auto-adjust (UI simplified - single unified list)
   
-  // ⭐ NEW: Android back button handler for category dropdown
+  // ⭐ Android back button handler for postcard and category dropdown
   useEffect(() => {
-    if (!isCategoryDropdownVisible) return;
+    if (!isCategoryDropdownVisible && !isPostcardVisible) return;
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      console.log('[PersonaStudioScreen] 🔙 Back button pressed, closing category dropdown');
-      HapticService.light();
-      setIsCategoryDropdownVisible(false);
-      return true; // Prevent default back behavior
+      // ⭐ Priority 1: Close postcard (flip to front)
+      if (isPostcardVisible) {
+        console.log('[PersonaStudioScreen] 🔙 Back button pressed, flipping postcard to front');
+        HapticService.light();
+        
+        // Get current persona and flip to front
+        const currentPersona = currentFilteredPersonas[currentPersonaIndex];
+        if (currentPersona) {
+          const cardRef = personaCardRefs.current[currentPersona.persona_key];
+          if (cardRef && cardRef.flipToFront) {
+            cardRef.flipToFront();
+          }
+        }
+        return true; // Prevent default back behavior
+      }
+      
+      // ⭐ Priority 2: Close category dropdown
+      if (isCategoryDropdownVisible) {
+        console.log('[PersonaStudioScreen] 🔙 Back button pressed, closing category dropdown');
+        HapticService.light();
+        setIsCategoryDropdownVisible(false);
+        return true; // Prevent default back behavior
+      }
+      
+      return false; // Allow default back behavior
     });
     
     return () => backHandler.remove();
-  }, [isCategoryDropdownVisible]);
+  }, [isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
@@ -888,6 +910,15 @@ console.log('currentPersona: ', currentPersona);
       console.warn('[PersonaStudioScreen] PersonaCardView ref not found:', currentPersona.persona_key);
     }
   }, [currentFilteredPersonas, currentPersonaIndex, showAlert, t]);
+
+  // ⭐ Handle postcard flip state change
+  const handlePostcardFlipChange = useCallback((isFlipped) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📮 Postcard flip state changed:', isFlipped);
+    }
+    setIsPostcardVisible(isFlipped);
+    HapticService.light();
+  }, []);
   
   // 3. Video Conversion (비디오 변환)
   const handleQuickVideo = useCallback(() => {
@@ -1434,11 +1465,13 @@ console.log('currentPersona: ', currentPersona);
             refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
             onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback
             personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard view)
+            onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
+            isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
           />
         </View>
         
         {/* QuickActionChips (Right Overlay) */}
-        {currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && (
+        {currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible && (
           <View style={styles.quickChipsOverlay}>
             <QuickActionChipsAnimated
               onDressClick={handleQuickDress}
@@ -1455,20 +1488,22 @@ console.log('currentPersona: ', currentPersona);
         {/* ❌ REMOVED: PersonaSelectorPanel (UI simplified) */}
 
         {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
-        <View style={styles.typeSelectorOverlay}>
-          <View style={styles.createButtonContainer}>
-            <TouchableOpacity
-              style={[styles.createPersonaButton, { backgroundColor: currentTheme.mainColor }]}
-              onPress={handleCreatePersona}
-              activeOpacity={0.8}
-            >
-              <Icon name="add" size={scale(20)} color="#FFFFFF" />
-              <CustomText type="small" bold style={styles.createPersonaButtonText}>
-                {t('persona.create')}
-              </CustomText>
-            </TouchableOpacity>
+        {!isPostcardVisible && (
+          <View style={styles.typeSelectorOverlay}>
+            <View style={styles.createButtonContainer}>
+              <TouchableOpacity
+                style={[styles.createPersonaButton, { backgroundColor: currentTheme.mainColor }]}
+                onPress={handleCreatePersona}
+                activeOpacity={0.8}
+              >
+                <Icon name="add" size={scale(20)} color="#FFFFFF" />
+                <CustomText type="small" bold style={styles.createPersonaButtonText}>
+                  {t('persona.create')}
+                </CustomText>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
 
       </View>
       

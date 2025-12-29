@@ -69,6 +69,8 @@ const PersonaSwipeViewer = forwardRef(({
   refreshing = false, // ⭐ NEW: Pull-to-refresh state
   onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback
   personaCardRefs = null, // ⭐ NEW: Refs for PersonaCardView (for flip animation control)
+  onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
+  isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
 }, ref) => {
   const { currentTheme } = useTheme();
   
@@ -200,6 +202,7 @@ const PersonaSwipeViewer = forwardRef(({
           modeOpacity={modeOpacity}
           availableHeight={availableHeight}
           onCheckStatus={onCheckStatus}
+          onFlipChange={onPostcardFlipChange} // ⭐ NEW: Pass flip change callback
         />
       </View>
     );
@@ -290,7 +293,7 @@ const PersonaSwipeViewer = forwardRef(({
       />
 
       {/* PersonaInfoCard (with Pagination & Scroll to Top) */}
-      {personas.length > 0 && (
+      {personas.length > 0 && !isPostcardVisible && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}
