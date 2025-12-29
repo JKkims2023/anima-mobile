@@ -700,88 +700,63 @@ const ManagerAIOverlay = ({
     console.log('👁️  [Floating Content] Button clicked');
     console.log('   Content ID:', floatingContent.contentId);
     console.log('   Current Status:', floatingContent.status);
+    console.log('   Image URL:', floatingContent.url);
     
-    try {
-      // Check current status
-      const statusData = await chatApi.getChatContentStatus(floatingContent.contentId);
+    // ✅ Pixabay provides URL immediately - no need to check status!
+    if (floatingContent.status === 'completed' && floatingContent.url) {
+      console.log('✅ [Floating Content] Image ready INSTANTLY!');
+      console.log('   URL:', floatingContent.url);
       
-      console.log('🔍 [Floating Content] Status checked:', statusData.status);
+      // Haptic feedback
+      HapticService.trigger('success');
       
-      if (statusData.status === 'completed') {
-        console.log('✅ [Floating Content] Content ready!');
-        console.log('   URL:', statusData.content_url);
-        
-        // Update state with URL
-        setFloatingContent(prev => ({
-          ...prev,
-          status: 'completed',
-          url: statusData.content_url
-        }));
-        
-        // Mark as clicked
+      // Mark as clicked
+      try {
         await chatApi.markContentAsClicked(floatingContent.contentId);
-        
-        // TODO: Open fullscreen viewer with statusData.content_url
-        // For now, show alert
-        Alert.alert(
-          '🎨 생성 완료!',
-          '이미지가 준비되었습니다!\n(Fullscreen Viewer 곧 추가 예정)',
-          [
-            {
-              text: '닫기',
-              onPress: () => {
-                // Hide floating button after viewing
-                setFloatingContent(null);
-              }
-            }
-          ]
-        );
-        
-        // Haptic feedback
-        HapticService.trigger('success');
-      } else if (statusData.status === 'processing' || statusData.status === 'pending') {
-        console.log('⏳ [Floating Content] Still processing...');
-        
-        // Show "still generating" message
-        Alert.alert(
-          '⏳ 아직 생성 중입니다',
-          '조금만 더 기다려주세요!\n완료되면 다시 클릭해주세요.',
-          [{ text: '확인' }]
-        );
-        
-        // Haptic feedback
-        HapticService.trigger('impactLight');
-      } else if (statusData.status === 'failed') {
-        console.error('❌ [Floating Content] Generation failed');
-        
-        // Update state
-        setFloatingContent(prev => ({
-          ...prev,
-          status: 'failed'
-        }));
-        
-        // Show error message
-        Alert.alert(
-          '❌ 생성 실패',
-          '이미지 생성에 실패했습니다.\n다시 시도해주세요.',
-          [
-            {
-              text: '닫기',
-              onPress: () => setFloatingContent(null)
-            }
-          ]
-        );
-        
-        // Haptic feedback
-        HapticService.trigger('notificationError');
+      } catch (error) {
+        console.error('❌ Failed to mark as clicked (non-critical):', error);
       }
-    } catch (error) {
-      console.error('❌ [Floating Content] Error checking status:', error);
+      
+      // Show fullscreen image viewer
+      setSelectedMediaUrl(floatingContent.url);
+      setShowMediaViewer(true);
+      
+      // Hide floating button after viewing
+      setFloatingContent(null);
+      
+      return;
+    }
+    
+    // ⏸️ Fallback: If somehow status is still processing (shouldn't happen with Pixabay)
+    if (floatingContent.status === 'processing' || floatingContent.status === 'pending') {
+      console.log('⚠️ [Floating Content] Still processing (unexpected for Pixabay)...');
+      
       Alert.alert(
-        '오류',
-        '상태 확인 중 오류가 발생했습니다.',
+        '⏳ 이미지 준비 중',
+        '잠시만 기다려주세요!',
         [{ text: '확인' }]
       );
+      
+      HapticService.trigger('impactLight');
+      return;
+    }
+    
+    // ❌ Failed status
+    if (floatingContent.status === 'failed') {
+      console.error('❌ [Floating Content] Generation failed');
+      
+      Alert.alert(
+        '❌ 생성 실패',
+        '이미지 생성에 실패했습니다.\n다시 시도해주세요.',
+        [
+          {
+            text: '닫기',
+            onPress: () => setFloatingContent(null)
+          }
+        ]
+      );
+      
+      HapticService.trigger('notificationError');
     }
   }, [floatingContent, chatApi]);
   
@@ -1127,24 +1102,28 @@ const ManagerAIOverlay = ({
           setPendingIdentityDraft(identityDraftPending);
         }
         
-        // 🎨 NEW: Handle real-time content generation
+        // 🎨 NEW: Handle real-time content generation (Pixabay is INSTANT!)
         if (generatedContent && generatedContent.content_id) {
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log('🎨 [Chat Content] AI generated content!');
           console.log('   Content ID:', generatedContent.content_id);
-          console.log('   Initial Status:', generatedContent.status);
+          console.log('   Status:', generatedContent.status);
+          console.log('   Content Type:', generatedContent.content_type);
+          console.log('   Content URL:', generatedContent.content_url || 'pending');
+          console.log('   Metadata:', generatedContent.metadata);
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           
-          // Set floating content state
+          // ✅ Pixabay provides image INSTANTLY (no processing delay!)
           setFloatingContent({
             contentId: generatedContent.content_id,
-            status: generatedContent.status || 'processing',
+            status: generatedContent.status || 'completed', // ✅ Pixabay is instant!
             contentType: generatedContent.content_type || 'image',
-            url: null
+            url: generatedContent.content_url || null, // ✅ Ready to display!
+            metadata: generatedContent.metadata || null // ✅ Credit info (tier-based display)
           });
           
-          // 🔔 TODO: Push callback으로 status 업데이트 (향후)
-          // For now, user clicks button to check status
+          // 🔔 Pixabay is instant - no callback needed!
+          // Image is ready immediately in floatingContent.url
           
           // Haptic feedback
           HapticService.trigger('success');
