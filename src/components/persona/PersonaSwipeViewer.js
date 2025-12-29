@@ -285,6 +285,7 @@ const PersonaSwipeViewer = forwardRef(({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
+            enabled={!isPostcardVisible} // ⭐ Disable pull-to-refresh when postcard is visible
             tintColor={currentTheme.mainColor || '#4285F4'}
             colors={[currentTheme.mainColor || '#4285F4']}
             progressBackgroundColor={currentTheme.backgroundColor || '#000'}

@@ -14,7 +14,7 @@
  * @date 2025-01-29
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -37,6 +37,7 @@ const PostcardBack = ({
 }) => {
   const { t } = useTranslation();
   const scaleAnim = useSharedValue(1);
+  const scrollViewRef = useRef(null); // ⭐ Ref for scroll reset
 
   // ⭐ Sequential fade-in animation values
   const fromOpacity = useSharedValue(0);
@@ -95,6 +96,12 @@ const PostcardBack = ({
     scaleAnim.value = withSpring(0.9, {}, () => {
       scaleAnim.value = withSpring(1);
     });
+    
+    // ⭐ Reset scroll position to top before closing
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: false });
+    }
+    
     onClose();
   };
 
@@ -154,6 +161,7 @@ const PostcardBack = ({
 
         {/* ⭐ MIDDLE SECTION: Message Content (메시지 영역) - Animated */}
         <Animated.ScrollView 
+          ref={scrollViewRef}
           style={[styles.messageScrollContainer, messageAnimStyle]}
           contentContainerStyle={styles.messageScrollContent}
           showsVerticalScrollIndicator={false}
