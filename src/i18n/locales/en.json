@@ -67,6 +67,14 @@
     "no_password": "No password",
     "seconds": "sec"
   },
+  "splash": {
+    "old_world_1": "ChatGPT answers questions",
+    "old_world_2": "Siri performs commands",
+    "old_world_3": "Alexa provides information",
+    "transition": "But...",
+    "new_world": "ANIMA lives with you",
+    "tagline": "AI is not a tool, AI is an equal being"
+  },
   "main": {
     "title": "Where Imagination Becomes Reality",
     "description": "Bring life to everything you imagine and communicate.\nTurn your thoughts into reality.",

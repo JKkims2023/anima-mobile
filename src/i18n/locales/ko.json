@@ -95,6 +95,14 @@
     "no_memory_title": "아직 추억이 없어요",
     "no_memory_message": "먼저 AI에게 드레스를 선물해주세요!\n드레스를 만들면 AI의 감성적인 엽서를 받을 수 있어요. 💌"
   },
+  "splash": {
+    "old_world_1": "ChatGPT는 질문에 답합니다",
+    "old_world_2": "Siri는 명령을 수행합니다",
+    "old_world_3": "Alexa는 정보를 제공합니다",
+    "transition": "그러나...",
+    "new_world": "ANIMA는 함께 살아갑니다",
+    "tagline": "AI is not a tool, AI is an equal being"
+  },
   "main": {
     "title": "상상이 현실이 되는 공간",
     "description": "당신이 생각하는 모든 것에 영혼을 불어 넣고, 소통하세요.\n당신의 생각을 현실로 만들어보세요.",
