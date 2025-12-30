@@ -418,6 +418,10 @@ const ManagerAIOverlay = ({
       if (data.success) {
         console.log('✅ [SpeakingPattern] Saved successfully');
         HapticService.success();
+        
+        // ✨ Show notification message
+        const personaName = persona.persona_name || 'AI';
+        showNotificationMessage(`✨ ${personaName}의 새로운 말투가 적용되었습니다! 이제부터 더 자연스럽게 대화할게요!`, 2500);
       } else {
         throw new Error(data.error || 'Failed to save speaking pattern');
       }
@@ -426,7 +430,7 @@ const ManagerAIOverlay = ({
       HapticService.error();
       throw error;
     }
-  }, [user, persona]);
+  }, [user, persona, showNotificationMessage]);
   
   // ⭐ NEW: Load chat history
   const loadChatHistory = useCallback(async (isLoadMore = false) => {
@@ -534,6 +538,42 @@ const ManagerAIOverlay = ({
       // Fail silently - gifts are nice-to-have, not critical
     }
   }, [user, persona]);
+  
+  // ⭐ NEW: Show notification message with typing effect (for feedback)
+  const showNotificationMessage = useCallback((message, autoHideDuration = 2000) => {
+    // Type out message
+    setIsTyping(true);
+    setTypingMessage('');
+    
+    let currentIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (currentIndex < message.length) {
+        setTypingMessage(message.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+        
+        const notificationMessage = {
+          id: `notification-${Date.now()}`,
+          role: 'assistant',
+          text: message,
+          timestamp: Date.now(),
+        };
+        
+        setMessages(prev => [...prev, notificationMessage]);
+        setIsTyping(false);
+        
+        // Auto-hide after duration
+        if (autoHideDuration > 0) {
+          setTimeout(() => {
+            setMessages(prev => prev.filter(m => m.id !== notificationMessage.id));
+          }, autoHideDuration);
+        }
+      }
+    }, 30);
+    
+    return () => clearInterval(typeInterval);
+  }, []);
   
   // ⭐ NEW: Show welcome message with typing effect
   const showWelcomeMessage = useCallback(() => {
