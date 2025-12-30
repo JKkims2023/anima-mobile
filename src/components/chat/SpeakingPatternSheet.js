@@ -286,7 +286,7 @@ const SpeakingPatternSheet = ({
               style={styles.addButton}
               onPress={() => {
                 HapticService.light();
-                inputRef.current?.open();
+                inputRef.current?.present();
               }}
             >
               <Icon name="plus-circle" size={moderateScale(20)} color={COLORS.DEEP_BLUE} />
