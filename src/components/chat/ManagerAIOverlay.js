@@ -1848,7 +1848,12 @@ const ManagerAIOverlay = ({
         </Modal>
       )}
       
-      {/* 🎭 NEW: Identity Settings Sheet */}
+      {/* 🌟 Identity Evolution Notification Overlay */}
+      {identityEvolutionDisplay && (
+        <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
+      )}
+      
+      {/* 🎭 NEW: Identity Settings Sheet (Inside Modal for correct z-index) */}
       <IdentitySettingsSheet
         isOpen={showIdentitySettings}
         onClose={() => setShowIdentitySettings(false)}
@@ -1858,7 +1863,7 @@ const ManagerAIOverlay = ({
         saving={savingSettings}
       />
       
-      {/* 🗣️ NEW: Speaking Pattern Sheet (User-created personas only) */}
+      {/* 🗣️ NEW: Speaking Pattern Sheet (Inside Modal for correct z-index) */}
       {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
         <SpeakingPatternSheet
           isOpen={showSpeakingPattern}
@@ -1868,11 +1873,6 @@ const ManagerAIOverlay = ({
           userKey={user.user_key}
           onSave={handleSaveSpeakingPattern}
         />
-      )}
-      
-      {/* 🌟 Identity Evolution Notification Overlay */}
-      {identityEvolutionDisplay && (
-        <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
     </Modal>
   );
