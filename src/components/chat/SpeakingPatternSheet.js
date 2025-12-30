@@ -50,6 +50,12 @@ const TABS = [
     description: '대화 시작과 끝을 장식하는 표현',
   },
   {
+    id: 'nickname',
+    icon: '👤',
+    title: '내 호칭',
+    description: 'AI가 나를 부를 때 사용하는 호칭 (당신 ❌)',
+  },
+  {
     id: 'frequent',
     icon: '✨',
     title: '자주 쓰는 말',
@@ -79,6 +85,7 @@ const SpeakingPatternSheet = ({
   // Modal Refs
   const greetingInputRef = useRef(null);
   const closingInputRef = useRef(null);
+  const nicknameInputRef = useRef(null);
   const frequentInputRef = useRef(null);
   const signatureInputRef = useRef(null);
   
@@ -86,6 +93,7 @@ const SpeakingPatternSheet = ({
   const [activeTab, setActiveTab] = useState('phrase');
   const [greetingPhrases, setGreetingPhrases] = useState([]);
   const [closingPhrases, setClosingPhrases] = useState([]);
+  const [myNicknames, setMyNicknames] = useState([]);
   const [frequentWords, setFrequentWords] = useState([]);
   const [signaturePhrases, setSignaturePhrases] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -158,12 +166,14 @@ const SpeakingPatternSheet = ({
         const pattern = data.data.speaking_pattern;
         setGreetingPhrases(pattern.greeting_phrases || []);
         setClosingPhrases(pattern.closing_phrases || []);
+        setMyNicknames(pattern.my_nicknames || []);
         setFrequentWords(pattern.frequent_words || []);
         setSignaturePhrases(pattern.signature_phrases || []);
         
         console.log('✅ [SpeakingPatternSheet] Loaded patterns:', {
           greeting: pattern.greeting_phrases?.length || 0,
           closing: pattern.closing_phrases?.length || 0,
+          nicknames: pattern.my_nicknames?.length || 0,
           frequent: pattern.frequent_words?.length || 0,
           signature: pattern.signature_phrases?.length || 0,
         });
@@ -189,6 +199,7 @@ const SpeakingPatternSheet = ({
       const pattern = {
         greeting_phrases: greetingPhrases,
         closing_phrases: closingPhrases,
+        my_nicknames: myNicknames,
         frequent_words: frequentWords,
         signature_phrases: signaturePhrases,
       };
@@ -232,6 +243,7 @@ const SpeakingPatternSheet = ({
     HapticService.light();
     setGreetingPhrases([]);
     setClosingPhrases([]);
+    setMyNicknames([]);
     setFrequentWords([]);
     setSignaturePhrases([]);
   };
@@ -256,6 +268,11 @@ const SpeakingPatternSheet = ({
           setClosingPhrases([...closingPhrases, value]);
         }
         break;
+      case 'nickname':
+        if (myNicknames.length < 5 && !myNicknames.includes(value)) {
+          setMyNicknames([...myNicknames, value]);
+        }
+        break;
       case 'frequent':
         if (frequentWords.length < 10 && !frequentWords.includes(value)) {
           setFrequentWords([...frequentWords, value]);
@@ -278,6 +295,9 @@ const SpeakingPatternSheet = ({
         break;
       case 'closing':
         setClosingPhrases(closingPhrases.filter((_, i) => i !== index));
+        break;
+      case 'nickname':
+        setMyNicknames(myNicknames.filter((_, i) => i !== index));
         break;
       case 'frequent':
         setFrequentWords(frequentWords.filter((_, i) => i !== index));
@@ -416,6 +436,26 @@ const SpeakingPatternSheet = ({
               5,
               false
             )}
+          </>
+        )}
+        
+        {activeTab === 'nickname' && (
+          <>
+            {renderTagSection(
+              '👤 내 호칭',
+              'AI가 나를 부를 때 사용 ("당신" 대신 친근한 호칭)',
+              myNicknames,
+              'nickname',
+              nicknameInputRef,
+              5,
+              false
+            )}
+            <View style={styles.nicknameWarning}>
+              <Icon name="alert-circle" size={moderateScale(18)} color="#FF9500" />
+              <CustomText size="xs" color="#FF9500" style={{ marginLeft: scale(6), flex: 1 }}>
+                💡 Tip: "오빠", "언니", "자기", "여보", "{'{이름}'}님" 등 친근한 호칭을 설정하면 훨씬 가깝게 느껴져요!
+              </CustomText>
+            </View>
           </>
         )}
         
@@ -598,6 +638,14 @@ const SpeakingPatternSheet = ({
         onSave={(value) => handleAddPhrase('closing', value)}
       />
       <MessageInputOverlay
+        ref={nicknameInputRef}
+        title="내 호칭 추가"
+        placeholder="예: 오빠, 언니, 자기, JK님"
+        leftIcon="account"
+        maxLength={15}
+        onSave={(value) => handleAddPhrase('nickname', value)}
+      />
+      <MessageInputOverlay
         ref={frequentInputRef}
         title="자주 쓰는 말 추가"
         placeholder="예: ~데요, ~죠!, 완전~"
@@ -768,6 +816,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: verticalScale(12),
     backgroundColor: COLORS.BACKGROUND,
+  },
+  nicknameWarning: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(12),
+    backgroundColor: '#FF9500' + '15',
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: '#FF9500' + '30',
+    marginTop: verticalScale(12),
   },
 });
 

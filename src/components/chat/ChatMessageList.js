@@ -35,7 +35,7 @@ const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d16
 /**
  * Message Item Component (Memoized)
  */
-const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPress, personaUrl }) => {
+const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPress, onYouTubePress, personaUrl }) => {
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
   
@@ -232,6 +232,37 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
               )}
             </View>
             <Icon name="play-circle" size={moderateScale(24)} color="rgba(255, 255, 255, 0.6)" />
+          </TouchableOpacity>
+        )}
+        
+        {/* 🎬 YouTube Video (NEW!) - Tap to watch! */}
+        {message.youtube && (
+          <TouchableOpacity
+            style={styles.youtubeContainer}
+            onPress={() => onYouTubePress?.(message.youtube)}
+            activeOpacity={0.7}
+          >
+            {/* Thumbnail with play overlay */}
+            <View style={styles.youtubeThumbnailContainer}>
+              <Image
+                source={{ uri: message.youtube.thumbnail }}
+                style={styles.youtubeThumbnail}
+                resizeMode="cover"
+              />
+              <View style={styles.youtubePlayOverlay}>
+                <Icon name="play-circle" size={moderateScale(48)} color="rgba(255, 0, 0, 0.9)" />
+              </View>
+            </View>
+            
+            {/* Video Info */}
+            <View style={styles.youtubeInfo}>
+              <Text style={[styles.youtubeTitle, { color: currentTheme.textColor }]} numberOfLines={2}>
+                🎬 {message.youtube.title}
+              </Text>
+              <Text style={[styles.youtubeChannel, { color: currentTheme.textColor }]} numberOfLines={1}>
+                {message.youtube.channel}
+              </Text>
+            </View>
           </TouchableOpacity>
         )}
         
@@ -463,6 +494,7 @@ const ChatMessageList = ({
   hasMoreHistory = false, // ⭐ NEW: Has more history to load
   personaUrl = null,
   onMusicPress = null, // 🎵 NEW: Callback for music playback
+  onYouTubePress = null, // 🎬 NEW: Callback for YouTube video playback
 }) => {
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
@@ -553,6 +585,8 @@ const ChatMessageList = ({
       message={item} 
       onImagePress={handleImagePress}
       onImageLongPress={handleImageLongPress}
+      onMusicPress={onMusicPress}
+      onYouTubePress={onYouTubePress}
       personaUrl={personaUrl}
     />
   );
@@ -603,6 +637,7 @@ const ChatMessageList = ({
               onImagePress={handleImagePress}
               onImageLongPress={handleImageLongPress}
               onMusicPress={onMusicPress}
+              onYouTubePress={onYouTubePress}
               personaUrl={personaUrl}
             />
           );
@@ -840,6 +875,44 @@ const styles = StyleSheet.create({
   musicDuration: {
     fontSize: moderateScale(11),
     color: 'rgba(255, 255, 255, 0.5)',
+  },
+  // 🎬 YouTube Card Styles
+  youtubeContainer: {
+    marginTop: verticalScale(8),
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 0, 0, 0.3)',
+    overflow: 'hidden',
+  },
+  youtubeThumbnailContainer: {
+    position: 'relative',
+    width: '100%',
+    aspectRatio: 16 / 9,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  youtubeThumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  youtubePlayOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  youtubeInfo: {
+    padding: moderateScale(12),
+  },
+  youtubeTitle: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+    marginBottom: verticalScale(4),
+    lineHeight: moderateScale(20),
+  },
+  youtubeChannel: {
+    fontSize: moderateScale(12),
+    opacity: 0.7,
   },
   typingText: {
     fontSize: moderateScale(14),

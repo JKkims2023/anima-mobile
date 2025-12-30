@@ -44,6 +44,7 @@ import CustomText from '../CustomText';
 import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-time content
 import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
+import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -178,6 +179,10 @@ const ManagerAIOverlay = ({
   
   // 🎨 NEW: Real-time Content Generation state
   const [floatingContent, setFloatingContent] = useState(null); // { contentId, status, contentType, url }
+  
+  // 🎬 NEW: YouTube Video Player state
+  const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState(null); // { videoId, title }
   
   // 🗑️ TEMPORARILY DISABLED: Identity Guide state (during refactoring)
   // const [showIdentityGuide, setShowIdentityGuide] = useState(false);
@@ -838,6 +843,36 @@ const ManagerAIOverlay = ({
     );
   }, [floatingContent]);
   
+  // 🎬 NEW: Handle YouTube video press
+  const handleYouTubePress = useCallback((youtubeData) => {
+    if (!youtubeData || !youtubeData.videoId) {
+      console.error('❌ [YouTube Press] Invalid video data:', youtubeData);
+      return;
+    }
+    
+    console.log('🎬 [YouTube Press] Opening video player');
+    console.log('   Title:', youtubeData.title);
+    console.log('   Video ID:', youtubeData.videoId);
+    
+    // Haptic feedback
+    HapticService.trigger('impactMedium');
+    
+    // Set video data and open player
+    setCurrentVideo({
+      videoId: youtubeData.videoId,
+      title: youtubeData.title,
+      channel: youtubeData.channel,
+    });
+    setShowYouTubePlayer(true);
+  }, []);
+  
+  // 🎬 NEW: Handle YouTube player close
+  const handleYouTubeClose = useCallback(() => {
+    console.log('🎬 [YouTube] Closing player');
+    setShowYouTubePlayer(false);
+    HapticService.trigger('impactLight');
+  }, []);
+  
   // 🎨 NEW: Handle floating content button press (Check status on click)
   const handleFloatingContentPress = useCallback(async () => {
     if (!floatingContent) return;
@@ -1370,6 +1405,7 @@ const ManagerAIOverlay = ({
         }
         
         // 🎵 NEW: Handle real-time music search (instant!)
+        let musicForBubble = null; // ⭐ NEW: Music data for message bubble
         if (musicData && musicData.track) {
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log('🎵 [Music Search] AI recommended music!');
@@ -1380,6 +1416,19 @@ const ManagerAIOverlay = ({
           console.log('   Emotion:', musicData.emotion);
           console.log('   Mood:', musicData.mood || 'none');
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          // ⭐ NEW: Prepare music object for message bubble (same format as history!)
+          musicForBubble = {
+            id: musicData.track.id || `track-${Date.now()}`,
+            title: musicData.track.title,
+            artist: musicData.track.artist,
+            url: musicData.track.url,
+            duration: musicData.track.duration,
+            image: musicData.track.image,
+            source: musicData.track.source || 'jamendo'
+          };
+          
+          console.log('✅ [Music Search] Music will be added to AI message bubble!');
           
           // Set floating content state (music is ready instantly!)
           setFloatingContent({
@@ -1418,6 +1467,7 @@ const ManagerAIOverlay = ({
               ],
               videos: richContent.videos,
               links: richContent.links,
+              music: musicForBubble, // 🎵 NEW: Music data for bubble!
             };
             
             setMessages(prev => [...prev, aiMessage]);
@@ -1684,7 +1734,17 @@ const ManagerAIOverlay = ({
           >
             {/* ✅ Header */}
             <View style={styles.header}>
-              <View style={styles.headerLeft}>
+              {/* 🆕 Left: Back Button */}
+              <TouchableOpacity 
+                onPress={handleClose}
+                style={styles.backButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Icon name="chevron-back" size={moderateScale(28)} color={COLORS.TEXT_PRIMARY} />
+              </TouchableOpacity>
+              
+              {/* Center: Persona Info */}
+              <View style={styles.headerCenter}>
                 <CustomText type="big" bold style={styles.headerTitle}>
                   {persona ? `🎭 ${persona.persona_name}` : '💙 SAGE AI'}
                 </CustomText>
@@ -1695,12 +1755,36 @@ const ManagerAIOverlay = ({
                 )}
               </View>
               
+              {/* 🆕 Right: Music Player Button (Fixed Position!) */}
               <TouchableOpacity 
-                onPress={handleClose}
-                style={styles.closeButton}
+                onPress={() => {
+                  if (floatingContent?.contentType === 'music') {
+                    handleFloatingContentPress();
+                  } else {
+                    // No music loaded
+                    HapticService.light();
+                  }
+                }}
+                style={[
+                  styles.headerMusicButton,
+                  floatingContent?.contentType === 'music' && floatingContent?.isPlaying && styles.headerMusicButtonActive
+                ]}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                disabled={!floatingContent || floatingContent.contentType !== 'music'}
               >
-                <Icon name="close-circle" size={moderateScale(32)} color={COLORS.TEXT_SECONDARY} />
+                <Icon 
+                  name={
+                    floatingContent?.contentType === 'music' && floatingContent?.isPlaying
+                      ? "pause-circle" 
+                      : "musical-notes"
+                  } 
+                  size={moderateScale(28)} 
+                  color={
+                    floatingContent?.contentType === 'music' 
+                      ? (floatingContent?.isPlaying ? '#10B981' : COLORS.PRIMARY) 
+                      : 'rgba(255, 255, 255, 0.3)'
+                  } 
+                />
               </TouchableOpacity>
             </View>
             
@@ -1716,6 +1800,7 @@ const ManagerAIOverlay = ({
                 hasMoreHistory={hasMoreHistory} // ⭐ NEW: Has more to load
                 personaUrl={persona?.selected_dress_image_url || persona?.original_url}
                 onMusicPress={handleMusicPress} // 🎵 NEW: Music playback handler
+                onYouTubePress={handleYouTubePress} // 🎬 NEW: YouTube playback handler
               />
             </View>
             
@@ -1916,6 +2001,14 @@ const ManagerAIOverlay = ({
         onSave={handleSaveSpeakingPattern}
       />
     )}
+    
+    {/* 🎬 YouTube Video Player Modal (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    <VideoPlayerModal
+      visible={showYouTubePlayer}
+      videoId={currentVideo?.videoId}
+      title={currentVideo?.title}
+      onClose={handleYouTubeClose}
+    />
     </>
   );
 };
@@ -1942,26 +2035,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(16),
     paddingVertical: platformPadding(12),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(59, 130, 246, 0.2)',
     backgroundColor: COLORS.DEEP_BLUE_DARK,
     marginTop: Platform.OS === 'ios' ? 0 : -30,
   },
-  headerLeft: {
+  backButton: {
+    padding: scale(8),
+    marginRight: scale(8),
+  },
+  headerCenter: {
     flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
+    textAlign: 'center',
   },
   headerSubtitle: {
     color: COLORS.TEXT_SECONDARY,
-    marginTop: verticalScale(4),
+    marginTop: verticalScale(2),
     opacity: 0.7,
+    textAlign: 'center',
+    fontSize: moderateScale(11),
   },
-  closeButton: {
+  headerMusicButton: {
     padding: scale(8),
+    marginLeft: scale(8),
+    borderRadius: moderateScale(20),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerMusicButtonActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

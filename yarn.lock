@@ -3739,6 +3739,7 @@ __metadata:
     react-native-vector-icons: ^10.3.0
     react-native-video: ^6.14.0
     react-native-webview: ^13.16.0
+    react-native-youtube-iframe: ^2.4.1
     react-test-renderer: 19.0.0
     typescript: 5.0.4
   languageName: unknown
@@ -5668,6 +5669,13 @@ __metadata:
   version: 5.0.1
   resolution: "event-target-shim@npm:5.0.1"
   checksum: 1ffe3bb22a6d51bdeb6bf6f7cf97d2ff4a74b017ad12284cc9e6a279e727dc30a5de6bb613e5596ff4dc3e517841339ad09a7eec44266eccb1aa201a30448166
+  languageName: node
+  linkType: hard
+
+"events@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
   languageName: node
   linkType: hard
 
@@ -9262,6 +9270,25 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: a6fefc1bc977c1d121057c91696edb08ca170421a6d6ad5a9bcda279a20eca84aaaf553eca3a8e51b621e22fd473afa8bc994888807fb7db154eb9d7acb87928
+  languageName: node
+  linkType: hard
+
+"react-native-youtube-iframe@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "react-native-youtube-iframe@npm:2.4.1"
+  dependencies:
+    events: ^3.3.0
+  peerDependencies:
+    react: ">=16.8.6"
+    react-native: ">=0.60"
+    react-native-web-webview: ">=1.0.2"
+    react-native-webview: ">=7.0.0"
+  peerDependenciesMeta:
+    react-native-web-webview:
+      optional: true
+    react-native-webview:
+      optional: true
+  checksum: 2080baee54492cd0afa056e8d868164a8a6fe16615fff1a351eee351313a318dbf8a6b582afb311cfef3c33e61612dfa750ce6a743078be18d213d73230f62e2
   languageName: node
   linkType: hard
 

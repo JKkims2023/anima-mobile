@@ -81,6 +81,7 @@ export const CHAT_ENDPOINTS = {
   MEMORY_CHAT: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/memory-chat',
   PUBLIC: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/public',
   PUBLIC_AI: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/chat/public-ai',
+  SPEAKING_PATTERN: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/speaking-pattern',
 };
 
 /**
