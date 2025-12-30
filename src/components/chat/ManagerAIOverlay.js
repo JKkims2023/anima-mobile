@@ -1327,6 +1327,7 @@ const ManagerAIOverlay = ({
         const identityEvolution = response.data.identity_evolution || null; // 🌟 NEW: Identity evolution notification
         const generatedContent = response.data.generated_content || null; // 🎨 NEW: Real-time content generation
         const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
+        const youtubeData = response.data.youtube || null; // 🎬 NEW: Real-time YouTube video search result
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
@@ -1446,6 +1447,30 @@ const ManagerAIOverlay = ({
           HapticService.trigger('success');
         }
         
+        // 🎬 NEW: Handle real-time YouTube video search (instant!)
+        let youtubeForBubble = null; // ⭐ NEW: YouTube data for message bubble
+        if (youtubeData && youtubeData.videoId) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🎬 [YouTube Search] AI recommended video!');
+          console.log('   Title:', youtubeData.title);
+          console.log('   Channel:', youtubeData.channel);
+          console.log('   Video ID:', youtubeData.videoId);
+          console.log('   URL:', youtubeData.url);
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          // ⭐ NEW: Prepare YouTube object for message bubble (same format as history!)
+          youtubeForBubble = {
+            videoId: youtubeData.videoId,
+            title: youtubeData.title,
+            channel: youtubeData.channel,
+            thumbnail: youtubeData.thumbnail,
+            url: youtubeData.url,
+            embedUrl: youtubeData.embedUrl,
+          };
+          
+          console.log('✅ [YouTube] Video data prepared for message bubble!');
+        }
+        
         let currentIndex = 0;
         
         const typeInterval = setInterval(() => {
@@ -1468,6 +1493,7 @@ const ManagerAIOverlay = ({
               videos: richContent.videos,
               links: richContent.links,
               music: musicForBubble, // 🎵 NEW: Music data for bubble!
+              youtube: youtubeForBubble, // 🎬 NEW: YouTube data for bubble!
             };
             
             setMessages(prev => [...prev, aiMessage]);
