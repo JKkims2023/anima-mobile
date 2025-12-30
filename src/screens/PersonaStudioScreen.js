@@ -466,8 +466,9 @@ const PersonaStudioScreen = () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // Permission already checked in handleAddPersona, proceed directly
+    // ⚠️ handlePersonaCreationStart is now a regular function, always uses latest user
     handlePersonaCreationStart(data);
-  }, [handlePersonaCreationStart]); // ⭐ FIX: Include handlePersonaCreationStart in dependencies!
+  }, []); // ⚠️ Empty array OK: handlePersonaCreationStart is no longer memoized
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ MODIFIED: Permission check already done in handleAddPersona
@@ -516,7 +517,8 @@ const PersonaStudioScreen = () => {
   }, []);
   
   // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
-  const handlePersonaCreationStart = useCallback(async (data) => {
+  // ⚠️ useCallback REMOVED to fix closure issue - direct function always uses latest user
+  const handlePersonaCreationStart = async (data) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✨ [PersonaStudioScreen] Persona creation started');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -527,6 +529,8 @@ const PersonaStudioScreen = () => {
       hasFile: !!data.file,
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 [DEBUG] user at function start:', user); // ⭐ DEBUG
+    console.log('🔍 [DEBUG] user.user_key:', user?.user_key); // ⭐ DEBUG
     
     // Close creation sheet
     setIsPersonaCreationOpen(false);
@@ -536,7 +540,9 @@ const PersonaStudioScreen = () => {
 
     if(!user){
       setIsCreatingPersona(false);
-      console.log('why user is not found?');
+      console.log('❌ [ERROR] why user is not found?');
+      console.log('❌ [ERROR] typeof user:', typeof user); // ⭐ DEBUG
+      console.log('❌ [ERROR] user value:', user); // ⭐ DEBUG
       navigation.navigate('Settings');
       HapticService.warning();
       showToast({
@@ -547,8 +553,8 @@ const PersonaStudioScreen = () => {
       return;
     }
 
-    console.log('user', user);
-    console.log('key', user.user_key);
+    console.log('✅ [SUCCESS] user', user);
+    console.log('✅ [SUCCESS] key', user.user_key);
     
     try {
       // Call API to create persona
@@ -636,9 +642,9 @@ const PersonaStudioScreen = () => {
       });
       HapticService.warning();
     }
-  }, [user, showToast, t, initializePersonas]);
+  }; // ⚠️ useCallback REMOVED - now regular function
 
-  // Handle persona creation start (⭐ SIMPLIFIED: No polling, just refresh list)
+  // Handle dress creation start (⭐ SIMPLIFIED: No polling, just refresh list)
   const handleDressCreationStart = useCallback(async (data) => {
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
