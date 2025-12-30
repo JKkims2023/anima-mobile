@@ -35,7 +35,7 @@ const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d16
 /**
  * Message Item Component (Memoized)
  */
-const MessageItem = memo(({ message, onImagePress, onImageLongPress, personaUrl }) => {
+const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPress, personaUrl }) => {
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
   
@@ -204,9 +204,13 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, personaUrl 
           </TouchableOpacity>
         ))}
         
-        {/* 🎵 Music Info (NEW!) */}
+        {/* 🎵 Music Info (NEW!) - Tap to play! */}
         {message.music && (
-          <View style={styles.musicContainer}>
+          <TouchableOpacity
+            style={styles.musicContainer}
+            onPress={() => onMusicPress?.(message.music)}
+            activeOpacity={0.7}
+          >
             {message.music.image && (
               <Image
                 source={{ uri: message.music.image }}
@@ -227,7 +231,8 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, personaUrl 
                 </Text>
               )}
             </View>
-          </View>
+            <Icon name="play-circle" size={moderateScale(24)} color="rgba(255, 255, 255, 0.6)" />
+          </TouchableOpacity>
         )}
         
         {/* Timestamp (optional) */}
@@ -457,6 +462,7 @@ const ChatMessageList = ({
   loadingHistory = false, // ⭐ NEW: Loading more history indicator
   hasMoreHistory = false, // ⭐ NEW: Has more history to load
   personaUrl = null,
+  onMusicPress = null, // 🎵 NEW: Callback for music playback
 }) => {
   const flashListRef = useRef(null);
   const { currentTheme } = useTheme();
@@ -596,6 +602,7 @@ const ChatMessageList = ({
               message={item}
               onImagePress={handleImagePress}
               onImageLongPress={handleImageLongPress}
+              onMusicPress={onMusicPress}
               personaUrl={personaUrl}
             />
           );
@@ -801,6 +808,7 @@ const styles = StyleSheet.create({
   // 🎵 Music styles (NEW!)
   musicContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginTop: verticalScale(8),
     padding: moderateScale(10),
     borderRadius: moderateScale(12),

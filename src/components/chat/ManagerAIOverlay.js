@@ -630,6 +630,122 @@ const ManagerAIOverlay = ({
     }, 800);
   }, [persona, chatApi]);
   
+  // 🎵 NEW: Handle music press from chat bubble
+  const handleMusicPress = useCallback(async (musicData) => {
+    if (!musicData || !musicData.url) {
+      console.error('❌ [Music Press] Invalid music data:', musicData);
+      return;
+    }
+    
+    console.log('🎵 [Music Press] Clicked from chat bubble');
+    console.log('   Track:', musicData.title);
+    console.log('   Artist:', musicData.artist);
+    console.log('   URL:', musicData.url);
+    
+    // Haptic feedback
+    HapticService.trigger('impactMedium');
+    
+    // 🎵 If currently playing this track, pause
+    if (floatingContent?.track?.url === musicData.url && floatingContent?.isPlaying && soundInstanceRef.current) {
+      console.log('⏸️  [Music Press] Pausing current track...');
+      soundInstanceRef.current.pause();
+      
+      setFloatingContent(prev => ({
+        ...prev,
+        isPlaying: false
+      }));
+      
+      return;
+    }
+    
+    // 🎵 If paused (same track), resume
+    if (floatingContent?.track?.url === musicData.url && !floatingContent?.isPlaying && soundInstanceRef.current) {
+      console.log('▶️  [Music Press] Resuming track...');
+      soundInstanceRef.current.play((success) => {
+        if (!success) {
+          console.log('❌ [Music Press] Playback failed');
+          setFloatingContent(prev => ({
+            ...prev,
+            isPlaying: false
+          }));
+        }
+      });
+      
+      setFloatingContent(prev => ({
+        ...prev,
+        isPlaying: true
+      }));
+      
+      return;
+    }
+    
+    // 🎵 Different track or first time: Stop current and load new
+    if (soundInstanceRef.current) {
+      console.log('🗑️  [Music Press] Stopping current track to play new one...');
+      soundInstanceRef.current.stop();
+      soundInstanceRef.current.release();
+      soundInstanceRef.current = null;
+    }
+    
+    // Load and play new track
+    console.log('🔄 [Music Press] Loading new track from URL...');
+    
+    const sound = new Sound(
+      musicData.url,
+      null,
+      (error) => {
+        if (error) {
+          console.log('❌ [Music Press] Failed to load music:', error);
+          Alert.alert(
+            '음악 재생 실패',
+            '음악을 불러올 수 없습니다. 다시 시도해주세요.',
+            [{ text: '확인' }]
+          );
+          return;
+        }
+        
+        console.log('✅ [Music Press] Music loaded successfully!');
+        console.log(`   Duration: ${Math.floor(sound.getDuration() / 60)}:${String(Math.floor(sound.getDuration() % 60)).padStart(2, '0')}`);
+        
+        soundInstanceRef.current = sound;
+        
+        sound.play((success) => {
+          if (success) {
+            console.log('✅ [Music Press] Playback finished successfully');
+            setFloatingContent(prev => ({
+              ...prev,
+              isPlaying: false
+            }));
+            sound.release();
+            soundInstanceRef.current = null;
+          } else {
+            console.log('❌ [Music Press] Playback failed');
+            setFloatingContent(prev => ({
+              ...prev,
+              isPlaying: false
+            }));
+          }
+        });
+        
+        // Update/create floating content state
+        setFloatingContent({
+          contentType: 'music',
+          status: 'completed',
+          track: {
+            id: musicData.id || `track-${Date.now()}`,
+            title: musicData.title,
+            artist: musicData.artist,
+            url: musicData.url,
+            duration: musicData.duration,
+            image: musicData.image,
+            source: musicData.source || 'unknown'
+          },
+          isPlaying: true
+        });
+      }
+    );
+  }, [floatingContent]);
+  
   // 🎨 NEW: Handle floating content button press (Check status on click)
   const handleFloatingContentPress = useCallback(async () => {
     if (!floatingContent) return;
@@ -1506,6 +1622,7 @@ const ManagerAIOverlay = ({
                 loadingHistory={loadingHistory} // ⭐ NEW: Loading indicator
                 hasMoreHistory={hasMoreHistory} // ⭐ NEW: Has more to load
                 personaUrl={persona?.selected_dress_image_url || persona?.original_url}
+                onMusicPress={handleMusicPress} // 🎵 NEW: Music playback handler
               />
             </View>
             
