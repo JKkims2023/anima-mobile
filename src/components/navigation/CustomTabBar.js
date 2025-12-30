@@ -118,7 +118,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const tabs = [
     { 
       key: 'SAGE',
-      icon: 'mail-outline',
+      icon: 'person',
       label: t('navigation.home') || '홈',
       route: 'Home', // Navigate to Home (SAGE)
     },

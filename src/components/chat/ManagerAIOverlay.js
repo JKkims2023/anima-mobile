@@ -42,6 +42,8 @@ import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
 import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-time content
+import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
+import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -156,8 +158,9 @@ const ManagerAIOverlay = ({
   const [historyOffset, setHistoryOffset] = useState(0);
   const [currentPersonaKey, setCurrentPersonaKey] = useState(null); // ⭐ Track current persona
   
-  // 🆕 Settings panel state
-  const [showSettings, setShowSettings] = useState(false);
+  // 🆕 Settings state (moved to bottom sheets)
+  const [showIdentitySettings, setShowIdentitySettings] = useState(false); // 🎭 Identity settings
+  const [showSpeakingPattern, setShowSpeakingPattern] = useState(false); // 🗣️ Speaking pattern
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -324,8 +327,17 @@ const ManagerAIOverlay = ({
   }, [visible, persona]);
   */
   
+  // 🆕 Load AI settings when identity settings sheet opens
+  useEffect(() => {
+    if (showIdentitySettings && user?.user_key) {
+      loadAISettings();
+    }
+  }, [showIdentitySettings, user?.user_key]);
+  
   // 🆕 Load AI settings
   const loadAISettings = async () => {
+    if (!user?.user_key) return;
+    
     try {
       setLoadingSettings(true);
       const response = await chatApi.getAIPreferences(user.user_key);
@@ -370,11 +382,51 @@ const ManagerAIOverlay = ({
     }
   };
   
-  // 🆕 Toggle settings panel
-  const handleToggleSettings = useCallback(() => {
-    setShowSettings(prev => !prev);
+  // 🆕 Toggle settings (type: 'identity' | 'speaking')
+  const handleToggleSettings = useCallback((type) => {
     HapticService.light();
+    
+    if (type === 'identity') {
+      setShowIdentitySettings(true);
+    } else if (type === 'speaking') {
+      setShowSpeakingPattern(true);
+    }
   }, []);
+  
+  // 🗣️ NEW: Save speaking pattern
+  const handleSaveSpeakingPattern = useCallback(async (pattern) => {
+    if (!user?.user_key || !persona?.persona_key) {
+      console.error('[SpeakingPattern] Missing user or persona key');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/speaking-pattern`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          persona_key: persona.persona_key,
+          user_key: user.user_key,
+          speaking_pattern: pattern,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ [SpeakingPattern] Saved successfully');
+        HapticService.success();
+      } else {
+        throw new Error(data.error || 'Failed to save speaking pattern');
+      }
+    } catch (error) {
+      console.error('❌ [SpeakingPattern] Save error:', error);
+      HapticService.error();
+      throw error;
+    }
+  }, [user, persona]);
   
   // ⭐ NEW: Load chat history
   const loadChatHistory = useCallback(async (isLoadMore = false) => {
@@ -1626,90 +1678,6 @@ const ManagerAIOverlay = ({
               />
             </View>
             
-            {/* 🆕 Settings Panel */}
-            {showSettings && (
-              <View style={styles.settingsPanel}>
-                <View style={styles.settingsPanelHeader}>
-                  <CustomText type="medium" bold style={styles.settingsPanelTitle}>
-                    🎭 AI 성격 설정
-                  </CustomText>
-                  <TouchableOpacity
-                    onPress={handleToggleSettings}
-                    style={styles.settingsCloseButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Icon name="close" size={moderateScale(24)} color={COLORS.TEXT_PRIMARY} />
-                  </TouchableOpacity>
-                </View>
-                
-                <ScrollView
-                  style={styles.settingsPanelScroll}
-                  showsVerticalScrollIndicator={false}
-                >
-                  {loadingSettings ? (
-                    <View style={styles.loadingContainer}>
-                      <ActivityIndicator size="small" color={COLORS.PRIMARY} />
-                      <CustomText type="small" style={styles.loadingText}>
-                        설정 불러오는 중...
-                      </CustomText>
-                    </View>
-                  ) : (
-                    <>
-                      {SETTING_CATEGORIES.map((category) => (
-                        <View key={category.key} style={styles.settingCategory}>
-                          <CustomText type="small" bold style={styles.categoryTitle}>
-                            {category.title}
-                          </CustomText>
-                          <View style={styles.optionsRow}>
-                            {category.options.map((option) => {
-                              const isSelected = settings[category.key] === option.id;
-                              return (
-                                <TouchableOpacity
-                                  key={option.id}
-                                  style={[
-                                    styles.optionChip,
-                                    isSelected && styles.optionChipSelected,
-                                  ]}
-                                  onPress={() => updateSetting(category.key, option.id)}
-                                  disabled={savingSettings}
-                                  activeOpacity={0.7}
-                                >
-                                  <CustomText style={styles.optionEmoji}>
-                                    {option.emoji}
-                                  </CustomText>
-                                  <CustomText
-                                    type="small"
-                                    style={[
-                                      styles.optionName,
-                                      isSelected && styles.optionNameSelected,
-                                    ]}
-                                  >
-                                    {option.name}
-                                  </CustomText>
-                                  {isSelected && (
-                                    <CustomText style={styles.checkmark}>✓</CustomText>
-                                  )}
-                                </TouchableOpacity>
-                              );
-                            })}
-                          </View>
-                        </View>
-                      ))}
-                      
-                      {savingSettings && (
-                        <View style={styles.savingIndicator}>
-                          <ActivityIndicator size="small" color="#FFF" />
-                          <CustomText type="small" style={styles.savingText}>
-                            저장 중...
-                          </CustomText>
-                        </View>
-                      )}
-                    </>
-                  )}
-                </ScrollView>
-              </View>
-            )}
-            
             {/* 🆕 Image Preview (if selected) */}
             {selectedImage && (
               <View style={styles.imagePreviewContainer}>
@@ -1743,9 +1711,10 @@ const ManagerAIOverlay = ({
                 onImageSelect={handleImageSelect} // 🆕 Image selection callback
                 disabled={isLoading || isTyping || isAIContinuing} // ⭐ NEW: Also disable when AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
-                onAISettings={handleToggleSettings} // 🆕 Toggle settings panel
+                onAISettings={handleToggleSettings} // 🆕 Toggle settings menu
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
+                persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
               />
             </View>
             
@@ -1879,6 +1848,28 @@ const ManagerAIOverlay = ({
         </Modal>
       )}
       
+      {/* 🎭 NEW: Identity Settings Sheet */}
+      <IdentitySettingsSheet
+        isOpen={showIdentitySettings}
+        onClose={() => setShowIdentitySettings(false)}
+        settings={settings}
+        onUpdateSetting={updateSetting}
+        loading={loadingSettings}
+        saving={savingSettings}
+      />
+      
+      {/* 🗣️ NEW: Speaking Pattern Sheet (User-created personas only) */}
+      {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
+        <SpeakingPatternSheet
+          isOpen={showSpeakingPattern}
+          onClose={() => setShowSpeakingPattern(false)}
+          personaKey={persona.persona_key}
+          personaName={persona.persona_name}
+          userKey={user.user_key}
+          onSave={handleSaveSpeakingPattern}
+        />
+      )}
+      
       {/* 🌟 Identity Evolution Notification Overlay */}
       {identityEvolutionDisplay && (
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
@@ -1941,116 +1932,6 @@ const styles = StyleSheet.create({
 
 
 
-  },
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Settings Panel
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  settingsPanel: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? verticalScale(70) : verticalScale(60),
-    left: 0,
-    right: 0,
-    backgroundColor: COLORS.DEEP_BLUE_DARK,
-    borderTopLeftRadius: moderateScale(20),
-    borderTopRightRadius: moderateScale(20),
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-    maxHeight: verticalScale(400),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  settingsPanelHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: platformPadding(20),
-    paddingVertical: platformPadding(16),
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  settingsPanelTitle: {
-    color: COLORS.TEXT_PRIMARY,
-  },
-  settingsCloseButton: {
-    padding: scale(4),
-  },
-  settingsPanelScroll: {
-    maxHeight: verticalScale(300),
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: verticalScale(40),
-    gap: moderateScale(12),
-  },
-  loadingText: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-  
-  // Setting Category
-  settingCategory: {
-    paddingHorizontal: platformPadding(20),
-    paddingVertical: platformPadding(16),
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  categoryTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: verticalScale(12),
-  },
-  optionsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: moderateScale(8),
-  },
-  
-  // Option Chip
-  optionChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: moderateScale(20),
-    paddingHorizontal: platformPadding(12),
-    paddingVertical: platformPadding(8),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    gap: moderateScale(6),
-  },
-  optionChipSelected: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderColor: 'rgba(59, 130, 246, 0.5)',
-  },
-  optionEmoji: {
-    fontSize: moderateScale(16),
-  },
-  optionName: {
-    color: COLORS.TEXT_PRIMARY,
-    fontSize: moderateScale(13),
-  },
-  optionNameSelected: {
-    color: '#3B82F6',
-    fontWeight: '600',
-  },
-  checkmark: {
-    fontSize: moderateScale(14),
-    color: '#3B82F6',
-  },
-  
-  // Saving indicator
-  savingIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: verticalScale(16),
-    gap: moderateScale(8),
-  },
-  savingText: {
-    color: '#22C55E',
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

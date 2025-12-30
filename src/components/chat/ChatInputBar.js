@@ -37,6 +37,7 @@ const ChatInputBar = memo(({
   isChatVisible = true,
   visionMode = 'basic', // 🆕 Vision mode setting
   hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
+  persona = null, // 🗣️ NEW: Persona info for speaking pattern visibility
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -171,19 +172,34 @@ const ChatInputBar = memo(({
       {/* Settings Menu */}
       {isSettingsMenuOpen && (
         <View style={styles.settingsMenu}>
-          {/* 🆕 AI 성격 설정 */}
+          {/* 🎭 자아 설정 */}
           {onAISettings && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                onAISettings?.('identity');
+                setIsSettingsMenuOpen(false);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.menuIcon}>🎭</Text>
+              <Text style={styles.menuText}>자아 설정</Text>
+            </TouchableOpacity>
+          )}
+          
+          {/* 🗣️ 말투 설정 (User-created personas only) */}
+          {onAISettings && persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
             <>
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={() => {
-                  onAISettings?.();
+                  onAISettings?.('speaking');
                   setIsSettingsMenuOpen(false);
                 }}
                 activeOpacity={0.7}
               >
-                <Text style={styles.menuIcon}>🎭</Text>
-                <Text style={styles.menuText}>AI 성격 설정</Text>
+                <Text style={styles.menuIcon}>🗣️</Text>
+                <Text style={styles.menuText}>말투 설정</Text>
               </TouchableOpacity>
               
               {/* 구분선 */}

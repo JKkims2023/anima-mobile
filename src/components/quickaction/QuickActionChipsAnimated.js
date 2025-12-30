@@ -51,11 +51,11 @@ const QuickActionChipsAnimated = ({
   const [showTooltip, setShowTooltip] = useState(false);
 
   const actions = [
-    { id: 'video', icon: 'video-vintage', label: '영상', onClick: onVideoClick },
+    { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-//    { id: 'share', icon: 'share', label: t('common.share'), onClick: onShareClick },
-    { id: 'history', icon: 'history', label: '추억', onClick: onHistoryClick },
-//    {id: 'music', icon: 'music', label: '뮤직', onClick: onMusicClick},
+    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick },
+    { id: 'history', icon: 'mailbox-outline', label: '추억', onClick: onHistoryClick },
+    {id: 'dress', icon: 'tshirt-crew-outline', label: '드레스', onClick: onDressClick},
 //    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
   ];
   
@@ -184,6 +184,10 @@ const QuickActionChipsAnimated = ({
       });
     };
   }, []);
+
+  useEffect(() => {
+    console.log('currentPersona: ', currentPersona);
+  }, [currentPersona]);
   
   const handlePress = (action) => {
     HapticService.medium();
@@ -209,6 +213,7 @@ const QuickActionChipsAnimated = ({
       console.warn('[QuickActionChipsAnimated] onMessageClick missing');
     }
   };
+
   
   return (
     <>
@@ -225,8 +230,9 @@ const QuickActionChipsAnimated = ({
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
-              <Icon name={action.icon} size={scale(24)} color="#FFFFFF" />
-              <Text style={styles.label}>{action.label}</Text>
+              <Icon name={action.icon} size={scale(24)} color=
+              {action.id === 'history' ? 'yellow' : '#FFFFFF'} />
+              <Text style={[styles.label,{display:'none', color: action.id === 'history' ? 'yellow' : '#FFFFFF'}]}>{action.label}</Text>
             </TouchableOpacity>
           </View>
         );
@@ -302,22 +308,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chip: {
-    flexDirection: 'column',
+    width: scale(62),
+    height: scale(62),
+    borderRadius: scale(31),
+    backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark background for visibility
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
-//    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(16),
-    borderRadius: scale(24),
-    gap: scale(8),
-    marginRight: scale(10),
-//    borderWidth: 1,
-//    borderColor: 'rgba(255, 255, 255, 0.1)',
-    // ✅ Shadow for depth
-//    shadowColor: '#000',
-//    shadowOffset: { width: 0, height: 4 },
-//    shadowOpacity: 0.3,
-//    shadowRadius: 8,
-    elevation: 8,
+    justifyContent: 'center',
+    // Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
   },
   label: {
     color: '#FFFFFF',

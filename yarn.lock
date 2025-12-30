@@ -3735,6 +3735,7 @@ __metadata:
     react-native-screens: ^4.18.0
     react-native-sound: ^0.13.0
     react-native-svg: ^15.15.1
+    react-native-uuid: ^2.0.3
     react-native-vector-icons: ^10.3.0
     react-native-video: ^6.14.0
     react-native-webview: ^13.16.0
@@ -9216,6 +9217,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: a65590d7344e39179b5f7de305001d821d1d25ab17d915781039fdd0b46f71115682fddd9617295ea4c0c0f6bd484633d993abc8f9a3444ea3f72e6cb40cde8a
+  languageName: node
+  linkType: hard
+
+"react-native-uuid@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "react-native-uuid@npm:2.0.3"
+  checksum: e47774481feaed5d38f75fb4b03f5189c03e7452038f1b0fa56677add8a8bdef64ec7ad5e83f9fa761d8788cac5c8e554ade07e82a2818145337df7c883e2124
   languageName: node
   linkType: hard
 

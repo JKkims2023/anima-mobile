@@ -459,8 +459,9 @@ const PersonaStudioScreen = () => {
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ MODIFIED: Permission check already done in handleAddPersona
+  // ⚠️ useCallback REMOVED to fix closure issue - direct function always uses latest user
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handlePersonaCreationStartWithPermission = useCallback(async (data) => {
+  const handlePersonaCreationStartWithPermission = async (data) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✨ [PersonaStudioScreen] Persona creation started (permission already checked)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -468,19 +469,20 @@ const PersonaStudioScreen = () => {
     // Permission already checked in handleAddPersona, proceed directly
     // ⚠️ handlePersonaCreationStart is now a regular function, always uses latest user
     handlePersonaCreationStart(data);
-  }, []); // ⚠️ Empty array OK: handlePersonaCreationStart is no longer memoized
+  };
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ MODIFIED: Permission check already done in handleAddPersona
+  // ⚠️ useCallback REMOVED to fix closure issue - direct function always uses latest user
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handlePersonaDressStartWithPermission = useCallback(async (data) => {
+  const handlePersonaDressStartWithPermission = async (data) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✨ [PersonaStudioScreen] Persona dress started (permission already checked)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // Permission already checked in handleAddPersona, proceed directly
     handleDressCreationStart(data);
-  }, [handleDressCreationStart]); // ⭐ FIX: Include handleDressCreationStart in dependencies!
+  };
 
   
   // ⭐ NEW: Handle "Allow" button in pre-permission sheet
@@ -645,7 +647,8 @@ const PersonaStudioScreen = () => {
   }; // ⚠️ useCallback REMOVED - now regular function
 
   // Handle dress creation start (⭐ SIMPLIFIED: No polling, just refresh list)
-  const handleDressCreationStart = useCallback(async (data) => {
+  // ⚠️ useCallback REMOVED to fix closure issue - direct function always uses latest user
+  const handleDressCreationStart = async (data) => {
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✨ [PersonaStudioScreen] Persona dress started');
@@ -755,7 +758,7 @@ console.log('currentPersona: ', currentPersona);
       });
       HapticService.warning();
     }
-  }, [user, showToast, t, initializePersonas]);
+  };
   
   // Handle persona creation close
   const handlePersonaCreationClose = useCallback(() => {
