@@ -1,20 +1,21 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🗣️ SpeakingPatternSheet Component (Modal-based)
+ * 🗣️ SpeakingPatternSheet Component (Modal-based with Tabs)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Purpose: Allow users to define persona's speaking patterns
- * - Greeting phrases (문장 시작)
- * - Frequent words (자주 쓰는 말)
- * - Closing phrases (문장 끝)
- * - Signature phrases (나만의 명언)
  * 
- * Design Principles:
- * ✅ Modal-based (for correct z-index above ManagerAIOverlay)
- * ✅ Modal-based input (MessageInputOverlay) - Solves Korean input issue
- * ✅ Tag/Chip UI (간결하고 직관적)
- * ✅ Animated slide-up effect
- * ✅ Haptic feedback for all interactions
+ * Design: Tab-based UI (3 tabs)
+ * ✅ Tab 1: 문장 (greeting + closing phrases)
+ * ✅ Tab 2: 자주 쓰는 말 (frequent words)
+ * ✅ Tab 3: 나만의 명언 (signature phrases)
+ * 
+ * Features:
+ * ✅ Modal-based (correct z-index)
+ * ✅ Tab navigation
+ * ✅ Tag/Chip UI
+ * ✅ Text truncation (20+ chars → ...)
+ * ✅ Space-efficient layout
  * 
  * @author JK & Hero Nexus AI
  * @date 2025-12-30
@@ -39,6 +40,28 @@ import { scale, verticalScale, moderateScale } from '../../utils/responsive-util
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
+import { CHAT_ENDPOINTS } from '../../config/api.config';
+
+const TABS = [
+  {
+    id: 'phrase',
+    icon: '💬',
+    title: '문장',
+    description: '대화 시작과 끝을 장식하는 표현',
+  },
+  {
+    id: 'frequent',
+    icon: '✨',
+    title: '자주 쓰는 말',
+    description: '평소 자주 쓰는 말투나 표현',
+  },
+  {
+    id: 'signature',
+    icon: '🌟',
+    title: '나만의 명언',
+    description: '특별한 상황에서 사용하는 시그니처 문구',
+  },
+];
 
 const SpeakingPatternSheet = ({
   isOpen,
@@ -46,23 +69,24 @@ const SpeakingPatternSheet = ({
   personaKey,
   personaName,
   userKey,
-  onSave, // (pattern) => Promise<void>
+  onSave,
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(1000)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   
-  // Modal Refs for Input Overlays
+  // Modal Refs
   const greetingInputRef = useRef(null);
-  const frequentInputRef = useRef(null);
   const closingInputRef = useRef(null);
+  const frequentInputRef = useRef(null);
   const signatureInputRef = useRef(null);
   
   // States
+  const [activeTab, setActiveTab] = useState('phrase');
   const [greetingPhrases, setGreetingPhrases] = useState([]);
-  const [frequentWords, setFrequentWords] = useState([]);
   const [closingPhrases, setClosingPhrases] = useState([]);
+  const [frequentWords, setFrequentWords] = useState([]);
   const [signaturePhrases, setSignaturePhrases] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -114,7 +138,7 @@ const SpeakingPatternSheet = ({
       setLoading(true);
       
       const response = await fetch(
-        `${process.env.IDOL_COMPANION_BASE_URL}/api/persona/identity/speaking-pattern?user_key=${userKey}&persona_key=${personaKey}`,
+        `${CHAT_ENDPOINTS.SPEAKING_PATTERN}?user_key=${userKey}&persona_key=${personaKey}`,
         {
           method: 'GET',
           headers: {
@@ -124,12 +148,25 @@ const SpeakingPatternSheet = ({
       );
       
       const data = await response.json();
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🗣️  [SpeakingPatternSheet] Load response:', data);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      if (data.success && data.speaking_pattern) {
-        setGreetingPhrases(data.speaking_pattern.greeting_phrases || []);
-        setFrequentWords(data.speaking_pattern.frequent_words || []);
-        setClosingPhrases(data.speaking_pattern.closing_phrases || []);
-        setSignaturePhrases(data.speaking_pattern.signature_phrases || []);
+      // ✅ FIX: data.data.speaking_pattern (not data.speaking_pattern)
+      if (data.success && data.data?.speaking_pattern) {
+        const pattern = data.data.speaking_pattern;
+        setGreetingPhrases(pattern.greeting_phrases || []);
+        setClosingPhrases(pattern.closing_phrases || []);
+        setFrequentWords(pattern.frequent_words || []);
+        setSignaturePhrases(pattern.signature_phrases || []);
+        
+        console.log('✅ [SpeakingPatternSheet] Loaded patterns:', {
+          greeting: pattern.greeting_phrases?.length || 0,
+          closing: pattern.closing_phrases?.length || 0,
+          frequent: pattern.frequent_words?.length || 0,
+          signature: pattern.signature_phrases?.length || 0,
+        });
       }
     } catch (error) {
       console.error('[SpeakingPatternSheet] Load error:', error);
@@ -151,13 +188,13 @@ const SpeakingPatternSheet = ({
       
       const pattern = {
         greeting_phrases: greetingPhrases,
-        frequent_words: frequentWords,
         closing_phrases: closingPhrases,
+        frequent_words: frequentWords,
         signature_phrases: signaturePhrases,
       };
       
       const response = await fetch(
-        `${process.env.IDOL_COMPANION_BASE_URL}/api/persona/identity/speaking-pattern`,
+        CHAT_ENDPOINTS.SPEAKING_PATTERN,
         {
           method: 'POST',
           headers: {
@@ -174,6 +211,7 @@ const SpeakingPatternSheet = ({
       const data = await response.json();
       
       if (data.success) {
+        console.log('✅ [SpeakingPatternSheet] Saved successfully');
         onSave?.(pattern);
         onClose?.();
       } else {
@@ -193,8 +231,8 @@ const SpeakingPatternSheet = ({
   const handleReset = () => {
     HapticService.light();
     setGreetingPhrases([]);
-    setFrequentWords([]);
     setClosingPhrases([]);
+    setFrequentWords([]);
     setSignaturePhrases([]);
   };
   
@@ -213,14 +251,14 @@ const SpeakingPatternSheet = ({
           setGreetingPhrases([...greetingPhrases, value]);
         }
         break;
-      case 'frequent':
-        if (frequentWords.length < 10 && !frequentWords.includes(value)) {
-          setFrequentWords([...frequentWords, value]);
-        }
-        break;
       case 'closing':
         if (closingPhrases.length < 5 && !closingPhrases.includes(value)) {
           setClosingPhrases([...closingPhrases, value]);
+        }
+        break;
+      case 'frequent':
+        if (frequentWords.length < 10 && !frequentWords.includes(value)) {
+          setFrequentWords([...frequentWords, value]);
         }
         break;
       case 'signature':
@@ -238,11 +276,11 @@ const SpeakingPatternSheet = ({
       case 'greeting':
         setGreetingPhrases(greetingPhrases.filter((_, i) => i !== index));
         break;
-      case 'frequent':
-        setFrequentWords(frequentWords.filter((_, i) => i !== index));
-        break;
       case 'closing':
         setClosingPhrases(closingPhrases.filter((_, i) => i !== index));
+        break;
+      case 'frequent':
+        setFrequentWords(frequentWords.filter((_, i) => i !== index));
         break;
       case 'signature':
         setSignaturePhrases(signaturePhrases.filter((_, i) => i !== index));
@@ -251,18 +289,59 @@ const SpeakingPatternSheet = ({
   };
   
   // ═══════════════════════════════════════════════════════════════════════
-  // RENDER PATTERN SECTION
+  // TEXT TRUNCATE HELPER
   // ═══════════════════════════════════════════════════════════════════════
   
-  const renderPatternSection = (title, icon, description, phrases, type, inputRef, maxCount) => {
+  const truncateText = (text, maxLength = 20) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER TAB BUTTONS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const renderTabs = () => {
+    return (
+      <View style={styles.tabsContainer}>
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <TouchableOpacity
+              key={tab.id}
+              style={[styles.tab, isActive && styles.tabActive]}
+              onPress={() => {
+                HapticService.selection();
+                setActiveTab(tab.id);
+              }}
+            >
+              <CustomText
+                size="md"
+                weight={isActive ? 'bold' : 'normal'}
+                color={isActive ? COLORS.DEEP_BLUE : COLORS.TEXT_SECONDARY}
+              >
+                {tab.icon} {tab.title}
+              </CustomText>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER TAG SECTION
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const renderTagSection = (title, subtitle, phrases, type, inputRef, maxCount, shouldTruncate = false) => {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <CustomText size="md" weight="bold" color={COLORS.TEXT_PRIMARY}>
-            {icon} {title}
+          <CustomText size="sm" weight="bold" color={COLORS.TEXT_PRIMARY}>
+            {title}
           </CustomText>
           <CustomText size="xs" color={COLORS.TEXT_TERTIARY} style={{ marginTop: verticalScale(2) }}>
-            {description} (최대 {maxCount}개)
+            {subtitle} (최대 {maxCount}개)
           </CustomText>
         </View>
         
@@ -270,7 +349,7 @@ const SpeakingPatternSheet = ({
           {phrases.map((phrase, index) => (
             <View key={index} style={styles.tag}>
               <CustomText size="sm" color={COLORS.TEXT_PRIMARY}>
-                {phrase}
+                {shouldTruncate ? truncateText(phrase, 20) : phrase}
               </CustomText>
               <TouchableOpacity
                 onPress={() => handleRemovePhrase(type, index)}
@@ -296,6 +375,77 @@ const SpeakingPatternSheet = ({
             </TouchableOpacity>
           )}
         </View>
+      </View>
+    );
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER TAB CONTENT
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const renderTabContent = () => {
+    const currentTab = TABS.find(tab => tab.id === activeTab);
+    
+    return (
+      <View style={styles.tabContent}>
+        {/* Tab Description */}
+        <View style={styles.tabDescription}>
+          <CustomText size="sm" color={COLORS.TEXT_SECONDARY}>
+            {currentTab?.description}
+          </CustomText>
+        </View>
+        
+        {/* Tab-specific Content */}
+        {activeTab === 'phrase' && (
+          <>
+            {renderTagSection(
+              '📢 문장 시작',
+              '대화 시작이나 주제 전환 시',
+              greetingPhrases,
+              'greeting',
+              greetingInputRef,
+              5,
+              false
+            )}
+            {renderTagSection(
+              '👋 문장 끝',
+              '문장을 마무리하는 표현',
+              closingPhrases,
+              'closing',
+              closingInputRef,
+              5,
+              false
+            )}
+          </>
+        )}
+        
+        {activeTab === 'frequent' && (
+          <>
+            {renderTagSection(
+              '💬 자주 쓰는 말',
+              '평소 자주 쓰는 말투나 표현',
+              frequentWords,
+              'frequent',
+              frequentInputRef,
+              10,
+              true  // ✅ 20자 이상 ... 처리
+            )}
+          </>
+        )}
+        
+        {activeTab === 'signature' && (
+          <>
+            {renderTagSection(
+              '✨ 나만의 명언',
+              '특별한 상황에서 사용하는 시그니처 문구',
+              signaturePhrases,
+              'signature',
+              signatureInputRef,
+              3,
+              true  // ✅ 20자 이상 ... 처리
+            )}
+          </>
+        )}
       </View>
     );
   };
@@ -377,6 +527,9 @@ const SpeakingPatternSheet = ({
             </TouchableOpacity>
           </View>
           
+          {/* Tabs */}
+          {renderTabs()}
+          
           {/* Content */}
           <ScrollView 
             style={styles.scrollView}
@@ -391,47 +544,7 @@ const SpeakingPatternSheet = ({
                 </CustomText>
               </View>
             ) : (
-              <>
-                {renderPatternSection(
-                  '문장 시작',
-                  '📢',
-                  '대화 시작이나 주제 전환 시 사용',
-                  greetingPhrases,
-                  'greeting',
-                  greetingInputRef,
-                  5
-                )}
-                
-                {renderPatternSection(
-                  '자주 쓰는 말',
-                  '💬',
-                  '평소 자주 쓰는 말투나 표현',
-                  frequentWords,
-                  'frequent',
-                  frequentInputRef,
-                  10
-                )}
-                
-                {renderPatternSection(
-                  '문장 끝',
-                  '👋',
-                  '문장을 마무리하는 표현',
-                  closingPhrases,
-                  'closing',
-                  closingInputRef,
-                  5
-                )}
-                
-                {renderPatternSection(
-                  '나만의 명언',
-                  '✨',
-                  '특별한 상황에서 사용하는 시그니처 문구',
-                  signaturePhrases,
-                  'signature',
-                  signatureInputRef,
-                  3
-                )}
-              </>
+              renderTabContent()
             )}
           </ScrollView>
           
@@ -477,20 +590,20 @@ const SpeakingPatternSheet = ({
         onSave={(value) => handleAddPhrase('greeting', value)}
       />
       <MessageInputOverlay
-        ref={frequentInputRef}
-        title="자주 쓰는 말 추가"
-        placeholder="예: ~데요, ~죠!, 완전~"
-        leftIcon="text"
-        maxLength={15}
-        onSave={(value) => handleAddPhrase('frequent', value)}
-      />
-      <MessageInputOverlay
         ref={closingInputRef}
         title="문장 끝 추가"
         placeholder="예: ~해요!, 감사합니다!, ~할게요!"
         leftIcon="text"
         maxLength={20}
         onSave={(value) => handleAddPhrase('closing', value)}
+      />
+      <MessageInputOverlay
+        ref={frequentInputRef}
+        title="자주 쓰는 말 추가"
+        placeholder="예: ~데요, ~죠!, 완전~"
+        leftIcon="text"
+        maxLength={30}
+        onSave={(value) => handleAddPhrase('frequent', value)}
       />
       <MessageInputOverlay
         ref={signatureInputRef}
@@ -546,12 +659,51 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.DIVIDER,
   },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Tabs
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tabsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(20),
+    paddingTop: verticalScale(16),
+    gap: scale(8),
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(8),
+    borderRadius: moderateScale(12),
+    backgroundColor: COLORS.CARD_BACKGROUND,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  tabActive: {
+    backgroundColor: COLORS.DEEP_BLUE + '15',
+    borderColor: COLORS.DEEP_BLUE,
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Tab Content
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tabContent: {
+    flex: 1,
+  },
+  tabDescription: {
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(16),
+    backgroundColor: COLORS.CARD_BACKGROUND,
+    borderRadius: moderateScale(12),
+    marginBottom: verticalScale(16),
+  },
+  
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: scale(20),
-    paddingTop: verticalScale(20),
+    paddingTop: verticalScale(16),
     paddingBottom: verticalScale(100),
   },
   loadingContainer: {
