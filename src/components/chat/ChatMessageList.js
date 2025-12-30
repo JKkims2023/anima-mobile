@@ -204,6 +204,32 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, personaUrl 
           </TouchableOpacity>
         ))}
         
+        {/* 🎵 Music Info (NEW!) */}
+        {message.music && (
+          <View style={styles.musicContainer}>
+            {message.music.image && (
+              <Image
+                source={{ uri: message.music.image }}
+                style={styles.musicAlbumArt}
+                resizeMode="cover"
+              />
+            )}
+            <View style={styles.musicInfo}>
+              <Text style={[styles.musicTitle, { color: currentTheme.textColor }]} numberOfLines={1}>
+                🎵 {message.music.title}
+              </Text>
+              <Text style={[styles.musicArtist, { color: currentTheme.textColor }]} numberOfLines={1}>
+                {message.music.artist}
+              </Text>
+              {message.music.duration && (
+                <Text style={styles.musicDuration}>
+                  ⏱ {Math.floor(message.music.duration / 60)}:{String(Math.floor(message.music.duration % 60)).padStart(2, '0')}
+                </Text>
+              )}
+            </View>
+          </View>
+        )}
+        
         {/* Timestamp (optional) */}
         {message.timestamp && (
           <Text style={styles.timestamp}>
@@ -771,6 +797,41 @@ const styles = StyleSheet.create({
   linkDomain: {
     fontSize: moderateScale(11),
     opacity: 0.5,
+  },
+  // 🎵 Music styles (NEW!)
+  musicContainer: {
+    flexDirection: 'row',
+    marginTop: verticalScale(8),
+    padding: moderateScale(10),
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    gap: moderateScale(10),
+  },
+  musicAlbumArt: {
+    width: moderateScale(50),
+    height: moderateScale(50),
+    borderRadius: moderateScale(8),
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  musicInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  musicTitle: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+    marginBottom: verticalScale(2),
+  },
+  musicArtist: {
+    fontSize: moderateScale(12),
+    opacity: 0.7,
+    marginBottom: verticalScale(2),
+  },
+  musicDuration: {
+    fontSize: moderateScale(11),
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   typingText: {
     fontSize: moderateScale(14),

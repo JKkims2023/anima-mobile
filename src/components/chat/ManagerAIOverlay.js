@@ -49,7 +49,7 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
-
+import uuid from 'react-native-uuid';
 // 🎵 Enable playback in silence mode (iOS)
 Sound.setCategory('Playback');
 // 🗑️ TEMPORARILY DISABLED: Identity Guide (during refactoring)
@@ -217,6 +217,10 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     if (visible && user?.user_key) {
       loadAISettings();
+    }else{
+      console.log('⚠️ [Chat History] No user_key found');
+      showWelcomeMessage();
+      return;
     }
   }, [visible, user?.user_key]);
   
@@ -414,6 +418,7 @@ const ManagerAIOverlay = ({
           images: msg.images || [], // AI-generated images
           videos: msg.videos || [], // AI-generated videos
           links: msg.links || [], // AI-generated links
+          music: msg.music || null, // 🎵 NEW: Music data (title, artist, duration, etc.)
         }));
         
         console.log(`✅ [Chat History] Loaded ${historyMessages.length} messages`);
@@ -510,6 +515,40 @@ const ManagerAIOverlay = ({
       }
     }, 30);
   }, [context, t]);
+
+    // ⭐ NEW: Show welcome message with typing effect
+    const showNotLoginMessage = useCallback(() => {
+
+      
+      const greeting = t('ai_comment.not_login');
+          
+      // Type out greeting
+      setIsTyping(true);
+      setTypingMessage('');
+      
+      let currentIndex = 0;
+      const typeInterval = setInterval(() => {
+        if (currentIndex < greeting.length) {
+          setTypingMessage(greeting.substring(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          
+          const greetingMessage = {
+            id: uuid.v4(),
+            role: 'ai',
+            text: greeting,
+            timestamp: new Date().toISOString(),
+          };
+          
+          setMessages(prev => [...prev, greetingMessage]);
+          setMessageVersion(prev => prev + 1);
+
+          setIsTyping(false);
+          setTypingMessage('');
+        }
+      }, 30);
+    }, [context, t]);
   
   // ⭐ NEW: AI auto conversation starter
   const startAIConversation = useCallback(async (userKey) => {
@@ -960,7 +999,7 @@ const ManagerAIOverlay = ({
       }
       
     } catch (error) {
-      console.error('[ManagerAIOverlay] AI continue error:', error);
+      console.log('[ManagerAIOverlay] AI continue error:', error);
       setIsAIContinuing(false);
       aiContinueCountRef.current = 0; // ⭐ Reset ref
       setIsLoading(false);
@@ -1012,18 +1051,10 @@ const ManagerAIOverlay = ({
       
       // Check if user is logged in
       if (!userKey) {
-        console.error('❌ [ManagerAIOverlay] No user_key found! User not logged in.');
+        console.log('❌ [ManagerAIOverlay] No user_key found! User not logged in.');
         
-        // Show user-friendly error message
-        const errorMessage = {
-          id: `error-${Date.now()}`,
-          role: 'assistant',
-          text: '⚠️ 로그인 정보를 찾을 수 없습니다. 앱을 재시작해주세요.',
-          timestamp: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errorMessage]);
-        setMessageVersion(prev => prev + 1);
-        setIsLoading(false);
+        showNotLoginMessage();
+
         return;
       }
       
@@ -1218,7 +1249,7 @@ const ManagerAIOverlay = ({
       }
       
     } catch (error) {
-      console.error('[ManagerAIOverlay] Error:', error);
+      console.log('[ManagerAIOverlay] Error:', error);
       
       const errorMessage = {
         id: `error-${Date.now()}`,
@@ -1255,7 +1286,7 @@ const ManagerAIOverlay = ({
       setGiftData(null);
       
     } catch (error) {
-      console.error('❌ [Gift Reaction] Error:', error);
+      console.log('❌ [Gift Reaction] Error:', error);
       Alert.alert(
         t('common.error'),
         t('common.errorMessage')
