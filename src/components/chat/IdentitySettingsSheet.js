@@ -103,32 +103,33 @@ const IdentitySettingsSheet = ({
   // RENDER SETTING SECTION
   // ═══════════════════════════════════════════════════════════════════════
   
-  const renderSettingSection = (category, data) => {
-    const currentValue = settings?.[category] || data.options[0].value;
+  const renderSettingSection = (categoryData) => {
+    const { key: category, title, description, options } = categoryData;
+    const currentValue = settings?.[category] || options[0]?.id;
     
     return (
       <View key={category} style={styles.section}>
         <View style={styles.sectionHeader}>
           <CustomText size="lg" weight="bold" color={COLORS.TEXT_PRIMARY}>
-            {data.icon} {data.title}
+            {title}
           </CustomText>
           <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
-            {data.description}
+            {description}
           </CustomText>
         </View>
         
         <View style={styles.optionsContainer}>
-          {data.options.map((option) => {
-            const isSelected = currentValue === option.value;
+          {options.map((option) => {
+            const isSelected = currentValue === option.id;
             
             return (
               <TouchableOpacity
-                key={option.value}
+                key={option.id}
                 style={[
                   styles.optionChip,
                   isSelected && styles.optionChipSelected,
                 ]}
-                onPress={() => handleSettingChange(category, option.value)}
+                onPress={() => handleSettingChange(category, option.id)}
                 disabled={saving}
               >
                 <CustomText
@@ -136,7 +137,7 @@ const IdentitySettingsSheet = ({
                   weight={isSelected ? 'bold' : 'normal'}
                   color={isSelected ? COLORS.BUTTON_TEXT : COLORS.TEXT_SECONDARY}
                 >
-                  {option.label}
+                  {option.emoji} {option.name}
                 </CustomText>
               </TouchableOpacity>
             );
@@ -228,9 +229,9 @@ const IdentitySettingsSheet = ({
             </View>
           ) : (
             <>
-              {renderSettingSection('speech_style', SETTING_CATEGORIES.speech_style)}
-              {renderSettingSection('response_style', SETTING_CATEGORIES.response_style)}
-              {renderSettingSection('advice_level', SETTING_CATEGORIES.advice_level)}
+              {SETTING_CATEGORIES.filter(cat => cat.key !== 'vision_mode').map(categoryData => 
+                renderSettingSection(categoryData)
+              )}
             </>
           )}
           
