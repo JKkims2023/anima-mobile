@@ -63,6 +63,7 @@ import {
 } from '../services/api/personaApi';
 import CustomText from '../components/CustomText';
 import { COLORS } from '../styles/commonstyles';
+import amountService from '../services/api/amountService';
 
 // Import Push Notification helpers
 import { 
@@ -194,6 +195,9 @@ const PersonaStudioScreen = () => {
     return () => backHandler.remove();
   }, [isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
   
+  useEffect(() => {
+    console.log('user: ', user);
+  }, [user]);
   // ═══════════════════════════════════════════════════════════════════════
   // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
   // No need for beforeRemove or tabPress listeners here!
@@ -463,7 +467,7 @@ const PersonaStudioScreen = () => {
     
     // Permission already checked in handleAddPersona, proceed directly
     handlePersonaCreationStart(data);
-  }, []);
+  }, [handlePersonaCreationStart]); // ⭐ FIX: Include handlePersonaCreationStart in dependencies!
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ MODIFIED: Permission check already done in handleAddPersona
@@ -475,7 +479,7 @@ const PersonaStudioScreen = () => {
     
     // Permission already checked in handleAddPersona, proceed directly
     handleDressCreationStart(data);
-  }, []);
+  }, [handleDressCreationStart]); // ⭐ FIX: Include handleDressCreationStart in dependencies!
 
   
   // ⭐ NEW: Handle "Allow" button in pre-permission sheet
@@ -934,13 +938,75 @@ console.log('currentPersona: ', currentPersona);
   }, []);
   
   // 3. Video Conversion (비디오 변환)
-  const handleQuickVideo = useCallback(() => {
+  const handleQuickVideo = useCallback( async () => {
+    
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🎬 Video conversion clicked');
     }
     
-    // TODO: Trigger video conversion for current persona
-  }, []);
+    try{
+
+      let video_amount = 0;
+      
+      console.log('currentPersona: ', currentPersona);
+      console.log('currentPersona?.selected_dress_video_url: ', currentPersona?.selected_dress_video_url);
+
+      if (currentPersona?.selected_dress_video_url !== null) {
+
+        showAlert({
+          title: t('persona.settings.video_already_converted_title'),
+          message: t('persona.settings.video_already_converted_message'),
+          emoji: '✅',
+        });
+        return;
+      }
+
+      const serviceData = await amountService.getServiceData({
+        user_key: user?.user_key,
+      });
+
+      if (!serviceData.success) {
+        HapticService.warning();
+        console.log('[PersonaStudioScreen] Service data fetch failed');
+        return;
+
+      }else{
+        
+        video_amount = serviceData.data.video_amount;
+      
+      }
+
+      showAlert({
+        title: t('persona.settings.video_convert_confirm_title'),
+        message: t('persona.settings.video_convert_confirm_message', { cost: video_amount.toLocaleString() }),
+        emoji: '♥️',
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: t('common.confirm'),
+            style: 'primary',
+            onPress: () => {
+              handlePersonaVideoConvert(currentPersona);
+              // ⚠️ Don't close here - close after video conversion starts
+            },
+          },
+        ],
+      });
+
+    } catch (error) {
+      console.error('[PersonaSettingsSheet] Video convert error:', error);
+      HapticService.warning();
+      showToast({
+        type: 'error',
+        message: error.message,
+          emoji: '⚠️',
+      });
+    }
+
+  }, [showAlert, t]);
   
   // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Opens MessageCreationOverlay
   const handleQuickMessage = useCallback(() => {
@@ -1198,6 +1264,9 @@ console.log('currentPersona: ', currentPersona);
     // Check notification permission before video conversion
     const hasPermission = await checkNotificationPermission();
     const hasRequested = await hasRequestedNotificationPermission();
+
+    console.log('hasPermission: ', hasPermission);
+    console.log('hasRequested: ', hasRequested);
     
     if (!hasPermission && !hasRequested) {
       // Set context for video conversion
@@ -1487,12 +1556,13 @@ console.log('currentPersona: ', currentPersona);
         {currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible && (
           <View style={styles.quickChipsOverlay}>
             <QuickActionChipsAnimated
-              onDressClick={handleQuickDress}
+              onDressClick={handleAddDress}
               onHistoryClick={handleQuickHistory}
               onVideoClick={handleQuickVideo}
-              onMessageClick={handleAddDress}//{handleQuickMessage}
+              onMessageClick={handleQuickMessage}//{handleQuickMessage}
               onSettingsClick={handleQuickSettings}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
+              currentPersona={currentPersona}
             />
           </View>
         )}
