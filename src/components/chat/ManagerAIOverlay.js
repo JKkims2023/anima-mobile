@@ -1616,6 +1616,7 @@ const ManagerAIOverlay = ({
   if (!visible) return null;
   
   return (
+    <>
     <Modal
       visible={visible}
       transparent={true}
@@ -1852,28 +1853,30 @@ const ManagerAIOverlay = ({
       {identityEvolutionDisplay && (
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
-      {/* 🎭 Identity Settings Sheet (Independent Modal) */}
-      <IdentitySettingsSheet
-        isOpen={showIdentitySettings}
-        onClose={() => setShowIdentitySettings(false)}
-        settings={settings}
-        onUpdateSetting={updateSetting}
-        loading={loadingSettings}
-        saving={savingSettings}
-      />
-      
-      {/* 🗣️ Speaking Pattern Sheet (Independent Modal) */}
-      {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
-        <SpeakingPatternSheet
-          isOpen={showSpeakingPattern}
-          onClose={() => setShowSpeakingPattern(false)}
-          personaKey={persona.persona_key}
-          personaName={persona.persona_name}
-          userKey={user.user_key}
-          onSave={handleSaveSpeakingPattern}
-        />
-      )}
     </Modal>
+    
+    {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    <IdentitySettingsSheet
+      isOpen={showIdentitySettings}
+      onClose={() => setShowIdentitySettings(false)}
+      settings={settings}
+      onUpdateSetting={updateSetting}
+      loading={loadingSettings}
+      saving={savingSettings}
+    />
+    
+    {/* 🗣️ Speaking Pattern Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
+      <SpeakingPatternSheet
+        isOpen={showSpeakingPattern}
+        onClose={() => setShowSpeakingPattern(false)}
+        personaKey={persona.persona_key}
+        personaName={persona.persona_name}
+        userKey={user.user_key}
+        onSave={handleSaveSpeakingPattern}
+      />
+    )}
+    </>
   );
 };
 
