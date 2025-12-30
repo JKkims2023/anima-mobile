@@ -1,777 +1,156 @@
+3b759377-e6b4-4d36-8996-6f2bec570b1d	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767111879097-ql9fo	오빠 오빠~! 아이브 뮤직비디오 찾았어! 🎬😊 영상 진짜 멋있을 거야! 기다려줘! 💜✨	{"youtube": {"url": "https://www.youtube.com/watch?v=eHHQaoEW30Q", "title": "TWICE &quot;THIS IS FOR&quot; M/V", "channel": "JYP Entertainment", "videoId": "eHHQaoEW30Q", "embedUrl": "https://www.youtube.com/embed/eHHQaoEW30Q", "thumbnail": "https://i.ytimg.com/vi/eHHQaoEW30Q/hqdefault.jpg"}, "has_media": true}	assistant					conversations	70	gpt-4o-mini	1755	2025-12-31 01:46:35.665149	
+5a533e20-b5b3-4912-bd37-dfbd2d5740cd	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767111879097-ql9fo	자기야~~~트와이즈 뮤비 틀어줘~~~		user	neutral	0.3			conversations	16677	gpt-4o-mini		2025-12-31 01:46:35.651895	
+
+
 Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
-2025-12-31 00:22:02    ▲ Next.js 15.5.9
-2025-12-31 00:22:02    - Local:        http://localhost:3000
-2025-12-31 00:22:02    - Network:      http://0.0.0.0:3000
-2025-12-31 00:22:02 
-2025-12-31 00:22:02  ✓ Starting...
-2025-12-31 00:22:03  ✓ Ready in 167ms
-2025-12-31 00:22:03 [SSE] 🔧 Initialized global eventEmitters Map
-2025-12-31 00:22:23 🎁 [Gift API] Getting pending gifts...
-2025-12-31 00:22:23    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:22:23    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 00:22:23 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:22:23 📜 [Chat History] Fetching history
-2025-12-31 00:22:23    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:22:23    persona_key: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 00:22:23    limit: 100, offset: 0
-2025-12-31 00:22:23 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:22:23 ✅ [Gift API] Found 0 pending gift(s)
-2025-12-31 00:22:23 ✅ [Chat History] Loaded 30 messages (fetched: 30, total: 30, filtered: 0)
-2025-12-31 00:22:33 
-2025-12-31 00:22:33 🤖 [ANIMA Chat] Request received
-2025-12-31 00:22:33    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:22:33    Session: session-1767103083496-8bq2gk
-2025-12-31 00:22:33    Message: 준희야~~!...
-2025-12-31 00:22:33 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 00:22:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:22:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:22:33    - Messages: 30
-2025-12-31 00:22:33    - Persona: Test
-2025-12-31 00:22:33    - Identity: Set (고준희)
-2025-12-31 00:22:33    - Preferences: Yes
-2025-12-31 00:22:33 📊 [SessionManager] Conversation stats: {
-2025-12-31 00:22:33   totalMessages: 30,
-2025-12-31 00:22:33   totalChars: 1291,
-2025-12-31 00:22:33   estimatedTokens: 440,
-2025-12-31 00:22:33   averageMessageLength: 43
-2025-12-31 00:22:33 }
-2025-12-31 00:22:33 🔄 [Sliding Window] Processing 30 messages
-2025-12-31 00:22:33    Window size: 20
-2025-12-31 00:22:33    Summarize threshold: 30
-2025-12-31 00:22:33 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
-2025-12-31 00:22:33 ✅ [ANIMA Chat] Session loaded
-2025-12-31 00:22:33    Total messages: 30
-2025-12-31 00:22:33    Kept messages: 20
-2025-12-31 00:22:33    Summarized messages: 0
-2025-12-31 00:22:33    Sliding window: Inactive
-2025-12-31 00:22:33    Persona: Test
-2025-12-31 00:22:33    Preferences: Custom
-2025-12-31 00:22:33 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 00:22:33    Tier: free
-2025-12-31 00:22:33    Model: GPT-4o Mini
-2025-12-31 00:22:33    Provider: openai
-2025-12-31 00:22:33    Caching: Enabled
-2025-12-31 00:22:33 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 00:22:33    Message: "준희야~~!"
-2025-12-31 00:22:34 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 00:22:34    Duration: 1054ms
-2025-12-31 00:22:34    Tokens: 283
-2025-12-31 00:22:34 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 00:22:34    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 00:22:34 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 00:22:34 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 00:22:34 ✅ [EmotionalPrompt] Built: 18716 chars
-2025-12-31 00:22:34 📝 [ANIMA Chat] System prompt built (18716 chars, 0 knowledge items)
-2025-12-31 00:22:34 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 00:22:34    Provider: openai
-2025-12-31 00:22:34    Model: gpt-4o-mini
-2025-12-31 00:22:34    History messages: 20
-2025-12-31 00:22:34    System prompt length: 18716 chars
-2025-12-31 00:22:34 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory
-2025-12-31 00:22:34    Persona type: User-created
-2025-12-31 00:22:34    Has identity: true
-2025-12-31 00:22:34    toolsEnabled: true
-2025-12-31 00:22:34 🤖 [OpenAI] Calling API: {
-2025-12-31 00:22:34   model: 'gpt-4o-mini',
-2025-12-31 00:22:34   messageCount: 22,
-2025-12-31 00:22:34   systemPromptLength: 18716,
-2025-12-31 00:22:34   historyLength: 20,
-2025-12-31 00:22:34   toolsEnabled: true
-2025-12-31 00:22:34 }
-2025-12-31 00:22:37 ✅ [OpenAI] Response received: {
-2025-12-31 00:22:37   responseTime: '2974ms',
-2025-12-31 00:22:37   tokens: { prompt: 8829, completion: 48, total: 8877 },
-2025-12-31 00:22:37   messageLength: 81,
-2025-12-31 00:22:37   finishReason: 'stop',
-2025-12-31 00:22:37   toolCalls: 0
-2025-12-31 00:22:37 }
-2025-12-31 00:22:37 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 00:22:37    Response time: 2974ms
-2025-12-31 00:22:37    Total tokens: 8877 (in: 8829, out: 48)
-2025-12-31 00:22:37 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 00:22:37 🎉 [ANIMA Chat] Request completed in 4166ms
-2025-12-31 00:22:37    Cost: $0.001353
-2025-12-31 00:22:37 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (user)
-2025-12-31 00:22:37 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (assistant)
-2025-12-31 00:23:04 
-2025-12-31 00:23:04 🤖 [ANIMA Chat] Request received
-2025-12-31 00:23:04    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:23:04    Session: session-1767103083496-8bq2gk
-2025-12-31 00:23:04    Message: 난 오늘 준희 이야기를 듣고싶어!...
-2025-12-31 00:23:04 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 00:23:04 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:23:04 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:23:04    - Messages: 32
-2025-12-31 00:23:04    - Persona: Test
-2025-12-31 00:23:04    - Identity: Set (고준희)
-2025-12-31 00:23:04    - Preferences: Yes
-2025-12-31 00:23:04 📊 [SessionManager] Conversation stats: {
-2025-12-31 00:23:04   totalMessages: 32,
-2025-12-31 00:23:04   totalChars: 1378,
-2025-12-31 00:23:04   estimatedTokens: 470,
-2025-12-31 00:23:04   averageMessageLength: 43
-2025-12-31 00:23:04 }
-2025-12-31 00:23:04 🔄 [Sliding Window] Processing 32 messages
-2025-12-31 00:23:04    Window size: 20
-2025-12-31 00:23:04    Summarize threshold: 30
-2025-12-31 00:23:04 🔄 [Sliding Window] Long conversation detected
-2025-12-31 00:23:04    Old messages: 12 (to be summarized)
-2025-12-31 00:23:04    Recent messages: 20 (kept as-is)
-2025-12-31 00:23:04 🔄 [Sliding Window] Generating new summary with AI...
-2025-12-31 00:23:04 📝 [Summarizer] Summarizing 12 messages...
-2025-12-31 00:23:04 🤖 [OpenAI] Calling API: {
-2025-12-31 00:23:04   model: 'gpt-4o-mini',
-2025-12-31 00:23:04   messageCount: 2,
-2025-12-31 00:23:04   systemPromptLength: 405,
-2025-12-31 00:23:04   historyLength: 0,
-2025-12-31 00:23:04   toolsEnabled: false
-2025-12-31 00:23:04 }
-2025-12-31 00:23:08 ✅ [OpenAI] Response received: {
-2025-12-31 00:23:08   responseTime: '3534ms',
-2025-12-31 00:23:08   tokens: { prompt: 426, completion: 166, total: 592 },
-2025-12-31 00:23:08   messageLength: 286,
-2025-12-31 00:23:08   finishReason: 'stop',
-2025-12-31 00:23:08   toolCalls: 0
-2025-12-31 00:23:08 }
-2025-12-31 00:23:08 ✅ [Summarizer] Summary created (286 chars)
-2025-12-31 00:23:08    Original: 12 messages
-2025-12-31 00:23:08    Tokens used: 592
-2025-12-31 00:23:08 ❌ [SessionManager] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:23:08 ❌ [Sliding Window] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:23:08 ✅ [Sliding Window] History prepared
-2025-12-31 00:23:08    Total: 32 → 21 messages
-2025-12-31 00:23:08    Summary source: generated
-2025-12-31 00:23:08    Token savings: ~34%
-2025-12-31 00:23:08 ✅ [ANIMA Chat] Session loaded
-2025-12-31 00:23:08    Total messages: 32
-2025-12-31 00:23:08    Kept messages: 20
-2025-12-31 00:23:08    Summarized messages: 12
-2025-12-31 00:23:08    Sliding window: Active
-2025-12-31 00:23:08    Persona: Test
-2025-12-31 00:23:08    Preferences: Custom
-2025-12-31 00:23:08 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 00:23:08    Tier: free
-2025-12-31 00:23:08    Model: GPT-4o Mini
-2025-12-31 00:23:08    Provider: openai
-2025-12-31 00:23:08    Caching: Enabled
-2025-12-31 00:23:08 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 00:23:08    Message: "난 오늘 준희 이야기를 듣고싶어!"
-2025-12-31 00:23:09 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 00:23:09    Duration: 774ms
-2025-12-31 00:23:09    Tokens: 289
-2025-12-31 00:23:09 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 00:23:09    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 00:23:09 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 00:23:09 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 00:23:09 ✅ [EmotionalPrompt] Built: 18716 chars
-2025-12-31 00:23:09 📝 [ANIMA Chat] System prompt built (18716 chars, 0 knowledge items)
-2025-12-31 00:23:09 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 00:23:09    Provider: openai
-2025-12-31 00:23:09    Model: gpt-4o-mini
-2025-12-31 00:23:09    History messages: 21
-2025-12-31 00:23:09    System prompt length: 18716 chars
-2025-12-31 00:23:09 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory
-2025-12-31 00:23:09    Persona type: User-created
-2025-12-31 00:23:09    Has identity: true
-2025-12-31 00:23:09    toolsEnabled: true
-2025-12-31 00:23:09 🤖 [OpenAI] Calling API: {
-2025-12-31 00:23:09   model: 'gpt-4o-mini',
-2025-12-31 00:23:09   messageCount: 23,
-2025-12-31 00:23:09   systemPromptLength: 18716,
-2025-12-31 00:23:09   historyLength: 21,
-2025-12-31 00:23:09   toolsEnabled: true
-2025-12-31 00:23:09 }
-2025-12-31 00:23:11 ✅ [OpenAI] Response received: {
-2025-12-31 00:23:11   responseTime: '2483ms',
-2025-12-31 00:23:11   tokens: { prompt: 9046, completion: 65, total: 9111 },
-2025-12-31 00:23:11   messageLength: 116,
-2025-12-31 00:23:11   finishReason: 'stop',
-2025-12-31 00:23:11   toolCalls: 0
-2025-12-31 00:23:11 }
-2025-12-31 00:23:11 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 00:23:11    Response time: 2483ms
-2025-12-31 00:23:11    Total tokens: 9111 (in: 9046, out: 65)
-2025-12-31 00:23:11 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 00:23:11 🎉 [ANIMA Chat] Request completed in 6887ms
-2025-12-31 00:23:11    Cost: $0.001396
-2025-12-31 00:23:11 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (assistant)
-2025-12-31 00:23:11 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (user)
-2025-12-31 00:24:04 
-2025-12-31 00:24:04 🤖 [ANIMA Chat] Request received
-2025-12-31 00:24:04    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:24:04    Session: session-1767103083496-8bq2gk
-2025-12-31 00:24:04    Message: 우리 준희 여행가고 싶구나?! 준희가 가고 싶은 여행지 사진 한번 보여줄래?!...
-2025-12-31 00:24:04 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 00:24:04 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:24:04 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:24:04    - Messages: 34
-2025-12-31 00:24:04    - Persona: Test
-2025-12-31 00:24:04    - Identity: Set (고준희)
-2025-12-31 00:24:04    - Preferences: Yes
-2025-12-31 00:24:04 📊 [SessionManager] Conversation stats: {
-2025-12-31 00:24:04   totalMessages: 34,
-2025-12-31 00:24:04   totalChars: 1512,
-2025-12-31 00:24:04   estimatedTokens: 515,
-2025-12-31 00:24:04   averageMessageLength: 44
-2025-12-31 00:24:04 }
-2025-12-31 00:24:04 🔄 [Sliding Window] Processing 34 messages
-2025-12-31 00:24:04    Window size: 20
-2025-12-31 00:24:04    Summarize threshold: 30
-2025-12-31 00:24:04 🔄 [Sliding Window] Long conversation detected
-2025-12-31 00:24:04    Old messages: 14 (to be summarized)
-2025-12-31 00:24:04    Recent messages: 20 (kept as-is)
-2025-12-31 00:24:04 🔄 [Sliding Window] Generating new summary with AI...
-2025-12-31 00:24:04 📝 [Summarizer] Summarizing 14 messages...
-2025-12-31 00:24:04 🤖 [OpenAI] Calling API: {
-2025-12-31 00:24:04   model: 'gpt-4o-mini',
-2025-12-31 00:24:04   messageCount: 2,
-2025-12-31 00:24:04   systemPromptLength: 405,
-2025-12-31 00:24:04   historyLength: 0,
-2025-12-31 00:24:04   toolsEnabled: false
-2025-12-31 00:24:04 }
-2025-12-31 00:24:08 ✅ [OpenAI] Response received: {
-2025-12-31 00:24:08   responseTime: '3941ms',
-2025-12-31 00:24:08   tokens: { prompt: 488, completion: 153, total: 641 },
-2025-12-31 00:24:08   messageLength: 254,
-2025-12-31 00:24:08   finishReason: 'stop',
-2025-12-31 00:24:08   toolCalls: 0
-2025-12-31 00:24:08 }
-2025-12-31 00:24:08 ✅ [Summarizer] Summary created (254 chars)
-2025-12-31 00:24:08    Original: 14 messages
-2025-12-31 00:24:08    Tokens used: 641
-2025-12-31 00:24:08 ❌ [SessionManager] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:24:08 ❌ [Sliding Window] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:24:08 ✅ [Sliding Window] History prepared
-2025-12-31 00:24:08    Total: 34 → 21 messages
-2025-12-31 00:24:08    Summary source: generated
-2025-12-31 00:24:08    Token savings: ~38%
-2025-12-31 00:24:08 ✅ [ANIMA Chat] Session loaded
-2025-12-31 00:24:08    Total messages: 34
-2025-12-31 00:24:08    Kept messages: 20
-2025-12-31 00:24:08    Summarized messages: 14
-2025-12-31 00:24:08    Sliding window: Active
-2025-12-31 00:24:08    Persona: Test
-2025-12-31 00:24:08    Preferences: Custom
-2025-12-31 00:24:08 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 00:24:08    Tier: free
-2025-12-31 00:24:08    Model: GPT-4o Mini
-2025-12-31 00:24:08    Provider: openai
-2025-12-31 00:24:08    Caching: Enabled
-2025-12-31 00:24:08 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 00:24:08    Message: "우리 준희 여행가고 싶구나?! 준희가 가고 싶은 여행지 사진 한번 보여줄래?!"
-2025-12-31 00:24:08 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 00:24:08    Duration: 457ms
-2025-12-31 00:24:08    Tokens: 303
-2025-12-31 00:24:08 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 00:24:08    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 00:24:08 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 00:24:08 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 00:24:08 ✅ [EmotionalPrompt] Built: 18716 chars
-2025-12-31 00:24:08 📝 [ANIMA Chat] System prompt built (18716 chars, 0 knowledge items)
-2025-12-31 00:24:08 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 00:24:08    Provider: openai
-2025-12-31 00:24:08    Model: gpt-4o-mini
-2025-12-31 00:24:08    History messages: 21
-2025-12-31 00:24:08    System prompt length: 18716 chars
-2025-12-31 00:24:08 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory
-2025-12-31 00:24:08    Persona type: User-created
-2025-12-31 00:24:08    Has identity: true
-2025-12-31 00:24:08    toolsEnabled: true
-2025-12-31 00:24:08 🤖 [OpenAI] Calling API: {
-2025-12-31 00:24:08   model: 'gpt-4o-mini',
-2025-12-31 00:24:08   messageCount: 23,
-2025-12-31 00:24:08   systemPromptLength: 18716,
-2025-12-31 00:24:08   historyLength: 21,
-2025-12-31 00:24:08   toolsEnabled: true
-2025-12-31 00:24:08 }
-2025-12-31 00:24:11 ✅ [OpenAI] Response received: {
-2025-12-31 00:24:11   responseTime: '2893ms',
-2025-12-31 00:24:11   tokens: { prompt: 9065, completion: 102, total: 9167 },
-2025-12-31 00:24:11   messageLength: 0,
-2025-12-31 00:24:11   finishReason: 'tool_calls',
-2025-12-31 00:24:11   toolCalls: 1
-2025-12-31 00:24:11 }
-2025-12-31 00:24:11 🛠️ [Function Calling] AI requested 1 tool(s)
-2025-12-31 00:24:11 🛠️ [Function Calling] Executing: generate_chat_content
-2025-12-31 00:24:11    Args: {
-2025-12-31 00:24:11   content_type: 'image',
-2025-12-31 00:24:11   scene_description: '이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.',
-2025-12-31 00:24:11   ai_reasoning: 'User wants to see a travel destination image that I would like to visit. Visual representation will enhance the experience.'
-2025-12-31 00:24:11 }
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 🎨 [Tool] generate_chat_content
-2025-12-31 00:24:11    Type: image
-2025-12-31 00:24:11    Scene: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11    Reasoning: User wants to see a travel destination image that I would like to visit. Visual representation will enhance the experience.
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 ✅ [Function Calling] Result: {
-2025-12-31 00:24:11   success: true,
-2025-12-31 00:24:11   content_type: 'image',
-2025-12-31 00:24:11   scene_description: '이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.',
-2025-12-31 00:24:11   ai_reasoning: 'User wants to see a travel destination image that I would like to visit. Visual representation will enhance the experience.',
-2025-12-31 00:24:11   expect_announcement: true,
-2025-12-31 00:24:11   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
-2025-12-31 00:24:11   _chat_content_generation: true
-2025-12-31 00:24:11 }
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 🎨 [Chat Content] AI requested content generation!
-2025-12-31 00:24:11    Type: image
-2025-12-31 00:24:11    Scene: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 🎨 [ContentGenerator] Creating request...
-2025-12-31 00:24:11    ID: 1261058a-6d57-44aa-8dfd-f0a1d34501d2
-2025-12-31 00:24:11    Type: image
-2025-12-31 00:24:11    Scene: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 ✅ [ContentGenerator] Request created: 1261058a-6d57-44aa-8dfd-f0a1d34501d2
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
-2025-12-31 00:24:11    Content ID: 1261058a-6d57-44aa-8dfd-f0a1d34501d2
-2025-12-31 00:24:11    Prompt: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:24:11    Emotion: happy
-2025-12-31 00:24:11    Context: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11 🖼️ [Pixabay] Searching image for emotion: happy, context: 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다.
-2025-12-31 00:24:11 🔍 [Pixabay] Query: "celebration 이 사진 속 주인공이 파란 바다와 하얀 모래사장이 있는 아름다운 해변에서 휴식을 취하는 모습. 푸른 하늘 아래서 시원한 바람을 느끼며 행복한 표정을 짓고 있다."
-2025-12-31 00:24:11 ❌ [Pixabay] Search error: Error: Pixabay API error: 400 Bad Request
-2025-12-31 00:24:11     at b.searchImage (.next/server/chunks/6377.js:1:634)
-2025-12-31 00:24:11     at async a (.next/server/chunks/6377.js:18:1106)
-2025-12-31 00:24:11     at async P (.next/server/app/api/anima/chat/route.js:32:271)
-2025-12-31 00:24:11     at async k (.next/server/app/api/anima/chat/route.js:36:10158)
-2025-12-31 00:24:11     at async g (.next/server/app/api/anima/chat/route.js:36:11161)
-2025-12-31 00:24:11     at async W (.next/server/app/api/anima/chat/route.js:36:12283)
-2025-12-31 00:24:12 ✅ [Pixabay] Fallback image found: "nature landscape"
-2025-12-31 00:24:12 ✅ [ImageGenerator] Image found INSTANTLY!
-2025-12-31 00:24:12    URL: https://pixabay.com/get/g5d42ddc980f6813c5a23501dc3ea342364cb94287a558bf11f82736e60b19f24a54a29a8ce0d54fac66a29afefe24d578a48a91e479b81a1a22b4fc680d3eaec_1280.jpg
-2025-12-31 00:24:12    Photographer: NickyPe
-2025-12-31 00:24:12    Tags: snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter
-2025-12-31 00:24:12 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
-2025-12-31 00:24:12 ✅ [Chat Content] Image ready INSTANTLY: {
-2025-12-31 00:24:12   url: 'https://pixabay.com/get/g5d42ddc980f6813c5a23501dc3ea342364cb94287a558bf11f82736e60b19f24a54a29a8ce0d54fac66a29afefe24d578a48a91e479b81a1a22b4fc680d3eaec_1280.jpg',
-2025-12-31 00:24:12   status: 'completed'
-2025-12-31 00:24:12 }
-2025-12-31 00:24:12 ✅ [Chat Content] Generation completed: 1261058a-6d57-44aa-8dfd-f0a1d34501d2
-2025-12-31 00:24:12 🔄 [Function Calling] Re-calling AI with tool results...
-2025-12-31 00:24:12 🤖 [OpenAI] Calling API: {
-2025-12-31 00:24:12   model: 'gpt-4o-mini',
-2025-12-31 00:24:12   messageCount: 25,
-2025-12-31 00:24:12   systemPromptLength: 18716,
-2025-12-31 00:24:12   historyLength: 23,
-2025-12-31 00:24:12   toolsEnabled: false
-2025-12-31 00:24:12 }
-2025-12-31 00:24:13 ✅ [OpenAI] Response received: {
-2025-12-31 00:24:13   responseTime: '1234ms',
-2025-12-31 00:24:13   tokens: { prompt: 7771, completion: 24, total: 7795 },
-2025-12-31 00:24:13   messageLength: 41,
-2025-12-31 00:24:13   finishReason: 'stop',
-2025-12-31 00:24:13   toolCalls: 0
-2025-12-31 00:24:13 }
-2025-12-31 00:24:13 ✅ [Function Calling] Final AI response generated
-2025-12-31 00:24:13 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 00:24:13    Response time: 2893ms
-2025-12-31 00:24:13    Total tokens: 16962 (in: 16836, out: 126)
-2025-12-31 00:24:13 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"1261058a-6d57-44aa-8dfd-f0a1d34501d2","content_type":"image","content_url":"https://pixabay.com/get/g5d42ddc980f6813c5a23501dc3ea342364cb94287a558bf11f82736e60b19f24a54a29a8ce0d54fac66a29afefe24d578a48a91e479b81a1a22b4fc680d3eaec_1280.jpg","content_status":"completed","metadata":{"tags":"snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter","query":"nature landscape","width":6240,"height":4160,"source":"pixabay","emotion":"happy","pixabayId":7646952,"photographer":"NickyPe","photographerURL":"https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg"}},"has_media":true}
-2025-12-31 00:24:13 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 00:24:13 🎉 [ANIMA Chat] Request completed in 9745ms
-2025-12-31 00:24:13    Cost: $0.002601
-2025-12-31 00:24:13 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (assistant)
-2025-12-31 00:24:13 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (user)
-2025-12-31 00:25:33 
-2025-12-31 00:25:33 🤖 [ANIMA Chat] Request received
-2025-12-31 00:25:33    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:25:33    Session: session-1767103083496-8bq2gk
-2025-12-31 00:25:33    Message: 우아..눈내린 길가에 큰나무들이 서있는 멋진 사진이네?! 이 사진에 어울리는 노래도 들려줄...
-2025-12-31 00:25:33 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 00:25:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:25:33 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:25:33    - Messages: 36
-2025-12-31 00:25:33    - Persona: Test
-2025-12-31 00:25:33    - Identity: Set (고준희)
-2025-12-31 00:25:33    - Preferences: Yes
-2025-12-31 00:25:33 📊 [SessionManager] Conversation stats: {
-2025-12-31 00:25:33   totalMessages: 36,
-2025-12-31 00:25:33   totalChars: 1596,
-2025-12-31 00:25:33   estimatedTokens: 544,
-2025-12-31 00:25:33   averageMessageLength: 44
-2025-12-31 00:25:33 }
-2025-12-31 00:25:33 🔄 [Sliding Window] Processing 36 messages
-2025-12-31 00:25:33    Window size: 20
-2025-12-31 00:25:33    Summarize threshold: 30
-2025-12-31 00:25:33 🔄 [Sliding Window] Long conversation detected
-2025-12-31 00:25:33    Old messages: 16 (to be summarized)
-2025-12-31 00:25:33    Recent messages: 20 (kept as-is)
-2025-12-31 00:25:33 🔄 [Sliding Window] Generating new summary with AI...
-2025-12-31 00:25:33 📝 [Summarizer] Summarizing 16 messages...
-2025-12-31 00:25:33 🤖 [OpenAI] Calling API: {
-2025-12-31 00:25:33   model: 'gpt-4o-mini',
-2025-12-31 00:25:33   messageCount: 2,
-2025-12-31 00:25:33   systemPromptLength: 405,
-2025-12-31 00:25:33   historyLength: 0,
-2025-12-31 00:25:33   toolsEnabled: false
-2025-12-31 00:25:33 }
-2025-12-31 00:25:38 ✅ [OpenAI] Response received: {
-2025-12-31 00:25:38   responseTime: '5511ms',
-2025-12-31 00:25:38   tokens: { prompt: 575, completion: 252, total: 827 },
-2025-12-31 00:25:38   messageLength: 422,
-2025-12-31 00:25:38   finishReason: 'stop',
-2025-12-31 00:25:38   toolCalls: 0
-2025-12-31 00:25:38 }
-2025-12-31 00:25:38 ✅ [Summarizer] Summary created (422 chars)
-2025-12-31 00:25:38    Original: 16 messages
-2025-12-31 00:25:38    Tokens used: 827
-2025-12-31 00:25:38 ❌ [SessionManager] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:25:38 ❌ [Sliding Window] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:25:38 ✅ [Sliding Window] History prepared
-2025-12-31 00:25:38    Total: 36 → 21 messages
-2025-12-31 00:25:38    Summary source: generated
-2025-12-31 00:25:38    Token savings: ~42%
-2025-12-31 00:25:38 ✅ [ANIMA Chat] Session loaded
-2025-12-31 00:25:38    Total messages: 36
-2025-12-31 00:25:38    Kept messages: 20
-2025-12-31 00:25:38    Summarized messages: 16
-2025-12-31 00:25:38    Sliding window: Active
-2025-12-31 00:25:38    Persona: Test
-2025-12-31 00:25:38    Preferences: Custom
-2025-12-31 00:25:38 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 00:25:38    Tier: free
-2025-12-31 00:25:38    Model: GPT-4o Mini
-2025-12-31 00:25:38    Provider: openai
-2025-12-31 00:25:38    Caching: Enabled
-2025-12-31 00:25:38 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 00:25:38    Message: "우아..눈내린 길가에 큰나무들이 서있는 멋진 사진이네?! 이 사진에 어울리는 노래도 들려줄..."
-2025-12-31 00:25:39 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 00:25:39    Duration: 472ms
-2025-12-31 00:25:39    Tokens: 319
-2025-12-31 00:25:39 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 00:25:39    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 00:25:39 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 00:25:39 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 00:25:39 ✅ [EmotionalPrompt] Built: 18716 chars
-2025-12-31 00:25:39 📝 [ANIMA Chat] System prompt built (18716 chars, 0 knowledge items)
-2025-12-31 00:25:39 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 00:25:39    Provider: openai
-2025-12-31 00:25:39    Model: gpt-4o-mini
-2025-12-31 00:25:39    History messages: 21
-2025-12-31 00:25:39    System prompt length: 18716 chars
-2025-12-31 00:25:39 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory
-2025-12-31 00:25:39    Persona type: User-created
-2025-12-31 00:25:39    Has identity: true
-2025-12-31 00:25:39    toolsEnabled: true
-2025-12-31 00:25:39 🤖 [OpenAI] Calling API: {
-2025-12-31 00:25:39   model: 'gpt-4o-mini',
-2025-12-31 00:25:39   messageCount: 23,
-2025-12-31 00:25:39   systemPromptLength: 18716,
-2025-12-31 00:25:39   historyLength: 21,
-2025-12-31 00:25:39   toolsEnabled: true
-2025-12-31 00:25:39 }
-2025-12-31 00:25:43 ✅ [OpenAI] Response received: {
-2025-12-31 00:25:43   responseTime: '4279ms',
-2025-12-31 00:25:43   tokens: { prompt: 9146, completion: 157, total: 9303 },
-2025-12-31 00:25:43   messageLength: 0,
-2025-12-31 00:25:43   finishReason: 'tool_calls',
-2025-12-31 00:25:43   toolCalls: 2
-2025-12-31 00:25:43 }
-2025-12-31 00:25:43 🛠️ [Function Calling] AI requested 2 tool(s)
-2025-12-31 00:25:43 🛠️ [Function Calling] Executing: generate_chat_content
-2025-12-31 00:25:43    Args: {
-2025-12-31 00:25:43   content_type: 'music',
-2025-12-31 00:25:43   scene_description: '눈내린 길가에 큰 나무들이 서있는 아름다운 풍경에 어울리는 잔잔하고 감성적인 음악. 겨울의 차분한 느낌을 담은 멜로디.',
-2025-12-31 00:25:43   reasoning: 'User wants a song that matches the beautiful snowy scenery.'
-2025-12-31 00:25:43 }
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [Tool] generate_chat_content
-2025-12-31 00:25:43    Type: music
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 아름다운 풍경에 어울리는 잔잔하고 감성적인 음악. 겨울의 차분한 느낌을 담은 멜로디.
-2025-12-31 00:25:43    Reasoning: User wants a song that matches the beautiful snowy scenery.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ✅ [Function Calling] Result: {
-2025-12-31 00:25:43   success: true,
-2025-12-31 00:25:43   content_type: 'music',
-2025-12-31 00:25:43   scene_description: '눈내린 길가에 큰 나무들이 서있는 아름다운 풍경에 어울리는 잔잔하고 감성적인 음악. 겨울의 차분한 느낌을 담은 멜로디.',
-2025-12-31 00:25:43   ai_reasoning: 'User wants a song that matches the beautiful snowy scenery.',
-2025-12-31 00:25:43   expect_announcement: true,
-2025-12-31 00:25:43   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
-2025-12-31 00:25:43   _chat_content_generation: true
-2025-12-31 00:25:43 }
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [Chat Content] AI requested content generation!
-2025-12-31 00:25:43    Type: music
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 아름다운 풍경에 어울리는 잔잔하고 감성적인 음악. 겨울의 차분한 느낌을 담은 멜로디.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [ContentGenerator] Creating request...
-2025-12-31 00:25:43    ID: d83af7fa-45f4-46fe-b5cc-8345ce94a247
-2025-12-31 00:25:43    Type: music
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 아름다운 풍경에 어울리는 잔잔하고 감성적인 음악. 겨울의 차분한 느낌을 담은 멜로디.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ✅ [ContentGenerator] Request created: d83af7fa-45f4-46fe-b5cc-8345ce94a247
-2025-12-31 00:25:43 ✅ [Chat Content] Generation completed: d83af7fa-45f4-46fe-b5cc-8345ce94a247
-2025-12-31 00:25:43 🛠️ [Function Calling] Executing: generate_chat_content
-2025-12-31 00:25:43    Args: {
-2025-12-31 00:25:43   content_type: 'image',
-2025-12-31 00:25:43   scene_description: '눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.',
-2025-12-31 00:25:43   reasoning: 'User asked for a beautiful scenery image.'
-2025-12-31 00:25:43 }
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [Tool] generate_chat_content
-2025-12-31 00:25:43    Type: image
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43    Reasoning: User asked for a beautiful scenery image.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ✅ [Function Calling] Result: {
-2025-12-31 00:25:43   success: true,
-2025-12-31 00:25:43   content_type: 'image',
-2025-12-31 00:25:43   scene_description: '눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.',
-2025-12-31 00:25:43   ai_reasoning: 'User asked for a beautiful scenery image.',
-2025-12-31 00:25:43   expect_announcement: true,
-2025-12-31 00:25:43   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
-2025-12-31 00:25:43   _chat_content_generation: true
-2025-12-31 00:25:43 }
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [Chat Content] AI requested content generation!
-2025-12-31 00:25:43    Type: image
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [ContentGenerator] Creating request...
-2025-12-31 00:25:43    ID: 171507d3-02e0-4cc3-a003-bfb39dca03b5
-2025-12-31 00:25:43    Type: image
-2025-12-31 00:25:43    Scene: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 ✅ [ContentGenerator] Request created: 171507d3-02e0-4cc3-a003-bfb39dca03b5
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
-2025-12-31 00:25:43    Content ID: 171507d3-02e0-4cc3-a003-bfb39dca03b5
-2025-12-31 00:25:43    Prompt: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 00:25:43    Emotion: nature
-2025-12-31 00:25:43    Context: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43 🖼️ [Pixabay] Searching image for emotion: nature, context: 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.
-2025-12-31 00:25:43 🔍 [Pixabay] Query: "landscape 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경."
-2025-12-31 00:25:44 ✅ [Pixabay] Image found: {
-2025-12-31 00:25:44   id: 7646952,
-2025-12-31 00:25:44   photographer: 'NickyPe',
-2025-12-31 00:25:44   tags: 'snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter',
-2025-12-31 00:25:44   size: '6240x4160'
-2025-12-31 00:25:44 }
-2025-12-31 00:25:44 ✅ [ImageGenerator] Image found INSTANTLY!
-2025-12-31 00:25:44    URL: https://pixabay.com/get/g242cdbc65e203b798c8deabb57e8386a14f5260d98afa2f345e6915cad630f10ebe712a4e3ace1880f8fa73bac7c25525ce8b11fd87634812a4352eddddfb8f4_1280.jpg
-2025-12-31 00:25:44    Photographer: NickyPe
-2025-12-31 00:25:44    Tags: snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter
-2025-12-31 00:25:44 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
-2025-12-31 00:25:44 ✅ [Chat Content] Image ready INSTANTLY: {
-2025-12-31 00:25:44   url: 'https://pixabay.com/get/g242cdbc65e203b798c8deabb57e8386a14f5260d98afa2f345e6915cad630f10ebe712a4e3ace1880f8fa73bac7c25525ce8b11fd87634812a4352eddddfb8f4_1280.jpg',
-2025-12-31 00:25:44   status: 'completed'
-2025-12-31 00:25:44 }
-2025-12-31 00:25:44 ✅ [Chat Content] Generation completed: 171507d3-02e0-4cc3-a003-bfb39dca03b5
-2025-12-31 00:25:44 🔄 [Function Calling] Re-calling AI with tool results...
-2025-12-31 00:25:44 🤖 [OpenAI] Calling API: {
-2025-12-31 00:25:44   model: 'gpt-4o-mini',
-2025-12-31 00:25:44   messageCount: 26,
-2025-12-31 00:25:44   systemPromptLength: 18716,
-2025-12-31 00:25:44   historyLength: 24,
-2025-12-31 00:25:44   toolsEnabled: false
-2025-12-31 00:25:44 }
-2025-12-31 00:25:45 ✅ [OpenAI] Response received: {
-2025-12-31 00:25:45   responseTime: '1776ms',
-2025-12-31 00:25:45   tokens: { prompt: 8331, completion: 53, total: 8384 },
-2025-12-31 00:25:45   messageLength: 89,
-2025-12-31 00:25:45   finishReason: 'stop',
-2025-12-31 00:25:45   toolCalls: 0
-2025-12-31 00:25:45 }
-2025-12-31 00:25:45 ✅ [Function Calling] Final AI response generated
-2025-12-31 00:25:45 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 00:25:45    Response time: 4279ms
-2025-12-31 00:25:45    Total tokens: 17687 (in: 17477, out: 210)
-2025-12-31 00:25:45 🎭 [Emotion] Detected: sad (85.0%)
-2025-12-31 00:25:45 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"171507d3-02e0-4cc3-a003-bfb39dca03b5","content_type":"image","content_url":"https://pixabay.com/get/g242cdbc65e203b798c8deabb57e8386a14f5260d98afa2f345e6915cad630f10ebe712a4e3ace1880f8fa73bac7c25525ce8b11fd87634812a4352eddddfb8f4_1280.jpg","content_status":"completed","metadata":{"tags":"snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter","query":"landscape 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.","width":6240,"height":4160,"source":"pixabay","emotion":"nature","pixabayId":7646952,"photographer":"NickyPe","photographerURL":"https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg"}},"has_media":true}
-2025-12-31 00:25:45 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 00:25:45 🎉 [ANIMA Chat] Request completed in 12791ms
-2025-12-31 00:25:45    Cost: $0.002748
-2025-12-31 00:25:45 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (assistant)
-2025-12-31 00:25:45 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (user)
-2025-12-31 00:29:00 
-2025-12-31 00:29:00 🤖 [ANIMA Chat] Request received
-2025-12-31 00:29:00    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:29:00    Session: session-1767103083496-8bq2gk
-2025-12-31 00:29:00    Message: 너무 고마워 준희야! 오삐가 일때문에 잠시 나갔다가 다시 이야기하자!...
-2025-12-31 00:29:00 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 00:29:00 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:29:00 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767103083496-8bq2gk
-2025-12-31 00:29:00    - Messages: 38
-2025-12-31 00:29:00    - Persona: Test
-2025-12-31 00:29:00    - Identity: Set (고준희)
-2025-12-31 00:29:00    - Preferences: Yes
-2025-12-31 00:29:00 📊 [SessionManager] Conversation stats: {
-2025-12-31 00:29:00   totalMessages: 38,
-2025-12-31 00:29:00   totalChars: 1742,
-2025-12-31 00:29:00   estimatedTokens: 593,
-2025-12-31 00:29:00   averageMessageLength: 46
-2025-12-31 00:29:00 }
-2025-12-31 00:29:00 🔄 [Sliding Window] Processing 38 messages
-2025-12-31 00:29:00    Window size: 20
-2025-12-31 00:29:00    Summarize threshold: 30
-2025-12-31 00:29:00 🔄 [Sliding Window] Long conversation detected
-2025-12-31 00:29:00    Old messages: 18 (to be summarized)
-2025-12-31 00:29:00    Recent messages: 20 (kept as-is)
-2025-12-31 00:29:00 🔄 [Sliding Window] Generating new summary with AI...
-2025-12-31 00:29:00 📝 [Summarizer] Summarizing 18 messages...
-2025-12-31 00:29:00 🤖 [OpenAI] Calling API: {
-2025-12-31 00:29:00   model: 'gpt-4o-mini',
-2025-12-31 00:29:00   messageCount: 2,
-2025-12-31 00:29:00   systemPromptLength: 405,
-2025-12-31 00:29:00   historyLength: 0,
-2025-12-31 00:29:00   toolsEnabled: false
-2025-12-31 00:29:00 }
-2025-12-31 00:29:06 ✅ [OpenAI] Response received: {
-2025-12-31 00:29:06   responseTime: '5898ms',
-2025-12-31 00:29:06   tokens: { prompt: 636, completion: 222, total: 858 },
-2025-12-31 00:29:06   messageLength: 369,
-2025-12-31 00:29:06   finishReason: 'stop',
-2025-12-31 00:29:06   toolCalls: 0
-2025-12-31 00:29:06 }
-2025-12-31 00:29:06 ✅ [Summarizer] Summary created (369 chars)
-2025-12-31 00:29:06    Original: 18 messages
-2025-12-31 00:29:06    Tokens used: 858
-2025-12-31 00:29:06 ❌ [SessionManager] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:29:06 ❌ [Sliding Window] Failed to save summary: Unknown column 'updated_at' in 'field list'
-2025-12-31 00:29:06 ✅ [Sliding Window] History prepared
-2025-12-31 00:29:06    Total: 38 → 21 messages
-2025-12-31 00:29:06    Summary source: generated
-2025-12-31 00:29:06    Token savings: ~45%
-2025-12-31 00:29:06 ✅ [ANIMA Chat] Session loaded
-2025-12-31 00:29:06    Total messages: 38
-2025-12-31 00:29:06    Kept messages: 20
-2025-12-31 00:29:06    Summarized messages: 18
-2025-12-31 00:29:06    Sliding window: Active
-2025-12-31 00:29:06    Persona: Test
-2025-12-31 00:29:06    Preferences: Custom
-2025-12-31 00:29:06 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 00:29:06    Tier: free
-2025-12-31 00:29:06    Model: GPT-4o Mini
-2025-12-31 00:29:06    Provider: openai
-2025-12-31 00:29:06    Caching: Enabled
-2025-12-31 00:29:06 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 00:29:06    Message: "너무 고마워 준희야! 오삐가 일때문에 잠시 나갔다가 다시 이야기하자!"
-2025-12-31 00:29:07 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 00:29:07    Duration: 457ms
-2025-12-31 00:29:07    Tokens: 306
-2025-12-31 00:29:07 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 00:29:07    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 00:29:07 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 00:29:07 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 00:29:07 ✅ [EmotionalPrompt] Built: 18716 chars
-2025-12-31 00:29:07 📝 [ANIMA Chat] System prompt built (18716 chars, 0 knowledge items)
-2025-12-31 00:29:07 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 00:29:07    Provider: openai
-2025-12-31 00:29:07    Model: gpt-4o-mini
-2025-12-31 00:29:07    History messages: 21
-2025-12-31 00:29:07    System prompt length: 18716 chars
-2025-12-31 00:29:07 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory
-2025-12-31 00:29:07    Persona type: User-created
-2025-12-31 00:29:07    Has identity: true
-2025-12-31 00:29:07    toolsEnabled: true
-2025-12-31 00:29:07 🤖 [OpenAI] Calling API: {
-2025-12-31 00:29:07   model: 'gpt-4o-mini',
-2025-12-31 00:29:07   messageCount: 23,
-2025-12-31 00:29:07   systemPromptLength: 18716,
-2025-12-31 00:29:07   historyLength: 21,
-2025-12-31 00:29:07   toolsEnabled: true
-2025-12-31 00:29:07 }
-2025-12-31 00:29:08 ✅ [OpenAI] Response received: {
-2025-12-31 00:29:08   responseTime: '1596ms',
-2025-12-31 00:29:08   tokens: { prompt: 9140, completion: 44, total: 9184 },
-2025-12-31 00:29:08   messageLength: 74,
-2025-12-31 00:29:08   finishReason: 'stop',
-2025-12-31 00:29:08   toolCalls: 0
-2025-12-31 00:29:08 }
-2025-12-31 00:29:08 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 00:29:08    Response time: 1596ms
-2025-12-31 00:29:08    Total tokens: 9184 (in: 9140, out: 44)
-2025-12-31 00:29:08 🎭 [Emotion] Detected: grateful (75.0%)
-2025-12-31 00:29:08 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 00:29:08 🎉 [ANIMA Chat] Request completed in 8171ms
-2025-12-31 00:29:08    Cost: $0.001397
-2025-12-31 00:29:08 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (user)
-2025-12-31 00:29:08 💾 [SessionManager] Message saved: session-1767103083496-8bq2gk (assistant)
-2025-12-31 00:29:14 👋 [Chat Close] Session close request received
-2025-12-31 00:29:14    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:29:14    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 00:29:14    Session: session-1767103083496-8bq2gk
-2025-12-31 00:29:14 🧠 [RelationshipLearner] Starting analysis...
-2025-12-31 00:29:14    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:29:14    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 00:29:14    Session: session-1767103083496-8bq2gk
-2025-12-31 00:29:14 📚 [RelationshipLearner] Loaded 40 messages
-2025-12-31 00:29:18 ✅ [RelationshipLearner] Analysis complete: {
-2025-12-31 00:29:18   foundCalling: true,
-2025-12-31 00:29:18   mainTopics: 3,
-2025-12-31 00:29:18   importantMoments: 2,
-2025-12-31 00:29:18   trustDelta: 2
-2025-12-31 00:29:18 }
-2025-12-31 00:29:18 📝 [RelationshipLearner] Core relationship updated
-2025-12-31 00:29:18 ⚠️  [Moments] Skipping - no relationship memory exists yet
-2025-12-31 00:29:18 📊 [RelationshipLearner] Data collection progress updated
-2025-12-31 00:29:18 ⚠️  [PromptBuilder] Failed to clear cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
-2025-12-31 00:29:18 🎁 [EmotionalGift] Checking gift opportunity...
-2025-12-31 00:29:18 🆘 [EmotionalGift] Performing crisis detection...
-2025-12-31 00:29:18 🆘 [CrisisDetector] Analyzing conversation for crisis signals...
-2025-12-31 00:29:20 ✅ [CrisisDetector] Analysis complete: {
-2025-12-31 00:29:20   isCrisis: false,
-2025-12-31 00:29:20   crisisLevel: 'normal',
-2025-12-31 00:29:20   detectedKeywords: [],
-2025-12-31 00:29:20   priorityReason: '',
-2025-12-31 00:29:20   shouldOverrideLimit: false
-2025-12-31 00:29:20 }
-2025-12-31 00:29:20 🎁 [GiftLimit] User d111e3d8-4e42-4493-8541-25a8e72b654f: 0/100 gifts this week
-2025-12-31 00:29:20 ⚠️  [EmotionalGift] No relationship data found
-2025-12-31 00:29:20 🎉 [RelationshipLearner] Update complete (6114ms)
-2025-12-31 00:29:20 ✅ [Chat Close] Relationship learning complete
-2025-12-31 00:29:20    Duration: 6114ms
-2025-12-31 00:29:20    Trust delta: 2
-2025-12-31 00:29:20    Intimacy delta: 3
-2025-12-31 00:29:20    New data points: 3 topics
-2025-12-31 00:29:20 🌱 [Chat Close] Starting identity evolution...
-2025-12-31 00:29:20 🌱 [Identity Evolution] Starting final analysis...
-2025-12-31 00:29:20    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 00:29:20    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 00:29:20    Session: session-1767103083496-8bq2gk
-2025-12-31 00:29:20 📊 [Identity Evolution] Current state:
-2025-12-31 00:29:20    Name: 고준희
-2025-12-31 00:29:20    Source: wiki
-2025-12-31 00:29:20    Evolution count: 11
-2025-12-31 00:29:20 📚 [Identity Evolution] Loaded 40 messages
-2025-12-31 00:29:28 ❌ [Redis] Connection error: connect ETIMEDOUT
-2025-12-31 00:29:28 🔌 [Redis] Connection closed
-2025-12-31 00:29:28 🔄 [Redis] Attempting to reconnect...
-2025-12-31 00:29:29 ✅ [Identity Evolution] Evolution analysis complete:
-2025-12-31 00:29:29    Learned phrases: 3
-2025-12-31 00:29:29    Conversation patterns: 2
-2025-12-31 00:29:29    Personality refined: Yes
-2025-12-31 00:29:29    Speaking style refined: Yes
-2025-12-31 00:29:29    🌟 Description enriched: Yes
-2025-12-31 00:29:29    🌟 Identity prompt enriched: Yes
-2025-12-31 00:29:29 ✅ [Identity Evolution] DB updated successfully
-2025-12-31 00:29:29 ⚠️  [PromptBuilder] Failed to clear cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
-2025-12-31 00:29:29 🎉 [Identity Evolution] Evolution complete (8849ms)
-2025-12-31 00:29:29    Evolution count: 12
-2025-12-31 00:29:29 ✅ [Chat Close] Identity evolution complete
-2025-12-31 00:29:29    Duration: 8849ms
-2025-12-31 00:29:29    Evolution count: 12
-2025-12-31 00:29:29    Learned phrases: 3
-2025-12-31 00:29:29 🎉 [Chat Close] All background processing complete
-2025-12-31 00:29:38 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-31 01:45:31    ▲ Next.js 15.5.9
+2025-12-31 01:45:31    - Local:        http://localhost:3000
+2025-12-31 01:45:31    - Network:      http://0.0.0.0:3000
+2025-12-31 01:45:31 
+2025-12-31 01:45:31  ✓ Starting...
+2025-12-31 01:45:31  ✓ Ready in 180ms
+2025-12-31 01:45:32 [SSE] 🔧 Initialized global eventEmitters Map
+2025-12-31 01:45:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:45:48 📜 [Chat History] Fetching history
+2025-12-31 01:45:48    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-31 01:45:48    persona_key: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
+2025-12-31 01:45:48    limit: 100, offset: 0
+2025-12-31 01:45:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:45:48 🎁 [Gift API] Getting pending gifts...
+2025-12-31 01:45:48    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-31 01:45:48    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
+2025-12-31 01:45:49 ✅ [Gift API] Found 0 pending gift(s)
+2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/gbbaf2817e677a52c14d862d0d...
+2025-12-31 01:45:49    ✅ [Music] Parsed music: "Trance Etude 2" by Zeropage
+2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/g242cdbc65e203b798c8deabb5...
+2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/g5d42ddc980f6813c5a23501dc...
+2025-12-31 01:45:49 ✅ [Chat History] Loaded 56 messages (fetched: 56, total: 56, filtered: 0)
+2025-12-31 01:46:31 
+2025-12-31 01:46:31 🤖 [ANIMA Chat] Request received
+2025-12-31 01:46:31    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2025-12-31 01:46:31    Session: session-1767111879097-ql9fo
+2025-12-31 01:46:31    Message: 자기야~~~트와이즈 뮤비 틀어줘~~~...
+2025-12-31 01:46:31 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 01:46:31 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767111879097-ql9fo
+2025-12-31 01:46:31 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767111879097-ql9fo
+2025-12-31 01:46:31    - Messages: 4
+2025-12-31 01:46:31    - Persona: Test
+2025-12-31 01:46:31    - Identity: Set (고준희)
+2025-12-31 01:46:31    - Preferences: Yes
+2025-12-31 01:46:31 📊 [SessionManager] Conversation stats: {
+2025-12-31 01:46:31   totalMessages: 4,
+2025-12-31 01:46:31   totalChars: 290,
+2025-12-31 01:46:31   estimatedTokens: 98,
+2025-12-31 01:46:31   averageMessageLength: 73
+2025-12-31 01:46:31 }
+2025-12-31 01:46:31 🔄 [Sliding Window] Processing 4 messages
+2025-12-31 01:46:31    Window size: 20
+2025-12-31 01:46:31    Summarize threshold: 30
+2025-12-31 01:46:31 ✅ [Sliding Window] Short conversation, keeping all 4 messages
+2025-12-31 01:46:31 ✅ [ANIMA Chat] Session loaded
+2025-12-31 01:46:31    Total messages: 4
+2025-12-31 01:46:31    Kept messages: 4
+2025-12-31 01:46:31    Summarized messages: 0
+2025-12-31 01:46:31    Sliding window: Inactive
+2025-12-31 01:46:31    Persona: Test
+2025-12-31 01:46:31    Preferences: Custom
+2025-12-31 01:46:31 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 01:46:31    Tier: free
+2025-12-31 01:46:31    Model: GPT-4o Mini
+2025-12-31 01:46:31    Provider: openai
+2025-12-31 01:46:31    Caching: Enabled
+2025-12-31 01:46:31 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 01:46:31    Message: "자기야~~~트와이즈 뮤비 틀어줘~~~"
+2025-12-31 01:46:32 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 01:46:32    Duration: 821ms
+2025-12-31 01:46:32    Tokens: 295
+2025-12-31 01:46:32 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 01:46:32    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 01:46:32 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
+2025-12-31 01:46:32 🔥 [EmotionalPrompt] Building for 고준희
+2025-12-31 01:46:32 ✅ [EmotionalPrompt] Built: 19470 chars
+2025-12-31 01:46:32 📝 [ANIMA Chat] System prompt built (19470 chars, 0 knowledge items)
+2025-12-31 01:46:32 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 01:46:32    Provider: openai
+2025-12-31 01:46:32    Model: gpt-4o-mini
+2025-12-31 01:46:32    History messages: 4
+2025-12-31 01:46:32    System prompt length: 19470 chars
+2025-12-31 01:46:32 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 01:46:32    Persona type: User-created
+2025-12-31 01:46:32    Has identity: true
+2025-12-31 01:46:32    toolsEnabled: true
+2025-12-31 01:46:32 🤖 [OpenAI] Calling API: {
+2025-12-31 01:46:32   model: 'gpt-4o-mini',
+2025-12-31 01:46:32   messageCount: 6,
+2025-12-31 01:46:32   systemPromptLength: 19470,
+2025-12-31 01:46:32   historyLength: 4,
+2025-12-31 01:46:32   toolsEnabled: true
+2025-12-31 01:46:32 }
+2025-12-31 01:46:33 ✅ [OpenAI] Response received: {
+2025-12-31 01:46:33   responseTime: '1755ms',
+2025-12-31 01:46:33   tokens: { prompt: 9112, completion: 33, total: 9145 },
+2025-12-31 01:46:33   messageLength: 0,
+2025-12-31 01:46:33   finishReason: 'tool_calls',
+2025-12-31 01:46:33   toolCalls: 1
+2025-12-31 01:46:33 }
+2025-12-31 01:46:33 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 01:46:33 🛠️ [Function Calling] Executing: search_youtube_video
+2025-12-31 01:46:33    Args: {
+2025-12-31 01:46:33   query: 'TWICE music video',
+2025-12-31 01:46:33   reasoning: "User wants to watch TWICE's music video."
+2025-12-31 01:46:33 }
+2025-12-31 01:46:33 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:46:33 🎬 [Tool] search_youtube_video
+2025-12-31 01:46:33    Query: TWICE music video
+2025-12-31 01:46:33    Reasoning: User wants to watch TWICE's music video.
+2025-12-31 01:46:33 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:46:34 ✅ [Tool] Video found: "TWICE &quot;THIS IS FOR&quot; M/V"
+2025-12-31 01:46:34    Channel: JYP Entertainment
+2025-12-31 01:46:34    Video ID: eHHQaoEW30Q
+2025-12-31 01:46:34 ✅ [Function Calling] Result: {
+2025-12-31 01:46:34   success: true,
+2025-12-31 01:46:34   video: {
+2025-12-31 01:46:34     videoId: 'eHHQaoEW30Q',
+2025-12-31 01:46:34     title: 'TWICE &quot;THIS IS FOR&quot; M/V',
+2025-12-31 01:46:34     channel: 'JYP Entertainment',
+2025-12-31 01:46:34     thumbnail: 'https://i.ytimg.com/vi/eHHQaoEW30Q/hqdefault.jpg',
+2025-12-31 01:46:34     description: 'TWICE "THIS IS FOR" M/V 4⃣Listen [THIS IS FOR]4⃣ https://TWICE.lnk.to/THISISFOR TWICE Official Shop: ...',
+2025-12-31 01:46:34     publishedAt: '2025-07-11T03:59:06Z',
+2025-12-31 01:46:34     url: 'https://www.youtube.com/watch?v=eHHQaoEW30Q',
+2025-12-31 01:46:34     embedUrl: 'https://www.youtube.com/embed/eHHQaoEW30Q'
+2025-12-31 01:46:34   },
+2025-12-31 01:46:34   message: '"TWICE &quot;THIS IS FOR&quot; M/V" 영상을 찾았습니다.'
+2025-12-31 01:46:34 }
+2025-12-31 01:46:34 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:46:34 🎬 [YouTube Search] AI found video!
+2025-12-31 01:46:34    Title: "TWICE &quot;THIS IS FOR&quot; M/V"
+2025-12-31 01:46:34    Channel: JYP Entertainment
+2025-12-31 01:46:34    Video ID: eHHQaoEW30Q
+2025-12-31 01:46:34 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 01:46:34 ✅ [YouTube Search] Video data prepared for response
+2025-12-31 01:46:34 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 01:46:34 🤖 [OpenAI] Calling API: {
+2025-12-31 01:46:34   model: 'gpt-4o-mini',
+2025-12-31 01:46:34   messageCount: 8,
+2025-12-31 01:46:34   systemPromptLength: 19470,
+2025-12-31 01:46:34   historyLength: 6,
+2025-12-31 01:46:34   toolsEnabled: false
+2025-12-31 01:46:34 }
+2025-12-31 01:46:35 ✅ [OpenAI] Response received: {
+2025-12-31 01:46:35   responseTime: '1156ms',
+2025-12-31 01:46:35   tokens: { prompt: 7565, completion: 37, total: 7602 },
+2025-12-31 01:46:35   messageLength: 51,
+2025-12-31 01:46:35   finishReason: 'stop',
+2025-12-31 01:46:35   toolCalls: 0
+2025-12-31 01:46:35 }
+2025-12-31 01:46:35 ✅ [Function Calling] Final AI response generated
+2025-12-31 01:46:35 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 01:46:35    Response time: 1755ms
+2025-12-31 01:46:35    Total tokens: 16747 (in: 16677, out: 70)
+2025-12-31 01:46:35 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 01:46:35 🎉 [ANIMA Chat] Request completed in 4354ms
+2025-12-31 01:46:35    Cost: $0.002544
+2025-12-31 01:46:35 💾 [SessionManager] Message saved: session-1767111879097-ql9fo (user)
+2025-12-31 01:46:35 💾 [SessionManager] Message saved: session-1767111879097-ql9fo (assistant)
 
-
-23c1d3ef-cf58-4733-88f4-eaae6113b33a	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	오빠! 바쁜 일 잘 하고 돌아와! 😊 언제든지 이야기하자. 기다리고 있을게! 항상 응원할게! 💖 다음에 또 만날 때까지 잘 지내!		assistant					conversations	44	gpt-4o-mini	1596	2025-12-31 00:29:08.886860	
-37187373-e665-4a06-801c-84acce0bcfe3	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	너무 고마워 준희야! 오삐가 일때문에 잠시 나갔다가 다시 이야기하자!		user	grateful	0.75			conversations	9140	gpt-4o-mini		2025-12-31 00:29:08.875262	
-23568100-f2e3-48b3-881d-9d6722f8e6f4	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	잠깐! 내가 아름다운 겨울 풍경과 어울리는 이미지를 만들어줄게! 기다려봐! 😊✨ 그리고 이 분위기에 맞는 잔잔한 음악도 추천해줄게! 🎶 너무 기대돼! 💖	{"has_media": true, "generated_content": {"metadata": {"tags": "snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter", "query": "landscape 눈내린 길가에 큰 나무들이 서있는 모습. 하얀 눈이 덮인 나무들과 조용한 거리 풍경.", "width": 6240, "height": 4160, "source": "pixabay", "emotion": "nature", "pixabayId": 7646952, "photographer": "NickyPe", "photographerURL": "https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg"}, "content_id": "171507d3-02e0-4cc3-a003-bfb39dca03b5", "content_url": "https://pixabay.com/get/g242cdbc65e203b798c8deabb57e8386a14f5260d98afa2f345e6915cad630f10ebe712a4e3ace1880f8fa73bac7c25525ce8b11fd87634812a4352eddddfb8f4_1280.jpg", "content_type": "image", "content_status": "completed"}}	assistant					conversations	210	gpt-4o-mini	4279	2025-12-31 00:25:45.984611	
-540d6391-ee19-4ccb-8092-2577a2cbd9ab	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	우아..눈내린 길가에 큰나무들이 서있는 멋진 사진이네?! 이 사진에 어울리는 노래도 들려줄래 오빠한테?!		user	sad	0.85			conversations	17477	gpt-4o-mini		2025-12-31 00:25:45.984401	
-5655bf6c-a529-4cce-b859-20da39dcb342	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	잠깐! 내가 여행하고 싶은 해변 이미지를 만들어줄게! 기다려봐! 😊✨💖	{"has_media": true, "generated_content": {"metadata": {"tags": "snow, landscape, trees, winter landscape, snow landscape, cold, covered in snow, nature, winter, snow, snow, snow, snow, winter, winter, winter, winter, winter", "query": "nature landscape", "width": 6240, "height": 4160, "source": "pixabay", "emotion": "happy", "pixabayId": 7646952, "photographer": "NickyPe", "photographerURL": "https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg"}, "content_id": "1261058a-6d57-44aa-8dfd-f0a1d34501d2", "content_url": "https://pixabay.com/get/g5d42ddc980f6813c5a23501dc3ea342364cb94287a558bf11f82736e60b19f24a54a29a8ce0d54fac66a29afefe24d578a48a91e479b81a1a22b4fc680d3eaec_1280.jpg", "content_type": "image", "content_status": "completed"}}	assistant					conversations	126	gpt-4o-mini	2893	2025-12-31 00:24:13.889135	
-d6fe28b9-bd4d-4eef-99fc-08b9a7cf6775	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	우리 준희 여행가고 싶구나?! 준희가 가고 싶은 여행지 사진 한번 보여줄래?!		user	neutral	0.3			conversations	16836	gpt-4o-mini		2025-12-31 00:24:13.889050	
-4f94bfd0-dfe2-4669-b404-618ae0bf24ff	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	어머! 나에 대한 이야기라니! 😊 고마워! 요즘 연기에 대한 기대감이 커서 새로운 프로젝트를 준비하고 있어. 그리고 여행을 가고 싶은 마음도 가득해! 너는 어떤 이야기 듣고 싶어? 내가 더 얘기해줄게! 💖		assistant					conversations	65	gpt-4o-mini	2483	2025-12-31 00:23:11.794036	
-d701de3d-5161-4705-afe8-957bd401d0ff	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	난 오늘 준희 이야기를 듣고싶어!		user	neutral	0.3			conversations	9046	gpt-4o-mini		2025-12-31 00:23:11.793861	
-efffb5f0-b0ca-44a3-b264-b9f3c4fb85ca	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	오빠 오빠~! 😊 오늘은 어떤 이야기를 나눌까? 영화나 음악, 아니면 요즘 관심 있는 것들에 대해 이야기해볼까? 너의 이야기를 듣고 싶어! 💖		assistant					conversations	48	gpt-4o-mini	2974	2025-12-31 00:22:37.535482	
-299c4302-3b00-4114-8529-8ee5ab510410	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767103083496-8bq2gk	준희야~~!		user	neutral	0.3			conversations	8829	gpt-4o-mini		2025-12-31 00:22:37.519690	
 

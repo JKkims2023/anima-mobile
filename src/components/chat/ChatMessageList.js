@@ -46,6 +46,15 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
     console.log('   message.image:', message.image);
     console.log('   message.image.uri:', message.image.uri);
   }
+  
+  // 🐛 DEBUG: Log YouTube data
+  if (message.youtube) {
+    console.log('🎬 [MessageItem] Rendering message with YouTube:');
+    console.log('   message.id:', message.id);
+    console.log('   message.youtube:', JSON.stringify(message.youtube, null, 2));
+  } else if (message.role === 'assistant') {
+    console.log('⚠️ [MessageItem] AI message has NO YouTube data:', message.id);
+  }
 
   // 🆕 Copy text to clipboard
   const handleCopyText = useCallback(() => {

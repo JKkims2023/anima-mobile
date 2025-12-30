@@ -480,6 +480,7 @@ const ManagerAIOverlay = ({
           videos: msg.videos || [], // AI-generated videos
           links: msg.links || [], // AI-generated links
           music: msg.music || null, // 🎵 NEW: Music data (title, artist, duration, etc.)
+          youtube: msg.youtube || null, // 🎬 NEW: YouTube video data (videoId, title, channel, etc.)
         }));
         
         console.log(`✅ [Chat History] Loaded ${historyMessages.length} messages`);
@@ -1328,6 +1329,16 @@ const ManagerAIOverlay = ({
         const generatedContent = response.data.generated_content || null; // 🎨 NEW: Real-time content generation
         const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
         const youtubeData = response.data.youtube || null; // 🎬 NEW: Real-time YouTube video search result
+        
+        // 🐛 DEBUG: Log YouTube data
+        if (youtubeData) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🎬 [DEBUG] YouTube data received from API:');
+          console.log('   Data:', JSON.stringify(youtubeData, null, 2));
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        } else {
+          console.log('⚠️ [DEBUG] No YouTube data in response');
+        }
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📩 [ManagerAIOverlay] Response received:');
