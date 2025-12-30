@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🗣️ SpeakingPatternSheet Component
+ * 🗣️ SpeakingPatternSheet Component (Modal-based)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Purpose: Allow users to define persona's speaking patterns
@@ -10,9 +10,10 @@
  * - Signature phrases (나만의 명언)
  * 
  * Design Principles:
+ * ✅ Modal-based (for correct z-index above ManagerAIOverlay)
  * ✅ Modal-based input (MessageInputOverlay) - Solves Korean input issue
  * ✅ Tag/Chip UI (간결하고 직관적)
- * ✅ Consistent with ChoicePersonaSheet pattern
+ * ✅ Animated slide-up effect
  * ✅ Haptic feedback for all interactions
  * 
  * @author JK & Hero Nexus AI
@@ -20,13 +21,21 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { 
+  View, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  ActivityIndicator,
+  Modal,
+  Animated,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
-import CustomBottomSheet from '../CustomBottomSheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
@@ -40,7 +49,9 @@ const SpeakingPatternSheet = ({
   onSave, // (pattern) => Promise<void>
 }) => {
   const { t } = useTranslation();
-  const bottomSheetRef = useRef(null);
+  const insets = useSafeAreaInsets();
+  const slideAnim = useRef(new Animated.Value(1000)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
   
   // Modal Refs for Input Overlays
   const greetingInputRef = useRef(null);
@@ -57,15 +68,38 @@ const SpeakingPatternSheet = ({
   const [saving, setSaving] = useState(false);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // HANDLE OPEN/CLOSE
+  // ANIMATION EFFECTS
   // ═══════════════════════════════════════════════════════════════════════
   
   useEffect(() => {
     if (isOpen) {
-      bottomSheetRef.current?.present();
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
       loadPattern();
     } else {
-      bottomSheetRef.current?.dismiss();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 1000,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [isOpen, personaKey]);
   
@@ -79,174 +113,251 @@ const SpeakingPatternSheet = ({
     try {
       setLoading(true);
       
-      const response = await fetch(`https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/speaking-pattern?persona_key=${personaKey}&user_key=${userKey}`);
+      const response = await fetch(
+        `${process.env.IDOL_COMPANION_BASE_URL}/api/persona/identity/speaking-pattern?user_key=${userKey}&persona_key=${personaKey}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
       const data = await response.json();
       
-      if (data.success && data.data.speaking_pattern) {
-        const pattern = data.data.speaking_pattern;
-        setGreetingPhrases(pattern.greeting_phrases || []);
-        setFrequentWords(pattern.frequent_words || []);
-        setClosingPhrases(pattern.closing_phrases || []);
-        setSignaturePhrases(pattern.signature_phrases || []);
+      if (data.success && data.speaking_pattern) {
+        setGreetingPhrases(data.speaking_pattern.greeting_phrases || []);
+        setFrequentWords(data.speaking_pattern.frequent_words || []);
+        setClosingPhrases(data.speaking_pattern.closing_phrases || []);
+        setSignaturePhrases(data.speaking_pattern.signature_phrases || []);
       }
     } catch (error) {
-      console.error('[SpeakingPattern] Load error:', error);
+      console.error('[SpeakingPatternSheet] Load error:', error);
     } finally {
       setLoading(false);
     }
   };
   
   // ═══════════════════════════════════════════════════════════════════════
-  // ADD PHRASE HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  const handleAddGreeting = useCallback((text) => {
-    if (text && text.trim() && greetingPhrases.length < 5) {
-      setGreetingPhrases(prev => [...prev, text.trim()]);
-      HapticService.light();
-    }
-  }, [greetingPhrases]);
-  
-  const handleAddFrequent = useCallback((text) => {
-    if (text && text.trim() && frequentWords.length < 10) {
-      setFrequentWords(prev => [...prev, text.trim()]);
-      HapticService.light();
-    }
-  }, [frequentWords]);
-  
-  const handleAddClosing = useCallback((text) => {
-    if (text && text.trim() && closingPhrases.length < 5) {
-      setClosingPhrases(prev => [...prev, text.trim()]);
-      HapticService.light();
-    }
-  }, [closingPhrases]);
-  
-  const handleAddSignature = useCallback((text) => {
-    if (text && text.trim() && signaturePhrases.length < 5) {
-      setSignaturePhrases(prev => [...prev, text.trim()]);
-      HapticService.light();
-    }
-  }, [signaturePhrases]);
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // REMOVE PHRASE HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  const removeGreeting = useCallback((index) => {
-    setGreetingPhrases(prev => prev.filter((_, i) => i !== index));
-    HapticService.light();
-  }, []);
-  
-  const removeFrequent = useCallback((index) => {
-    setFrequentWords(prev => prev.filter((_, i) => i !== index));
-    HapticService.light();
-  }, []);
-  
-  const removeClosing = useCallback((index) => {
-    setClosingPhrases(prev => prev.filter((_, i) => i !== index));
-    HapticService.light();
-  }, []);
-  
-  const removeSignature = useCallback((index) => {
-    setSignaturePhrases(prev => prev.filter((_, i) => i !== index));
-    HapticService.light();
-  }, []);
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // SAVE PATTERN
+  // SAVE PATTERN TO API
   // ═══════════════════════════════════════════════════════════════════════
   
   const handleSave = async () => {
+    if (!personaKey || !userKey) return;
+    
     try {
       setSaving(true);
-      HapticService.light();
+      HapticService.success();
       
       const pattern = {
         greeting_phrases: greetingPhrases,
         frequent_words: frequentWords,
         closing_phrases: closingPhrases,
         signature_phrases: signaturePhrases,
-        usage_frequency: {
-          greeting: 'often',
-          frequent_words: 'often',
-          closing: 'often',
-          signature: 'sometimes',
-        },
       };
       
-      await onSave?.(pattern);
+      const response = await fetch(
+        `${process.env.IDOL_COMPANION_BASE_URL}/api/persona/identity/speaking-pattern`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_key: userKey,
+            persona_key: personaKey,
+            speaking_pattern: pattern,
+          }),
+        }
+      );
       
-      HapticService.success();
-      onClose?.();
+      const data = await response.json();
+      
+      if (data.success) {
+        onSave?.(pattern);
+        onClose?.();
+      } else {
+        console.error('[SpeakingPatternSheet] Save failed:', data.error);
+      }
     } catch (error) {
-      console.error('[SpeakingPattern] Save error:', error);
-      HapticService.error();
+      console.error('[SpeakingPatternSheet] Save error:', error);
     } finally {
       setSaving(false);
     }
   };
   
   // ═══════════════════════════════════════════════════════════════════════
-  // RENDER TAG SECTION
+  // RESET PATTERN
   // ═══════════════════════════════════════════════════════════════════════
   
-  const renderTagSection = (title, emoji, items, onAdd, onRemove, inputRef, maxCount) => (
-    <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <CustomText size="md" weight="semibold" color={COLORS.TEXT_PRIMARY}>
-          {emoji} {title}
-        </CustomText>
-        <CustomText size="xs" color={COLORS.TEXT_SECONDARY}>
-          {items.length}/{maxCount}
-        </CustomText>
-      </View>
-      
-      <View style={styles.tagsContainer}>
-        {items.map((item, index) => (
-          <View key={index} style={styles.tag}>
-            <CustomText size="sm" color={COLORS.TEXT_PRIMARY}>
-              {item}
-            </CustomText>
-            <TouchableOpacity
-              onPress={() => onRemove(index)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Icon name="close-circle" size={scale(18)} color={COLORS.TEXT_SECONDARY} />
-            </TouchableOpacity>
-          </View>
-        ))}
+  const handleReset = () => {
+    HapticService.light();
+    setGreetingPhrases([]);
+    setFrequentWords([]);
+    setClosingPhrases([]);
+    setSignaturePhrases([]);
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // ADD/REMOVE HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const handleAddPhrase = (type, value) => {
+    if (!value || !value.trim()) return;
+    
+    HapticService.selection();
+    
+    switch (type) {
+      case 'greeting':
+        if (greetingPhrases.length < 5 && !greetingPhrases.includes(value)) {
+          setGreetingPhrases([...greetingPhrases, value]);
+        }
+        break;
+      case 'frequent':
+        if (frequentWords.length < 10 && !frequentWords.includes(value)) {
+          setFrequentWords([...frequentWords, value]);
+        }
+        break;
+      case 'closing':
+        if (closingPhrases.length < 5 && !closingPhrases.includes(value)) {
+          setClosingPhrases([...closingPhrases, value]);
+        }
+        break;
+      case 'signature':
+        if (signaturePhrases.length < 3 && !signaturePhrases.includes(value)) {
+          setSignaturePhrases([...signaturePhrases, value]);
+        }
+        break;
+    }
+  };
+  
+  const handleRemovePhrase = (type, index) => {
+    HapticService.light();
+    
+    switch (type) {
+      case 'greeting':
+        setGreetingPhrases(greetingPhrases.filter((_, i) => i !== index));
+        break;
+      case 'frequent':
+        setFrequentWords(frequentWords.filter((_, i) => i !== index));
+        break;
+      case 'closing':
+        setClosingPhrases(closingPhrases.filter((_, i) => i !== index));
+        break;
+      case 'signature':
+        setSignaturePhrases(signaturePhrases.filter((_, i) => i !== index));
+        break;
+    }
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER PATTERN SECTION
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const renderPatternSection = (title, icon, description, phrases, type, inputRef, maxCount) => {
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <CustomText size="md" weight="bold" color={COLORS.TEXT_PRIMARY}>
+            {icon} {title}
+          </CustomText>
+          <CustomText size="xs" color={COLORS.TEXT_TERTIARY} style={{ marginTop: verticalScale(2) }}>
+            {description} (최대 {maxCount}개)
+          </CustomText>
+        </View>
         
-        {items.length < maxCount && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => {
-              HapticService.light();
-              inputRef.current?.present();
-            }}
-            activeOpacity={0.7}
-          >
-            <Icon name="plus-circle-outline" size={scale(20)} color={COLORS.PRIMARY} />
-            <CustomText size="sm" color={COLORS.PRIMARY}>
-              추가
-            </CustomText>
-          </TouchableOpacity>
-        )}
+        <View style={styles.tagsContainer}>
+          {phrases.map((phrase, index) => (
+            <View key={index} style={styles.tag}>
+              <CustomText size="sm" color={COLORS.TEXT_PRIMARY}>
+                {phrase}
+              </CustomText>
+              <TouchableOpacity
+                onPress={() => handleRemovePhrase(type, index)}
+                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              >
+                <Icon name="close-circle" size={moderateScale(16)} color={COLORS.TEXT_SECONDARY} />
+              </TouchableOpacity>
+            </View>
+          ))}
+          
+          {phrases.length < maxCount && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                HapticService.light();
+                inputRef.current?.open();
+              }}
+            >
+              <Icon name="plus-circle" size={moderateScale(20)} color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.DEEP_BLUE} style={{ marginLeft: scale(4) }}>
+                추가
+              </CustomText>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const handleClose = () => {
+    HapticService.light();
+    onClose?.();
+  };
   
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
   
+  if (!isOpen) return null;
+  
   return (
     <>
-      <CustomBottomSheet
-        ref={bottomSheetRef}
-        snapPoints={['85%']}
-        onDismiss={onClose}
+      <Modal
+        visible={isOpen}
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={handleClose}
       >
-        <View style={styles.container}>
+        {/* Backdrop */}
+        <TouchableOpacity 
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={handleClose}
+        >
+          <Animated.View 
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                opacity: backdropOpacity,
+              }
+            ]} 
+          />
+        </TouchableOpacity>
+        
+        {/* Modal Container */}
+        <Animated.View 
+          style={[
+            styles.modalContainer,
+            {
+              paddingBottom: insets.bottom + verticalScale(20),
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+          onStartShouldSetResponder={() => true}
+          onTouchEnd={(e) => e.stopPropagation()}
+        >
+          {/* Handle */}
+          <View style={styles.handleContainer}>
+            <View style={styles.handle} />
+          </View>
+          
           {/* Header */}
           <View style={styles.header}>
             <View>
@@ -254,235 +365,258 @@ const SpeakingPatternSheet = ({
                 🗣️ 말투 설정
               </CustomText>
               <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
-                {personaName}의 말투를 설정해주세요
+                {personaName}의 자연스러운 말투를 설정하세요
               </CustomText>
             </View>
             
             <TouchableOpacity
-              onPress={() => {
-                HapticService.light();
-                onClose?.();
-              }}
+              onPress={handleClose}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Icon name="close" size={scale(24)} color={COLORS.TEXT_SECONDARY} />
             </TouchableOpacity>
           </View>
           
-          {/* Loading */}
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-              <CustomText size="sm" color={COLORS.TEXT_SECONDARY}>
-                불러오는 중...
-              </CustomText>
-            </View>
-          ) : (
-            <>
-              {/* Scroll Content */}
-              <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {renderTagSection(
+          {/* Content */}
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
+                <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(12) }}>
+                  불러오는 중...
+                </CustomText>
+              </View>
+            ) : (
+              <>
+                {renderPatternSection(
                   '문장 시작',
                   '📢',
+                  '대화 시작이나 주제 전환 시 사용',
                   greetingPhrases,
-                  handleAddGreeting,
-                  removeGreeting,
+                  'greeting',
                   greetingInputRef,
                   5
                 )}
                 
-                {renderTagSection(
+                {renderPatternSection(
                   '자주 쓰는 말',
                   '💬',
+                  '평소 자주 쓰는 말투나 표현',
                   frequentWords,
-                  handleAddFrequent,
-                  removeFrequent,
+                  'frequent',
                   frequentInputRef,
                   10
                 )}
                 
-                {renderTagSection(
+                {renderPatternSection(
                   '문장 끝',
                   '👋',
+                  '문장을 마무리하는 표현',
                   closingPhrases,
-                  handleAddClosing,
-                  removeClosing,
+                  'closing',
                   closingInputRef,
                   5
                 )}
                 
-                {renderTagSection(
+                {renderPatternSection(
                   '나만의 명언',
                   '✨',
+                  '특별한 상황에서 사용하는 시그니처 문구',
                   signaturePhrases,
-                  handleAddSignature,
-                  removeSignature,
+                  'signature',
                   signatureInputRef,
-                  5
+                  3
                 )}
-                
-                {/* Info Card */}
-                <View style={styles.infoCard}>
-                  <Icon name="information-outline" size={scale(20)} color={COLORS.PRIMARY} />
-                  <View style={{ flex: 1, marginLeft: scale(8) }}>
-                    <CustomText size="xs" color={COLORS.TEXT_SECONDARY}>
-                      설정한 말투는 대화에 자연스럽게 적용됩니다.{'\n'}
-                      모든 문장에 사용되지는 않으며, 맥락에 맞게 조합됩니다.
-                    </CustomText>
-                  </View>
-                </View>
-              </ScrollView>
-              
-              {/* Footer Buttons */}
-              <View style={styles.footer}>
-                <CustomButton
-                  text="초기화"
-                  variant="secondary"
-                  size="small"
-                  onPress={() => {
-                    HapticService.light();
-                    setGreetingPhrases([]);
-                    setFrequentWords([]);
-                    setClosingPhrases([]);
-                    setSignaturePhrases([]);
-                  }}
-                  disabled={saving}
-                  style={{ flex: 1, marginRight: scale(8) }}
-                />
-                
-                <CustomButton
-                  text={saving ? '저장 중...' : '저장'}
-                  variant="primary"
-                  size="small"
-                  onPress={handleSave}
-                  disabled={saving}
-                  style={{ flex: 2 }}
-                />
-              </View>
-            </>
+              </>
+            )}
+          </ScrollView>
+          
+          {/* Footer Buttons */}
+          <View style={styles.footer}>
+            <CustomButton
+              title="초기화"
+              onPress={handleReset}
+              type="outline"
+              size="medium"
+              style={styles.resetButton}
+              disabled={loading || saving}
+            />
+            <CustomButton
+              title="저장"
+              onPress={handleSave}
+              type="primary"
+              size="medium"
+              style={styles.saveButton}
+              disabled={loading}
+              loading={saving}
+            />
+          </View>
+          
+          {saving && (
+            <View style={styles.savingOverlay}>
+              <ActivityIndicator size="small" color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8) }}>
+                저장 중...
+              </CustomText>
+            </View>
           )}
-        </View>
-      </CustomBottomSheet>
+        </Animated.View>
+      </Modal>
       
-      {/* Input Modals */}
+      {/* Input Overlays */}
       <MessageInputOverlay
         ref={greetingInputRef}
-        title="📢 문장 시작"
-        placeholder="예: 히어로님~히어로님!"
-        onSave={handleAddGreeting}
-        maxLength={50}
+        title="문장 시작 추가"
+        placeholder="예: 히어로님~!, 오늘도~, 역시~"
+        leftIcon="text"
+        maxLength={20}
+        onSave={(value) => handleAddPhrase('greeting', value)}
       />
-      
       <MessageInputOverlay
         ref={frequentInputRef}
-        title="💬 자주 쓰는 말"
-        placeholder="예: 역시~, 좋습니다!"
-        onSave={handleAddFrequent}
-        maxLength={30}
+        title="자주 쓰는 말 추가"
+        placeholder="예: ~데요, ~죠!, 완전~"
+        leftIcon="text"
+        maxLength={15}
+        onSave={(value) => handleAddPhrase('frequent', value)}
       />
-      
       <MessageInputOverlay
         ref={closingInputRef}
-        title="👋 문장 끝"
-        placeholder="예: 감사합니다!"
-        onSave={handleAddClosing}
-        maxLength={50}
+        title="문장 끝 추가"
+        placeholder="예: ~해요!, 감사합니다!, ~할게요!"
+        leftIcon="text"
+        maxLength={20}
+        onSave={(value) => handleAddPhrase('closing', value)}
       />
-      
       <MessageInputOverlay
         ref={signatureInputRef}
-        title="✨ 나만의 명언"
+        title="나만의 명언 추가"
         placeholder="예: 우린 원팀이니까요!"
-        onSave={handleAddSignature}
-        maxLength={100}
+        leftIcon="star"
+        maxLength={50}
+        onSave={(value) => handleAddPhrase('signature', value)}
       />
     </>
   );
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: platformPadding(20),
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.BACKGROUND,
+    borderTopLeftRadius: moderateScale(24),
+    borderTopRightRadius: moderateScale(24),
+    maxHeight: '85%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  handleContainer: {
+    alignItems: 'center',
+    paddingVertical: verticalScale(12),
+  },
+  handle: {
+    width: scale(40),
+    height: verticalScale(4),
+    backgroundColor: COLORS.TEXT_TERTIARY,
+    borderRadius: moderateScale(2),
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: verticalScale(20),
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: verticalScale(12),
+    alignItems: 'flex-start',
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.DIVIDER,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: verticalScale(20),
+    paddingHorizontal: scale(20),
+    paddingTop: verticalScale(20),
+    paddingBottom: verticalScale(100),
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(40),
   },
   section: {
     marginBottom: verticalScale(24),
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: verticalScale(12),
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: moderateScale(8),
+    gap: scale(8),
   },
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-    borderRadius: moderateScale(20),
-    paddingHorizontal: scale(12),
     paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(12),
+    backgroundColor: COLORS.CARD_BACKGROUND,
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DIVIDER,
     gap: scale(6),
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-    borderStyle: 'dashed',
-    borderRadius: moderateScale(20),
-    paddingHorizontal: scale(12),
     paddingVertical: verticalScale(8),
-    gap: scale(4),
-  },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.PRIMARY,
-    borderRadius: moderateScale(8),
-    padding: platformPadding(12),
-    marginTop: verticalScale(8),
+    paddingHorizontal: scale(12),
+    backgroundColor: 'transparent',
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DEEP_BLUE,
+    borderStyle: 'dashed',
   },
   footer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: scale(20),
     paddingTop: verticalScale(16),
-    paddingBottom: verticalScale(20),
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: COLORS.DIVIDER,
+    gap: scale(12),
+  },
+  resetButton: {
+    flex: 1,
+  },
+  saveButton: {
+    flex: 2,
+  },
+  savingOverlay: {
+    position: 'absolute',
+    bottom: verticalScale(100),
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    backgroundColor: COLORS.BACKGROUND,
   },
 });
 
 export default SpeakingPatternSheet;
-

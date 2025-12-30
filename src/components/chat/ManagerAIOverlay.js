@@ -1616,7 +1616,6 @@ const ManagerAIOverlay = ({
   if (!visible) return null;
   
   return (
-    <>
     <Modal
       visible={visible}
       transparent={true}
@@ -1853,10 +1852,7 @@ const ManagerAIOverlay = ({
       {identityEvolutionDisplay && (
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
-    </Modal>
-    
-    {/* 🎭 NEW: Identity Settings Sheet (Outside Modal with high z-index) */}
-    <View style={styles.bottomSheetContainer}>
+      {/* 🎭 Identity Settings Sheet (Independent Modal) */}
       <IdentitySettingsSheet
         isOpen={showIdentitySettings}
         onClose={() => setShowIdentitySettings(false)}
@@ -1865,11 +1861,9 @@ const ManagerAIOverlay = ({
         loading={loadingSettings}
         saving={savingSettings}
       />
-    </View>
-    
-    {/* 🗣️ NEW: Speaking Pattern Sheet (Outside Modal with high z-index) */}
-    {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
-      <View style={styles.bottomSheetContainer}>
+      
+      {/* 🗣️ Speaking Pattern Sheet (Independent Modal) */}
+      {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
         <SpeakingPatternSheet
           isOpen={showSpeakingPattern}
           onClose={() => setShowSpeakingPattern(false)}
@@ -1878,9 +1872,8 @@ const ManagerAIOverlay = ({
           userKey={user.user_key}
           onSave={handleSaveSpeakingPattern}
         />
-      </View>
-    )}
-    </>
+      )}
+    </Modal>
   );
 };
 
@@ -2118,16 +2111,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: moderateScale(16),
     letterSpacing: 0.5,
-  },
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Bottom Sheet Container (High z-index)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  bottomSheetContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 999999, // ⭐ 최상위 z-index
-    elevation: 999, // ⭐ Android elevation
-    pointerEvents: 'box-none', // ⭐ Allow touches to pass through when sheet is closed
   },
 });
 

@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎭 IdentitySettingsSheet Component
+ * 🎭 IdentitySettingsSheet Component (Modal-based)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Purpose: AI personality settings (자아 설정)
@@ -9,8 +9,8 @@
  * - Advice level (조언 수준)
  * 
  * Design Principles:
- * ✅ Bottom sheet based (not panel)
- * ✅ Consistent with ChoicePersonaSheet pattern
+ * ✅ Modal-based (for correct z-index above ManagerAIOverlay)
+ * ✅ Animated slide-up effect
  * ✅ Clean & intuitive UI
  * ✅ Haptic feedback
  * 
@@ -18,13 +18,21 @@
  * @date 2025-12-30
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { 
+  View, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  ActivityIndicator,
+  Modal,
+  Animated,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
-import CustomBottomSheet from '../CustomBottomSheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomText from '../CustomText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { SETTING_CATEGORIES } from '../../constants/aiSettings';
@@ -38,32 +46,154 @@ const IdentitySettingsSheet = ({
   saving = false,
 }) => {
   const { t } = useTranslation();
-  const bottomSheetRef = useRef(null);
+  const insets = useSafeAreaInsets();
+  const slideAnim = useRef(new Animated.Value(1000)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
   
   // ═══════════════════════════════════════════════════════════════════════
-  // HANDLE OPEN/CLOSE
+  // ANIMATION EFFECTS
   // ═══════════════════════════════════════════════════════════════════════
   
   useEffect(() => {
     if (isOpen) {
-      bottomSheetRef.current?.present();
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      bottomSheetRef.current?.dismiss();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 1000,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [isOpen]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const handleClose = () => {
+    HapticService.light();
+    onClose?.();
+  };
+  
+  const handleSettingChange = async (category, optionValue) => {
+    HapticService.selection();
+    await onUpdateSetting?.(category, optionValue);
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER SETTING SECTION
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const renderSettingSection = (category, data) => {
+    const currentValue = settings?.[category] || data.options[0].value;
+    
+    return (
+      <View key={category} style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <CustomText size="lg" weight="bold" color={COLORS.TEXT_PRIMARY}>
+            {data.icon} {data.title}
+          </CustomText>
+          <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
+            {data.description}
+          </CustomText>
+        </View>
+        
+        <View style={styles.optionsContainer}>
+          {data.options.map((option) => {
+            const isSelected = currentValue === option.value;
+            
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.optionChip,
+                  isSelected && styles.optionChipSelected,
+                ]}
+                onPress={() => handleSettingChange(category, option.value)}
+                disabled={saving}
+              >
+                <CustomText
+                  size="sm"
+                  weight={isSelected ? 'bold' : 'normal'}
+                  color={isSelected ? COLORS.BUTTON_TEXT : COLORS.TEXT_SECONDARY}
+                >
+                  {option.label}
+                </CustomText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
   
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
   
+  if (!isOpen) return null;
+  
   return (
-    <CustomBottomSheet
-      ref={bottomSheetRef}
-      snapPoints={['70%']}
-      onDismiss={onClose}
-      enablePanDownToClose={true}
+    <Modal
+      visible={isOpen}
+      transparent={true}
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={handleClose}
     >
-      <View style={styles.container}>
+      {/* Backdrop */}
+      <TouchableOpacity 
+        style={styles.backdrop}
+        activeOpacity={1}
+        onPress={handleClose}
+      >
+        <Animated.View 
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              opacity: backdropOpacity,
+            }
+          ]} 
+        />
+      </TouchableOpacity>
+      
+      {/* Modal Container */}
+      <Animated.View 
+        style={[
+          styles.modalContainer,
+          {
+            paddingBottom: insets.bottom + verticalScale(20),
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+        onStartShouldSetResponder={() => true}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <View style={styles.handleContainer}>
+          <View style={styles.handle} />
+        </View>
+        
         {/* Header */}
         <View style={styles.header}>
           <View>
@@ -76,157 +206,132 @@ const IdentitySettingsSheet = ({
           </View>
           
           <TouchableOpacity
-            onPress={() => {
-              HapticService.light();
-              onClose?.();
-            }}
+            onPress={handleClose}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Icon name="close" size={scale(24)} color={COLORS.TEXT_SECONDARY} />
           </TouchableOpacity>
         </View>
         
-        {/* Loading */}
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-            <CustomText size="sm" color={COLORS.TEXT_SECONDARY}>
-              설정 불러오는 중...
-            </CustomText>
-          </View>
-        ) : (
-          <>
-            {/* Scroll Content */}
-            <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              {SETTING_CATEGORIES.map((category) => (
-                <View key={category.key} style={styles.section}>
-                  <CustomText size="md" weight="semibold" color={COLORS.TEXT_PRIMARY} style={styles.sectionTitle}>
-                    {category.title}
-                  </CustomText>
-                  
-                  <View style={styles.optionsContainer}>
-                    {category.options.map((option) => {
-                      const isSelected = settings[category.key] === option.id;
-                      return (
-                        <TouchableOpacity
-                          key={option.id}
-                          style={[
-                            styles.optionCard,
-                            isSelected && styles.optionCardSelected,
-                          ]}
-                          onPress={() => {
-                            HapticService.light();
-                            onUpdateSetting?.(category.key, option.id);
-                          }}
-                          disabled={saving}
-                          activeOpacity={0.7}
-                        >
-                          <View style={styles.optionContent}>
-                            <CustomText style={styles.optionEmoji}>
-                              {option.emoji}
-                            </CustomText>
-                            <CustomText
-                              size="sm"
-                              weight={isSelected ? 'semibold' : 'normal'}
-                              color={isSelected ? COLORS.PRIMARY : COLORS.TEXT_PRIMARY}
-                            >
-                              {option.name}
-                            </CustomText>
-                          </View>
-                          {isSelected && (
-                            <Icon name="check-circle" size={scale(20)} color={COLORS.PRIMARY} />
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              ))}
-              
-              {/* Saving Indicator */}
-              {saving && (
-                <View style={styles.savingContainer}>
-                  <ActivityIndicator size="small" color={COLORS.PRIMARY} />
-                  <CustomText size="sm" color={COLORS.PRIMARY}>
-                    저장 중...
-                  </CustomText>
-                </View>
-              )}
-            </ScrollView>
-          </>
-        )}
-      </View>
-    </CustomBottomSheet>
+        {/* Content */}
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(12) }}>
+                불러오는 중...
+              </CustomText>
+            </View>
+          ) : (
+            <>
+              {renderSettingSection('speech_style', SETTING_CATEGORIES.speech_style)}
+              {renderSettingSection('response_style', SETTING_CATEGORIES.response_style)}
+              {renderSettingSection('advice_level', SETTING_CATEGORIES.advice_level)}
+            </>
+          )}
+          
+          {saving && (
+            <View style={styles.savingOverlay}>
+              <ActivityIndicator size="small" color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8) }}>
+                저장 중...
+              </CustomText>
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
+    </Modal>
   );
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: platformPadding(20),
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.BACKGROUND,
+    borderTopLeftRadius: moderateScale(24),
+    borderTopRightRadius: moderateScale(24),
+    maxHeight: '70%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  handleContainer: {
+    alignItems: 'center',
+    paddingVertical: verticalScale(12),
+  },
+  handle: {
+    width: scale(40),
+    height: verticalScale(4),
+    backgroundColor: COLORS.TEXT_TERTIARY,
+    borderRadius: moderateScale(2),
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: verticalScale(20),
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: verticalScale(12),
+    alignItems: 'flex-start',
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.DIVIDER,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
+    paddingHorizontal: scale(20),
+    paddingTop: verticalScale(20),
     paddingBottom: verticalScale(20),
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(40),
   },
   section: {
     marginBottom: verticalScale(24),
   },
-  sectionTitle: {
+  sectionHeader: {
     marginBottom: verticalScale(12),
   },
   optionsContainer: {
-    gap: moderateScale(10),
-  },
-  optionCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    flexWrap: 'wrap',
+    gap: scale(8),
+  },
+  optionChip: {
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(16),
+    borderRadius: moderateScale(20),
+    backgroundColor: COLORS.CARD_BACKGROUND,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: moderateScale(12),
-    paddingHorizontal: platformPadding(16),
-    paddingVertical: verticalScale(14),
+    borderColor: COLORS.DIVIDER,
   },
-  optionCardSelected: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+  optionChipSelected: {
+    backgroundColor: COLORS.DEEP_BLUE,
+    borderColor: COLORS.DEEP_BLUE,
   },
-  optionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(10),
-  },
-  optionEmoji: {
-    fontSize: moderateScale(20),
-  },
-  savingContainer: {
+  savingOverlay: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: verticalScale(16),
-    gap: moderateScale(8),
+    paddingVertical: verticalScale(12),
   },
 });
 
 export default IdentitySettingsSheet;
-
