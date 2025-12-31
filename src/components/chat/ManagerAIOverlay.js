@@ -180,6 +180,23 @@ const ManagerAIOverlay = ({
   // 🎨 NEW: Real-time Content Generation state
   const [floatingContent, setFloatingContent] = useState(null); // { contentId, status, contentType, url }
   
+  // 🔍 DEBUG: Track floatingContent state changes
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 [FloatingContent State] Changed!');
+    if (floatingContent) {
+      console.log('   Type:', floatingContent.contentType);
+      console.log('   Status:', floatingContent.status);
+      if (floatingContent.contentType === 'music') {
+        console.log('   Track:', floatingContent.track?.title);
+        console.log('   isPlaying:', floatingContent.isPlaying);
+      }
+    } else {
+      console.log('   Value: NULL');
+    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [floatingContent]);
+  
   // 🎬 NEW: YouTube Video Player state
   const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null); // { videoId, title }
@@ -1330,6 +1347,19 @@ const ManagerAIOverlay = ({
         const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
         const youtubeData = response.data.youtube || null; // 🎬 NEW: Real-time YouTube video search result
         
+        // 🐛 DEBUG: Log Music data
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🎵 [DEBUG] Checking music data from API:');
+        if (musicData) {
+          console.log('✅ Music data EXISTS!');
+          console.log('   Track:', musicData.track?.title);
+          console.log('   Artist:', musicData.track?.artist);
+          console.log('   URL:', musicData.track?.url);
+        } else {
+          console.log('⚠️ Music data is NULL');
+        }
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
         // 🐛 DEBUG: Log YouTube data
         if (youtubeData) {
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -1443,7 +1473,7 @@ const ManagerAIOverlay = ({
           console.log('✅ [Music Search] Music will be added to AI message bubble!');
           
           // Set floating content state (music is ready instantly!)
-          setFloatingContent({
+          const newFloatingContent = {
             contentType: 'music',
             status: 'completed', // ⭐ Music is instant (no processing)
             track: musicData.track,
@@ -1452,7 +1482,18 @@ const ManagerAIOverlay = ({
             mood: musicData.mood,
             reasoning: musicData.reasoning,
             isPlaying: false // Initially not playing
-          });
+          };
+          
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🎵 [FloatingContent] Setting music button state...');
+          console.log('   Track:', newFloatingContent.track.title);
+          console.log('   Status:', newFloatingContent.status);
+          console.log('   isPlaying:', newFloatingContent.isPlaying);
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          setFloatingContent(newFloatingContent);
+          
+          console.log('✅ [FloatingContent] State update triggered!');
           
           // Haptic feedback
           HapticService.trigger('success');
@@ -1884,9 +1925,18 @@ const ManagerAIOverlay = ({
             {/* 🎨 NEW: Floating Content Button */}
             {/* 🎵 NEW: Floating Content Button (ONLY for music, images now in chat bubble!) */}
             {(() => {
+              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+              console.log('🎨 [FloatingContent Render] Checking...');
+              console.log('   floatingContent exists:', !!floatingContent);
+              if (floatingContent) {
+                console.log('   contentType:', floatingContent.contentType);
+                console.log('   status:', floatingContent.status);
+              }
+              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+              
               // ✅ ONLY show floating button for MUSIC (images are in chat bubble now!)
               if (floatingContent && floatingContent.contentType === 'music') {
-                console.log('🔍 [FloatingContent Render] Music player:', {
+                console.log('✅ [FloatingContent Render] Rendering music button!', {
                   track: floatingContent.track?.title,
                   isPlaying: floatingContent.isPlaying
                 });
@@ -1907,6 +1957,7 @@ const ManagerAIOverlay = ({
                   />
                 );
               }
+              console.log('❌ [FloatingContent Render] Not rendering (no music content)');
               return null;
             })()}
           </View>
