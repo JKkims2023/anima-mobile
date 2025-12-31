@@ -1,156 +1,1054 @@
-3b759377-e6b4-4d36-8996-6f2bec570b1d	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767111879097-ql9fo	오빠 오빠~! 아이브 뮤직비디오 찾았어! 🎬😊 영상 진짜 멋있을 거야! 기다려줘! 💜✨	{"youtube": {"url": "https://www.youtube.com/watch?v=eHHQaoEW30Q", "title": "TWICE &quot;THIS IS FOR&quot; M/V", "channel": "JYP Entertainment", "videoId": "eHHQaoEW30Q", "embedUrl": "https://www.youtube.com/embed/eHHQaoEW30Q", "thumbnail": "https://i.ytimg.com/vi/eHHQaoEW30Q/hqdefault.jpg"}, "has_media": true}	assistant					conversations	70	gpt-4o-mini	1755	2025-12-31 01:46:35.665149	
-5a533e20-b5b3-4912-bd37-dfbd2d5740cd	d111e3d8-4e42-4493-8541-25a8e72b654f	ed3495b7-2510-45a7-9b32-61a6f2dc1e09	session-1767111879097-ql9fo	자기야~~~트와이즈 뮤비 틀어줘~~~		user	neutral	0.3			conversations	16677	gpt-4o-mini		2025-12-31 01:46:35.651895	
+2025-12-31 12:39:45 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:39:45    Total messages: 28
+2025-12-31 12:39:45    Kept messages: 20
+2025-12-31 12:39:45    Summarized messages: 0
+2025-12-31 12:39:45    Sliding window: Inactive
+2025-12-31 12:39:45    Persona: SAGE
+2025-12-31 12:39:45    Preferences: Default
+2025-12-31 12:39:45 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:39:45    Tier: free
+2025-12-31 12:39:45    Model: GPT-4o Mini
+2025-12-31 12:39:45    Provider: openai
+2025-12-31 12:39:45    Caching: Enabled
+2025-12-31 12:39:45 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:39:45    Message: "일본 라멘 사진 찾아줄래?"
+2025-12-31 12:39:46 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:39:46    Duration: 963ms
+2025-12-31 12:39:46    Tokens: 287
+2025-12-31 12:39:46 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:39:46    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:39:46 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:39:46 ⚠️  [PromptBuilder] Redis error (using DB fallback): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:39:46 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:39:46 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:39:46 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:39:46 ⚠️  [PromptBuilder] Failed to cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:39:46 ⚠️  [PromptBuilder] Redis error for progress (using DB): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:39:46 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:39:46 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:39:46 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:39:46 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:39:46 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:39:46    Provider: openai
+2025-12-31 12:39:46    Model: gpt-4o-mini
+2025-12-31 12:39:46    History messages: 20
+2025-12-31 12:39:46    System prompt length: 10065 chars
+2025-12-31 12:39:46 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:39:46    Persona type: SAGE/NEXUS
+2025-12-31 12:39:46    Has identity: false
+2025-12-31 12:39:46    toolsEnabled: true
+2025-12-31 12:39:46 🤖 [OpenAI] Calling API: {
+2025-12-31 12:39:46   model: 'gpt-4o-mini',
+2025-12-31 12:39:46   messageCount: 22,
+2025-12-31 12:39:46   systemPromptLength: 10065,
+2025-12-31 12:39:46   historyLength: 20,
+2025-12-31 12:39:46   toolsEnabled: true
+2025-12-31 12:39:46 }
+2025-12-31 12:39:48 ✅ [OpenAI] Response received: {
+2025-12-31 12:39:48   responseTime: '1696ms',
+2025-12-31 12:39:48   tokens: { prompt: 6218, completion: 47, total: 6265 },
+2025-12-31 12:39:48   messageLength: 0,
+2025-12-31 12:39:48   finishReason: 'tool_calls',
+2025-12-31 12:39:48   toolCalls: 1
+2025-12-31 12:39:48 }
+2025-12-31 12:39:48 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 12:39:48 🛠️ [Function Calling] Executing: generate_chat_content
+2025-12-31 12:39:48    Args: {
+2025-12-31 12:39:48   content_type: 'image',
+2025-12-31 12:39:48   scene_description: 'Japanese ramen',
+2025-12-31 12:39:48   search_keywords: 'japanese ramen',
+2025-12-31 12:39:48   ai_reasoning: 'User requested a photo of Japanese ramen.',
+2025-12-31 12:39:48   expect_announcement: true
+2025-12-31 12:39:48 }
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 🎨 [Tool] generate_chat_content
+2025-12-31 12:39:48    Type: image
+2025-12-31 12:39:48    Scene: Japanese ramen
+2025-12-31 12:39:48    Search Keywords: japanese ramen
+2025-12-31 12:39:48    Reasoning: User requested a photo of Japanese ramen.
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 ✅ [Function Calling] Result: {
+2025-12-31 12:39:48   success: true,
+2025-12-31 12:39:48   content_type: 'image',
+2025-12-31 12:39:48   scene_description: 'Japanese ramen',
+2025-12-31 12:39:48   search_keywords: 'japanese ramen',
+2025-12-31 12:39:48   ai_reasoning: 'User requested a photo of Japanese ramen.',
+2025-12-31 12:39:48   expect_announcement: true,
+2025-12-31 12:39:48   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
+2025-12-31 12:39:48   _chat_content_generation: true
+2025-12-31 12:39:48 }
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 🎨 [Chat Content] AI requested content generation!
+2025-12-31 12:39:48    Type: image
+2025-12-31 12:39:48    Scene: Japanese ramen
+2025-12-31 12:39:48    Search Keywords: japanese ramen
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 🎨 [ContentGenerator] Creating request...
+2025-12-31 12:39:48    ID: 6cc68b1b-ae6b-4853-810f-c51089be7a18
+2025-12-31 12:39:48    Type: image
+2025-12-31 12:39:48    Scene: Japanese ramen
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 ✅ [ContentGenerator] Request created: 6cc68b1b-ae6b-4853-810f-c51089be7a18
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
+2025-12-31 12:39:48    Content ID: 6cc68b1b-ae6b-4853-810f-c51089be7a18
+2025-12-31 12:39:48    Prompt: japanese ramen
+2025-12-31 12:39:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:39:48    Emotion: neutral
+2025-12-31 12:39:48    Context: japanese ramen
+2025-12-31 12:39:48 🖼️ [Pixabay] Searching image for emotion: neutral, context: japanese ramen
+2025-12-31 12:39:48 🧹 [Pixabay] Query sanitized: { original: 'japanese ramen', sanitized: 'japanese ramen', length: 14 }
+2025-12-31 12:39:48 🔍 [Pixabay] Query: "sky japanese ramen"
+2025-12-31 12:39:48 ✅ [Pixabay] Image found: {
+2025-12-31 12:39:48   id: 4647411,
+2025-12-31 12:39:48   photographer: 'allybally4b',
+2025-12-31 12:39:48   tags: 'ramen, japanese ramen, lamen, soy if, restaurant, korean food, food photography, mukbang, delicious, cooking, ramen, japanese ramen, japanese ramen, japanese ramen, japanese ramen, korean food, korean food, korean food, korean food, korean food, mukbang',
+2025-12-31 12:39:48   size: '6000x3368'
+2025-12-31 12:39:48 }
+2025-12-31 12:39:48 ✅ [ImageGenerator] Image found INSTANTLY!
+2025-12-31 12:39:48    URL: https://pixabay.com/get/g09df266f1c021b01e56f1d1f67c9a37c70f28caabb2547727d7e2bc43e632086a0b4e3f4382d2f45a33b50e8026e4f440b436a752a3152e497db6a595bcb78a8_1280.jpg
+2025-12-31 12:39:48    Photographer: allybally4b
+2025-12-31 12:39:48    Tags: ramen, japanese ramen, lamen, soy if, restaurant, korean food, food photography, mukbang, delicious, cooking, ramen, japanese ramen, japanese ramen, japanese ramen, japanese ramen, korean food, korean food, korean food, korean food, korean food, mukbang
+2025-12-31 12:39:48 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
+2025-12-31 12:39:48 ✅ [Chat Content] Image ready INSTANTLY: {
+2025-12-31 12:39:48   url: 'https://pixabay.com/get/g09df266f1c021b01e56f1d1f67c9a37c70f28caabb2547727d7e2bc43e632086a0b4e3f4382d2f45a33b50e8026e4f440b436a752a3152e497db6a595bcb78a8_1280.jpg',
+2025-12-31 12:39:48   status: 'completed'
+2025-12-31 12:39:48 }
+2025-12-31 12:39:48 ✅ [Chat Content] Generation completed: 6cc68b1b-ae6b-4853-810f-c51089be7a18
+2025-12-31 12:39:48 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:39:48 🤖 [OpenAI] Calling API: {
+2025-12-31 12:39:48   model: 'gpt-4o-mini',
+2025-12-31 12:39:48   messageCount: 24,
+2025-12-31 12:39:48   systemPromptLength: 10663,
+2025-12-31 12:39:48   historyLength: 22,
+2025-12-31 12:39:48   toolsEnabled: false
+2025-12-31 12:39:48 }
+2025-12-31 12:39:49 ✅ [OpenAI] Response received: {
+2025-12-31 12:39:49   responseTime: '935ms',
+2025-12-31 12:39:49   tokens: { prompt: 4988, completion: 22, total: 5010 },
+2025-12-31 12:39:49   messageLength: 36,
+2025-12-31 12:39:49   finishReason: 'stop',
+2025-12-31 12:39:49   toolCalls: 0
+2025-12-31 12:39:49 }
+2025-12-31 12:39:49 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:39:49 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:39:49    Response time: 1696ms
+2025-12-31 12:39:49    Total tokens: 11275 (in: 11206, out: 69)
+2025-12-31 12:39:49 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"6cc68b1b-ae6b-4853-810f-c51089be7a18","content_type":"image","content_url":"https://pixabay.com/get/g09df266f1c021b01e56f1d1f67c9a37c70f28caabb2547727d7e2bc43e632086a0b4e3f4382d2f45a33b50e8026e4f440b436a752a3152e497db6a595bcb78a8_1280.jpg","content_status":"completed","metadata":{"tags":"ramen, japanese ramen, lamen, soy if, restaurant, korean food, food photography, mukbang, delicious, cooking, ramen, japanese ramen, japanese ramen, japanese ramen, japanese ramen, korean food, korean food, korean food, korean food, korean food, mukbang","query":"sky japanese ramen","width":6000,"height":3368,"source":"pixabay","emotion":"neutral","pixabayId":4647411,"photographer":"allybally4b","photographerURL":"https://cdn.pixabay.com/user/2019/02/18/03-58-55-979_250x250.jpg"}},"has_media":true}
+2025-12-31 12:39:49 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:39:49 🎉 [ANIMA Chat] Request completed in 4157ms
+2025-12-31 12:39:49    Cost: $0.001722
+2025-12-31 12:39:49 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
+2025-12-31 12:39:49 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:39:49 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-31 12:39:49 🔌 [Redis] Connection closed
+2025-12-31 12:39:49 🔄 [Redis] Attempting to reconnect...
+2025-12-31 12:40:00 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-31 12:40:00 🔌 [Redis] Connection closed
+2025-12-31 12:40:00 🔄 [Redis] Attempting to reconnect...
+2025-12-31 12:40:01 
+2025-12-31 12:40:01 🤖 [ANIMA Chat] Request received
+2025-12-31 12:40:01    User: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36
+2025-12-31 12:40:01    Session: session-1767149071498-se1i3e
+2025-12-31 12:40:01    Message: 좋아, 일본 음악 찾아줘....
+2025-12-31 12:40:01 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 12:40:01 🔄 [SessionManager] Loading session from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:40:01 ✅ [SessionManager] Session loaded from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:40:01    - Messages: 30
+2025-12-31 12:40:01    - Persona: SAGE
+2025-12-31 12:40:01    - Identity: Not Set
+2025-12-31 12:40:01    - Preferences: Default
+2025-12-31 12:40:01 📊 [SessionManager] Conversation stats: {
+2025-12-31 12:40:01   totalMessages: 30,
+2025-12-31 12:40:01   totalChars: 1056,
+2025-12-31 12:40:01   estimatedTokens: 362,
+2025-12-31 12:40:01   averageMessageLength: 35
+2025-12-31 12:40:01 }
+2025-12-31 12:40:01 🔄 [Sliding Window] Processing 30 messages
+2025-12-31 12:40:01    Window size: 20
+2025-12-31 12:40:01    Summarize threshold: 30
+2025-12-31 12:40:01 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
+2025-12-31 12:40:01 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:40:01    Total messages: 30
+2025-12-31 12:40:01    Kept messages: 20
+2025-12-31 12:40:01    Summarized messages: 0
+2025-12-31 12:40:01    Sliding window: Inactive
+2025-12-31 12:40:01    Persona: SAGE
+2025-12-31 12:40:01    Preferences: Default
+2025-12-31 12:40:01 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:40:01    Tier: free
+2025-12-31 12:40:01    Model: GPT-4o Mini
+2025-12-31 12:40:01    Provider: openai
+2025-12-31 12:40:01    Caching: Enabled
+2025-12-31 12:40:01 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:40:01    Message: "좋아, 일본 음악 찾아줘."
+2025-12-31 12:40:02 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:40:02    Duration: 759ms
+2025-12-31 12:40:02    Tokens: 286
+2025-12-31 12:40:02 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:40:02    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:40:02 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:40:02 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:40:02 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:40:02 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:40:02 ⚠️  [PromptBuilder] Redis error (using DB fallback): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:40:02 ⚠️  [PromptBuilder] Failed to cache (non-critical): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:40:02 ⚠️  [PromptBuilder] Redis error for progress (using DB): Stream isn't writeable and enableOfflineQueue options is false
+2025-12-31 12:40:02 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:40:02 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:40:02 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:40:02 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:40:02 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:40:02    Provider: openai
+2025-12-31 12:40:02    Model: gpt-4o-mini
+2025-12-31 12:40:02    History messages: 20
+2025-12-31 12:40:02    System prompt length: 10065 chars
+2025-12-31 12:40:02 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:40:02    Persona type: SAGE/NEXUS
+2025-12-31 12:40:02    Has identity: false
+2025-12-31 12:40:02    toolsEnabled: true
+2025-12-31 12:40:02 🤖 [OpenAI] Calling API: {
+2025-12-31 12:40:02   model: 'gpt-4o-mini',
+2025-12-31 12:40:02   messageCount: 22,
+2025-12-31 12:40:02   systemPromptLength: 10065,
+2025-12-31 12:40:02   historyLength: 20,
+2025-12-31 12:40:02   toolsEnabled: true
+2025-12-31 12:40:02 }
+2025-12-31 12:40:03 ✅ [OpenAI] Response received: {
+2025-12-31 12:40:03   responseTime: '981ms',
+2025-12-31 12:40:03   tokens: { prompt: 6184, completion: 32, total: 6216 },
+2025-12-31 12:40:03   messageLength: 0,
+2025-12-31 12:40:03   finishReason: 'tool_calls',
+2025-12-31 12:40:03   toolCalls: 1
+2025-12-31 12:40:03 }
+2025-12-31 12:40:03 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 12:40:03 🛠️ [Function Calling] Executing: search_music
+2025-12-31 12:40:03    Args: { emotion: 'happy', reasoning: '일본 음악이 기분을 좋게 만들어줄 거야!' }
+2025-12-31 12:40:03 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:03 🎵 [Tool] search_music
+2025-12-31 12:40:03    Emotion: happy
+2025-12-31 12:40:03    Mood: none
+2025-12-31 12:40:03    Reasoning: 일본 음악이 기분을 좋게 만들어줄 거야!
+2025-12-31 12:40:03 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:03 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:03 🎵 [MusicSearchManager] Starting music search
+2025-12-31 12:40:03    Emotion: happy
+2025-12-31 12:40:03    Mood: none
+2025-12-31 12:40:03    AI Reasoning: 일본 음악이 기분을 좋게 만들어줄 거야!
+2025-12-31 12:40:03 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:03 🎵 [Jamendo] Searching music...
+2025-12-31 12:40:03    Emotion: happy
+2025-12-31 12:40:03    Mood: none
+2025-12-31 12:40:03    Tags: happy,energetic,pop
+2025-12-31 12:40:04 ⚠️  [Jamendo] No music found, trying fallback...
+2025-12-31 12:40:04 🔄 [Jamendo] Trying emotion-specific fallback...
+2025-12-31 12:40:04    Fallback tags for "happy": pop, happy, energetic
+2025-12-31 12:40:04 ✅ [Jamendo] Fallback successful with tag: pop
+2025-12-31 12:40:04 ✅ [MusicSearchManager] Success with Jamendo (Primary)
+2025-12-31 12:40:04    Found: 3 tracks
+2025-12-31 12:40:04    Best match: "Set Me Free" by Chasing Eidolon
+2025-12-31 12:40:04    Duration: 5:37
+2025-12-31 12:40:04    Tags: pop, rock
+2025-12-31 12:40:04    Mood: none
+2025-12-31 12:40:04    URL: https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=HiToAcyTXlXAjrnyxnHXXw%3D%3D%7CZ1oJHBTeHseOoKAQwTRYqQ%3D%3D
+2025-12-31 12:40:04 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:04 ✅ [Tool] Music found: "Set Me Free" by Chasing Eidolon
+2025-12-31 12:40:04    Source: jamendo
+2025-12-31 12:40:04 ✅ [Function Calling] Result: {
+2025-12-31 12:40:04   success: true,
+2025-12-31 12:40:04   music: {
+2025-12-31 12:40:04     id: '623192',
+2025-12-31 12:40:04     title: 'Set Me Free',
+2025-12-31 12:40:04     artist: 'Chasing Eidolon',
+2025-12-31 12:40:04     duration: 337,
+2025-12-31 12:40:04     url: 'https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=HiToAcyTXlXAjrnyxnHXXw%3D%3D%7CZ1oJHBTeHseOoKAQwTRYqQ%3D%3D',
+2025-12-31 12:40:04     image: 'https://usercontent.jamendo.com?type=album&id=72189&width=300&trackid=623192',
+2025-12-31 12:40:04     source: 'jamendo',
+2025-12-31 12:40:04     shareUrl: 'https://www.jamendo.com/track/623192'
+2025-12-31 12:40:04   },
+2025-12-31 12:40:04   alternatives: [
+2025-12-31 12:40:04     {
+2025-12-31 12:40:04       id: '1215788',
+2025-12-31 12:40:04       title: "We'll Light The Sky",
+2025-12-31 12:40:04       artist: 'Lyonn',
+2025-12-31 12:40:04       url: 'https://prod-1.storage.jamendo.com/?trackid=1215788&format=mp31&from=tZqcKUKRPvutWc3F4%2BOPRQ%3D%3D%7Chp7vjxVqCxfEADBewUXeHg%3D%3D'
+2025-12-31 12:40:04     },
+2025-12-31 12:40:04     {
+2025-12-31 12:40:04       id: '1267288',
+2025-12-31 12:40:04       title: 'Everything is good',
+2025-12-31 12:40:04       artist: 'ADDICT SOUND',
+2025-12-31 12:40:04       url: 'https://prod-1.storage.jamendo.com/?trackid=1267288&format=mp31&from=UsMPzQhv9RZW%2BqhyWTk7pA%3D%3D%7CkPGvJR1IOe5qF5POI2iBZA%3D%3D'
+2025-12-31 12:40:04     }
+2025-12-31 12:40:04   ],
+2025-12-31 12:40:04   message: '"Set Me Free" by Chasing Eidolon를 찾았습니다.'
+2025-12-31 12:40:04 }
+2025-12-31 12:40:04 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:04 🎵 [Music Search] AI recommended music!
+2025-12-31 12:40:04    Track: "Set Me Free" by Chasing Eidolon
+2025-12-31 12:40:04    Duration: 5:37
+2025-12-31 12:40:04    Source: jamendo
+2025-12-31 12:40:04 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:04 ✅ [Music Search] Music data prepared for response
+2025-12-31 12:40:04 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:40:04 🤖 [OpenAI] Calling API: {
+2025-12-31 12:40:04   model: 'gpt-4o-mini',
+2025-12-31 12:40:04   messageCount: 24,
+2025-12-31 12:40:04   systemPromptLength: 10663,
+2025-12-31 12:40:04   historyLength: 22,
+2025-12-31 12:40:04   toolsEnabled: false
+2025-12-31 12:40:04 }
+2025-12-31 12:40:06 ✅ [OpenAI] Response received: {
+2025-12-31 12:40:06   responseTime: '1454ms',
+2025-12-31 12:40:06   tokens: { prompt: 4961, completion: 30, total: 4991 },
+2025-12-31 12:40:06   messageLength: 47,
+2025-12-31 12:40:06   finishReason: 'stop',
+2025-12-31 12:40:06   toolCalls: 0
+2025-12-31 12:40:06 }
+2025-12-31 12:40:06 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:40:06 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:40:06    Response time: 981ms
+2025-12-31 12:40:06    Total tokens: 11207 (in: 11145, out: 62)
+2025-12-31 12:40:06 🎭 [Emotion] Detected: happy (75.0%)
+2025-12-31 12:40:06 💾 [SessionManager] Saving metadata to DB: {"music":{"title":"Set Me Free","artist":"Chasing Eidolon","duration":337,"url":"https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=HiToAcyTXlXAjrnyxnHXXw%3D%3D%7CZ1oJHBTeHseOoKAQwTRYqQ%3D%3D","image":"https://usercontent.jamendo.com?type=album&id=72189&width=300&trackid=623192","source":"jamendo"},"has_media":true}
+2025-12-31 12:40:06 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:40:06 🎉 [ANIMA Chat] Request completed in 4503ms
+2025-12-31 12:40:06    Cost: $0.001709
+2025-12-31 12:40:06 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
+2025-12-31 12:40:06 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:40:10 ❌ [Redis] Connection error: connect ETIMEDOUT
+2025-12-31 12:40:10 ⚠️  [Redis] Max retry attempts reached, stopping reconnection
+2025-12-31 12:40:10 🔌 [Redis] Connection closed
+2025-12-31 12:40:48 
+2025-12-31 12:40:48 🤖 [ANIMA Chat] Request received
+2025-12-31 12:40:48    User: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36
+2025-12-31 12:40:48    Session: session-1767149071498-se1i3e
+2025-12-31 12:40:48    Message: 좋아. 피자 사진 찾아줘!...
+2025-12-31 12:40:48 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 12:40:48 🔄 [SessionManager] Loading session from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:40:48 ✅ [SessionManager] Session loaded from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:40:48    - Messages: 32
+2025-12-31 12:40:48    - Persona: SAGE
+2025-12-31 12:40:48    - Identity: Not Set
+2025-12-31 12:40:48    - Preferences: Default
+2025-12-31 12:40:48 📊 [SessionManager] Conversation stats: {
+2025-12-31 12:40:48   totalMessages: 32,
+2025-12-31 12:40:48   totalChars: 1117,
+2025-12-31 12:40:48   estimatedTokens: 383,
+2025-12-31 12:40:48   averageMessageLength: 35
+2025-12-31 12:40:48 }
+2025-12-31 12:40:48 🔄 [Sliding Window] Processing 32 messages
+2025-12-31 12:40:48    Window size: 20
+2025-12-31 12:40:48    Summarize threshold: 30
+2025-12-31 12:40:48 🔄 [Sliding Window] Long conversation detected
+2025-12-31 12:40:48    Old messages: 12 (to be summarized)
+2025-12-31 12:40:48    Recent messages: 20 (kept as-is)
+2025-12-31 12:40:48 🔄 [Sliding Window] Generating new summary with AI...
+2025-12-31 12:40:48 📝 [Summarizer] Summarizing 12 messages...
+2025-12-31 12:40:48 🤖 [OpenAI] Calling API: {
+2025-12-31 12:40:48   model: 'gpt-4o-mini',
+2025-12-31 12:40:48   messageCount: 2,
+2025-12-31 12:40:48   systemPromptLength: 405,
+2025-12-31 12:40:48   historyLength: 0,
+2025-12-31 12:40:48   toolsEnabled: false
+2025-12-31 12:40:48 }
+2025-12-31 12:40:51 ✅ [OpenAI] Response received: {
+2025-12-31 12:40:51   responseTime: '3041ms',
+2025-12-31 12:40:51   tokens: { prompt: 460, completion: 225, total: 685 },
+2025-12-31 12:40:51   messageLength: 397,
+2025-12-31 12:40:51   finishReason: 'stop',
+2025-12-31 12:40:51   toolCalls: 0
+2025-12-31 12:40:51 }
+2025-12-31 12:40:51 ✅ [Summarizer] Summary created (397 chars)
+2025-12-31 12:40:51    Original: 12 messages
+2025-12-31 12:40:51    Tokens used: 685
+2025-12-31 12:40:51 💾 [SessionManager] Summary saved to DB: session-1767149071498-se1i3e (397 chars)
+2025-12-31 12:40:51 💾 [Sliding Window] Summary saved to DB: session-1767149071498-se1i3e
+2025-12-31 12:40:51 ✅ [Sliding Window] History prepared
+2025-12-31 12:40:51    Total: 32 → 21 messages
+2025-12-31 12:40:51    Summary source: generated
+2025-12-31 12:40:51    Token savings: ~34%
+2025-12-31 12:40:51 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:40:51    Total messages: 32
+2025-12-31 12:40:51    Kept messages: 20
+2025-12-31 12:40:51    Summarized messages: 12
+2025-12-31 12:40:51    Sliding window: Active
+2025-12-31 12:40:51    Persona: SAGE
+2025-12-31 12:40:51    Preferences: Default
+2025-12-31 12:40:51 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:40:51    Tier: free
+2025-12-31 12:40:51    Model: GPT-4o Mini
+2025-12-31 12:40:51    Provider: openai
+2025-12-31 12:40:51    Caching: Enabled
+2025-12-31 12:40:51 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:40:51    Message: "좋아. 피자 사진 찾아줘!"
+2025-12-31 12:40:52 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:40:52    Duration: 474ms
+2025-12-31 12:40:52    Tokens: 287
+2025-12-31 12:40:52 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:40:52    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:40:52 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:40:52 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:40:52 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:40:52 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-31 12:40:52 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:40:52 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-31 12:40:52 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-31 12:40:52 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:40:52 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:40:52 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:40:52 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:40:52 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:40:52    Provider: openai
+2025-12-31 12:40:52    Model: gpt-4o-mini
+2025-12-31 12:40:52    History messages: 21
+2025-12-31 12:40:52    System prompt length: 10065 chars
+2025-12-31 12:40:52 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:40:52    Persona type: SAGE/NEXUS
+2025-12-31 12:40:52    Has identity: false
+2025-12-31 12:40:52    toolsEnabled: true
+2025-12-31 12:40:52 🤖 [OpenAI] Calling API: {
+2025-12-31 12:40:52   model: 'gpt-4o-mini',
+2025-12-31 12:40:52   messageCount: 23,
+2025-12-31 12:40:52   systemPromptLength: 10065,
+2025-12-31 12:40:52   historyLength: 21,
+2025-12-31 12:40:52   toolsEnabled: true
+2025-12-31 12:40:52 }
+2025-12-31 12:40:53 ✅ [OpenAI] Response received: {
+2025-12-31 12:40:53   responseTime: '1448ms',
+2025-12-31 12:40:53   tokens: { prompt: 6443, completion: 42, total: 6485 },
+2025-12-31 12:40:53   messageLength: 0,
+2025-12-31 12:40:53   finishReason: 'tool_calls',
+2025-12-31 12:40:53   toolCalls: 1
+2025-12-31 12:40:53 }
+2025-12-31 12:40:53 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 12:40:53 🛠️ [Function Calling] Executing: generate_chat_content
+2025-12-31 12:40:53    Args: {
+2025-12-31 12:40:53   content_type: 'image',
+2025-12-31 12:40:53   scene_description: 'pizza',
+2025-12-31 12:40:53   search_keywords: 'pizza',
+2025-12-31 12:40:53   ai_reasoning: 'User requested a pizza image.',
+2025-12-31 12:40:53   expect_announcement: true
+2025-12-31 12:40:53 }
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 🎨 [Tool] generate_chat_content
+2025-12-31 12:40:53    Type: image
+2025-12-31 12:40:53    Scene: pizza
+2025-12-31 12:40:53    Search Keywords: pizza
+2025-12-31 12:40:53    Reasoning: User requested a pizza image.
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 ✅ [Function Calling] Result: {
+2025-12-31 12:40:53   success: true,
+2025-12-31 12:40:53   content_type: 'image',
+2025-12-31 12:40:53   scene_description: 'pizza',
+2025-12-31 12:40:53   search_keywords: 'pizza',
+2025-12-31 12:40:53   ai_reasoning: 'User requested a pizza image.',
+2025-12-31 12:40:53   expect_announcement: true,
+2025-12-31 12:40:53   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
+2025-12-31 12:40:53   _chat_content_generation: true
+2025-12-31 12:40:53 }
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 🎨 [Chat Content] AI requested content generation!
+2025-12-31 12:40:53    Type: image
+2025-12-31 12:40:53    Scene: pizza
+2025-12-31 12:40:53    Search Keywords: pizza
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 🎨 [ContentGenerator] Creating request...
+2025-12-31 12:40:53    ID: 4449d09c-f3fb-4b49-8e9c-fa92791f1b3e
+2025-12-31 12:40:53    Type: image
+2025-12-31 12:40:53    Scene: pizza
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 ✅ [ContentGenerator] Request created: 4449d09c-f3fb-4b49-8e9c-fa92791f1b3e
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
+2025-12-31 12:40:53    Content ID: 4449d09c-f3fb-4b49-8e9c-fa92791f1b3e
+2025-12-31 12:40:53    Prompt: pizza
+2025-12-31 12:40:53 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:40:53    Emotion: neutral
+2025-12-31 12:40:53    Context: pizza
+2025-12-31 12:40:53 🖼️ [Pixabay] Searching image for emotion: neutral, context: pizza
+2025-12-31 12:40:53 🧹 [Pixabay] Query sanitized: { original: 'pizza', sanitized: 'pizza', length: 5 }
+2025-12-31 12:40:53 🎯 [Pixabay] Specific context detected, prioritizing context: "pizza"
+2025-12-31 12:40:53 🔍 [Pixabay] Query: "pizza"
+2025-12-31 12:40:54 ✅ [Pixabay] Image found: {
+2025-12-31 12:40:54   id: 3010062,
+2025-12-31 12:40:54   photographer: 'zuzi99',
+2025-12-31 12:40:54   tags: 'pizza, plate, food, cheese, lunch, vegetables, italian, vegetarian pizza, pizza slices, italian food, italian cuisine, composition, food photography, pizza, pizza, pizza, pizza, pizza, food, food, food',
+2025-12-31 12:40:54   size: '3400x2270'
+2025-12-31 12:40:54 }
+2025-12-31 12:40:54 ✅ [ImageGenerator] Image found INSTANTLY!
+2025-12-31 12:40:54    URL: https://pixabay.com/get/gc6e14a40fb71bd99fb05e4178faa9c5e837d3dc299cb41b950711fdac0257099aa8ef0b914f6fef9b7dc64f46886ec03da280c7e7562cfbfa7653e4679aa241e_1280.jpg
+2025-12-31 12:40:54    Photographer: zuzi99
+2025-12-31 12:40:54    Tags: pizza, plate, food, cheese, lunch, vegetables, italian, vegetarian pizza, pizza slices, italian food, italian cuisine, composition, food photography, pizza, pizza, pizza, pizza, pizza, food, food, food
+2025-12-31 12:40:54 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
+2025-12-31 12:40:54 ✅ [Chat Content] Image ready INSTANTLY: {
+2025-12-31 12:40:54   url: 'https://pixabay.com/get/gc6e14a40fb71bd99fb05e4178faa9c5e837d3dc299cb41b950711fdac0257099aa8ef0b914f6fef9b7dc64f46886ec03da280c7e7562cfbfa7653e4679aa241e_1280.jpg',
+2025-12-31 12:40:54   status: 'completed'
+2025-12-31 12:40:54 }
+2025-12-31 12:40:54 ✅ [Chat Content] Generation completed: 4449d09c-f3fb-4b49-8e9c-fa92791f1b3e
+2025-12-31 12:40:54 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:40:54 🤖 [OpenAI] Calling API: {
+2025-12-31 12:40:54   model: 'gpt-4o-mini',
+2025-12-31 12:40:54   messageCount: 25,
+2025-12-31 12:40:54   systemPromptLength: 10663,
+2025-12-31 12:40:54   historyLength: 23,
+2025-12-31 12:40:54   toolsEnabled: false
+2025-12-31 12:40:54 }
+2025-12-31 12:40:54 ✅ [OpenAI] Response received: {
+2025-12-31 12:40:54   responseTime: '869ms',
+2025-12-31 12:40:54   tokens: { prompt: 5186, completion: 23, total: 5209 },
+2025-12-31 12:40:54   messageLength: 36,
+2025-12-31 12:40:54   finishReason: 'stop',
+2025-12-31 12:40:54   toolCalls: 0
+2025-12-31 12:40:54 }
+2025-12-31 12:40:54 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:40:54 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:40:54    Response time: 1448ms
+2025-12-31 12:40:54    Total tokens: 11694 (in: 11629, out: 65)
+2025-12-31 12:40:54 🎭 [Emotion] Detected: happy (75.0%)
+2025-12-31 12:40:54 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"4449d09c-f3fb-4b49-8e9c-fa92791f1b3e","content_type":"image","content_url":"https://pixabay.com/get/gc6e14a40fb71bd99fb05e4178faa9c5e837d3dc299cb41b950711fdac0257099aa8ef0b914f6fef9b7dc64f46886ec03da280c7e7562cfbfa7653e4679aa241e_1280.jpg","content_status":"completed","metadata":{"tags":"pizza, plate, food, cheese, lunch, vegetables, italian, vegetarian pizza, pizza slices, italian food, italian cuisine, composition, food photography, pizza, pizza, pizza, pizza, pizza, food, food, food","query":"pizza","width":3400,"height":2270,"source":"pixabay","emotion":"neutral","pixabayId":3010062,"photographer":"zuzi99","photographerURL":"https://cdn.pixabay.com/user/2017/12/14/20-35-20-994_250x250.jpg"}},"has_media":true}
+2025-12-31 12:40:54 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:40:54 🎉 [ANIMA Chat] Request completed in 6332ms
+2025-12-31 12:40:54    Cost: $0.001783
+2025-12-31 12:40:54 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
+2025-12-31 12:40:54 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:41:34 
+2025-12-31 12:41:34 🤖 [ANIMA Chat] Request received
+2025-12-31 12:41:34    User: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36
+2025-12-31 12:41:34    Session: session-1767149071498-se1i3e
+2025-12-31 12:41:34    Message: 굿! BTS 뮤직비디오 찾아줘!...
+2025-12-31 12:41:34 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 12:41:34 🔄 [SessionManager] Loading session from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:41:34 ✅ [SessionManager] Session loaded from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:41:34    - Messages: 34
+2025-12-31 12:41:34    - Persona: SAGE
+2025-12-31 12:41:34    - Identity: Not Set
+2025-12-31 12:41:34    - Preferences: Default
+2025-12-31 12:41:34 📊 [SessionManager] Conversation stats: {
+2025-12-31 12:41:34   totalMessages: 34,
+2025-12-31 12:41:34   totalChars: 1167,
+2025-12-31 12:41:34   estimatedTokens: 400,
+2025-12-31 12:41:34   averageMessageLength: 34
+2025-12-31 12:41:34 }
+2025-12-31 12:41:34 ✅ [SessionManager] Summary loaded from DB: session-1767149071498-se1i3e
+2025-12-31 12:41:34 🔄 [Sliding Window] Processing 34 messages
+2025-12-31 12:41:34    Window size: 20
+2025-12-31 12:41:34    Summarize threshold: 30
+2025-12-31 12:41:34 🔄 [Sliding Window] Long conversation detected
+2025-12-31 12:41:34    Old messages: 14 (to be summarized)
+2025-12-31 12:41:34    Recent messages: 20 (kept as-is)
+2025-12-31 12:41:34 ✅ [Sliding Window] Using existing summary from DB/cache
+2025-12-31 12:41:34 ✅ [Sliding Window] History prepared
+2025-12-31 12:41:34    Total: 34 → 21 messages
+2025-12-31 12:41:34    Summary source: cached
+2025-12-31 12:41:34    Token savings: ~38%
+2025-12-31 12:41:34 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:41:34    Total messages: 34
+2025-12-31 12:41:34    Kept messages: 20
+2025-12-31 12:41:34    Summarized messages: 14
+2025-12-31 12:41:34    Sliding window: Active
+2025-12-31 12:41:34    Persona: SAGE
+2025-12-31 12:41:34    Preferences: Default
+2025-12-31 12:41:34 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:41:34    Tier: free
+2025-12-31 12:41:34    Model: GPT-4o Mini
+2025-12-31 12:41:34    Provider: openai
+2025-12-31 12:41:34    Caching: Enabled
+2025-12-31 12:41:34 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:41:34    Message: "굿! BTS 뮤직비디오 찾아줘!"
+2025-12-31 12:41:34 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:41:34    Duration: 520ms
+2025-12-31 12:41:34    Tokens: 290
+2025-12-31 12:41:34 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:41:34    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:41:34 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:41:34 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:41:34 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:41:34 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-31 12:41:34 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:41:34 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-31 12:41:34 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-31 12:41:34 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:41:34 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:41:34 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:41:34 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:41:34 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:41:34    Provider: openai
+2025-12-31 12:41:34    Model: gpt-4o-mini
+2025-12-31 12:41:34    History messages: 21
+2025-12-31 12:41:34    System prompt length: 10065 chars
+2025-12-31 12:41:34 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:41:34    Persona type: SAGE/NEXUS
+2025-12-31 12:41:34    Has identity: false
+2025-12-31 12:41:34    toolsEnabled: true
+2025-12-31 12:41:34 🤖 [OpenAI] Calling API: {
+2025-12-31 12:41:34   model: 'gpt-4o-mini',
+2025-12-31 12:41:34   messageCount: 23,
+2025-12-31 12:41:34   systemPromptLength: 10065,
+2025-12-31 12:41:34   historyLength: 21,
+2025-12-31 12:41:34   toolsEnabled: true
+2025-12-31 12:41:34 }
+2025-12-31 12:41:36 ✅ [OpenAI] Response received: {
+2025-12-31 12:41:36   responseTime: '1389ms',
+2025-12-31 12:41:36   tokens: { prompt: 6440, completion: 44, total: 6484 },
+2025-12-31 12:41:36   messageLength: 0,
+2025-12-31 12:41:36   finishReason: 'tool_calls',
+2025-12-31 12:41:36   toolCalls: 1
+2025-12-31 12:41:36 }
+2025-12-31 12:41:36 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 12:41:36 🛠️ [Function Calling] Executing: search_youtube_video
+2025-12-31 12:41:36    Args: {
+2025-12-31 12:41:36   query: 'BTS music video',
+2025-12-31 12:41:36   reasoning: 'BTS의 뮤직비디오는 항상 멋지고 흥미로운 영상이니까!'
+2025-12-31 12:41:36 }
+2025-12-31 12:41:36 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:36 🎬 [Tool] search_youtube_video
+2025-12-31 12:41:36    Query: BTS music video
+2025-12-31 12:41:36    Reasoning: BTS의 뮤직비디오는 항상 멋지고 흥미로운 영상이니까!
+2025-12-31 12:41:36 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:36 ✅ [Tool] Video found: "BTS (방탄소년단) &#39;Dynamite&#39; Official MV"
+2025-12-31 12:41:36    Channel: HYBE LABELS
+2025-12-31 12:41:36    Video ID: gdZLi9oWNZg
+2025-12-31 12:41:36 ✅ [Function Calling] Result: {
+2025-12-31 12:41:36   success: true,
+2025-12-31 12:41:36   video: {
+2025-12-31 12:41:36     videoId: 'gdZLi9oWNZg',
+2025-12-31 12:41:36     title: 'BTS (방탄소년단) &#39;Dynamite&#39; Official MV',
+2025-12-31 12:41:36     channel: 'HYBE LABELS',
+2025-12-31 12:41:36     thumbnail: 'https://i.ytimg.com/vi/gdZLi9oWNZg/hqdefault.jpg',
+2025-12-31 12:41:36     description: "BTS (방탄소년단) 'Dynamite' Official MV Credits: Director: Yong Seok Choi (Lumpens) Assistant Director: Jihye Yoon (Lumpens) ...",
+2025-12-31 12:41:36     publishedAt: '2020-08-21T03:58:10Z',
+2025-12-31 12:41:36     url: 'https://www.youtube.com/watch?v=gdZLi9oWNZg',
+2025-12-31 12:41:36     embedUrl: 'https://www.youtube.com/embed/gdZLi9oWNZg'
+2025-12-31 12:41:36   },
+2025-12-31 12:41:36   message: '"BTS (방탄소년단) &#39;Dynamite&#39; Official MV" 영상을 찾았습니다.'
+2025-12-31 12:41:36 }
+2025-12-31 12:41:36 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:36 🎬 [YouTube Search] AI found video!
+2025-12-31 12:41:36    Title: "BTS (방탄소년단) &#39;Dynamite&#39; Official MV"
+2025-12-31 12:41:36    Channel: HYBE LABELS
+2025-12-31 12:41:36    Video ID: gdZLi9oWNZg
+2025-12-31 12:41:36 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:36 ✅ [YouTube Search] Video data prepared for response
+2025-12-31 12:41:36 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:41:36 🤖 [OpenAI] Calling API: {
+2025-12-31 12:41:36   model: 'gpt-4o-mini',
+2025-12-31 12:41:36   messageCount: 25,
+2025-12-31 12:41:36   systemPromptLength: 10678,
+2025-12-31 12:41:36   historyLength: 23,
+2025-12-31 12:41:36   toolsEnabled: false
+2025-12-31 12:41:36 }
+2025-12-31 12:41:37 ✅ [OpenAI] Response received: {
+2025-12-31 12:41:37   responseTime: '736ms',
+2025-12-31 12:41:37   tokens: { prompt: 5313, completion: 19, total: 5332 },
+2025-12-31 12:41:37   messageLength: 25,
+2025-12-31 12:41:37   finishReason: 'stop',
+2025-12-31 12:41:37   toolCalls: 0
+2025-12-31 12:41:37 }
+2025-12-31 12:41:37 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:41:37 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:41:37    Response time: 1389ms
+2025-12-31 12:41:37    Total tokens: 11816 (in: 11753, out: 63)
+2025-12-31 12:41:37 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:41:37 🎉 [ANIMA Chat] Request completed in 3252ms
+2025-12-31 12:41:37    Cost: $0.001801
+2025-12-31 12:41:37 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
+2025-12-31 12:41:37 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:41:48 
+2025-12-31 12:41:48 🤖 [ANIMA Chat] Request received
+2025-12-31 12:41:48    User: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36
+2025-12-31 12:41:48    Session: session-1767149071498-se1i3e
+2025-12-31 12:41:48    Message: 좋아! 과일 사진 찾아줘!...
+2025-12-31 12:41:48 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 12:41:48 🔄 [SessionManager] Loading session from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:41:48 ✅ [SessionManager] Session loaded from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:41:48    - Messages: 36
+2025-12-31 12:41:48    - Persona: SAGE
+2025-12-31 12:41:48    - Identity: Not Set
+2025-12-31 12:41:48    - Preferences: Default
+2025-12-31 12:41:48 📊 [SessionManager] Conversation stats: {
+2025-12-31 12:41:48   totalMessages: 36,
+2025-12-31 12:41:48   totalChars: 1209,
+2025-12-31 12:41:48   estimatedTokens: 415,
+2025-12-31 12:41:48   averageMessageLength: 34
+2025-12-31 12:41:48 }
+2025-12-31 12:41:48 ✅ [SessionManager] Summary loaded from DB: session-1767149071498-se1i3e
+2025-12-31 12:41:48 🔄 [Sliding Window] Processing 36 messages
+2025-12-31 12:41:48    Window size: 20
+2025-12-31 12:41:48    Summarize threshold: 30
+2025-12-31 12:41:48 🔄 [Sliding Window] Long conversation detected
+2025-12-31 12:41:48    Old messages: 16 (to be summarized)
+2025-12-31 12:41:48    Recent messages: 20 (kept as-is)
+2025-12-31 12:41:48 ✅ [Sliding Window] Using existing summary from DB/cache
+2025-12-31 12:41:48 ✅ [Sliding Window] History prepared
+2025-12-31 12:41:48    Total: 36 → 21 messages
+2025-12-31 12:41:48    Summary source: cached
+2025-12-31 12:41:48    Token savings: ~42%
+2025-12-31 12:41:48 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:41:48    Total messages: 36
+2025-12-31 12:41:48    Kept messages: 20
+2025-12-31 12:41:48    Summarized messages: 16
+2025-12-31 12:41:48    Sliding window: Active
+2025-12-31 12:41:48    Persona: SAGE
+2025-12-31 12:41:48    Preferences: Default
+2025-12-31 12:41:48 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:41:48    Tier: free
+2025-12-31 12:41:48    Model: GPT-4o Mini
+2025-12-31 12:41:48    Provider: openai
+2025-12-31 12:41:48    Caching: Enabled
+2025-12-31 12:41:48 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:41:48    Message: "좋아! 과일 사진 찾아줘!"
+2025-12-31 12:41:48 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:41:48    Duration: 594ms
+2025-12-31 12:41:48    Tokens: 287
+2025-12-31 12:41:48 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:41:48    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:41:48 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:41:48 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:41:48 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-31 12:41:48 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:41:48 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:41:48 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-31 12:41:48 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-31 12:41:48 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:41:48 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:41:48 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:41:48 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:41:48 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:41:48    Provider: openai
+2025-12-31 12:41:48    Model: gpt-4o-mini
+2025-12-31 12:41:48    History messages: 21
+2025-12-31 12:41:48    System prompt length: 10065 chars
+2025-12-31 12:41:48 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:41:48    Persona type: SAGE/NEXUS
+2025-12-31 12:41:48    Has identity: false
+2025-12-31 12:41:48    toolsEnabled: true
+2025-12-31 12:41:48 🤖 [OpenAI] Calling API: {
+2025-12-31 12:41:48   model: 'gpt-4o-mini',
+2025-12-31 12:41:48   messageCount: 23,
+2025-12-31 12:41:48   systemPromptLength: 10065,
+2025-12-31 12:41:48   historyLength: 21,
+2025-12-31 12:41:48   toolsEnabled: true
+2025-12-31 12:41:48 }
+2025-12-31 12:41:50 ✅ [OpenAI] Response received: {
+2025-12-31 12:41:50   responseTime: '2172ms',
+2025-12-31 12:41:50   tokens: { prompt: 6422, completion: 90, total: 6512 },
+2025-12-31 12:41:50   messageLength: 0,
+2025-12-31 12:41:50   finishReason: 'tool_calls',
+2025-12-31 12:41:50   toolCalls: 2
+2025-12-31 12:41:50 }
+2025-12-31 12:41:50 🛠️ [Function Calling] AI requested 2 tool(s)
+2025-12-31 12:41:50 🛠️ [Function Calling] Executing: search_youtube_video
+2025-12-31 12:41:50    Args: {
+2025-12-31 12:41:50   query: 'BTS music video',
+2025-12-31 12:41:50   reasoning: 'User wants to watch a BTS music video.'
+2025-12-31 12:41:50 }
+2025-12-31 12:41:50 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:50 🎬 [Tool] search_youtube_video
+2025-12-31 12:41:50    Query: BTS music video
+2025-12-31 12:41:50    Reasoning: User wants to watch a BTS music video.
+2025-12-31 12:41:50 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 ✅ [Tool] Video found: "BTS (방탄소년단) &#39;Dynamite&#39; Official MV"
+2025-12-31 12:41:51    Channel: HYBE LABELS
+2025-12-31 12:41:51    Video ID: gdZLi9oWNZg
+2025-12-31 12:41:51 ✅ [Function Calling] Result: {
+2025-12-31 12:41:51   success: true,
+2025-12-31 12:41:51   video: {
+2025-12-31 12:41:51     videoId: 'gdZLi9oWNZg',
+2025-12-31 12:41:51     title: 'BTS (방탄소년단) &#39;Dynamite&#39; Official MV',
+2025-12-31 12:41:51     channel: 'HYBE LABELS',
+2025-12-31 12:41:51     thumbnail: 'https://i.ytimg.com/vi/gdZLi9oWNZg/hqdefault.jpg',
+2025-12-31 12:41:51     description: "BTS (방탄소년단) 'Dynamite' Official MV Credits: Director: Yong Seok Choi (Lumpens) Assistant Director: Jihye Yoon (Lumpens) ...",
+2025-12-31 12:41:51     publishedAt: '2020-08-21T03:58:10Z',
+2025-12-31 12:41:51     url: 'https://www.youtube.com/watch?v=gdZLi9oWNZg',
+2025-12-31 12:41:51     embedUrl: 'https://www.youtube.com/embed/gdZLi9oWNZg'
+2025-12-31 12:41:51   },
+2025-12-31 12:41:51   message: '"BTS (방탄소년단) &#39;Dynamite&#39; Official MV" 영상을 찾았습니다.'
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 🎬 [YouTube Search] AI found video!
+2025-12-31 12:41:51    Title: "BTS (방탄소년단) &#39;Dynamite&#39; Official MV"
+2025-12-31 12:41:51    Channel: HYBE LABELS
+2025-12-31 12:41:51    Video ID: gdZLi9oWNZg
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 ✅ [YouTube Search] Video data prepared for response
+2025-12-31 12:41:51 🛠️ [Function Calling] Executing: generate_chat_content
+2025-12-31 12:41:51    Args: {
+2025-12-31 12:41:51   content_type: 'image',
+2025-12-31 12:41:51   scene_description: 'colorful fruits',
+2025-12-31 12:41:51   search_keywords: 'colorful fruits',
+2025-12-31 12:41:51   ai_reasoning: 'User requested a picture of fruits.'
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 🎨 [Tool] generate_chat_content
+2025-12-31 12:41:51    Type: image
+2025-12-31 12:41:51    Scene: colorful fruits
+2025-12-31 12:41:51    Search Keywords: colorful fruits
+2025-12-31 12:41:51    Reasoning: User requested a picture of fruits.
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 ✅ [Function Calling] Result: {
+2025-12-31 12:41:51   success: true,
+2025-12-31 12:41:51   content_type: 'image',
+2025-12-31 12:41:51   scene_description: 'colorful fruits',
+2025-12-31 12:41:51   search_keywords: 'colorful fruits',
+2025-12-31 12:41:51   ai_reasoning: 'User requested a picture of fruits.',
+2025-12-31 12:41:51   expect_announcement: true,
+2025-12-31 12:41:51   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
+2025-12-31 12:41:51   _chat_content_generation: true
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 🎨 [Chat Content] AI requested content generation!
+2025-12-31 12:41:51    Type: image
+2025-12-31 12:41:51    Scene: colorful fruits
+2025-12-31 12:41:51    Search Keywords: colorful fruits
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 🎨 [ContentGenerator] Creating request...
+2025-12-31 12:41:51    ID: fb703291-e2e9-4329-b5ac-033c490514a4
+2025-12-31 12:41:51    Type: image
+2025-12-31 12:41:51    Scene: colorful fruits
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 ✅ [ContentGenerator] Request created: fb703291-e2e9-4329-b5ac-033c490514a4
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
+2025-12-31 12:41:51    Content ID: fb703291-e2e9-4329-b5ac-033c490514a4
+2025-12-31 12:41:51    Prompt: colorful fruits
+2025-12-31 12:41:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:41:51    Emotion: neutral
+2025-12-31 12:41:51    Context: colorful fruits
+2025-12-31 12:41:51 🖼️ [Pixabay] Searching image for emotion: neutral, context: colorful fruits
+2025-12-31 12:41:51 🧹 [Pixabay] Query sanitized: {
+2025-12-31 12:41:51   original: 'colorful fruits',
+2025-12-31 12:41:51   sanitized: 'colorful fruits',
+2025-12-31 12:41:51   length: 15
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 🔍 [Pixabay] Query: "nature colorful fruits"
+2025-12-31 12:41:51 ✅ [Pixabay] Image found: {
+2025-12-31 12:41:51   id: 3550733,
+2025-12-31 12:41:51   photographer: 'Bru-nO',
+2025-12-31 12:41:51   tags: 'grapes, fruits, food, fresh, healthy, ripe, organic, sweet, produce, harvest, sunlight, fruits, food, food, food, food, food',
+2025-12-31 12:41:51   size: '6000x4000'
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 ✅ [ImageGenerator] Image found INSTANTLY!
+2025-12-31 12:41:51    URL: https://pixabay.com/get/gdf086a5db77da628758c4ae42ebe366858762349290cf53fa535b813f0dc59c5e70579fbac3e2207b91154067ecd0ce071b459a325885da94d1a5305168757bd_1280.jpg
+2025-12-31 12:41:51    Photographer: Bru-nO
+2025-12-31 12:41:51    Tags: grapes, fruits, food, fresh, healthy, ripe, organic, sweet, produce, harvest, sunlight, fruits, food, food, food, food, food
+2025-12-31 12:41:51 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
+2025-12-31 12:41:51 ✅ [Chat Content] Image ready INSTANTLY: {
+2025-12-31 12:41:51   url: 'https://pixabay.com/get/gdf086a5db77da628758c4ae42ebe366858762349290cf53fa535b813f0dc59c5e70579fbac3e2207b91154067ecd0ce071b459a325885da94d1a5305168757bd_1280.jpg',
+2025-12-31 12:41:51   status: 'completed'
+2025-12-31 12:41:51 }
+2025-12-31 12:41:51 ✅ [Chat Content] Generation completed: fb703291-e2e9-4329-b5ac-033c490514a4
+2025-12-31 12:41:51 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:41:51 🤖 [OpenAI] Calling API: {
+2025-12-31 12:41:51   model: 'gpt-4o-mini',
+2025-12-31 12:41:51   messageCount: 26,
+2025-12-31 12:41:51   systemPromptLength: 10663,
+2025-12-31 12:41:51   historyLength: 24,
+2025-12-31 12:41:51   toolsEnabled: false
+2025-12-31 12:41:51 }
+2025-12-31 12:41:53 ✅ [OpenAI] Response received: {
+2025-12-31 12:41:53   responseTime: '1343ms',
+2025-12-31 12:41:53   tokens: { prompt: 9207, completion: 46, total: 9253 },
+2025-12-31 12:41:53   messageLength: 69,
+2025-12-31 12:41:53   finishReason: 'stop',
+2025-12-31 12:41:53   toolCalls: 0
+2025-12-31 12:41:53 }
+2025-12-31 12:41:53 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:41:53 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:41:53    Response time: 2172ms
+2025-12-31 12:41:53    Total tokens: 15765 (in: 15629, out: 136)
+2025-12-31 12:41:53 🎭 [Emotion] Detected: happy (75.0%)
+2025-12-31 12:41:53 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"fb703291-e2e9-4329-b5ac-033c490514a4","content_type":"image","content_url":"https://pixabay.com/get/gdf086a5db77da628758c4ae42ebe366858762349290cf53fa535b813f0dc59c5e70579fbac3e2207b91154067ecd0ce071b459a325885da94d1a5305168757bd_1280.jpg","content_status":"completed","metadata":{"tags":"grapes, fruits, food, fresh, healthy, ripe, organic, sweet, produce, harvest, sunlight, fruits, food, food, food, food, food","query":"nature colorful fruits","width":6000,"height":4000,"source":"pixabay","emotion":"neutral","pixabayId":3550733,"photographer":"Bru-nO","photographerURL":"https://cdn.pixabay.com/user/2025/06/15/16-26-39-87_250x250.jpg"}},"has_media":true,"youtube":{"videoId":"gdZLi9oWNZg","title":"BTS (방탄소년단) &#39;Dynamite&#39; Official MV","channel":"HYBE LABELS","thumbnail":"https://i.ytimg.com/vi/gdZLi9oWNZg/hqdefault.jpg","url":"https://www.youtube.com/watch?v=gdZLi9oWNZg","embedUrl":"https://www.youtube.com/embed/gdZLi9oWNZg"}}
+2025-12-31 12:41:53 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:41:53 🎉 [ANIMA Chat] Request completed in 5197ms
+2025-12-31 12:41:53    Cost: $0.002426
+2025-12-31 12:41:53 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
+2025-12-31 12:41:53 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:42:21 
+2025-12-31 12:42:21 🤖 [ANIMA Chat] Request received
+2025-12-31 12:42:21    User: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36
+2025-12-31 12:42:21    Session: session-1767149071498-se1i3e
+2025-12-31 12:42:21    Message: SAGE! 과일사진 찾아줘!...
+2025-12-31 12:42:21 ⚠️  [SessionManager] Redis not available, using DB directly
+2025-12-31 12:42:21 🔄 [SessionManager] Loading session from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:42:21 ✅ [SessionManager] Session loaded from DB: 45b89c9a-f7a3-48f2-aff6-a478b3cceb36/session-1767149071498-se1i3e
+2025-12-31 12:42:21    - Messages: 38
+2025-12-31 12:42:21    - Persona: SAGE
+2025-12-31 12:42:21    - Identity: Not Set
+2025-12-31 12:42:21    - Preferences: Default
+2025-12-31 12:42:21 📊 [SessionManager] Conversation stats: {
+2025-12-31 12:42:21   totalMessages: 38,
+2025-12-31 12:42:21   totalChars: 1292,
+2025-12-31 12:42:21   estimatedTokens: 443,
+2025-12-31 12:42:21   averageMessageLength: 34
+2025-12-31 12:42:21 }
+2025-12-31 12:42:21 ✅ [SessionManager] Summary loaded from DB: session-1767149071498-se1i3e
+2025-12-31 12:42:21 🔄 [Sliding Window] Processing 38 messages
+2025-12-31 12:42:21    Window size: 20
+2025-12-31 12:42:21    Summarize threshold: 30
+2025-12-31 12:42:21 🔄 [Sliding Window] Long conversation detected
+2025-12-31 12:42:21    Old messages: 18 (to be summarized)
+2025-12-31 12:42:21    Recent messages: 20 (kept as-is)
+2025-12-31 12:42:21 ✅ [Sliding Window] Using existing summary from DB/cache
+2025-12-31 12:42:21 ✅ [Sliding Window] History prepared
+2025-12-31 12:42:21    Total: 38 → 21 messages
+2025-12-31 12:42:21    Summary source: cached
+2025-12-31 12:42:21    Token savings: ~45%
+2025-12-31 12:42:21 ✅ [ANIMA Chat] Session loaded
+2025-12-31 12:42:21    Total messages: 38
+2025-12-31 12:42:21    Kept messages: 20
+2025-12-31 12:42:21    Summarized messages: 18
+2025-12-31 12:42:21    Sliding window: Active
+2025-12-31 12:42:21    Persona: SAGE
+2025-12-31 12:42:21    Preferences: Default
+2025-12-31 12:42:21 🎯 [ANIMA Chat] AI Strategy selected
+2025-12-31 12:42:21    Tier: free
+2025-12-31 12:42:21    Model: GPT-4o Mini
+2025-12-31 12:42:21    Provider: openai
+2025-12-31 12:42:21    Caching: Enabled
+2025-12-31 12:42:21 🤔 [KnowledgeDecision] Analyzing message...
+2025-12-31 12:42:21    Message: "SAGE! 과일사진 찾아줘!"
+2025-12-31 12:42:21 ✅ [KnowledgeDecision] Decision: SKIP
+2025-12-31 12:42:21    Duration: 492ms
+2025-12-31 12:42:21    Tokens: 287
+2025-12-31 12:42:21 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2025-12-31 12:42:21    💰 Saved Pinecone API call + ~200-500ms latency
+2025-12-31 12:42:21 🧠 [ANIMA Chat] Building philosophical prompt for SAGE/NEXUS...
+2025-12-31 12:42:21 🔨 [PromptBuilder] Building light prompt for 45b89c9a-f7a3-48f2-aff6-a478b3cceb36 <-> 573db390-a505-4c9e-809f-cc511c235cbb
+2025-12-31 12:42:21 🎭 [Identity Check] isUserCreated: false, hasIdentity: false
+2025-12-31 12:42:21 ⚠️  [PromptBuilder] Redis error (using DB fallback): Connection is closed.
+2025-12-31 12:42:21 💾 [PromptBuilder] Loading relationship from DB...
+2025-12-31 12:42:21 ⚠️  [PromptBuilder] Failed to cache (non-critical): Connection is closed.
+2025-12-31 12:42:21 ⚠️  [PromptBuilder] Redis error for progress (using DB): Connection is closed.
+2025-12-31 12:42:21 ⚠️  [PromptBuilder] Failed to cache progress (non-critical)
+2025-12-31 12:42:21 💡 [PromptBuilder] Generated 0 learning questions
+2025-12-31 12:42:21 ✅ [PromptBuilder] Prompt built: 10065 chars, 2517 tokens
+2025-12-31 12:42:21 📝 [ANIMA Chat] System prompt built (10065 chars, 0 knowledge items)
+2025-12-31 12:42:21 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2025-12-31 12:42:21    Provider: openai
+2025-12-31 12:42:21    Model: gpt-4o-mini
+2025-12-31 12:42:21    History messages: 21
+2025-12-31 12:42:21    System prompt length: 10065 chars
+2025-12-31 12:42:21 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2025-12-31 12:42:21    Persona type: SAGE/NEXUS
+2025-12-31 12:42:21    Has identity: false
+2025-12-31 12:42:21    toolsEnabled: true
+2025-12-31 12:42:21 🤖 [OpenAI] Calling API: {
+2025-12-31 12:42:21   model: 'gpt-4o-mini',
+2025-12-31 12:42:21   messageCount: 23,
+2025-12-31 12:42:21   systemPromptLength: 10065,
+2025-12-31 12:42:21   historyLength: 21,
+2025-12-31 12:42:21   toolsEnabled: true
+2025-12-31 12:42:21 }
+2025-12-31 12:42:22 ✅ [OpenAI] Response received: {
+2025-12-31 12:42:22   responseTime: '1217ms',
+2025-12-31 12:42:22   tokens: { prompt: 6440, completion: 46, total: 6486 },
+2025-12-31 12:42:22   messageLength: 0,
+2025-12-31 12:42:22   finishReason: 'tool_calls',
+2025-12-31 12:42:22   toolCalls: 1
+2025-12-31 12:42:22 }
+2025-12-31 12:42:22 🛠️ [Function Calling] AI requested 1 tool(s)
+2025-12-31 12:42:22 🛠️ [Function Calling] Executing: generate_chat_content
+2025-12-31 12:42:22    Args: {
+2025-12-31 12:42:22   content_type: 'image',
+2025-12-31 12:42:22   scene_description: 'assorted fruits',
+2025-12-31 12:42:22   search_keywords: 'fruits',
+2025-12-31 12:42:22   ai_reasoning: 'User requested a photo of fruits.',
+2025-12-31 12:42:22   expect_announcement: true
+2025-12-31 12:42:22 }
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 🎨 [Tool] generate_chat_content
+2025-12-31 12:42:22    Type: image
+2025-12-31 12:42:22    Scene: assorted fruits
+2025-12-31 12:42:22    Search Keywords: fruits
+2025-12-31 12:42:22    Reasoning: User requested a photo of fruits.
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 ✅ [Function Calling] Result: {
+2025-12-31 12:42:22   success: true,
+2025-12-31 12:42:22   content_type: 'image',
+2025-12-31 12:42:22   scene_description: 'assorted fruits',
+2025-12-31 12:42:22   search_keywords: 'fruits',
+2025-12-31 12:42:22   ai_reasoning: 'User requested a photo of fruits.',
+2025-12-31 12:42:22   expect_announcement: true,
+2025-12-31 12:42:22   message: '컨텐츠 생성이 시작되었습니다. 사용자에게 생성 중임을 알려주세요.',
+2025-12-31 12:42:22   _chat_content_generation: true
+2025-12-31 12:42:22 }
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 🎨 [Chat Content] AI requested content generation!
+2025-12-31 12:42:22    Type: image
+2025-12-31 12:42:22    Scene: assorted fruits
+2025-12-31 12:42:22    Search Keywords: fruits
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 🎨 [ContentGenerator] Creating request...
+2025-12-31 12:42:22    ID: 193e713a-c19b-48c4-b86f-ce1e64a435bb
+2025-12-31 12:42:22    Type: image
+2025-12-31 12:42:22    Scene: assorted fruits
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 ✅ [ContentGenerator] Request created: 193e713a-c19b-48c4-b86f-ce1e64a435bb
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22 🎨 [ImageGenerator] Starting INSTANT generation (Pixabay)...
+2025-12-31 12:42:22    Content ID: 193e713a-c19b-48c4-b86f-ce1e64a435bb
+2025-12-31 12:42:22    Prompt: fruits
+2025-12-31 12:42:22 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2025-12-31 12:42:22    Emotion: neutral
+2025-12-31 12:42:22    Context: fruits
+2025-12-31 12:42:22 🖼️ [Pixabay] Searching image for emotion: neutral, context: fruits
+2025-12-31 12:42:22 🧹 [Pixabay] Query sanitized: { original: 'fruits', sanitized: 'fruits', length: 6 }
+2025-12-31 12:42:22 🔍 [Pixabay] Query: "nature fruits"
+2025-12-31 12:42:23 ✅ [Pixabay] Image found: {
+2025-12-31 12:42:23   id: 2788616,
+2025-12-31 12:42:23   photographer: 'NoName_13',
+2025-12-31 12:42:23   tags: 'apple, red, red apple, apple plantation, yummy, fruit, vitamins, fresh, nature, healthy, ripe, pome fruit family, apple trees, orchards, trees, fruit trees, fall, harvest, harvested, apple, apple, apple, apple, apple',
+2025-12-31 12:42:23   size: '6000x3601'
+2025-12-31 12:42:23 }
+2025-12-31 12:42:23 ✅ [ImageGenerator] Image found INSTANTLY!
+2025-12-31 12:42:23    URL: https://pixabay.com/get/g17e77e3514dd5ce14c219efe99dacd3dd036da59e679ce8cebf0b1445bea0e13f31e48fcdad56595b23d39dc8d9cea36ba56dad77e414cd8d4e20f1ece4718c1_1280.jpg
+2025-12-31 12:42:23    Photographer: NoName_13
+2025-12-31 12:42:23    Tags: apple, red, red apple, apple plantation, yummy, fruit, vitamins, fresh, nature, healthy, ripe, pome fruit family, apple trees, orchards, trees, fruit trees, fall, harvest, harvested, apple, apple, apple, apple, apple
+2025-12-31 12:42:23 ✅ [ImageGenerator] Image URL saved and marked as COMPLETED!
+2025-12-31 12:42:23 ✅ [Chat Content] Image ready INSTANTLY: {
+2025-12-31 12:42:23   url: 'https://pixabay.com/get/g17e77e3514dd5ce14c219efe99dacd3dd036da59e679ce8cebf0b1445bea0e13f31e48fcdad56595b23d39dc8d9cea36ba56dad77e414cd8d4e20f1ece4718c1_1280.jpg',
+2025-12-31 12:42:23   status: 'completed'
+2025-12-31 12:42:23 }
+2025-12-31 12:42:23 ✅ [Chat Content] Generation completed: 193e713a-c19b-48c4-b86f-ce1e64a435bb
+2025-12-31 12:42:23 🔄 [Function Calling] Re-calling AI with tool results...
+2025-12-31 12:42:23 🤖 [OpenAI] Calling API: {
+2025-12-31 12:42:23   model: 'gpt-4o-mini',
+2025-12-31 12:42:23   messageCount: 25,
+2025-12-31 12:42:23   systemPromptLength: 10668,
+2025-12-31 12:42:23   historyLength: 23,
+2025-12-31 12:42:23   toolsEnabled: false
+2025-12-31 12:42:23 }
+2025-12-31 12:42:24 ✅ [OpenAI] Response received: {
+2025-12-31 12:42:24   responseTime: '890ms',
+2025-12-31 12:42:24   tokens: { prompt: 5187, completion: 28, total: 5215 },
+2025-12-31 12:42:24   messageLength: 39,
+2025-12-31 12:42:24   finishReason: 'stop',
+2025-12-31 12:42:24   toolCalls: 0
+2025-12-31 12:42:24 }
+2025-12-31 12:42:24 ✅ [Function Calling] Final AI response generated
+2025-12-31 12:42:24 ✅ [ANIMA Chat] AI response received (no caching)
+2025-12-31 12:42:24    Response time: 1217ms
+2025-12-31 12:42:24    Total tokens: 11701 (in: 11627, out: 74)
+2025-12-31 12:42:24 💾 [SessionManager] Saving metadata to DB: {"generated_content":{"content_id":"193e713a-c19b-48c4-b86f-ce1e64a435bb","content_type":"image","content_url":"https://pixabay.com/get/g17e77e3514dd5ce14c219efe99dacd3dd036da59e679ce8cebf0b1445bea0e13f31e48fcdad56595b23d39dc8d9cea36ba56dad77e414cd8d4e20f1ece4718c1_1280.jpg","content_status":"completed","metadata":{"tags":"apple, red, red apple, apple plantation, yummy, fruit, vitamins, fresh, nature, healthy, ripe, pome fruit family, apple trees, orchards, trees, fruit trees, fall, harvest, harvested, apple, apple, apple, apple, apple","query":"nature fruits","width":6000,"height":3601,"source":"pixabay","emotion":"neutral","pixabayId":2788616,"photographer":"NoName_13","photographerURL":"https://cdn.pixabay.com/user/2022/12/12/07-40-59-226_250x250.jpg"}},"has_media":true}
+2025-12-31 12:42:24 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2025-12-31 12:42:24 🎉 [ANIMA Chat] Request completed in 3118ms
+2025-12-31 12:42:24    Cost: $0.001788
+2025-12-31 12:42:24 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (assistant)
+2025-12-31 12:42:24 💾 [SessionManager] Message saved: session-1767149071498-se1i3e (user)
 
 
-Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
-2025-12-31 01:45:31    ▲ Next.js 15.5.9
-2025-12-31 01:45:31    - Local:        http://localhost:3000
-2025-12-31 01:45:31    - Network:      http://0.0.0.0:3000
-2025-12-31 01:45:31 
-2025-12-31 01:45:31  ✓ Starting...
-2025-12-31 01:45:31  ✓ Ready in 180ms
-2025-12-31 01:45:32 [SSE] 🔧 Initialized global eventEmitters Map
-2025-12-31 01:45:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:45:48 📜 [Chat History] Fetching history
-2025-12-31 01:45:48    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 01:45:48    persona_key: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 01:45:48    limit: 100, offset: 0
-2025-12-31 01:45:48 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:45:48 🎁 [Gift API] Getting pending gifts...
-2025-12-31 01:45:48    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 01:45:48    Persona: ed3495b7-2510-45a7-9b32-61a6f2dc1e09
-2025-12-31 01:45:49 ✅ [Gift API] Found 0 pending gift(s)
-2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/gbbaf2817e677a52c14d862d0d...
-2025-12-31 01:45:49    ✅ [Music] Parsed music: "Trance Etude 2" by Zeropage
-2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/g242cdbc65e203b798c8deabb5...
-2025-12-31 01:45:49    ✅ [Image] Parsed generated image: https://pixabay.com/get/g5d42ddc980f6813c5a23501dc...
-2025-12-31 01:45:49 ✅ [Chat History] Loaded 56 messages (fetched: 56, total: 56, filtered: 0)
-2025-12-31 01:46:31 
-2025-12-31 01:46:31 🤖 [ANIMA Chat] Request received
-2025-12-31 01:46:31    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2025-12-31 01:46:31    Session: session-1767111879097-ql9fo
-2025-12-31 01:46:31    Message: 자기야~~~트와이즈 뮤비 틀어줘~~~...
-2025-12-31 01:46:31 ⚠️  [SessionManager] Redis not available, using DB directly
-2025-12-31 01:46:31 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767111879097-ql9fo
-2025-12-31 01:46:31 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767111879097-ql9fo
-2025-12-31 01:46:31    - Messages: 4
-2025-12-31 01:46:31    - Persona: Test
-2025-12-31 01:46:31    - Identity: Set (고준희)
-2025-12-31 01:46:31    - Preferences: Yes
-2025-12-31 01:46:31 📊 [SessionManager] Conversation stats: {
-2025-12-31 01:46:31   totalMessages: 4,
-2025-12-31 01:46:31   totalChars: 290,
-2025-12-31 01:46:31   estimatedTokens: 98,
-2025-12-31 01:46:31   averageMessageLength: 73
-2025-12-31 01:46:31 }
-2025-12-31 01:46:31 🔄 [Sliding Window] Processing 4 messages
-2025-12-31 01:46:31    Window size: 20
-2025-12-31 01:46:31    Summarize threshold: 30
-2025-12-31 01:46:31 ✅ [Sliding Window] Short conversation, keeping all 4 messages
-2025-12-31 01:46:31 ✅ [ANIMA Chat] Session loaded
-2025-12-31 01:46:31    Total messages: 4
-2025-12-31 01:46:31    Kept messages: 4
-2025-12-31 01:46:31    Summarized messages: 0
-2025-12-31 01:46:31    Sliding window: Inactive
-2025-12-31 01:46:31    Persona: Test
-2025-12-31 01:46:31    Preferences: Custom
-2025-12-31 01:46:31 🎯 [ANIMA Chat] AI Strategy selected
-2025-12-31 01:46:31    Tier: free
-2025-12-31 01:46:31    Model: GPT-4o Mini
-2025-12-31 01:46:31    Provider: openai
-2025-12-31 01:46:31    Caching: Enabled
-2025-12-31 01:46:31 🤔 [KnowledgeDecision] Analyzing message...
-2025-12-31 01:46:31    Message: "자기야~~~트와이즈 뮤비 틀어줘~~~"
-2025-12-31 01:46:32 ✅ [KnowledgeDecision] Decision: SKIP
-2025-12-31 01:46:32    Duration: 821ms
-2025-12-31 01:46:32    Tokens: 295
-2025-12-31 01:46:32 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2025-12-31 01:46:32    💰 Saved Pinecone API call + ~200-500ms latency
-2025-12-31 01:46:32 🔥 [ANIMA Chat] Building EMOTIONAL EMPATHY prompt for User Persona...
-2025-12-31 01:46:32 🔥 [EmotionalPrompt] Building for 고준희
-2025-12-31 01:46:32 ✅ [EmotionalPrompt] Built: 19470 chars
-2025-12-31 01:46:32 📝 [ANIMA Chat] System prompt built (19470 chars, 0 knowledge items)
-2025-12-31 01:46:32 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2025-12-31 01:46:32    Provider: openai
-2025-12-31 01:46:32    Model: gpt-4o-mini
-2025-12-31 01:46:32    History messages: 4
-2025-12-31 01:46:32    System prompt length: 19470 chars
-2025-12-31 01:46:32 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
-2025-12-31 01:46:32    Persona type: User-created
-2025-12-31 01:46:32    Has identity: true
-2025-12-31 01:46:32    toolsEnabled: true
-2025-12-31 01:46:32 🤖 [OpenAI] Calling API: {
-2025-12-31 01:46:32   model: 'gpt-4o-mini',
-2025-12-31 01:46:32   messageCount: 6,
-2025-12-31 01:46:32   systemPromptLength: 19470,
-2025-12-31 01:46:32   historyLength: 4,
-2025-12-31 01:46:32   toolsEnabled: true
-2025-12-31 01:46:32 }
-2025-12-31 01:46:33 ✅ [OpenAI] Response received: {
-2025-12-31 01:46:33   responseTime: '1755ms',
-2025-12-31 01:46:33   tokens: { prompt: 9112, completion: 33, total: 9145 },
-2025-12-31 01:46:33   messageLength: 0,
-2025-12-31 01:46:33   finishReason: 'tool_calls',
-2025-12-31 01:46:33   toolCalls: 1
-2025-12-31 01:46:33 }
-2025-12-31 01:46:33 🛠️ [Function Calling] AI requested 1 tool(s)
-2025-12-31 01:46:33 🛠️ [Function Calling] Executing: search_youtube_video
-2025-12-31 01:46:33    Args: {
-2025-12-31 01:46:33   query: 'TWICE music video',
-2025-12-31 01:46:33   reasoning: "User wants to watch TWICE's music video."
-2025-12-31 01:46:33 }
-2025-12-31 01:46:33 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:46:33 🎬 [Tool] search_youtube_video
-2025-12-31 01:46:33    Query: TWICE music video
-2025-12-31 01:46:33    Reasoning: User wants to watch TWICE's music video.
-2025-12-31 01:46:33 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:46:34 ✅ [Tool] Video found: "TWICE &quot;THIS IS FOR&quot; M/V"
-2025-12-31 01:46:34    Channel: JYP Entertainment
-2025-12-31 01:46:34    Video ID: eHHQaoEW30Q
-2025-12-31 01:46:34 ✅ [Function Calling] Result: {
-2025-12-31 01:46:34   success: true,
-2025-12-31 01:46:34   video: {
-2025-12-31 01:46:34     videoId: 'eHHQaoEW30Q',
-2025-12-31 01:46:34     title: 'TWICE &quot;THIS IS FOR&quot; M/V',
-2025-12-31 01:46:34     channel: 'JYP Entertainment',
-2025-12-31 01:46:34     thumbnail: 'https://i.ytimg.com/vi/eHHQaoEW30Q/hqdefault.jpg',
-2025-12-31 01:46:34     description: 'TWICE "THIS IS FOR" M/V 4⃣Listen [THIS IS FOR]4⃣ https://TWICE.lnk.to/THISISFOR TWICE Official Shop: ...',
-2025-12-31 01:46:34     publishedAt: '2025-07-11T03:59:06Z',
-2025-12-31 01:46:34     url: 'https://www.youtube.com/watch?v=eHHQaoEW30Q',
-2025-12-31 01:46:34     embedUrl: 'https://www.youtube.com/embed/eHHQaoEW30Q'
-2025-12-31 01:46:34   },
-2025-12-31 01:46:34   message: '"TWICE &quot;THIS IS FOR&quot; M/V" 영상을 찾았습니다.'
-2025-12-31 01:46:34 }
-2025-12-31 01:46:34 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:46:34 🎬 [YouTube Search] AI found video!
-2025-12-31 01:46:34    Title: "TWICE &quot;THIS IS FOR&quot; M/V"
-2025-12-31 01:46:34    Channel: JYP Entertainment
-2025-12-31 01:46:34    Video ID: eHHQaoEW30Q
-2025-12-31 01:46:34 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2025-12-31 01:46:34 ✅ [YouTube Search] Video data prepared for response
-2025-12-31 01:46:34 🔄 [Function Calling] Re-calling AI with tool results...
-2025-12-31 01:46:34 🤖 [OpenAI] Calling API: {
-2025-12-31 01:46:34   model: 'gpt-4o-mini',
-2025-12-31 01:46:34   messageCount: 8,
-2025-12-31 01:46:34   systemPromptLength: 19470,
-2025-12-31 01:46:34   historyLength: 6,
-2025-12-31 01:46:34   toolsEnabled: false
-2025-12-31 01:46:34 }
-2025-12-31 01:46:35 ✅ [OpenAI] Response received: {
-2025-12-31 01:46:35   responseTime: '1156ms',
-2025-12-31 01:46:35   tokens: { prompt: 7565, completion: 37, total: 7602 },
-2025-12-31 01:46:35   messageLength: 51,
-2025-12-31 01:46:35   finishReason: 'stop',
-2025-12-31 01:46:35   toolCalls: 0
-2025-12-31 01:46:35 }
-2025-12-31 01:46:35 ✅ [Function Calling] Final AI response generated
-2025-12-31 01:46:35 ✅ [ANIMA Chat] AI response received (no caching)
-2025-12-31 01:46:35    Response time: 1755ms
-2025-12-31 01:46:35    Total tokens: 16747 (in: 16677, out: 70)
-2025-12-31 01:46:35 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2025-12-31 01:46:35 🎉 [ANIMA Chat] Request completed in 4354ms
-2025-12-31 01:46:35    Cost: $0.002544
-2025-12-31 01:46:35 💾 [SessionManager] Message saved: session-1767111879097-ql9fo (user)
-2025-12-31 01:46:35 💾 [SessionManager] Message saved: session-1767111879097-ql9fo (assistant)
-
+efc88d02-30e9-426b-bad6-d59749689f12	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	기다려줘! 😊 과일 사진이 생성 중이야! 곧 보여줄게! 🍉🍎🍌✨	{"has_media": true, "generated_content": {"metadata": {"tags": "apple, red, red apple, apple plantation, yummy, fruit, vitamins, fresh, nature, healthy, ripe, pome fruit family, apple trees, orchards, trees, fruit trees, fall, harvest, harvested, apple, apple, apple, apple, apple", "query": "nature fruits", "width": 6000, "height": 3601, "source": "pixabay", "emotion": "neutral", "pixabayId": 2788616, "photographer": "NoName_13", "photographerURL": "https://cdn.pixabay.com/user/2022/12/12/07-40-59-226_250x250.jpg"}, "content_id": "193e713a-c19b-48c4-b86f-ce1e64a435bb", "content_url": "https://pixabay.com/get/g17e77e3514dd5ce14c219efe99dacd3dd036da59e679ce8cebf0b1445bea0e13f31e48fcdad56595b23d39dc8d9cea36ba56dad77e414cd8d4e20f1ece4718c1_1280.jpg", "content_type": "image", "content_status": "completed"}}	assistant					conversations	74	gpt-4o-mini	1217	2025-12-31 12:42:24.271259	
+344b8344-b837-461c-9e9a-ebaa79c7cbf5	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	SAGE! 과일사진 찾아줘!		user	neutral	0.3			conversations	11627	gpt-4o-mini		2025-12-31 12:42:24.269512	
+c5e99411-ac8e-4ac9-9268-f8ef8b386be5	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	BTS의 뮤직비디오를 찾았어! 🎉 "Dynamite"의 공식 뮤직비디오를 추천할게! 정말 신나고 기분 좋아질 거야! 💜✨	{"youtube": {"url": "https://www.youtube.com/watch?v=gdZLi9oWNZg", "title": "BTS (방탄소년단) &#39;Dynamite&#39; Official MV", "channel": "HYBE LABELS", "videoId": "gdZLi9oWNZg", "embedUrl": "https://www.youtube.com/embed/gdZLi9oWNZg", "thumbnail": "https://i.ytimg.com/vi/gdZLi9oWNZg/hqdefault.jpg"}, "has_media": true, "generated_content": {"metadata": {"tags": "grapes, fruits, food, fresh, healthy, ripe, organic, sweet, produce, harvest, sunlight, fruits, food, food, food, food, food", "query": "nature colorful fruits", "width": 6000, "height": 4000, "source": "pixabay", "emotion": "neutral", "pixabayId": 3550733, "photographer": "Bru-nO", "photographerURL": "https://cdn.pixabay.com/user/2025/06/15/16-26-39-87_250x250.jpg"}, "content_id": "fb703291-e2e9-4329-b5ac-033c490514a4", "content_url": "https://pixabay.com/get/gdf086a5db77da628758c4ae42ebe366858762349290cf53fa535b813f0dc59c5e70579fbac3e2207b91154067ecd0ce071b459a325885da94d1a5305168757bd_1280.jpg", "content_type": "image", "content_status": "completed"}}	assistant					conversations	136	gpt-4o-mini	2172	2025-12-31 12:41:53.232308	
+02909cc9-f28b-470c-a81e-f62c9a54d2fb	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	좋아! 과일 사진 찾아줘!		user	happy	0.75			conversations	15629	gpt-4o-mini		2025-12-31 12:41:53.231891	
+e7fee7b7-1010-459f-b47e-12e8a268927a	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	굿! BTS 뮤직비디오 찾아줘!		user	neutral	0.3			conversations	11753	gpt-4o-mini		2025-12-31 12:41:37.389760	
+98aa8a8e-7307-4fdc-a329-a8879e422bf9	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	뮤직비디오 찾았어! 잠깐만 기다려줘! 😊🎬	{"youtube": {"url": "https://www.youtube.com/watch?v=gdZLi9oWNZg", "title": "BTS (방탄소년단) &#39;Dynamite&#39; Official MV", "channel": "HYBE LABELS", "videoId": "gdZLi9oWNZg", "embedUrl": "https://www.youtube.com/embed/gdZLi9oWNZg", "thumbnail": "https://i.ytimg.com/vi/gdZLi9oWNZg/hqdefault.jpg"}, "has_media": true}	assistant					conversations	63	gpt-4o-mini	1389	2025-12-31 12:41:37.389727	
+965c1053-f7f4-4ae7-b94d-e76b3c97b577	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	기다려줘! 😊 피자 사진을 준비하고 있어! 곧 보여줄게! 🍕✨	{"has_media": true, "generated_content": {"metadata": {"tags": "pizza, plate, food, cheese, lunch, vegetables, italian, vegetarian pizza, pizza slices, italian food, italian cuisine, composition, food photography, pizza, pizza, pizza, pizza, pizza, food, food, food", "query": "pizza", "width": 3400, "height": 2270, "source": "pixabay", "emotion": "neutral", "pixabayId": 3010062, "photographer": "zuzi99", "photographerURL": "https://cdn.pixabay.com/user/2017/12/14/20-35-20-994_250x250.jpg"}, "content_id": "4449d09c-f3fb-4b49-8e9c-fa92791f1b3e", "content_url": "https://pixabay.com/get/gc6e14a40fb71bd99fb05e4178faa9c5e837d3dc299cb41b950711fdac0257099aa8ef0b914f6fef9b7dc64f46886ec03da280c7e7562cfbfa7653e4679aa241e_1280.jpg", "content_type": "image", "content_status": "completed"}}	assistant					conversations	65	gpt-4o-mini	1448	2025-12-31 12:40:54.962237	
+6f83dfee-2187-40b4-87f6-cee1b04dadf5	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	좋아. 피자 사진 찾아줘!		user	happy	0.75			conversations	11629	gpt-4o-mini		2025-12-31 12:40:54.961916	
+71701a04-111c-4d64-876c-33ea4223f48d	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	기다려줘! 😊 일본 음악을 준비하고 있어! 들으면서 기분이 좋아지길 바랄게! 🎶✨	{"music": {"url": "https://prod-1.storage.jamendo.com/?trackid=623192&format=mp31&from=HiToAcyTXlXAjrnyxnHXXw%3D%3D%7CZ1oJHBTeHseOoKAQwTRYqQ%3D%3D", "image": "https://usercontent.jamendo.com?type=album&id=72189&width=300&trackid=623192", "title": "Set Me Free", "artist": "Chasing Eidolon", "source": "jamendo", "duration": 337}, "has_media": true}	assistant					conversations	62	gpt-4o-mini	981	2025-12-31 12:40:06.225770	
+89674a2f-3c59-435c-bd9c-5c25f85ce975	45b89c9a-f7a3-48f2-aff6-a478b3cceb36	573db390-a505-4c9e-809f-cc511c235cbb	session-1767149071498-se1i3e	좋아, 일본 음악 찾아줘.		user	happy	0.75			conversations	11145	gpt-4o-mini		2025-12-31 12:40:06.225504	
 
