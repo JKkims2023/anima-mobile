@@ -18,7 +18,7 @@
  * @date 2024-11-21
  */
 
-import React, { useRef, useEffect, memo, useCallback, useState } from 'react';
+import React, { useRef, useEffect, memo, useCallback, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, Animated, TouchableOpacity, Linking, Platform, Alert, ToastAndroid, Clipboard, Modal } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +53,7 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
     console.log('   message.id:', message.id);
     console.log('   message.youtube:', JSON.stringify(message.youtube, null, 2));
   } else if (message.role === 'assistant') {
-    console.log('⚠️ [MessageItem] AI message has NO YouTube data:', message.id);
+//    console.log('⚠️ [MessageItem] AI message has NO YouTube data:', message.id);
   }
 
   // 🆕 Copy text to clipboard
@@ -581,9 +581,11 @@ const ChatMessageList = ({
     
     const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
     
-    // Check if scrolled to top (with threshold)
-    if (contentOffset.y <= 100) {
-      console.log('📜 [ChatMessageList] Reached top, loading more history...');
+    // 🔥 With inverted: Load more when scrolling UP (= reaching end of inverted list)
+    const distanceFromEnd = contentOffset.y + layoutMeasurement.height;
+    
+    if (distanceFromEnd >= contentSize.height - 100) {
+      console.log('📜 [ChatMessageList] Reached end, loading more history...');
       onLoadMore();
     }
   };
@@ -626,38 +628,36 @@ const ChatMessageList = ({
     );
   };
 
-  // ✅ Add typing indicator as a message if loading (but not typing)
-  const messagesWithIndicator = isLoading && !typingMessage
-    ? [...completedMessages, { id: 'typing-indicator', role: 'typing', text: 'typing', timestamp: Date.now() }]
-    : completedMessages;
+  // 🔥 IMPORTANT: Reverse messages for inverted list (newest first!)
+  // ✅ OPTIMIZATION: Don't add typing indicator to messages array (prevent rerender!)
+  // Typing indicator is rendered separately below (Line 674-678)
+  const reversedMessages = useMemo(() => {
+    return [...completedMessages].reverse();
+  }, [completedMessages]);
 
   return (
     <View style={styles.container}>
       <FlashList
         ref={flashListRef}
-        data={messagesWithIndicator}
-        renderItem={({ item }) => {
-          if (item.role === 'typing') {
-            return <TypingIndicator personaUrl={personaUrl} key="typing-indicator" />;
-          }
-          return (
-            <MessageItem
-              message={item}
-              onImagePress={handleImagePress}
-              onImageLongPress={handleImageLongPress}
-              onMusicPress={onMusicPress}
-              onYouTubePress={onYouTubePress}
-              personaUrl={personaUrl}
-            />
-          );
-        }}
+        data={reversedMessages}
+        renderItem={({ item }) => (
+          <MessageItem
+            message={item}
+            onImagePress={handleImagePress}
+            onImageLongPress={handleImageLongPress}
+            onMusicPress={onMusicPress}
+            onYouTubePress={onYouTubePress}
+            personaUrl={personaUrl}
+          />
+        )}
         keyExtractor={(item, index) => item.id || `message-${index}`}
         estimatedItemSize={verticalScale(80)} // ✅ Performance optimization
         extraData={messageVersion} // ✅ Only re-render when messageVersion changes
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        inverted={true} // 🔥 CRITICAL: Chat messages stack from bottom to top!
         ListEmptyComponent={renderEmptyState}
-        ListHeaderComponent={renderListHeader} // ⭐ NEW: Loading indicator at top
+        ListFooterComponent={renderListHeader} // ⭐ Changed: Footer (because inverted!)
         onScroll={handleScroll} // ⭐ NEW: Infinite scroll
         scrollEventThrottle={400} // ⭐ NEW: Throttle scroll events
         // ✅ CRITICAL: Prevent keyboard dismiss on Android

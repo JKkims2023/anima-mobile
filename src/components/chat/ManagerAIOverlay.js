@@ -195,10 +195,16 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
     
+    // 🔥 CRITICAL: Only load if user is fully loaded!
+    if (!user || !user.user_key) {
+      console.log('⏳ [Chat History] Waiting for user context...');
+      return; // ⚠️ Don't proceed without user!
+    }
+    
     // Load history if:
     // 1. Overlay becomes visible
     // 2. Persona changes OR persona key was reset (null)
-    if (visible && user?.user_key) {
+    if (visible) {
       if (currentPersonaKey !== personaKey) {
         console.log(`🔄 [Chat History] Persona changed: ${currentPersonaKey} → ${personaKey}`);
         setCurrentPersonaKey(personaKey);
@@ -211,7 +217,7 @@ const ManagerAIOverlay = ({
         checkForGifts();
       }
     }
-  }, [visible, user?.user_key, persona?.persona_key, currentPersonaKey]);
+  }, [visible, user, persona?.persona_key, currentPersonaKey]);
 
   useEffect(() => {
     console.log('user: ', user);
@@ -225,10 +231,9 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     if (visible && user?.user_key) {
       loadAISettings();
-    }else{
-      console.log('⚠️ [Chat History] No user_key found');
-      showWelcomeMessage();
-      return;
+    } else if (visible && !user?.user_key) {
+      // ⚠️ User context not loaded yet, wait...
+      console.log('⏳ [Settings] Waiting for user context...');
     }
   }, [visible, user?.user_key]);
   
