@@ -627,14 +627,28 @@ const ChatMessageList = ({
   };
   
   // 🔥 NEW: Typing message footer (inside FlashList!)
+  // Shows TypingIndicator (...) when loading, or TypingMessage when typing
   const renderTypingFooter = () => {
-    if (!typingMessage) return null;
+    // 1️⃣ Show typing message (actual text being typed)
+    if (typingMessage) {
+      return (
+        <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
+          <TypingMessage text={typingMessage} personaUrl={personaUrl} />
+        </View>
+      );
+    }
     
-    return (
-      <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
-        <TypingMessage text={typingMessage} personaUrl={personaUrl} />
-      </View>
-    );
+    // 2️⃣ Show typing indicator (... animation) when AI is thinking
+    if (isLoading) {
+      return (
+        <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
+          <TypingIndicator personaUrl={personaUrl} />
+        </View>
+      );
+    }
+    
+    // 3️⃣ Nothing to show
+    return null;
   };
 
   // ✅ OPTIMIZATION: Messages in chronological order (oldest → newest)
