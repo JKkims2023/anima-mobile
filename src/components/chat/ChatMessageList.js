@@ -625,10 +625,21 @@ const ChatMessageList = ({
       </View>
     );
   };
+  
+  // 🔥 NEW: Typing message footer (inside FlashList!)
+  const renderTypingFooter = () => {
+    if (!typingMessage) return null;
+    
+    return (
+      <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
+        <TypingMessage text={typingMessage} personaUrl={personaUrl} />
+      </View>
+    );
+  };
 
-  // ✅ OPTIMIZATION: Don't add typing indicator to messages array (prevent rerender!)
-  // Typing indicator is rendered separately below (Line 674-678)
-  // Messages are in chronological order (oldest → newest)
+  // ✅ OPTIMIZATION: Messages in chronological order (oldest → newest)
+  // Typing indicator is rendered as ListFooterComponent (inside FlashList)
+  // This prevents jumping when typing completes!
   const displayMessages = useMemo(() => {
     return completedMessages; // ✅ No reverse! Keep chronological order
   }, [completedMessages]);
@@ -655,6 +666,7 @@ const ChatMessageList = ({
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
         ListHeaderComponent={renderListHeader} // ⭐ Loading indicator at top
+        ListFooterComponent={renderTypingFooter} // 🔥 Typing message at bottom (inside list!)
         onScroll={handleScroll} // ⭐ NEW: Infinite scroll
         scrollEventThrottle={400} // ⭐ NEW: Throttle scroll events
         // ✅ CRITICAL: Prevent keyboard dismiss on Android
@@ -666,13 +678,6 @@ const ChatMessageList = ({
         updateCellsBatchingPeriod={50}
         windowSize={10}
       />
-      
-      {/* ✅ Typing Message (ISOLATED: Only this re-renders during typing) */}
-      {typingMessage && (
-        <View style={styles.typingMessageContainer}>
-          <TypingMessage text={typingMessage} personaUrl={personaUrl} />
-        </View>
-      )}
       
       {/* 🆕 Image Viewer Modal */}
       {isImageViewerVisible && selectedImageUri && (
