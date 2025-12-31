@@ -579,13 +579,11 @@ const ChatMessageList = ({
   const handleScroll = (event) => {
     if (!onLoadMore || !hasMoreHistory || loadingHistory) return;
     
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const { contentOffset } = event.nativeEvent;
     
-    // 🔥 With inverted: Load more when scrolling UP (= reaching end of inverted list)
-    const distanceFromEnd = contentOffset.y + layoutMeasurement.height;
-    
-    if (distanceFromEnd >= contentSize.height - 100) {
-      console.log('📜 [ChatMessageList] Reached end, loading more history...');
+    // ✅ Load more when scrolling to top (reaching old messages)
+    if (contentOffset.y <= 100) {
+      console.log('📜 [ChatMessageList] Reached top, loading more history...');
       onLoadMore();
     }
   };
@@ -628,18 +626,18 @@ const ChatMessageList = ({
     );
   };
 
-  // 🔥 IMPORTANT: Reverse messages for inverted list (newest first!)
   // ✅ OPTIMIZATION: Don't add typing indicator to messages array (prevent rerender!)
   // Typing indicator is rendered separately below (Line 674-678)
-  const reversedMessages = useMemo(() => {
-    return [...completedMessages].reverse();
+  // Messages are in chronological order (oldest → newest)
+  const displayMessages = useMemo(() => {
+    return completedMessages; // ✅ No reverse! Keep chronological order
   }, [completedMessages]);
 
   return (
     <View style={styles.container}>
       <FlashList
         ref={flashListRef}
-        data={reversedMessages}
+        data={displayMessages}
         renderItem={({ item }) => (
           <MessageItem
             message={item}
@@ -655,9 +653,8 @@ const ChatMessageList = ({
         extraData={messageVersion} // ✅ Only re-render when messageVersion changes
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        inverted={true} // 🔥 CRITICAL: Chat messages stack from bottom to top!
         ListEmptyComponent={renderEmptyState}
-        ListFooterComponent={renderListHeader} // ⭐ Changed: Footer (because inverted!)
+        ListHeaderComponent={renderListHeader} // ⭐ Loading indicator at top
         onScroll={handleScroll} // ⭐ NEW: Infinite scroll
         scrollEventThrottle={400} // ⭐ NEW: Throttle scroll events
         // ✅ CRITICAL: Prevent keyboard dismiss on Android
