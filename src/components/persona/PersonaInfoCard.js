@@ -38,13 +38,17 @@ import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NE
  * @param {Number} props.currentIndex - Current persona index (0-based)
  * @param {Number} props.totalCount - Total personas count
  * @param {Function} props.onScrollToTop - Callback to scroll to first persona
+ * @param {Object} props.user - User object (passed from parent for chips)
  */
-const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop }) => {
+const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop, user: userProp }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { showAlert, user } = useAnima(); // ⭐ Added: user for chips
+  const { showAlert, user: userContext } = useAnima(); // Context user as fallback
   const { currentTheme: theme } = useTheme(); // ⭐ NEW: For progress bar color
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
+  
+  // ⭐ Use prop user first, fallback to context user
+  const user = userProp || userContext;
 
   // ⭐ NEW: Identity sheet state
   const [showIdentitySheet, setShowIdentitySheet] = useState(false);

@@ -28,6 +28,7 @@ import {
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: For user_key
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import PersonaCardView from './PersonaCardView';
@@ -73,6 +74,7 @@ const PersonaSwipeViewer = forwardRef(({
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
 }, ref) => {
   const { currentTheme } = useTheme();
+  const { user } = useAnima(); // ⭐ NEW: Get user for PersonaInfoCard chips
   
   
   const flatListRef = useRef(null);
@@ -80,6 +82,15 @@ const PersonaSwipeViewer = forwardRef(({
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
   const { t } = useTranslation();
+  
+  // ⭐ DEBUG: Check user in PersonaSwipeViewer
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎯 [PersonaSwipeViewer] User Check:');
+    console.log('   user:', user);
+    console.log('   user?.user_key:', user?.user_key);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [user]);
 
   
   // ⭐ Expose scrollToIndex method to parent
@@ -302,6 +313,7 @@ const PersonaSwipeViewer = forwardRef(({
           currentIndex={selectedIndex} // ⭐ Current persona index
           totalCount={personas.length} // ⭐ Total personas count
           onScrollToTop={handleScrollToTop} // ⭐ NEW: Scroll to top handler
+          user={user} // ⭐ NEW: Pass user for relationship chips
         />
       )}
     </View>
