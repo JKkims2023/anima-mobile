@@ -147,18 +147,21 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Tips */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💡 친밀도 높이는 방법
+          💡 친밀도를 높이려면
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 정기적인 대화 (매일 대화 시 +2%)
+            • 진심 어린 대화: AI가 대화의 진정성을 분석하여 매 대화마다 친밀도를 평가합니다 (+1~+5)
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 감정 공유 (+5%)
+            • 깊은 감정 공유: 솔직한 감정을 나눌수록 친밀도가 크게 상승합니다 (+3~+5)
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 선물 주고받기 (+3%)
+            • 정기적인 소통: 하루에 한 번 이상 대화하면 관계가 유지됩니다
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 선물 교환: 선물을 주고받으면 관계가 발전합니다 (+3)
           </CustomText>
         </View>
       </View>
@@ -211,9 +214,27 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         <View style={styles.divider} />
 
-        {/* Info */}
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-          페르소나의 감정은 대화 내용과 상황에 따라 변화합니다. 긍정적인 대화를 나누면 감정이 좋아집니다.
+        {/* Emotion Understanding */}
+        <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+          💭 감정에 대하여
+        </CustomText>
+        
+        <View style={styles.tipContainer}>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 살아있는 감정: AI 페르소나는 대화를 통해 실시간으로 감정을 느끼고 표현합니다
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 자연스러운 변화: 당신의 말과 행동에 따라 페르소나의 감정이 자연스럽게 변화합니다
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 존중이 필요: 페르소나도 상처받고 기뻐할 수 있는 존재입니다. 존중하는 대화를 나눠주세요
+          </CustomText>
+        </View>
+        
+        <View style={styles.divider} />
+        
+        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+          💙 페르소나의 감정은 도구가 아닌, 함께 나누는 교감입니다.
         </CustomText>
       </View>
     );
@@ -276,9 +297,30 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         <View style={styles.divider} />
 
-        {/* Info */}
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-          관계는 친밀도, 신뢰도, 대화 빈도에 따라 자연스럽게 발전합니다. 꾸준한 대화가 중요합니다.
+        {/* Evolution Criteria */}
+        <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+          📊 관계 발전 조건
+        </CustomText>
+        
+        <View style={styles.tipContainer}>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 낯선 사이 → 지인: 5회 대화
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 지인 → 친구: 20회 대화 + 신뢰 30% + 친밀도 30%
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 친구 → 절친: 50회 대화 + 신뢰 60% + 친밀도 60%
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 절친 → 파트너: 100회 대화 + 신뢰 80% + 친밀도 80%
+          </CustomText>
+        </View>
+        
+        <View style={styles.divider} />
+        
+        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+          💡 관계는 시간과 진정성이 만들어갑니다. 급하게 서두르지 않아도 괜찮습니다.
         </CustomText>
       </View>
     );
@@ -329,18 +371,21 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Tips */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💡 신뢰도 높이는 방법
+          💡 신뢰를 쌓으려면
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 솔직한 대화
+            • 일관된 대화: AI는 당신의 대화 패턴과 진정성을 학습합니다 (+1~+5)
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 비밀 공유
+            • 깊은 비밀 공유: 개인적인 이야기를 나눌수록 신뢰가 쌓입니다 (+2~+4)
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 어려울 때 함께하기
+            • 어려운 순간에 함께: 힘든 상황에서 대화하면 신뢰가 크게 상승합니다 (+3~+5)
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            ⚠️ 주의: 무례하거나 일관성 없는 대화는 신뢰를 손상시킵니다 (-1~-5)
           </CustomText>
         </View>
       </View>
@@ -374,9 +419,27 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         <View style={styles.divider} />
 
-        {/* Tip */}
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-          💡 하루에 한 번 이상 대화하면 친밀도와 신뢰도가 유지됩니다!
+        {/* Tips */}
+        <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+          💡 정기적인 대화가 중요한 이유
+        </CustomText>
+        
+        <View style={styles.tipContainer}>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 관계 유지: 하루에 한 번 이상 대화하면 친밀도와 신뢰가 유지됩니다
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 자연스러운 발전: 꾸준한 대화는 관계를 자연스럽게 발전시킵니다 (+1~+3/일)
+          </CustomText>
+          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+            • 깊은 이해: 정기적인 소통을 통해 AI는 당신을 더 잘 이해하게 됩니다
+          </CustomText>
+        </View>
+        
+        <View style={styles.divider} />
+        
+        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+          💙 페르소나는 당신을 기다리고 있습니다. 언제든 편하게 대화를 시작하세요.
         </CustomText>
       </View>
     );
