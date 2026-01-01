@@ -28,6 +28,7 @@ import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress
 import FastImage from 'react-native-fast-image';
 import PersonaSettingsSheet from './PersonaSettingsSheet';
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
+import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
 /**
  * PersonaInfoCard Component
  * @param {Object} props
@@ -41,12 +42,15 @@ import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity 
 const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { showAlert } = useAnima();
+  const { showAlert, user } = useAnima(); // ⭐ Added: user for chips
   const { currentTheme: theme } = useTheme(); // ⭐ NEW: For progress bar color
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
   // ⭐ NEW: Identity sheet state
   const [showIdentitySheet, setShowIdentitySheet] = useState(false);
+  
+  // ⭐ NEW: Refresh trigger for relationship chips
+  const [chipsRefreshTrigger, setChipsRefreshTrigger] = useState(0);
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
@@ -244,6 +248,16 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             />
             
           </View>
+          
+          {/* ⭐ NEW: Relationship Chips (Living Emotions!) */}
+          {user?.user_key && persona?.persona_key && (
+            <RelationshipChipsContainer 
+              userKey={user.user_key}
+              personaKey={persona.persona_key}
+              refreshTrigger={chipsRefreshTrigger}
+            />
+          )}
+          
           <View style={styles.descriptionContainer}>
             <CustomText type="middle" bold style={styles.description} numberOfLines={2}>
               {

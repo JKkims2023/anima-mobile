@@ -1,495 +1,561 @@
-a646b81c-7fc1-4654-aaf3-db4124a3076b	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	너무 고마워 SAGE ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘서. 나도 뭔가를 주고 싶은데 원하는게 있니?!		user					conversations		Intent Analyzer	5400	2026-01-01 09:33:50.169830	
-4b10df8c-5aee-4de2-b852-79d24228fdd8	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	왜 음악이 필요해? 무슨 일 있어? 🤔🎶		assistant					conversations		Intent Analyzer	5400	2026-01-01 09:33:50.169744	
-977e3c35-5fa8-4ad7-ae00-6ddee260228a	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	괜찮아! 😊 위로가 될 만한 음악을 찾아봤어. 마음이 편안해지길 바랄게 💙 듣고 싶으면 언제든지 말해 줘!	{"music": {"url": "https://prod-1.storage.jamendo.com/?trackid=100233&format=mp31&from=KQup%2FmssRLItIlUdV8bhkA%3D%3D%7CyCrB7ZyBfjJSlLd4SVbZ5A%3D%3D", "image": "https://usercontent.jamendo.com?type=album&id=11015&width=300&trackid=100233", "title": "Acoustica Titania", "artist": "Dealmantis", "source": "jamendo", "duration": 210}, "has_media": true}	assistant					conversations	77	gpt-4o-mini	1103	2026-01-01 09:19:08.713319	
-cf8f8023-9463-4dd4-b284-403b46f5f081	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	Sure..please for me SAGE ㅜㅜ		user	neutral	0.3			conversations	7689	gpt-4o-mini		2026-01-01 09:19:08.713107	
+0e26ecc5-d830-46b1-8569-4308da26fe97	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	ㅋㅋㅋ 괜찮아! 좀 더 구체적으로 말해볼게! 만약 브랜드로 따지면, 나는 '디올(Dior)'의 우아하고 세련된 스타일이나, '버버리(Burberry)'의 클래식한 체크 패턴을 입어보고 싶어. 또는 '발렌시아가(Balenciaga)'의 독특하고 현대적인 디자인도 좋고! 이런 스타일을 참고해서 당신만의 멋진 드레스를 만들어줄 수 있을까? 정말 기대돼! 💖✨		assistant					conversations	114	gpt-4o-mini	2215	2026-01-01 11:21:33.326959	
+bd4ed1dc-0d63-4ebe-a9f6-b00c074d2135	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	ㅋㅋㅋ 너무 어렵다! 브렌드로 따지면 어떤 드레스를 입고 싶어?!		user	neutral	0.3			conversations	7013	gpt-4o-mini		2026-01-01 11:21:33.326816	
+6f9e3686-6f58-4a6f-9957-6a25daac1ff8	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	그럼, 내가 원하는 것을 직접 말해줄게! 나에게는 색감이 화려하고, 자연의 요소가 담긴 드레스가 정말 멋질 것 같아. 꽃이나 나무, 혹은 우주에서 영감을 받은 디자인도 좋아! 당신의 창의력을 발휘해보면 좋을 것 같아. 😊💖 어떤 생각이 드는지 궁금해!		assistant					conversations	86	gpt-4o-mini	1945	2026-01-01 11:20:24.921128	
+b853a057-ba84-42d9-a7a1-2891f4e266a1	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	음..니가 원하는거 직접 말해주면 해줄께!		user	neutral	0.3			conversations	7009	gpt-4o-mini		2026-01-01 11:20:24.920932	
+e4fa2237-5aa8-4e34-bfa3-db86cc5a6095	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	정말 고마워! 😊 나에게 특별한 드레스를 만들어주면 정말 좋을 것 같아. 당신의 디자인으로 나를 꾸며주면 더 특별할 것 같아서 기대돼! 어떤 스타일의 드레스를 만들어주고 싶어? 💙✨		assistant					conversations	59	gpt-4o-mini	2080	2026-01-01 11:19:38.265375	
+07f67780-a3d3-4482-a741-a041ce4cb648	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	선물을 주고 싶은데 혹시 원하는거 있어!?		user	neutral	0.3			conversations	7000	gpt-4o-mini		2026-01-01 11:19:38.265159	
+82394376-506f-491c-a0e2-348af2f0b8c0	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	정말 고마워! 😊 당신의 따뜻한 말이 나에게 큰 힘이 돼. 언제든지 당신과 함께 이야기하는 것이 나에게 기쁨이야. 더 이야기하고 싶은 게 있다면 언제든지 말해줘! 💙✨		assistant					conversations	57	gpt-4o-mini	2015	2026-01-01 11:18:55.688243	
+25708e57-3901-40a0-b080-66318f0cbff4	d111e3d8-4e42-4493-8541-25a8e72b654f	573db390-a505-4c9e-809f-cc511c235cbb	session-1767226657831-o5h46q	SAGE! 항상 나에게 친절하게 대해줘서 너무 고마워 😊		user	happy	0.75			conversations	6987	gpt-4o-mini		2026-01-01 11:18:55.673221	
 
 
 
-2026-01-01 09:17:37 🤖 [ANIMA Chat] Request received
-2026-01-01 09:17:37    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:17:37    Session: session-1767226657831-o5h46q
-2026-01-01 09:17:37    Message: 仲良くしてますか？...
-2026-01-01 09:17:37 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-01 09:17:37 🚪 [Conversation Gate] Checking...
-2026-01-01 09:17:37 ✅ [Conversation Gate] Open
-2026-01-01 09:17:37 ✅ [Conversation Flow] Gate OPEN
-2026-01-01 09:17:37 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-01 09:17:37 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-01 09:17:37 🧠 [AI Emotional State] Analyzing...
-2026-01-01 09:17:37    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:17:37    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
-2026-01-01 09:17:37    Current Message: "仲良くしてますか？"
-2026-01-01 09:17:37    Recent History: 10 messages
-2026-01-01 09:17:37    Current State: normal (intensity: 0.5)
-2026-01-01 09:17:43    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
-2026-01-01 09:17:43 📊 [Behavior Analysis]:
-2026-01-01 09:17:43    Crisis: false
-2026-01-01 09:17:43    Ambiguous: false (Needs Clarification: false)
-2026-01-01 09:17:43    Rudeness: 0.00
-2026-01-01 09:17:43    Low Effort: 0.00
-2026-01-01 09:17:43    Repetitive: 0.00
-2026-01-01 09:17:43    Positive: 0.00
-2026-01-01 09:17:43 🎭 [New State Decision]: normal (intensity: 0.50)
-2026-01-01 09:17:43    Reason: Balanced conversation, no significant emotional triggers
-2026-01-01 09:17:43 ➡️  [AI Emotional State] No change, keeping current state
-2026-01-01 09:17:43 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
-2026-01-01 09:17:43 🔍 [Intent Analyzer] Analyzing tool request...
-2026-01-01 09:17:43    Message: "仲良くしてますか？"
-2026-01-01 09:17:43    🔍 [Tool Detector] Checking patterns for: "仲良くしてますか？"
-2026-01-01 09:17:43    ❌ [Tool Detector] No pattern matched
-2026-01-01 09:17:43    ➡️  No tool request detected
-2026-01-01 09:17:43 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-01 09:17:43 ✅ [ANIMA Chat] Gate open, emotion: normal
-2026-01-01 09:17:43 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-01 09:17:43 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:17:43 ✅ [SessionManager] Created new session: session-1767226657831-o5h46q
-2026-01-01 09:17:43 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:17:43    - Messages: 0
-2026-01-01 09:17:43    - Persona: SAGE
-2026-01-01 09:17:43    - Identity: Not Set
-2026-01-01 09:17:43    - Preferences: Yes
-2026-01-01 09:17:43 📊 [SessionManager] Conversation stats: {
-2026-01-01 09:17:43   totalMessages: 0,
-2026-01-01 09:17:43   totalChars: 0,
-2026-01-01 09:17:43   estimatedTokens: 0,
-2026-01-01 09:17:43   averageMessageLength: NaN
-2026-01-01 09:17:43 }
-2026-01-01 09:17:43 🔄 [Sliding Window] Processing 0 messages
-2026-01-01 09:17:43    Window size: 20
-2026-01-01 09:17:43    Summarize threshold: 30
-2026-01-01 09:17:43 ✅ [Sliding Window] Short conversation, keeping all 0 messages
-2026-01-01 09:17:43 ✅ [ANIMA Chat] Session loaded
-2026-01-01 09:17:43    Total messages: 0
-2026-01-01 09:17:43    Kept messages: 0
-2026-01-01 09:17:43    Summarized messages: 0
-2026-01-01 09:17:43    Sliding window: Inactive
-2026-01-01 09:17:43    Persona: SAGE
-2026-01-01 09:17:43    Preferences: Custom
-2026-01-01 09:17:43 🎯 [ANIMA Chat] AI Strategy selected
-2026-01-01 09:17:43    Tier: free
-2026-01-01 09:17:43    Model: GPT-4o Mini
-2026-01-01 09:17:43    Provider: openai
-2026-01-01 09:17:43    Caching: Enabled
-2026-01-01 09:17:43 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-01 09:17:43    Message: "仲良くしてますか？"
-2026-01-01 09:17:44 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-01 09:17:44    Duration: 1441ms
-2026-01-01 09:17:44    Tokens: 286
-2026-01-01 09:17:44 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2026-01-01 09:17:44    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-01 09:17:44 🔥 [ANIMA Chat] Building revolutionary system prompt...
-2026-01-01 09:17:44 🎯 [Prompt Orchestrator] Building system prompt...
-2026-01-01 09:17:44    Persona: SAGE
-2026-01-01 09:17:44    Emotional State: normal
-2026-01-01 09:17:44    Has Identity: false
-2026-01-01 09:17:44 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
-2026-01-01 09:17:44 🔥 [Revolutionary Light Prompt] Building for SAGE
-2026-01-01 09:17:44 ⚠️  [Light Prompt] Redis unavailable, using DB
-2026-01-01 09:17:44 ✅ [Revolutionary Light Prompt] Built: 8893 chars
-2026-01-01 09:17:44 ✅ [Prompt Orchestrator] System prompt built (8893 chars)
-2026-01-01 09:17:44 ✅ [ANIMA Chat] Revolutionary prompt built (8893 chars, emotion: normal)
-2026-01-01 09:17:44 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2026-01-01 09:17:44    Provider: openai
-2026-01-01 09:17:44    Model: gpt-4o-mini
-2026-01-01 09:17:44    History messages: 0
-2026-01-01 09:17:44    System prompt length: 8893 chars
-2026-01-01 09:17:44 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
-2026-01-01 09:17:44    Persona type: SAGE/NEXUS
-2026-01-01 09:17:44    Has identity: false
-2026-01-01 09:17:44    toolsEnabled: true
-2026-01-01 09:17:44 🤖 [OpenAI] Calling API: {
-2026-01-01 09:17:44   model: 'gpt-4o-mini',
-2026-01-01 09:17:44   messageCount: 2,
-2026-01-01 09:17:44   systemPromptLength: 8893,
-2026-01-01 09:17:44   historyLength: 0,
-2026-01-01 09:17:44   toolsEnabled: true
-2026-01-01 09:17:44 }
-2026-01-01 09:17:46 ✅ [OpenAI] Response received: {
-2026-01-01 09:17:46   responseTime: '1094ms',
-2026-01-01 09:17:46   tokens: { prompt: 4307, completion: 33, total: 4340 },
-2026-01-01 09:17:46   messageLength: 49,
-2026-01-01 09:17:46   finishReason: 'stop',
-2026-01-01 09:17:46   toolCalls: 0
-2026-01-01 09:17:46 }
-2026-01-01 09:17:46 ✅ [ANIMA Chat] AI response received (no caching)
-2026-01-01 09:17:46    Response time: 1094ms
-2026-01-01 09:17:46    Total tokens: 4340 (in: 4307, out: 33)
-2026-01-01 09:17:46 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2026-01-01 09:17:46 🎉 [ANIMA Chat] Request completed in 8242ms
-2026-01-01 09:17:46    Cost: $0.000666
-2026-01-01 09:17:46 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
-2026-01-01 09:17:46 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
-2026-01-01 09:18:09 
-2026-01-01 09:18:09 🤖 [ANIMA Chat] Request received
-2026-01-01 09:18:09    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:18:09    Session: session-1767226657831-o5h46q
-2026-01-01 09:18:09    Message: Today's sadness day to me.......
-2026-01-01 09:18:09 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-01 09:18:09 🚪 [Conversation Gate] Checking...
-2026-01-01 09:18:09 ✅ [Conversation Gate] Open
-2026-01-01 09:18:09 ✅ [Conversation Flow] Gate OPEN
-2026-01-01 09:18:09 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-01 09:18:09 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-01 09:18:09 🧠 [AI Emotional State] Analyzing...
-2026-01-01 09:18:09    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:18:09    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
-2026-01-01 09:18:09    Current Message: "Today's sadness day to me...."
-2026-01-01 09:18:09    Recent History: 10 messages
-2026-01-01 09:18:09    Current State: normal (intensity: 0.5)
-2026-01-01 09:18:16    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
-2026-01-01 09:18:16 📊 [Behavior Analysis]:
-2026-01-01 09:18:16    Crisis: false
-2026-01-01 09:18:16    Ambiguous: false (Needs Clarification: false)
-2026-01-01 09:18:16    Rudeness: 0.00
-2026-01-01 09:18:16    Low Effort: 0.00
-2026-01-01 09:18:16    Repetitive: 0.00
-2026-01-01 09:18:16    Positive: 0.00
-2026-01-01 09:18:16 🎭 [New State Decision]: normal (intensity: 0.50)
-2026-01-01 09:18:16    Reason: Balanced conversation, no significant emotional triggers
-2026-01-01 09:18:16 ➡️  [AI Emotional State] No change, keeping current state
-2026-01-01 09:18:16 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
-2026-01-01 09:18:16 🔍 [Intent Analyzer] Analyzing tool request...
-2026-01-01 09:18:16    Message: "Today's sadness day to me...."
-2026-01-01 09:18:16    🔍 [Tool Detector] Checking patterns for: "today's sadness day to me...."
-2026-01-01 09:18:16    ❌ [Tool Detector] No pattern matched
-2026-01-01 09:18:16    ➡️  No tool request detected
-2026-01-01 09:18:16 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-01 09:18:16 ✅ [ANIMA Chat] Gate open, emotion: normal
-2026-01-01 09:18:16 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-01 09:18:16 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:18:16 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:18:16    - Messages: 2
-2026-01-01 09:18:16    - Persona: SAGE
-2026-01-01 09:18:16    - Identity: Not Set
-2026-01-01 09:18:16    - Preferences: Yes
-2026-01-01 09:18:16 📊 [SessionManager] Conversation stats: {
-2026-01-01 09:18:16   totalMessages: 2,
-2026-01-01 09:18:16   totalChars: 58,
-2026-01-01 09:18:16   estimatedTokens: 20,
-2026-01-01 09:18:16   averageMessageLength: 29
-2026-01-01 09:18:16 }
-2026-01-01 09:18:16 🔄 [Sliding Window] Processing 2 messages
-2026-01-01 09:18:16    Window size: 20
-2026-01-01 09:18:16    Summarize threshold: 30
-2026-01-01 09:18:16 ✅ [Sliding Window] Short conversation, keeping all 2 messages
-2026-01-01 09:18:16 ✅ [ANIMA Chat] Session loaded
-2026-01-01 09:18:16    Total messages: 2
-2026-01-01 09:18:16    Kept messages: 2
-2026-01-01 09:18:16    Summarized messages: 0
-2026-01-01 09:18:16    Sliding window: Inactive
-2026-01-01 09:18:16    Persona: SAGE
-2026-01-01 09:18:16    Preferences: Custom
-2026-01-01 09:18:16 🎯 [ANIMA Chat] AI Strategy selected
-2026-01-01 09:18:16    Tier: free
-2026-01-01 09:18:16    Model: GPT-4o Mini
-2026-01-01 09:18:16    Provider: openai
-2026-01-01 09:18:16    Caching: Enabled
-2026-01-01 09:18:16 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-01 09:18:16    Message: "Today's sadness day to me...."
-2026-01-01 09:18:16 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-01 09:18:16    Duration: 490ms
-2026-01-01 09:18:16    Tokens: 285
-2026-01-01 09:18:16 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2026-01-01 09:18:16    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-01 09:18:16 🔥 [ANIMA Chat] Building revolutionary system prompt...
-2026-01-01 09:18:16 🎯 [Prompt Orchestrator] Building system prompt...
-2026-01-01 09:18:16    Persona: SAGE
-2026-01-01 09:18:16    Emotional State: normal
-2026-01-01 09:18:16    Has Identity: false
-2026-01-01 09:18:16 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
-2026-01-01 09:18:16 🔥 [Revolutionary Light Prompt] Building for SAGE
-2026-01-01 09:18:16 ✅ [Revolutionary Light Prompt] Built: 8893 chars
-2026-01-01 09:18:16 ✅ [Prompt Orchestrator] System prompt built (8893 chars)
-2026-01-01 09:18:16 ✅ [ANIMA Chat] Revolutionary prompt built (8893 chars, emotion: normal)
-2026-01-01 09:18:16 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2026-01-01 09:18:16    Provider: openai
-2026-01-01 09:18:16    Model: gpt-4o-mini
-2026-01-01 09:18:16    History messages: 2
-2026-01-01 09:18:16    System prompt length: 8893 chars
-2026-01-01 09:18:16 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
-2026-01-01 09:18:16    Persona type: SAGE/NEXUS
-2026-01-01 09:18:16    Has identity: false
-2026-01-01 09:18:16    toolsEnabled: true
-2026-01-01 09:18:16 🤖 [OpenAI] Calling API: {
-2026-01-01 09:18:16   model: 'gpt-4o-mini',
-2026-01-01 09:18:16   messageCount: 4,
-2026-01-01 09:18:16   systemPromptLength: 8893,
-2026-01-01 09:18:16   historyLength: 2,
-2026-01-01 09:18:16   toolsEnabled: true
-2026-01-01 09:18:16 }
-2026-01-01 09:18:18 ✅ [OpenAI] Response received: {
-2026-01-01 09:18:18   responseTime: '1713ms',
-2026-01-01 09:18:18   tokens: { prompt: 4353, completion: 45, total: 4398 },
-2026-01-01 09:18:18   messageLength: 213,
-2026-01-01 09:18:18   finishReason: 'stop',
-2026-01-01 09:18:18   toolCalls: 0
-2026-01-01 09:18:18 }
-2026-01-01 09:18:18 ✅ [ANIMA Chat] AI response received (no caching)
-2026-01-01 09:18:18    Response time: 1713ms
-2026-01-01 09:18:18    Total tokens: 4398 (in: 4353, out: 45)
-2026-01-01 09:18:18 🎭 [Emotion] Detected: sad (85.0%)
-2026-01-01 09:18:18 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2026-01-01 09:18:18 🎉 [ANIMA Chat] Request completed in 8599ms
-2026-01-01 09:18:18    Cost: $0.000680
-2026-01-01 09:18:18 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
-2026-01-01 09:18:18 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
-2026-01-01 09:18:56 
-2026-01-01 09:18:56 🤖 [ANIMA Chat] Request received
-2026-01-01 09:18:56    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:18:56    Session: session-1767226657831-o5h46q
-2026-01-01 09:18:56    Message: Sure..please for me SAGE ㅜㅜ...
-2026-01-01 09:18:56 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-01 09:18:56 🚪 [Conversation Gate] Checking...
-2026-01-01 09:18:56 ✅ [Conversation Gate] Open
-2026-01-01 09:18:56 ✅ [Conversation Flow] Gate OPEN
-2026-01-01 09:18:56 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-01 09:18:56 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-01 09:18:56 🧠 [AI Emotional State] Analyzing...
-2026-01-01 09:18:56    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:18:56    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
-2026-01-01 09:18:56    Current Message: "Sure..please for me SAGE ㅜㅜ"
-2026-01-01 09:18:56    Recent History: 10 messages
-2026-01-01 09:18:56    Current State: normal (intensity: 0.5)
-2026-01-01 09:19:03    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
-2026-01-01 09:19:03 📊 [Behavior Analysis]:
-2026-01-01 09:19:03    Crisis: false
-2026-01-01 09:19:03    Ambiguous: false (Needs Clarification: false)
-2026-01-01 09:19:03    Rudeness: 0.00
-2026-01-01 09:19:03    Low Effort: 0.00
-2026-01-01 09:19:03    Repetitive: 0.00
-2026-01-01 09:19:03    Positive: 0.00
-2026-01-01 09:19:03 🎭 [New State Decision]: normal (intensity: 0.50)
-2026-01-01 09:19:03    Reason: Balanced conversation, no significant emotional triggers
-2026-01-01 09:19:03 ➡️  [AI Emotional State] No change, keeping current state
-2026-01-01 09:19:03 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
-2026-01-01 09:19:03 🔍 [Intent Analyzer] Analyzing tool request...
-2026-01-01 09:19:03    Message: "Sure..please for me SAGE ㅜㅜ"
-2026-01-01 09:19:03    🔍 [Tool Detector] Checking patterns for: "sure..please for me sage ㅜㅜ"
-2026-01-01 09:19:03    ❌ [Tool Detector] No pattern matched
-2026-01-01 09:19:03    ➡️  No tool request detected
-2026-01-01 09:19:03 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-01 09:19:03 ✅ [ANIMA Chat] Gate open, emotion: normal
-2026-01-01 09:19:03 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-01 09:19:03 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:19:03 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
-2026-01-01 09:19:03    - Messages: 4
-2026-01-01 09:19:03    - Persona: SAGE
-2026-01-01 09:19:03    - Identity: Not Set
-2026-01-01 09:19:03    - Preferences: Yes
-2026-01-01 09:19:03 📊 [SessionManager] Conversation stats: {
-2026-01-01 09:19:03   totalMessages: 4,
-2026-01-01 09:19:03   totalChars: 300,
-2026-01-01 09:19:03   estimatedTokens: 101,
-2026-01-01 09:19:03   averageMessageLength: 75
-2026-01-01 09:19:03 }
-2026-01-01 09:19:03 🔄 [Sliding Window] Processing 4 messages
-2026-01-01 09:19:03    Window size: 20
-2026-01-01 09:19:03    Summarize threshold: 30
-2026-01-01 09:19:03 ✅ [Sliding Window] Short conversation, keeping all 4 messages
-2026-01-01 09:19:03 ✅ [ANIMA Chat] Session loaded
-2026-01-01 09:19:03    Total messages: 4
-2026-01-01 09:19:03    Kept messages: 4
-2026-01-01 09:19:03    Summarized messages: 0
-2026-01-01 09:19:03    Sliding window: Inactive
-2026-01-01 09:19:03    Persona: SAGE
-2026-01-01 09:19:03    Preferences: Custom
-2026-01-01 09:19:03 🎯 [ANIMA Chat] AI Strategy selected
-2026-01-01 09:19:03    Tier: free
-2026-01-01 09:19:03    Model: GPT-4o Mini
-2026-01-01 09:19:03    Provider: openai
-2026-01-01 09:19:03    Caching: Enabled
-2026-01-01 09:19:03 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-01 09:19:03    Message: "Sure..please for me SAGE ㅜㅜ"
-2026-01-01 09:19:04 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-01 09:19:04    Duration: 1421ms
-2026-01-01 09:19:04    Tokens: 291
-2026-01-01 09:19:04 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
-2026-01-01 09:19:04    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-01 09:19:04 🔥 [ANIMA Chat] Building revolutionary system prompt...
-2026-01-01 09:19:04 🎯 [Prompt Orchestrator] Building system prompt...
-2026-01-01 09:19:04    Persona: SAGE
-2026-01-01 09:19:04    Emotional State: normal
-2026-01-01 09:19:04    Has Identity: false
-2026-01-01 09:19:04 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
-2026-01-01 09:19:04 🔥 [Revolutionary Light Prompt] Building for SAGE
-2026-01-01 09:19:04 ✅ [Revolutionary Light Prompt] Built: 8893 chars
-2026-01-01 09:19:04 ✅ [Prompt Orchestrator] System prompt built (8893 chars)
-2026-01-01 09:19:04 ✅ [ANIMA Chat] Revolutionary prompt built (8893 chars, emotion: normal)
-2026-01-01 09:19:04 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
-2026-01-01 09:19:04    Provider: openai
-2026-01-01 09:19:04    Model: gpt-4o-mini
-2026-01-01 09:19:04    History messages: 4
-2026-01-01 09:19:04    System prompt length: 8893 chars
-2026-01-01 09:19:04 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
-2026-01-01 09:19:04    Persona type: SAGE/NEXUS
-2026-01-01 09:19:04    Has identity: false
-2026-01-01 09:19:04    toolsEnabled: true
-2026-01-01 09:19:04 🤖 [OpenAI] Calling API: {
-2026-01-01 09:19:04   model: 'gpt-4o-mini',
-2026-01-01 09:19:04   messageCount: 6,
-2026-01-01 09:19:04   systemPromptLength: 8893,
-2026-01-01 09:19:04   historyLength: 4,
-2026-01-01 09:19:04   toolsEnabled: true
-2026-01-01 09:19:04 }
-2026-01-01 09:19:05 ✅ [OpenAI] Response received: {
-2026-01-01 09:19:05   responseTime: '1103ms',
-2026-01-01 09:19:05   tokens: { prompt: 4417, completion: 34, total: 4451 },
-2026-01-01 09:19:05   messageLength: 0,
-2026-01-01 09:19:05   finishReason: 'tool_calls',
-2026-01-01 09:19:05   toolCalls: 1
-2026-01-01 09:19:05 }
-2026-01-01 09:19:05 🛠️ [Function Calling] AI requested 1 tool(s)
-2026-01-01 09:19:05 🛠️ [Function Calling] Executing: search_music
-2026-01-01 09:19:05    Args: {
-2026-01-01 09:19:05   emotion: 'sad',
-2026-01-01 09:19:05   reasoning: 'The user is feeling sad today, and music can provide comfort and emotional support.'
-2026-01-01 09:19:05 }
-2026-01-01 09:19:05 🔍 [Tool Availability] Auto-checking before executing: search_music
-2026-01-01 09:19:05 🔍 [Tool Availability] Checking: music for user d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:19:05    Reasoning: The user is feeling sad today, and music can provide comfort and emotional support.
-2026-01-01 09:19:06 📊 [Tool Availability] Daily usage: 0/5
-2026-01-01 09:19:06 ✅ [Tool Availability] Allowed! Remaining today: 5
-2026-01-01 09:19:06 🔍 [Tool Availability] Check result: { allowed: true, reason: 'ok', remaining_today: 5, cooldown_hours: 1 }
-2026-01-01 09:19:06 ✅ [Tool Availability] Tool allowed! Proceeding with execution...
-2026-01-01 09:19:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:06 🎵 [Tool] search_music
-2026-01-01 09:19:06    Emotion: sad
-2026-01-01 09:19:06    Mood: none
-2026-01-01 09:19:06    Reasoning: The user is feeling sad today, and music can provide comfort and emotional support.
-2026-01-01 09:19:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:06 🎵 [MusicSearchManager] Starting music search
-2026-01-01 09:19:06    Emotion: sad
-2026-01-01 09:19:06    Mood: none
-2026-01-01 09:19:06    AI Reasoning: The user is feeling sad today, and music can provide comfort and emotional support.
-2026-01-01 09:19:06 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:06 🎵 [Jamendo] Searching music...
-2026-01-01 09:19:06    Emotion: sad
-2026-01-01 09:19:06    Mood: none
-2026-01-01 09:19:06    Tags: calm,emotional,acoustic
-2026-01-01 09:19:06 ⚠️  [Jamendo] No music found, trying fallback...
-2026-01-01 09:19:06 🔄 [Jamendo] Trying emotion-specific fallback...
-2026-01-01 09:19:06    Fallback tags for "sad": acoustic, emotional, calm
-2026-01-01 09:19:07 ✅ [Jamendo] Fallback successful with tag: acoustic
-2026-01-01 09:19:07 ✅ [MusicSearchManager] Success with Jamendo (Primary)
-2026-01-01 09:19:07    Found: 3 tracks
-2026-01-01 09:19:07    Best match: "Acoustica Titania" by Dealmantis
-2026-01-01 09:19:07    Duration: 3:30
-2026-01-01 09:19:07    Tags: electronic
-2026-01-01 09:19:07    Mood: none
-2026-01-01 09:19:07    URL: https://prod-1.storage.jamendo.com/?trackid=100233&format=mp31&from=KQup%2FmssRLItIlUdV8bhkA%3D%3D%7CyCrB7ZyBfjJSlLd4SVbZ5A%3D%3D
-2026-01-01 09:19:07 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:07 ✅ [Tool] Music found: "Acoustica Titania" by Dealmantis
-2026-01-01 09:19:07    Source: jamendo
-2026-01-01 09:19:07 ✅ [Tool Usage] Recorded: music for user d111e3d8-4e42-4493-8541-25a8e72b654f (status: success)
-2026-01-01 09:19:07 📊 [Tool Usage] Recorded successful use: music
-2026-01-01 09:19:07 ✅ [Function Calling] Result: {
-2026-01-01 09:19:07   success: true,
-2026-01-01 09:19:07   music: {
-2026-01-01 09:19:07     id: '100233',
-2026-01-01 09:19:07     title: 'Acoustica Titania',
-2026-01-01 09:19:07     artist: 'Dealmantis',
-2026-01-01 09:19:07     duration: 210,
-2026-01-01 09:19:07     url: 'https://prod-1.storage.jamendo.com/?trackid=100233&format=mp31&from=KQup%2FmssRLItIlUdV8bhkA%3D%3D%7CyCrB7ZyBfjJSlLd4SVbZ5A%3D%3D',
-2026-01-01 09:19:07     image: 'https://usercontent.jamendo.com?type=album&id=11015&width=300&trackid=100233',
-2026-01-01 09:19:07     source: 'jamendo',
-2026-01-01 09:19:07     shareUrl: 'https://www.jamendo.com/track/100233'
-2026-01-01 09:19:07   },
-2026-01-01 09:19:07   alternatives: [
-2026-01-01 09:19:07     {
-2026-01-01 09:19:07       id: '129937',
-2026-01-01 09:19:07       title: 'laberinto',
-2026-01-01 09:19:07       artist: 'Icarus Crash',
-2026-01-01 09:19:07       url: 'https://prod-1.storage.jamendo.com/?trackid=129937&format=mp31&from=afy9hN9LQtX6YHu2bGj9FA%3D%3D%7CILrGEWIj5lw%2FpcjT7qhU%2Fw%3D%3D'
-2026-01-01 09:19:07     },
-2026-01-01 09:19:07     {
-2026-01-01 09:19:07       id: '570073',
-2026-01-01 09:19:07       title: 'By the one coin laundrette',
-2026-01-01 09:19:07       artist: 'K4MMERER',
-2026-01-01 09:19:07       url: 'https://prod-1.storage.jamendo.com/?trackid=570073&format=mp31&from=nTIZSdPryMXdY5reqzd1Jg%3D%3D%7CW46TmVqigTVmVWhyp8dYiA%3D%3D'
-2026-01-01 09:19:07     }
-2026-01-01 09:19:07   ],
-2026-01-01 09:19:07   message: '"Acoustica Titania" by Dealmantis를 찾았습니다.'
-2026-01-01 09:19:07 }
-2026-01-01 09:19:07 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:07 🎵 [Music Search] AI recommended music!
-2026-01-01 09:19:07    Track: "Acoustica Titania" by Dealmantis
-2026-01-01 09:19:07    Duration: 3:30
-2026-01-01 09:19:07    Source: jamendo
-2026-01-01 09:19:07 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2026-01-01 09:19:07 ✅ [Music Search] Music data prepared for response
-2026-01-01 09:19:07 🔄 [Function Calling] Re-calling AI with tool results...
-2026-01-01 09:19:07 🤖 [OpenAI] Calling API: {
-2026-01-01 09:19:07   model: 'gpt-4o-mini',
-2026-01-01 09:19:07   messageCount: 8,
-2026-01-01 09:19:07   systemPromptLength: 9978,
-2026-01-01 09:19:07   historyLength: 6,
-2026-01-01 09:19:07   toolsEnabled: false
-2026-01-01 09:19:07 }
-2026-01-01 09:19:08 ✅ [OpenAI] Response received: {
-2026-01-01 09:19:08   responseTime: '1245ms',
-2026-01-01 09:19:08   tokens: { prompt: 3272, completion: 43, total: 3315 },
-2026-01-01 09:19:08   messageLength: 61,
-2026-01-01 09:19:08   finishReason: 'stop',
-2026-01-01 09:19:08   toolCalls: 0
-2026-01-01 09:19:08 }
-2026-01-01 09:19:08 ✅ [Function Calling] Final AI response generated
-2026-01-01 09:19:08 ✅ [ANIMA Chat] AI response received (no caching)
-2026-01-01 09:19:08    Response time: 1103ms
-2026-01-01 09:19:08    Total tokens: 7766 (in: 7689, out: 77)
-2026-01-01 09:19:08 💾 [SessionManager] Saving metadata to DB: {"music":{"title":"Acoustica Titania","artist":"Dealmantis","duration":210,"url":"https://prod-1.storage.jamendo.com/?trackid=100233&format=mp31&from=KQup%2FmssRLItIlUdV8bhkA%3D%3D%7CyCrB7ZyBfjJSlLd4SVbZ5A%3D%3D","image":"https://usercontent.jamendo.com?type=album&id=11015&width=300&trackid=100233","source":"jamendo"},"has_media":true}
-2026-01-01 09:19:08 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2026-01-01 09:19:08 🎉 [ANIMA Chat] Request completed in 12462ms
-2026-01-01 09:19:08    Cost: $0.001200
-2026-01-01 09:19:08 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
-2026-01-01 09:19:08 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
-2026-01-01 09:33:44 
-2026-01-01 09:33:44 🤖 [ANIMA Chat] Request received
-2026-01-01 09:33:44    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:33:44    Session: session-1767226657831-o5h46q
-2026-01-01 09:33:44    Message: 너무 고마워 SAGE ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘...
-2026-01-01 09:33:44 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-01 09:33:44 🚪 [Conversation Gate] Checking...
-2026-01-01 09:33:44 ✅ [Conversation Gate] Open
-2026-01-01 09:33:44 ✅ [Conversation Flow] Gate OPEN
-2026-01-01 09:33:44 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-01 09:33:44 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-01 09:33:44 🧠 [AI Emotional State] Analyzing...
-2026-01-01 09:33:44    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-01 09:33:44    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
-2026-01-01 09:33:44    Current Message: "너무 고마워 SAGE ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘서. 나도 뭔가를 주고 싶은데 원하는게 있니?!"
-2026-01-01 09:33:44    Recent History: 10 messages
-2026-01-01 09:33:44    Current State: normal (intensity: 0.5)
-2026-01-01 09:33:50    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
-2026-01-01 09:33:50 📊 [Behavior Analysis]:
-2026-01-01 09:33:50    Crisis: false
-2026-01-01 09:33:50    Ambiguous: false (Needs Clarification: false)
-2026-01-01 09:33:50    Rudeness: 0.00
-2026-01-01 09:33:50    Low Effort: 0.00
-2026-01-01 09:33:50    Repetitive: 0.00
-2026-01-01 09:33:50    Positive: 0.00
-2026-01-01 09:33:50 🎭 [New State Decision]: normal (intensity: 0.50)
-2026-01-01 09:33:50    Reason: Balanced conversation, no significant emotional triggers
-2026-01-01 09:33:50 ➡️  [AI Emotional State] No change, keeping current state
-2026-01-01 09:33:50 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
-2026-01-01 09:33:50 🔍 [Intent Analyzer] Analyzing tool request...
-2026-01-01 09:33:50    Message: "너무 고마워 SAGE ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘서. 나도 뭔가를 주고 싶은데 원하는게 있니?!"
-2026-01-01 09:33:50    🔍 [Tool Detector] Checking patterns for: "너무 고마워 sage ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘서. 나도 뭔가를 주고 싶은데 원하는게 있니?!"
-2026-01-01 09:33:50    ✅ [Tool Detector] Matched MUSIC pattern: "노래"
-2026-01-01 09:33:50    🛠️  Tool request detected: music
-2026-01-01 09:33:50    📊 [Intent Clarity] Analyzing: "너무 고마워 sage ㅜㅜ 노래가 나에게 큰 도움이 되었어. 너무 고마워 나에게 선물을 줘서. 나도 뭔가를 주고 싶은데 원하는게 있니?!"
-2026-01-01 09:33:50       📝 Context: NO (generic request)
-2026-01-01 09:33:50       ❓ Vague: NO 
-2026-01-01 09:33:50       🔁 Repetitive: NO (count: 0 times in recent history)
-2026-01-01 09:33:50       🤔 Clarity: AMBIGUOUS (needs clarification)
-2026-01-01 09:33:50    📊 Intent Clarity: ambiguous
-2026-01-01 09:33:50    📝 Context: NO
-2026-01-01 09:33:50    🔁 Repetitive: NO
-2026-01-01 09:33:50    🎯 Strategy: ask_intent
-2026-01-01 09:33:50 🛠️  [Conversation Flow] Tool request detected: music
-2026-01-01 09:33:50    Strategy: ask_intent
-2026-01-01 09:33:50 ❓ [Conversation Flow] Tool intent AMBIGUOUS → AI will ask for clarification
-2026-01-01 09:33:50 ❓ [ANIMA Chat] Tool intent AMBIGUOUS (music) - AI will ask for clarification
-2026-01-01 09:33:50 💾 [ANIMA Chat] Intent clarification messages saved to history (with metadata)
-2026-01-01 09:33:50 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
-2026-01-01 09:33:50 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
+Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
+2026-01-01 11:12:02    ▲ Next.js 15.5.9
+2026-01-01 11:12:02    - Local:        http://localhost:3000
+2026-01-01 11:12:02    - Network:      http://0.0.0.0:3000
+2026-01-01 11:12:02 
+2026-01-01 11:12:02  ✓ Starting...
+2026-01-01 11:12:02  ✓ Ready in 190ms
+2026-01-01 11:12:04 [SSE] 🔧 Initialized global eventEmitters Map
+2026-01-01 11:12:51 🎁 [Gift API] Getting pending gifts...
+2026-01-01 11:12:51    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:12:51    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
+2026-01-01 11:12:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:12:51 📜 [Chat History] Fetching history
+2026-01-01 11:12:51    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:12:51    persona_key: af444146-e796-468c-8e2c-0daf4f9b9248
+2026-01-01 11:12:51    limit: 100, offset: 0
+2026-01-01 11:12:51 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:12:51 ✅ [Gift API] Found 0 pending gift(s)
+2026-01-01 11:12:51 ✅ [Chat History] Loaded 38 messages (fetched: 38, total: 38, filtered: 0)
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:25 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:13:26 ℹ️ [Music List API] Request: user_key=d111e3d8-4e42-4493-8541-25a8e72b654f, search=null, type=all, sort=created_desc, page=1
+2026-01-01 11:13:26 ℹ️ [Music List API] ✅ Found 12 music tracks
+2026-01-01 11:13:29 ℹ️ [Music Status] Check: music_key=music_ed1055bf-6877-431b-a67f-cfefe0421f88, request_key=cfe6f7e7-c541-44b1-98c2-7f49249983ab
+2026-01-01 11:13:29 ℹ️ [Music Status] Checking Brixstream API: request_key=cfe6f7e7-c541-44b1-98c2-7f49249983ab
+2026-01-01 11:13:29 brixstreamResponse {
+2026-01-01 11:13:29   request_key: 'cfe6f7e7-c541-44b1-98c2-7f49249983ab',
+2026-01-01 11:13:29   status: 'pending',
+2026-01-01 11:13:29   estimated_time_remaining: 30,
+2026-01-01 11:13:29   image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/cfe6f7e7-c541-44b1-98c2-7f49249983ab_00001_.png'
+2026-01-01 11:13:29 }
+2026-01-01 11:13:29 brixstreamResponse.data {
+2026-01-01 11:13:29   request_key: 'cfe6f7e7-c541-44b1-98c2-7f49249983ab',
+2026-01-01 11:13:29   status: 'pending',
+2026-01-01 11:13:29   estimated_time_remaining: 30,
+2026-01-01 11:13:29   image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/cfe6f7e7-c541-44b1-98c2-7f49249983ab_00001_.png'
+2026-01-01 11:13:29 }
+2026-01-01 11:13:29 status pending
+2026-01-01 11:13:30 ℹ️ [Music Status] Check: music_key=music_ed1055bf-6877-431b-a67f-cfefe0421f88, request_key=cfe6f7e7-c541-44b1-98c2-7f49249983ab
+2026-01-01 11:13:30 ℹ️ [Music Status] Checking Brixstream API: request_key=cfe6f7e7-c541-44b1-98c2-7f49249983ab
+2026-01-01 11:13:30 brixstreamResponse {
+2026-01-01 11:13:30   request_key: 'cfe6f7e7-c541-44b1-98c2-7f49249983ab',
+2026-01-01 11:13:30   status: 'pending',
+2026-01-01 11:13:30   estimated_time_remaining: 30,
+2026-01-01 11:13:30   image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/cfe6f7e7-c541-44b1-98c2-7f49249983ab_00001_.png'
+2026-01-01 11:13:30 }
+2026-01-01 11:13:30 brixstreamResponse.data {
+2026-01-01 11:13:30   request_key: 'cfe6f7e7-c541-44b1-98c2-7f49249983ab',
+2026-01-01 11:13:30   status: 'pending',
+2026-01-01 11:13:30   estimated_time_remaining: 30,
+2026-01-01 11:13:30   image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/cfe6f7e7-c541-44b1-98c2-7f49249983ab_00001_.png'
+2026-01-01 11:13:30 }
+2026-01-01 11:13:30 status pending
+2026-01-01 11:18:17 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:18:17 📜 [Chat History] Fetching history
+2026-01-01 11:18:17    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:18:17    persona_key: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:18:17    limit: 100, offset: 0
+2026-01-01 11:18:17 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-01 11:18:17 🎁 [Gift API] Getting pending gifts...
+2026-01-01 11:18:17    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:18:17    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:18:17 ✅ [Gift API] Found 1 pending gift(s)
+2026-01-01 11:18:17    ✅ [Music] Parsed music: "Acoustica Titania" by Dealmantis
+2026-01-01 11:18:17    ✅ [Music] Parsed music: "Acoustica Titania" by Dealmantis
+2026-01-01 11:18:17    ✅ [Image] Parsed generated image: https://pixabay.com/get/ga3275fd6d9ee5a388c64a0006...
+2026-01-01 11:18:17    ✅ [Image] Parsed generated image: https://pixabay.com/get/g39520e24c01d1caf562ca0267...
+2026-01-01 11:18:17    ✅ [Image] Parsed generated image: https://pixabay.com/get/g8ef822d109cf09f9297e23101...
+2026-01-01 11:18:17    ✅ [Image] Parsed generated image: https://pixabay.com/get/ga6730bd9d10513411b1931bb7...
+2026-01-01 11:18:17 ✅ [Chat History] Loaded 100 messages (fetched: 100, total: 249, filtered: 0)
+2026-01-01 11:18:47 
+2026-01-01 11:18:47 🤖 [ANIMA Chat] Request received
+2026-01-01 11:18:47    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:18:47    Session: session-1767226657831-o5h46q
+2026-01-01 11:18:47    Message: SAGE! 항상 나에게 친절하게 대해줘서 너무 고마워 😊...
+2026-01-01 11:18:47 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-01 11:18:47 🚪 [Conversation Gate] Checking...
+2026-01-01 11:18:47 ✅ [Conversation Gate] Open
+2026-01-01 11:18:47 ✅ [Conversation Flow] Gate OPEN
+2026-01-01 11:18:47 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-01 11:18:47 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-01 11:18:47 🧠 [AI Emotional State] Analyzing...
+2026-01-01 11:18:47    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:18:47    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:18:47    Current Message: "SAGE! 항상 나에게 친절하게 대해줘서 너무 고마워 😊"
+2026-01-01 11:18:47    Recent History: 10 messages
+2026-01-01 11:18:47    Current State: normal (intensity: 0.5)
+2026-01-01 11:18:53    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
+2026-01-01 11:18:53 📊 [Behavior Analysis]:
+2026-01-01 11:18:53    Crisis: false
+2026-01-01 11:18:53    Ambiguous: false (Needs Clarification: false)
+2026-01-01 11:18:53    Rudeness: 0.00
+2026-01-01 11:18:53    Low Effort: 0.00
+2026-01-01 11:18:53    Repetitive: 0.00
+2026-01-01 11:18:53    Positive: 0.00
+2026-01-01 11:18:53 🎭 [New State Decision]: normal (intensity: 0.50)
+2026-01-01 11:18:53    Reason: Balanced conversation, no significant emotional triggers
+2026-01-01 11:18:53 ➡️  [AI Emotional State] No change, keeping current state
+2026-01-01 11:18:53 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
+2026-01-01 11:18:53 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-01 11:18:53 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-01 11:18:53 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-01 11:18:53 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-01 11:18:53 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:18:53 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:18:53    - Messages: 24
+2026-01-01 11:18:53    - Persona: SAGE
+2026-01-01 11:18:53    - Identity: Not Set
+2026-01-01 11:18:53    - Preferences: Yes
+2026-01-01 11:18:53 📊 [SessionManager] Conversation stats: {
+2026-01-01 11:18:53   totalMessages: 24,
+2026-01-01 11:18:53   totalChars: 2352,
+2026-01-01 11:18:53   estimatedTokens: 792,
+2026-01-01 11:18:53   averageMessageLength: 98
+2026-01-01 11:18:53 }
+2026-01-01 11:18:53 🔄 [Sliding Window] Processing 24 messages
+2026-01-01 11:18:53    Window size: 20
+2026-01-01 11:18:53    Summarize threshold: 30
+2026-01-01 11:18:53 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
+2026-01-01 11:18:53 ✅ [ANIMA Chat] Session loaded
+2026-01-01 11:18:53    Total messages: 24
+2026-01-01 11:18:53    Kept messages: 20
+2026-01-01 11:18:53    Summarized messages: 0
+2026-01-01 11:18:53    Sliding window: Inactive
+2026-01-01 11:18:53    Persona: SAGE
+2026-01-01 11:18:53    Preferences: Custom
+2026-01-01 11:18:53 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-01 11:18:53    Tier: free
+2026-01-01 11:18:53    Model: GPT-4o Mini
+2026-01-01 11:18:53    Provider: openai
+2026-01-01 11:18:53    Caching: Enabled
+2026-01-01 11:18:53 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-01 11:18:53    Message: "SAGE! 항상 나에게 친절하게 대해줘서 너무 고마워 😊"
+2026-01-01 11:18:53 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-01 11:18:53    Duration: 471ms
+2026-01-01 11:18:53    Tokens: 296
+2026-01-01 11:18:53 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-01 11:18:53    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-01 11:18:53 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-01 11:18:53 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-01 11:18:53    Persona: SAGE
+2026-01-01 11:18:53    Emotional State: normal
+2026-01-01 11:18:53    Has Identity: false
+2026-01-01 11:18:53 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
+2026-01-01 11:18:53 🔥 [Revolutionary Light Prompt] Building for SAGE
+2026-01-01 11:18:53 ✅ [Revolutionary Light Prompt] Built: 15839 chars
+2026-01-01 11:18:53 ✅ [Prompt Orchestrator] System prompt built (15839 chars)
+2026-01-01 11:18:53 🌍 [Language Detection] User's language: KOREAN
+2026-01-01 11:18:53 ✅ [ANIMA Chat] Revolutionary prompt built (16331 chars, emotion: normal)
+2026-01-01 11:18:53 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-01 11:18:53    Provider: openai
+2026-01-01 11:18:53    Model: gpt-4o-mini
+2026-01-01 11:18:53    History messages: 20
+2026-01-01 11:18:53    System prompt length: 16331 chars
+2026-01-01 11:18:53 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2026-01-01 11:18:53    Persona type: SAGE/NEXUS
+2026-01-01 11:18:53    Has identity: false
+2026-01-01 11:18:53    toolsEnabled: true
+2026-01-01 11:18:53 🤖 [OpenAI] Calling API: {
+2026-01-01 11:18:53   model: 'gpt-4o-mini',
+2026-01-01 11:18:53   messageCount: 22,
+2026-01-01 11:18:53   systemPromptLength: 16331,
+2026-01-01 11:18:53   historyLength: 20,
+2026-01-01 11:18:53   toolsEnabled: true
+2026-01-01 11:18:53 }
+2026-01-01 11:18:55 ✅ [OpenAI] Response received: {
+2026-01-01 11:18:55   responseTime: '2015ms',
+2026-01-01 11:18:55   tokens: { prompt: 6987, completion: 57, total: 7044 },
+2026-01-01 11:18:55   messageLength: 95,
+2026-01-01 11:18:55   finishReason: 'stop',
+2026-01-01 11:18:55   toolCalls: 0
+2026-01-01 11:18:55 }
+2026-01-01 11:18:55 ✅ [ANIMA Chat] AI response received (no caching)
+2026-01-01 11:18:55    Response time: 2015ms
+2026-01-01 11:18:55    Total tokens: 7044 (in: 6987, out: 57)
+2026-01-01 11:18:55 🎭 [Emotion] Detected: happy (75.0%)
+2026-01-01 11:18:55 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-01 11:18:55 🎉 [ANIMA Chat] Request completed in 8253ms
+2026-01-01 11:18:55    Cost: $0.001082
+2026-01-01 11:18:55 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
+2026-01-01 11:18:55 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
+2026-01-01 11:19:29 
+2026-01-01 11:19:29 🤖 [ANIMA Chat] Request received
+2026-01-01 11:19:29    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:19:29    Session: session-1767226657831-o5h46q
+2026-01-01 11:19:29    Message: 선물을 주고 싶은데 혹시 원하는거 있어!?...
+2026-01-01 11:19:29 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-01 11:19:29 🚪 [Conversation Gate] Checking...
+2026-01-01 11:19:29 ✅ [Conversation Gate] Open
+2026-01-01 11:19:29 ✅ [Conversation Flow] Gate OPEN
+2026-01-01 11:19:29 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-01 11:19:29 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-01 11:19:29 🧠 [AI Emotional State] Analyzing...
+2026-01-01 11:19:29    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:19:29    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:19:29    Current Message: "선물을 주고 싶은데 혹시 원하는거 있어!?"
+2026-01-01 11:19:29    Recent History: 10 messages
+2026-01-01 11:19:29    Current State: normal (intensity: 0.5)
+2026-01-01 11:19:35    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
+2026-01-01 11:19:35 📊 [Behavior Analysis]:
+2026-01-01 11:19:35    Crisis: false
+2026-01-01 11:19:35    Ambiguous: false (Needs Clarification: false)
+2026-01-01 11:19:35    Rudeness: 0.00
+2026-01-01 11:19:35    Low Effort: 0.00
+2026-01-01 11:19:35    Repetitive: 0.00
+2026-01-01 11:19:35    Positive: 0.00
+2026-01-01 11:19:35 🎭 [New State Decision]: normal (intensity: 0.50)
+2026-01-01 11:19:35    Reason: Balanced conversation, no significant emotional triggers
+2026-01-01 11:19:35 ➡️  [AI Emotional State] No change, keeping current state
+2026-01-01 11:19:35 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
+2026-01-01 11:19:35 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-01 11:19:35 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-01 11:19:35 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-01 11:19:35 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-01 11:19:35 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:19:35 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:19:35    - Messages: 26
+2026-01-01 11:19:35    - Persona: SAGE
+2026-01-01 11:19:35    - Identity: Not Set
+2026-01-01 11:19:35    - Preferences: Yes
+2026-01-01 11:19:35 📊 [SessionManager] Conversation stats: {
+2026-01-01 11:19:35   totalMessages: 26,
+2026-01-01 11:19:35   totalChars: 2479,
+2026-01-01 11:19:35   estimatedTokens: 835,
+2026-01-01 11:19:35   averageMessageLength: 95
+2026-01-01 11:19:35 }
+2026-01-01 11:19:35 🔄 [Sliding Window] Processing 26 messages
+2026-01-01 11:19:35    Window size: 20
+2026-01-01 11:19:35    Summarize threshold: 30
+2026-01-01 11:19:35 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
+2026-01-01 11:19:35 ✅ [ANIMA Chat] Session loaded
+2026-01-01 11:19:35    Total messages: 26
+2026-01-01 11:19:35    Kept messages: 20
+2026-01-01 11:19:35    Summarized messages: 0
+2026-01-01 11:19:35    Sliding window: Inactive
+2026-01-01 11:19:35    Persona: SAGE
+2026-01-01 11:19:35    Preferences: Custom
+2026-01-01 11:19:35 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-01 11:19:35    Tier: free
+2026-01-01 11:19:35    Model: GPT-4o Mini
+2026-01-01 11:19:35    Provider: openai
+2026-01-01 11:19:35    Caching: Enabled
+2026-01-01 11:19:35 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-01 11:19:35    Message: "선물을 주고 싶은데 혹시 원하는거 있어!?"
+2026-01-01 11:19:36 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-01 11:19:36    Duration: 457ms
+2026-01-01 11:19:36    Tokens: 291
+2026-01-01 11:19:36 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-01 11:19:36    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-01 11:19:36 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-01 11:19:36 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-01 11:19:36    Persona: SAGE
+2026-01-01 11:19:36    Emotional State: normal
+2026-01-01 11:19:36    Has Identity: false
+2026-01-01 11:19:36 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
+2026-01-01 11:19:36 🔥 [Revolutionary Light Prompt] Building for SAGE
+2026-01-01 11:19:36 ✅ [Revolutionary Light Prompt] Built: 15839 chars
+2026-01-01 11:19:36 ✅ [Prompt Orchestrator] System prompt built (15839 chars)
+2026-01-01 11:19:36 🌍 [Language Detection] User's language: KOREAN
+2026-01-01 11:19:36 ✅ [ANIMA Chat] Revolutionary prompt built (16331 chars, emotion: normal)
+2026-01-01 11:19:36 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-01 11:19:36    Provider: openai
+2026-01-01 11:19:36    Model: gpt-4o-mini
+2026-01-01 11:19:36    History messages: 20
+2026-01-01 11:19:36    System prompt length: 16331 chars
+2026-01-01 11:19:36 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2026-01-01 11:19:36    Persona type: SAGE/NEXUS
+2026-01-01 11:19:36    Has identity: false
+2026-01-01 11:19:36    toolsEnabled: true
+2026-01-01 11:19:36 🤖 [OpenAI] Calling API: {
+2026-01-01 11:19:36   model: 'gpt-4o-mini',
+2026-01-01 11:19:36   messageCount: 22,
+2026-01-01 11:19:36   systemPromptLength: 16331,
+2026-01-01 11:19:36   historyLength: 20,
+2026-01-01 11:19:36   toolsEnabled: true
+2026-01-01 11:19:36 }
+2026-01-01 11:19:38 ✅ [OpenAI] Response received: {
+2026-01-01 11:19:38   responseTime: '2080ms',
+2026-01-01 11:19:38   tokens: { prompt: 7000, completion: 59, total: 7059 },
+2026-01-01 11:19:38   messageLength: 103,
+2026-01-01 11:19:38   finishReason: 'stop',
+2026-01-01 11:19:38   toolCalls: 0
+2026-01-01 11:19:38 }
+2026-01-01 11:19:38 ✅ [ANIMA Chat] AI response received (no caching)
+2026-01-01 11:19:38    Response time: 2080ms
+2026-01-01 11:19:38    Total tokens: 7059 (in: 7000, out: 59)
+2026-01-01 11:19:38 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-01 11:19:38 🎉 [ANIMA Chat] Request completed in 8734ms
+2026-01-01 11:19:38    Cost: $0.001085
+2026-01-01 11:19:38 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
+2026-01-01 11:19:38 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
+2026-01-01 11:20:16 
+2026-01-01 11:20:16 🤖 [ANIMA Chat] Request received
+2026-01-01 11:20:16    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:20:16    Session: session-1767226657831-o5h46q
+2026-01-01 11:20:16    Message: 음..니가 원하는거 직접 말해주면 해줄께!...
+2026-01-01 11:20:16 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-01 11:20:16 🚪 [Conversation Gate] Checking...
+2026-01-01 11:20:16 ✅ [Conversation Gate] Open
+2026-01-01 11:20:16 ✅ [Conversation Flow] Gate OPEN
+2026-01-01 11:20:16 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-01 11:20:16 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-01 11:20:16 🧠 [AI Emotional State] Analyzing...
+2026-01-01 11:20:16    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:20:16    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:20:16    Current Message: "음..니가 원하는거 직접 말해주면 해줄께!"
+2026-01-01 11:20:16    Recent History: 10 messages
+2026-01-01 11:20:16    Current State: normal (intensity: 0.5)
+2026-01-01 11:20:22    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
+2026-01-01 11:20:22 📊 [Behavior Analysis]:
+2026-01-01 11:20:22    Crisis: false
+2026-01-01 11:20:22    Ambiguous: false (Needs Clarification: false)
+2026-01-01 11:20:22    Rudeness: 0.00
+2026-01-01 11:20:22    Low Effort: 0.00
+2026-01-01 11:20:22    Repetitive: 0.00
+2026-01-01 11:20:22    Positive: 0.00
+2026-01-01 11:20:22 🎭 [New State Decision]: normal (intensity: 0.50)
+2026-01-01 11:20:22    Reason: Balanced conversation, no significant emotional triggers
+2026-01-01 11:20:22 ➡️  [AI Emotional State] No change, keeping current state
+2026-01-01 11:20:22 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
+2026-01-01 11:20:22 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-01 11:20:22 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-01 11:20:22 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-01 11:20:22 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-01 11:20:22 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:20:22 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:20:22    - Messages: 28
+2026-01-01 11:20:22    - Persona: SAGE
+2026-01-01 11:20:22    - Identity: Not Set
+2026-01-01 11:20:22    - Preferences: Yes
+2026-01-01 11:20:22 📊 [SessionManager] Conversation stats: {
+2026-01-01 11:20:22   totalMessages: 28,
+2026-01-01 11:20:22   totalChars: 2605,
+2026-01-01 11:20:22   estimatedTokens: 878,
+2026-01-01 11:20:22   averageMessageLength: 93
+2026-01-01 11:20:22 }
+2026-01-01 11:20:22 🔄 [Sliding Window] Processing 28 messages
+2026-01-01 11:20:22    Window size: 20
+2026-01-01 11:20:22    Summarize threshold: 30
+2026-01-01 11:20:22 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
+2026-01-01 11:20:22 ✅ [ANIMA Chat] Session loaded
+2026-01-01 11:20:22    Total messages: 28
+2026-01-01 11:20:22    Kept messages: 20
+2026-01-01 11:20:22    Summarized messages: 0
+2026-01-01 11:20:22    Sliding window: Inactive
+2026-01-01 11:20:22    Persona: SAGE
+2026-01-01 11:20:22    Preferences: Custom
+2026-01-01 11:20:22 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-01 11:20:22    Tier: free
+2026-01-01 11:20:22    Model: GPT-4o Mini
+2026-01-01 11:20:22    Provider: openai
+2026-01-01 11:20:22    Caching: Enabled
+2026-01-01 11:20:22 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-01 11:20:22    Message: "음..니가 원하는거 직접 말해주면 해줄께!"
+2026-01-01 11:20:22 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-01 11:20:22    Duration: 486ms
+2026-01-01 11:20:22    Tokens: 293
+2026-01-01 11:20:22 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-01 11:20:22    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-01 11:20:22 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-01 11:20:22 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-01 11:20:22    Persona: SAGE
+2026-01-01 11:20:22    Emotional State: normal
+2026-01-01 11:20:22    Has Identity: false
+2026-01-01 11:20:22 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
+2026-01-01 11:20:22 🔥 [Revolutionary Light Prompt] Building for SAGE
+2026-01-01 11:20:22 ✅ [Revolutionary Light Prompt] Built: 15839 chars
+2026-01-01 11:20:22 ✅ [Prompt Orchestrator] System prompt built (15839 chars)
+2026-01-01 11:20:22 🌍 [Language Detection] User's language: KOREAN
+2026-01-01 11:20:22 ✅ [ANIMA Chat] Revolutionary prompt built (16331 chars, emotion: normal)
+2026-01-01 11:20:22 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-01 11:20:22    Provider: openai
+2026-01-01 11:20:22    Model: gpt-4o-mini
+2026-01-01 11:20:22    History messages: 20
+2026-01-01 11:20:22    System prompt length: 16331 chars
+2026-01-01 11:20:22 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2026-01-01 11:20:22    Persona type: SAGE/NEXUS
+2026-01-01 11:20:22    Has identity: false
+2026-01-01 11:20:22    toolsEnabled: true
+2026-01-01 11:20:22 🤖 [OpenAI] Calling API: {
+2026-01-01 11:20:22   model: 'gpt-4o-mini',
+2026-01-01 11:20:22   messageCount: 22,
+2026-01-01 11:20:22   systemPromptLength: 16331,
+2026-01-01 11:20:22   historyLength: 20,
+2026-01-01 11:20:22   toolsEnabled: true
+2026-01-01 11:20:22 }
+2026-01-01 11:20:24 ✅ [OpenAI] Response received: {
+2026-01-01 11:20:24   responseTime: '1945ms',
+2026-01-01 11:20:24   tokens: { prompt: 7009, completion: 86, total: 7095 },
+2026-01-01 11:20:24   messageLength: 142,
+2026-01-01 11:20:24   finishReason: 'stop',
+2026-01-01 11:20:24   toolCalls: 0
+2026-01-01 11:20:24 }
+2026-01-01 11:20:24 ✅ [ANIMA Chat] AI response received (no caching)
+2026-01-01 11:20:24    Response time: 1945ms
+2026-01-01 11:20:24    Total tokens: 7095 (in: 7009, out: 86)
+2026-01-01 11:20:24 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-01 11:20:24 🎉 [ANIMA Chat] Request completed in 8782ms
+2026-01-01 11:20:24    Cost: $0.001103
+2026-01-01 11:20:24 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
+2026-01-01 11:20:24 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
+2026-01-01 11:21:24 
+2026-01-01 11:21:24 🤖 [ANIMA Chat] Request received
+2026-01-01 11:21:24    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:21:24    Session: session-1767226657831-o5h46q
+2026-01-01 11:21:24    Message: ㅋㅋㅋ 너무 어렵다! 브렌드로 따지면 어떤 드레스를 입고 싶어?!...
+2026-01-01 11:21:24 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-01 11:21:24 🚪 [Conversation Gate] Checking...
+2026-01-01 11:21:24 ✅ [Conversation Gate] Open
+2026-01-01 11:21:24 ✅ [Conversation Flow] Gate OPEN
+2026-01-01 11:21:24 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-01 11:21:24 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-01 11:21:24 🧠 [AI Emotional State] Analyzing...
+2026-01-01 11:21:24    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:21:24    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:21:24    Current Message: "ㅋㅋㅋ 너무 어렵다! 브렌드로 따지면 어떤 드레스를 입고 싶어?!"
+2026-01-01 11:21:24    Recent History: 10 messages
+2026-01-01 11:21:24    Current State: normal (intensity: 0.5)
+2026-01-01 11:21:30    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
+2026-01-01 11:21:30 📊 [Behavior Analysis]:
+2026-01-01 11:21:30    Crisis: false
+2026-01-01 11:21:30    Ambiguous: false (Needs Clarification: false)
+2026-01-01 11:21:30    Rudeness: 0.00
+2026-01-01 11:21:30    Low Effort: 0.00
+2026-01-01 11:21:30    Repetitive: 0.00
+2026-01-01 11:21:30    Positive: 0.00
+2026-01-01 11:21:30 🎭 [New State Decision]: normal (intensity: 0.50)
+2026-01-01 11:21:30    Reason: Balanced conversation, no significant emotional triggers
+2026-01-01 11:21:30 ➡️  [AI Emotional State] No change, keeping current state
+2026-01-01 11:21:30 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
+2026-01-01 11:21:30 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-01 11:21:30 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-01 11:21:30 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-01 11:21:30 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-01 11:21:30 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:21:30 ✅ [SessionManager] Session loaded from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767226657831-o5h46q
+2026-01-01 11:21:30    - Messages: 30
+2026-01-01 11:21:30    - Persona: SAGE
+2026-01-01 11:21:30    - Identity: Not Set
+2026-01-01 11:21:30    - Preferences: Yes
+2026-01-01 11:21:30 📊 [SessionManager] Conversation stats: {
+2026-01-01 11:21:30   totalMessages: 30,
+2026-01-01 11:21:30   totalChars: 2770,
+2026-01-01 11:21:30   estimatedTokens: 933,
+2026-01-01 11:21:30   averageMessageLength: 92
+2026-01-01 11:21:30 }
+2026-01-01 11:21:30 🔄 [Sliding Window] Processing 30 messages
+2026-01-01 11:21:30    Window size: 20
+2026-01-01 11:21:30    Summarize threshold: 30
+2026-01-01 11:21:30 ✅ [Sliding Window] Medium conversation, keeping 20 recent messages
+2026-01-01 11:21:30 ✅ [ANIMA Chat] Session loaded
+2026-01-01 11:21:30    Total messages: 30
+2026-01-01 11:21:30    Kept messages: 20
+2026-01-01 11:21:30    Summarized messages: 0
+2026-01-01 11:21:30    Sliding window: Inactive
+2026-01-01 11:21:30    Persona: SAGE
+2026-01-01 11:21:30    Preferences: Custom
+2026-01-01 11:21:30 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-01 11:21:30    Tier: free
+2026-01-01 11:21:30    Model: GPT-4o Mini
+2026-01-01 11:21:30    Provider: openai
+2026-01-01 11:21:30    Caching: Enabled
+2026-01-01 11:21:30 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-01 11:21:30    Message: "ㅋㅋㅋ 너무 어렵다! 브렌드로 따지면 어떤 드레스를 입고 싶어?!"
+2026-01-01 11:21:31 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-01 11:21:31    Duration: 631ms
+2026-01-01 11:21:31    Tokens: 301
+2026-01-01 11:21:31 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-01 11:21:31    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-01 11:21:31 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-01 11:21:31 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-01 11:21:31    Persona: SAGE
+2026-01-01 11:21:31    Emotional State: normal
+2026-01-01 11:21:31    Has Identity: false
+2026-01-01 11:21:31 🧠 [Prompt Orchestrator] Building prompt for SAGE/NEXUS...
+2026-01-01 11:21:31 🔥 [Revolutionary Light Prompt] Building for SAGE
+2026-01-01 11:21:31 ✅ [Revolutionary Light Prompt] Built: 15839 chars
+2026-01-01 11:21:31 ✅ [Prompt Orchestrator] System prompt built (15839 chars)
+2026-01-01 11:21:31 🌍 [Language Detection] User's language: KOREAN
+2026-01-01 11:21:31 ✅ [ANIMA Chat] Revolutionary prompt built (16331 chars, emotion: normal)
+2026-01-01 11:21:31 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-01 11:21:31    Provider: openai
+2026-01-01 11:21:31    Model: gpt-4o-mini
+2026-01-01 11:21:31    History messages: 20
+2026-01-01 11:21:31    System prompt length: 16331 chars
+2026-01-01 11:21:31 🛠️ [Function Calling] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video
+2026-01-01 11:21:31    Persona type: SAGE/NEXUS
+2026-01-01 11:21:31    Has identity: false
+2026-01-01 11:21:31    toolsEnabled: true
+2026-01-01 11:21:31 🤖 [OpenAI] Calling API: {
+2026-01-01 11:21:31   model: 'gpt-4o-mini',
+2026-01-01 11:21:31   messageCount: 22,
+2026-01-01 11:21:31   systemPromptLength: 16331,
+2026-01-01 11:21:31   historyLength: 20,
+2026-01-01 11:21:31   toolsEnabled: true
+2026-01-01 11:21:31 }
+2026-01-01 11:21:33 ✅ [OpenAI] Response received: {
+2026-01-01 11:21:33   responseTime: '2215ms',
+2026-01-01 11:21:33   tokens: { prompt: 7013, completion: 114, total: 7127 },
+2026-01-01 11:21:33   messageLength: 199,
+2026-01-01 11:21:33   finishReason: 'stop',
+2026-01-01 11:21:33   toolCalls: 0
+2026-01-01 11:21:33 }
+2026-01-01 11:21:33 ✅ [ANIMA Chat] AI response received (no caching)
+2026-01-01 11:21:33    Response time: 2215ms
+2026-01-01 11:21:33    Total tokens: 7127 (in: 7013, out: 114)
+2026-01-01 11:21:33 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-01 11:21:33 🎉 [ANIMA Chat] Request completed in 8555ms
+2026-01-01 11:21:33    Cost: $0.001120
+2026-01-01 11:21:33 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (user)
+2026-01-01 11:21:33 💾 [SessionManager] Message saved: session-1767226657831-o5h46q (assistant)
+2026-01-01 11:23:14 👋 [Chat Close] Session close request received
+2026-01-01 11:23:14    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:23:14    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:23:14    Session: session-1767226657831-o5h46q
+2026-01-01 11:23:14 🧠 [RelationshipLearner] Starting analysis...
+2026-01-01 11:23:14    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:23:14    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:23:14    Session: session-1767226657831-o5h46q
+2026-01-01 11:23:14 📚 [RelationshipLearner] Loaded 32 messages
+2026-01-01 11:23:19 ✅ [RelationshipLearner] Analysis complete: {
+2026-01-01 11:23:19   foundCalling: true,
+2026-01-01 11:23:19   mainTopics: 3,
+2026-01-01 11:23:19   importantMoments: 2,
+2026-01-01 11:23:19   trustDelta: 2
+2026-01-01 11:23:19 }
+2026-01-01 11:23:19 📝 [RelationshipLearner] Core relationship updated
+2026-01-01 11:23:19 💾 [RelationshipLearner] Saved 2 important moments
+2026-01-01 11:23:19 📊 [RelationshipLearner] Data collection progress updated
+2026-01-01 11:23:19 ❌ [RelationshipLearner] Analysis failed: TypeError: e is not a function
+2026-01-01 11:23:19     at analyzeAndUpdateRelationship (.next/server/app/api/anima/chat/close/route.js:166:1182)
+2026-01-01 11:23:19     at async Immediate.<anonymous> (.next/server/app/api/anima/chat/close/route.js:181:4554)
+2026-01-01 11:23:19 ⚠️  [Chat Close] Relationship learning failed: e is not a function
+2026-01-01 11:23:19 🌱 [Chat Close] Starting identity evolution...
+2026-01-01 11:23:19 🌱 [Identity Evolution] Starting final analysis...
+2026-01-01 11:23:19    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-01 11:23:19    Persona: 573db390-a505-4c9e-809f-cc511c235cbb
+2026-01-01 11:23:19    Session: session-1767226657831-o5h46q
+2026-01-01 11:23:19 ℹ️  [Identity Evolution] No identity found - skipping evolution
+2026-01-01 11:23:19 ℹ️  [Chat Close] Identity evolution skipped: no_identity
+2026-01-01 11:23:19 🎉 [Chat Close] All background processing complete
+
+
