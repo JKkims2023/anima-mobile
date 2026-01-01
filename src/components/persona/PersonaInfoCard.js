@@ -41,7 +41,7 @@ import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
  * @param {Function} props.onScrollToTop - Callback to scroll to first persona
  * @param {Object} props.user - User object (passed from parent for chips)
  */
-const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop, user: userProp }) => {
+const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop, user: userProp, chipsRefreshKey = 0 }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { showAlert, user: userContext } = useAnima(); // Context user as fallback
@@ -59,6 +59,14 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   
   // ⭐ NEW: Selected chip for detail sheet (lifted state)
   const [selectedChip, setSelectedChip] = useState(null);
+  
+  // ⭐ NEW: Update chips when chipsRefreshKey changes (from parent)
+  useEffect(() => {
+    if (chipsRefreshKey > 0) {
+      console.log('🔄 [PersonaInfoCard] chipsRefreshKey changed:', chipsRefreshKey);
+      setChipsRefreshTrigger(prev => prev + 1);
+    }
+  }, [chipsRefreshKey]);
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {

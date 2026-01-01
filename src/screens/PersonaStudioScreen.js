@@ -123,6 +123,7 @@ const PersonaStudioScreen = () => {
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
+  const [chipsRefreshKey, setChipsRefreshKey] = useState(0); // ⭐ NEW: Trigger chips refresh
   // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
@@ -214,6 +215,10 @@ const PersonaStudioScreen = () => {
   useFocusEffect(
     useCallback(() => {
       setIsScreenFocused(true);
+      
+      // ⭐ NEW: Refresh chips when returning from chat
+      setChipsRefreshKey(prev => prev + 1);
+      console.log('🔄 [PersonaStudioScreen] Screen focused - refreshing relationship chips');
       
       return () => {
         setIsScreenFocused(false);
@@ -1553,6 +1558,7 @@ console.log('currentPersona: ', currentPersona);
             onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
             isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
+            chipsRefreshKey={chipsRefreshKey} // ⭐ NEW: Trigger chips refresh on chat close
           />
         </View>
         

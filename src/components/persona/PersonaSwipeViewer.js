@@ -74,6 +74,7 @@ const PersonaSwipeViewer = forwardRef(({
   onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
+  chipsRefreshKey = 0, // ⭐ NEW: Trigger chips refresh on chat close
 }, ref) => {
   const { currentTheme } = useTheme();
   const { user: userContext } = useAnima(); // Context user as fallback
@@ -323,6 +324,7 @@ const PersonaSwipeViewer = forwardRef(({
           totalCount={personas.length} // ⭐ Total personas count
           onScrollToTop={handleScrollToTop} // ⭐ NEW: Scroll to top handler
           user={user} // ⭐ NEW: Pass user for relationship chips
+          chipsRefreshKey={chipsRefreshKey} // ⭐ NEW: Trigger chips refresh on chat close
         />
       )}
     </View>
