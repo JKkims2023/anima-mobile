@@ -29,6 +29,7 @@ import FastImage from 'react-native-fast-image';
 import PersonaSettingsSheet from './PersonaSettingsSheet';
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
+import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
 /**
  * PersonaInfoCard Component
  * @param {Object} props
@@ -55,20 +56,18 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   
   // ⭐ NEW: Refresh trigger for relationship chips
   const [chipsRefreshTrigger, setChipsRefreshTrigger] = useState(0);
+  
+  // ⭐ NEW: Selected chip for detail sheet (lifted state)
+  const [selectedChip, setSelectedChip] = useState(null);
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
-    console.log('persona', persona);
+
   }, [persona,persona?.persona_key,persona?.done_yn]);
   
-  // ⭐ DEBUG: Check if chips should render
+
   useEffect(() => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💙 [PersonaInfoCard] Chips Render Check:');
-    console.log('   user?.user_key:', user?.user_key);
-    console.log('   persona?.persona_key:', persona?.persona_key);
-    console.log('   Should render chips:', !!(user?.user_key && persona?.persona_key));
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
   }, [user?.user_key, persona?.persona_key]);
   
   // ✅ Handle chat button press
@@ -102,14 +101,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   const handleBrainSettingsPress = () => {
     setShowIdentitySheet(true);
   };
-  // ✅ Build description text
-  const buildDescription = () => {
-    const parts = [];
-    if (persona.personality) parts.push(persona.personality);
-    if (persona.style) parts.push(persona.style);
-    if (persona.expertise) parts.push(persona.expertise);
-    return parts.join(' • ');
-  };
+
   const handleSettingsPress = () => {
     // ⭐ Block default personas (SAGE, NEXUS)
     if (persona?.default_yn === 'Y') {
@@ -224,7 +216,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
         </TouchableOpacity>
       )}
       
-      <TouchableOpacity onPress={handleSettingsPress}>
+      <View onPress={handleSettingsPress}>
       <View style={styles.content}>
         {/* Persona Image */}
         <FastImage
@@ -233,7 +225,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
           resizeMode="cover"
         />
         {/* Favorite Icon (⭐ ALL personas including default) */}
-        <TouchableOpacity
+        <View
             onPress={handleBrainSettingsPress}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -244,7 +236,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
               size={scale(60)} 
               color={persona?.identity_description != null ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
             />
-          </TouchableOpacity>
+          </View>
         {/* Left: Info */}
         <View style={styles.infoSection}>
           {/* Name */}
@@ -264,24 +256,16 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
           </View>
           
           {/* ⭐ NEW: Relationship Chips (Living Emotions!) */}
-          {user?.user_key && persona?.persona_key ? (
+          {user?.user_key && persona?.persona_key && (
             <RelationshipChipsContainer 
               userKey={user.user_key}
               personaKey={persona.persona_key}
               refreshTrigger={chipsRefreshTrigger}
+              onChipPress={(chipKey, chipData) => {
+                console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
+                setSelectedChip({ key: chipKey, data: chipData });
+              }}
             />
-          ) : (
-            <View style={{ padding: 10, backgroundColor: 'rgba(255, 0, 0, 0.3)', borderRadius: 8, marginTop: 8 }}>
-              <CustomText type="small" style={{ color: '#FFF' }}>
-                🔍 DEBUG: Chips not rendering
-              </CustomText>
-              <CustomText type="small" style={{ color: '#FFF', fontSize: 10 }}>
-                user_key: {user?.user_key || 'MISSING'}
-              </CustomText>
-              <CustomText type="small" style={{ color: '#FFF', fontSize: 10 }}>
-                persona_key: {persona?.persona_key || 'MISSING'}
-              </CustomText>
-            </View>
           )}
           
           <View style={styles.descriptionContainer}>
@@ -293,15 +277,15 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
         </View>
         
         {/* Right: Chat Button */}
-        <TouchableOpacity
+        <View
           style={[styles.chatButton, { display: 'none'}]}
           onPress={handleChatPress}
           activeOpacity={0.7}
         >
           <Icon name="settings" size={scale(30)} color="#FFFFFF" />
-        </TouchableOpacity>
+        </View>
       </View>
-      </TouchableOpacity>
+      </View>
     </GradientOverlay>
 
     {/* ⭐ NEW: Identity Settings Sheet */}
@@ -310,6 +294,18 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
       onClose={() => setShowIdentitySheet(false)}
       persona={persona}
       onSave={handleIdentitySave}
+    />
+
+    {/* ⭐ NEW: Chip Detail Bottom Sheet (Living Emotions!) */}
+    <ChipDetailSheet
+      isOpen={!!selectedChip}
+      onClose={() => {
+        console.log('❌ [PersonaInfoCard] Closing chip detail sheet');
+        setSelectedChip(null);
+      }}
+      chipKey={selectedChip?.key}
+      chipData={selectedChip?.data}
+      persona={persona}
     />
     </>
   );

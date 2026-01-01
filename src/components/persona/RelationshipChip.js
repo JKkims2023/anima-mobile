@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
@@ -22,13 +22,14 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 /**
  * RelationshipChip Component
  * @param {Object} props
- * @param {string} props.emoji - Chip emoji
- * @param {string} props.label - Chip label text
+ * @param {string} props.emoji - Chip emoji (icon)
+ * @param {string} props.label - Chip label text (now percentage or time)
  * @param {string} props.color - Primary color
  * @param {number} props.pulseSpeed - Pulse animation speed (seconds)
  * @param {number} props.delay - Appear animation delay (ms)
  * @param {boolean} props.isLoading - Show shimmer loading
- * @param {string} props.type - Chip type ('intimacy', 'emotion', 'relationship')
+ * @param {string} props.type - Chip type ('intimacy', 'emotion', 'relationship', 'trust', 'lastInteraction')
+ * @param {Function} props.onPress - Callback when chip is pressed
  */
 const RelationshipChip = ({ 
   emoji, 
@@ -38,6 +39,7 @@ const RelationshipChip = ({
   delay = 0,
   isLoading = false,
   type = 'default',
+  onPress, // ⭐ NEW: Click handler
 }) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Animation Values
@@ -154,55 +156,61 @@ const RelationshipChip = ({
   
   return (
     <Animated.View style={[styles.chipContainer, animatedStyle]}>
-      <LinearGradient
-        colors={[
-          `${color}30`, // 30% opacity
-          `${color}20`, // 20% opacity
-          `${color}30`, // 30% opacity
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.gradient}
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.7}
+        disabled={!onPress || isLoading}
       >
-        {/* Shimmer Overlay (Loading State) */}
-        {isLoading && (
-          <Animated.View
-            style={[
-              styles.shimmerOverlay,
-              {
-                transform: [{ translateX: shimmerTranslate }],
-              },
-            ]}
-          >
-            <LinearGradient
-              colors={[
-                'rgba(255, 255, 255, 0)',
-                'rgba(255, 255, 255, 0.3)',
-                'rgba(255, 255, 255, 0)',
+        <LinearGradient
+          colors={[
+            `${color}30`, // 30% opacity
+            `${color}20`, // 20% opacity
+            `${color}30`, // 30% opacity
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.gradient}
+        >
+          {/* Shimmer Overlay (Loading State) */}
+          {isLoading && (
+            <Animated.View
+              style={[
+                styles.shimmerOverlay,
+                {
+                  transform: [{ translateX: shimmerTranslate }],
+                },
               ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.shimmerGradient}
-            />
-          </Animated.View>
-        )}
-        
-        {/* Content */}
-        <View style={styles.content}>
-          {/* Emoji */}
-          <CustomText type="middle" style={styles.emoji}>
-            {emoji}
-          </CustomText>
+            >
+              <LinearGradient
+                colors={[
+                  'rgba(255, 255, 255, 0)',
+                  'rgba(255, 255, 255, 0.3)',
+                  'rgba(255, 255, 255, 0)',
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.shimmerGradient}
+              />
+            </Animated.View>
+          )}
           
-          {/* Label */}
-          <CustomText type="small" bold style={[styles.label, { color }]}>
-            {label}
-          </CustomText>
-        </View>
-        
-        {/* Border Highlight */}
-        <View style={[styles.border, { borderColor: `${color}50` }]} />
-      </LinearGradient>
+          {/* Content - Vertical Layout (Icon on top, value below) */}
+          <View style={styles.content}>
+            {/* Emoji/Icon */}
+            <CustomText style={styles.emoji}>
+              {emoji}
+            </CustomText>
+            
+            {/* Label (Percentage or Time) */}
+            <CustomText type="small" bold style={[styles.label, { color }]}>
+              {label}
+            </CustomText>
+          </View>
+          
+          {/* Border Highlight */}
+          <View style={[styles.border, { borderColor: `${color}50` }]} />
+        </LinearGradient>
+      </TouchableOpacity>
     </Animated.View>
   );
 };
@@ -212,12 +220,15 @@ const styles = StyleSheet.create({
     // Container for animation
   },
   gradient: {
-    flexDirection: 'row',
+    // ⭐ NEW: Vertical layout (icon on top, value below)
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingHorizontal: scale(10),
-    paddingVertical: verticalScale(6),
-    borderRadius: scale(12),
+    justifyContent: 'center',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(8),
+    borderRadius: scale(16),
     overflow: 'hidden',
+    minWidth: scale(60), // Ensure consistent width
     // Shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -226,18 +237,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   content: {
-    flexDirection: 'row',
+    // ⭐ NEW: Vertical layout
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: scale(4),
+    justifyContent: 'center',
+    gap: verticalScale(2),
     zIndex: 2, // Above shimmer
   },
   emoji: {
-    fontSize: scale(16),
+    fontSize: scale(24), // ⭐ Larger icon
+    lineHeight: scale(28),
   },
   label: {
-    fontSize: scale(12),
+    fontSize: scale(11), // ⭐ Slightly smaller for numbers
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,

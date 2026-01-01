@@ -19,6 +19,69 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import RelationshipChip from './RelationshipChip';
 import { useAnima } from '../../contexts/AnimaContext';
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helper Functions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/**
+ * Format time ago to compact format (now, 5m, 2h, 3d, 1w, 2M)
+ */
+const formatTimeAgo = (timestamp) => {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diffMs = now - past;
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+  
+  if (diffSecs < 60) return 'now';
+  if (diffMins < 60) return `${diffMins}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays < 7) return `${diffDays}d`;
+  if (diffWeeks < 4) return `${diffWeeks}w`;
+  return `${diffMonths}M`;
+};
+
+/**
+ * Calculate emotion percentage (based on intensity and state)
+ */
+const getEmotionPercentage = (emotionState, intensity) => {
+  // Map emotion states to base percentages
+  const emotionValues = {
+    happy: 80,
+    normal: 50,
+    tired: 30,
+    hurt: 20,
+    angry: 10,
+    worried: 40,
+  };
+  
+  const baseValue = emotionValues[emotionState] || 50;
+  const intensityFactor = parseFloat(intensity) || 0.5;
+  
+  // Combine base value with intensity
+  return Math.round(baseValue * intensityFactor * 0.01 * 100);
+};
+
+/**
+ * Calculate relationship percentage
+ */
+const getRelationshipPercentage = (level) => {
+  const levels = {
+    stranger: 0,
+    acquaintance: 25,
+    friend: 50,
+    close_friend: 75,
+    partner: 100,
+  };
+  
+  return levels[level] || 0;
+};
+import { PERSONA_ENDPOINTS } from '../../config/api.config';
+
 /**
  * RelationshipChipsContainer Component
  * @param {Object} props
@@ -30,6 +93,7 @@ const RelationshipChipsContainer = ({
   userKey, 
   personaKey,
   refreshTrigger = 0, // External trigger for refresh
+  onChipPress, // ⭐ NEW: Callback for chip press (lifted to parent)
 }) => {
   const { apiBaseUrl } = useAnima();
   const [chips, setChips] = useState(null);
@@ -54,14 +118,15 @@ const RelationshipChipsContainer = ({
     }
     
     try {
+
       setIsLoading(true);
       setError(null);
       
-      const url = `${apiBaseUrl}/anima/persona/relationship-status?user_key=${userKey}&persona_key=${personaKey}`;
+      const url = `${PERSONA_ENDPOINTS.RELATIONSHIP_STATUS}?user_key=${userKey}&persona_key=${personaKey}`;
       console.log('🌐 [RelationshipChips] Fetching from:', url);
       
       const response = await fetch(
-        `${apiBaseUrl}/anima/persona/relationship-status?user_key=${userKey}&persona_key=${personaKey}`
+        `${PERSONA_ENDPOINTS.RELATIONSHIP_STATUS}?user_key=${userKey}&persona_key=${personaKey}`
       );
       
       if (!response.ok) {
@@ -116,12 +181,25 @@ const RelationshipChipsContainer = ({
   }, [userKey, personaKey, apiBaseUrl]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Chip Press (Click Handler)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  // ⭐ Lift chip press to parent
+  const handleChipPress = useCallback((chipKey, chipData) => {
+    if (__DEV__) {
+      console.log('💙 [RelationshipChips] Chip pressed:', chipKey);
+    }
+    onChipPress?.(chipKey, chipData);
+  }, [onChipPress]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Initial Load & Refresh on Trigger
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   useEffect(() => {
     fetchRelationshipStatus();
   }, [fetchRelationshipStatus, refreshTrigger]); // Refresh when trigger changes
+  
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render
@@ -138,39 +216,66 @@ const RelationshipChipsContainer = ({
     return null; // Or skeleton loader
   }
   
-  // Priority chips: intimacy, emotion, relationship
-  const priorityChips = [
-    chips.intimacy,
-    chips.emotion,
-    chips.relationship,
-  ].filter(Boolean);
+  // ⭐ NEW: 5 Priority chips with compact format
+  const chipConfigs = [
+    {
+      key: 'intimacy',
+      data: chips.intimacy,
+      label: `${chips.intimacy?.value || 0}%`,
+      emoji: '💙',
+    },
+    {
+      key: 'emotion',
+      data: chips.emotion,
+      label: `${getEmotionPercentage(chips.emotion?.state, chips.emotion?.intensity)}%`,
+      emoji: chips.emotion?.emoji || '😐',
+    },
+    {
+      key: 'relationship',
+      data: chips.relationship,
+      label: `${getRelationshipPercentage(chips.relationship?.level)}%`,
+      emoji: '🔥',
+    },
+    {
+      key: 'trust',
+      data: chips.trust,
+      label: `${chips.trust?.value || 0}%`,
+      emoji: '⭐',
+    },
+    {
+      key: 'lastInteraction',
+      data: chips.lastInteraction,
+      label: chips.lastInteraction ? formatTimeAgo(chips.lastInteraction.timestamp) : 'N/A',
+      emoji: '⏱️',
+    },
+  ];
   
-  console.log('✅ [RelationshipChips] Rendering', priorityChips.length, 'chips');
+  console.log('✅ [RelationshipChips] Rendering', chipConfigs.length, 'chips');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   return (
-    <View style={styles.container}>
-      {priorityChips.map((chip, index) => {
-        // Determine chip key
-        let chipKey = 'default';
-        if (chip === chips.intimacy) chipKey = 'intimacy';
-        if (chip === chips.emotion) chipKey = 'emotion';
-        if (chip === chips.relationship) chipKey = 'relationship';
-        
-        return (
-          <RelationshipChip
-            key={chipKey}
-            emoji={chip.emoji}
-            label={chip.label}
-            color={chip.color}
-            pulseSpeed={chip.pulseSpeed || 1.5}
-            delay={index * 100} // Sequential animation (100ms delay between chips)
-            isLoading={isLoading}
-            type={chipKey}
-          />
-        );
-      })}
-    </View>
+    <>
+      <View style={styles.container}>
+        {chipConfigs.map((config, index) => {
+          const chip = config.data;
+          if (!chip && config.key !== 'lastInteraction') return null; // Skip if no data
+          
+          return (
+            <RelationshipChip
+              key={config.key}
+              emoji={config.emoji}
+              label={config.label}
+              color={chip?.color || '#9AA0A6'}
+              pulseSpeed={chip?.pulseSpeed || 1.5}
+              delay={index * 100} // Sequential animation (100ms delay between chips)
+              isLoading={isLoading}
+              type={config.key}
+              onPress={() => handleChipPress(config.key, chip)} // ⭐ NEW: Click handler
+            />
+          );
+        })}
+      </View>
+    </>
   );
 };
 
@@ -180,7 +285,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap', // Allow wrapping if needed
     gap: scale(8),
     marginTop: verticalScale(8),
-    marginBottom: verticalScale(4),
+    marginBottom: verticalScale(14),
   },
 });
 
