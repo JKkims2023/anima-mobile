@@ -41,8 +41,15 @@ const RelationshipChipsContainer = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   const fetchRelationshipStatus = useCallback(async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💙 [RelationshipChips] fetchRelationshipStatus called');
+    console.log('   userKey:', userKey);
+    console.log('   personaKey:', personaKey);
+    console.log('   apiBaseUrl:', apiBaseUrl);
+    
     if (!userKey || !personaKey) {
-      console.log('[RelationshipChips] Missing keys:', { userKey, personaKey });
+      console.log('❌ [RelationshipChips] Missing keys - ABORTING');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return;
     }
     
@@ -50,7 +57,8 @@ const RelationshipChipsContainer = ({
       setIsLoading(true);
       setError(null);
       
-      console.log('💙 [RelationshipChips] Fetching status...');
+      const url = `${apiBaseUrl}/anima/persona/relationship-status?user_key=${userKey}&persona_key=${personaKey}`;
+      console.log('🌐 [RelationshipChips] Fetching from:', url);
       
       const response = await fetch(
         `${apiBaseUrl}/anima/persona/relationship-status?user_key=${userKey}&persona_key=${personaKey}`
@@ -119,7 +127,14 @@ const RelationshipChipsContainer = ({
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
+  console.log('🎨 [RelationshipChips] Rendering...');
+  console.log('   chips:', chips);
+  console.log('   isLoading:', isLoading);
+  console.log('   error:', error);
+  
   if (!chips) {
+    console.log('⚠️ [RelationshipChips] No chips data - returning null');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     return null; // Or skeleton loader
   }
   
@@ -129,6 +144,9 @@ const RelationshipChipsContainer = ({
     chips.emotion,
     chips.relationship,
   ].filter(Boolean);
+  
+  console.log('✅ [RelationshipChips] Rendering', priorityChips.length, 'chips');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   return (
     <View style={styles.container}>

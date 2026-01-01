@@ -57,6 +57,16 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
     console.log('persona', persona);
   }, [persona,persona?.persona_key,persona?.done_yn]);
   
+  // ⭐ DEBUG: Check if chips should render
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💙 [PersonaInfoCard] Chips Render Check:');
+    console.log('   user?.user_key:', user?.user_key);
+    console.log('   persona?.persona_key:', persona?.persona_key);
+    console.log('   Should render chips:', !!(user?.user_key && persona?.persona_key));
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [user?.user_key, persona?.persona_key]);
+  
   // ✅ Handle chat button press
   const handleChatPress = () => {
     HapticService.medium();
@@ -250,12 +260,24 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
           </View>
           
           {/* ⭐ NEW: Relationship Chips (Living Emotions!) */}
-          {user?.user_key && persona?.persona_key && (
+          {user?.user_key && persona?.persona_key ? (
             <RelationshipChipsContainer 
               userKey={user.user_key}
               personaKey={persona.persona_key}
               refreshTrigger={chipsRefreshTrigger}
             />
+          ) : (
+            <View style={{ padding: 10, backgroundColor: 'rgba(255, 0, 0, 0.3)', borderRadius: 8, marginTop: 8 }}>
+              <CustomText type="small" style={{ color: '#FFF' }}>
+                🔍 DEBUG: Chips not rendering
+              </CustomText>
+              <CustomText type="small" style={{ color: '#FFF', fontSize: 10 }}>
+                user_key: {user?.user_key || 'MISSING'}
+              </CustomText>
+              <CustomText type="small" style={{ color: '#FFF', fontSize: 10 }}>
+                persona_key: {persona?.persona_key || 'MISSING'}
+              </CustomText>
+            </View>
           )}
           
           <View style={styles.descriptionContainer}>
