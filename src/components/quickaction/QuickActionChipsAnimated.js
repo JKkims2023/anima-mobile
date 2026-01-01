@@ -240,7 +240,7 @@ const QuickActionChipsAnimated = ({
     </View>
     
     {/* ⭐ Message Creation Button with Video Converting Indicator */}
-    <View style={styles.messageButtonContainer}>
+    <View style={[styles.messageButtonContainer, {display: isVideoConverting ? 'flex' : 'none'}]}>
       {/* ⭐ Tooltip (Left side) */}
       {showTooltip && (
         <Animated.View style={[styles.tooltip, tooltipAnimatedStyle]}>
@@ -273,7 +273,8 @@ const QuickActionChipsAnimated = ({
               marginTop: verticalScale(20), 
               marginBottom: verticalScale(20), 
               alignItems: 'center', 
-              justifyContent: 'center'
+              justifyContent: 'center',
+
             }
           ]}
         >
@@ -301,7 +302,8 @@ const styles = StyleSheet.create({
     gap: verticalScale(12),
     alignItems: 'center',
     marginTop: verticalScale(20),
-
+    marginRight: scale(10),
+    marginBottom: verticalScale(40),
 
   },
   chipWrapper: {

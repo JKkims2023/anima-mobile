@@ -44,6 +44,7 @@ import CustomText from '../CustomText';
 import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-time content
 import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
+import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
 import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
@@ -133,6 +134,7 @@ const ManagerAIOverlay = ({
   visible = false, 
   onClose,
   context = 'home',
+  onCreateMessage,
   persona = null, // ⭐ NEW: Selected persona (from PersonaContext)
 }) => {
   const { t } = useTranslation();
@@ -162,6 +164,8 @@ const ManagerAIOverlay = ({
   // 🆕 Settings state (moved to bottom sheets)
   const [showIdentitySettings, setShowIdentitySettings] = useState(false); // 🎭 Identity settings
   const [showSpeakingPattern, setShowSpeakingPattern] = useState(false); // 🗣️ Speaking pattern
+  const [showCreateMusic, setShowCreateMusic] = useState(false); // 🎵 Create music sheet
+
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -183,14 +187,7 @@ const ManagerAIOverlay = ({
   // 🎬 NEW: YouTube Video Player state
   const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null); // { videoId, title }
-  
-  // 🗑️ TEMPORARILY DISABLED: Identity Guide state (during refactoring)
-  // const [showIdentityGuide, setShowIdentityGuide] = useState(false);
-  // const ANIMA_CORE_PERSONAS = [
-  //   '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
-  //   'af444146-e796-468c-8e2c-0daf4f9b9248', // NEXUS
-  // ];
-  
+    
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
@@ -220,11 +217,11 @@ const ManagerAIOverlay = ({
   }, [visible, user, persona?.persona_key, currentPersonaKey]);
 
   useEffect(() => {
-    console.log('user: ', user);
+
   }, [user]);
 
   useEffect(() => {
-    console.log('persona: ', persona);
+
   }, [persona]);
   
   // 🆕 Load AI settings when overlay opens
@@ -402,6 +399,14 @@ const ManagerAIOverlay = ({
       setShowSpeakingPattern(true);
     }
   }, []);
+
+  const handleCreateMusic = async () => {
+    setShowCreateMusic(true);
+  }
+
+  const handleCreateMessage = async () => {
+    console.log('handleCreateMessage');
+  }
   
   // 🗣️ NEW: Save speaking pattern
   const handleSaveSpeakingPattern = useCallback(async (pattern) => {
@@ -441,6 +446,10 @@ const ManagerAIOverlay = ({
       throw error;
     }
   }, [user, persona, showNotificationMessage]);
+
+  const handleSaveCreateMusic = async (music) => {
+    console.log('handleSaveCreateMusic');
+  }
   
   // ⭐ NEW: Load chat history
   const loadChatHistory = useCallback(async (isLoadMore = false) => {
@@ -1780,7 +1789,7 @@ const ManagerAIOverlay = ({
                 <CustomText type="big" bold style={styles.headerTitle}>
                   {persona ? `${persona.persona_name}` : '💙 SAGE AI'}
                 </CustomText>
-                {persona?.identity_name && (
+                {false && (
                   <CustomText type="small" style={styles.headerSubtitle}>
                     {t('persona.identity.as', '자아')}: {persona.identity_name}
                   </CustomText>
@@ -1870,6 +1879,8 @@ const ManagerAIOverlay = ({
                 disabled={isLoading || isTyping || isAIContinuing} // ⭐ NEW: Also disable when AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
                 onAISettings={handleToggleSettings} // 🆕 Toggle settings menu
+                onCreateMusic={handleCreateMusic} // 🆕 Create music callback
+                onCreateMessage={handleCreateMessage} // 🆕 Create message callback
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
                 persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
@@ -2009,6 +2020,7 @@ const ManagerAIOverlay = ({
     </Modal>
     
     {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    {persona && user && (
     <IdentitySettingsSheet
       isOpen={showIdentitySettings}
       onClose={() => setShowIdentitySettings(false)}
@@ -2017,6 +2029,7 @@ const ManagerAIOverlay = ({
       loading={loadingSettings}
       saving={savingSettings}
     />
+    )}
     
     {/* 🗣️ Speaking Pattern Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
     {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
@@ -2028,6 +2041,18 @@ const ManagerAIOverlay = ({
         userKey={user.user_key}
         onSave={handleSaveSpeakingPattern}
       />
+    )}
+
+    {/* 🎵 Create Music Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    {persona && user && (
+    <CreateMusicSheet
+      isOpen={showCreateMusic}
+      onClose={() => setShowCreateMusic(false)}
+      personaKey={persona.persona_key}
+      personaName={persona.persona_name}
+      userKey={user.user_key}
+      onSave={handleSaveCreateMusic}
+    />
     )}
     
     {/* 🎬 YouTube Video Player Modal (Independent Modal - Outside ManagerAIOverlay Modal) */}

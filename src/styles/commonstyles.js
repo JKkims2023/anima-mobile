@@ -3,11 +3,11 @@ import { moderateScale, adaptiveFontSize, platformLineHeight } from '../utils/re
 
 // Android font rendering adjustment for consistency with iOS
 // Android renders fonts 5-8% larger than iOS, so we reduce by 5%
-const ANDROID_FONT_ADJUSTMENT = 0.95;
+const ANDROID_FONT_ADJUSTMENT = 0.90;
 
 // Font size calculation function (platform consistency)
 const getFontSize = (size) => {
-  if (Platform.OS === 'android') {
+  if (Platform.OS === 'ios') {
     return adaptiveFontSize(size * ANDROID_FONT_ADJUSTMENT);
   }
   return adaptiveFontSize(size);

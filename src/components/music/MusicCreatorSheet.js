@@ -26,6 +26,7 @@ import HapticService from '../../utils/HapticService';
 import amountService from '../../services/api/amountService';
 import { useUser } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
+
 /**
  * MusicCreatorSheet Component
  */

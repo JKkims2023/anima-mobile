@@ -15,8 +15,8 @@
  * @date 2024-11-21
  */
 
-import React, { useState, memo, useCallback } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert } from 'react-native';
+import React, { useState, memo, useCallback, useEffect } from 'react';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert, BackHandler } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -24,6 +24,7 @@ import RNFS from 'react-native-fs';
 import { moderateScale, verticalScale, platformLineHeight, platformPadding } from '../../utils/responsive-utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
+import CustomText from '../CustomText';
 
 const ChatInputBar = memo(({ 
   onSend, 
@@ -33,6 +34,8 @@ const ChatInputBar = memo(({
   onToggleChatHeight,
   onToggleChatVisibility,
   onAISettings, // 🆕 AI Settings callback
+  onCreateMusic,
+  onCreateMessage,
   chatHeight = 'medium',
   isChatVisible = true,
   visionMode = 'basic', // 🆕 Vision mode setting
@@ -50,7 +53,34 @@ const ChatInputBar = memo(({
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
 
+  useEffect(() => {
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+
+      if (isSettingsMenuOpen) {
+        // ✅ BottomSheet가 열려 있으면 닫기
+        setIsSettingsMenuOpen(false);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('backHandler closed');
+        return true; // ✅ 이벤트 소비 (부모로 전달 안됨)
+      }
+      
+      return false; // ✅ 이벤트 전파 (부모가 처리)
+    });
+    
+    return () => {
+      backHandler.remove();
+    };
+
+  }, [])
+
+  useEffect(() => {
+
+  }, [isSettingsMenuOpen]);
+  
+
   const handleSend = useCallback(() => {
+
     const trimmedText = text.trim();
     // 🆕 FIX: Allow sending if text OR image is present
     if ((trimmedText || hasSelectedImage) && !disabled) {
@@ -172,6 +202,11 @@ const ChatInputBar = memo(({
       {/* Settings Menu */}
       {isSettingsMenuOpen && (
         <View style={styles.settingsMenu}>
+
+          <CustomText type='middle' bold style={{marginLeft: moderateScale(12), marginTop: verticalScale(8), marginBottom: verticalScale(8)}}>
+              {t('ai_comment.brain_title')}
+          </CustomText>
+
           {/* 🎭 자아 설정 */}
           {onAISettings && (
             <TouchableOpacity
@@ -182,8 +217,8 @@ const ChatInputBar = memo(({
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.menuIcon}>🎭</Text>
-              <Text style={styles.menuText}>자아 설정</Text>
+              <Text style={styles.menuIcon}>🧠</Text>
+              <Text style={styles.menuText}>{t('ai_comment.identity_setting_title')}</Text>
             </TouchableOpacity>
           )}
           
@@ -199,47 +234,55 @@ const ChatInputBar = memo(({
                 activeOpacity={0.7}
               >
                 <Text style={styles.menuIcon}>🗣️</Text>
-                <Text style={styles.menuText}>말투 설정</Text>
+                <Text style={styles.menuText}>{t('ai_comment.speaking_setting_title')}</Text>
               </TouchableOpacity>
               
-              {/* 구분선 */}
-              <View style={styles.menuDivider} />
             </>
           )}
-          
-          {/* 채팅창 높이 조절 */}
-          {onToggleChatHeight && (
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                onToggleChatHeight?.();
-                setIsSettingsMenuOpen(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.menuIcon}>📏</Text>
-              <Text style={styles.menuText}>
-                채팅창 높이: {chatHeight === 'tall' ? '높게' : '중간'}
-              </Text>
-            </TouchableOpacity>
+
+          {/* 구분선 */}
+          <View style={styles.menuDivider} />
+
+          <CustomText type='middle' bold style={{marginLeft: moderateScale(12), marginTop: verticalScale(8), marginBottom: verticalScale(8)}}>
+            {t('ai_comment.product_create_title')}
+          </CustomText>
+
+          {/* 🎵 음악 설정 (User-created personas only) */}
+          {onCreateMusic && persona && (
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  onCreateMusic?.();
+                  setIsSettingsMenuOpen(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.menuIcon}>🎵</Text>
+                <Text style={styles.menuText}>{t('ai_comment.create_music_title')}</Text>
+              </TouchableOpacity>
+              
+            </>
           )}
 
-          {/* 채팅창 감추기/보이기 */}
-          {onToggleChatVisibility && (
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                onToggleChatVisibility?.();
-                setIsSettingsMenuOpen(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.menuIcon}>{isChatVisible ? '👁️' : '👁️‍🗨️'}</Text>
-              <Text style={styles.menuText}>
-                {isChatVisible ? '채팅창 감추기' : '채팅창 보이기'}
-              </Text>
-            </TouchableOpacity>
+          {/* � 메세지 설정 (User-created personas only) */}
+          {onCreateMessage && persona && (
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  onCreateMessage?.();
+                  setIsSettingsMenuOpen(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.menuIcon}>💬</Text>
+                <Text style={styles.menuText}>{t('ai_comment.create_message_title')}</Text>
+              </TouchableOpacity>
+              
+            </>
           )}
+
         </View>
       )}
 

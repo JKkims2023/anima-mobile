@@ -55,8 +55,8 @@ import Slider from '@react-native-community/slider'; // ⭐ NEW: For progress ba
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
-import BackgroundEffect from '../particle/BackgroundEffect'; // 🎨 NEW: Visual effects Layer 1
-import ActiveEffect from '../particle/ActiveEffect'; // 🎨 NEW: Visual effects Layer 2
+import GiftBackgroundEffect from '../particle/GiftBackgroundEffect'; // 🎨 NEW: Visual effects Layer 1
+import GiftActiveEffect from '../particle/GiftActiveEffect'; // 🎨 NEW: Visual effects Layer 2
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
 import HapticService from '../../utils/HapticService';
@@ -323,12 +323,6 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
       onClose={handleClose}
       buttons={[
         {
-          title: t('common.share') || '공유',
-          type: 'outline',
-          onPress: handleShare,
-          style: styles.shareButton,
-        },
-        {
           title: t('common.close') || '닫기', // ⭐ Changed from 삭제 to 닫기 (소중한 교감 선물)
           type: 'primary',
           onPress: handleClose,
@@ -376,7 +370,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         )}
         
         {/* 🎨 NEW: Background Effect Layer (z-index: 10) */}
-        {memory?.background_effect && memory?.background_effect !== 'none' && (
+        {memory?.background_effect && memory?.background_effect !== 'none' && false && (
           <View 
             style={{
               position: 'absolute',
@@ -388,7 +382,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             }}
             pointerEvents="none"
           >
-            <BackgroundEffect 
+            <GiftBackgroundEffect 
               type={memory?.background_effect}
               isActive={imageLoaded} 
             />
@@ -420,7 +414,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             }}
             pointerEvents="none"
           >
-            <ActiveEffect 
+            <GiftActiveEffect 
               type={memory?.active_effect}
               isActive={imageLoaded}
             />
@@ -485,17 +479,31 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
             {memory?.ai_message}
           </CustomText>
           
-          {/* Persona Name */}
-          {memory?.persona_name && (
-            <CustomText style={styles.personaName}>
-              - {memory.persona_name}
-            </CustomText>
-          )}
-          
-          {/* Date */}
-          <CustomText style={styles.giftDate}>
-            {formatDate(memory?.created_at)}
-          </CustomText>
+          <View style={styles.infoContainer}>
+            
+            <Image
+              source={{ uri: memory?.persona_url }}
+              style={styles.personaImage}
+              resizeMode="cover"
+            />
+            <View style={styles.personaNameContainer}>
+              
+              {/* Persona Name */}
+              {memory?.persona_name && (
+                <CustomText style={styles.personaName}>
+                  - {memory.persona_name}
+                </CustomText>
+              )}
+              
+              {/* Date */}
+              <CustomText style={styles.giftDate}>
+                {formatDate(memory?.created_at)}
+              </CustomText>
+
+            </View>
+          </View>
+
+
         </Animated.View>
         
         {/* Loading Indicator (while image loads) */}
@@ -535,10 +543,9 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   imageContainer: {
     width: '100%',
-    height: SCREEN_HEIGHT * 0.65, // 65% of screen height
+    height: SCREEN_HEIGHT * 0.68, // 65% of screen height
     position: 'relative',
     backgroundColor: '#000',
-    borderRadius: moderateScale(12),
     overflow: 'hidden',
   },
   
@@ -611,7 +618,7 @@ const styles = StyleSheet.create({
   
   // Persona Name
   personaName: {
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(18),
     color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '400',
     fontStyle: 'italic',
@@ -620,10 +627,10 @@ const styles = StyleSheet.create({
   
   // Date
   giftDate: {
-    fontSize: moderateScale(12),
+    fontSize: moderateScale(14),
     color: 'rgba(255, 255, 255, 0.5)',
     fontWeight: '400',
-    marginTop: verticalScale(4),
+    marginTop: verticalScale(0),
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -704,6 +711,27 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     color: 'rgba(255, 255, 255, 0.5)',
   },
+  infoContainer: {
+    width: '100%',
+    flex: 1,
+    flexDirection: 'row',
+    gap: verticalScale(10),
+  },
+  personaNameContainer: {
+    width: '100%',
+    flex: 1,
+    gap: verticalScale(10),
+    marginLeft: scale(10),
+  },
+  personaImage: {
+    width: scale(60),
+    height: scale(60),
+    borderRadius: moderateScale(20),
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  
+  },
 });
+
 
 export default MemoryPlayerSheet;

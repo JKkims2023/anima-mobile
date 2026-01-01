@@ -868,19 +868,6 @@ console.log('currentPersona: ', currentPersona);
   }, [showToast, t, initializePersonas]);
   
   
-  // ═══════════════════════════════════════════════════════════════════════
-  // QUICK ACTION CHIP HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  // 1. Dressing Room (드레스 선택)
-  const handleQuickDress = useCallback(() => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 👗 Dressing room clicked');
-    }
-    
-    // TODO: Open DressingRoomSheet for horizontal dress swipe
-  }, []);
-  
   // 2. Memory History (추억/히스토리)
   // ⭐ Ref for PersonaCardView (to control flip animation)
   const personaCardRefs = useRef({});
@@ -892,8 +879,6 @@ console.log('currentPersona: ', currentPersona);
     
     HapticService.medium();
 
-
-    
     // Get current persona
     const currentPersona = currentFilteredPersonas[currentPersonaIndex];
 
@@ -947,7 +932,7 @@ console.log('currentPersona: ', currentPersona);
   }, []);
   
   // 3. Video Conversion (비디오 변환)
-  const handleQuickVideo = useCallback( async () => {
+  const handleQuickVideo =  async () => {
     
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🎬 Video conversion clicked');
@@ -1015,7 +1000,7 @@ console.log('currentPersona: ', currentPersona);
       });
     }
 
-  }, [showAlert, t]);
+  };
   
   // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Opens MessageCreationOverlay
   const handleQuickMessage = useCallback(() => {
@@ -1038,6 +1023,10 @@ console.log('currentPersona: ', currentPersona);
   // Settings (설정)
   const handleQuickSettings = useCallback(() => {
     navigation.navigate('Settings');
+  }, [navigation]);
+
+  const handleShareClick = useCallback(() => {
+
   }, [navigation]);
 
 
@@ -1570,6 +1559,7 @@ console.log('currentPersona: ', currentPersona);
               onVideoClick={handleQuickVideo}
               onMessageClick={handleQuickMessage}//{handleQuickMessage}
               onSettingsClick={handleQuickSettings}
+              onShareClick={handleShareClick}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
               currentPersona={currentPersona}
             />

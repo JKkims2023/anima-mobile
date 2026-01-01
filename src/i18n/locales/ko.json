@@ -1604,7 +1604,8 @@
       "type_instrumental_desc": "순수 배경음악을 생성합니다",
       "type_vocal": "보컬음악",
       "type_vocal_desc": "가사가 있는 음악을 생성합니다",
-      "title_label": "제목",
+      "title_label": "음원 제목",
+      "title_guide": "제목은 음원이 생성된 후, 스튜디오에서 손쉽게 음원을 검색할 수 있도록 사용됩니다.",
       "title_placeholder": "예: 여름 바다의 추억",
       "prompt_label": "프롬프트 (음악 스타일)",
       "prompt_placeholder": "예: 잔잔한 어쿠스틱 기타, 서정적인 멜로디",
@@ -2320,7 +2321,12 @@
     "title_search_placeholder": "페르소나 이름, 내용으로 검색..."
   },
   "ai_comment" : {
-
-    "not_login": "앗! 아직 로그인 상태가 아니네..ANIMA의 세계를 경험하기 위해서는 로그인이 반드시 필요해! 로그인 후 다시 이야기 나눠보자!"
+    "not_login": "앗! 아직 로그인 상태가 아니네..ANIMA의 세계를 경험하기 위해서는 로그인이 반드시 필요해! 로그인 후 다시 이야기 나눠보자!",
+    "brain_title": "나만의 스타일로",
+    "product_create_title": "페르소나와 함께 할수 있는것",
+    "create_music_title": "음악 생성",
+    "create_message_title": "메세지 생성 - 무료",
+    "identity_setting_title": "자아 설정",
+    "speaking_setting_title": "말투 설정"
   }
 }

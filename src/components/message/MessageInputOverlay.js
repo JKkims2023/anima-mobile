@@ -35,6 +35,7 @@ import HapticService from '../../utils/HapticService';
 
 const MessageInputOverlay = forwardRef(({
   title,
+  guide,
   placeholder,
   leftIcon = 'text',
   initialValue = '',
@@ -51,6 +52,8 @@ const MessageInputOverlay = forwardRef(({
   const [value, setValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const [showGuide, setShowGuide] = useState(true);
 
   // ✅ Animation
   const opacity = useSharedValue(0);
@@ -75,7 +78,14 @@ const MessageInputOverlay = forwardRef(({
   useEffect(() => {
     if (visible) {
       console.log('[MessageInputOverlay] Visible, starting animations...');
-      
+
+      if( guide && guide.length > 0) {
+        setShowGuide(true);
+      }
+      else {
+        setShowGuide(false);
+      }
+
       // Animation
       opacity.value = withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) });
       scale.value = withSpring(1, { damping: 20, stiffness: 300 });
@@ -245,6 +255,15 @@ const MessageInputOverlay = forwardRef(({
             </TouchableOpacity>
           </View>
 
+          {/* Guide */}
+          {showGuide && (
+          <View style={styles.guideContainer}>
+            <CustomText type="normal" style={styles.guide}>
+              {guide}
+            </CustomText>
+          </View>
+          )}
+
           {/* Input - Direct TextInput for maximum compatibility */}
           <View style={styles.inputContainer}>
             <TextInput
@@ -256,17 +275,25 @@ const MessageInputOverlay = forwardRef(({
               ]}
               value={value}
               onChangeText={(text) => {
-                console.log('[MessageInputOverlay] Text changed:', text?.substring(0, 20));
+
                 setValue(text);
               }}
               onFocus={() => {
                 console.log('[MessageInputOverlay] Input focused!');
                 setIsFocused(true);
                 HapticService.light();
+
+                if(guide && guide.length > 0) {
+                  setShowGuide(false);
+                }
               }}
               onBlur={() => {
                 console.log('[MessageInputOverlay] Input blurred!');
                 setIsFocused(false);
+
+                if(guide && guide.length > 0) {
+                  setShowGuide(true);
+                }
               }}
               placeholder={placeholder}
               placeholderTextColor="rgba(156, 163, 175, 0.6)"
@@ -369,6 +396,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(12),
+  },
+  guideContainer: {
+    paddingHorizontal: platformPadding(20),
+    paddingVertical: platformPadding(10),
+    marginTop: scale(20),
+  },
+  guide: {
+    color: COLORS.TEXT_SECONDARY,
   },
   iconContainer: {
     width: scale(36),

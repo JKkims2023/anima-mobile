@@ -51,7 +51,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-const BackgroundEffect = ({ type, isActive = true }) => {
+const GiftBackgroundEffect = ({ type, isActive = true }) => {
   console.log(`🌌 [BackgroundEffect] Rendering: type=${type}, isActive=${isActive}`);
 
   if (!type || type === 'none' || !isActive) {
@@ -126,7 +126,7 @@ const SunTopLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
@@ -157,7 +157,7 @@ const SunTopRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
@@ -188,7 +188,7 @@ const SunBottomLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
@@ -219,7 +219,7 @@ const SunBottomRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
@@ -254,7 +254,7 @@ const AuroraTopLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑 (태양과 확실히 구분)
@@ -285,7 +285,7 @@ const AuroraTopRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
@@ -316,7 +316,7 @@ const AuroraBottomLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
@@ -347,7 +347,7 @@ const AuroraBottomRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
@@ -382,7 +382,7 @@ const NeonTopLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
@@ -413,7 +413,7 @@ const NeonTopRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
@@ -444,7 +444,7 @@ const NeonBottomLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
@@ -475,7 +475,7 @@ const NeonBottomRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
@@ -510,7 +510,7 @@ const GradientTopLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
@@ -541,7 +541,7 @@ const GradientTopRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
@@ -572,7 +572,7 @@ const GradientBottomLeft = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
@@ -603,7 +603,7 @@ const GradientBottomRight = () => {
 
   return (
     <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+      ...(Platform.OS === 'android' ? { top: 0 } : { top: insets.top + verticalScale(70) }),
     }]}>
       <LinearGradient
         colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
@@ -641,4 +641,4 @@ const styles = StyleSheet.create({
 // Export
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default React.memo(BackgroundEffect);
+export default React.memo(GiftBackgroundEffect);
