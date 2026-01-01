@@ -51,6 +51,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  * @param {boolean} props.refreshing - Whether the list is refreshing (pull-to-refresh)
  * @param {Function} props.onRefresh - Callback when user pulls to refresh
+ * @param {Object} props.user - User object (from parent, for chips)
  */
 const PersonaSwipeViewer = forwardRef(({ 
   personas,
@@ -72,9 +73,13 @@ const PersonaSwipeViewer = forwardRef(({
   personaCardRefs = null, // ⭐ NEW: Refs for PersonaCardView (for flip animation control)
   onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
+  user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
 }, ref) => {
   const { currentTheme } = useTheme();
-  const { user } = useAnima(); // ⭐ NEW: Get user for PersonaInfoCard chips
+  const { user: userContext } = useAnima(); // Context user as fallback
+  
+  // ⭐ Use prop user first (from PersonaStudioScreen), fallback to context
+  const user = userProp || userContext;
   
   
   const flatListRef = useRef(null);
@@ -87,10 +92,14 @@ const PersonaSwipeViewer = forwardRef(({
   useEffect(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎯 [PersonaSwipeViewer] User Check:');
-    console.log('   user:', user);
-    console.log('   user?.user_key:', user?.user_key);
+    console.log('   userProp (from parent):', userProp);
+    console.log('   userProp?.user_key:', userProp?.user_key);
+    console.log('   userContext (from AnimaContext):', userContext);
+    console.log('   userContext?.user_key:', userContext?.user_key);
+    console.log('   Final user:', user);
+    console.log('   Final user?.user_key:', user?.user_key);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  }, [user]);
+  }, [userProp, userContext, user]);
 
   
   // ⭐ Expose scrollToIndex method to parent

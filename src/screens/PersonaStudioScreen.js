@@ -196,7 +196,12 @@ const PersonaStudioScreen = () => {
   }, [isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
   
   useEffect(() => {
-    console.log('user: ', user);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🏠 [PersonaStudioScreen] User from useUser():');
+    console.log('   user:', user);
+    console.log('   user?.user_key:', user?.user_key);
+    console.log('   typeof user:', typeof user);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }, [user]);
   // ═══════════════════════════════════════════════════════════════════════
   // TAB NAVIGATION IS NOW BLOCKED IN CustomTabBar (via AnimaContext)
@@ -1547,6 +1552,7 @@ console.log('currentPersona: ', currentPersona);
             personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard view)
             onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
             isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
+            user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
           />
         </View>
         
