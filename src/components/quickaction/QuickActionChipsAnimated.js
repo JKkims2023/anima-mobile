@@ -310,9 +310,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chip: {
-    width: scale(62),
-    height: scale(62),
-    borderRadius: scale(31),
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(26),
     backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark background for visibility
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.3)',

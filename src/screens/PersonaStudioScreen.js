@@ -123,7 +123,7 @@ const PersonaStudioScreen = () => {
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersona] = useState(null);
-  const [chipsRefreshKey, setChipsRefreshKey] = useState(0); // ⭐ NEW: Trigger chips refresh
+  // ❌ REMOVED: chipsRefreshKey (no longer needed - data is in persona list!)
   // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
@@ -210,15 +210,14 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
 
   // ═══════════════════════════════════════════════════════════════════════
-  // SCREEN FOCUS HANDLER
+  // SCREEN FOCUS HANDLER (⚡ OPTIMIZED: No automatic refresh!)
   // ═══════════════════════════════════════════════════════════════════════
   useFocusEffect(
     useCallback(() => {
       setIsScreenFocused(true);
       
-      // ⭐ NEW: Refresh chips when returning from chat
-      setChipsRefreshKey(prev => prev + 1);
-      console.log('🔄 [PersonaStudioScreen] Screen focused - refreshing relationship chips');
+      // ⚡ REMOVED: Automatic chips refresh (now only refreshes on pull-to-refresh or chat close)
+      // Relationship data is already in persona list, no need to refresh on every focus!
       
       return () => {
         setIsScreenFocused(false);
@@ -306,6 +305,11 @@ const PersonaStudioScreen = () => {
     
     return filtered;
   }, [personasWithDefaults, showDefaultPersonas, selectedCategory, searchQuery]);
+
+  // ⚡ OPTIMIZED: Stable key for PersonaSwipeViewer (only changes when persona list actually changes)
+  const personasKey = useMemo(() => {
+    return `swiper-${currentFilteredPersonas.map(p => p.persona_key).join('-')}`;
+  }, [currentFilteredPersonas]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
@@ -406,8 +410,7 @@ const PersonaStudioScreen = () => {
   
   // Handle add persona
   const handleAddPersona = useCallback(async () => {
-    console.log('[PersonaStudioScreen] 📸 Add persona requested');
-    
+     
     // ⭐ Check if user is logged in
     if (!user || !user.user_key) {
       console.log('[PersonaStudioScreen] ⚠️ User not logged in, redirecting to Settings');
@@ -421,7 +424,38 @@ const PersonaStudioScreen = () => {
       return;
     }
     
-    console.log('[PersonaStudioScreen] ✅ User logged in, checking notification permission');
+    console.log('personas.length: ', personas.length);
+    console.log('personas: ', personas);
+    console.log('user: ', user);
+    
+
+    const level = user.user_level;
+
+    const max_persona_count = level === 'free' ? 1 : level === 'premium' ? 5 : 10;
+
+
+    if((personas.length - 2) >= max_persona_count){
+
+      showAlert({
+        title: t('persona.creation.max_limit_title'),
+        message: t('persona.creation.max_limit'),
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'outline',
+          },
+          {
+            text: t('common.confirm'),
+            style: 'primary',
+            onPress: () => {
+              setIsPersonaCreationOpen(true);
+            },
+          },
+        ],
+      });
+      return;
+    }
+    
     HapticService.light();
     
     // ⭐ NEW: Check notification permission FIRST (before opening sheet)
@@ -1059,7 +1093,16 @@ console.log('currentPersona: ', currentPersona);
 
     HapticService.light();
     setSettingsPersona(persona);
-    setIsPersonaSettingsOpen(true);
+
+    if(persona?.default_yn === 'Y') {
+
+      setIsPersonaSettingsOpen(true);
+
+    }else{
+
+      setIsPersonaSettingsOpen(true);
+    }
+ 
     
     console.log('✅ State updated: isPersonaSettingsOpen = true');
   }, [isPersonaSettingsOpen]);
@@ -1453,80 +1496,9 @@ console.log('currentPersona: ', currentPersona);
               </TouchableOpacity>
             )}
           </View>
-
-          {/* ⭐ Emotion Category Dropdown Button */}
-          <TouchableOpacity
-            style={[styles.categoryButton, {display: 'none', backgroundColor: currentTheme.cardBackground }]}
-            onPress={() => {
-              HapticService.light();
-              setIsCategoryDropdownVisible(!isCategoryDropdownVisible);
-            }}
-            activeOpacity={0.7}
-          >
-            <CustomText style={[styles.categoryButtonText, { color: currentTheme.textPrimary }]}>
-              {PERSONA_CATEGORIES.find(c => c.key === selectedCategory)?.emoji}
-            </CustomText>
-            <IconSearch 
-              name={isCategoryDropdownVisible ? "chevron-up" : "chevron-down"} 
-              size={scale(18)} 
-              color={currentTheme.mainColor} 
-            />
-          </TouchableOpacity>
         </View>
 
-        {/* ⭐ Emotion Category Dropdown Overlay (with outside click detection) */}
-        {isCategoryDropdownVisible && (
-          <TouchableWithoutFeedback 
-            onPress={() => {
-              console.log('[PersonaStudioScreen] 👆 Outside dropdown clicked, closing');
-              HapticService.light();
-              setIsCategoryDropdownVisible(false);
-            }}
-          >
-            <View style={styles.categoryDropdownBackdrop}>
-              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                <View style={styles.categoryDropdown}>
-                  {PERSONA_CATEGORIES.map((category) => {
-                    const isSelected = category.key === selectedCategory;
-                    
-                    return (
-                      <TouchableOpacity
-                        key={category.key}
-                        style={[
-                          styles.categoryDropdownItem,
-                          isSelected && styles.categoryDropdownItemActive
-                        ]}
-                        onPress={() => {
-                          HapticService.light();
-                          setSelectedCategory(category.key);
-                          setIsCategoryDropdownVisible(false);
-                        }}
-                        activeOpacity={0.7}
-                      >
-                        <CustomText style={{ fontSize: scale(18) }}>
-                          {category.emoji}
-                        </CustomText>
-                        <CustomText 
-                          type="middle" 
-                          bold={isSelected}
-                          style={[
-                            styles.categoryDropdownText,
-                            { color: isSelected ? currentTheme.mainColor : currentTheme.textPrimary }
-                          ]}
-                        >
-                          {t(`category_type.${category.key}`)}
-                        </CustomText>
-                        {isSelected && (
-                          <IconSearch name="checkmark" size={scale(20)} color={currentTheme.mainColor} />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        )}
+
       </View>
       
       {/* ❌ REMOVED: GestureDetector for horizontal swipe (UI simplified) */}
@@ -1537,7 +1509,7 @@ console.log('currentPersona: ', currentPersona);
           {/* ═════════════════════════════════════════════════════════════════ */}
           <View style={styles.baseLayer}>
           <PersonaSwipeViewer 
-            key={`swiper-${currentFilteredPersonas.map(p => p.persona_key).join('-')}`} // ⭐ Force re-mount when personas change
+            key={personasKey} // ⚡ OPTIMIZED: Stable memoized key!
             ref={swiperRef}
             personas={currentFilteredPersonas}
             isModeActive={true}
@@ -1553,12 +1525,12 @@ console.log('currentPersona: ', currentPersona);
             isMessageMode={false}
             onCreatePersona={handleAddPersona}
             refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
-            onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback
+            onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback (this refreshes everything!)
             personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard view)
             onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
             isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
-            chipsRefreshKey={chipsRefreshKey} // ⭐ NEW: Trigger chips refresh on chat close
+            // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
           />
         </View>
         
@@ -1577,9 +1549,6 @@ console.log('currentPersona: ', currentPersona);
             />
           </View>
         )}
-
-        {/* ❌ REMOVED: PersonaSelectorButton (UI simplified) */}
-        {/* ❌ REMOVED: PersonaSelectorPanel (UI simplified) */}
 
         {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
         {!isPostcardVisible && (
@@ -1788,7 +1757,8 @@ const styles = StyleSheet.create({
   // ⭐ Z-INDEX: 100 - Quick Action Chips (Right) - HIGHEST
   quickChipsOverlay: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? verticalScale(120) : verticalScale(100),
+  //  bottom: Platform.OS === 'ios' ? verticalScale(120) : verticalScale(100),
+    top: verticalScale(20),
     right: scale(10),
     zIndex: 100,
     elevation: 100, // ⭐ Android shadow
@@ -1958,7 +1928,7 @@ const styles = StyleSheet.create({
   // ⭐ PersonaTypeSelector Overlay (now for Create Button)
   typeSelectorOverlay: {
     position: 'absolute',
-    top: 0,
+    bottom: verticalScale(150),
     left: 0,
     right: 0,
     zIndex: 999,

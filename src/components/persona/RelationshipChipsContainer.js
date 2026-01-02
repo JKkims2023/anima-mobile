@@ -13,11 +13,10 @@
  * @date 2026-01-01
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import RelationshipChip from './RelationshipChip';
-import { useAnima } from '../../contexts/AnimaContext';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Helper Functions
@@ -80,79 +79,28 @@ const getRelationshipPercentage = (level) => {
   
   return levels[level] || 0;
 };
-import { PERSONA_ENDPOINTS } from '../../config/api.config';
 
 /**
- * RelationshipChipsContainer Component
+ * RelationshipChipsContainer Component (⚡ OPTIMIZED: No API calls!)
  * @param {Object} props
- * @param {string} props.userKey - User key
- * @param {string} props.personaKey - Persona key
- * @param {boolean} props.refreshTrigger - External refresh trigger (increment to refresh)
+ * @param {Object} props.relationshipData - Relationship data from persona (passed via props)
+ * @param {Function} props.onChipPress - Callback for chip press (lifted to parent)
  */
-const RelationshipChipsContainer = ({ 
-  userKey, 
-  personaKey,
-  refreshTrigger = 0, // External trigger for refresh
-  onChipPress, // ⭐ NEW: Callback for chip press (lifted to parent)
+const RelationshipChipsContainer = React.memo(({ 
+  relationshipData, // ⚡ NEW: Direct data from persona (no API call!)
+  onChipPress, // ⭐ Callback for chip press (lifted to parent)
 }) => {
-  const { apiBaseUrl } = useAnima();
-  const [chips, setChips] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading] = useState(false); // No loading needed (data is instant!)
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Fetch Relationship Status
+  // ⚡ Transform Relationship Data (Memoized!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
-  const fetchRelationshipStatus = useCallback(async () => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💙 [RelationshipChips] fetchRelationshipStatus called');
-    console.log('   userKey:', userKey);
-    console.log('   personaKey:', personaKey);
-    console.log('   apiBaseUrl:', apiBaseUrl);
-    
-    if (!userKey || !personaKey) {
-      console.log('❌ [RelationshipChips] Missing keys - ABORTING');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      return;
-    }
-    
-    try {
-
-      setIsLoading(true);
-      setError(null);
-      
-      const url = `${PERSONA_ENDPOINTS.RELATIONSHIP_STATUS}?user_key=${userKey}&persona_key=${personaKey}`;
-      console.log('🌐 [RelationshipChips] Fetching from:', url);
-      
-      const response = await fetch(
-        `${PERSONA_ENDPOINTS.RELATIONSHIP_STATUS}?user_key=${userKey}&persona_key=${personaKey}`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success && data.chips) {
-        console.log('✅ [RelationshipChips] Status loaded:', {
-          intimacy: data.chips.intimacy?.value,
-          emotion: data.chips.emotion?.state,
-          relationship: data.chips.relationship?.level,
-        });
-        
-        setChips(data.chips);
-      } else {
-        throw new Error('Invalid response format');
-      }
-      
-    } catch (err) {
-      console.error('❌ [RelationshipChips] Error:', err);
-      setError(err.message);
-      
-      // Set default chips on error
-      setChips({
+  const chips = useMemo(() => {
+    const data = relationshipData;
+    if (!data) {
+      // Default chips if no relationship data exists yet
+      return {
         intimacy: {
           value: 0,
           label: '처음',
@@ -166,6 +114,7 @@ const RelationshipChipsContainer = ({
           label: '평온',
           color: '#9AA0A6',
           pulseSpeed: 1.5,
+          intensity: 0.5,
         },
         relationship: {
           level: 'stranger',
@@ -174,11 +123,76 @@ const RelationshipChipsContainer = ({
           color: '#E8EAED',
           pulseSpeed: 2.0,
         },
-      });
-    } finally {
-      setIsLoading(false);
+        trust: {
+          value: 0,
+          label: '신뢰 구축 중',
+          color: '#E8EAED',
+          emoji: '⭐',
+          pulseSpeed: 1.5,
+        },
+        lastInteraction: null,
+      };
     }
-  }, [userKey, personaKey, apiBaseUrl]);
+    
+    // ⭐ Transform backend data to chip format
+    const emotionEmojis = {
+      happy: '😊',
+      normal: '😐',
+      tired: '😴',
+      hurt: '😢',
+      angry: '😠',
+      worried: '😰',
+    };
+    
+    const relationshipEmojis = {
+      stranger: '🆕',
+      acquaintance: '👋',
+      friend: '🤝',
+      close_friend: '💙',
+      partner: '💕',
+    };
+    
+    return {
+      intimacy: {
+        value: data.intimacy_level || 0,
+        label: data.intimacy_level >= 80 ? '깊은 유대' : data.intimacy_level >= 50 ? '친밀함' : '처음',
+        color: data.intimacy_level >= 80 ? '#F59E0B' : data.intimacy_level >= 50 ? '#3B82F6' : '#E8EAED',
+        emoji: '💙',
+        pulseSpeed: 1.5,
+      },
+      emotion: {
+        state: data.emotional_state || 'normal',
+        emoji: emotionEmojis[data.emotional_state] || '😐',
+        label: data.emotional_state || 'normal',
+        color: '#9AA0A6',
+        pulseSpeed: 1.5,
+        intensity: data.state_intensity || 0.5,
+      },
+      relationship: {
+        level: data.relationship_level || 'stranger',
+        emoji: relationshipEmojis[data.relationship_level] || '🆕',
+        label: data.relationship_level || 'stranger',
+        color: '#E8EAED',
+        pulseSpeed: 2.0,
+      },
+      trust: {
+        value: data.trust_score || 0,
+        label: '신뢰',
+        color: data.trust_score >= 80 ? '#10B981' : data.trust_score >= 50 ? '#3B82F6' : '#E8EAED',
+        emoji: '⭐',
+        pulseSpeed: 1.5,
+      },
+      lastInteraction: data.last_interaction_at ? {
+        timestamp: data.last_interaction_at,
+      } : null,
+      interactionCount: {
+        value: data.interaction_count || 0,
+      },
+      moments: {
+        count: data.moments_count || 0,
+      },
+    };
+  }, [relationshipData]); // ⚡ Only recalculate when relationshipData changes!
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle Chip Press (Click Handler)
@@ -192,27 +206,23 @@ const RelationshipChipsContainer = ({
     onChipPress?.(chipKey, chipData);
   }, [onChipPress]);
   
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Initial Load & Refresh on Trigger
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
-  useEffect(() => {
-    fetchRelationshipStatus();
-  }, [fetchRelationshipStatus, refreshTrigger]); // Refresh when trigger changes
-  
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
-  console.log('🎨 [RelationshipChips] Rendering...');
-  console.log('   chips:', chips);
-  console.log('   isLoading:', isLoading);
-  console.log('   error:', error);
+  if (__DEV__) {
+    console.log('🎨 [RelationshipChips] Rendering...');
+    console.log('   chips:', chips);
+    console.log('   isLoading:', isLoading);
+    // ⚡ REMOVED: error state (no longer used)
+  }
   
   if (!chips) {
-    console.log('⚠️ [RelationshipChips] No chips data - returning null');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    if (__DEV__) {
+      console.log('⚠️ [RelationshipChips] No chips data - returning null');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
     return null; // Or skeleton loader
   }
   
@@ -277,7 +287,13 @@ const RelationshipChipsContainer = ({
       </View>
     </>
   );
-};
+}, (prevProps, nextProps) => {
+  // ⚡ Custom comparison: Only re-render if relationshipData actually changes
+  return (
+    prevProps.relationshipData === nextProps.relationshipData &&
+    prevProps.onChipPress === nextProps.onChipPress
+  );
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -285,7 +301,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap', // Allow wrapping if needed
     gap: scale(8),
     marginTop: verticalScale(8),
-    marginBottom: verticalScale(14),
+    marginBottom: Platform.OS === 'ios' ? verticalScale(-20) : verticalScale(0),
+
   },
 });
 

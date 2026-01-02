@@ -307,11 +307,13 @@ const SettingsScreen = ({ navigation }) => {
 
                 {/* User Info */}
                 <View style={styles.userInfo}>
-                  <CustomText type="title" bold style={styles.userName}>
+                  <CustomText type="middle" style={styles.userName}>
                     {user?.user_name || user?.user_id}
                   </CustomText>
-                  <CustomText type="small" style={styles.userEmail}>
-                    {user?.user_email}
+                  <CustomText type="title" bold style={
+                    [styles.userEmail,
+                      {color: user?.user_level === 'basic' ? COLORS.TEXT_SECONDARY : user?.user_level === 'premium' ? 'skyblue' : 'yellow'}]}>
+                    {user?.user_level === 'basic' ? 'Basic User' : user?.user_level === 'premium' ? 'Premium User' : 'Ultimate User'}
                   </CustomText>
                 </View>
               </View>

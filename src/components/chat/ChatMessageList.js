@@ -28,6 +28,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import HapticService from '../../utils/HapticService';
 import RNFS from 'react-native-fs';
 import { COLORS } from '../../styles/commonstyles';
+import TypingMessageBubble from './TypingMessageBubble'; // ⚡ NEW: Optimized typing component
 
 // SAGE Avatar URL
 const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png';
@@ -287,6 +288,20 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
       </View>
     </View>
   );
+}, (prevProps, nextProps) => {
+  // ⚡ OPTIMIZED: Only re-render if message content actually changed
+  return (
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.text === nextProps.message.text &&
+    prevProps.message.image === nextProps.message.image &&
+    prevProps.message.music === nextProps.message.music &&
+    prevProps.message.youtube === nextProps.message.youtube &&
+    prevProps.personaUrl === nextProps.personaUrl &&
+    prevProps.onImagePress === nextProps.onImagePress &&
+    prevProps.onImageLongPress === nextProps.onImageLongPress &&
+    prevProps.onMusicPress === nextProps.onMusicPress &&
+    prevProps.onYouTubePress === nextProps.onYouTubePress
+  );
 });
 
 MessageItem.displayName = 'MessageItem';
@@ -350,51 +365,8 @@ const ImageViewerModal = memo(({ visible, imageUri, onClose, onDownload }) => {
 });
 ImageViewerModal.displayName = 'ImageViewerModal';
 
-/**
- * Typing Message Component (ISOLATED for performance)
- * Only this component re-renders during typing, not the entire list
- */
-const TypingMessage = memo(({ text, personaUrl }) => {
-  const { currentTheme } = useTheme();
-  const isUser = false; // Typing messages are always from AI
-
-  return (
-    <View style={[styles.messageRow]}>
-      {/* AI Avatar */}
-      <View style={styles.avatarContainer}>
-        <Image
-          source={{ uri: personaUrl || SAGE_AVATAR_URL }}
-          style={styles.avatar}
-        />
-      </View>
-
-      {/* Message Bubble */}
-      <View
-        style={[
-          styles.messageBubble,
-          styles.aiBubble,
-          {
-            backgroundColor: currentTheme.chatStyles.aiBubbleColor || '#1E293B',
-          },
-        ]}
-      >
-        <Text
-          style={[
-            styles.messageText,
-            {
-              color: currentTheme.textColor,
-              lineHeight: platformLineHeight(22),
-            },
-          ]}
-        >
-          {text}
-        </Text>
-      </View>
-    </View>
-  );
-});
-
-TypingMessage.displayName = 'TypingMessage';
+// ⚡ REMOVED: Old TypingMessage component (replaced with TypingMessageBubble for better performance)
+// The new TypingMessageBubble handles typing animation internally without causing parent re-renders
 
 /**
  * Typing Indicator Component (Web peek page style with wave animation)
@@ -491,11 +463,12 @@ const TypingIndicator = ({ personaUrl }) => {
 };
 
 /**
- * ChatMessageList Component (OPTIMIZED: Isolated typing message)
+ * ChatMessageList Component (⚡ SUPER OPTIMIZED: Animated typing message!)
  */
 const ChatMessageList = ({ 
   completedMessages = [], 
-  typingMessage = null, 
+  isTyping = false, // ⚡ NEW: Typing state (boolean, no frequent updates!)
+  currentTypingText = '', // ⚡ NEW: Complete text to type out (passed once!)
   messageVersion = 0,
   isLoading = false,
   onLoadMore = null, // ⭐ NEW: Callback for loading more history
@@ -512,6 +485,14 @@ const ChatMessageList = ({
   // 🆕 Image viewer state
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
+  
+  // ⚡ NEW: Track if user is manually scrolling (to prevent auto-scroll interruption)
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const scrollTimeoutRef = useRef(null);
+  
+  // ⚡ NEW: Track initial load to prevent "와다다다" scroll effect
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const initialLoadTimeoutRef = useRef(null);
   
   // 🆕 Handle image press (fullscreen viewer)
   const handleImagePress = useCallback((imageUri) => {
@@ -566,27 +547,104 @@ const ChatMessageList = ({
     }
   }, []);
 
-  // ✅ Auto-scroll to bottom on new message or typing update
+  // ✅ Auto-scroll to bottom on new message or typing starts
+  // ⚡ OPTIMIZED: Only depends on isTyping (boolean), not typingMessage (string that changes 30ms)
   useEffect(() => {
-    if (flashListRef.current) {
-      setTimeout(() => {
-        flashListRef.current?.scrollToEnd({ animated: false });
-      }, 50);
+    if (flashListRef.current && !isUserScrolling) {
+      // ⚡ Initial load: Scroll without animation (instant!)
+      if (isInitialLoad && completedMessages.length > 0) {
+        const scrollTimeout = setTimeout(() => {
+          flashListRef.current?.scrollToEnd({ animated: false });
+          // Mark initial load complete after a short delay
+          if (initialLoadTimeoutRef.current) {
+            clearTimeout(initialLoadTimeoutRef.current);
+          }
+          initialLoadTimeoutRef.current = setTimeout(() => {
+            setIsInitialLoad(false);
+          }, 300);
+        }, 100);
+        
+        return () => clearTimeout(scrollTimeout);
+      } else {
+        // ⚡ Subsequent updates: Smooth animation
+        const scrollTimeout = setTimeout(() => {
+          flashListRef.current?.scrollToEnd({ animated: true });
+        }, 50);
+        
+        return () => clearTimeout(scrollTimeout);
+      }
     }
-  }, [completedMessages.length, messageVersion, typingMessage]);
-
-  // ⭐ NEW: Handle scroll to top (load more history)
-  const handleScroll = (event) => {
-    if (!onLoadMore || !hasMoreHistory || loadingHistory) return;
+  }, [completedMessages.length, messageVersion, isTyping, isUserScrolling, isInitialLoad]);
+  
+  // ⚡ Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (initialLoadTimeoutRef.current) {
+        clearTimeout(initialLoadTimeoutRef.current);
+      }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  // ⚡ NEW: Real-time scroll during typing (as bubble grows!)
+  // ⚡ THROTTLED: Prevent excessive calls (max once per 50ms)
+  const lastScrollTimeRef = useRef(0);
+  const handleContentSizeChange = useCallback((width, height) => {
+    const now = Date.now();
     
+    // ⚡ Throttle: Only execute if 50ms has passed since last call
+    if (now - lastScrollTimeRef.current < 50) {
+      return;
+    }
+    
+    lastScrollTimeRef.current = now;
+    
+    // Only auto-scroll if:
+    // 1. Currently typing (bubble is growing)
+    // 2. User is not manually scrolling
+    if (isTyping && !isUserScrolling && flashListRef.current) {
+      flashListRef.current.scrollToEnd({ animated: false });
+    }
+  }, [isTyping, isUserScrolling]);
+
+  // ⭐ NEW: Handle scroll (load more history + detect manual scrolling)
+  const handleScroll = useCallback((event) => {
     const { contentOffset } = event.nativeEvent;
     
+    // ⚡ NEW: Mark user as manually scrolling
+    setIsUserScrolling(true);
+    
+    // Reset flag after 1 second of no scrolling
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 1000);
+    
     // ✅ Load more when scrolling to top (reaching old messages)
-    if (contentOffset.y <= 100) {
+    if (onLoadMore && hasMoreHistory && !loadingHistory && contentOffset.y <= 100) {
       console.log('📜 [ChatMessageList] Reached top, loading more history...');
       onLoadMore();
     }
-  };
+  }, [onLoadMore, hasMoreHistory, loadingHistory]);
+
+  // ⚡ NEW: Get item type for better FlashList performance
+  const getItemType = useCallback((item) => {
+    // Different types = different estimated sizes = smoother scrolling!
+    if (!item) return 'unknown';
+    
+    const isUser = item.role === 'user';
+    const hasMedia = item.images?.length > 0 || item.music || item.youtube;
+    
+    if (isUser) {
+      return item.image ? 'user_with_image' : 'user_text';
+    } else {
+      return hasMedia ? 'assistant_with_media' : 'assistant_text';
+    }
+  }, []);
 
   // Render message item
   const renderItem = ({ item }) => (
@@ -626,14 +684,18 @@ const ChatMessageList = ({
     );
   };
   
-  // 🔥 NEW: Typing message footer (inside FlashList!)
+  // ⚡ OPTIMIZED: Memoized typing footer (prevents re-render!)
   // Shows TypingIndicator (...) when loading, or TypingMessage when typing
-  const renderTypingFooter = () => {
-    // 1️⃣ Show typing message (actual text being typed)
-    if (typingMessage) {
+  const renderTypingFooter = useMemo(() => {
+    // 1️⃣ Show typing message (⚡ NEW: Self-contained typing animation!)
+    if (isTyping && currentTypingText) {
       return (
         <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
-          <TypingMessage text={typingMessage} personaUrl={personaUrl} />
+          <TypingMessageBubble 
+            fullText={currentTypingText} 
+            personaUrl={personaUrl} 
+            typingSpeed={30}
+          />
         </View>
       );
     }
@@ -649,7 +711,7 @@ const ChatMessageList = ({
     
     // 3️⃣ Nothing to show
     return null;
-  };
+  }, [isTyping, currentTypingText, isLoading, personaUrl]);
 
   // ✅ OPTIMIZATION: Messages in chronological order (oldest → newest)
   // Typing indicator is rendered as ListFooterComponent (inside FlashList)
@@ -674,21 +736,51 @@ const ChatMessageList = ({
           />
         )}
         keyExtractor={(item, index) => item.id || `message-${index}`}
-        estimatedItemSize={verticalScale(80)} // ✅ Performance optimization
+        getItemType={getItemType} // ⚡ NEW: Different types = different sizes = smoother scroll!
+        estimatedItemSize={verticalScale(120)} // ⚡ OPTIMIZED: More accurate average (80 → 120)
+        initialScrollIndex={displayMessages.length > 0 ? Math.max(0, displayMessages.length - 1) : undefined} // ⚡ NEW: Start at bottom (no "와다다다"!)
+        onLoad={() => {
+          // ⚡ Mark initial load complete when FlashList finishes first render
+          if (isInitialLoad) {
+            setTimeout(() => setIsInitialLoad(false), 100);
+          }
+        }}
+        overrideItemLayout={(layout, item) => {
+          // ⚡ NEW: Override estimated size based on item type for PERFECT scrolling!
+          const itemType = getItemType(item);
+          switch (itemType) {
+            case 'user_text':
+              layout.size = verticalScale(80); // User messages are shorter
+              break;
+            case 'user_with_image':
+              layout.size = verticalScale(250); // User message + image
+              break;
+            case 'assistant_text':
+              layout.size = verticalScale(120); // AI text messages
+              break;
+            case 'assistant_with_media':
+              layout.size = verticalScale(350); // AI message + media (image/music/youtube)
+              break;
+            default:
+              layout.size = verticalScale(120);
+          }
+        }}
         extraData={messageVersion} // ✅ Only re-render when messageVersion changes
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
         ListHeaderComponent={renderListHeader} // ⭐ Loading indicator at top
         ListFooterComponent={renderTypingFooter} // 🔥 Typing message at bottom (inside list!)
-        onScroll={handleScroll} // ⭐ NEW: Infinite scroll
+        onScroll={handleScroll} // ⭐ NEW: Infinite scroll + detect manual scrolling
         scrollEventThrottle={400} // ⭐ NEW: Throttle scroll events
+        onContentSizeChange={handleContentSizeChange} // ⚡ NEW: Real-time scroll during typing!
         // ✅ CRITICAL: Prevent keyboard dismiss on Android
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
-        // ✅ Performance optimizations
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
+        // ⚡ OPTIMIZED: Performance tuning for smooth scroll!
+        drawDistance={verticalScale(500)} // ⚡ NEW: Render items 500px away (prevents "팍" pop-in!)
+        removeClippedSubviews={false} // ⚡ CHANGED: Keep items in memory (smoother, no pop-in!)
+        maxToRenderPerBatch={15} // ⚡ INCREASED: Render more items per batch (10 → 15)
         updateCellsBatchingPeriod={50}
         windowSize={10}
       />
@@ -1013,12 +1105,14 @@ const styles = StyleSheet.create({
   },
 });
 
-// ✅ Memoize to prevent unnecessary re-renders
+// ⚡ SUPER OPTIMIZED: Memoize to prevent unnecessary re-renders
+// typingMessage removed from comparison → no re-renders during typing!
 export default memo(ChatMessageList, (prevProps, nextProps) => {
   return (
     prevProps.completedMessages.length === nextProps.completedMessages.length &&
     prevProps.messageVersion === nextProps.messageVersion &&
-    prevProps.typingMessage === nextProps.typingMessage &&
+    prevProps.isTyping === nextProps.isTyping && // ⚡ Only check boolean, not string!
+    prevProps.typingText === nextProps.typingText && // ⚡ Only changes once (when typing starts)
     prevProps.isLoading === nextProps.isLoading
   );
 });

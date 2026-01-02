@@ -12,8 +12,8 @@
  * @date 2024-11-22
  */
 
-import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconBrain from 'react-native-vector-icons/FontAwesome5';
@@ -31,9 +31,9 @@ import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity 
 import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
 import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
 /**
- * PersonaInfoCard Component
+ * PersonaInfoCard Component (⚡ OPTIMIZED: Relationship data from persona!)
  * @param {Object} props
- * @param {Object} props.persona - 자아 object
+ * @param {Object} props.persona - 자아 object (includes relationship data!)
  * @param {Function} props.onChatPress - Callback when chat button is pressed
  * @param {Function} props.onFavoriteToggle - Callback when favorite is toggled
  * @param {Number} props.currentIndex - Current persona index (0-based)
@@ -41,7 +41,7 @@ import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
  * @param {Function} props.onScrollToTop - Callback to scroll to first persona
  * @param {Object} props.user - User object (passed from parent for chips)
  */
-const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop, user: userProp, chipsRefreshKey = 0 }) => {
+const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, currentIndex = 0, totalCount = 0, onScrollToTop, user: userProp }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { showAlert, user: userContext } = useAnima(); // Context user as fallback
@@ -54,19 +54,8 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
   // ⭐ NEW: Identity sheet state
   const [showIdentitySheet, setShowIdentitySheet] = useState(false);
   
-  // ⭐ NEW: Refresh trigger for relationship chips
-  const [chipsRefreshTrigger, setChipsRefreshTrigger] = useState(0);
-  
   // ⭐ NEW: Selected chip for detail sheet (lifted state)
   const [selectedChip, setSelectedChip] = useState(null);
-  
-  // ⭐ NEW: Update chips when chipsRefreshKey changes (from parent)
-  useEffect(() => {
-    if (chipsRefreshKey > 0) {
-      console.log('🔄 [PersonaInfoCard] chipsRefreshKey changed:', chipsRefreshKey);
-      setChipsRefreshTrigger(prev => prev + 1);
-    }
-  }, [chipsRefreshKey]);
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
@@ -112,6 +101,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
 
   const handleSettingsPress = () => {
     // ⭐ Block default personas (SAGE, NEXUS)
+    /*
     if (persona?.default_yn === 'Y') {
       showAlert({
         emoji: '🚫',
@@ -123,6 +113,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
       });
       return;
     }
+    */
 
     // ⭐ Block processing personas
     if(persona?.done_yn === 'N') {
@@ -147,6 +138,14 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
     console.log('[PersonaInfoCard] Identity saved:', data);
     // Optionally refresh persona data here
   };
+
+  // ⚡ OPTIMIZED: Memoized chip press handler
+  const handleChipPress = useCallback((chipKey, chipData) => {
+    if (__DEV__) {
+      console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
+    }
+    setSelectedChip({ key: chipKey, data: chipData });
+  }, []); // No dependencies - stable function!
 
   if (!persona) {
     return null;
@@ -180,9 +179,9 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
     >
       {/* ⭐ Pagination Indicator (Clickable when index >= 3) */}
       {totalCount > 1 && (
-        <TouchableOpacity
+        <Pressable
           style={styles.paginationContainer}
-          onPress={handleScrollToTop}
+          onPress={handleSettingsPress}
           activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
           disabled={!showScrollToTop}
         >
@@ -221,30 +220,12 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             
   
           </View>
-        </TouchableOpacity>
+        </Pressable>
       )}
       
-      <View onPress={handleSettingsPress}>
+      <Pressable onPress={handleSettingsPress}>
       <View style={styles.content}>
-        {/* Persona Image */}
-        <FastImage
-          source={{ uri: persona?.persona_url }}
-          style={styles.personaImage}
-          resizeMode="cover"
-        />
-        {/* Favorite Icon (⭐ ALL personas including default) */}
-        <View
-            onPress={handleBrainSettingsPress}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            style={{ display: persona?.default_yn === 'Y' ? 'none' : 'none' }}
-          >
-            <IconBrain 
-              name={persona?.identity_description != null ? 'brain' : 'brain'} 
-              size={scale(60)} 
-              color={persona?.identity_description != null ? '#FFC107' : 'rgba(255, 255, 255, 0.6)'} 
-            />
-          </View>
+        
         {/* Left: Info */}
         <View style={styles.infoSection}>
           {/* Name */}
@@ -263,16 +244,11 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
             
           </View>
           
-          {/* ⭐ NEW: Relationship Chips (Living Emotions!) */}
+          {/* ⭐ NEW: Relationship Chips (Living Emotions!) - ⚡ OPTIMIZED: No API calls! */}
           {user?.user_key && persona?.persona_key && (
             <RelationshipChipsContainer 
-              userKey={user.user_key}
-              personaKey={persona.persona_key}
-              refreshTrigger={chipsRefreshTrigger}
-              onChipPress={(chipKey, chipData) => {
-                console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
-                setSelectedChip({ key: chipKey, data: chipData });
-              }}
+              relationshipData={persona} // ⚡ Pass entire persona object (includes relationship fields)
+              onChipPress={handleChipPress} // ⚡ OPTIMIZED: Stable callback!
             />
           )}
           
@@ -293,7 +269,7 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
           <Icon name="settings" size={scale(30)} color="#FFFFFF" />
         </View>
       </View>
-      </View>
+      </Pressable>
     </GradientOverlay>
 
     {/* ⭐ NEW: Identity Settings Sheet */}
@@ -317,7 +293,24 @@ const PersonaInfoCard = ({ persona, onChatPress, onFavoriteToggle, currentIndex 
     />
     </>
   );
-};
+}, (prevProps, nextProps) => {
+  // ⚡ Custom comparison for React.memo
+  // Return true if props are equal (skip re-render)
+  return (
+    prevProps.persona?.persona_key === nextProps.persona?.persona_key &&
+    prevProps.persona?.intimacy_level === nextProps.persona?.intimacy_level &&
+    prevProps.persona?.trust_score === nextProps.persona?.trust_score &&
+    prevProps.persona?.emotional_state === nextProps.persona?.emotional_state &&
+    prevProps.persona?.relationship_level === nextProps.persona?.relationship_level &&
+    prevProps.persona?.last_interaction_at === nextProps.persona?.last_interaction_at &&
+    prevProps.currentIndex === nextProps.currentIndex &&
+    prevProps.totalCount === nextProps.totalCount &&
+    prevProps.onChatPress === nextProps.onChatPress &&
+    prevProps.onFavoriteToggle === nextProps.onFavoriteToggle &&
+    prevProps.onScrollToTop === nextProps.onScrollToTop &&
+    prevProps.user?.user_key === nextProps.user?.user_key
+  );
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -328,6 +321,8 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(20), // ⭐ Reduced: Make room for pagination
     paddingHorizontal: scale(20),
     zIndex: 100,
+    marginBottom: verticalScale(20),
+
   },
   
   // ⭐ Pagination Container (Clickable for scroll to top)
@@ -396,6 +391,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(16),
+    display: 'none',
   },
   infoSection: {
     flex: 1,

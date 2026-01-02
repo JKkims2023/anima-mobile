@@ -46,8 +46,11 @@ import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identi
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
 import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
+import ChatLimitBar from './ChatLimitBar'; // 💰 NEW: Daily chat limit display
+import ChatLimitSheet from './ChatLimitSheet'; // 💰 NEW: Limit reached sheet
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
+import { getServiceConfig } from '../../services/api/serviceApi'; // 💰 NEW: Service config API
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
@@ -141,11 +144,11 @@ const ManagerAIOverlay = ({
   const insets = useSafeAreaInsets();
   const { user } = useUser(); // ✅ Get user info from context
   
-  // ✅ Chat state (Simplified)
+  // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [typingMessage, setTypingMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
+  const [currentTypingText, setCurrentTypingText] = useState(''); // ⚡ Complete text (set once!)
   const [messageVersion, setMessageVersion] = useState(0);
   
   // ⭐ NEW: Continuous conversation state
@@ -187,6 +190,11 @@ const ManagerAIOverlay = ({
   // 🎬 NEW: YouTube Video Player state
   const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null); // { videoId, title }
+  
+  // 💰 NEW: Daily Chat Limit state (Tier System)
+  const [serviceConfig, setServiceConfig] = useState(null); // Service config from /api/service
+  const [showLimitSheet, setShowLimitSheet] = useState(false); // Limit reached sheet
+  const [limitReachedData, setLimitReachedData] = useState(null); // Data for limit sheet
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -232,6 +240,31 @@ const ManagerAIOverlay = ({
       // ⚠️ User context not loaded yet, wait...
       console.log('⏳ [Settings] Waiting for user context...');
     }
+  }, [visible, user?.user_key]);
+  
+  // 💰 NEW: Load service config (Tier limits) when overlay opens
+  useEffect(() => {
+    const loadServiceConfig = async () => {
+      if (!visible || !user?.user_key) {
+        return; // Don't load if overlay is closed or user not loaded
+      }
+      
+      try {
+        console.log('💰 [Service Config] Loading tier information...');
+        const response = await getServiceConfig(user.user_key);
+        
+        if (response.success && response.data) {
+          setServiceConfig(response.data);
+          console.log(`✅ [Service Config] Loaded: ${response.data.userTier} (${response.data.dailyChatRemaining}/${response.data.dailyChatLimit} chats remaining)`);
+        } else {
+          console.warn('⚠️  [Service Config] Failed to load config:', response.error);
+        }
+      } catch (error) {
+        console.error('❌ [Service Config] Error:', error);
+      }
+    };
+    
+    loadServiceConfig();
   }, [visible, user?.user_key]);
   
   // 🎵 NEW: Cleanup sound instance on unmount
@@ -559,128 +592,100 @@ const ManagerAIOverlay = ({
     }
   }, [user, persona]);
   
-  // ⭐ NEW: Show notification message with typing effect (for feedback)
+  // ⚡ OPTIMIZED: Show notification message (TypingMessageBubble handles animation!)
   const showNotificationMessage = useCallback((message, autoHideDuration = 2000) => {
-    // Type out message
+    // ⚡ Start typing effect (TypingMessageBubble will handle the animation!)
     setIsTyping(true);
-    setTypingMessage('');
+    setCurrentTypingText(message);
     
-    let currentIndex = 0;
-    const typeInterval = setInterval(() => {
-      if (currentIndex < message.length) {
-        setTypingMessage(message.substring(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        
-        const notificationMessage = {
-          id: `notification-${Date.now()}`,
-          role: 'assistant',
-          text: message,
-          timestamp: Date.now(),
-        };
-        
-        setMessages(prev => [...prev, notificationMessage]);
-        setIsTyping(false);
-        
-        // Auto-hide after duration
-        if (autoHideDuration > 0) {
-          setTimeout(() => {
-            setMessages(prev => prev.filter(m => m.id !== notificationMessage.id));
-          }, autoHideDuration);
-        }
+    // Calculate typing duration (30ms per character)
+    const typingDuration = message.length * 30;
+    
+    // After typing completes, add to messages
+    setTimeout(() => {
+      const notificationMessage = {
+        id: `notification-${Date.now()}`,
+        role: 'assistant',
+        text: message,
+        timestamp: Date.now(),
+      };
+      
+      setMessages(prev => [...prev, notificationMessage]);
+      setIsTyping(false);
+      setCurrentTypingText('');
+      
+      // Auto-hide after duration
+      if (autoHideDuration > 0) {
+        setTimeout(() => {
+          setMessages(prev => prev.filter(m => m.id !== notificationMessage.id));
+        }, autoHideDuration);
       }
-    }, 30);
-    
-    return () => clearInterval(typeInterval);
+    }, typingDuration + 100); // +100ms buffer
   }, []);
   
-  // ⭐ NEW: Show welcome message with typing effect
+  // ⚡ OPTIMIZED: Show welcome message (TypingMessageBubble handles animation!)
   const showWelcomeMessage = useCallback(() => {
-
     const greetingKey = 'managerAI.public'; //`managerAI.greeting.${context}`;
     const greeting = t(greetingKey);
-        
-    // Type out greeting
-    setIsTyping(true);
-    setTypingMessage('');
     
-    let currentIndex = 0;
-    const typeInterval = setInterval(() => {
-      if (currentIndex < greeting.length) {
-        setTypingMessage(greeting.substring(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        
+    // ⚡ Start typing effect
+    setIsTyping(true);
+    setCurrentTypingText(greeting);
+    
+    // Calculate typing duration
+    const typingDuration = greeting.length * 30;
+    
+    // After typing completes, add to messages
+    setTimeout(() => {
+      const greetingMessage = {
+        id: 'greeting',
+        role: 'assistant',
+        text: greeting,
+        timestamp: new Date().toISOString(),
+      };
+      
+      setMessages([greetingMessage]);
+      setMessageVersion(1);
+      setIsTyping(false);
+      setCurrentTypingText('');
+    }, typingDuration + 100);
+  }, [context, t]);
+
+    // ⚡ OPTIMIZED: Show not-login message (TypingMessageBubble handles animation!)
+    const showNotLoginMessage = useCallback(() => {
+      const greeting = t('ai_comment.not_login');
+      
+      // ⚡ Start typing effect
+      setIsTyping(true);
+      setCurrentTypingText(greeting);
+      
+      // Calculate typing duration
+      const typingDuration = greeting.length * 30;
+      
+      // After typing completes, add to messages
+      setTimeout(() => {
         const greetingMessage = {
-          id: 'greeting',
-          role: 'assistant',
+          id: uuid.v4(),
+          role: 'ai',
           text: greeting,
           timestamp: new Date().toISOString(),
         };
         
-        setMessages([greetingMessage]);
-        setMessageVersion(1);
+        setMessages(prev => [...prev, greetingMessage]);
+        setMessageVersion(prev => prev + 1);
         setIsTyping(false);
-        setTypingMessage('');
-      }
-    }, 30);
-  }, [context, t]);
-
-    // ⭐ NEW: Show welcome message with typing effect
-    const showNotLoginMessage = useCallback(() => {
-
-      
-      const greeting = t('ai_comment.not_login');
-          
-      // Type out greeting
-      setIsTyping(true);
-      setTypingMessage('');
-      
-      let currentIndex = 0;
-      const typeInterval = setInterval(() => {
-        if (currentIndex < greeting.length) {
-          setTypingMessage(greeting.substring(0, currentIndex + 1));
-          currentIndex++;
-        } else {
-          clearInterval(typeInterval);
-          
-          const greetingMessage = {
-            id: uuid.v4(),
-            role: 'ai',
-            text: greeting,
-            timestamp: new Date().toISOString(),
-          };
-          
-          setMessages(prev => [...prev, greetingMessage]);
-          setMessageVersion(prev => prev + 1);
-
-          setIsTyping(false);
-          setTypingMessage('');
-        }
-      }, 30);
+        setCurrentTypingText('');
+      }, typingDuration + 100);
     }, [context, t]);
   
-  // ⭐ NEW: AI auto conversation starter
+  // ⚡ OPTIMIZED: AI auto conversation starter (TypingMessageBubble handles animation!)
   const startAIConversation = useCallback(async (userKey) => {
     console.log('🤖 [Chat] Starting AI conversation...');
     
-    // Show loading with animated dots
+    // ⚡ Show loading indicator
     setIsLoading(true);
-    setIsTyping(true);
-    setTypingMessage('');
-    
-    // Animate dots
-    let dots = '';
-    const dotInterval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setTypingMessage(dots);
-    }, 300);
     
     setTimeout(async () => {
-      clearInterval(dotInterval);
-      
       try {
         const response = await chatApi.sendManagerAIMessage({
           user_key: userKey,
@@ -692,52 +697,49 @@ const ManagerAIOverlay = ({
           const answer = response.data.answer;
           const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
           
-          // Type out the response
-          setTypingMessage('');
-          let currentIndex = 0;
+          // ⚡ Start typing effect
+          setIsLoading(false);
+          setIsTyping(true);
+          setCurrentTypingText(answer);
           
-          const typeInterval = setInterval(() => {
-            if (currentIndex < answer.length) {
-              setTypingMessage(answer.substring(0, currentIndex + 1));
-              currentIndex++;
-            } else {
-              clearInterval(typeInterval);
-              
-              const aiMessage = {
-                id: `ai-start-${Date.now()}`,
-                role: 'assistant',
-                text: answer,
-                timestamp: new Date().toISOString(),
-                // ⭐ NEW: Rich media content
-                images: richContent.images,
-                videos: richContent.videos,
-                links: richContent.links,
-              };
-              
-              setMessages(prev => [...prev, aiMessage]);
-              setMessageVersion(prev => prev + 1);
-              setIsTyping(false);
-              setTypingMessage('');
-              setIsLoading(false);
-              
-              // Check for continuation
-              if (response.data.continue_conversation) {
-                setTimeout(() => {
-                  handleAIContinue(userKey);
-                }, 800);
-              }
+          // Calculate typing duration
+          const typingDuration = answer.length * 30;
+          
+          // After typing completes, add to messages
+          setTimeout(() => {
+            const aiMessage = {
+              id: `ai-start-${Date.now()}`,
+              role: 'assistant',
+              text: answer,
+              timestamp: new Date().toISOString(),
+              // ⭐ NEW: Rich media content
+              images: richContent.images,
+              videos: richContent.videos,
+              links: richContent.links,
+            };
+            
+            setMessages(prev => [...prev, aiMessage]);
+            setMessageVersion(prev => prev + 1);
+            setIsTyping(false);
+            setCurrentTypingText('');
+            
+            // Check for continuation
+            if (response.data.continue_conversation) {
+              setTimeout(() => {
+                handleAIContinue(userKey);
+              }, 800);
             }
-          }, 30);
+          }, typingDuration + 100);
         } else {
           setIsLoading(false);
           setIsTyping(false);
-          setTypingMessage('');
+          setCurrentTypingText('');
         }
       } catch (error) {
         console.error('❌ [Chat] Auto start error:', error);
         setIsLoading(false);
         setIsTyping(false);
-        setTypingMessage('');
+        setCurrentTypingText('');
       }
     }, 800);
   }, [persona, chatApi]);
@@ -1199,57 +1201,52 @@ const ManagerAIOverlay = ({
       });
       
       if (response.success && response.data?.answer) {
-        setIsTyping(true);
-        setTypingMessage('');
-        
         const answer = response.data.answer;
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
-        let currentIndex = 0;
         
-        const typeInterval = setInterval(() => {
-          if (currentIndex < answer.length) {
-            setTypingMessage(answer.substring(0, currentIndex + 1));
-            currentIndex++;
+        // ⚡ Start typing effect
+        setIsLoading(false);
+        setIsTyping(true);
+        setCurrentTypingText(answer);
+        
+        // Calculate typing duration
+        const typingDuration = answer.length * 30;
+        
+        // After typing completes, add to messages
+        setTimeout(() => {
+          const aiMessage = {
+            id: `ai-continue-${Date.now()}`,
+            role: 'assistant',
+            text: answer,
+            timestamp: new Date().toISOString(),
+            // ⭐ NEW: Rich media content
+            images: richContent.images,
+            videos: richContent.videos,
+            links: richContent.links,
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          setMessageVersion(prev => prev + 1);
+          setIsTyping(false);
+          setCurrentTypingText('');
+          
+          // Check if AI wants to continue AGAIN
+          if (response.data.continue_conversation) {
+            console.log('🔄 [ManagerAIOverlay] AI wants to continue again...');
+            
+            // ⭐ Show TypingIndicator (same as user message send)
+            setIsLoading(true);
+            
+            setTimeout(() => {
+              handleAIContinue(userKey);
+            }, 800);
           } else {
-            clearInterval(typeInterval);
-            
-            const aiMessage = {
-              id: `ai-continue-${Date.now()}`,
-              role: 'assistant',
-              text: answer,
-              timestamp: new Date().toISOString(),
-              // ⭐ NEW: Rich media content
-              images: richContent.images,
-              videos: richContent.videos,
-              links: richContent.links,
-            };
-            
-            setMessages(prev => [...prev, aiMessage]);
-            setMessageVersion(prev => prev + 1);
-            setIsTyping(false);
-            setTypingMessage('');
-            setIsLoading(false);
-            
-            // Check if AI wants to continue AGAIN
-            if (response.data.continue_conversation) {
-              console.log('🔄 [ManagerAIOverlay] AI wants to continue again...');
-              
-              // ⭐ Show TypingIndicator (same as user message send)
-              setIsLoading(true);
-              setIsTyping(false);
-              setTypingMessage('');
-              
-              setTimeout(() => {
-                handleAIContinue(userKey);
-              }, 800);
-            } else {
-              // Conversation ended
-              setIsAIContinuing(false);
-              aiContinueCountRef.current = 0; // ⭐ Reset ref
-              console.log('✅ [ManagerAIOverlay] AI conversation completed');
-            }
+            // Conversation ended
+            setIsAIContinuing(false);
+            aiContinueCountRef.current = 0; // ⭐ Reset ref
+            console.log('✅ [ManagerAIOverlay] AI conversation completed');
           }
-        }, 30);
+        }, typingDuration + 100);
       } else {
         setIsAIContinuing(false);
         aiContinueCountRef.current = 0; // ⭐ Reset ref
@@ -1316,6 +1313,35 @@ const ManagerAIOverlay = ({
         return;
       }
       
+      // 💰 NEW: Check daily chat limit (Tier System)
+      if (serviceConfig && user?.user_level !== 'ultimate') {
+        const currentCount = serviceConfig.dailyChatCount || 0;
+        const limit = serviceConfig.dailyChatLimit || 20;
+        
+        if (currentCount >= limit) {
+          console.warn(`⚠️  [Chat Limit] User exceeded daily limit: ${currentCount}/${limit}`);
+          
+          // Remove user message from UI (revert optimistic update)
+          setMessages(prev => prev.filter(m => m.id !== userMessage.id));
+          setIsLoading(false);
+          
+          // Show limit sheet
+          setLimitReachedData({
+            tier: user.user_level || 'free',
+            limit: limit,
+            resetTime: serviceConfig.dailyChatResetAt,
+            isOnboarding: serviceConfig.isOnboarding || false,
+            onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
+          });
+          setShowLimitSheet(true);
+          
+          // Haptic feedback
+          HapticService.error();
+          
+          return; // Stop message send
+        }
+      }
+      
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
         question: text,
@@ -1332,8 +1358,7 @@ const ManagerAIOverlay = ({
       setSelectedImage(null);
       
       if (response.success && response.data?.answer) {
-        setIsTyping(true);
-        setTypingMessage('');
+        // ⚡ Prepare for typing effect (setup only, no setTypingMessage spam!)
         
         const answer = response.data.answer;
         const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
@@ -1486,55 +1511,53 @@ const ManagerAIOverlay = ({
           console.log('✅ [YouTube] Video data prepared for message bubble!');
         }
         
-        let currentIndex = 0;
+        // ⚡ OPTIMIZED: Start typing effect (TypingMessageBubble handles animation!)
+        setIsTyping(true);
+        setCurrentTypingText(answer);
+        setIsLoading(false);
         
-        const typeInterval = setInterval(() => {
-          if (currentIndex < answer.length) {
-            setTypingMessage(answer.substring(0, currentIndex + 1));
-            currentIndex++;
+        // Calculate typing duration
+        const typingDuration = answer.length * 30;
+        
+        // After typing completes, add to messages
+        setTimeout(() => {
+          const aiMessage = {
+            id: `ai-${Date.now()}`,
+            role: 'assistant',
+            text: answer,
+            timestamp: new Date().toISOString(),
+            // ⭐ NEW: Rich media content + Pixabay generated image!
+            images: [
+              ...richContent.images,
+              ...(generatedImageForBubble ? [generatedImageForBubble] : [])
+            ],
+            videos: richContent.videos,
+            links: richContent.links,
+            music: musicForBubble, // 🎵 NEW: Music data for bubble!
+            youtube: youtubeForBubble, // 🎬 NEW: YouTube data for bubble!
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          setMessageVersion(prev => prev + 1);
+          setIsTyping(false);
+          setCurrentTypingText('');
+          
+          // ⭐ NEW: Check if AI wants to continue talking
+          console.log('🔍 [ManagerAIOverlay] Checking shouldContinue:', shouldContinue);
+          if (shouldContinue) {
+            console.log('🔄 [ManagerAIOverlay] AI wants to continue, calling handleAIContinue...');
+            
+            // ⭐ Show TypingIndicator (same as user message send)
+            setIsLoading(true);
+            
+            setTimeout(() => {
+              handleAIContinue(userKey);
+            }, 800); // Small delay for natural feel
           } else {
-            clearInterval(typeInterval);
-            
-            const aiMessage = {
-              id: `ai-${Date.now()}`,
-              role: 'assistant',
-              text: answer,
-              timestamp: new Date().toISOString(),
-              // ⭐ NEW: Rich media content + Pixabay generated image!
-              images: [
-                ...richContent.images,
-                ...(generatedImageForBubble ? [generatedImageForBubble] : [])
-              ],
-              videos: richContent.videos,
-              links: richContent.links,
-              music: musicForBubble, // 🎵 NEW: Music data for bubble!
-              youtube: youtubeForBubble, // 🎬 NEW: YouTube data for bubble!
-            };
-            
-            setMessages(prev => [...prev, aiMessage]);
-            setMessageVersion(prev => prev + 1);
-            setIsTyping(false);
-            setTypingMessage('');
-            
-            // ⭐ NEW: Check if AI wants to continue talking
-            console.log('🔍 [ManagerAIOverlay] Checking shouldContinue:', shouldContinue);
-            if (shouldContinue) {
-              console.log('🔄 [ManagerAIOverlay] AI wants to continue, calling handleAIContinue...');
-              
-              // ⭐ Show TypingIndicator (same as user message send)
-              setIsLoading(true);
-              setIsTyping(false);
-              setTypingMessage('');
-              
-              setTimeout(() => {
-                handleAIContinue(userKey);
-              }, 800); // Small delay for natural feel
-            } else {
-              console.log('✋ [ManagerAIOverlay] AI finished, no continuation needed');
-              aiContinueCountRef.current = 0; // ⭐ Reset counter
-            }
+            console.log('✋ [ManagerAIOverlay] AI finished, no continuation needed');
+            aiContinueCountRef.current = 0; // ⭐ Reset counter
           }
-        }, 30);
+        }, typingDuration + 100);
         
       } else {
         const errorMessage = {
@@ -1706,7 +1729,7 @@ const ManagerAIOverlay = ({
               
               setTimeout(() => {
                 setMessages([]);
-                setTypingMessage('');
+                setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
                 setIsTyping(false);
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
@@ -1733,7 +1756,7 @@ const ManagerAIOverlay = ({
     // Clear messages on close
     setTimeout(() => {
       setMessages([]);
-      setTypingMessage('');
+      setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
       setIsTyping(false);
       setMessageVersion(0);
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
@@ -1829,11 +1852,35 @@ const ManagerAIOverlay = ({
               </TouchableOpacity>
             </View>
             
+            {/* 💰 NEW: Chat Limit Bar (Tier System) */}
+            {serviceConfig && (
+              <ChatLimitBar
+                currentCount={serviceConfig.dailyChatCount || 0}
+                dailyLimit={serviceConfig.dailyChatLimit || 20}
+                tier={user?.user_level || 'free'}
+                isOnboarding={serviceConfig.isOnboarding || false}
+                onUpgradePress={() => {
+                  // TODO: Navigate to upgrade screen
+                  console.log('💰 [Chat Limit] Upgrade button pressed');
+                  // For now, show limit sheet
+                  setLimitReachedData({
+                    tier: user?.user_level || 'free',
+                    limit: serviceConfig.dailyChatLimit || 20,
+                    resetTime: serviceConfig.dailyChatResetAt,
+                    isOnboarding: serviceConfig.isOnboarding || false,
+                    onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
+                  });
+                  setShowLimitSheet(true);
+                }}
+              />
+            )}
+            
             {/* ✅ Chat Messages (Scrollable) */}
             <View style={styles.chatContainer}>
               <ChatMessageList
                 completedMessages={messages}
-                typingMessage={isTyping ? typingMessage : null}
+                isTyping={isTyping} // ⚡ OPTIMIZED: Boolean flag only
+                currentTypingText={currentTypingText} // ⚡ OPTIMIZED: Complete text (set once!)
                 messageVersion={messageVersion}
                 isLoading={isLoading}
                 onLoadMore={() => loadChatHistory(true)} // ⭐ NEW: Load more history
@@ -2053,6 +2100,24 @@ const ManagerAIOverlay = ({
       userKey={user.user_key}
       onSave={handleSaveCreateMusic}
     />
+    )}
+    
+    {/* 💰 NEW: Chat Limit Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    {limitReachedData && (
+      <ChatLimitSheet
+        isOpen={showLimitSheet}
+        onClose={() => setShowLimitSheet(false)}
+        tier={limitReachedData.tier}
+        limit={limitReachedData.limit}
+        resetTime={limitReachedData.resetTime}
+        canUpgrade={limitReachedData.tier !== 'ultimate'}
+        onUpgrade={() => {
+          setShowLimitSheet(false);
+          // TODO: Navigate to TierUpgradeSheet
+          console.log('💰 [Chat Limit] Navigate to upgrade screen');
+        }}
+        isOnboarding={limitReachedData.isOnboarding}
+      />
     )}
     
     {/* 🎬 YouTube Video Player Modal (Independent Modal - Outside ManagerAIOverlay Modal) */}

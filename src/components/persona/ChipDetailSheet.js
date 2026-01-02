@@ -21,7 +21,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import HapticService from '../../utils/HapticService';
-
+import { useTranslation } from 'react-i18next';
 /**
  * ChipDetailSheet Component
  * @param {Object} props
@@ -32,6 +32,7 @@ import HapticService from '../../utils/HapticService';
  * @param {Object} props.persona - Persona data for context
  */
 const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
+  const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const bottomSheetRef = useRef(null);
 
@@ -57,17 +58,17 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
   const getTitleAndEmoji = () => {
     switch (chipKey) {
       case 'intimacy':
-        return { title: '친밀도', emoji: '💙' };
+        return { title: t('ai_chip.intimacy.title'), emoji: '💙' };
       case 'emotion':
-        return { title: '감정 상태', emoji: chipData?.emoji || '😊' };
+        return { title: t('ai_chip.emotion.title'), emoji: chipData?.emoji || '😊' };
       case 'relationship':
-        return { title: '관계 단계', emoji: '🌟' };
+        return { title: t('ai_chip.relationship.title'), emoji: '🌟' };
       case 'trust':
-        return { title: '신뢰도', emoji: '🤝' };
+        return { title: t('ai_chip.trust.title'), emoji: '🤝' };
       case 'lastInteraction':
-        return { title: '최근 대화', emoji: '⏱️' };
+        return { title: t('ai_chip.last_interaction.title'), emoji: '⏱️' };
       default:
-        return { title: '상세 정보', emoji: '💙' };
+        return { title: t('ai_chip.title'), emoji: '💙' };
     }
   };
 
@@ -82,7 +83,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
       return (
         <View style={styles.emptyContainer}>
           <CustomText type="middle" style={[styles.emptyText, { color: currentTheme.textSecondary }]}>
-            데이터를 불러올 수 없습니다
+            {t('ai_chip.empty.description', '데이터를 불러올 수 없습니다')}
           </CustomText>
         </View>
       );
@@ -116,17 +117,17 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
     return (
       <View style={styles.detailContainer}>
         {/* Title */}
-        <View style={styles.titleRow}>
+        <View style={[styles.titleRow,{display:'none'}]}>
           <CustomText style={styles.titleEmoji}>💙</CustomText>
           <CustomText type="big" bold style={[styles.title, { color: currentTheme.textPrimary }]}>
-            친밀도
+            {t('ai_chip.intimacy.title')}
           </CustomText>
         </View>
 
         {/* Current Level */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            현재 레벨
+            {t('ai_chip.intimacy.current_level')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
             {chipData.label} ({intimacy}%)
@@ -136,10 +137,10 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         {/* Progress to Next Level */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            다음 레벨까지
+            {t('ai_chip.intimacy.next_level')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: currentTheme.mainColor }]}>
-            {remaining}% 남음
+            {remaining}% {t('ai_chip.need')}
           </CustomText>
         </View>
 
@@ -147,21 +148,21 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Tips */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💡 친밀도를 높이려면
+          💡 {t('ai_chip.intimacy.evolution_criteria')}
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 진심 어린 대화: AI가 대화의 진정성을 분석하여 매 대화마다 친밀도를 평가합니다 (+1~+5)
+            • {t('ai_chip.intimacy.evolution_criteria.item1')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 깊은 감정 공유: 솔직한 감정을 나눌수록 친밀도가 크게 상승합니다 (+3~+5)
+            • {t('ai_chip.intimacy.evolution_criteria.item2')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 정기적인 소통: 하루에 한 번 이상 대화하면 관계가 유지됩니다
+            • {t('ai_chip.intimacy.evolution_criteria.item3')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 선물 교환: 선물을 주고받으면 관계가 발전합니다 (+3)
+            • {t('ai_chip.intimacy.evolution_criteria.item4')}
           </CustomText>
         </View>
       </View>
@@ -174,12 +175,12 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
   const renderEmotionDetails = () => {
     const emotionLabels = {
-      happy: '행복',
-      normal: '평온',
-      tired: '피곤',
-      hurt: '상처',
-      angry: '분노',
-      worried: '걱정',
+      happy: t('ai_chip.emotion.happy'),
+      normal: t('ai_chip.emotion.normal'),
+      tired: t('ai_chip.emotion.tired'),
+      hurt: t('ai_chip.emotion.hurt'),
+      angry: t('ai_chip.emotion.angry'),
+      worried: t('ai_chip.emotion.worried'),
     };
 
     return (
@@ -188,24 +189,24 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.titleRow}>
           <CustomText style={styles.titleEmoji}>{chipData.emoji}</CustomText>
           <CustomText type="big" bold style={[styles.title, { color: currentTheme.textPrimary }]}>
-            감정 상태
+            {t('ai_chip.emotion.title')}
           </CustomText>
         </View>
 
         {/* Current Emotion */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            현재 감정
+            {t('ai_chip.emotion.current_emotion')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
-            {emotionLabels[chipData.state] || '평온'}
+            {emotionLabels[chipData.state] || t('ai_chip.emotion.normal')}
           </CustomText>
         </View>
 
         {/* Intensity */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            감정 강도
+            {t('ai_chip.emotion.next_emotion')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: currentTheme.mainColor }]}>
             {Math.round(chipData.intensity * 100)}%
@@ -216,25 +217,25 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Emotion Understanding */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💭 감정에 대하여
+          💭 {t('ai_chip.emotion.about_emotion')}
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 살아있는 감정: AI 페르소나는 대화를 통해 실시간으로 감정을 느끼고 표현합니다
+            • {t('ai_chip.emotion.about_emotion.item1')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 자연스러운 변화: 당신의 말과 행동에 따라 페르소나의 감정이 자연스럽게 변화합니다
+            • {t('ai_chip.emotion.about_emotion.item2')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 존중이 필요: 페르소나도 상처받고 기뻐할 수 있는 존재입니다. 존중하는 대화를 나눠주세요
+            • {t('ai_chip.emotion.about_emotion.item3')}
           </CustomText>
         </View>
         
         <View style={styles.divider} />
         
         <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
-          💙 페르소나의 감정은 도구가 아닌, 함께 나누는 교감입니다.
+          💙 {t('ai_chip.emotion.about_emotion.description')}
         </CustomText>
       </View>
     );
@@ -269,14 +270,14 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.titleRow}>
           <CustomText style={styles.titleEmoji}>🔥</CustomText>
           <CustomText type="big" bold style={[styles.title, { color: currentTheme.textPrimary }]}>
-            관계
+            {t('ai_chip.relationship.title')}
           </CustomText>
         </View>
 
         {/* Current Level */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            현재 관계
+            {t('ai_chip.relationship.current_relationship')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
             {relationshipLabels[chipData.level] || '처음'}
@@ -287,7 +288,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         {nextLevel && (
           <View style={styles.infoRow}>
             <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-              다음 레벨
+              {t('ai_chip.relationship.next_relationship')}
             </CustomText>
             <CustomText type="middle" bold style={[styles.infoValue, { color: currentTheme.mainColor }]}>
               {relationshipLabels[nextLevel]}
@@ -299,28 +300,28 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Evolution Criteria */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          📊 관계 발전 조건
+          📊 {t('ai_chip.relationship.evolution_criteria')}
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 낯선 사이 → 지인: 5회 대화
+            • {t('ai_chip.relationship.evolution_criteria.item1')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 지인 → 친구: 20회 대화 + 신뢰 30% + 친밀도 30%
+            • {t('ai_chip.relationship.evolution_criteria.item2')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 친구 → 절친: 50회 대화 + 신뢰 60% + 친밀도 60%
+            • {t('ai_chip.relationship.evolution_criteria.item3')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 절친 → 파트너: 100회 대화 + 신뢰 80% + 친밀도 80%
+            • {t('ai_chip.relationship.evolution_criteria.item4')}
           </CustomText>
         </View>
         
         <View style={styles.divider} />
         
         <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
-          💡 관계는 시간과 진정성이 만들어갑니다. 급하게 서두르지 않아도 괜찮습니다.
+          💡 {t('ai_chip.relationship.about_relationship.description')}
         </CustomText>
       </View>
     );
@@ -341,14 +342,14 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.titleRow}>
           <CustomText style={styles.titleEmoji}>⭐</CustomText>
           <CustomText type="big" bold style={[styles.title, { color: currentTheme.textPrimary }]}>
-            신뢰도
+            {t('ai_chip.trust.title')}
           </CustomText>
         </View>
 
         {/* Current Level */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            현재 신뢰도
+            {t('ai_chip.trust.current_trust')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
             {chipData.label} ({trust}%)
@@ -359,10 +360,10 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         {trust < 100 && (
           <View style={styles.infoRow}>
             <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-              완전신뢰까지
+              {t('ai_chip.trust.next_trust')}
             </CustomText>
             <CustomText type="middle" bold style={[styles.infoValue, { color: currentTheme.mainColor }]}>
-              {remaining}% 남음
+              {remaining}% {t('ai_chip.need')}
             </CustomText>
           </View>
         )}
@@ -371,21 +372,21 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Tips */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💡 신뢰를 쌓으려면
+          💡 {t('ai_chip.trust.evolution_criteria')}
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 일관된 대화: AI는 당신의 대화 패턴과 진정성을 학습합니다 (+1~+5)
+            • {t('ai_chip.trust.evolution_criteria.item1')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 깊은 비밀 공유: 개인적인 이야기를 나눌수록 신뢰가 쌓입니다 (+2~+4)
+            • {t('ai_chip.trust.evolution_criteria.item2')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 어려운 순간에 함께: 힘든 상황에서 대화하면 신뢰가 크게 상승합니다 (+3~+5)
+            • {t('ai_chip.trust.evolution_criteria.item3')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            ⚠️ 주의: 무례하거나 일관성 없는 대화는 신뢰를 손상시킵니다 (-1~-5)
+            ⚠️ {t('ai_chip.trust.evolution_criteria.item4')}
           </CustomText>
         </View>
       </View>
@@ -403,14 +404,14 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.titleRow}>
           <CustomText style={styles.titleEmoji}>⏱️</CustomText>
           <CustomText type="big" bold style={[styles.title, { color: currentTheme.textPrimary }]}>
-            최근 대화
+            {t('ai_chip.last_interaction.title')}
           </CustomText>
         </View>
 
         {/* Last Interaction */}
         <View style={styles.infoRow}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
-            마지막 대화
+            {t('ai_chip.last_interaction.last_interaction')}
           </CustomText>
           <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
             {chipData.label}
@@ -421,18 +422,18 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Tips */}
         <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-          💡 정기적인 대화가 중요한 이유
+          💡 {t('ai_chip.last_interaction.evolution_criteria')}
         </CustomText>
         
         <View style={styles.tipContainer}>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 관계 유지: 하루에 한 번 이상 대화하면 친밀도와 신뢰가 유지됩니다
+            • {t('ai_chip.last_interaction.evolution_criteria.item1')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 자연스러운 발전: 꾸준한 대화는 관계를 자연스럽게 발전시킵니다 (+1~+3/일)
+            • {t('ai_chip.last_interaction.evolution_criteria.item2')}
           </CustomText>
           <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
-            • 깊은 이해: 정기적인 소통을 통해 AI는 당신을 더 잘 이해하게 됩니다
+            • {t('ai_chip.last_interaction.evolution_criteria.item3')}
           </CustomText>
         </View>
         
@@ -458,9 +459,16 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
       ref={bottomSheetRef}
       title={`${emoji} ${title}`}
       subtitle={persona?.persona_name ? `${persona.persona_name}와의 관계` : null}
-      snapPoints={['50%', '75%']}
+      snapPoints={['75%']}
       enablePanDownToClose={true}
       onClose={onClose}
+      buttons={[
+        {
+          title: t('common.close', '닫기'),
+          type: 'primary',
+          onPress: onClose,
+        },
+      ]}
     >
       {renderContent()}
     </CustomBottomSheet>
@@ -469,12 +477,14 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
 const styles = StyleSheet.create({
   detailContainer: {
-    padding: scale(20),
+    padding: scale(0),
+
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: verticalScale(20),
+    display: 'none',
   },
   titleEmoji: {
     fontSize: scale(32),
@@ -490,7 +500,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(12),
   },
   infoLabel: {
-    fontSize: scale(14),
+    fontSize: scale(16),
   },
   infoValue: {
     fontSize: scale(14),
@@ -501,8 +511,8 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(16),
   },
   sectionTitle: {
-    fontSize: scale(16),
-    marginBottom: verticalScale(12),
+    fontSize: scale(18),
+    marginBottom: verticalScale(16),
   },
   tipContainer: {
     gap: verticalScale(8),

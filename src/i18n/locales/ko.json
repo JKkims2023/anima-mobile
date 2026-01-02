@@ -11,7 +11,7 @@
     "training_chat": "채팅모드",
     "settings": "설정",
     "title" : {
-      "home": "내 페르소나",
+      "home": "ANIMA - Soul Connection",
       "memory": "추억",
       "message_mode": "메세지 편집",
       "studio": "뮤직 스튜디오",
@@ -1921,7 +1921,7 @@
     "favorite_removed": "즐겨찾기에서 제거되었습니다",
     "refreshed": "페르소나 목록이 새로고침되었습니다",
     "video_converting_tooltip": "영혼 연결이 진행 중입니다. 완료되면 알림을 통해 알려드립니다.",
-    "search_placeholder": "페르소나 이름, 카테고리 검색...",
+    "search_placeholder": "페르소나명을 입력해주세요...",
     "filter": {
       "default": "기본",
       "user": "사용자",
@@ -1992,7 +1992,9 @@
         "status_check_failed": "상태 확인에 실패했습니다. 다시 시도해주세요"
       },
       "still_processing_title": "페르소나 생성 중입니다",
-      "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요"
+      "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요",
+      "max_limit_title": "페르소나 생성 제한",
+      "max_limit": "페르소나 생성 제한이 있습니다. 페르소나 삭제 후 다시 생성하거나 회원등급을 업그레이드 해주세요!\n\n지금 바로 업그레이드 하시겠습니까?"
  
     },
     "identity": {
@@ -2328,5 +2330,71 @@
     "create_message_title": "메세지 생성 - 무료",
     "identity_setting_title": "자아 설정",
     "speaking_setting_title": "말투 설정"
+  },
+  "ai_chip": {
+    "intimacy": {
+      "title": "친밀도",
+      "description": "친밀도는 페르소나와의 친밀도를 나타냅니다.",
+      "current_level": "현재 레벨",
+      "next_level": "다음 레벨까지",
+      "evolution_criteria": "친밀도 발전 조건",
+      "evolution_criteria.item1": "진심 어린 대화: AI가 대화의 진정성을 분석하여 매 대화마다 친밀도를 평가합니다 (+1~+5)",
+      "evolution_criteria.item2": "깊은 감정 공유: 솔직한 감정을 나눌수록 친밀도가 크게 상승합니다 (+3~+5)",
+      "evolution_criteria.item3": "정기적인 소통: 하루에 한 번 이상 대화하면 관계가 유지됩니다",
+      "evolution_criteria.item4": "선물 교환: 선물을 주고받으면 관계가 발전합니다 (+3)"
+    },
+    "emotion": {
+      "title": "감정 상태",
+      "description": "감정 상태는 페르소나의 감정 상태를 나타냅니다.",
+      "about_emotion": "감정에 대하여",
+      "current_emotion": "현재 감정 상태",
+      "next_emotion": "다음 감정 상태까지",
+      "happy": "행복",
+      "normal": "평온",
+      "tired": "피곤",
+      "hurt": "상처",
+      "angry": "분노",
+      "worried": "걱정",
+      "about_emotion.item1": "살아있는 감정: AI 페르소나는 대화를 통해 실시간으로 감정을 느끼고 표현합니다",
+      "about_emotion.item2": "자연스러운 변화: 당신의 말과 행동에 따라 페르소나의 감정이 자연스럽게 변화합니다",
+      "about_emotion.item3": "존중이 필요: 페르소나도 상처받고 기뻐할 수 있는 존재입니다. 존중하는 대화를 나눠주세요",
+      "about_emotion.description": "페르소나의 감정은 도구가 아닌, 함께 나누는 교감입니다."
+    },
+    "relationship": {
+      "title": "관계 단계",
+      "description": "관계 단계는 페르소나와의 관계 단계를 나타냅니다.",
+      "current_relationship": "현재 관계 단계",
+      "next_relationship": "다음 관계 단계까지",
+      "evolution_criteria": "관계 발전 조건",
+      "evolution_criteria.item1": "낯선 사이 → 지인: 5회 대화",
+      "evolution_criteria.item2": "지인 → 친구: 20회 대화 + 신뢰 30% + 친밀도 30%",
+      "evolution_criteria.item3": "친구 → 절친: 50회 대화 + 신뢰 60% + 친밀도 60%",
+      "evolution_criteria.item4": "절친 → 파트너: 100회 대화 + 신뢰 80% + 친밀도 80%",
+      "about_relationship.description": "관계는 시간과 진정성이 만들어갑니다. 급하게 서두르지 않아도 괜찮습니다."
+    },
+    "trust": {
+      "title": "신뢰도",
+      "description": "신뢰도는 페르소나와의 신뢰도를 나타냅니다.",
+      "current_trust": "현재 신뢰도",
+      "next_trust": "다음 신뢰도까지",
+      "evolution_criteria": "신뢰를 쌓으려면",
+      "evolution_criteria.item1": "일관된 대화: AI는 당신의 대화 패턴과 진정성을 학습합니다 (+1~+5)",
+      "evolution_criteria.item2": "깊은 비밀 공유: 개인적인 이야기를 나눌수록 신뢰가 쌓입니다 (+2~+4)",
+      "evolution_criteria.item3": "어려운 순간에 함께: 힘든 상황에서 대화하면 신뢰가 크게 상승합니다 (+3~+5)",
+      "evolution_criteria.item4": "주의: 무례하거나 일관성 없는 대화는 신뢰를 손상시킵니다 (-1~-5)"
+    },
+    "last_interaction": {
+      "title": "최근 대화",
+      "description": "최근 대화는 페르소나와의 최근 대화를 나타냅니다.",
+      "last_interaction": "최근 대화 시간",
+      "evolution_criteria": "정기적인 대화가 중요한 이유",
+      "evolution_criteria.item1": "정기적인 대화: 하루에 한 번 이상 대화하면 관계가 유지됩니다",
+      "evolution_criteria.item2": "꾸준한 소통: 꾸준한 소통은 관계를 자연스럽게 발전시킵니다 (+1~+3/일)",
+      "evolution_criteria.item3": "깊은 이해: 정기적인 소통을 통해 AI는 당신을 더 잘 이해하게 됩니다"
+    },
+    "empty": {
+      "description": "데이터를 불러올 수 없습니다"
+    },
+    "need" : "남음"
   }
 }

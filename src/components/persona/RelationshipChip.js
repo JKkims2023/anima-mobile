@@ -218,6 +218,7 @@ const RelationshipChip = ({
 const styles = StyleSheet.create({
   chipContainer: {
     // Container for animation
+    flex:1
   },
   gradient: {
     // ⭐ NEW: Vertical layout (icon on top, value below)
@@ -226,27 +227,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(8),
-    borderRadius: scale(16),
+    borderRadius: scale(14),
     overflow: 'hidden',
-    minWidth: scale(60), // Ensure consistent width
+    minWidth: scale(57), // Ensure consistent width
     // Shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: 'rgba(5, 16, 83, 0.8)',
+
   },
   content: {
     // ⭐ NEW: Vertical layout
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: verticalScale(2),
+    gap: verticalScale(0),
     zIndex: 2, // Above shimmer
+    backgroundColor: 'transparent',
+
   },
   emoji: {
-    fontSize: scale(24), // ⭐ Larger icon
-    lineHeight: scale(28),
+    fontSize: scale(20), // ⭐ Larger icon
+    lineHeight: scale(24),
+    marginBottom: verticalScale(4),
   },
   label: {
     fontSize: scale(11), // ⭐ Slightly smaller for numbers
@@ -267,6 +268,7 @@ const styles = StyleSheet.create({
     zIndex: 1, // Below content, above shimmer
   },
   shimmerOverlay: {
+
     position: 'absolute',
     top: 0,
     left: -100,

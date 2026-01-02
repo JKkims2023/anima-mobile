@@ -69,12 +69,12 @@ const PersonaSwipeViewer = forwardRef(({
   onCreatePersona = () => {},
   filterMode = 'default',
   refreshing = false, // ⭐ NEW: Pull-to-refresh state
-  onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback
+  onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback (refreshes persona list with relationship data!)
   personaCardRefs = null, // ⭐ NEW: Refs for PersonaCardView (for flip animation control)
   onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
-  chipsRefreshKey = 0, // ⭐ NEW: Trigger chips refresh on chat close
+  // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
 }, ref) => {
   const { currentTheme } = useTheme();
   const { user: userContext } = useAnima(); // Context user as fallback
@@ -210,7 +210,7 @@ const PersonaSwipeViewer = forwardRef(({
     const isActive = index === selectedIndex && isModeActive;
     
     return (
-      <View style={[styles.personaItemContainer, { height: availableHeight }]}>
+      <View style={[styles.personaItemContainer, { height: Platform.OS === 'ios' ? availableHeight : availableHeight }]}>
         <PersonaCardView 
           ref={(ref) => {
             if (personaCardRefs && item.persona_key) {
@@ -324,7 +324,7 @@ const PersonaSwipeViewer = forwardRef(({
           totalCount={personas.length} // ⭐ Total personas count
           onScrollToTop={handleScrollToTop} // ⭐ NEW: Scroll to top handler
           user={user} // ⭐ NEW: Pass user for relationship chips
-          chipsRefreshKey={chipsRefreshKey} // ⭐ NEW: Trigger chips refresh on chat close
+          // ⚡ REMOVED: chipsRefreshKey (data is now in persona list!)
         />
       )}
     </View>
