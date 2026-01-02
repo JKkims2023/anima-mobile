@@ -253,9 +253,10 @@ const ManagerAIOverlay = ({
         console.log('💰 [Service Config] Loading tier information...');
         const response = await getServiceConfig(user.user_key);
         
-        if (response.success && response.data) {
-          setServiceConfig(response.data);
-          console.log(`✅ [Service Config] Loaded: ${response.data.userTier} (${response.data.dailyChatRemaining}/${response.data.dailyChatLimit} chats remaining)`);
+        console.log('response: ', response);
+        if (response.data.success && response.data.data) {
+          setServiceConfig(response.data.data);
+          console.log(`✅ [Service Config] Loaded: ${response.data.data.userTier} (${response.data.data.dailyChatRemaining}/${response.data.data.dailyChatLimit} chats remaining)`);
         } else {
           console.warn('⚠️  [Service Config] Failed to load config:', response.error);
         }
@@ -1541,6 +1542,16 @@ const ManagerAIOverlay = ({
           setMessageVersion(prev => prev + 1);
           setIsTyping(false);
           setCurrentTypingText('');
+          
+          // 💰 NEW: Update service config (chat count) after successful message
+          if (serviceConfig && user?.user_level !== 'ultimate') {
+            setServiceConfig(prev => ({
+              ...prev,
+              dailyChatCount: (prev.dailyChatCount || 0) + 1,
+              dailyChatRemaining: Math.max(0, (prev.dailyChatRemaining || 0) - 1)
+            }));
+            console.log(`💰 [Chat Limit] UI updated: ${(serviceConfig.dailyChatCount || 0) + 1}/${serviceConfig.dailyChatLimit || 20}`);
+          }
           
           // ⭐ NEW: Check if AI wants to continue talking
           console.log('🔍 [ManagerAIOverlay] Checking shouldContinue:', shouldContinue);
