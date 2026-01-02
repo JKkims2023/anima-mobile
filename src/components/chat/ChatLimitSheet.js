@@ -1,26 +1,34 @@
 /**
- * 🚫 ChatLimitSheet Component
+ * 🚫 ChatLimitSheet Component (Modal-based)
  * 
  * Bottom sheet shown when daily chat limit is reached
- * Uses CustomBottomSheet for design consistency
+ * Independent Modal (works inside ManagerAIOverlay Modal)
  * 
  * Features:
  * - Tier-specific messaging
  * - Upgrade CTA
  * - Reset time display
  * - Animated illustrations
+ * - Slide-up animation
  * 
  * @author JK & Hero Nexus
  */
 
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { 
+  View, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Modal, 
+  Animated 
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
 import { scale, moderateScale, verticalScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
+import HapticService from '../../utils/HapticService';
 
 const ChatLimitSheet = ({
   isOpen = false,
@@ -32,6 +40,46 @@ const ChatLimitSheet = ({
   onUpgrade = null,
   isOnboarding = false
 }) => {
+  const insets = useSafeAreaInsets();
+  const slideAnim = useRef(new Animated.Value(1000)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // ANIMATION EFFECTS (Same as SpeakingPatternSheet)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  useEffect(() => {
+    if (isOpen) {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      HapticService.error(); // Haptic feedback when limit is reached
+    } else {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 1000,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isOpen]);
+  
   // Calculate hours until reset
   const hoursUntilReset = resetTime 
     ? Math.ceil((new Date(resetTime) - new Date()) / (1000 * 60 * 60))
@@ -103,86 +151,179 @@ const ChatLimitSheet = ({
     });
   };
   
+  // ═══════════════════════════════════════════════════════════════════════
+  // HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  const handleClose = () => {
+    HapticService.light();
+    onClose?.();
+  };
+  
+  const handleUpgrade = () => {
+    HapticService.success();
+    onUpgrade?.();
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  if (!isOpen) return null;
+  
   return (
-    <CustomBottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      height={canUpgrade && content.upgradeMessage ? 480 : 360}
+    <Modal
+      visible={isOpen}
+      transparent={true}
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={handleClose}
     >
-      <View style={styles.container}>
-        {/* Emoji Icon */}
-        <View style={styles.emojiContainer}>
-          <CustomText type="big" style={styles.emoji}>
-            {content.emoji}
-          </CustomText>
+      {/* Backdrop */}
+      <TouchableOpacity 
+        style={styles.backdrop}
+        activeOpacity={1}
+        onPress={handleClose}
+      >
+        <Animated.View 
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              opacity: backdropOpacity,
+            }
+          ]} 
+        />
+      </TouchableOpacity>
+      
+      {/* Modal Container */}
+      <Animated.View 
+        style={[
+          styles.modalContainer,
+          {
+            paddingBottom: insets.bottom + verticalScale(20),
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+        onStartShouldSetResponder={() => true}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <View style={styles.handleContainer}>
+          <View style={styles.handle} />
         </View>
         
-        {/* Title */}
-        <CustomText type="big" bold style={styles.title}>
-          {content.title}
-        </CustomText>
-        
-        {/* Message */}
-        <CustomText type="normal" style={styles.message}>
-          {content.message}
-        </CustomText>
-        
-        {/* Reset Info */}
-        <View style={styles.resetInfoCard}>
-          <Icon name="clock-outline" size={scale(20)} color={COLORS.DEEP_BLUE} />
-          <View style={styles.resetTextContainer}>
-            <CustomText type="small" bold style={styles.resetLabel}>
-              Resets at {formatResetTime()}
-            </CustomText>
-            <CustomText type="tiny" style={styles.resetSubtext}>
-              {hoursUntilReset > 0 
-                ? `in ${hoursUntilReset} hour${hoursUntilReset > 1 ? 's' : ''}` 
-                : 'very soon'}
+        {/* Content */}
+        <View style={styles.container}>
+          {/* Emoji Icon */}
+          <View style={styles.emojiContainer}>
+            <CustomText type="big" style={styles.emoji}>
+              {content.emoji}
             </CustomText>
           </View>
-        </View>
-        
-        {/* Upgrade Section */}
-        {canUpgrade && content.upgradeMessage && (
-          <View style={styles.upgradeSection}>
-            <View style={styles.upgradeDivider} />
-            
-            <CustomText type="small" style={styles.upgradeMessage}>
-              {content.upgradeMessage}
-            </CustomText>
-            
-            {onUpgrade && (
-              <CustomButton
-                title={`Upgrade to ${content.upgradeTier}`}
-                type="primary"
-                onPress={onUpgrade}
-                style={styles.upgradeButton}
-                leftIcon={<Icon name="arrow-up-circle" size={scale(20)} color="#FFF" />}
-              />
-            )}
-            
-            <CustomText type="tiny" style={styles.priceText}>
-              {content.upgradePrice}
-            </CustomText>
-          </View>
-        )}
-        
-        {/* Close Button */}
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={onClose}
-          activeOpacity={0.7}
-        >
-          <CustomText type="normal" style={styles.closeText}>
-            Got it
+          
+          {/* Title */}
+          <CustomText type="big" bold style={styles.title}>
+            {content.title}
           </CustomText>
-        </TouchableOpacity>
-      </View>
-    </CustomBottomSheet>
+          
+          {/* Message */}
+          <CustomText type="normal" style={styles.message}>
+            {content.message}
+          </CustomText>
+          
+          {/* Reset Info */}
+          <View style={styles.resetInfoCard}>
+            <Icon name="clock-outline" size={scale(20)} color={COLORS.DEEP_BLUE} />
+            <View style={styles.resetTextContainer}>
+              <CustomText type="small" bold style={styles.resetLabel}>
+                Resets at {formatResetTime()}
+              </CustomText>
+              <CustomText type="tiny" style={styles.resetSubtext}>
+                {hoursUntilReset > 0 
+                  ? `in ${hoursUntilReset} hour${hoursUntilReset > 1 ? 's' : ''}` 
+                  : 'very soon'}
+              </CustomText>
+            </View>
+          </View>
+          
+          {/* Upgrade Section */}
+          {canUpgrade && content.upgradeMessage && (
+            <View style={styles.upgradeSection}>
+              <View style={styles.upgradeDivider} />
+              
+              <CustomText type="small" style={styles.upgradeMessage}>
+                {content.upgradeMessage}
+              </CustomText>
+              
+              {onUpgrade && (
+                <CustomButton
+                  title={`Upgrade to ${content.upgradeTier}`}
+                  type="primary"
+                  onPress={handleUpgrade}
+                  style={styles.upgradeButton}
+                  leftIcon={<Icon name="arrow-up-circle" size={scale(20)} color="#FFF" />}
+                />
+              )}
+              
+              <CustomText type="tiny" style={styles.priceText}>
+                {content.upgradePrice}
+              </CustomText>
+            </View>
+          )}
+          
+          {/* Close Button */}
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleClose}
+            activeOpacity={0.7}
+          >
+            <CustomText type="normal" style={styles.closeText}>
+              Got it
+            </CustomText>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Modal Structure (Same as SpeakingPatternSheet)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.BACKGROUND,
+    borderTopLeftRadius: moderateScale(24),
+    borderTopRightRadius: moderateScale(24),
+    maxHeight: '70%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  handleContainer: {
+    alignItems: 'center',
+    paddingVertical: verticalScale(12),
+  },
+  handle: {
+    width: scale(40),
+    height: verticalScale(4),
+    backgroundColor: COLORS.TEXT_TERTIARY,
+    borderRadius: moderateScale(2),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Content
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   container: {
     padding: scale(24),
     alignItems: 'center',

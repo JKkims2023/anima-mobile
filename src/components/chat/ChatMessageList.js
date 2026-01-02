@@ -41,7 +41,7 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
   const isUser = message.role === 'user';
   
   // 🐛 DEBUG: Log message data
-  if (message.image) {
+  if (false) {
     console.log('🖼️ [MessageItem] Rendering message with image:');
     console.log('   message.id:', message.id);
     console.log('   message.image:', message.image);
@@ -49,7 +49,7 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
   }
   
   // 🐛 DEBUG: Log YouTube data
-  if (message.youtube) {
+  if (false) {
     console.log('🎬 [MessageItem] Rendering message with YouTube:');
     console.log('   message.id:', message.id);
     console.log('   message.youtube:', JSON.stringify(message.youtube, null, 2));

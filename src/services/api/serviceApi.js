@@ -36,13 +36,15 @@ export const getServiceConfig = async (user_key) => {
       user_key
     });
 
-    if (response.success) {
+    console.log('response: ', response);
+
+    if (response.data.success) {
       console.log('✅ [Service API] Config loaded successfully');
-      console.log(`   Tier: ${response.data.userTier}`);
-      console.log(`   Daily Chats: ${response.data.dailyChatRemaining}/${response.data.dailyChatLimit}`);
-      console.log(`   Onboarding: ${response.data.isOnboarding ? 'Yes' : 'No'}`);
+      console.log(`   Tier: ${response.data.data.userTier}`);
+      console.log(`   Daily Chats: ${response.data.data.dailyChatRemaining}/${response.data.data.dailyChatLimit}`);
+      console.log(`   Onboarding: ${response.data.data.isOnboarding ? 'Yes' : 'No'}`);
     } else {
-      console.warn('⚠️  [Service API] API returned success: false');
+      console.warn('⚠️  [Service API] API returned success: false', response.data.errorCode);
     }
 
     return response;

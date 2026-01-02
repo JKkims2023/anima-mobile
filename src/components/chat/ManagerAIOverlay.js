@@ -1314,13 +1314,17 @@ const ManagerAIOverlay = ({
         return;
       }
       
-      // 💰 NEW: Check daily chat limit (Tier System)
+      // 💰 CRITICAL: Check daily chat limit BEFORE sending to server!
       if (serviceConfig && user?.user_level !== 'ultimate') {
-        const currentCount = serviceConfig.dailyChatCount || 0;
+        const remaining = serviceConfig.dailyChatRemaining || 0;
         const limit = serviceConfig.dailyChatLimit || 20;
+        const currentCount = serviceConfig.dailyChatCount || 0;
         
-        if (currentCount >= limit) {
-          console.warn(`⚠️  [Chat Limit] User exceeded daily limit: ${currentCount}/${limit}`);
+        console.log(`💰 [Chat Limit] Pre-send check: ${remaining} remaining (${currentCount}/${limit})`);
+        
+        // ⚡ INSTANT CHECK: If no remaining chats, block immediately!
+        if (remaining <= 0) {
+          console.warn(`🚫 [Chat Limit] BLOCKED! No remaining chats (${currentCount}/${limit})`);
           
           // Remove user message from UI (revert optimistic update)
           setMessages(prev => prev.filter(m => m.id !== userMessage.id));
@@ -1339,7 +1343,7 @@ const ManagerAIOverlay = ({
           // Haptic feedback
           HapticService.error();
           
-          return; // Stop message send
+          return; // ⚡ STOP! Don't send to server!
         }
       }
       
