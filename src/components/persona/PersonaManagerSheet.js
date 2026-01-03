@@ -17,6 +17,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconFace from 'react-native-vector-icons/FontAwesome6';
 
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
@@ -27,14 +28,10 @@ import HapticService from '../../utils/HapticService';
 import amountService from '../../services/api/amountService';
 import { useUser } from '../../contexts/UserContext';
 
-const PersonaSettingsSheet = ({
+const PersonaManagerSheet = ({
   isOpen = false,
   persona = null,
   onClose,
-  onNameChange,
-  onCategoryChange,
-  onVideoConvert,
-  onDelete,
 }) => {
   const { t } = useTranslation();
   const { currentTheme: theme } = useTheme();
@@ -70,38 +67,6 @@ const PersonaSettingsSheet = ({
   // ═══════════════════════════════════════════════════════════════════════
   // HANDLERS
   // ═══════════════════════════════════════════════════════════════════════
-
-  const handleNameChange = () => {
-    HapticService.light();
-    onNameChange?.(persona);
-    // ⚠️ Don't close here - close after name change is saved
-  };
-
-
-
-  const handleDelete = () => {
-    HapticService.warning();
-    
-    showAlert({
-      title: t('persona.settings.delete_confirm_title'),
-      message: t('persona.settings.delete_confirm_message', { name: persona?.persona_name }),
-      emoji: '⚠️',
-      buttons: [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: () => {
-            onDelete?.(persona);
-            // ⚠️ Don't close here - close after deletion is complete
-          },
-        },
-      ],
-    });
-  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER: Setting Item
@@ -148,21 +113,14 @@ const PersonaSettingsSheet = ({
       ref={bottomSheetRef}
       isOpen={isOpen}
       onClose={onClose}
-      title={t('persona.settings.title')}
+      title={persona?.persona_name || t('persona.settings.no_persona')}
       snapPoints={['70%']}
       buttons={[
         {
           title: t('common.close'),
-          type: 'secondary',
+          type: 'primary',
           onPress: onClose,
         },
-        {
-          title: t('common.delete'),
-          type: 'primary',
-          onPress: handleDelete,
-          icon: 'delete',
-          iconColor: '#F44336',
-        }
       ]}
     >
       <ScrollView
@@ -170,28 +128,30 @@ const PersonaSettingsSheet = ({
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Persona Info */}
-        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary, display: 'none' }]}>
-          <CustomText type="big" bold style={{ color: theme.textPrimary }}>
-            {persona?.persona_name || t('persona.settings.no_persona')}
+      
+        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary,}]}>
+          
+          <CustomText type="middle" bold style={{ color: theme.textPrimary }}>
+            {t('persona_info.sage.style_title')}
           </CustomText>
           <CustomText type="body" style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}>
-            {t(`category_type.${persona?.category_type || 'normal'}`)}
+            {persona?.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' ? t('persona_info.sage.style') : 
+            persona?.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248' ? t('persona_info.nexus.style') : t(`category_type.${persona?.category_type || 'normal'}`)}
           </CustomText>
         </View>
 
-        {/* Settings List */}
-        <View style={styles.settingsGroup}>
-          {/* 이름 변경 */}
-          {renderSettingItem({
-            icon: 'pencil',
-            title: persona?.persona_name,
-            subtitle: null,
-            onPress: handleNameChange,
-            iconColor: theme.mainColor,
-          })}
+                
+        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary,}]}>
+            
+            <CustomText type="middle" bold style={{ color: theme.textPrimary }}>
+              {t('persona_info.sage.description_title')}
+            </CustomText>
+            <CustomText type="body" style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}>
+              {persona?.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' ? t('persona_info.sage.description') : 
+              persona?.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248' ? t('persona_info.nexus.description') : t(`category_type.${persona?.category_type || 'normal'}`)}
+            </CustomText>
+          </View>
 
-        </View>
       </ScrollView>
     </CustomBottomSheet>
   );
@@ -212,7 +172,7 @@ const styles = StyleSheet.create({
     padding: platformPadding(16),
     borderRadius: scale(12),
     marginBottom: platformPadding(20),
-    alignItems: 'center',
+
   },
 
   // ⭐ Settings Group
@@ -245,5 +205,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PersonaSettingsSheet;
+export default PersonaManagerSheet;
 

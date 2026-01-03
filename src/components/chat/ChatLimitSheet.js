@@ -29,18 +29,22 @@ import CustomButton from '../CustomButton';
 import { scale, moderateScale, verticalScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
+import { useTranslation } from 'react-i18next';
 
 const ChatLimitSheet = ({
   isOpen = false,
   onClose,
   tier = 'free',
   limit = 20,
+  basic_limit = 50,
+  premium_limit = 200,
   resetTime = null,
   canUpgrade = true,
   onUpgrade = null,
   isOnboarding = false
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const slideAnim = useRef(new Animated.Value(1000)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   
@@ -91,9 +95,9 @@ const ChatLimitSheet = ({
       case 'free':
         return {
           emoji: '💬',
-          title: 'Daily Limit Reached',
-          message: `You've used all ${limit} conversations today!${isOnboarding ? '\n(Including your welcome bonus! 🎁)' : ''}`,
-          upgradeMessage: 'Upgrade to Basic for 50 chats/day,\nor Premium for 200 chats/day!',
+          title: t('limit_sheet.title'),
+          message: t('limit_sheet.message', { count: limit }),
+          upgradeMessage: t('limit_sheet.upgrade_message', { basic_limit: basic_limit, premium_limit: premium_limit }),
           upgradeTier: 'Basic',
           upgradePrice: '₩19,900/month'
         };
@@ -101,9 +105,9 @@ const ChatLimitSheet = ({
       case 'basic':
         return {
           emoji: '⭐',
-          title: 'Daily Limit Reached',
-          message: `You've used all ${limit} conversations today!`,
-          upgradeMessage: 'Upgrade to Premium for 200 chats/day,\nor Ultimate for virtually unlimited!',
+          title: t('limit_sheet.title'),
+          message: t('limit_sheet.message', { count: limit }),
+          upgradeMessage: t('limit_sheet.upgrade_basic_message', { premium_limit: premium_limit }),
           upgradeTier: 'Premium',
           upgradePrice: '₩39,900/month'
         };
@@ -111,9 +115,9 @@ const ChatLimitSheet = ({
       case 'premium':
         return {
           emoji: '💎',
-          title: 'Daily Limit Reached',
-          message: `You've used all ${limit} conversations today!`,
-          upgradeMessage: 'Upgrade to Ultimate for 1,000 chats/day\n(virtually unlimited)!',
+          title: t('limit_sheet.title'),
+          message: t('limit_sheet.message', { count: limit }),
+          upgradeMessage: t('limit_sheet.upgrade_ultimate_message'),
           upgradeTier: 'Ultimate',
           upgradePrice: '₩79,900/month'
         };
@@ -121,8 +125,8 @@ const ChatLimitSheet = ({
       default:
         return {
           emoji: '⏰',
-          title: 'Daily Limit Reached',
-          message: `You've used all ${limit} conversations today!`,
+          title: t('limit_sheet.title'),
+          message: t('limit_sheet.message', { count: limit }),
           upgradeMessage: null,
           upgradeTier: null,
           upgradePrice: null

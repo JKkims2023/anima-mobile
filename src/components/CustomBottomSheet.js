@@ -204,7 +204,7 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         {/* Title & Subtitle */}
         <View style={styles.headerTextContainer}>
           <CustomText 
-            type="big" 
+            type="title" 
             bold={true} 
             style={[styles.title, { color: theme.textPrimary }]}
           >

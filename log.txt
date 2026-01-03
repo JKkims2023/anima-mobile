@@ -1,49 +1,182 @@
-2026-01-02 15:54:29 🤖 [ANIMA Chat] Request received
-2026-01-02 15:54:29    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-02 15:54:29    Session: session-1767336761436-lnc31
-2026-01-02 15:54:29    Message: 넥서스!...
-2026-01-02 15:54:29 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-02 15:54:29 🚪 [Conversation Gate] Checking...
-2026-01-02 15:54:29 ✅ [Conversation Gate] Open (no record)
-2026-01-02 15:54:29 ✅ [Conversation Flow] Gate OPEN
-2026-01-02 15:54:29 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-02 15:54:30 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-02 15:54:30 🧠 [AI Emotional State] Analyzing...
-2026-01-02 15:54:30    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-02 15:54:30    Persona: af444146-e796-468c-8e2c-0daf4f9b9248
-2026-01-02 15:54:30    Current Message: "넥서스!"
-2026-01-02 15:54:30    Recent History: 10 messages
-2026-01-02 15:54:30    Current State: normal (intensity: 0.5)
-2026-01-02 15:54:35    ✅ [AI Behavior Analysis] Crisis: none, Rude: 0.00, Ambiguous: false
-2026-01-02 15:54:35 📊 [Behavior Analysis]:
-2026-01-02 15:54:35    Crisis: false
-2026-01-02 15:54:35    Ambiguous: false (Needs Clarification: false)
-2026-01-02 15:54:35    Rudeness: 0.00
-2026-01-02 15:54:35    Low Effort: 0.00
-2026-01-02 15:54:35    Repetitive: 0.00
-2026-01-02 15:54:35    Positive: 0.00
-2026-01-02 15:54:35 🎭 [New State Decision]: normal (intensity: 0.50)
-2026-01-02 15:54:35    Reason: Balanced conversation, no significant emotional triggers
-2026-01-02 15:54:35 ➡️  [AI Emotional State] No change, keeping current state
-2026-01-02 15:54:35 🎭 [Conversation Flow] Preliminary Emotional State: normal (50%)
-2026-01-02 15:54:35 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-02 15:54:35 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-02 15:54:35 ✅ [ANIMA Chat] Gate open, emotion: normal
-2026-01-02 15:54:35 
-2026-01-02 15:54:35 🎭 [Identity Keyword] Persona "Nexus" lacks identity, checking message...
-2026-01-02 15:54:35 🔍 [Identity Detector] Analyzing message: 넥서스!
-2026-01-02 15:54:37 🤖 [Identity Detector] AI Response: {
-2026-01-02 15:54:37   "detected": false,
-2026-01-02 15:54:37   "name": null,
-2026-01-02 15:54:37   "confidence": 0.0
-2026-01-02 15:54:37 }
-2026-01-02 15:54:37 ✅ [Identity Detector] Result: { detected: false, name: null, confidence: 0 }
-2026-01-02 15:54:37 ℹ️  [Identity Keyword] No identity keyword detected (confidence: 0)
-2026-01-02 15:54:37 💰 [Chat Limit] Checking daily limit for user: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-02 15:54:38 💰 [Chat Limit] Status:
-2026-01-02 15:54:38    Tier: free
-2026-01-02 15:54:38    Limit: 20 chats/day
-2026-01-02 15:54:38    Used: 20/20
-2026-01-02 15:54:38    Remaining: 0
-2026-01-02 15:54:38    Onboarding: No
-2026-01-02 15:54:38 🚫 [Chat Limit] Daily limit reached!
+-- ecocentre0.persona_customer_main definition
+
+CREATE TABLE `persona_customer_main` (
+  `idx` int NOT NULL AUTO_INCREMENT COMMENT '인덱스 (Auto Increment)',
+  `user_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '사용자 고유 키 (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '사용자 ID (로그인용)',
+  `user_email` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '사용자 이메일',
+  `user_pw` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '비밀번호 (bcrypt 해시)',
+  `user_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '사용자 이름',
+  `user_type` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
+  `user_level` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'basic',
+  `daily_chat_count` int DEFAULT '0' COMMENT 'Current daily conversation count',
+  `daily_chat_reset_at` datetime DEFAULT NULL COMMENT 'Last daily reset timestamp (server time)',
+  `user_level_updated_at` datetime DEFAULT NULL COMMENT 'Last tier upgrade/downgrade time',
+  `user_comment` text COLLATE utf8mb4_unicode_ci,
+  `user_profile_image` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `profile_public_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
+  `email_verified` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '이메일 인증 여부 (Y/N)',
+  `email_verified_at` datetime DEFAULT NULL COMMENT '이메일 인증 완료 시간',
+  `bric_key` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `original_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `profile_done_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
+  `estimated_time` int DEFAULT NULL,
+  `persona_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 키 (FK to persona_persona_main)',
+  `persona_status` char(1) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 상태 (Y: 완료, N: 대기, F: 실패)',
+  `persona_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 이름',
+  `persona_url` text COLLATE utf8mb4_unicode_ci COMMENT '페르소나 이미지 URL',
+  `video_url` text COLLATE utf8mb4_unicode_ci COMMENT '페르소나 비디오 URL',
+  `persona_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 타입 (human, animal, object)',
+  `user_point` int DEFAULT '0' COMMENT '사용자 포인트',
+  `social_provider` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '소셜 로그인 제공자 (google, kakao, etc)',
+  `social_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '소셜 로그인 고유 ID',
+  `account_status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'active' COMMENT '계정 상태 (active, suspended, deleted)',
+  `login_fail_count` int DEFAULT '0' COMMENT '로그인 실패 횟수',
+  `last_login_at` datetime DEFAULT NULL COMMENT '마지막 로그인 시간',
+  `approved_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
+  `approved_date` datetime DEFAULT NULL,
+  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '가입일',
+  `updated_date` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+  `profile_changed_date` datetime DEFAULT NULL,
+  `delete_flag` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N' COMMENT '삭제 플래그 (Y: 삭제, N: 정상)',
+  `deleted_at` datetime DEFAULT NULL COMMENT '삭제 시간',
+  `last_login_date` datetime DEFAULT NULL,
+  `youtube_link` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tiktok_link` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `instagram_link` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `manual_link` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `social_uid` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `premium_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
+  `premium_start_date` datetime DEFAULT NULL,
+  `premium_end_date` datetime DEFAULT NULL,
+  `push_key` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `push_use_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'Y',
+  PRIMARY KEY (`idx`),
+  UNIQUE KEY `user_key` (`user_key`),
+  UNIQUE KEY `user_email` (`user_email`),
+  UNIQUE KEY `user_id` (`user_id`),
+  KEY `idx_persona_key` (`persona_key`),
+  KEY `idx_delete_flag` (`delete_flag`),
+  KEY `idx_account_status` (`account_status`),
+  KEY `idx_created_date` (`created_date`),
+  KEY `idx_daily_reset` (`daily_chat_reset_at`),
+  KEY `idx_user_level` (`user_level`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 정보';
+
+
+
+-- ecocentre0.user_relationship_memory definition
+
+CREATE TABLE `user_relationship_memory` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User unique identifier',
+  `persona_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Persona unique identifier',
+  `how_user_calls_ai` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'User''s preferred name for AI (e.g., "히어로님", "넥서스")',
+  `how_ai_calls_user` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'AI''s name for user (e.g., "JK", "나의 친구")',
+  `preferred_tone` json DEFAULT NULL COMMENT '{"formal": 30, "casual": 70, "playful": 40, "emotional": 60}',
+  `main_topics` json DEFAULT NULL COMMENT 'User''s main interests ["music", "AI", "philosophy"]',
+  `signature_phrases` json DEFAULT NULL COMMENT 'AI''s effective phrases ["함께 해요", "히어로님"]',
+  `conversation_style` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'balanced' COMMENT 'question_driven, story_driven, balanced',
+  `trust_score` int DEFAULT '0' COMMENT 'Trust level (0-100)',
+  `intimacy_level` int DEFAULT '0' COMMENT 'Intimacy level (0-100)',
+  `interaction_count` int DEFAULT '0' COMMENT 'Total conversation count',
+  `relationship_level` enum('stranger','acquaintance','friend','close_friend','partner') COLLATE utf8mb4_unicode_ci DEFAULT 'stranger',
+  `user_tier` enum('free','premium','vip') COLLATE utf8mb4_unicode_ci DEFAULT 'free',
+  `data_completeness` int DEFAULT '0' COMMENT 'How much data collected (0-100)',
+  `needs_data_collection` tinyint(1) DEFAULT '1' COMMENT 'Should AI ask questions to learn?',
+  `first_interaction_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_interaction_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_persona` (`user_key`,`persona_key`),
+  KEY `idx_relationship_level` (`relationship_level`),
+  KEY `idx_needs_data` (`needs_data_collection`),
+  KEY `idx_last_interaction` (`last_interaction_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Core relationship memory between users and AI personas';
+
+
+
+
+persona_emotional_state <= 존재하지 않는 테이블입니다!
+
+대신 이런 테이블은 있습니다!
+
+-- ecocentre0.persona_emotion_analysis definition
+
+CREATE TABLE `persona_emotion_analysis` (
+  `emotion_id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '감정 분석 ID (UUID)',
+  `user_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '사용자 고유 키',
+  `conversation_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '대화 ID (optional)',
+  `session_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '세션 ID',
+  `emotion_primary` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '주요 감정',
+  `emotion_secondary` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '부가 감정',
+  `emotion_intensity` float NOT NULL COMMENT '감정 강도 (0.0~1.0)',
+  `emotion_valence` float DEFAULT NULL COMMENT '감정 긍정/부정 (-1.0~1.0)',
+  `context_summary` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'AI 생성 컨텍스트 요약',
+  `triggers` json DEFAULT NULL COMMENT '감정 유발 요인',
+  `recommended_response_tone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '추천 응답 톤',
+  `analyzed_by_model` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '분석 모델',
+  `analyzed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '분석 시간',
+  PRIMARY KEY (`emotion_id`),
+  KEY `idx_user_key` (`user_key`),
+  KEY `idx_conversation_id` (`conversation_id`),
+  KEY `idx_session_id` (`session_id`),
+  KEY `idx_analyzed_at` (`analyzed_at`),
+  KEY `idx_emotion_primary` (`emotion_primary`),
+  KEY `idx_emotion_user_time` (`user_key`,`analyzed_at`),
+  CONSTRAINT `fk_emotion_conversation` FOREIGN KEY (`conversation_id`) REFERENCES `persona_conversation_history` (`conversation_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_emotion_user` FOREIGN KEY (`user_key`) REFERENCES `persona_customer_main` (`user_key`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='감정 분석 데이터';
+
+=> 디민 실제 row 데이터는 존재하지 않는데, 엔드포인트에서 구현하지 않은거 같아요!
+
+
+-- ecocentre0.ai_emotional_states definition
+
+CREATE TABLE `ai_emotional_states` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `user_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '사용자 고유 키',
+  `persona_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '페르소나 고유 키',
+  `emotional_state` enum('happy','normal','tired','hurt','angry','worried') COLLATE utf8mb4_unicode_ci DEFAULT 'normal' COMMENT 'AI 감정 상태',
+  `state_intensity` decimal(3,2) DEFAULT '0.50' COMMENT '감정 강도 (0.00~1.00)',
+  `state_reason` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '감정 상태 변경 이유 (예: "사용자가 반복적으로 무례한 표현 사용")',
+  `trigger_message` text COLLATE utf8mb4_unicode_ci COMMENT '감정 상태를 유발한 메시지',
+  `state_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '감정 상태 업데이트 시간',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '레코드 생성 시간',
+  `needs_clarification` tinyint(1) DEFAULT '0' COMMENT 'Indicates if the AI needs clarification from the user for an ambiguous expression',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_persona` (`user_key`,`persona_key`) COMMENT '사용자-페르소나 조합 유니크',
+  KEY `idx_user_persona_state` (`user_key`,`persona_key`,`emotional_state`) COMMENT '감정 상태 조회 최적화',
+  KEY `idx_state_updated` (`state_updated_at`) COMMENT '업데이트 시간 조회 최적화',
+  CONSTRAINT `fk_emotional_state_user` FOREIGN KEY (`user_key`) REFERENCES `persona_customer_main` (`user_key`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI 감정 상태 추적 테이블 (혁명적 프롬프트의 핵심)';
+
+
+
+-- ecocentre0.conversation_moments definition
+
+CREATE TABLE `conversation_moments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `persona_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `session_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Original conversation session',
+  `moment_type` enum('breakthrough','emotional','funny','deep','conflict','analyzed') COLLATE utf8mb4_unicode_ci DEFAULT 'analyzed',
+  `summary` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Brief summary of the moment',
+  `full_context` text COLLATE utf8mb4_unicode_ci COMMENT 'Optional full conversation snippet',
+  `emotion_tags` json DEFAULT NULL COMMENT '["joy", "trust", "surprise"]',
+  `user_emotion` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'User''s detected emotion',
+  `ai_emotion` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'AI''s expressed emotion',
+  `importance_score` int DEFAULT '5' COMMENT '1-10, higher = more important',
+  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP(6) COMMENT 'When the moment occurred',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_persona` (`user_key`,`persona_key`),
+  KEY `idx_importance` (`importance_score` DESC),
+  KEY `idx_moment_type` (`moment_type`),
+  KEY `idx_created_at` (`created_at` DESC),
+  CONSTRAINT `conversation_moments_ibfk_1` FOREIGN KEY (`user_key`, `persona_key`) REFERENCES `user_relationship_memory` (`user_key`, `persona_key`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Important moments in user-AI conversations';
+
+
+
+

@@ -260,6 +260,7 @@ const QuickActionChipsAnimated = ({
           style={[
             styles.chip, 
             {
+              display:'none',
               backgroundColor: isVideoConverting 
                 ? 'rgba(255, 165, 0, 0.3)' // ⭐ Orange tint when converting
                 : COLORS.DEEP_BLUE_LIGHT,  
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     width: scale(52),
     height: scale(52),
     borderRadius: scale(26),
-    backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark background for visibility
+    backgroundColor: 'rgba(0, 0, 0, 0.65)', // Dark background for visibility
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',

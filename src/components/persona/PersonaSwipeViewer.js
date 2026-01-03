@@ -25,6 +25,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -244,33 +245,16 @@ const PersonaSwipeViewer = forwardRef(({
   if (!personas || personas.length === 0) {
     return (
       <>
-      {filterMode === 'user' ? (
-      <View style={[styles.container, styles.centered]}>
-        
-        <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
-          {t('persona.no_personas')}
-        </CustomText>
-        <TouchableOpacity onPress={handleCreatePersona}>
-          <CustomText type="title" style={{ color: currentTheme.mainColor, marginTop: 8, textAlign: 'center' }}>
-            {t('persona.create_persona')}
-          </CustomText>
-        </TouchableOpacity>
-      </View>
-    
-      ) : (
 
       <View style={[styles.container, styles.centered]}>
-            
-      <CustomText type="title" style={{ color: currentTheme.textSecondary, marginTop: 16 }}>
-        {t('persona.no_favorite_personas')}
-      </CustomText>
-      <View style={{ marginTop: 8, textAlign: 'center', marginLeft: verticalScale(20), marginRight: verticalScale(20) }}>
-        <CustomText type="middle" style={{ color: currentTheme.mainColor, marginTop: 8, textAlign: 'center' }}>
-          {t('persona.create_favorite_persona')}
+        
+        <ActivityIndicator size="large" color={currentTheme.mainColor} />
+
+        <CustomText type="title" style={{ color: currentTheme.mainColor,  textAlign: 'center', marginTop: verticalScale(16), marginBottom: verticalScale(100) }}>
+          {t('common.loading_detail')}
         </CustomText>
-      </View>
+
     </View>
-    )}
    </>
     );
   }

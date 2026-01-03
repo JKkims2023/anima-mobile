@@ -161,7 +161,8 @@ const RelationshipChip = ({
         activeOpacity={0.7}
         disabled={!onPress || isLoading}
       >
-        <LinearGradient
+        
+        <Animated.View
           colors={[
             `${color}30`, // 30% opacity
             `${color}20`, // 20% opacity
@@ -169,7 +170,7 @@ const RelationshipChip = ({
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={styles.gradient}
+          style={[styles.gradient, { }]}
         >
           {/* Shimmer Overlay (Loading State) */}
           {isLoading && (
@@ -193,9 +194,7 @@ const RelationshipChip = ({
               />
             </Animated.View>
           )}
-          
-          {/* Content - Vertical Layout (Icon on top, value below) */}
-          <View style={styles.content}>
+  
             {/* Emoji/Icon */}
             <CustomText style={styles.emoji}>
               {emoji}
@@ -205,11 +204,11 @@ const RelationshipChip = ({
             <CustomText type="small" bold style={[styles.label, { color }]}>
               {label}
             </CustomText>
-          </View>
-          
+
+            
           {/* Border Highlight */}
           <View style={[styles.border, { borderColor: `${color}50` }]} />
-        </LinearGradient>
+        </Animated.View>
       </TouchableOpacity>
     </Animated.View>
   );

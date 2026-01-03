@@ -100,20 +100,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   };
 
   const handleSettingsPress = () => {
-    // ⭐ Block default personas (SAGE, NEXUS)
-    /*
-    if (persona?.default_yn === 'Y') {
-      showAlert({
-        emoji: '🚫',
-        title: t('persona.identity.blocked_title') || '기본 AI',
-        message: t('persona.identity.blocked_message') || '기본 AI (SAGE, NEXUS)는 자아 설정이 불가능합니다.',
-        buttons: [
-          { text: t('common.confirm') || '확인', onPress: () => {} },
-        ],
-      });
-      return;
-    }
-    */
+    
 
     // ⭐ Block processing personas
     if(persona?.done_yn === 'N') {
@@ -169,7 +156,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   return (
     <>
     <GradientOverlay
-   //   colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
+//      colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
       style={[
         styles.container,
         {
@@ -194,7 +181,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
                 {currentIndex + 1} / {totalCount}
               </CustomText>
               {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
-              {showScrollToTop && (
+              {false && (
                 <View style={styles.scrollToTopIcon}>
                   <Icon 
                     name="arrow-up-circle" 
@@ -233,13 +220,21 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
             <CustomText type="big" style={styles.name} numberOfLines={1}>
               {persona.persona_name}
             </CustomText>
+
+            <CustomText type="middle" style={[ { fontStyle: 'italic', marginLeft: scale(-15)}]} numberOfLines={1}>
+              {persona?.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' ? 
+              t('persona_info.sage.title') : 
+              persona?.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248' ? 
+              t('persona_info.nexus.title') : 
+              t('persona_info.custom.title')}
+            </CustomText>
             
             {/* Settings Icon (Only for user-created personas) */}
-            <IconBrain 
-              name="brain" 
+            <Icon 
+              name="settings" 
               size={scale(20)} 
               color="#FFFFFF" 
-              style={{ display: persona?.default_yn === 'Y' ? 'none' : 'none' }} 
+              style={{ marginLeft: scale(-10)}} 
             />
             
           </View>

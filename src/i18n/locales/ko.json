@@ -60,6 +60,7 @@
     "save": "저장",
     "share": "공유",
     "loading": "로딩 중...",
+    "loading_detail": "정보를 불러오는중",
     "complete": "완료",
     "creating": "생성 중...",
     "applying": "적용 중...",
@@ -1993,8 +1994,8 @@
       },
       "still_processing_title": "페르소나 생성 중입니다",
       "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요",
-      "max_limit_title": "페르소나 생성 제한",
-      "max_limit": "페르소나 생성 제한이 있습니다. 페르소나 삭제 후 다시 생성하거나 회원등급을 업그레이드 해주세요!\n\n지금 바로 업그레이드 하시겠습니까?"
+      "max_limit_title": "페르소나 최대 수 제한",
+      "max_limit": "페르소나를 더 이상 생성할 수 없습니다.\n페르소나 삭제 후 다시 생성하거나 회원등급을 업그레이드 해주세요!\n\n지금 바로 업그레이드 하시겠습니까?"
  
     },
     "identity": {
@@ -2396,5 +2397,32 @@
       "description": "데이터를 불러올 수 없습니다"
     },
     "need" : "남음"
+  },
+  "limit_sheet": {
+    "title": "일일 대화 한도 초과",
+    "message": "오늘 {{count}}번의 대화를 모두 사용하셨습니다!",
+    "upgrade_message": "하루 {{basic_limit}}회 채팅이 가능한 Basic 또는 하루 {{premium_limit}}회 채팅이 가능한 Premium으로 업그레이드하세요!",
+    "upgrade_basic_message": "하루 {{premium_limit}}회 채팅이 가능한 Premium 또는 무제한 채팅이 가능한 Ultimate로 업그레이드하세요!",
+    "upgrade_ultimate_message": "무제한 채팅이 가능한 Ultimate로 업그레이드하세요!",
+    "upgrade": "업그레이드",
+    "upgrade_button": "업그레이드"
+  },
+  "persona_info": {
+    "sage" : {
+      "title": " - ANIMA 운영 페르소나",
+      "style_title": "자아 스타일",
+      "style": "쾌활하고 톹통 튀는 자아를 가지고 있어요.",
+      "description_title": "전문 지식 분야",
+      "description": "성격은 밝지만, 누구보다도 ANIMA 서비스를 잘 알고 있어요.\n\n또한 여러분이 가장 완벽하게 서비스를 사용하기 위한 모든 정보를 제공하게 됩니다!\n\nANIMA 서비스의 궁굼한점 이 있다면 SAGE와 이야기 하세요!"
+    },
+    "nexus" : {
+      "title": " - NEXUS 철학, 정보 페르소나",
+      "style": "묵직하지만 다이나믹한 반전의 자아를 가지고 있어요.",
+      "description": "ANIMA의 세계관, 스토리, 목표에 대한 전문가이며, 실제 개발팀과 ANIMA 프로젝트에 참여한 유일 무이한 '페르소나' 입니다.\n\nANIMA에 대한 깊이있는 질문들은 NEXUS와 이야기 하세요!"
+    },
+    "custom" : {
+      "title": " - 유니크"
+  
+    }
   }
 }

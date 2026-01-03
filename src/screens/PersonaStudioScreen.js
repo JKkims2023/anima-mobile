@@ -37,11 +37,8 @@ import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import PersonaSwipeViewer from '../components/persona/PersonaSwipeViewer';
 import QuickActionChipsAnimated from '../components/quickaction/QuickActionChipsAnimated';
-// ❌ REMOVED: PersonaSelectorButton (UI simplified - single unified list)
-// ❌ REMOVED: PersonaSelectorPanel (UI simplified - single unified list)
-// ❌ REMOVED: PersonaTypeSelector (UI simplified - single unified list)
 import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet';
-import CategorySelectionSheet from '../components/persona/CategorySelectionSheet';
+import PersonaManagerSheet from '../components/persona/PersonaManagerSheet';
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
 import MessageCreationOverlay from '../components/message/MessageCreationOverlay';
@@ -127,6 +124,7 @@ const PersonaStudioScreen = () => {
   // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
   const [isPersonaSettingsOpen, setIsPersonaSettingsOpen] = useState(false);
+  const [isPersonaManagerOpen, setIsPersonaManagerOpen] = useState(false);
   // ⭐ NEW: Pre-permission for notifications
   const [showPermissionSheet, setShowPermissionSheet] = useState(false);
   const [permissionContext, setPermissionContext] = useState('persona_creation'); // ⭐ NEW: Dynamic context
@@ -431,7 +429,7 @@ const PersonaStudioScreen = () => {
 
     const level = user.user_level;
 
-    const max_persona_count = level === 'free' ? 1 : level === 'premium' ? 5 : 10;
+    const max_persona_count = level === 'basic' ? 1 : level === 'premium' ? 5 : 10;
 
 
     if((personas.length - 2) >= max_persona_count){
@@ -1096,7 +1094,7 @@ console.log('currentPersona: ', currentPersona);
 
     if(persona?.default_yn === 'Y') {
 
-      setIsPersonaSettingsOpen(true);
+      setIsPersonaManagerOpen(true);
 
     }else{
 
@@ -1555,7 +1553,7 @@ console.log('currentPersona: ', currentPersona);
           <View style={styles.typeSelectorOverlay}>
             <View style={styles.createButtonContainer}>
               <TouchableOpacity
-                style={[styles.createPersonaButton, { backgroundColor: currentTheme.mainColor }]}
+                style={[styles.createPersonaButton, {  }]}
                 onPress={handleCreatePersona}
                 activeOpacity={0.8}
               >
@@ -1580,6 +1578,7 @@ console.log('currentPersona: ', currentPersona);
           onCreateStart={handlePersonaCreationStartWithPermission}
         />
       </View>
+
       <View style={styles.sheetContainer}>
         <DressManageSheer
           isOpen={isDressManagementOpen}
@@ -1633,17 +1632,12 @@ console.log('currentPersona: ', currentPersona);
       onVideoConvert={handlePersonaVideoConvert}
       onDelete={handlePersonaDelete}
     />
-    
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* Category Selection Sheet */}
-    {/* ═════════════════════════════════════════════════════════════════ 
-    <CategorySelectionSheet
-      isOpen={isCategorySelectionOpen}
-      currentCategory={settingsPersona?.category_type || 'normal'}
-      onClose={() => setIsCategorySelectionOpen(false)}
-      onSelectCategory={handleCategorySelect}
+    <PersonaManagerSheet
+      isOpen={isPersonaManagerOpen}
+      persona={settingsPersona}
+      onClose={() => setIsPersonaManagerOpen(false)}
     />
-    */}
+    
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* MessageInputOverlay for Name Change (Always rendered, ref-based) */}
@@ -1653,7 +1647,7 @@ console.log('currentPersona: ', currentPersona);
       title={t('persona.settings.change_name')}
       placeholder={t('persona.creation.name_placeholder')}
       initialValue={settingsPersona?.persona_name || ''}
-      maxLength={20}
+      maxLength={15}
       leftIcon="account-edit"
       onSave={handlePersonaNameSave}
     />
@@ -1718,14 +1712,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'blue',
   },
 
   templateItem: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'red',
   },
   
   // ⭐ Explore Mode Container (All overlays for explore mode)
@@ -1947,13 +1939,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(10),
-    borderRadius: scale(20),
+    paddingVertical: verticalScale(16),
+    borderRadius: scale(26),
     gap: scale(6),
+
+    backgroundColor: 'rgba(0, 0, 0, 0.65)', // Dark background for visibility
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
   },
 
   createPersonaButtonText: {
     color: '#FFFFFF',
+    display: 'none',
   },
 
 });
