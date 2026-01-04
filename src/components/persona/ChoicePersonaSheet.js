@@ -109,6 +109,10 @@ const ChoicePersonaSheet = ({
     }
   }, [isOpen, photoScale, nameCheckScale, descriptionCheckScale,  pointInfoHeight]);
 
+
+  useEffect(() => {
+    console.log('[ChoicePersonaSheet] user:', user);
+  }, [user]);
   // ═══════════════════════════════════════════════════════════════════════
   // PHOTO UPLOAD
   // ═══════════════════════════════════════════════════════════════════════
@@ -339,6 +343,8 @@ const ChoicePersonaSheet = ({
         HapticService.warning();
         return;
       }
+
+      console.log('[ChoicePersonaSheet] what user:', user);
 
 
       if (!user || !user?.user_key) {

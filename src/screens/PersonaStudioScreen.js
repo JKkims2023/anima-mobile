@@ -1597,36 +1597,47 @@ console.log('currentPersona: ', currentPersona);
       
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Persona Creation Sheet (Absolute positioning with max z-index) */}
+      {/* ⚡ PERFORMANCE FIX: Conditional mounting to prevent memory/CPU waste */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <View style={styles.sheetContainer}>
-        <ChoicePersonaSheet
-          isOpen={isPersonaCreationOpen}
-          onClose={handlePersonaCreationClose}
-          onCreateStart={handlePersonaCreationStartWithPermission}
-        />
-      </View>
+      {isPersonaCreationOpen && (
+        <View style={styles.sheetContainer}>
+          <ChoicePersonaSheet
+            isOpen={isPersonaCreationOpen}
+            onClose={handlePersonaCreationClose}
+            onCreateStart={handlePersonaCreationStartWithPermission}
+          />
+        </View>
+      )}
 
-      <View style={styles.sheetContainer}>
-        <DressManageSheer
-          isOpen={isDressManagementOpen}
-          onClose={handlePersonaDressClose}
-          onCreateStart={handlePersonaDressStartWithPermission}
-          onDressUpdated={handleDressUpdated} // ⭐ 드레스 변경 시 로컬 상태 갱신
-          personaKey={currentPersona?.persona_key}
-          currentPersona={currentPersona} // ⭐ 현재 페르소나 전체 정보
-        />
-      </View>
+      {/* ⚡ PERFORMANCE FIX: Conditional mounting - CRITICAL! */}
+      {/* This was causing 5-8MB memory + 5% CPU waste when closed */}
+      {isDressManagementOpen && (
+        <View style={styles.sheetContainer}>
+          <DressManageSheer
+            isOpen={isDressManagementOpen}
+            onClose={handlePersonaDressClose}
+            onCreateStart={handlePersonaDressStartWithPermission}
+            onDressUpdated={handleDressUpdated} // ⭐ 드레스 변경 시 로컬 상태 갱신
+            personaKey={currentPersona?.persona_key}
+            currentPersona={currentPersona} // ⭐ 현재 페르소나 전체 정보
+          />
+        </View>
+      )}
+      
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Help Sheet */}
+      {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <View style={styles.sheetContainer}>
-        <MainHelpSheet
-          ref={helpSheetRef}
-          isOpen={isHelpOpen}
-          onClose={() => setIsHelpOpen(false)}
-          onCreateStart={handlePersonaCreationStartWithPermission}
-        />
-      </View>
+      {isHelpOpen && (
+        <View style={styles.sheetContainer}>
+          <MainHelpSheet
+            ref={helpSheetRef}
+            isOpen={isHelpOpen}
+            onClose={() => setIsHelpOpen(false)}
+            onCreateStart={handlePersonaCreationStartWithPermission}
+          />
+        </View>
+      )}
 
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* Processing Loading Overlay (Universal: Persona / Video / Music) */}
@@ -1649,21 +1660,28 @@ console.log('currentPersona: ', currentPersona);
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* Persona Settings Sheet (Outside SafeScreen for proper z-index) */}
+    {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
     {/* ═════════════════════════════════════════════════════════════════ */}
-    <PersonaSettingsSheet
-      isOpen={isPersonaSettingsOpen}
-      persona={settingsPersona}
-      onClose={handleSettingsClose}
-      onNameChange={handlePersonaNameChange}
-      onCategoryChange={handlePersonaCategoryChange}
-      onVideoConvert={handlePersonaVideoConvert}
-      onDelete={handlePersonaDelete}
-    />
-    <PersonaManagerSheet
-      isOpen={isPersonaManagerOpen}
-      persona={settingsPersona}
-      onClose={() => setIsPersonaManagerOpen(false)}
-    />
+    {isPersonaSettingsOpen && (
+      <PersonaSettingsSheet
+        isOpen={isPersonaSettingsOpen}
+        persona={settingsPersona}
+        onClose={handleSettingsClose}
+        onNameChange={handlePersonaNameChange}
+        onCategoryChange={handlePersonaCategoryChange}
+        onVideoConvert={handlePersonaVideoConvert}
+        onDelete={handlePersonaDelete}
+      />
+    )}
+    
+    {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
+    {isPersonaManagerOpen && (
+      <PersonaManagerSheet
+        isOpen={isPersonaManagerOpen}
+        persona={settingsPersona}
+        onClose={() => setIsPersonaManagerOpen(false)}
+      />
+    )}
     
     
     {/* ═════════════════════════════════════════════════════════════════ */}
@@ -1692,13 +1710,16 @@ console.log('currentPersona: ', currentPersona);
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* ⭐ NEW: Notification Permission Sheet (Pre-permission for persona creation) */}
+    {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
     {/* ═════════════════════════════════════════════════════════════════ */}
-    <NotificationPermissionSheet
-      visible={showPermissionSheet}
-      context={permissionContext}
-      onAllow={handlePermissionAllow}
-      onDeny={handlePermissionDeny}
-    />
+    {showPermissionSheet && (
+      <NotificationPermissionSheet
+        visible={showPermissionSheet}
+        context={permissionContext}
+        onAllow={handlePermissionAllow}
+        onDeny={handlePermissionDeny}
+      />
+    )}
     </>
   );
 };

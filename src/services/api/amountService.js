@@ -26,7 +26,7 @@ export async function getServiceData(user_key) {
     console.log('🔍 [amountService] Get service data request:', AMOUNT_ENDPOINTS.GET_SERVICE_DATA);
 
     const response = await apiClient.post(AMOUNT_ENDPOINTS.GET_SERVICE_DATA, {
-      user_key,
+      user_key: user_key?.user_key || user_key,
     });
 
     console.log('🔍 [amountService] Get service data result:', response);
