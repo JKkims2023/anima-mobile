@@ -78,9 +78,9 @@ const QuickActionChipsAnimated = ({
   // ⭐ Rotation animation for hourglass (continuous)
   const hourglassRotation = useSharedValue(0);
   
-  // ⭐ Tooltip animation
+  // ⭐ Tooltip animation (starts from right, moves left)
   const tooltipOpacity = useSharedValue(0);
-  const tooltipTranslateX = useSharedValue(-10);
+  const tooltipTranslateX = useSharedValue(10); // ⭐ Start from RIGHT (chip side)
   
   // ⭐ NEW: Dress chip rotation & anticipation effect
   const dressRotation = useSharedValue(0);
@@ -310,14 +310,14 @@ const QuickActionChipsAnimated = ({
   // ⭐ Auto-hide tooltip after 3 seconds
   useEffect(() => {
     if (showTooltip) {
-      // Show tooltip
+      // Show tooltip: RIGHT → LEFT (chip → left side)
       tooltipOpacity.value = withTiming(1, { duration: 200 });
       tooltipTranslateX.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.ease) });
       
-      // Auto-hide after 3 seconds
+      // Auto-hide after 3 seconds: LEFT → RIGHT (back to chip)
       const timer = setTimeout(() => {
         tooltipOpacity.value = withTiming(0, { duration: 200 });
-        tooltipTranslateX.value = withTiming(-10, { duration: 200 });
+        tooltipTranslateX.value = withTiming(10, { duration: 200 }); // ⭐ Back to RIGHT (chip side)
         setTimeout(() => setShowTooltip(false), 200);
       }, 3000);
       
@@ -452,6 +452,14 @@ const QuickActionChipsAnimated = ({
   
   const handlePress = (action) => {
     HapticService.medium();
+
+    if(action.id === 'video') {
+
+      if(isVideoConverting) {
+        setShowTooltip(true);
+        return;
+      }
+    }
     action.onClick();
   };
   
@@ -479,6 +487,16 @@ const QuickActionChipsAnimated = ({
   return (
     <>
     <View style={styles.container}>
+      {/* ⭐ Tooltip (Left side of video chip) */}
+      {showTooltip && (
+        <Animated.View style={[styles.tooltip, tooltipAnimatedStyle]}>
+          <CustomText style={styles.tooltipText}>
+            {t('persona.video_converting_tooltip')}
+          </CustomText>
+          <View style={styles.tooltipArrow} />
+        </Animated.View>
+      )}
+      
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         const isHistoryChip = action.id === 'history';
@@ -515,7 +533,7 @@ const QuickActionChipsAnimated = ({
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
-          currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' 
+          currentPersona?.selected_dress_video_url === null ? 'flex' : isVideoConverting ? 'flex' : 'none' 
           : 'flex' }]}>
             <AnimatedTouchable
               style={[
@@ -571,18 +589,10 @@ const QuickActionChipsAnimated = ({
         );
       })}
     </View>
-    
+
     {/* ⭐ Message Creation Button with Video Converting Indicator */}
     <View style={[styles.messageButtonContainer, {display: isVideoConverting ? 'none' : 'none'}]}>
-      {/* ⭐ Tooltip (Left side) */}
-      {showTooltip && (
-        <Animated.View style={[styles.tooltip, tooltipAnimatedStyle]}>
-          <CustomText style={styles.tooltipText}>
-            {t('persona.video_converting_tooltip')}
-          </CustomText>
-          <View style={styles.tooltipArrow} />
-        </Animated.View>
-      )}
+      
       
       {/* Message Button */}
       <TouchableOpacity
@@ -677,43 +687,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     display: 'none',
   },
-  // ⭐ NEW: Tooltip (Left side of message button)
+  // ⭐ NEW: Tooltip (Left side of video chip)
   tooltip: {
     position: 'absolute',
-    right: scale(85), // Position to the left of button (button width + margin)
-    alignSelf: 'center',
+    left: scale(-210), // ⭐ Position to the LEFT of chip container
+    top: '20%', // ⭐ Align with video chip (first chip)
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    paddingHorizontal: scale(12),
-    paddingVertical: verticalScale(8),
-    borderRadius: scale(8),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 165, 0, 0.5)',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    borderRadius: scale(10),
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 165, 0, 0.6)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
-    maxWidth: scale(180),
+    minWidth: scale(180), // ⭐ Minimum width for readability
+    maxWidth: scale(220), // ⭐ Wider for better text display
   },
   tooltipText: {
-    fontSize: scale(12),
+    fontSize: scale(13), // ⭐ Slightly larger for better readability
     color: '#FFA500',
     fontWeight: '600',
     textAlign: 'center',
+    lineHeight: scale(18), // ⭐ Better line spacing
   },
   tooltipArrow: {
     position: 'absolute',
-    right: scale(-6),
+    right: scale(-8), // ⭐ Arrow points to the right (toward chip)
     top: '50%',
-    marginTop: scale(-6),
+    marginTop: scale(-8),
     width: 0,
     height: 0,
-    borderTopWidth: 6,
+    borderTopWidth: 8,
     borderTopColor: 'transparent',
-    borderBottomWidth: 6,
+    borderBottomWidth: 8,
     borderBottomColor: 'transparent',
-    borderLeftWidth: 6,
-    borderLeftColor: 'rgba(0, 0, 0, 0.9)',
+    borderLeftWidth: 8,
+    borderLeftColor: 'rgba(0, 0, 0, 0.9)', // ⭐ Points RIGHT
   },
 });
 
