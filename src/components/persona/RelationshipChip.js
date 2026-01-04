@@ -80,11 +80,16 @@ const RelationshipChip = ({
   }, [delay]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Start Pulse Animation (Heartbeat Effect)
+  // Start Pulse Animation (Heartbeat Effect) - ⭐ Focus-aware!
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   useEffect(() => {
-    if (isLoading) return; // No pulse during loading
+    if (isLoading || !isFocused) {
+      // ⚠️ Stop animation when loading or not focused (battery optimization!)
+      pulseAnim.stopAnimation();
+      pulseAnim.setValue(1.0); // Reset to normal size
+      return;
+    }
     
     const pulseDuration = pulseSpeed * 1000; // Convert to ms
     
@@ -100,18 +105,26 @@ const RelationshipChip = ({
           duration: pulseDuration / 2,
           useNativeDriver: true,
         }),
-      ]).start(() => startPulse()); // Loop
+      ]).start(() => {
+        // ⭐ Only loop if still focused
+        if (isFocused) {
+          startPulse();
+        }
+      });
     };
     
     // Start pulse after appear animation
-    setTimeout(() => {
-      startPulse();
+    const timer = setTimeout(() => {
+      if (isFocused) {
+        startPulse();
+      }
     }, delay + 400);
     
     return () => {
+      clearTimeout(timer);
       pulseAnim.stopAnimation();
     };
-  }, [pulseSpeed, isLoading, delay]);
+  }, [pulseSpeed, isLoading, delay, isFocused]); // ⭐ Add isFocused dependency
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Start Shimmer Animation (Loading State)
