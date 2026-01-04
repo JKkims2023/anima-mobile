@@ -107,6 +107,7 @@ const PostcardBack = ({
         console.log('   user_key:', user?.user_key);
         console.log('   effectiveUserKey:', effectiveUserKey);
         console.log('   is_anima_core:', isAnimaCore);
+        console.log(persona);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         // ⭐ Determine if unread based on persona type
@@ -208,6 +209,8 @@ const PostcardBack = ({
       closeButtonOpacity.value = 0;
       closeButtonScale.value = 0.8;
 
+      console.log('[PostcardBack] persona:', persona);
+
       // ⭐ Start sequential animation (모든 항목 순차적!)
       // 1. Thumbnail (페르소나 썸네일) - 400ms
       thumbnailOpacity.value = withTiming(1, { 
@@ -251,6 +254,9 @@ const PostcardBack = ({
     }
   }, [isVisible]); // ⭐ Trigger animation when isVisible changes
 
+  useEffect(() => {
+    console.log('[PostcardBack] persona:', persona?.selected_dress_image_url);
+  }, [persona]);
   // ⭐ Pulse animation on close button press
   const handleClosePress = () => {
     HapticService.medium();

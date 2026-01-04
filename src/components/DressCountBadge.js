@@ -3,58 +3,32 @@
  * 🦄 DressCountBadge Component
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * Dress count badge with rotation animation for creating state
+ * Dress count badge (Static - chip rotates, not badge!)
  * 
  * Features:
  * - Shows dress count number
- * - Rotates when dress is being created (done_yn === 'N')
- * - Smooth animations with Reanimated
+ * - Badge is fixed (no rotation)
+ * - Chip itself will rotate when dress is being created
  * 
  * @author JK & Hero Nexus AI
  * @date 2026-01-04
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 import CustomText from './CustomText';
 import { scale } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
-const DressCountBadge = ({ count = 0, isRotating = false }) => {
-  const rotationAnim = useSharedValue(0);
-
-  useEffect(() => {
-    if (isRotating) {
-      // Start continuous rotation
-      rotationAnim.value = withRepeat(
-        withTiming(360, { duration: 2000, easing: Easing.linear }),
-        -1, // Infinite loop
-        false
-      );
-    } else {
-      // Stop rotation smoothly (reset to 0)
-      rotationAnim.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.ease) });
-    }
-  }, [isRotating, rotationAnim]);
-
-  const rotationStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotationAnim.value}deg` }]
-  }));
-
+// ⭐ Static badge - Chip rotates instead!
+const DressCountBadge = ({ count = 0 }) => {
   // Don't render if count is 0
   if (count === 0) return null;
 
   return (
-    <Animated.View style={[styles.badgeContainer, rotationStyle]}>
+    <View style={styles.badgeContainer}>
       <CustomText style={styles.badgeText}>{count}</CustomText>
-    </Animated.View>
+    </View>
   );
 };
 

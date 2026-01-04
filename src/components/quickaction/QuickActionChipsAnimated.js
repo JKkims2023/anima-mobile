@@ -82,6 +82,11 @@ const QuickActionChipsAnimated = ({
   const tooltipOpacity = useSharedValue(0);
   const tooltipTranslateX = useSharedValue(-10);
   
+  // ⭐ NEW: Dress chip rotation & anticipation effect
+  const dressRotation = useSharedValue(0);
+  const dressOpacity = useSharedValue(1);
+  const dressScale = useSharedValue(1);
+  
   // ✅ Animation values (individual for each chip)
   const opacity0 = useSharedValue(0);
   const opacity1 = useSharedValue(0);
@@ -124,6 +129,15 @@ const QuickActionChipsAnimated = ({
     transform: [{ translateX: tooltipTranslateX.value }],
   }));
   
+  // ⭐ NEW: Dress chip animated style (rotation + anticipation effect)
+  const dressAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: dressOpacity.value,
+    transform: [
+      { rotate: `${dressRotation.value}deg` },
+      { scale: dressScale.value }
+    ],
+  }));
+  
   // ⭐ Start/stop hourglass rotation based on isVideoConverting
   useEffect(() => {
     if (isVideoConverting) {
@@ -142,6 +156,48 @@ const QuickActionChipsAnimated = ({
       hourglassRotation.value = withTiming(0, { duration: 300 });
     }
   }, [isVideoConverting]);
+  
+  // ⭐ NEW: Start/stop dress chip rotation based on hasCreating
+  useEffect(() => {
+    if (currentDressState.hasCreating) {
+      console.log('[QuickActionChipsAnimated] 🔄 Starting dress chip rotation (creating...)');
+      
+      // Infinite rotation: 0 → 360 → 0 → 360...
+      dressRotation.value = withRepeat(
+        withTiming(360, {
+          duration: 2000, // 2초에 한 바퀴 (hourglass와 동일)
+          easing: Easing.linear,
+        }),
+        -1, // Infinite
+        false // No reverse
+      );
+      
+      // ✨ Anticipation effect: Opacity 0.75, Scale 0.95
+      dressOpacity.value = withTiming(0.75, { 
+        duration: 400, 
+        easing: Easing.out(Easing.ease) 
+      });
+      dressScale.value = withTiming(0.95, { 
+        duration: 400, 
+        easing: Easing.out(Easing.ease) 
+      });
+    } else {
+      console.log('[QuickActionChipsAnimated] ✅ Stopping dress chip rotation (completed!)');
+      
+      // Stop rotation and reset to 0
+      dressRotation.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.ease) });
+      
+      // ✨ Restore original state: Opacity 1.0, Scale 1.0
+      dressOpacity.value = withTiming(1.0, { 
+        duration: 500, 
+        easing: Easing.out(Easing.ease) 
+      });
+      dressScale.value = withTiming(1.0, { 
+        duration: 500, 
+        easing: Easing.out(Easing.ease) 
+      });
+    }
+  }, [currentDressState.hasCreating]);
   
   // ⭐ Auto-hide tooltip after 3 seconds
   useEffect(() => {
@@ -318,13 +374,20 @@ const QuickActionChipsAnimated = ({
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         const isHistoryChip = action.id === 'history';
+        const isDressChip = action.id === 'dress'; // ⭐ NEW: Dress chip check
+        
+        // ⭐ NEW: Use AnimatedTouchable for dress chip, regular TouchableOpacity for others
+        const ChipComponent = isDressChip ? AnimatedTouchable : TouchableOpacity;
+        const chipStyle = isDressChip 
+          ? [styles.chip, animatedStyle, dressAnimatedStyle] // ⭐ Apply dress rotation effect!
+          : [styles.chip, animatedStyle];
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
           currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' 
           : 'flex' }]}>
-            <TouchableOpacity
-              style={[styles.chip, animatedStyle]}
+            <ChipComponent
+              style={chipStyle}
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
@@ -341,21 +404,20 @@ const QuickActionChipsAnimated = ({
                 <NotificationBadge visible={true} />
               )}
               
-              {/* ⭐ NEW: Dress Count Badge (with rotation for creating state) */}
-              {action.id === 'dress' && (
+              {/* ⭐ NEW: Dress Count Badge (Static - chip rotates!) */}
+              {isDressChip && (
                 <DressCountBadge 
-                  count={currentDressState.count} 
-                  isRotating={currentDressState.hasCreating} 
+                  count={currentDressState.count}
                 />
               )}
-            </TouchableOpacity>
+            </ChipComponent>
           </View>
         );
       })}
     </View>
     
     {/* ⭐ Message Creation Button with Video Converting Indicator */}
-    <View style={[styles.messageButtonContainer, {display: isVideoConverting ? 'flex' : 'none'}]}>
+    <View style={[styles.messageButtonContainer, {display: isVideoConverting ? 'none' : 'none'}]}>
       {/* ⭐ Tooltip (Left side) */}
       {showTooltip && (
         <Animated.View style={[styles.tooltip, tooltipAnimatedStyle]}>
@@ -457,6 +519,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
+    display: 'none',
   },
   // ⭐ NEW: Tooltip (Left side of message button)
   tooltip: {
