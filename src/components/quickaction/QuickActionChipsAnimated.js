@@ -56,12 +56,20 @@ const QuickActionChipsAnimated = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const [showHistoryBadge, setShowHistoryBadge] = useState(false); // ⭐ NEW: Badge visibility state
 
+  // ⭐ Pastel Soft Colors - 감성적인 컬러 조합
+  const chipColors = {
+    video: '#FF7FA3',    // 🌸 체리 블라썸 핑크 - 사랑과 감성
+    share: '#6BB6FF',    // 💙 스카이 블루 - 연결과 소통
+    history: '#FFD93D',  // 🌟 골든 옐로우 - 빛나는 추억
+    dress: '#A78BFA',    // 🦄 라벤더 - 꿈같은 변신
+  };
+
   const actions = [
-    { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick },
+    { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick, color: chipColors.video },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick },
-    { id: 'history', icon: 'mailbox-outline', label: '추억', onClick: onHistoryClick },
-    {id: 'dress', icon: 'tshirt-crew-outline', label: '드레스', onClick: onDressClick},
+    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick, color: chipColors.share },
+    { id: 'history', icon: 'mailbox-outline', label: '추억', onClick: onHistoryClick, color: chipColors.history },
+    { id: 'dress', icon: 'tshirt-crew-outline', label: '드레스', onClick: onDressClick, color: chipColors.dress },
 //    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
   ];
   
@@ -318,9 +326,13 @@ const QuickActionChipsAnimated = ({
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
-              <Icon name={action.icon} size={scale(24)} color=
-              {action.id === 'history' ? 'yellow' : action.id === 'dress' ? 'blue' : 'red'} />
-              <Text style={[styles.label,{display:'none', color: action.id === 'history' ? 'yellow' : '#FFFFFF'}]}>{action.label}</Text>
+              {/* ⭐ Pastel Soft Colors - 각 아이콘의 의미에 맞는 감성적 컬러 */}
+              <Icon 
+                name={action.icon} 
+                size={scale(24)} 
+                color={action.color || '#FFFFFF'} 
+              />
+              <Text style={[styles.label,{display:'none', color: action.color || '#FFFFFF'}]}>{action.label}</Text>
               
               {/* ⭐ NEW: Notification Badge for History Chip */}
               {isHistoryChip && showHistoryBadge && (
@@ -377,11 +389,15 @@ const QuickActionChipsAnimated = ({
             <AnimatedIcon 
               name="timer-sand" 
               size={scale(32)} 
-              color="#FFA500" 
+              color="#FFB84D" // ⭐ 따뜻한 오렌지 - 진행 중 (기다림의 따뜻함)
               style={hourglassAnimatedStyle}
             />
           ) : (
-            <Icon name="pencil-outline" size={scale(32)} color="#FFFFFF" />
+            <Icon 
+              name="pencil-outline" 
+              size={scale(32)} 
+              color="#A7F3D0" // ⭐ 민트 그린 - 창의성과 표현 (새로운 시작)
+            />
           )}
         </View>
       </TouchableOpacity>
