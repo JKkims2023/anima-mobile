@@ -63,11 +63,13 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
               "{formatMomentSummary(recentMoment.summary, relationshipData)}"
             </CustomText>
             <View style={styles.momentMeta}>
-              <View style={styles.emotionBadge}>
-                <CustomText type="small" style={{ color: theme.textSecondary }}>
-                  {getEmotionEmoji(recentMoment.emotion)} {recentMoment.emotion}
-                </CustomText>
-              </View>
+              {recentMoment.user_emotion && (
+                <View style={styles.emotionBadge}>
+                  <CustomText type="small" style={{ color: theme.textSecondary }}>
+                    {getEmotionEmoji(recentMoment.user_emotion)} {recentMoment.user_emotion}
+                  </CustomText>
+                </View>
+              )}
               <CustomText type="small" style={{ color: theme.textSecondary }}>
                 • 중요도 {recentMoment.importance}/10
               </CustomText>
