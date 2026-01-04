@@ -94,14 +94,19 @@ const FloatingEmoji = ({ emoji, delay, duration, offsetX, isFocused }) => {
 /**
  * EmotionFloatingEffect Component
  * @param {Object} props
- * @param {string} props.emoji - Emoji to float (e.g., '😊', '😐', '😢')
+ * @param {string} props.mainEmoji - Main emoji (displayed in chip, not used for floating)
+ * @param {Array<string>} props.floatingEmojis - Array of emojis to float (e.g., ['❤️', '💙', '✨'])
  * @param {boolean} props.isFocused - Whether screen is focused (controls animation)
  * @param {number} props.count - Number of floating emojis (default: 3)
  */
-const EmotionFloatingEffect = ({ emoji, isFocused = true, count = 3 }) => {
+const EmotionFloatingEffect = ({ mainEmoji, floatingEmojis = [], isFocused = true, count = 3 }) => {
+  // ⭐ Use provided floating emojis, or fallback to main emoji
+  const emojisToFloat = floatingEmojis.length > 0 ? floatingEmojis : [mainEmoji];
+  
   // Generate random delays and durations for natural effect
-  const floatingEmojis = Array.from({ length: count }, (_, index) => ({
+  const floatingEmojiConfigs = Array.from({ length: count }, (_, index) => ({
     id: index,
+    emoji: emojisToFloat[index % emojisToFloat.length], // ⭐ Cycle through provided emojis
     delay: Math.random() * 2000, // 0-2s delay
     duration: 2000 + Math.random() * 1000, // 2-3s duration
     offsetX: (Math.random() - 0.5) * 20, // -10 to +10 horizontal offset
@@ -109,10 +114,10 @@ const EmotionFloatingEffect = ({ emoji, isFocused = true, count = 3 }) => {
   
   return (
     <View style={styles.container} pointerEvents="none">
-      {floatingEmojis.map((config) => (
+      {floatingEmojiConfigs.map((config) => (
         <FloatingEmoji
           key={config.id}
-          emoji={emoji}
+          emoji={config.emoji}
           delay={config.delay}
           duration={config.duration}
           offsetX={config.offsetX}
@@ -128,11 +133,12 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject, // Cover entire parent
     alignItems: 'center',
     justifyContent: 'flex-end', // Start from bottom
-    overflow: 'visible', // Allow emojis to overflow
+    // ⚠️ iOS: overflow: 'visible' removed (doesn't work on iOS)
   },
   floatingEmoji: {
     position: 'absolute',
     bottom: 0, // Start from bottom
+    zIndex: 9999, // ⭐ iOS: High zIndex for visibility
   },
   emojiText: {
     fontSize: scale(20),

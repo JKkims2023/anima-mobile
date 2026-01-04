@@ -79,7 +79,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
     setEmotionChipLayout({ x, y, width, height });
   }, []);
   
-  // ⭐ NEW: Get emotion emoji from state
+  // ⭐ NEW: Get emotion emoji from state (Main chip display)
   const getEmotionEmoji = (emotionalState) => {
     const emotionEmojis = {
       happy: '😊',
@@ -90,6 +90,44 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       worried: '😰',
     };
     return emotionEmojis[emotionalState] || '😐';
+  };
+  
+  // ⭐ NEW: Get floating emojis based on relationship level & emotional state
+  const getFloatingEmojis = (personaData) => {
+    const intimacy = personaData?.intimacy_level || 0;
+    const emotionalState = personaData?.emotional_state || 'normal';
+    
+    // ⭐ Strategy: Combine intimacy-based + emotion-based emojis
+    let floatingEmojis = [];
+    
+    // 1️⃣ Intimacy-based (Heart progression)
+    if (intimacy >= 80) {
+      floatingEmojis.push('❤️', '💖'); // Deep love
+    } else if (intimacy >= 60) {
+      floatingEmojis.push('💙', '💝'); // Strong affection
+    } else if (intimacy >= 40) {
+      floatingEmojis.push('💛', '💗'); // Growing warmth
+    } else if (intimacy >= 20) {
+      floatingEmojis.push('🤍', '💌'); // Early connection
+    } else {
+      floatingEmojis.push('💔', '🥀'); // Broken/distant
+    }
+    
+    // 2️⃣ Emotion-based (Context emojis)
+    if (emotionalState === 'happy') {
+      floatingEmojis.push('✨', '🌟', '⭐');
+    } else if (emotionalState === 'tired') {
+      floatingEmojis.push('💤', '🌙', '☁️');
+    } else if (emotionalState === 'hurt' || emotionalState === 'worried') {
+      floatingEmojis.push('💧', '🌧️');
+    } else if (emotionalState === 'angry') {
+      floatingEmojis.push('🔥', '💢');
+    } else {
+      floatingEmojis.push('💫', '🌸'); // Normal/neutral
+    }
+    
+    // ⭐ Return unique emojis (limit to 3-4 for variety)
+    return [...new Set(floatingEmojis)].slice(0, 4);
   };
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
@@ -196,13 +234,17 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
         styles.container,
         {
           paddingBottom: insets.bottom + verticalScale(30),
+          overflow: 'visible', // ⭐ iOS: Allow floating effect to escape boundaries
         },
       ]}
     >
       {/* ⭐ Pagination Indicator (Clickable when index >= 3) */}
       {totalCount > 1 && (
         <Pressable
-          style={styles.paginationContainer}
+          style={[
+            styles.paginationContainer,
+            { paddingTop: insets.top + verticalScale(10) } // ⭐ iOS Safe Area fix!
+          ]}
           onPress={handleSettingsPress}
           activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
           disabled={!showScrollToTop}
@@ -293,12 +335,13 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
                 top: emotionChipLayout.y,
                 width: emotionChipLayout.width,
                 height: emotionChipLayout.height,
-                overflow: 'visible', // ⭐ Allow emojis to overflow!
+                zIndex: 9999, // ⭐ iOS: High zIndex to ensure visibility above all elements
               }}
               pointerEvents="none" // Don't block touch events
             >
               <EmotionFloatingEffect
-                emoji={getEmotionEmoji(persona.emotional_state)}
+                mainEmoji={getEmotionEmoji(persona.emotional_state)}
+                floatingEmojis={getFloatingEmojis(persona)}
                 isFocused={isFocused}
                 count={3}
               />
@@ -382,7 +425,7 @@ const styles = StyleSheet.create({
   paginationContainer: {
     width: '100%',
     paddingHorizontal: scale(0),
-    paddingVertical: verticalScale(10),
+    paddingBottom: verticalScale(10), // ⚠️ Use paddingBottom (paddingTop set dynamically)
     marginBottom: verticalScale(2),
     // ⭐ NO border, NO background - Pure integration with gradient
   },

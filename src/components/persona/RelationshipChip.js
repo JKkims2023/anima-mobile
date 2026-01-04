@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: scale(12),
-    paddingVertical: verticalScale(8),
+    paddingVertical: verticalScale(12), // ⭐ Increased from 8 to 12 for better emoji visibility
     borderRadius: scale(14),
     overflow: 'hidden',
     minWidth: scale(57), // Ensure consistent width
