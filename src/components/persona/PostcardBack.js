@@ -30,6 +30,11 @@ import { scale, verticalScale, moderateScale } from '../../utils/responsive-util
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
+import { 
+  updatePersonaCommentChecked,
+} from '../../services/api/personaApi';
+import { isAnimaCorePersona } from '../../constants/persona';
+import { setPersonaCommentRead, isPersonaCommentRead } from '../../utils/storage';
 
 const PostcardBack = ({
   persona,
@@ -77,65 +82,115 @@ const PostcardBack = ({
 
   // ⭐ NEW: Mark comment as read when PostcardBack is opened
   useEffect(() => {
-    if (isVisible && !hasMarkedAsRead.current && persona?.persona_key && user?.user_key) {
-      // ⭐ Check if comment should be marked as read
-      const hasComment = 
-        persona.selected_dress_persona_comment !== null &&
-        persona.selected_dress_persona_comment !== '' &&
-        persona.selected_dress_persona_comment.trim() !== '';
-      
-      const isUnread = persona.persona_comment_checked === 'N';
-      
-      if (hasComment && isUnread) {
+    // ⭐ Define async function inside useEffect (React standard pattern)
+    const markCommentAsRead = async () => {
+      if (isVisible && !hasMarkedAsRead.current && persona?.persona_key) {
+        // ⭐ Check if comment should be marked as read
+        const hasComment = 
+          persona.selected_dress_persona_comment !== null &&
+          persona.selected_dress_persona_comment !== '' &&
+          persona.selected_dress_persona_comment.trim() !== '';
+        
+        if (!hasComment) return;
+
+        // ⭐ Check if ANIMA Core persona (SAGE/NEXUS - 1:N relationship)
+        const isAnimaCore = isAnimaCorePersona(persona.persona_key);
+        
+        // ⭐ CRITICAL: Use 'guest' as fallback for non-logged-in users
+        // ANIMA_CORE personas (SAGE/NEXUS) are for ALL users, including free users!
+        const effectiveUserKey = user?.user_key || 'guest';
+        
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📖 [PostcardBack] Marking comment as read...');
+        console.log('📖 [PostcardBack] Checking comment read status...');
         console.log('   persona_key:', persona.persona_key);
         console.log('   persona_name:', persona.persona_name);
-        console.log('   user_key:', user.user_key);
+        console.log('   user_key:', user?.user_key);
+        console.log('   effectiveUserKey:', effectiveUserKey);
+        console.log('   is_anima_core:', isAnimaCore);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+        // ⭐ Determine if unread based on persona type
+        let isUnread = false;
         
-        // ⭐ Prevent duplicate calls
-        hasMarkedAsRead.current = true;
+        if (isAnimaCore) {
+          // ⭐ ANIMA Core (SAGE/NEXUS): Check AsyncStorage ONLY
+          // Note: DB's persona_comment_checked is ALWAYS 'N' for ANIMA Core
+          // because we don't call the DB API (only save to AsyncStorage)
+          // So we only need to check if user has read it locally!
+          
+          const alreadyReadLocally = await isPersonaCommentRead(effectiveUserKey, persona.persona_key);
+          console.log('   📦 [AsyncStorage] Already read locally:', alreadyReadLocally);
+          
+          // ⭐ Not read locally = mark as unread!
+          isUnread = !alreadyReadLocally;
+          console.log('   ✅ Final isUnread:', isUnread);
+        } else {
+          // ⭐ User-created persona: Check DB field only
+          // For user-created personas, we need actual user_key from DB
+          if (!user?.user_key) {
+            console.log('   ⚠️ User-created persona but no user_key, skipping');
+            isUnread = false;
+          } else {
+            isUnread = persona.persona_comment_checked === 'N';
+            console.log('   🗄️ [Database] persona_comment_checked:', persona.persona_comment_checked);
+          }
+        }
         
-        // ⭐ Call API to mark as read
-        fetch('/api/persona/mark-comment-read', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            persona_key: persona.persona_key,
-            user_key: user.user_key,
-          }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              console.log('✅ [PostcardBack] Comment marked as read successfully!');
-              
-              // ⭐ Notify parent to update local state
-              if (onMarkAsRead) {
-                onMarkAsRead(persona.persona_key);
-              }
-              
-              // ⭐ Haptic feedback
-              HapticService.success();
+        if (isUnread) {
+          console.log('✅ [PostcardBack] Marking comment as read...');
+          
+          // ⭐ Prevent duplicate calls
+          hasMarkedAsRead.current = true;
+          
+          // ⭐ Mark as read based on persona type
+          let success = false;
+          
+          if (isAnimaCore) {
+            // ⭐ ANIMA Core: Save to AsyncStorage
+            success = await setPersonaCommentRead(effectiveUserKey, persona.persona_key);
+            if (success) {
+              console.log('✅ [AsyncStorage] Comment marked as read!');
             } else {
-              console.error('❌ [PostcardBack] Failed to mark as read:', data.message);
+              console.error('❌ [AsyncStorage] Failed to mark as read');
             }
-          })
-          .catch(error => {
-            console.error('❌ [PostcardBack] API call error:', error);
-            // ⭐ Reset flag on error to allow retry
+          } else {
+            // ⭐ User-created: Call DB API (requires actual user_key)
+            if (user?.user_key) {
+              const response = await updatePersonaCommentChecked(persona.persona_key, user.user_key);
+              success = response.success;
+              if (success) {
+                console.log('✅ [Database] Comment marked as read!');
+              } else {
+                console.error('❌ [Database] Failed to mark as read:', response.message);
+              }
+            } else {
+              console.error('❌ [Database] Cannot mark as read: no user_key');
+              success = false;
+            }
+          }
+          
+          // ⭐ Notify parent component
+          if (success && onMarkAsRead) {
+            onMarkAsRead(persona.persona_key);
+          }
+          
+          // ⭐ Reset flag if failed
+          if (!success) {
             hasMarkedAsRead.current = false;
-          });
+          }
+        } else {
+          console.log('ℹ️ [PostcardBack] Comment already read, skipping...');
+        }
       }
-    }
-    
-    // ⭐ Reset flag when PostcardBack is closed
-    if (!isVisible) {
-      hasMarkedAsRead.current = false;
-    }
+      
+      // ⭐ Reset flag when PostcardBack is closed
+      if (!isVisible) {
+        hasMarkedAsRead.current = false;
+      }
+    };
+
+    // ⭐ Execute async function
+    markCommentAsRead();
   }, [isVisible, persona?.persona_key, persona?.selected_dress_persona_comment, persona?.persona_comment_checked, user?.user_key, onMarkAsRead]);
   
   // ⭐ Sequential fade-in animation - triggered when isVisible becomes true

@@ -67,6 +67,7 @@ export const PERSONA_ENDPOINTS = {
   CREATE_MEMORY: '/api/persona/create-memory',
   CREATE_FOOD_MEMORY: '/api/persona/create-food-memory',
   RELATIONSHIP_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/persona/relationship-status',
+  UPDATE_COMMENT_CHECKED: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/mark-comment-read',
 };
 
 /**

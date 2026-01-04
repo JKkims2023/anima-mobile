@@ -31,6 +31,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../styles/commonstyles';
+import { isAnimaCorePersona } from '../../constants/persona';
+import { isPersonaCommentRead } from '../../utils/storage';
+import { useUser } from '../../contexts/UserContext'; // ⭐ FIXED: Use UserContext for user_key
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const AnimatedIcon = Animated.createAnimatedComponent(Icon);
@@ -49,7 +52,9 @@ const QuickActionChipsAnimated = ({
   console.log('currentPersona: ', currentPersona);
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { user } = useUser(); // ⭐ FIXED: Get user from UserContext (not AnimaContext!)
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showHistoryBadge, setShowHistoryBadge] = useState(false); // ⭐ NEW: Badge visibility state
 
   const actions = [
     { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick },
@@ -190,33 +195,86 @@ const QuickActionChipsAnimated = ({
     console.log('currentPersona: ', currentPersona);
   }, [currentPersona]);
   
-  // ⭐ NEW: Check if history badge should be shown
-  const showHistoryBadge = useMemo(() => {
-    if (!currentPersona) return false;
-    
-    // ⭐ 3 conditions must be met:
-    // 1. selected_dress_persona_comment is not null
-    // 2. selected_dress_persona_comment is not empty string
-    // 3. persona_comment_checked is 'N' (not yet read)
-    const hasComment = 
-      currentPersona.selected_dress_persona_comment !== null &&
-      currentPersona.selected_dress_persona_comment !== '' &&
-      currentPersona.selected_dress_persona_comment.trim() !== '';
-    
-    const isUnread = currentPersona.persona_comment_checked === 'N';
-    
-    const shouldShow = hasComment && isUnread;
-    
-    if (__DEV__ && shouldShow) {
-      console.log('🔴 [QuickActionChipsAnimated] History badge ACTIVE!');
-      console.log('   persona_key:', currentPersona.persona_key);
-      console.log('   persona_name:', currentPersona.persona_name);
-      console.log('   has_comment:', hasComment);
-      console.log('   is_unread:', isUnread);
-    }
-    
-    return shouldShow;
-  }, [currentPersona]);
+  // ⭐ NEW: Check if history badge should be shown (async check for ANIMA Core personas)
+  useEffect(() => {
+    const checkBadgeVisibility = async () => {
+      // ⭐ DEBUG: Check user availability
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[QuickActionChipsAnimated] useEffect triggered');
+      console.log('  currentPersona:', currentPersona?.persona_key, currentPersona?.persona_name);
+      console.log('  user:', user);
+      console.log('  user?.user_key:', user?.user_key);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      if (!currentPersona) {
+        console.log('⚠️ [QuickActionChipsAnimated] No currentPersona, hiding badge');
+        setShowHistoryBadge(false);
+        return;
+      }
+
+      // ⭐ CRITICAL: Use 'guest' as fallback for non-logged-in users
+      // ANIMA_CORE personas (SAGE/NEXUS) are for ALL users, including free users!
+      const effectiveUserKey = user?.user_key || 'guest';
+      console.log('  effectiveUserKey:', effectiveUserKey);
+
+      console.log('✅ [QuickActionChipsAnimated] Checking badge visibility...');
+      console.log('  persona_key:', currentPersona.persona_key);
+      console.log('  persona_name:', currentPersona.persona_name);
+      
+      // ⭐ Check if comment exists
+      const hasComment = 
+        currentPersona.selected_dress_persona_comment !== null &&
+        currentPersona.selected_dress_persona_comment !== '' &&
+        currentPersona.selected_dress_persona_comment.trim() !== '';
+      
+      if (!hasComment) {
+        console.log('  ℹ️ No comment, hiding badge');
+        setShowHistoryBadge(false);
+        return;
+      }
+      
+      // ⭐ Check if ANIMA Core persona (SAGE/NEXUS)
+      const isAnimaCore = isAnimaCorePersona(currentPersona.persona_key);
+      console.log('  is_anima_core:', isAnimaCore);
+      
+      let isUnread = false;
+      
+      if (isAnimaCore) {
+        // ⭐ ANIMA Core: Check AsyncStorage ONLY
+        // Note: DB's persona_comment_checked is ALWAYS 'N' for ANIMA Core
+        // because we don't call the DB API (only save to AsyncStorage)
+        // So we only need to check if user has read it locally!
+        
+        const alreadyReadLocally = await isPersonaCommentRead(effectiveUserKey, currentPersona.persona_key);
+        console.log('  📦 [AsyncStorage] Already read locally:', alreadyReadLocally);
+        
+        // ⭐ Not read locally = show badge!
+        isUnread = !alreadyReadLocally;
+        console.log('  ✅ Final isUnread:', isUnread);
+      } else {
+        // ⭐ User-created: Check DB field only
+        // For user-created personas, we need actual user_key from DB
+        if (!user?.user_key) {
+          console.log('  ⚠️ User-created persona but no user_key, hiding badge');
+          isUnread = false;
+        } else {
+          isUnread = currentPersona.persona_comment_checked === 'N';
+          console.log('  🗄️ [Database] persona_comment_checked:', currentPersona.persona_comment_checked);
+        }
+      }
+      
+      const shouldShow = hasComment && isUnread;
+      console.log('  🔴 shouldShow:', shouldShow);
+      
+      if (__DEV__ && shouldShow) {
+        console.log('🔴 [QuickActionChipsAnimated] History badge ACTIVE!');
+      }
+      
+      setShowHistoryBadge(shouldShow);
+    };
+
+    checkBadgeVisibility();
+  }, [currentPersona, user?.user_key]);
   
   const handlePress = (action) => {
     HapticService.medium();

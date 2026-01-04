@@ -25,6 +25,7 @@ export const STORAGE_KEYS = {
   LANGUAGE: '@anima_language',
   THEME: '@anima_theme',
   FIRST_LAUNCH: '@anima_first_launch',
+  PERSONA_COMMENT_READ_PREFIX: '@anima_persona_comment_read_', // ⭐ NEW: For SAGE/NEXUS (1:N personas)
 };
 
 /**
@@ -161,6 +162,69 @@ export const setUserKey = async (userKey) => {
   return await setItem(STORAGE_KEYS.USER_KEY, userKey);
 };
 
+/**
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * ⭐ Persona Comment Read Status (for SAGE/NEXUS - 1:N personas)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 
+ * SAGE and NEXUS are shared personas (1:N relationship).
+ * We cannot use DB's persona_comment_checked for them.
+ * Instead, we store read status in AsyncStorage per user.
+ */
+
+/**
+ * Mark persona comment as read in AsyncStorage
+ * @param {string} userKey - User key
+ * @param {string} personaKey - Persona key (SAGE/NEXUS)
+ * @returns {Promise<boolean>} - Success status
+ */
+export const setPersonaCommentRead = async (userKey, personaKey) => {
+  try {
+    const key = `${STORAGE_KEYS.PERSONA_COMMENT_READ_PREFIX}${userKey}_${personaKey}`;
+    await AsyncStorage.setItem(key, 'Y');
+    console.log(`✅ [Storage] Persona comment marked as read: ${personaKey}`);
+    return true;
+  } catch (error) {
+    console.error(`[Storage] Error setting persona comment read:`, error);
+    return false;
+  }
+};
+
+/**
+ * Check if persona comment has been read
+ * @param {string} userKey - User key
+ * @param {string} personaKey - Persona key (SAGE/NEXUS)
+ * @returns {Promise<boolean>} - True if read, false if unread
+ */
+export const isPersonaCommentRead = async (userKey, personaKey) => {
+  try {
+    const key = `${STORAGE_KEYS.PERSONA_COMMENT_READ_PREFIX}${userKey}_${personaKey}`;
+    const value = await AsyncStorage.getItem(key);
+    return value === 'Y';
+  } catch (error) {
+    console.error(`[Storage] Error checking persona comment read:`, error);
+    return false; // Default to unread on error
+  }
+};
+
+/**
+ * Remove persona comment read status (for testing/reset)
+ * @param {string} userKey - User key
+ * @param {string} personaKey - Persona key (SAGE/NEXUS)
+ * @returns {Promise<boolean>} - Success status
+ */
+export const removePersonaCommentRead = async (userKey, personaKey) => {
+  try {
+    const key = `${STORAGE_KEYS.PERSONA_COMMENT_READ_PREFIX}${userKey}_${personaKey}`;
+    await AsyncStorage.removeItem(key);
+    console.log(`🗑️ [Storage] Persona comment read status removed: ${personaKey}`);
+    return true;
+  } catch (error) {
+    console.error(`[Storage] Error removing persona comment read:`, error);
+    return false;
+  }
+};
+
 export default {
   getItem,
   getJsonItem,
@@ -173,6 +237,9 @@ export default {
   removeAuthToken,
   getUserKey,
   setUserKey,
+  setPersonaCommentRead,
+  isPersonaCommentRead,
+  removePersonaCommentRead,
   STORAGE_KEYS,
 };
 

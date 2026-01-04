@@ -469,6 +469,30 @@ export const updatePersonaDress = async (personaKey, dressData) => {
   }
 };
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * 📖 Update Persona Comment Checked
+ * ═══════════════════════════════════════════════════════════════════════
+ * @param {string} personaKey - Persona key
+ * @param {string} userKey - User key
+ * @returns {Promise<object>} { success: boolean }
+ */
+export const updatePersonaCommentChecked = async (personaKey, userKey) => {
+
+  console.log('Update Persona Comment Checked', {
+    personaKey,
+    userKey,
+  });
+
+  const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_COMMENT_CHECKED, {
+    persona_key: personaKey,
+    user_key: userKey,
+  });
+
+  console.log('Update Persona Comment Checked response', response.data);
+  return response.data || {};
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -481,5 +505,6 @@ export default {
   deletePersona,
   togglePersonaFavorite,
   updatePersonaDress,
+  updatePersonaCommentChecked,
 };
 
