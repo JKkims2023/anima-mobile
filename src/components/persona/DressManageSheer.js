@@ -56,6 +56,7 @@ const DressManageSheer = ({
   onClose,
   onCreateStart, // (data) => { file, name, gender }
   onDressUpdated, // ⭐ (dressData) => { selected_dress_image_url, selected_dress_video_url, history_key }
+  onDressStateUpdate, // ⭐ NEW: (personaKey, { count, hasCreating }) => void - Badge 업데이트용
 }) => {
 
   const flatListRef = useRef(null);
@@ -135,15 +136,45 @@ const DressManageSheer = ({
       if(response && response.success && response.data) {
         console.log('[DressManageSheet] ✅ Setting dress list, count:', response.data.length);
         setDressList(response.data);
+        
+        // ⭐ NEW: Notify parent of dress state (for badge)
+        if (onDressStateUpdate) {
+          const hasCreating = response.data.some(dress => dress.done_yn === 'N');
+          console.log('[DressManageSheet] 📢 Notifying parent:', {
+            personaKey,
+            count: response.data.length,
+            hasCreating
+          });
+          onDressStateUpdate(personaKey, {
+            count: response.data.length,
+            hasCreating: hasCreating
+          });
+        }
       } else {
         console.log('[DressManageSheet] ⚠️ No dress data, clearing list');
         setDressList([]);
+        
+        // ⭐ Notify parent of empty state
+        if (onDressStateUpdate) {
+          onDressStateUpdate(personaKey, {
+            count: 0,
+            hasCreating: false
+          });
+        }
       }
     } catch (error) {
       console.error('[DressManageSheet] ❌ Error loading dress list:', error);
       setDressList([]);
+      
+      // ⭐ Notify parent of error state
+      if (onDressStateUpdate) {
+        onDressStateUpdate(personaKey, {
+          count: 0,
+          hasCreating: false
+        });
+      }
     }
-  }, [personaKey]);
+  }, [personaKey, onDressStateUpdate]);
 
 
   const handleDescriptionClick = useCallback(() => {

@@ -26,6 +26,7 @@ import Animated, {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../CustomText';
 import NotificationBadge from '../NotificationBadge'; // ⭐ NEW: Badge for history chip
+import DressCountBadge from '../DressCountBadge'; // ⭐ NEW: Dress count badge with rotation
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
@@ -48,6 +49,7 @@ const QuickActionChipsAnimated = ({
   onShareClick,      // ⭐ 7. Share
   isVideoConverting = false, // ⭐ NEW: Video converting state
   currentPersona = null,
+  currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
   console.log('currentPersona: ', currentPersona);
   const insets = useSafeAreaInsets();
@@ -337,6 +339,14 @@ const QuickActionChipsAnimated = ({
               {/* ⭐ NEW: Notification Badge for History Chip */}
               {isHistoryChip && showHistoryBadge && (
                 <NotificationBadge visible={true} />
+              )}
+              
+              {/* ⭐ NEW: Dress Count Badge (with rotation for creating state) */}
+              {action.id === 'dress' && (
+                <DressCountBadge 
+                  count={currentDressState.count} 
+                  isRotating={currentDressState.hasCreating} 
+                />
               )}
             </TouchableOpacity>
           </View>

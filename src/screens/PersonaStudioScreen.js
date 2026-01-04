@@ -151,6 +151,8 @@ const PersonaStudioScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState(false); // ⭐ NEW: Pull-to-refresh state
   const [isDressManagementOpen, setIsDressManagementOpen] = useState(false);
   const [dressManagementData, setDressManagementData] = useState(null);
+  // ⭐ NEW: Persona dress states (for badge count & rotation)
+  const [personaDressStates, setPersonaDressStates] = useState({});
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -338,6 +340,21 @@ const PersonaStudioScreen = () => {
     
     return isConverting;
   }, [currentPersona]);
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Current persona dress state (for badge count & rotation)
+  // ═══════════════════════════════════════════════════════════════════════
+  const currentDressState = useMemo(() => {
+    if (!currentPersona) return { count: 0, hasCreating: false };
+    
+    const state = personaDressStates[currentPersona.persona_key];
+    
+    // 상태가 있으면 사용, 없으면 폴백 (currentPersona.dress_count)
+    return {
+      count: state?.count ?? currentPersona?.dress_count ?? 0,
+      hasCreating: state?.hasCreating ?? false
+    };
+  }, [personaDressStates, currentPersona?.persona_key, currentPersona?.dress_count]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
@@ -710,8 +727,16 @@ const PersonaStudioScreen = () => {
     setIsCreatingPersona(true);
 //    setIsCreatingDress(true);
 
-
-console.log('currentPersona: ', currentPersona);
+    console.log('currentPersona: ', currentPersona);
+    
+    // ⭐ NEW: Update dress state (생성 시작 → count +1, hasCreating = true)
+    if (currentPersona?.persona_key) {
+      const currentCount = personaDressStates[currentPersona.persona_key]?.count ?? currentPersona.dress_count ?? 0;
+      handleDressStateUpdate(currentPersona.persona_key, {
+        count: currentCount + 1,
+        hasCreating: true // ⭐ 회전 시작!
+      });
+    }
     
     try {
       // Call API to create persona
@@ -812,6 +837,34 @@ console.log('currentPersona: ', currentPersona);
   const handlePersonaDressClose = useCallback(() => {
     HapticService.light();
     setIsDressManagementOpen(false);
+  }, []);
+  
+  // ⭐ NEW: Handle dress state update (from DressManageSheer)
+  const handleDressStateUpdate = useCallback((personaKey, dressState) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 👗 Dress state update:', {
+        personaKey,
+        count: dressState.count,
+        hasCreating: dressState.hasCreating
+      });
+    }
+    
+    setPersonaDressStates(prev => {
+      // ⚡ OPTIMIZATION: 값이 같으면 업데이트 안 함 (리렌더링 방지!)
+      if (prev[personaKey]?.count === dressState.count && 
+          prev[personaKey]?.hasCreating === dressState.hasCreating) {
+        return prev; // ⭐ 동일한 객체 반환 = 리렌더링 없음!
+      }
+      
+      return {
+        ...prev,
+        [personaKey]: {
+          count: dressState.count,
+          hasCreating: dressState.hasCreating,
+          lastUpdated: Date.now()
+        }
+      };
+    });
   }, []);
   
   // ⭐ Handle dress updated (로컬 상태 즉시 갱신)
@@ -1571,6 +1624,7 @@ console.log('currentPersona: ', currentPersona);
               onShareClick={handleShareClick}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
               currentPersona={currentPersona}
+              currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
             />
           </View>
         )}
@@ -1618,6 +1672,7 @@ console.log('currentPersona: ', currentPersona);
             onClose={handlePersonaDressClose}
             onCreateStart={handlePersonaDressStartWithPermission}
             onDressUpdated={handleDressUpdated} // ⭐ 드레스 변경 시 로컬 상태 갱신
+            onDressStateUpdate={handleDressStateUpdate} // ⭐ NEW: 드레스 상태 업데이트 (badge용)
             personaKey={currentPersona?.persona_key}
             currentPersona={currentPersona} // ⭐ 현재 페르소나 전체 정보
           />
