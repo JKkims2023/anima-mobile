@@ -56,7 +56,6 @@ import { scale, moderateScale, verticalScale, platformPadding } from '../../util
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
-import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: Alert function
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
 import uuid from 'react-native-uuid';
@@ -141,7 +140,6 @@ const ManagerAIOverlay = ({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user } = useUser(); // ✅ Get user info from context
-  const { showAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
   
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
@@ -189,7 +187,6 @@ const ManagerAIOverlay = ({
   
   // 💰 NEW: Daily Chat Limit state (Tier System)
   const [serviceConfig, setServiceConfig] = useState(null); // Service config from /api/service
-  const [loadingServiceConfig, setLoadingServiceConfig] = useState(true); // ⭐ NEW: Loading state for service config
   const [showLimitSheet, setShowLimitSheet] = useState(false); // Limit reached sheet
   const [limitReachedData, setLimitReachedData] = useState(null); // Data for limit sheet
     
@@ -235,11 +232,8 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     const loadServiceConfig = async () => {
       if (!visible || !user?.user_key) {
-        setLoadingServiceConfig(false); // ⭐ Not loading (overlay closed or no user)
-        return;
+        return; // Don't load if overlay is closed or user not loaded
       }
-      
-      setLoadingServiceConfig(true); // ⭐ Start loading
       
       try {
         console.log('💰 [Service Config] Loading tier information...');
@@ -250,30 +244,10 @@ const ManagerAIOverlay = ({
           setServiceConfig(response.data.data);
           console.log(`✅ [Service Config] Loaded: ${response.data.data.userTier} (${response.data.data.dailyChatRemaining}/${response.data.data.dailyChatLimit} chats remaining)`);
         } else {
-          console.warn('⚠️  [Service Config] API failed, applying Free tier fallback');
-          // ⭐ Fallback: Free tier (API responded but failed)
-          setServiceConfig({
-            userTier: 'free',
-            dailyChatLimit: 20,
-            dailyChatRemaining: 20, // ⚠️ Give benefit of doubt (API error, not user's fault)
-            dailyChatCount: 0,
-            isOnboarding: false,
-            onboardingDaysRemaining: 0
-          });
+          console.warn('⚠️  [Service Config] Failed to load config:', response.error);
         }
       } catch (error) {
-        console.error('❌ [Service Config] Network error, applying Free tier fallback:', error);
-        // ⭐ Fallback: Free tier (Network error, server down, etc.)
-        setServiceConfig({
-          userTier: 'free',
-          dailyChatLimit: 20,
-          dailyChatRemaining: 20, // ⚠️ Give benefit of doubt (error, not user's fault)
-          dailyChatCount: 0,
-          isOnboarding: false,
-          onboardingDaysRemaining: 0
-        });
-      } finally {
-        setLoadingServiceConfig(false); // ⭐ Loading complete (success or fallback)
+        console.error('❌ [Service Config] Error:', error);
       }
     };
     
@@ -735,21 +709,6 @@ const ManagerAIOverlay = ({
   
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
-    // ⭐ STEP 0: Check if service config is still loading (Race Condition Fix!)
-    if (loadingServiceConfig) {
-      console.warn('⏳ [Chat] Service config still loading, please wait...');
-      showAlert({
-        title: '잠시만 기다려주세요',
-        message: '채팅 환경을 준비하고 있습니다.\n곧 준비될 거예요! ⏳',
-        emoji: '⏳',
-        buttons: [
-          { text: '확인', style: 'primary' }
-        ]
-      });
-      HapticService.trigger('warning');
-      return;
-    }
-    
     HapticService.medium();
     
     // 🆕 Create Data URI from base64 (avoid temporary file path issues)
@@ -800,21 +759,10 @@ const ManagerAIOverlay = ({
       }
       
       // 💰 CRITICAL: Check daily chat limit BEFORE sending to server!
-      if (user?.user_level !== 'ultimate') {
-        // ⭐ NEW: Use fallback if serviceConfig is null (should never happen after Step 6, but safety!)
-        const config = serviceConfig || {
-          userTier: 'free',
-          dailyChatLimit: 20,
-          dailyChatRemaining: 0, // ⚠️ 0 = Block! (Most strict safety measure)
-          dailyChatCount: 20,
-          isOnboarding: false,
-          onboardingDaysRemaining: 0,
-          dailyChatResetAt: new Date().toISOString()
-        };
-        
-        const remaining = config.dailyChatRemaining || 0;
-        const limit = config.dailyChatLimit || 20;
-        const currentCount = config.dailyChatCount || 0;
+      if (serviceConfig && user?.user_level !== 'ultimate') {
+        const remaining = serviceConfig.dailyChatRemaining || 0;
+        const limit = serviceConfig.dailyChatLimit || 20;
+        const currentCount = serviceConfig.dailyChatCount || 0;
         
         console.log(`💰 [Chat Limit] Pre-send check: ${remaining} remaining (${currentCount}/${limit})`);
         
@@ -828,11 +776,11 @@ const ManagerAIOverlay = ({
           
           // Show limit sheet
           setLimitReachedData({
-            tier: config.userTier || user.user_level || 'free',
+            tier: user.user_level || 'free',
             limit: limit,
-            resetTime: config.dailyChatResetAt || new Date().toISOString(),
-            isOnboarding: config.isOnboarding || false,
-            onboardingDaysLeft: config.onboardingDaysRemaining || 0
+            resetTime: serviceConfig.dailyChatResetAt,
+            isOnboarding: serviceConfig.isOnboarding || false,
+            onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
           });
           setShowLimitSheet(true);
           
@@ -1307,7 +1255,7 @@ const ManagerAIOverlay = ({
               <ChatInputBar
                 onSend={handleSend}
                 onImageSelect={handleImageSelect} // 🆕 Image selection callback
-                disabled={loadingServiceConfig || isLoading || isTyping || isAIContinuing} // ⭐ NEW: Disable when loading config or AI is continuing
+                disabled={isLoading || isTyping || isAIContinuing} // ⭐ NEW: Also disable when AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
                 onAISettings={handleToggleSettings} // 🆕 Toggle settings menu
                 onCreateMusic={handleCreateMusic} // 🆕 Create music callback
