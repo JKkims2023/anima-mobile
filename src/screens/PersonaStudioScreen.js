@@ -29,6 +29,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // ⭐ NEW: For create button
 import { useTranslation } from 'react-i18next';
+import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
 // ❌ REMOVED: Gesture, GestureDetector, runOnJS (horizontal swipe removed)
 import SafeScreen from '../components/SafeScreen';
 import { useTheme } from '../contexts/ThemeContext';
@@ -1534,12 +1535,33 @@ const PersonaStudioScreen = () => {
         {/* Title Row */}
         <View style={styles.headerTitleRow}>
           <View style={styles.headerContent}>
-            <CustomText type="big" bold style={styles.headerTitle}>
-              {t('navigation.title.home')}
-            </CustomText>
-            <CustomText type="middle" style={styles.headerSubtitle}>
-              {t('navigation.subtitle.home')}
-            </CustomText>
+            {/* ⭐ One-line Gradient Title: ANIMA + Soul Connection */}
+            <View style={styles.titleRow}>
+              {/* ANIMA - Gradient Text (SVG) */}
+              <Svg height={scale(30)} width={scale(105)}>
+                <Defs>
+                  <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
+                    <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+                  </LinearGradient>
+                </Defs>
+                <SvgText
+                  fill="url(#animaGradient)"
+                  fontSize={scale(26)}
+                  fontWeight="bold"
+                  x="0"
+                  y={scale(22)}
+                  letterSpacing="0.5"
+                >
+                  ANIMA
+                </SvgText>
+              </Svg>
+              
+              {/* Soul Connection - Subtitle */}
+              <CustomText style={styles.soulConnection}>
+                Soul Connection
+              </CustomText>
+            </View>
           </View>
           
           {/* Help Icon */}
@@ -1918,13 +1940,19 @@ const styles = StyleSheet.create({
   headerContent: {
     flex: 1,
   },
-  headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: scale(4),
+  // ⭐ NEW: Gradient Title Row (ANIMA + Soul Connection)
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: scale(8),
   },
-  headerSubtitle: {
-    color: COLORS.TEXT_PRIMARY,
-    display: 'none',
+  // ⭐ NEW: Soul Connection Subtitle
+  soulConnection: {
+    fontSize: scale(10),
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '500',
+    marginBottom: scale(1), // baseline alignment fine-tuning
+    letterSpacing: 0.3,
   },
   helpButton: {
     marginLeft: platformPadding(12),

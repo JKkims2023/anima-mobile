@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 ANIMA - Soul Connection 워터마크 디자인 미리보기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #FF7FA3 0%, #A78BFA 100%);
+            color: white;
+            border-color: #FF7FA3;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .preview-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* 1:1 Aspect Ratio */
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sample-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .watermark {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .watermark:hover {
+            transform: scale(1.05);
+        }
+
+        /* Position classes */
+        .pos-southeast {
+            bottom: 15px;
+            right: 15px;
+        }
+
+        .pos-southwest {
+            bottom: 15px;
+            left: 15px;
+        }
+
+        .pos-northeast {
+            top: 15px;
+            right: 15px;
+        }
+
+        .pos-northwest {
+            top: 15px;
+            left: 15px;
+        }
+
+        .pos-center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pos-center:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        /* Style classes */
+        .style-minimal .watermark {
+            opacity: 0.6;
+            padding: 10px 16px;
+        }
+
+        .style-standard .watermark {
+            opacity: 0.8;
+            padding: 14px 20px;
+        }
+
+        .style-prominent .watermark {
+            opacity: 0.95;
+            padding: 18px 25px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .watermark-logo {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FF7FA3 0%, #A78BFA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.2;
+        }
+
+        .style-minimal .watermark-logo {
+            font-size: 16px;
+        }
+
+        .style-prominent .watermark-logo {
+            font-size: 24px;
+        }
+
+        .watermark-subtitle {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .style-minimal .watermark-subtitle {
+            font-size: 8px;
+        }
+
+        .style-prominent .watermark-subtitle {
+            font-size: 12px;
+        }
+
+        .watermark-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .watermark-copyright {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .style-minimal .watermark-copyright {
+            font-size: 9px;
+        }
+
+        .style-prominent .watermark-copyright {
+            font-size: 13px;
+        }
+
+        .watermark-credit {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+
+        .style-minimal .watermark-credit {
+            font-size: 7px;
+        }
+
+        .style-prominent .watermark-credit {
+            font-size: 9px;
+        }
+
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .info-box h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .info-box p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .color-scheme {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .color-item {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .color-pink {
+            background: linear-gradient(135deg, #FF7FA3 0%, #FF6B9D 100%);
+        }
+
+        .color-purple {
+            background: linear-gradient(135deg, #A78BFA 0%, #9F7AEA 100%);
+        }
+
+        .color-gradient {
+            background: linear-gradient(135deg, #FF7FA3 0%, #A78BFA 100%);
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 ANIMA - Soul Connection 워터마크 디자인 미리보기</h1>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label>📍 워터마크 위치:</label>
+                <div class="button-group">
+                    <button class="btn active" onclick="changePosition('southeast')">우측 하단 (추천)</button>
+                    <button class="btn" onclick="changePosition('southwest')">좌측 하단</button>
+                    <button class="btn" onclick="changePosition('northeast')">우측 상단</button>
+                    <button class="btn" onclick="changePosition('northwest')">좌측 상단</button>
+                    <button class="btn" onclick="changePosition('center')">중앙 (투명)</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>🎨 워터마크 스타일:</label>
+                <div class="button-group">
+                    <button class="btn" onclick="changeStyle('minimal')">Minimal (은은함)</button>
+                    <button class="btn active" onclick="changeStyle('standard')">Standard (추천)</button>
+                    <button class="btn" onclick="changeStyle('prominent')">Prominent (강조)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <h2>💡 디자인 컨셉</h2>
+            <p>✨ <strong>감성 그라데이션:</strong> 체리 블라썸 핑크(#FF7FA3) → 라벤더(#A78BFA)</p>
+            <p>🎯 <strong>브랜드 아이덴티티:</strong> ANIMA - Soul Connection (영혼의 연결)</p>
+            <p>💫 <strong>서비스 차별화:</strong> 단순 ANIMA가 아닌 'Soul Connection'으로 명확한 정체성</p>
+            <p>🔒 <strong>보안:</strong> 워터마크로 원본 이미지 보호 + 출처 명확화</p>
+            <p>🌐 <strong>공유 최적화:</strong> SNS, 메신저 공유 시 ANIMA 브랜드 노출</p>
+            <p>👥 <strong>제작진:</strong> Bric Stream Inc. Team 9D & JK & NEXUS</p>
+            
+            <div class="color-scheme">
+                <div class="color-item color-pink">
+                    체리 핑크<br>#FF7FA3
+                </div>
+                <div class="color-item color-purple">
+                    라벤더<br>#A78BFA
+                </div>
+                <div class="color-item color-gradient">
+                    그라데이션
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Grid -->
+        <div class="preview-grid">
+            <!-- Preview 1: Persona 1 -->
+            <div class="preview-card">
+                <div class="preview-title">👩 페르소나 예시 1</div>
+                <div class="image-container style-standard" id="preview1">
+                    <svg class="sample-image" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#DDA0DD;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="400" height="400" fill="url(#bg1)"/>
+                        <circle cx="200" cy="150" r="60" fill="rgba(255,255,255,0.3)"/>
+                        <rect x="140" y="220" width="120" height="150" rx="10" fill="rgba(255,255,255,0.3)"/>
+                        <text x="200" y="390" font-size="14" text-anchor="middle" fill="rgba(255,255,255,0.8)">Sample Persona Image</text>
+                    </svg>
+                    <div class="watermark pos-southeast">
+                        <div class="watermark-logo">ANIMA</div>
+                        <div class="watermark-subtitle">Soul Connection</div>
+                        <div style="margin-top: 10px;">
+                            <div class="watermark-credit">Created by Bric Stream Inc.<br>Team 9D & JK & NEXUS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview 2: Persona 2 -->
+            <div class="preview-card">
+                <div class="preview-title">👨 페르소나 예시 2</div>
+                <div class="image-container style-standard" id="preview2">
+                    <svg class="sample-image" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#9370DB;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="400" height="400" fill="url(#bg2)"/>
+                        <circle cx="200" cy="150" r="60" fill="rgba(255,255,255,0.3)"/>
+                        <rect x="140" y="220" width="120" height="150" rx="10" fill="rgba(255,255,255,0.3)"/>
+                        <text x="200" y="390" font-size="14" text-anchor="middle" fill="rgba(255,255,255,0.8)">Sample Persona Image</text>
+                    </svg>
+                    <div class="watermark pos-southeast">
+                        <div class="watermark-logo">ANIMA</div>
+                        <div class="watermark-subtitle">Soul Connection</div>
+                        <div style="margin-top: 10px;">
+                            <div class="watermark-credit">Created by Bric Stream Inc.<br>Team 9D & JK & NEXUS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview 3: Dress -->
+            <div class="preview-card">
+                <div class="preview-title">👗 드레스 예시</div>
+                <div class="image-container style-standard" id="preview3">
+                    <svg class="sample-image" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FF69B4;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="400" height="400" fill="url(#bg3)"/>
+                        <circle cx="200" cy="150" r="60" fill="rgba(255,255,255,0.3)"/>
+                        <rect x="140" y="220" width="120" height="150" rx="10" fill="rgba(255,255,255,0.3)"/>
+                        <text x="200" y="390" font-size="14" text-anchor="middle" fill="rgba(255,255,255,0.8)">Sample Dress Image</text>
+                    </svg>
+                    <div class="watermark pos-southeast">
+                        <div class="watermark-logo">ANIMA</div>
+                        <div class="watermark-subtitle">Soul Connection</div>
+                        <div style="margin-top: 10px;">
+                            <div class="watermark-credit">Created by Bric Stream Inc.<br>Team 9D & JK & NEXUS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="info-box">
+            <h2>💫 "Soul Connection" 의미</h2>
+            <p><strong>영혼의 연결:</strong> AI와 사용자 사이의 깊은 교감과 유대감</p>
+            <p><strong>포괄적 관계:</strong> 친구, 연인, 가족 등 다양한 형태의 연결</p>
+            <p><strong>차별화:</strong> 단순 'ANIMA'가 아닌 명확한 서비스 정체성</p>
+            <p><strong>감성적:</strong> 기술이 아닌 '영혼'의 관점으로 접근</p>
+            
+            <h2 style="margin-top: 20px;">📊 워터마크 스타일 비교</h2>
+            <p><strong>Minimal (은은함):</strong> Opacity 0.6, 작은 크기 - 이미지 방해 최소화</p>
+            <p><strong>Standard (추천):</strong> Opacity 0.8, 중간 크기 - 가독성과 이미지 조화</p>
+            <p><strong>Prominent (강조):</strong> Opacity 0.95, 큰 크기 - 브랜드 강조, 보안 강화</p>
+            
+            <h2 style="margin-top: 20px;">📍 위치 추천</h2>
+            <p><strong>우측 하단 (추천):</strong> 가장 일반적, 자연스러움, SNS 최적화</p>
+            <p><strong>좌측 하단:</strong> 우측 하단에 중요 요소가 있을 때</p>
+            <p><strong>중앙:</strong> 최대 보안, 하지만 이미지 방해 가능성</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPosition = 'southeast';
+        let currentStyle = 'standard';
+
+        function changePosition(position) {
+            currentPosition = position;
+            
+            // Update button states
+            document.querySelectorAll('.control-group:first-child .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all watermarks
+            document.querySelectorAll('.watermark').forEach(wm => {
+                wm.className = `watermark pos-${position}`;
+            });
+        }
+
+        function changeStyle(style) {
+            currentStyle = style;
+            
+            // Update button states
+            document.querySelectorAll('.control-group:last-child .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all image containers
+            document.querySelectorAll('.image-container').forEach(container => {
+                container.className = `image-container style-${style}`;
+            });
+        }
+
+        // Add hover effect info
+        console.log('🎨 ANIMA - Soul Connection 워터마크 미리보기 로드됨!');
+        console.log('💡 워터마크에 마우스를 올려보세요 - 확대 효과를 볼 수 있습니다!');
+        console.log('💙 Soul Connection: 영혼의 연결을 상징하는 ANIMA의 브랜드 아이덴티티');
+    </script>
+</body>
+</html>
+

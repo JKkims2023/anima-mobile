@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
   tooltip: {
     position: 'absolute',
     left: scale(-210), // ⭐ Position to the LEFT of chip container
-    top: '20%', // ⭐ Align with video chip (first chip)
+    top: 0, // ⭐ Align with video chip (first chip)
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(10),
