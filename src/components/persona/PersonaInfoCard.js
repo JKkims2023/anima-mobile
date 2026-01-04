@@ -92,42 +92,29 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
     return emotionEmojis[emotionalState] || '😐';
   };
   
-  // ⭐ NEW: Get floating emojis based on relationship level & emotional state
+  // ⭐ NEW: Get floating emojis based on EMOTIONAL STATE (Simple & Intuitive!)
   const getFloatingEmojis = (personaData) => {
-    const intimacy = personaData?.intimacy_level || 0;
     const emotionalState = personaData?.emotional_state || 'normal';
     
-    // ⭐ Strategy: Combine intimacy-based + emotion-based emojis
-    let floatingEmojis = [];
-    
-    // 1️⃣ Intimacy-based (Heart progression)
-    if (intimacy >= 80) {
-      floatingEmojis.push('❤️', '💖'); // Deep love
-    } else if (intimacy >= 60) {
-      floatingEmojis.push('💙', '💝'); // Strong affection
-    } else if (intimacy >= 40) {
-      floatingEmojis.push('💛', '💗'); // Growing warmth
-    } else if (intimacy >= 20) {
-      floatingEmojis.push('🤍', '💌'); // Early connection
-    } else {
-      floatingEmojis.push('💔', '🥀'); // Broken/distant
+    // ⭐ Strategy: Fixed emojis per emotion state (User can understand immediately!)
+    switch (emotionalState) {
+      case 'happy':
+        return ['❤️', '❤️', '❤️']; // Red hearts → "Persona likes me!"
+      
+      case 'angry':
+      case 'hurt':
+        return ['💔', '💔', '💔']; // Broken hearts → "I did something wrong..."
+      
+      case 'worried':
+        return ['😰', '😰', '😰']; // Worried face → "Persona is concerned"
+      
+      case 'tired':
+        return ['💤', '💤', '💤']; // Sleepy → "Persona is tired"
+      
+      case 'normal':
+      default:
+        return ['😐', '😐', '😐']; // Neutral/bored → "Normal state"
     }
-    
-    // 2️⃣ Emotion-based (Context emojis)
-    if (emotionalState === 'happy') {
-      floatingEmojis.push('✨', '🌟', '⭐');
-    } else if (emotionalState === 'tired') {
-      floatingEmojis.push('💤', '🌙', '☁️');
-    } else if (emotionalState === 'hurt' || emotionalState === 'worried') {
-      floatingEmojis.push('💧', '🌧️');
-    } else if (emotionalState === 'angry') {
-      floatingEmojis.push('🔥', '💢');
-    } else {
-      floatingEmojis.push('💫', '🌸'); // Normal/neutral
-    }
-    
-    // ⭐ Return unique emojis (limit to 3-4 for variety)
-    return [...new Set(floatingEmojis)].slice(0, 4);
   };
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
@@ -243,7 +230,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
         <Pressable
           style={[
             styles.paginationContainer,
-            { paddingTop: insets.top + verticalScale(10) } // ⭐ iOS Safe Area fix!
+            { paddingTop: Math.max(verticalScale(5), verticalScale(10) - insets.top) } // ⭐ iOS: Move UP by subtracting Safe Area!
           ]}
           onPress={handleSettingsPress}
           activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
