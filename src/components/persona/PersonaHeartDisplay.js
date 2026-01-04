@@ -95,11 +95,11 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
               <View key={index} style={styles.interestItem}>
                 <View style={[styles.interestDot, { backgroundColor: theme.mainColor }]} />
                 <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
-                  {interest.interest}
+                  {interest.topic}
                 </CustomText>
                 <View style={[styles.relevanceBadge, { backgroundColor: `${theme.mainColor}20` }]}>
                   <CustomText type="small" bold style={{ color: theme.mainColor }}>
-                    {Math.round(interest.relevance_score * 100)}%
+                    {Math.round(interest.interest_strength * 100)}%
                   </CustomText>
                 </View>
               </View>
