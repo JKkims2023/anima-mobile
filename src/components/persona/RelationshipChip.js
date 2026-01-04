@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   emotionEmoji: {
     // ⭐ NEW: Emotion chip emoji (1.5x larger!)
     fontSize: scale(32), // 20 * 1.6 = 32
-    lineHeight: scale(38),
+    lineHeight: scale(46),
     marginBottom: 0, // No label below, so no margin
   },
   label: {

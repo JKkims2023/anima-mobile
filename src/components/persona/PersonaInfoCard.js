@@ -113,7 +113,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       
       case 'normal':
       default:
-        return ['😐', '😐', '😐']; // Neutral/bored → "Normal state"
+        return ['💭', '💭', '💭']; // Thought bubble → "Thinking/pondering..." (메인 칩 😐와 다름!)
     }
   };
 
@@ -216,11 +216,12 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   return (
     <>
     <GradientOverlay
-//      colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
-      style={[
-        styles.container,
+      height={400} // ⭐ Increase height to fit pagination + content! (200 → 400)
+      style={styles.gradientStyle} // ⭐ LinearGradient styles (position, zIndex, etc.)
+      containerStyle={[
+        styles.gradientContainerStyle, // ⭐ Inner View styles (padding, etc.)
         {
-          paddingBottom: insets.bottom + verticalScale(30),
+          paddingBottom: insets.bottom + verticalScale(30), // Dynamic bottom padding
           overflow: 'visible', // ⭐ iOS: Allow floating effect to escape boundaries
         },
       ]}
@@ -230,7 +231,9 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
         <Pressable
           style={[
             styles.paginationContainer,
-            { paddingTop: Math.max(verticalScale(5), verticalScale(10) - insets.top) } // ⭐ iOS: Move UP by subtracting Safe Area!
+            { 
+              paddingTop: insets.top + verticalScale(10), // ⭐ iOS Safe Area (original, correct!)
+            }
           ]}
           onPress={handleSettingsPress}
           activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
@@ -396,23 +399,28 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
 });
 
 const styles = StyleSheet.create({
-  container: {
+  // ⭐ GradientOverlay - LinearGradient styles (outer)
+  gradientStyle: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    paddingTop: verticalScale(20), // ⭐ Reduced: Make room for pagination
-    paddingHorizontal: scale(20),
     zIndex: 100,
     marginBottom: verticalScale(20),
-
+  },
+  
+  // ⭐ GradientOverlay - Container styles (inner View)
+  gradientContainerStyle: {
+    paddingTop: verticalScale(20),
+    paddingHorizontal: scale(20),
   },
   
   // ⭐ Pagination Container (Clickable for scroll to top)
   paginationContainer: {
     width: '100%',
+    height: verticalScale(100), // ⭐ Increased to 100px for iOS Safe Area (44) + content (26) + spacing
     paddingHorizontal: scale(0),
-    paddingBottom: verticalScale(10), // ⚠️ Use paddingBottom (paddingTop set dynamically)
+    paddingBottom: verticalScale(10), // Bottom padding for spacing
     marginBottom: verticalScale(2),
     // ⭐ NO border, NO background - Pure integration with gradient
   },

@@ -10,8 +10,10 @@ import LinearGradient from 'react-native-linear-gradient';
  * @param {React.ReactNode} props.children - 오버레이 위에 표시될 컨텐츠 (예: 텍스트)
  * @param {number} [props.height=200] - 그라디언트의 높이
  * @param {string} [props.darkness='0.7'] - 그라디언트의 어두운 정도 (0.0 ~ 1.0)
+ * @param {object} [props.style] - LinearGradient 컴포넌트에 적용할 추가 스타일
+ * @param {object} [props.containerStyle] - 내부 View 컨테이너에 적용할 추가 스타일
  */
-const GradientOverlay = ({ children, height = 200, darkness = '0.7' }) => {
+const GradientOverlay = ({ children, height = 200, darkness = '0.7', style, containerStyle }) => {
   // 그라디언트 색상 배열: 위(투명) -> 아래(어두움)
   const gradientColors = [
     'transparent',
@@ -21,9 +23,9 @@ const GradientOverlay = ({ children, height = 200, darkness = '0.7' }) => {
   return (
     <LinearGradient
       colors={gradientColors}
-      style={[styles.gradient, { height: height }]}
+      style={[styles.gradient, { height: height }, style]} // ⭐ style prop 적용
     >
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, containerStyle]}>  {/* ⭐ containerStyle prop 적용 */}
         {children}
       </View>
     </LinearGradient>
@@ -40,10 +42,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', // 컨텐츠를 아래쪽으로 정렬
   },
   contentContainer: {
-    // 컨텐츠에 패딩을 주어 여백 확보
-    paddingHorizontal: 20,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 20, // iOS 하단 노치 영역 고려
-    paddingTop: 20,
+    // ⚠️ Default padding removed - controlled by containerStyle prop
+    // paddingHorizontal: 20,
+    // paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+    // paddingTop: 20,
   },
 });
 
