@@ -26,6 +26,7 @@ import { scale, verticalScale, platformPadding } from '../../utils/responsive-ut
 import HapticService from '../../utils/HapticService';
 import amountService from '../../services/api/amountService';
 import { useUser } from '../../contexts/UserContext';
+import PersonaHeartDisplay from './PersonaHeartDisplay'; // ⭐ NEW: Persona Heart UI
 
 const PersonaSettingsSheet = ({
   isOpen = false,
@@ -104,42 +105,6 @@ const PersonaSettingsSheet = ({
   };
 
   // ═══════════════════════════════════════════════════════════════════════
-  // RENDER: Setting Item
-  // ═══════════════════════════════════════════════════════════════════════
-
-  const renderSettingItem = ({ icon, title, subtitle, onPress, iconColor, disabled = false }) => (
-    <TouchableOpacity
-      style={[
-        styles.settingItem,
-        {
-          backgroundColor: theme.bgSecondary,
-          borderColor: theme.borderColor,
-          opacity: disabled ? 0.5 : 1,
-
-        },
-      ]}
-      onPress={disabled ? null : onPress}
-      activeOpacity={0.7}
-      disabled={disabled}
-    >
-      <View style={[styles.settingIconContainer, { backgroundColor: `${iconColor}20` , marginTop:icon === 'delete' ? 'auto' : 0 }]}>
-        <Icon name={icon} size={scale(20)} color={iconColor} />
-      </View>
-      <View style={styles.settingTextContainer}>
-        <CustomText type="title" bold style={{ color: theme.textPrimary }}>
-          {title}
-        </CustomText>
-        {subtitle && (
-          <CustomText type="small" style={{ color: theme.textSecondary, marginTop: verticalScale(2) }}>
-            {subtitle}
-          </CustomText>
-        )}
-      </View>
-      <Icon name="chevron-right" size={scale(20)} color={theme.textSecondary} />
-    </TouchableOpacity>
-  );
-
-  // ═══════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -170,28 +135,30 @@ const PersonaSettingsSheet = ({
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Persona Info */}
-        <View style={[styles.personaInfoCard, { backgroundColor: theme.bgSecondary, display: 'none' }]}>
-          <CustomText type="big" bold style={{ color: theme.textPrimary }}>
-            {persona?.persona_name || t('persona.settings.no_persona')}
+        {/* ⭐ NEW: Persona Name (Clickable for editing) */}
+        <TouchableOpacity 
+          style={[styles.nameSection, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}
+          onPress={handleNameChange}
+          activeOpacity={0.7}
+        >
+          <View style={styles.nameContent}>
+            <CustomText type="big" bold style={{ color: theme.textPrimary }}>
+              {persona?.persona_name || t('persona.settings.no_persona')}
+            </CustomText>
+            <Icon name="pencil" size={scale(18)} color={theme.textSecondary} />
+          </View>
+          <CustomText type="small" style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}>
+            {t('persona.settings.tap_to_edit_name', '이름을 클릭하여 수정하세요')}
           </CustomText>
-          <CustomText type="body" style={{ color: theme.textSecondary, marginTop: verticalScale(4) }}>
-            {t(`category_type.${persona?.category_type || 'normal'}`)}
-          </CustomText>
-        </View>
+        </TouchableOpacity>
 
-        {/* Settings List */}
-        <View style={styles.settingsGroup}>
-          {/* 이름 변경 */}
-          {renderSettingItem({
-            icon: 'pencil',
-            title: persona?.persona_name,
-            subtitle: null,
-            onPress: handleNameChange,
-            iconColor: theme.mainColor,
-          })}
-
-        </View>
+        {/* ⭐ NEW: Persona Heart (3-Layer UI) */}
+        <PersonaHeartDisplay 
+          persona={persona} 
+          relationshipData={{
+            how_ai_calls_user: persona?.how_ai_calls_user,
+          }}
+        />
       </ScrollView>
     </CustomBottomSheet>
   );
@@ -207,41 +174,18 @@ const styles = StyleSheet.create({
     paddingBottom: platformPadding(20),
   },
 
-  // ⭐ Persona Info Card
-  personaInfoCard: {
-    padding: platformPadding(16),
-    borderRadius: scale(12),
-    marginBottom: platformPadding(20),
-    alignItems: 'center',
-  },
-
-  // ⭐ Settings Group
-  settingsGroup: {
-    gap: platformPadding(12),
-
-
-  },
-
-  // ⭐ Setting Item
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  // ⭐ NEW: Name Section (Clickable)
+  nameSection: {
     padding: platformPadding(16),
     borderRadius: scale(12),
     borderWidth: 1,
+    marginBottom: platformPadding(16),
   },
-
-  settingIconContainer: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(24),
+  
+  nameContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: platformPadding(12),
-  },
-
-  settingTextContainer: {
-    flex: 1,
+    justifyContent: 'space-between',
   },
 });
 

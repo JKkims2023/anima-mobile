@@ -231,7 +231,7 @@ const QuickActionChipsAnimated = ({
               activeOpacity={0.7}
             >
               <Icon name={action.icon} size={scale(24)} color=
-              {action.id === 'history' ? 'yellow' : '#FFFFFF'} />
+              {action.id === 'history' ? 'yellow' : action.id === 'dress' ? 'blue' : 'red'} />
               <Text style={[styles.label,{display:'none', color: action.id === 'history' ? 'yellow' : '#FFFFFF'}]}>{action.label}</Text>
             </TouchableOpacity>
           </View>
