@@ -1945,7 +1945,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center', // ✅ 수직 중앙 정렬
     gap: scale(6), // ✅ 간격 줄임
-    marginLeft: scale(-20), // ✅ 좌측으로 20px 이동
+    marginLeft: scale(0), // ✅ 좌측으로 20px 이동
   },
   // ⭐ NEW: Soul Connection Subtitle
   soulConnection: {
@@ -1954,6 +1954,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: scale(2), // ✅ 위로 약간 올림 (정확한 정렬)
     letterSpacing: 0.3,
+    marginLeft: scale(-20), // ✅ 좌측으로 20px 이동
   },
   helpButton: {
     marginLeft: platformPadding(12),

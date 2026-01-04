@@ -48,8 +48,6 @@ import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music she
 import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
 import ChatLimitBar from './ChatLimitBar'; // 💰 NEW: Daily chat limit display
 import ChatLimitSheet from './ChatLimitSheet'; // 💰 NEW: Limit reached sheet
-import MiniMusicWidget from './MiniMusicWidget'; // 🎵 NEW: Mini floating music widget
-import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { getServiceConfig } from '../../services/api/serviceApi'; // 💰 NEW: Service config API
@@ -61,6 +59,9 @@ import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings
 import uuid from 'react-native-uuid';
 // 🎵 Enable playback in silence mode (iOS)
 Sound.setCategory('Playback');
+// 🗑️ TEMPORARILY DISABLED: Identity Guide (during refactoring)
+// import IdentityGuideModal from './IdentityGuideModal'; // 🎭 NEW: Identity guide (Modal-based)
+// import AsyncStorage from '@react-native-async-storage/async-storage'; // 🎭 NEW: For "Don't show again"
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -148,6 +149,7 @@ const ManagerAIOverlay = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
   const [currentTypingText, setCurrentTypingText] = useState(''); // ⚡ Complete text (set once!)
+  const [messageVersion, setMessageVersion] = useState(0);
   
   // ⭐ NEW: Continuous conversation state
   const [isAIContinuing, setIsAIContinuing] = useState(false);
@@ -173,6 +175,11 @@ const ManagerAIOverlay = ({
   
   // 🆕 Vision state
   const [selectedImage, setSelectedImage] = useState(null); // Holds selected image before sending
+  
+  // 🎁 NEW: Emotional Gifts state
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftData, setGiftData] = useState(null);
+  const [giftReacting, setGiftReacting] = useState(false);
   
   // 🌟 Identity Evolution Notification State
   const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
@@ -210,12 +217,20 @@ const ManagerAIOverlay = ({
         setHistoryOffset(0); // Reset offset
         setHasMoreHistory(false); // ⭐ Reset hasMore flag
         loadChatHistory();
+        
+        // 🎁 Check for emotional gifts!
+        checkForGifts();
       }
     }
   }, [visible, user, persona?.persona_key, currentPersonaKey]);
-  
-  // ✅ REMOVED: Empty useEffect hooks (Line 227-233)
-  // These were placeholders with no logic - safely removed!
+
+  useEffect(() => {
+
+  }, [user]);
+
+  useEffect(() => {
+
+  }, [persona]);
   
   // 🆕 Load AI settings when overlay opens
   useEffect(() => {
@@ -308,6 +323,50 @@ const ManagerAIOverlay = ({
       subscription?.remove();
     };
   }, []); // Only run once on mount
+  
+  // 🗑️ TEMPORARILY DISABLED: Identity Guide check (during refactoring)
+  /*
+  useEffect(() => {
+    const checkAndShowIdentityGuide = async () => {
+      if (!visible || !persona) return;
+      
+      // Only for user-created personas (not SAGE/NEXUS)
+      const isUserCreatedPersona = !ANIMA_CORE_PERSONAS.includes(persona.persona_key);
+      if (!isUserCreatedPersona) return;
+      
+      // Check if persona has identity
+      const hasIdentity = persona.identity_name && persona.identity_name.trim() !== '';
+      if (hasIdentity) return; // Has identity, no need for guide
+      
+      console.log('🎭 [Identity Guide] User-created persona without identity detected');
+      console.log('   Persona:', persona.persona_name);
+      console.log('   Checking AsyncStorage preference...');
+      
+      // Check if user has disabled the guide
+      try {
+        const dontShowKey = `identity_guide_dont_show_${persona.persona_key}`;
+        const dontShow = await AsyncStorage.getItem(dontShowKey);
+        
+        if (dontShow === 'true') {
+          console.log('ℹ️  [Identity Guide] User disabled guide for this persona');
+          return;
+        }
+        
+        // Show guide after a short delay (let chat load first)
+        console.log('✅ [Identity Guide] Showing guide...');
+        setTimeout(() => {
+          setShowIdentityGuide(true);
+          HapticService.light();
+        }, 1500); // 1.5초 후 표시
+        
+      } catch (error) {
+        console.error('❌ [Identity Guide] Error checking AsyncStorage:', error);
+      }
+    };
+    
+    checkAndShowIdentityGuide();
+  }, [visible, persona]);
+  */
   
   // 🆕 Load AI settings when identity settings sheet opens
   useEffect(() => {
@@ -484,6 +543,7 @@ const ManagerAIOverlay = ({
           // Initial load
           setMessages(historyMessages);
           setHistoryOffset(historyMessages.length);
+          setMessageVersion(historyMessages.length);
           
           // ⚠️ DON'T auto-start if there's already conversation history
           console.log('✅ [Chat History] Loaded existing messages - skipping auto-start');
@@ -501,6 +561,37 @@ const ManagerAIOverlay = ({
       setLoadingHistory(false);
     }
   }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage, startAIConversation]);
+  
+  // 🎁 NEW: Check for emotional gifts
+  const checkForGifts = useCallback(async () => {
+    if (!user?.user_key) return;
+    
+    try {
+      console.log('🎁 [Gift Check] Checking for pending gifts...');
+      
+      const personaKey = persona?.persona_key || 'SAGE';
+      const result = await chatApi.getPendingGifts({
+        user_key: user.user_key,
+        persona_key: personaKey,
+      });
+      
+      if (result.success && result.gifts && result.gifts.length > 0) {
+        console.log('🎁 [Gift Check] Found gift!', result.gifts[0]);
+        setGiftData(result.gifts[0]);
+        
+        // Show gift modal after a short delay (let chat load first)
+        setTimeout(() => {
+          setShowGiftModal(true);
+          HapticService.success();
+        }, 1000);
+      } else {
+        console.log('ℹ️  [Gift Check] No pending gifts');
+      }
+    } catch (error) {
+      console.error('❌ [Gift Check] Error:', error);
+      // Fail silently - gifts are nice-to-have, not critical
+    }
+  }, [user, persona]);
   
   // ⚡ OPTIMIZED: Show notification message (TypingMessageBubble handles animation!)
   const showNotificationMessage = useCallback((message, autoHideDuration = 2000) => {
@@ -555,6 +646,7 @@ const ManagerAIOverlay = ({
       };
       
       setMessages([greetingMessage]);
+      setMessageVersion(1);
       setIsTyping(false);
       setCurrentTypingText('');
     }, typingDuration + 100);
@@ -581,6 +673,7 @@ const ManagerAIOverlay = ({
         };
         
         setMessages(prev => [...prev, greetingMessage]);
+        setMessageVersion(prev => prev + 1);
         setIsTyping(false);
         setCurrentTypingText('');
       }, typingDuration + 100);
@@ -627,6 +720,7 @@ const ManagerAIOverlay = ({
             };
             
             setMessages(prev => [...prev, aiMessage]);
+            setMessageVersion(prev => prev + 1);
             setIsTyping(false);
             setCurrentTypingText('');
             
@@ -662,109 +756,6 @@ const ManagerAIOverlay = ({
     console.log('   Track:', musicData.title);
     console.log('   Artist:', musicData.artist);
     console.log('   URL:', musicData.url);
-    console.log('   Source (original):', musicData.source);
-    
-    // 🔧 FIX: Detect YouTube URL and correct source
-    let actualSource = musicData.source;
-    if (musicData.url.includes('youtube.com') || musicData.url.includes('youtu.be')) {
-      console.log('🔧 [Music Press] YouTube URL detected! Correcting source to "youtube"');
-      actualSource = 'youtube';
-    }
-    console.log('   Source (corrected):', actualSource);
-    
-    // 🎬 NEW: Check if source is YouTube
-    if (actualSource === 'youtube' && musicData.url) {
-      console.log('🎵 [Music Press] YouTube source detected! Using Hidden Player...');
-      
-      // Extract videoId from URL (using regex - URL.hostname not supported in RN)
-      let videoId = null;
-      try {
-        // Pattern 1: youtube.com/watch?v=VIDEO_ID
-        const match1 = musicData.url.match(/[?&]v=([^&]+)/);
-        if (match1) {
-          videoId = match1[1];
-          console.log('✅ [Music Press] Extracted videoId from youtube.com:', videoId);
-        }
-        
-        // Pattern 2: youtu.be/VIDEO_ID
-        if (!videoId) {
-          const match2 = musicData.url.match(/youtu\.be\/([^?]+)/);
-          if (match2) {
-            videoId = match2[1];
-            console.log('✅ [Music Press] Extracted videoId from youtu.be:', videoId);
-          }
-        }
-      } catch (error) {
-        console.error('❌ [Music Press] Failed to parse YouTube URL:', error);
-      }
-      
-      if (videoId) {
-        console.log('✅ [Music Press] VideoId extracted:', videoId);
-        
-        // 🎵 If currently playing this track, pause
-        if (floatingContent?.track?.url === musicData.url && floatingContent?.isPlaying) {
-          console.log('⏸️  [Music Press] Pausing current YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: false
-          }));
-          HapticService.trigger('impactMedium');
-          return;
-        }
-        
-        // 🎵 If paused (same track), resume
-        if (floatingContent?.track?.url === musicData.url && !floatingContent?.isPlaying) {
-          console.log('▶️  [Music Press] Resuming YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: true
-          }));
-          HapticService.trigger('impactMedium');
-          return;
-        }
-        
-        // 🎵 Different track or first time: Stop current and play new
-        if (soundInstanceRef.current) {
-          console.log('🗑️  [Music Press] Stopping non-YouTube track...');
-          soundInstanceRef.current.stop();
-          soundInstanceRef.current.release();
-          soundInstanceRef.current = null;
-        }
-        
-        // Set floating content for YouTube music
-        setFloatingContent({
-          contentType: 'music',
-          status: 'completed',
-          track: {
-            id: musicData.id || `youtube-${Date.now()}`,
-            title: musicData.title,
-            artist: musicData.artist,
-            url: musicData.url,
-            duration: musicData.duration,
-            image: musicData.image,
-            source: 'youtube',
-            videoId: videoId, // Store videoId for HiddenYoutubePlayer
-          },
-          isPlaying: false,      // Don't auto-play
-          showPlayer: false      // Don't show player yet (only show widget)
-        });
-        
-        HapticService.trigger('impactMedium');
-        console.log('✅ [Music Press] YouTube music ready to play!');
-        return;
-      } else {
-        console.error('❌ [Music Press] Failed to extract videoId from URL:', musicData.url);
-        Alert.alert(
-          '재생 불가',
-          'YouTube 음악을 불러올 수 없습니다.',
-          [{ text: '확인' }]
-        );
-        return;
-      }
-    }
-    
-    // 🎵 Non-YouTube music: Use Sound library
-    console.log('🎵 [Music Press] Non-YouTube source, using Sound library...');
     
     // Haptic feedback
     HapticService.trigger('impactMedium');
@@ -862,7 +853,7 @@ const ManagerAIOverlay = ({
             url: musicData.url,
             duration: musicData.duration,
             image: musicData.image,
-            source: actualSource || 'unknown' // 🔧 FIX: Use corrected source
+            source: musicData.source || 'unknown'
           },
           isPlaying: true
         });
@@ -900,32 +891,20 @@ const ManagerAIOverlay = ({
     HapticService.trigger('impactLight');
   }, []);
   
-  // 🎵 NEW: Handle music toggle (show/hide player for YouTube, play/pause for others)
-  const handleMusicToggle = useCallback(async () => {
+  // 🎨 NEW: Handle floating content button press (Check status on click)
+  const handleFloatingContentPress = useCallback(async () => {
     if (!floatingContent) return;
     
     // 🎵 NEW: Handle music player toggle (instant playback!)
     if (floatingContent.contentType === 'music' && floatingContent.track) {
-      console.log('🎵 [Music Toggle] Button clicked');
+      console.log('🎵 [Music Player] Button clicked');
       console.log('   isPlaying:', floatingContent.isPlaying);
-      console.log('   showPlayer:', floatingContent.showPlayer);
       console.log('   Track:', floatingContent.track.title);
-      console.log('   Source:', floatingContent.track.source);
+      console.log('   URL:', floatingContent.track.url);
       
       // Haptic feedback
       HapticService.trigger('impactMedium');
       
-      // 🎬 NEW: Handle YouTube music (Toggle player visibility)
-      if (floatingContent.track.source === 'youtube') {
-        console.log('🎵 [Music Toggle] YouTube music - toggling player visibility');
-        setFloatingContent(prev => ({
-          ...prev,
-          showPlayer: !prev.showPlayer  // Toggle player visibility
-        }));
-        return;
-      }
-      
-      // 🎵 Handle non-YouTube music (Sound library)
       // 🎵 If currently playing, pause
       if (floatingContent.isPlaying && soundInstanceRef.current) {
         console.log('⏸️  [Music Player] Pausing...');
@@ -1081,27 +1060,6 @@ const ManagerAIOverlay = ({
     }
   }, [floatingContent, chatApi]);
   
-  // 🎵 NEW: Handle music stop (long press)
-  const handleMusicStop = useCallback(() => {
-    console.log('🛑 [Music Stop] Stopping music (long press)...');
-    
-    // Stop and release sound
-    if (soundInstanceRef.current) {
-      soundInstanceRef.current.stop();
-      soundInstanceRef.current.release();
-      soundInstanceRef.current = null;
-      console.log('✅ [Music Stop] Sound released');
-    }
-    
-    // Clear floating content (hide widget)
-    setFloatingContent(null);
-    
-    // Haptic feedback
-    HapticService.trigger('impactMedium');
-    
-    console.log('✅ [Music Stop] Widget hidden');
-  }, []);
-  
   // 🆕 Handle image selection
   const handleImageSelect = useCallback(async (imageData) => {
     console.log('📷 [ManagerAIOverlay] Image selected:', {
@@ -1117,6 +1075,96 @@ const ManagerAIOverlay = ({
     // Success haptic feedback
     HapticService.success();
   }, []);
+  
+  /*
+  // 🗑️ DISABLED: Create persona from identity draft (복잡한 플로우 비활성화)
+  const createPersonaFromDraft = useCallback(async (imageData) => {
+    try {
+      setIsLoading(true);
+      console.log('🎭 [Persona Creation] Starting persona creation...');
+      
+      const userKey = user?.user_key;
+      if (!userKey) {
+        console.error('❌ [Persona Creation] No user_key found!');
+        Alert.alert('오류', '사용자 정보를 찾을 수 없습니다.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Get identity data from draft
+      const identityData = pendingIdentityDraft.identity_data || {};
+      
+      // Call persona creation API
+      console.log('📤 [Persona Creation] Calling createPersona API...');
+      const response = await createPersona(userKey, {
+        name: pendingIdentityDraft.target_name,
+        description: identityData.description || `${pendingIdentityDraft.target_name} 페르소나`,
+        gender: 'male', // Default, can be enhanced later
+        photo: {
+          uri: imageData.uri,
+          type: imageData.type,
+          base64: imageData.base64,
+        },
+        identity_draft_id: pendingIdentityDraft.draft_id,
+      });
+      
+      console.log('📥 [Persona Creation] API Response:', response);
+      
+      if (response.success) {
+        console.log('✅ [Persona Creation] Persona creation initiated!');
+        console.log('   Persona Key:', response.data?.persona_key);
+        console.log('   Estimate Time:', response.data?.estimate_time);
+        
+        // Send confirmation message to AI
+        console.log('📤 [Persona Creation] Sending confirmation message...');
+        const confirmResponse = await chatApi.sendManagerAIMessage({
+          user_key: userKey,
+          question: `[PERSONA_CREATION_IMAGE_UPLOADED:${pendingIdentityDraft.target_name}]`,
+          persona_key: persona?.persona_key || 'SAGE',
+        });
+        
+        if (confirmResponse.success && confirmResponse.data?.answer) {
+          // Display AI's completion message
+          const completionMessage = {
+            id: `ai-${Date.now()}`,
+            role: 'assistant',
+            text: confirmResponse.data.answer,
+            timestamp: new Date().toISOString(),
+          };
+          
+          setMessages(prev => [...prev, completionMessage]);
+          setMessageVersion(prev => prev + 1);
+          
+          console.log('✅ [Persona Creation] Completion message displayed');
+        }
+        
+        // Clear pending draft state
+        setPendingIdentityDraft(null);
+        
+        // Success haptic
+        HapticService.success();
+        
+      } else {
+        console.error('❌ [Persona Creation] Failed:', response.error);
+        Alert.alert(
+          '페르소나 생성 실패',
+          response.error || '페르소나 생성 중 오류가 발생했습니다.',
+          [{ text: '확인', style: 'default' }]
+        );
+      }
+      
+    } catch (error) {
+      console.error('❌ [Persona Creation] Error:', error);
+      Alert.alert(
+        '오류 발생',
+        '페르소나 생성 중 오류가 발생했습니다.',
+        [{ text: '확인', style: 'default' }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pendingIdentityDraft, user, persona, chatApi]);
+  */
   
   // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
@@ -1179,6 +1227,7 @@ const ManagerAIOverlay = ({
           };
           
           setMessages(prev => [...prev, aiMessage]);
+          setMessageVersion(prev => prev + 1);
           setIsTyping(false);
           setCurrentTypingText('');
           
@@ -1242,6 +1291,7 @@ const ManagerAIOverlay = ({
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     setMessages(prev => [...prev, userMessage]);
+    setMessageVersion(prev => prev + 1);
     setIsLoading(true);
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -1493,6 +1543,7 @@ const ManagerAIOverlay = ({
           };
           
           setMessages(prev => [...prev, aiMessage]);
+          setMessageVersion(prev => prev + 1);
           setIsTyping(false);
           setCurrentTypingText('');
           
@@ -1531,6 +1582,7 @@ const ManagerAIOverlay = ({
           timestamp: new Date().toISOString(),
         };
         setMessages(prev => [...prev, errorMessage]);
+        setMessageVersion(prev => prev + 1);
       }
       
     } catch (error) {
@@ -1543,10 +1595,80 @@ const ManagerAIOverlay = ({
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errorMessage]);
+      setMessageVersion(prev => prev + 1);
     } finally {
       setIsLoading(false);
     }
   }, [t, user, persona, handleAIContinue, selectedImage]); // ⭐ FIX: Add handleAIContinue & selectedImage dependencies
+  
+  // ✅ Handle close (Simplified)
+  // 🎁 NEW: Handle gift reaction
+  const handleGiftReaction = useCallback(async (reaction) => {
+    if (!giftData || giftReacting) return;
+    
+    try {
+      setGiftReacting(true);
+      console.log(`❤️  [Gift Reaction] Reacting with: ${reaction}`);
+      
+      await chatApi.reactToGift({
+        gift_id: giftData.gift_id,
+        reaction,
+      });
+      
+      console.log('✅ [Gift Reaction] Reaction recorded');
+      HapticService.success();
+      
+      // Close modal
+      setShowGiftModal(false);
+      setGiftData(null);
+      
+    } catch (error) {
+      console.log('❌ [Gift Reaction] Error:', error);
+      Alert.alert(
+        t('common.error'),
+        t('common.errorMessage')
+      );
+    } finally {
+      setGiftReacting(false);
+    }
+  }, [giftData, giftReacting, t]);
+  
+  // 🎁 NEW: Close gift modal without reaction
+  const handleGiftClose = useCallback(() => {
+    // Mark as viewed
+    if (giftData) {
+      handleGiftReaction('viewed');
+    } else {
+      setShowGiftModal(false);
+    }
+  }, [giftData, handleGiftReaction]);
+  
+  // 🗑️ TEMPORARILY DISABLED: Identity Guide handlers (during refactoring)
+  /*
+  const handleIdentityGuideDontShow = useCallback(async () => {
+    if (!persona) return;
+    
+    try {
+      const dontShowKey = `identity_guide_dont_show_${persona.persona_key}`;
+      await AsyncStorage.setItem(dontShowKey, 'true');
+      
+      console.log('✅ [Identity Guide] "Don\'t show again" preference saved');
+      HapticService.success();
+      
+      // Close modal
+      setShowIdentityGuide(false);
+      
+    } catch (error) {
+      console.error('❌ [Identity Guide] Error saving preference:', error);
+    }
+  }, [persona]);
+  
+  const handleIdentityGuideClose = useCallback(() => {
+    console.log('ℹ️  [Identity Guide] Guide closed (will show again next time)');
+    HapticService.light();
+    setShowIdentityGuide(false);
+  }, []);
+  */
   
   const handleClose = useCallback(() => {
     // 🎵 NEW: Stop and cleanup music when closing chat
@@ -1626,6 +1748,7 @@ const ManagerAIOverlay = ({
                 setIsTyping(false);
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
+                setMessageVersion(0);
                 setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
               }, 200);
               
@@ -1650,6 +1773,7 @@ const ManagerAIOverlay = ({
       setMessages([]);
       setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
       setIsTyping(false);
+      setMessageVersion(0);
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
     }, 200);
     
@@ -1709,6 +1833,38 @@ const ManagerAIOverlay = ({
                   </CustomText>
                 )}
               </View>
+              
+              {/* 🆕 Right: Music Player Button (Fixed Position!) */}
+              <TouchableOpacity 
+                onPress={() => {
+                  if (floatingContent?.contentType === 'music') {
+                    handleFloatingContentPress();
+                  } else {
+                    // No music loaded
+                    HapticService.light();
+                  }
+                }}
+                style={[
+                  styles.headerMusicButton,
+                  floatingContent?.contentType === 'music' && floatingContent?.isPlaying && styles.headerMusicButtonActive
+                ]}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                disabled={!floatingContent || floatingContent.contentType !== 'music'}
+              >
+                <Icon 
+                  name={
+                    floatingContent?.contentType === 'music' && floatingContent?.isPlaying
+                      ? "pause-circle" 
+                      : "musical-notes"
+                  } 
+                  size={moderateScale(28)} 
+                  color={
+                    floatingContent?.contentType === 'music' 
+                      ? (floatingContent?.isPlaying ? '#10B981' : COLORS.PRIMARY) 
+                      : 'rgba(255, 255, 255, 0.3)'
+                  } 
+                />
+              </TouchableOpacity>
             </View>
             
             {/* 💰 NEW: Chat Limit Bar (Tier System) */}
@@ -1740,7 +1896,7 @@ const ManagerAIOverlay = ({
                 completedMessages={messages}
                 isTyping={isTyping} // ⚡ OPTIMIZED: Boolean flag only
                 currentTypingText={currentTypingText} // ⚡ OPTIMIZED: Complete text (set once!)
-                messageVersion={messages.length}
+                messageVersion={messageVersion}
                 isLoading={isLoading}
                 onLoadMore={() => loadChatHistory(true)} // ⭐ NEW: Load more history
                 loadingHistory={loadingHistory} // ⭐ NEW: Loading indicator
@@ -1793,49 +1949,130 @@ const ManagerAIOverlay = ({
               />
             </View>
             
-            {/* 🎵 NEW: Mini Floating Music Widget */}
-            {floatingContent?.contentType === 'music' && (
-              <MiniMusicWidget
-                isPlaying={floatingContent.isPlaying}
-                onToggle={handleMusicToggle}
-                onStop={handleMusicStop}
-                visible={true}
-              />
-            )}
+            {/* 🎨 NEW: Floating Content Button */}
+            {/* 🎵 NEW: Floating Content Button - DISABLED (using header button instead) */}
+            {/* {(() => {
+              // ✅ ONLY show floating button for MUSIC (images are in chat bubble now!)
+              if (floatingContent && floatingContent.contentType === 'music') {
+                return (
+                  <FloatingContentButton
+                    contentType={floatingContent.contentType}
+                    status={floatingContent.status}
+                    isPlaying={floatingContent.isPlaying || false}
+                    onPress={handleFloatingContentPress}
+                    onRetry={() => {
+                      setFloatingContent(null);
+                      Alert.alert(
+                        '🔄 재시도',
+                        '다시 요청해주세요!',
+                        [{ text: '확인' }]
+                      );
+                    }}
+                  />
+                );
+              }
+              return null;
+            })()} */}
           </View>
         </KeyboardAvoidingView>
       </View>
       
-      {/* 🎵 NEW: Floating YouTube Music Player (Overlay, does NOT push chat) */}
-      {floatingContent?.contentType === 'music' && 
-       floatingContent?.track?.source === 'youtube' && 
-       floatingContent?.track?.videoId && 
-       floatingContent?.showPlayer && (  // ✅ Only mount when showPlayer is true
-        <HiddenYoutubePlayer
-          videoId={floatingContent.track.videoId}
-          isPlaying={floatingContent.isPlaying}
-          visible={true}  // Always visible when mounted (animation on mount)
-          topPosition={insets.top + verticalScale(52)} // Header height
-          onStateChange={(state) => {
-            console.log('🎵 [YouTube Player] State:', state);
-            // Handle state changes if needed
-            if (state === 'ended') {
-              // Music ended, stop
-              setFloatingContent(prev => ({
-                ...prev,
-                isPlaying: false
-              }));
-            }
-          }}
-          onError={(error) => {
-            console.error('❌ [YouTube Player] Error:', error);
-            Alert.alert(
-              '재생 오류',
-              '음악 재생 중 오류가 발생했습니다.',
-              [{ text: '확인' }]
-            );
-          }}
-        />
+      {/* 🗑️ TEMPORARILY DISABLED: Identity Guide Modal (during refactoring) */}
+      {/* <IdentityGuideModal
+        visible={showIdentityGuide}
+        personaName={persona?.persona_name || 'AI'}
+        onDontShowAgain={handleIdentityGuideDontShow}
+        onClose={handleIdentityGuideClose}
+      /> */}
+      
+      {/* 🎁 Emotional Gift Modal */}
+      {false && (
+        <Modal
+          visible={showGiftModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={handleGiftClose}
+        >
+          <View style={styles.giftModalOverlay}>
+            <View style={styles.giftModalContainer}>
+              {/* Header */}
+              <View style={styles.giftModalHeader}>
+                <CustomText style={styles.giftModalTitle}>
+                  🎁 {persona?.persona_name || 'SAGE'}님의 선물
+                </CustomText>
+                <TouchableOpacity onPress={handleGiftClose} style={styles.giftCloseButton}>
+                  <Icon name="close" size={moderateScale(24)} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              
+              {/* Gift Image */}
+              <View style={styles.giftImageContainer}>
+                {giftData.image_url ? (
+                  <Image 
+                    source={{ uri: giftData.image_url }}
+                    style={styles.giftImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.giftImagePlaceholder}>
+                    <Icon name="gift" size={moderateScale(80)} color="rgba(255,255,255,0.3)" />
+                  </View>
+                )}
+              </View>
+              
+              {/* AI Message */}
+              <ScrollView style={styles.giftMessageContainer}>
+                <CustomText style={styles.giftEmotion}>
+                  {giftData.ai_emotion === 'joy' && '😊 기쁨'}
+                  {giftData.ai_emotion === 'gratitude' && '🙏 감사'}
+                  {giftData.ai_emotion === 'love' && '💙 사랑'}
+                  {giftData.ai_emotion === 'empathy' && '🤗 공감'}
+                  {giftData.ai_emotion === 'excitement' && '🎉 설렘'}
+                  {giftData.ai_emotion === 'hope' && '✨ 희망'}
+                </CustomText>
+                <CustomText style={styles.giftMessage}>
+                  {giftData.ai_message}
+                </CustomText>
+              </ScrollView>
+              
+              {/* Reaction Buttons */}
+              <View style={styles.giftReactionContainer}>
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionLoved]}
+                  onPress={() => handleGiftReaction('loved')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="heart" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>사랑해요</CustomText>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionLiked]}
+                  onPress={() => handleGiftReaction('liked')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="thumbs-up" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>좋아요</CustomText>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.giftReactionButton, styles.giftReactionSaved]}
+                  onPress={() => handleGiftReaction('saved')}
+                  disabled={giftReacting}
+                >
+                  <Icon name="bookmark" size={moderateScale(24)} color="#fff" />
+                  <CustomText style={styles.giftReactionText}>저장</CustomText>
+                </TouchableOpacity>
+              </View>
+              
+              {giftReacting && (
+                <View style={styles.giftLoadingOverlay}>
+                  <ActivityIndicator size="large" color="#fff" />
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
       )}
       
       {/* 🌟 Identity Evolution Notification Overlay */}
@@ -1959,6 +2196,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: moderateScale(11),
   },
+  headerMusicButton: {
+    padding: scale(8),
+    marginLeft: scale(8),
+    borderRadius: moderateScale(20),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerMusicButtonActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Chat
@@ -2014,6 +2263,113 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(12),
   },
   
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎁 Emotional Gift Modal
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  giftModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: moderateScale(20),
+  },
+  giftModalContainer: {
+    width: '100%',
+    maxWidth: moderateScale(400),
+    backgroundColor: 'rgba(30, 30, 30, 0.98)',
+    borderRadius: moderateScale(24),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: moderateScale(20),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftModalTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: '600',
+    color: '#fff',
+  },
+  giftCloseButton: {
+    padding: moderateScale(4),
+  },
+  giftImageContainer: {
+    width: '100%',
+    height: verticalScale(300),
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  giftImage: {
+    width: '100%',
+    height: '100%',
+  },
+  giftImagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  giftMessageContainer: {
+    maxHeight: verticalScale(200),
+    padding: moderateScale(20),
+  },
+  giftEmotion: {
+    fontSize: moderateScale(14),
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: verticalScale(8),
+    fontWeight: '500',
+  },
+  giftMessage: {
+    fontSize: moderateScale(16),
+    lineHeight: moderateScale(24),
+    color: '#fff',
+  },
+  giftReactionContainer: {
+    flexDirection: 'row',
+    padding: moderateScale(20),
+    gap: moderateScale(12),
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  giftReactionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(12),
+    gap: moderateScale(6),
+  },
+  giftReactionLoved: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.5)',
+  },
+  giftReactionLiked: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.5)',
+  },
+  giftReactionSaved: {
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.5)',
+  },
+  giftReactionText: {
+    color: '#fff',
+    fontSize: moderateScale(13),
+    fontWeight: '500',
+  },
+  giftLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   // 🌟 Identity Evolution Overlay Styles
   evolutionOverlay: {
     position: 'absolute',
