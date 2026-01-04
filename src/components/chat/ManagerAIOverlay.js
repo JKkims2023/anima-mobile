@@ -37,7 +37,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Sound from 'react-native-sound'; // 🎵 NEW: Music playback
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
@@ -59,8 +58,6 @@ import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 import uuid from 'react-native-uuid';
-// 🎵 Enable playback in silence mode (iOS)
-Sound.setCategory('Playback');
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -152,9 +149,6 @@ const ManagerAIOverlay = ({
   // ⭐ NEW: Continuous conversation state
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
-  
-  // 🎵 NEW: Music player state
-  const soundInstanceRef = useRef(null); // Sound instance for music playback
   
   // ⭐ NEW: Chat history state
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -252,62 +246,6 @@ const ManagerAIOverlay = ({
     
     loadServiceConfig();
   }, [visible, user?.user_key]);
-  
-  // 🎵 NEW: Cleanup sound instance on unmount
-  useEffect(() => {
-    return () => {
-      // Release sound resources when component unmounts
-      if (soundInstanceRef.current) {
-        console.log('🗑️  [Music Player] Releasing sound resources...');
-        soundInstanceRef.current.stop();
-        soundInstanceRef.current.release();
-        soundInstanceRef.current = null;
-      }
-    };
-  }, []);
-  
-  // 🎵 NEW: Cleanup previous sound when new music arrives or content cleared
-  useEffect(() => {
-    // When new music arrives (track.id changes) or content cleared, stop previous sound
-    const currentTrackId = floatingContent?.track?.id;
-    
-    if (soundInstanceRef.current) {
-      // Always stop and release previous sound when track changes
-      console.log('🗑️  [Music Player] Cleaning up previous sound (new track or cleared)...');
-      soundInstanceRef.current.stop();
-      soundInstanceRef.current.release();
-      soundInstanceRef.current = null;
-      
-      // Also reset playing state
-      if (floatingContent?.isPlaying) {
-        setFloatingContent(prev => prev ? ({ ...prev, isPlaying: false }) : null);
-      }
-    }
-  }, [floatingContent?.track?.id]); // Re-run when track ID changes (new music)
-  
-  // 🎵 NEW: Handle app state changes (pause music when app goes to background)
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
-      console.log('📱 [AppState] App state changed:', nextAppState);
-      
-      // If app goes to background or inactive, pause music
-      if ((nextAppState === 'background' || nextAppState === 'inactive') && soundInstanceRef.current) {
-        console.log('⏸️  [Music Player] App backgrounded, pausing music...');
-        soundInstanceRef.current.pause();
-        
-        // Update UI state
-        setFloatingContent(prev => prev ? ({ ...prev, isPlaying: false }) : null);
-      }
-    };
-    
-    // Subscribe to app state changes
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
-    // Cleanup
-    return () => {
-      subscription?.remove();
-    };
-  }, []); // Only run once on mount
   
   // 🆕 Load AI settings when identity settings sheet opens
   useEffect(() => {
@@ -723,14 +661,6 @@ const ManagerAIOverlay = ({
           return;
         }
         
-        // 🎵 Different track or first time: Stop current and play new
-        if (soundInstanceRef.current) {
-          console.log('🗑️  [Music Press] Stopping non-YouTube track...');
-          soundInstanceRef.current.stop();
-          soundInstanceRef.current.release();
-          soundInstanceRef.current = null;
-        }
-        
         // Set floating content for YouTube music
         setFloatingContent({
           contentType: 'music',
@@ -763,110 +693,12 @@ const ManagerAIOverlay = ({
       }
     }
     
-    // 🎵 Non-YouTube music: Use Sound library
-    console.log('🎵 [Music Press] Non-YouTube source, using Sound library...');
-    
-    // Haptic feedback
-    HapticService.trigger('impactMedium');
-    
-    // 🎵 If currently playing this track, pause
-    if (floatingContent?.track?.url === musicData.url && floatingContent?.isPlaying && soundInstanceRef.current) {
-      console.log('⏸️  [Music Press] Pausing current track...');
-      soundInstanceRef.current.pause();
-      
-      setFloatingContent(prev => ({
-        ...prev,
-        isPlaying: false
-      }));
-      
-      return;
-    }
-    
-    // 🎵 If paused (same track), resume
-    if (floatingContent?.track?.url === musicData.url && !floatingContent?.isPlaying && soundInstanceRef.current) {
-      console.log('▶️  [Music Press] Resuming track...');
-      soundInstanceRef.current.play((success) => {
-        if (!success) {
-          console.log('❌ [Music Press] Playback failed');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: false
-          }));
-        }
-      });
-      
-      setFloatingContent(prev => ({
-        ...prev,
-        isPlaying: true
-      }));
-      
-      return;
-    }
-    
-    // 🎵 Different track or first time: Stop current and load new
-    if (soundInstanceRef.current) {
-      console.log('🗑️  [Music Press] Stopping current track to play new one...');
-      soundInstanceRef.current.stop();
-      soundInstanceRef.current.release();
-      soundInstanceRef.current = null;
-    }
-    
-    // Load and play new track
-    console.log('🔄 [Music Press] Loading new track from URL...');
-    
-    const sound = new Sound(
-      musicData.url,
-      null,
-      (error) => {
-        if (error) {
-          console.log('❌ [Music Press] Failed to load music:', error);
-          Alert.alert(
-            '음악 재생 실패',
-            '음악을 불러올 수 없습니다. 다시 시도해주세요.',
-            [{ text: '확인' }]
-          );
-          return;
-        }
-        
-        console.log('✅ [Music Press] Music loaded successfully!');
-        console.log(`   Duration: ${Math.floor(sound.getDuration() / 60)}:${String(Math.floor(sound.getDuration() % 60)).padStart(2, '0')}`);
-        
-        soundInstanceRef.current = sound;
-        
-        sound.play((success) => {
-          if (success) {
-            console.log('✅ [Music Press] Playback finished successfully');
-            setFloatingContent(prev => ({
-              ...prev,
-              isPlaying: false
-            }));
-            sound.release();
-            soundInstanceRef.current = null;
-          } else {
-            console.log('❌ [Music Press] Playback failed');
-            setFloatingContent(prev => ({
-              ...prev,
-              isPlaying: false
-            }));
-          }
-        });
-        
-        // Update/create floating content state
-        setFloatingContent({
-          contentType: 'music',
-          status: 'completed',
-          track: {
-            id: musicData.id || `track-${Date.now()}`,
-            title: musicData.title,
-            artist: musicData.artist,
-            url: musicData.url,
-            duration: musicData.duration,
-            image: musicData.image,
-            source: actualSource || 'unknown' // 🔧 FIX: Use corrected source
-          },
-          isPlaying: true
-        });
-      }
+    // 🚫 Non-YouTube music is no longer supported
+    console.warn('⚠️ [Music Press] Only YouTube music is supported');
+    Alert.alert(
+      '지원하지 않는 음원',
+      'YouTube 음악만 재생 가능합니다.',
+      [{ text: '확인' }]
     );
   }, [floatingContent]);
   
@@ -924,97 +756,6 @@ const ManagerAIOverlay = ({
         }));
         return;
       }
-      
-      // 🎵 Handle non-YouTube music (Sound library)
-      // 🎵 If currently playing, pause
-      if (floatingContent.isPlaying && soundInstanceRef.current) {
-        console.log('⏸️  [Music Player] Pausing...');
-        soundInstanceRef.current.pause();
-        
-        setFloatingContent(prev => ({
-          ...prev,
-          isPlaying: false
-        }));
-        
-        return;
-      }
-      
-      // 🎵 If paused (sound exists), resume
-      if (!floatingContent.isPlaying && soundInstanceRef.current) {
-        console.log('▶️  [Music Player] Resuming...');
-        soundInstanceRef.current.play((success) => {
-          if (!success) {
-            console.log('❌ [Music Player] Playback failed');
-            // Reset state on failure
-            setFloatingContent(prev => ({
-              ...prev,
-              isPlaying: false
-            }));
-          }
-        });
-        
-        setFloatingContent(prev => ({
-          ...prev,
-          isPlaying: true
-        }));
-        
-        return;
-      }
-      
-      // 🎵 First time: Load and play music from URL
-      console.log('🔄 [Music Player] Loading music from URL...');
-      
-      const sound = new Sound(
-        floatingContent.track.url,
-        null, // null for URL (not local file)
-        (error) => {
-          if (error) {
-            console.log('❌ [Music Player] Failed to load music:', error);
-            Alert.alert(
-              '음악 재생 실패',
-              '음악을 불러올 수 없습니다. 다시 시도해주세요.',
-              [{ text: '확인' }]
-            );
-            return;
-          }
-          
-          // Success: Music loaded
-          console.log('✅ [Music Player] Music loaded successfully!');
-          console.log(`   Duration: ${Math.floor(sound.getDuration() / 60)}:${String(Math.floor(sound.getDuration() % 60)).padStart(2, '0')}`);
-          
-          // Store sound instance
-          soundInstanceRef.current = sound;
-          
-          // Play music
-          sound.play((success) => {
-            if (success) {
-              console.log('✅ [Music Player] Playback finished successfully');
-              // Reset state when playback completes
-              setFloatingContent(prev => ({
-                ...prev,
-                isPlaying: false
-              }));
-              // Release resources
-              sound.release();
-              soundInstanceRef.current = null;
-            } else {
-              console.log('❌ [Music Player] Playback failed');
-              setFloatingContent(prev => ({
-                ...prev,
-                isPlaying: false
-              }));
-            }
-          });
-          
-          // Update state to playing
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: true
-          }));
-        }
-      );
-      
-      return; // ⭐ Early return to avoid image logic
     }
     
     // 🎨 EXISTING: Handle image content (unchanged)
@@ -1085,15 +826,7 @@ const ManagerAIOverlay = ({
   const handleMusicStop = useCallback(() => {
     console.log('🛑 [Music Stop] Stopping music (long press)...');
     
-    // Stop and release sound
-    if (soundInstanceRef.current) {
-      soundInstanceRef.current.stop();
-      soundInstanceRef.current.release();
-      soundInstanceRef.current = null;
-      console.log('✅ [Music Stop] Sound released');
-    }
-    
-    // Clear floating content (hide widget)
+    // Clear floating content (hide widget and player)
     setFloatingContent(null);
     
     // Haptic feedback
@@ -1549,15 +1282,7 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage]); // ⭐ FIX: Add handleAIContinue & selectedImage dependencies
   
   const handleClose = useCallback(() => {
-    // 🎵 NEW: Stop and cleanup music when closing chat
-    if (soundInstanceRef.current) {
-      console.log('🗑️  [Music Player] Stopping music on chat close...');
-      soundInstanceRef.current.stop();
-      soundInstanceRef.current.release();
-      soundInstanceRef.current = null;
-    }
-    
-    // Clear floating content (music button)
+    // Clear floating content (music button and player)
     setFloatingContent(null);
     
     // 🆕 Helper function to trigger background learning
@@ -1598,13 +1323,7 @@ const ManagerAIOverlay = ({
             text: '종료',
             style: 'destructive',
             onPress: () => {
-              // 🎵 NEW: Stop music when force closing
-              if (soundInstanceRef.current) {
-                console.log('🗑️  [Music Player] Stopping music on force close...');
-                soundInstanceRef.current.stop();
-                soundInstanceRef.current.release();
-                soundInstanceRef.current = null;
-              }
+              // Clear floating content
               setFloatingContent(null);
               
               // Force stop AI conversation
