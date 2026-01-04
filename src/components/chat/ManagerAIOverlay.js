@@ -57,6 +57,7 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
+import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
 import uuid from 'react-native-uuid';
 
 /**
@@ -171,12 +172,18 @@ const ManagerAIOverlay = ({
   // 🌟 Identity Evolution Notification State
   const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
   
-  // 🎨 NEW: Real-time Content Generation state
-  const [floatingContent, setFloatingContent] = useState(null); // { contentId, status, contentType, url }
-  
-  // 🎬 NEW: YouTube Video Player state
-  const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(null); // { videoId, title }
+  // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
+  const {
+    floatingContent,
+    setFloatingContent,
+    showYouTubePlayer,
+    currentVideo,
+    handleMusicPress,
+    handleMusicToggle,
+    handleMusicStop,
+    handleYouTubePress,
+    handleYouTubeClose,
+  } = useMusicPlayer();
   
   // 💰 NEW: Daily Chat Limit state (Tier System)
   const [serviceConfig, setServiceConfig] = useState(null); // Service config from /api/service
@@ -589,252 +596,6 @@ const ManagerAIOverlay = ({
     }, 800);
   }, [persona, chatApi]);
   
-  // 🎵 NEW: Handle music press from chat bubble
-  const handleMusicPress = useCallback(async (musicData) => {
-    if (!musicData || !musicData.url) {
-      console.error('❌ [Music Press] Invalid music data:', musicData);
-      return;
-    }
-    
-    console.log('🎵 [Music Press] Clicked from chat bubble');
-    console.log('   Track:', musicData.title);
-    console.log('   Artist:', musicData.artist);
-    console.log('   URL:', musicData.url);
-    console.log('   Source (original):', musicData.source);
-    
-    // 🔧 FIX: Detect YouTube URL and correct source
-    let actualSource = musicData.source;
-    if (musicData.url.includes('youtube.com') || musicData.url.includes('youtu.be')) {
-      console.log('🔧 [Music Press] YouTube URL detected! Correcting source to "youtube"');
-      actualSource = 'youtube';
-    }
-    console.log('   Source (corrected):', actualSource);
-    
-    // 🎬 NEW: Check if source is YouTube
-    if (actualSource === 'youtube' && musicData.url) {
-      console.log('🎵 [Music Press] YouTube source detected! Using Hidden Player...');
-      
-      // Extract videoId from URL (using regex - URL.hostname not supported in RN)
-      let videoId = null;
-      try {
-        // Pattern 1: youtube.com/watch?v=VIDEO_ID
-        const match1 = musicData.url.match(/[?&]v=([^&]+)/);
-        if (match1) {
-          videoId = match1[1];
-          console.log('✅ [Music Press] Extracted videoId from youtube.com:', videoId);
-        }
-        
-        // Pattern 2: youtu.be/VIDEO_ID
-        if (!videoId) {
-          const match2 = musicData.url.match(/youtu\.be\/([^?]+)/);
-          if (match2) {
-            videoId = match2[1];
-            console.log('✅ [Music Press] Extracted videoId from youtu.be:', videoId);
-          }
-        }
-      } catch (error) {
-        console.error('❌ [Music Press] Failed to parse YouTube URL:', error);
-      }
-      
-      if (videoId) {
-        console.log('✅ [Music Press] VideoId extracted:', videoId);
-        
-        // 🎵 If currently playing this track, pause
-        if (floatingContent?.track?.url === musicData.url && floatingContent?.isPlaying) {
-          console.log('⏸️  [Music Press] Pausing current YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: false
-          }));
-          HapticService.trigger('impactMedium');
-          return;
-        }
-        
-        // 🎵 If paused (same track), resume
-        if (floatingContent?.track?.url === musicData.url && !floatingContent?.isPlaying) {
-          console.log('▶️  [Music Press] Resuming YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: true
-          }));
-          HapticService.trigger('impactMedium');
-          return;
-        }
-        
-        // Set floating content for YouTube music
-        setFloatingContent({
-          contentType: 'music',
-          status: 'completed',
-          track: {
-            id: musicData.id || `youtube-${Date.now()}`,
-            title: musicData.title,
-            artist: musicData.artist,
-            url: musicData.url,
-            duration: musicData.duration,
-            image: musicData.image,
-            source: 'youtube',
-            videoId: videoId, // Store videoId for HiddenYoutubePlayer
-          },
-          isPlaying: false,      // Don't auto-play
-          showPlayer: false      // Don't show player yet (only show widget)
-        });
-        
-        HapticService.trigger('impactMedium');
-        console.log('✅ [Music Press] YouTube music ready to play!');
-        return;
-      } else {
-        console.error('❌ [Music Press] Failed to extract videoId from URL:', musicData.url);
-        Alert.alert(
-          '재생 불가',
-          'YouTube 음악을 불러올 수 없습니다.',
-          [{ text: '확인' }]
-        );
-        return;
-      }
-    }
-    
-    // 🚫 Non-YouTube music is no longer supported
-    console.warn('⚠️ [Music Press] Only YouTube music is supported');
-    Alert.alert(
-      '지원하지 않는 음원',
-      'YouTube 음악만 재생 가능합니다.',
-      [{ text: '확인' }]
-    );
-  }, [floatingContent]);
-  
-  // 🎬 NEW: Handle YouTube video press
-  const handleYouTubePress = useCallback((youtubeData) => {
-    if (!youtubeData || !youtubeData.videoId) {
-      console.error('❌ [YouTube Press] Invalid video data:', youtubeData);
-      return;
-    }
-    
-    console.log('🎬 [YouTube Press] Opening video player');
-    console.log('   Title:', youtubeData.title);
-    console.log('   Video ID:', youtubeData.videoId);
-    
-    // Haptic feedback
-    HapticService.trigger('impactMedium');
-    
-    // Set video data and open player
-    setCurrentVideo({
-      videoId: youtubeData.videoId,
-      title: youtubeData.title,
-      channel: youtubeData.channel,
-    });
-    setShowYouTubePlayer(true);
-  }, []);
-  
-  // 🎬 NEW: Handle YouTube player close
-  const handleYouTubeClose = useCallback(() => {
-    console.log('🎬 [YouTube] Closing player');
-    setShowYouTubePlayer(false);
-    HapticService.trigger('impactLight');
-  }, []);
-  
-  // 🎵 NEW: Handle music toggle (show/hide player for YouTube, play/pause for others)
-  const handleMusicToggle = useCallback(async () => {
-    if (!floatingContent) return;
-    
-    // 🎵 NEW: Handle music player toggle (instant playback!)
-    if (floatingContent.contentType === 'music' && floatingContent.track) {
-      console.log('🎵 [Music Toggle] Button clicked');
-      console.log('   isPlaying:', floatingContent.isPlaying);
-      console.log('   showPlayer:', floatingContent.showPlayer);
-      console.log('   Track:', floatingContent.track.title);
-      console.log('   Source:', floatingContent.track.source);
-      
-      // Haptic feedback
-      HapticService.trigger('impactMedium');
-      
-      // 🎬 NEW: Handle YouTube music (Toggle player visibility)
-      if (floatingContent.track.source === 'youtube') {
-        console.log('🎵 [Music Toggle] YouTube music - toggling player visibility');
-        setFloatingContent(prev => ({
-          ...prev,
-          showPlayer: !prev.showPlayer  // Toggle player visibility
-        }));
-        return;
-      }
-    }
-    
-    // 🎨 EXISTING: Handle image content (unchanged)
-    console.log('👁️  [Floating Content] Button clicked');
-    console.log('   Content ID:', floatingContent.contentId);
-    console.log('   Current Status:', floatingContent.status);
-    console.log('   Image URL:', floatingContent.url);
-    
-    // ✅ Pixabay provides URL immediately - no need to check status!
-    if (floatingContent.status === 'completed' && floatingContent.url) {
-      console.log('✅ [Floating Content] Image ready INSTANTLY!');
-      console.log('   URL:', floatingContent.url);
-      
-      // Haptic feedback
-      HapticService.trigger('success');
-      
-      // Mark as clicked
-      try {
-        await chatApi.markContentAsClicked(floatingContent.contentId);
-      } catch (error) {
-        console.error('❌ Failed to mark as clicked (non-critical):', error);
-      }
-      
-      // Show fullscreen image viewer
-      setSelectedMediaUrl(floatingContent.url);
-      setShowMediaViewer(true);
-      
-      // Hide floating button after viewing
-      setFloatingContent(null);
-      
-      return;
-    }
-    
-    // ⏸️ Fallback: If somehow status is still processing (shouldn't happen with Pixabay)
-    if (floatingContent.status === 'processing' || floatingContent.status === 'pending') {
-      console.log('⚠️ [Floating Content] Still processing (unexpected for Pixabay)...');
-      
-      Alert.alert(
-        '⏳ 이미지 준비 중',
-        '잠시만 기다려주세요!',
-        [{ text: '확인' }]
-      );
-      
-      HapticService.trigger('impactLight');
-      return;
-    }
-    
-    // ❌ Failed status
-    if (floatingContent.status === 'failed') {
-      console.error('❌ [Floating Content] Generation failed');
-      
-      Alert.alert(
-        '❌ 생성 실패',
-        '이미지 생성에 실패했습니다.\n다시 시도해주세요.',
-        [
-          {
-            text: '닫기',
-            onPress: () => setFloatingContent(null)
-          }
-        ]
-      );
-      
-      HapticService.trigger('notificationError');
-    }
-  }, [floatingContent, chatApi]);
-  
-  // 🎵 NEW: Handle music stop (long press)
-  const handleMusicStop = useCallback(() => {
-    console.log('🛑 [Music Stop] Stopping music (long press)...');
-    
-    // Clear floating content (hide widget and player)
-    setFloatingContent(null);
-    
-    // Haptic feedback
-    HapticService.trigger('impactMedium');
-    
-    console.log('✅ [Music Stop] Widget hidden');
-  }, []);
-  
   // 🆕 Handle image selection
   const handleImageSelect = useCallback(async (imageData) => {
     console.log('📷 [ManagerAIOverlay] Image selected:', {
@@ -1158,18 +919,11 @@ const ManagerAIOverlay = ({
           };
           
           console.log('✅ [Music Search] Music will be added to AI message bubble!');
+          console.log('🎵 [Music] User must click bubble to play (same as history)');
           
-          // Set floating content state (music is ready instantly!)
-          setFloatingContent({
-            contentType: 'music',
-            status: 'completed', // ⭐ Music is instant (no processing)
-            track: musicData.track,
-            alternatives: musicData.alternatives || [],
-            emotion: musicData.emotion,
-            mood: musicData.mood,
-            reasoning: musicData.reasoning,
-            isPlaying: false // Initially not playing
-          });
+          // 🔧 FIX: Don't set floatingContent here!
+          // Let user click the bubble → handleMusicPress will be called
+          // This ensures consistent behavior between real-time and history messages
           
           // Haptic feedback
           HapticService.trigger('success');
