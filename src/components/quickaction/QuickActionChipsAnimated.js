@@ -374,29 +374,34 @@ const QuickActionChipsAnimated = ({
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         const isHistoryChip = action.id === 'history';
-        const isDressChip = action.id === 'dress'; // ⭐ NEW: Dress chip check
-        
-        // ⭐ NEW: Use AnimatedTouchable for dress chip, regular TouchableOpacity for others
-        const ChipComponent = isDressChip ? AnimatedTouchable : TouchableOpacity;
-        const chipStyle = isDressChip 
-          ? [styles.chip, animatedStyle, dressAnimatedStyle] // ⭐ Apply dress rotation effect!
-          : [styles.chip, animatedStyle];
+        const isDressChip = action.id === 'dress'; // ⭐ Dress chip check
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
           currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' 
           : 'flex' }]}>
-            <ChipComponent
-              style={chipStyle}
+            <TouchableOpacity
+              style={[styles.chip, animatedStyle]}
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
-              {/* ⭐ Pastel Soft Colors - 각 아이콘의 의미에 맞는 감성적 컬러 */}
-              <Icon 
-                name={action.icon} 
-                size={scale(24)} 
-                color={action.color || '#FFFFFF'} 
-              />
+              {/* ⭐ Dress chip: Icon rotates, badge stays fixed! */}
+              {isDressChip ? (
+                <Animated.View style={dressAnimatedStyle}>
+                  <Icon 
+                    name={action.icon} 
+                    size={scale(24)} 
+                    color={action.color || '#FFFFFF'} 
+                  />
+                </Animated.View>
+              ) : (
+                <Icon 
+                  name={action.icon} 
+                  size={scale(24)} 
+                  color={action.color || '#FFFFFF'} 
+                />
+              )}
+              
               <Text style={[styles.label,{display:'none', color: action.color || '#FFFFFF'}]}>{action.label}</Text>
               
               {/* ⭐ NEW: Notification Badge for History Chip */}
@@ -404,13 +409,13 @@ const QuickActionChipsAnimated = ({
                 <NotificationBadge visible={true} />
               )}
               
-              {/* ⭐ NEW: Dress Count Badge (Static - chip rotates!) */}
+              {/* ⭐ NEW: Dress Count Badge (Fixed - doesn't rotate!) */}
               {isDressChip && (
                 <DressCountBadge 
                   count={currentDressState.count}
                 />
               )}
-            </ChipComponent>
+            </TouchableOpacity>
           </View>
         );
       })}
