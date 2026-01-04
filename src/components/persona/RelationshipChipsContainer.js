@@ -89,6 +89,8 @@ const getRelationshipPercentage = (level) => {
 const RelationshipChipsContainer = React.memo(({ 
   relationshipData, // ⚡ NEW: Direct data from persona (no API call!)
   onChipPress, // ⭐ Callback for chip press (lifted to parent)
+  isFocused = true, // ⭐ NEW: Screen focus state (for emotion animation)
+  onEmotionChipLayout, // ⭐ NEW: Callback for emotion chip layout
 }) => {
   const [isLoading] = useState(false); // No loading needed (data is instant!)
   
@@ -226,19 +228,20 @@ const RelationshipChipsContainer = React.memo(({
     return null; // Or skeleton loader
   }
   
-  // ⭐ NEW: 5 Priority chips with compact format
+  // ⭐ NEW: 5 Priority chips with EMOTION FIRST (no percentage!)
   const chipConfigs = [
+    {
+      key: 'emotion',
+      data: chips.emotion,
+      label: null, // ⚠️ No percentage! Dynamic emoji only
+      emoji: chips.emotion?.emoji || '😐',
+      isEmotionChip: true, // ⭐ Special flag for dynamic animation
+    },
     {
       key: 'intimacy',
       data: chips.intimacy,
       label: `${chips.intimacy?.value || 0}%`,
       emoji: '💙',
-    },
-    {
-      key: 'emotion',
-      data: chips.emotion,
-      label: `${getEmotionPercentage(chips.emotion?.state, chips.emotion?.intensity)}%`,
-      emoji: chips.emotion?.emoji || '😐',
     },
     {
       key: 'relationship',
@@ -281,6 +284,9 @@ const RelationshipChipsContainer = React.memo(({
               isLoading={isLoading}
               type={config.key}
               onPress={() => handleChipPress(config.key, chip)} // ⭐ NEW: Click handler
+              isEmotionChip={config.isEmotionChip || false} // ⭐ NEW: Emotion chip flag
+              isFocused={isFocused} // ⭐ NEW: Pass focus state
+              onLayout={config.isEmotionChip ? onEmotionChipLayout : undefined} // ⭐ NEW: Report emotion chip position
             />
           );
         })}

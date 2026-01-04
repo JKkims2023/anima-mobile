@@ -15,6 +15,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native'; // ⭐ NEW: For focus detection
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconBrain from 'react-native-vector-icons/FontAwesome5';
 import LinearGradient from 'react-native-linear-gradient';
@@ -30,6 +31,7 @@ import PersonaSettingsSheet from './PersonaSettingsSheet';
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
 import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
+import EmotionFloatingEffect from './EmotionFloatingEffect'; // ⭐ NEW: Floating effect at card level
 /**
  * PersonaInfoCard Component (⚡ OPTIMIZED: Relationship data from persona!)
  * @param {Object} props
@@ -56,6 +58,39 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   
   // ⭐ NEW: Selected chip for detail sheet (lifted state)
   const [selectedChip, setSelectedChip] = useState(null);
+  
+  // ⭐ NEW: Screen focus state (for emotion animation)
+  const [isFocused, setIsFocused] = useState(true);
+  
+  // ⭐ NEW: Emotion chip position (for floating effect)
+  const [emotionChipLayout, setEmotionChipLayout] = useState(null);
+  
+  // ⭐ NEW: Detect screen focus/blur for emotion animation
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false); // Stop animation when screen loses focus
+    }, [])
+  );
+  
+  // ⭐ NEW: Handle emotion chip layout
+  const handleEmotionChipLayout = useCallback((event) => {
+    const { x, y, width, height } = event.nativeEvent.layout;
+    setEmotionChipLayout({ x, y, width, height });
+  }, []);
+  
+  // ⭐ NEW: Get emotion emoji from state
+  const getEmotionEmoji = (emotionalState) => {
+    const emotionEmojis = {
+      happy: '😊',
+      normal: '😐',
+      tired: '😴',
+      hurt: '😢',
+      angry: '😠',
+      worried: '😰',
+    };
+    return emotionEmojis[emotionalState] || '😐';
+  };
 
   // ⭐ All Hooks must be at the top (before any conditional returns)
   useEffect(() => {
@@ -244,7 +279,30 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
             <RelationshipChipsContainer 
               relationshipData={persona} // ⚡ Pass entire persona object (includes relationship fields)
               onChipPress={handleChipPress} // ⚡ OPTIMIZED: Stable callback!
+              isFocused={isFocused} // ⭐ NEW: Pass focus state for emotion animation
+              onEmotionChipLayout={handleEmotionChipLayout} // ⭐ NEW: Get emotion chip position
             />
+          )}
+          
+          {/* ⭐ NEW: Instagram-style floating effect (rendered at card level to avoid clipping!) */}
+          {emotionChipLayout && persona?.emotional_state && isFocused && (
+            <View
+              style={{
+                position: 'absolute',
+                left: emotionChipLayout.x,
+                top: emotionChipLayout.y,
+                width: emotionChipLayout.width,
+                height: emotionChipLayout.height,
+                overflow: 'visible', // ⭐ Allow emojis to overflow!
+              }}
+              pointerEvents="none" // Don't block touch events
+            >
+              <EmotionFloatingEffect
+                emoji={getEmotionEmoji(persona.emotional_state)}
+                isFocused={isFocused}
+                count={3}
+              />
+            </View>
           )}
           
           <View style={styles.descriptionContainer}>

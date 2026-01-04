@@ -108,7 +108,7 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
         </View>
       )}
       
-      {/* Layer 3: Persona's Thoughts (Next Questions) */}
+      {/* Layer 3: Persona's Thoughts (Next Questions) - 최근 1개만 표시 */}
       {aiNextQuestions && aiNextQuestions.length > 0 && (
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
           <View style={styles.layerHeader}>
@@ -118,18 +118,13 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
             </CustomText>
           </View>
           <View style={styles.layerContent}>
-            {aiNextQuestions.map((question, index) => (
-              <View key={index} style={styles.questionItem}>
-                <View style={styles.questionNumber}>
-                  <CustomText type="small" bold style={{ color: theme.mainColor }}>
-                    {index + 1}
-                  </CustomText>
-                </View>
-                <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
-                  {question.question}
-                </CustomText>
-              </View>
-            ))}
+            {/* ⚠️ 사용자 집중을 위해 최근 1개만 표시 (JK 요청) */}
+            <View style={styles.questionItem}>
+              <View style={[styles.interestDot, { backgroundColor: theme.mainColor, marginTop: verticalScale(6) }]} />
+              <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
+                {aiNextQuestions[0].question}
+              </CustomText>
+            </View>
           </View>
         </View>
       )}

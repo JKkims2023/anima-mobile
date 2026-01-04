@@ -114,7 +114,7 @@ const PersonaSettingsSheet = ({
       isOpen={isOpen}
       onClose={onClose}
       title={t('persona.settings.title')}
-      snapPoints={['70%']}
+      snapPoints={['80%']}
       buttons={[
         {
           title: t('common.close'),
@@ -167,6 +167,7 @@ const PersonaSettingsSheet = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: platformPadding(20),
   },
 
   contentContainer: {

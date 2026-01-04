@@ -23,15 +23,18 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
  * RelationshipChip Component
  * @param {Object} props
  * @param {string} props.emoji - Chip emoji (icon)
- * @param {string} props.label - Chip label text (now percentage or time)
+ * @param {string} props.label - Chip label text (now percentage or time) - null for emotion chip
  * @param {string} props.color - Primary color
  * @param {number} props.pulseSpeed - Pulse animation speed (seconds)
  * @param {number} props.delay - Appear animation delay (ms)
  * @param {boolean} props.isLoading - Show shimmer loading
  * @param {string} props.type - Chip type ('intimacy', 'emotion', 'relationship', 'trust', 'lastInteraction')
  * @param {Function} props.onPress - Callback when chip is pressed
+ * @param {boolean} props.isEmotionChip - Special flag for emotion chip (larger, animated, no label)
+ * @param {boolean} props.isFocused - Screen focus state (for animation control)
+ * @param {Function} props.onLayout - Callback for chip layout (for positioning floating effect)
  */
-const RelationshipChip = ({ 
+const RelationshipChip = ({
   emoji, 
   label, 
   color = '#4285F4', 
@@ -40,6 +43,9 @@ const RelationshipChip = ({
   isLoading = false,
   type = 'default',
   onPress, // ⭐ NEW: Click handler
+  isEmotionChip = false, // ⭐ NEW: Emotion chip flag
+  isFocused = true, // ⭐ NEW: Focus state
+  onLayout, // ⭐ NEW: Layout callback
 }) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Animation Values
@@ -155,7 +161,10 @@ const RelationshipChip = ({
   });
   
   return (
-    <Animated.View style={[styles.chipContainer, animatedStyle]}>
+    <Animated.View 
+      style={[styles.chipContainer, animatedStyle]}
+      onLayout={onLayout} // ⭐ NEW: Report layout to parent
+    >
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.7}
@@ -196,14 +205,19 @@ const RelationshipChip = ({
           )}
   
             {/* Emoji/Icon */}
-            <CustomText style={styles.emoji}>
+            <CustomText style={[
+              styles.emoji, 
+              isEmotionChip && styles.emotionEmoji // ⭐ Larger for emotion chip
+            ]}>
               {emoji}
             </CustomText>
             
-            {/* Label (Percentage or Time) */}
-            <CustomText type="small" bold style={[styles.label, { color }]}>
-              {label}
-            </CustomText>
+            {/* Label (Percentage or Time) - Hide if null (emotion chip) */}
+            {label && (
+              <CustomText type="small" bold style={[styles.label, { color }]}>
+                {label}
+              </CustomText>
+            )}
 
             
           {/* Border Highlight */}
@@ -247,6 +261,12 @@ const styles = StyleSheet.create({
     fontSize: scale(20), // ⭐ Larger icon
     lineHeight: scale(24),
     marginBottom: verticalScale(4),
+  },
+  emotionEmoji: {
+    // ⭐ NEW: Emotion chip emoji (1.5x larger!)
+    fontSize: scale(32), // 20 * 1.6 = 32
+    lineHeight: scale(38),
+    marginBottom: 0, // No label below, so no margin
   },
   label: {
     fontSize: scale(11), // ⭐ Slightly smaller for numbers
