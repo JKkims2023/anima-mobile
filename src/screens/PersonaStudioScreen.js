@@ -1559,7 +1559,7 @@ const PersonaStudioScreen = () => {
               
               {/* Soul Connection - Subtitle */}
               <CustomText style={styles.soulConnection}>
-                Soul Connection
+                - Soul Connection
               </CustomText>
             </View>
           </View>
@@ -1943,15 +1943,15 @@ const styles = StyleSheet.create({
   // ⭐ NEW: Gradient Title Row (ANIMA + Soul Connection)
   titleRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: scale(8),
+    alignItems: 'center', // ✅ 수직 중앙 정렬
+    gap: scale(6), // ✅ 간격 줄임
   },
   // ⭐ NEW: Soul Connection Subtitle
   soulConnection: {
-    fontSize: scale(10),
+    fontSize: scale(16),
     color: 'rgba(255, 255, 255, 0.6)',
     fontWeight: '500',
-    marginBottom: scale(1), // baseline alignment fine-tuning
+    marginTop: scale(2), // ✅ 위로 약간 올림 (정확한 정렬)
     letterSpacing: 0.3,
   },
   helpButton: {
