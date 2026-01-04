@@ -75,6 +75,7 @@ const PersonaSwipeViewer = forwardRef(({
   onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
+  onMarkAsRead, // ⭐ NEW: Callback when comment is marked as read
   // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
 }, ref) => {
   const { currentTheme } = useTheme();
@@ -225,6 +226,8 @@ const PersonaSwipeViewer = forwardRef(({
           availableHeight={availableHeight}
           onCheckStatus={onCheckStatus}
           onFlipChange={onPostcardFlipChange} // ⭐ NEW: Pass flip change callback
+          user={userProp} // ⭐ NEW: Pass user for PostcardBack API call
+          onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for comment read
         />
       </View>
     );

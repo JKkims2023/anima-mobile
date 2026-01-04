@@ -973,6 +973,32 @@ console.log('currentPersona: ', currentPersona);
     HapticService.light();
   }, []);
   
+  // ⭐ NEW: Handle comment marked as read (update local state without re-fetching)
+  const handleMarkAsRead = useCallback((personaKey) => {
+    if (__DEV__) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ [PersonaStudioScreen] Comment marked as read!');
+      console.log('   persona_key:', personaKey);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
+    // ⭐ Update personas list (local state only, no re-fetch!)
+    setPersonas(prevPersonas => prevPersonas.map(p => 
+      p.persona_key === personaKey
+        ? { ...p, persona_comment_checked: 'Y' } // ⭐ Mark as read!
+        : p
+    ));
+    
+    // ⭐ Update currentPersona if it's the one being read
+    if (currentPersona?.persona_key === personaKey) {
+      setCurrentPersona(prev => ({ ...prev, persona_comment_checked: 'Y' }));
+    }
+    
+    if (__DEV__) {
+      console.log('✅ [PersonaStudioScreen] Local state updated, badge will disappear!');
+    }
+  }, [currentPersona, setPersonas]);
+  
   // 3. Video Conversion (비디오 변환)
   const handleQuickVideo =  async () => {
     
@@ -1528,6 +1554,7 @@ console.log('currentPersona: ', currentPersona);
             onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
             isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
+            onMarkAsRead={handleMarkAsRead} // ⭐ NEW: Callback for comment marked as read (badge removal!)
             // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
           />
         </View>

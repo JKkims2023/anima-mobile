@@ -13,7 +13,7 @@
  * @date 2024-11-22
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -25,6 +25,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../CustomText';
+import NotificationBadge from '../NotificationBadge'; // ⭐ NEW: Badge for history chip
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticService from '../../utils/HapticService';
@@ -189,6 +190,34 @@ const QuickActionChipsAnimated = ({
     console.log('currentPersona: ', currentPersona);
   }, [currentPersona]);
   
+  // ⭐ NEW: Check if history badge should be shown
+  const showHistoryBadge = useMemo(() => {
+    if (!currentPersona) return false;
+    
+    // ⭐ 3 conditions must be met:
+    // 1. selected_dress_persona_comment is not null
+    // 2. selected_dress_persona_comment is not empty string
+    // 3. persona_comment_checked is 'N' (not yet read)
+    const hasComment = 
+      currentPersona.selected_dress_persona_comment !== null &&
+      currentPersona.selected_dress_persona_comment !== '' &&
+      currentPersona.selected_dress_persona_comment.trim() !== '';
+    
+    const isUnread = currentPersona.persona_comment_checked === 'N';
+    
+    const shouldShow = hasComment && isUnread;
+    
+    if (__DEV__ && shouldShow) {
+      console.log('🔴 [QuickActionChipsAnimated] History badge ACTIVE!');
+      console.log('   persona_key:', currentPersona.persona_key);
+      console.log('   persona_name:', currentPersona.persona_name);
+      console.log('   has_comment:', hasComment);
+      console.log('   is_unread:', isUnread);
+    }
+    
+    return shouldShow;
+  }, [currentPersona]);
+  
   const handlePress = (action) => {
     HapticService.medium();
     action.onClick();
@@ -220,6 +249,7 @@ const QuickActionChipsAnimated = ({
     <View style={styles.container}>
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
+        const isHistoryChip = action.id === 'history';
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
@@ -233,6 +263,11 @@ const QuickActionChipsAnimated = ({
               <Icon name={action.icon} size={scale(24)} color=
               {action.id === 'history' ? 'yellow' : action.id === 'dress' ? 'blue' : 'red'} />
               <Text style={[styles.label,{display:'none', color: action.id === 'history' ? 'yellow' : '#FFFFFF'}]}>{action.label}</Text>
+              
+              {/* ⭐ NEW: Notification Badge for History Chip */}
+              {isHistoryChip && showHistoryBadge && (
+                <NotificationBadge visible={true} />
+              )}
             </TouchableOpacity>
           </View>
         );

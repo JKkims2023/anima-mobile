@@ -52,6 +52,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  * @param {Function} props.onCheckStatus - Callback when user clicks "Check Status" button
  * @param {Function} props.onFlipChange - Callback when card flips (true = postcard visible, false = persona visible)
+ * @param {Object} props.user - User object (for API calls in PostcardBack)
+ * @param {Function} props.onMarkAsRead - Callback when comment is marked as read
  */
 const PersonaCardView = forwardRef(({ 
   persona, 
@@ -64,6 +66,8 @@ const PersonaCardView = forwardRef(({
   availableHeight = SCREEN_HEIGHT,
   onCheckStatus, // ⭐ NEW: Callback for status check
   onFlipChange, // ⭐ NEW: Callback for flip state change
+  user, // ⭐ NEW: User object for PostcardBack
+  onMarkAsRead, // ⭐ NEW: Callback for comment read
 }, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
@@ -493,6 +497,8 @@ const PersonaCardView = forwardRef(({
           persona={persona}
           onClose={flipToFront}
           isVisible={isFlipped} // ⭐ NEW: Pass flip state to trigger animation
+          user={user} // ⭐ NEW: Pass user for API call
+          onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for read notification
         />
       </Animated.View>
     </View>

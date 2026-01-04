@@ -241,22 +241,21 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
         >
           <View style={styles.paginationContent}>
             <View style={styles.paginationLeft}>
-
               <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(10)}}>
-              {/* Number Display */}
-              <CustomText type="title" bold style={styles.paginationText}>
-                {currentIndex + 1} / {totalCount}
-              </CustomText>
-              {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
-              {false && (
-                <View style={styles.scrollToTopIcon}>
-                  <Icon 
-                    name="arrow-up-circle" 
-                    size={scale(30)} 
-                    color={theme.mainColor} 
-                  />
-                </View>
-              )}
+                {/* Number Display */}
+                <CustomText type="title" bold style={styles.paginationText}>
+                  {currentIndex + 1} / {totalCount}
+                </CustomText>
+                {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
+                {false && (
+                  <View style={styles.scrollToTopIcon}>
+                    <Icon 
+                      name="arrow-up-circle" 
+                      size={scale(30)} 
+                      color={theme.mainColor} 
+                    />
+                  </View>
+                )}
               </View>
               {/* Progress Bar */}
               <View style={styles.progressBarContainer}>
@@ -271,90 +270,78 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
                 />
               </View>
             </View>
-            
-  
           </View>
         </Pressable>
       )}
-      
       <Pressable onPress={handleSettingsPress}>
-      <View style={styles.content}>
-        
-        {/* Left: Info */}
-        <View style={styles.infoSection}>
-          {/* Name */}
-          <View style={styles.nameContainer}>
-            <CustomText type="big" style={styles.name} numberOfLines={1}>
-              {persona.persona_name}
-            </CustomText>
-
-            <CustomText type="middle" style={[ { fontStyle: 'italic', marginLeft: scale(-15)}]} numberOfLines={1}>
+        <View style={styles.content}>
+          {/* Left: Info */}
+          <View style={styles.infoSection}>
+            {/* Name */}
+            <View style={styles.nameContainer}>
+              <CustomText type="big" style={styles.name} numberOfLines={1}>
+                {persona.persona_name}
+              </CustomText>
+              <CustomText type="middle" style={[ { fontStyle: 'italic', marginLeft: scale(-15)}]} numberOfLines={1}>
               {persona?.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' ? 
               t('persona_info.sage.title') : 
               persona?.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248' ? 
               t('persona_info.nexus.title') : 
               t('persona_info.custom.title')}
-            </CustomText>
-            
-            {/* Settings Icon (Only for user-created personas) */}
-            <Icon 
-              name="settings" 
-              size={scale(20)} 
-              color="#FFFFFF" 
-              style={{ marginLeft: scale(-10)}} 
-            />
-            
-          </View>
-          
-          {/* ⭐ NEW: Relationship Chips (Living Emotions!) - ⚡ OPTIMIZED: No API calls! */}
-          {user?.user_key && persona?.persona_key && (
-            <RelationshipChipsContainer 
-              relationshipData={persona} // ⚡ Pass entire persona object (includes relationship fields)
-              onChipPress={handleChipPress} // ⚡ OPTIMIZED: Stable callback!
-              isFocused={isFocused} // ⭐ NEW: Pass focus state for emotion animation
-              onEmotionChipLayout={handleEmotionChipLayout} // ⭐ NEW: Get emotion chip position
-            />
-          )}
-          
-          {/* ⭐ NEW: Instagram-style floating effect (rendered at card level to avoid clipping!) */}
-          {emotionChipLayout && persona?.emotional_state && isFocused && (
-            <View
-              style={{
-                position: 'absolute',
-                left: emotionChipLayout.x,
-                top: emotionChipLayout.y,
-                width: emotionChipLayout.width,
-                height: emotionChipLayout.height,
-                zIndex: 9999, // ⭐ iOS: High zIndex to ensure visibility above all elements
-              }}
-              pointerEvents="none" // Don't block touch events
-            >
-              <EmotionFloatingEffect
-                mainEmoji={getEmotionEmoji(persona.emotional_state)}
-                floatingEmojis={getFloatingEmojis(persona)}
-                isFocused={isFocused}
-                count={3}
+              </CustomText>
+              {/* Settings Icon (Only for user-created personas) */}
+              <Icon 
+                name="settings" 
+                size={scale(20)} 
+                color="#FFFFFF" 
+                style={{ marginLeft: scale(-10)}} 
               />
             </View>
-          )}
-          
-          <View style={styles.descriptionContainer}>
-            <CustomText type="middle" bold style={styles.description} numberOfLines={2}>
-              {
-              persona?.done_yn === 'N' ? t('persona.creation.creating') : persona?.default_yn === 'Y' ? t('category_type.' + persona?.category_type + '_desc') : persona?.identity_description != null ? persona?.identity_description : t('persona.creation.no_brain') }
-            </CustomText>
+            {/* ⭐ NEW: Relationship Chips (Living Emotions!) - ⚡ OPTIMIZED: No API calls! */}
+            {user?.user_key && persona?.persona_key && (
+              <RelationshipChipsContainer 
+                relationshipData={persona} // ⚡ Pass entire persona object (includes relationship fields)
+                onChipPress={handleChipPress} // ⚡ OPTIMIZED: Stable callback!
+                isFocused={isFocused} // ⭐ NEW: Pass focus state for emotion animation
+                onEmotionChipLayout={handleEmotionChipLayout} // ⭐ NEW: Get emotion chip position
+              />
+            )}
+            {/* ⭐ NEW: Instagram-style floating effect (rendered at card level to avoid clipping!) */}
+            {emotionChipLayout && persona?.emotional_state && isFocused && (
+              <View
+                style={{
+                  position: 'absolute',
+                  left: emotionChipLayout.x,
+                  top: emotionChipLayout.y,
+                  width: emotionChipLayout.width,
+                  height: emotionChipLayout.height,
+                  zIndex: 9999, // ⭐ iOS: High zIndex to ensure visibility above all elements
+                }}
+                pointerEvents="none" // Don't block touch events
+              >
+                <EmotionFloatingEffect
+                  mainEmoji={getEmotionEmoji(persona.emotional_state)}
+                  floatingEmojis={getFloatingEmojis(persona)}
+                  isFocused={isFocused}
+                  count={3}
+                />
+              </View>
+            )}
+            <View style={styles.descriptionContainer}>
+              <CustomText type="middle" bold style={styles.description} numberOfLines={2}>
+                {persona?.done_yn === 'N' ? t('persona.creation.creating') : persona?.default_yn === 'Y' ? t('category_type.' + persona?.category_type + '_desc') : persona?.identity_description != null ? persona?.identity_description : t('persona.creation.no_brain')}
+              </CustomText>
+            </View>
+          </View>
+          {/* Right: Chat Button */}
+          <View
+            style={[styles.chatButton, { display: 'none'}]}
+            onPress={handleChatPress}
+            activeOpacity={0.7}
+          >
+            <Icon name="settings" size={scale(30)} color="#FFFFFF" />
           </View>
         </View>
-        
-        {/* Right: Chat Button */}
-        <View
-          style={[styles.chatButton, { display: 'none'}]}
-          onPress={handleChatPress}
-          activeOpacity={0.7}
-        >
-          <Icon name="settings" size={scale(30)} color="#FFFFFF" />
-        </View>
-      </View>
       </Pressable>
     </GradientOverlay>
 
@@ -406,7 +393,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 100,
-    marginBottom: verticalScale(20),
+//    marginBottom: verticalScale(20),
   },
   
   // ⭐ GradientOverlay - Container styles (inner View)
@@ -418,7 +405,6 @@ const styles = StyleSheet.create({
   // ⭐ Pagination Container (Clickable for scroll to top)
   paginationContainer: {
     width: '100%',
-    height: verticalScale(100), // ⭐ Increased to 100px for iOS Safe Area (44) + content (26) + spacing
     paddingHorizontal: scale(0),
     paddingBottom: verticalScale(10), // Bottom padding for spacing
     marginBottom: verticalScale(2),
@@ -471,7 +457,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(16),
-    marginBottom: verticalScale(30),
+    marginBottom: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(-30),
   },
   nameContainer: {
     flexDirection: 'row',
