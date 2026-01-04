@@ -87,6 +87,13 @@ const QuickActionChipsAnimated = ({
   const dressOpacity = useSharedValue(1);
   const dressScale = useSharedValue(1);
   
+  // ⭐ NEW: Video chip animations (3 states: waiting, converting, completed)
+  const videoScale = useSharedValue(1);          // 💓 Heartbeat effect (State 1)
+  const videoGlow = useSharedValue(0);           // ✨ Glow intensity (State 1)
+  const videoRotation = useSharedValue(0);       // 🔄 Icon rotation (State 2)
+  const videoOpacity = useSharedValue(1);        // Opacity control
+  const videoBorderGlow = useSharedValue(0);     // 🌟 Border glow pulse
+  
   // ✅ Animation values (individual for each chip)
   const opacity0 = useSharedValue(0);
   const opacity1 = useSharedValue(0);
@@ -136,6 +143,22 @@ const QuickActionChipsAnimated = ({
       { rotate: `${dressRotation.value}deg` },
       { scale: dressScale.value }
     ],
+  }));
+  
+  // ⭐ NEW: Video chip animated style (icon animation)
+  const videoIconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: videoScale.value },
+      { rotate: `${videoRotation.value}deg` }
+    ],
+  }));
+  
+  // ⭐ NEW: Video chip container animated style (glow + border)
+  const videoChipAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: videoOpacity.value,
+    transform: [{ scale: 1 + videoBorderGlow.value * 0.05 }], // Subtle border pulse
+    shadowOpacity: 0.4 + videoGlow.value * 0.6, // Glow effect
+    shadowRadius: 8 + videoGlow.value * 12, // Expand shadow
   }));
   
   // ⭐ Start/stop hourglass rotation based on isVideoConverting
@@ -198,6 +221,91 @@ const QuickActionChipsAnimated = ({
       });
     }
   }, [currentDressState.hasCreating]);
+  
+  // ⭐ NEW: Video chip animation controller (3 states)
+  useEffect(() => {
+    const hasVideo = currentPersona?.selected_dress_video_url !== null;
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // State 1: WAITING (No video, not converting) - 강렬한 효과! 🔥
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (!hasVideo && !isVideoConverting) {
+      console.log('[QuickActionChipsAnimated] 🔥 Video chip: WAITING state (강렬한 효과!)');
+      
+      // 💓 Heartbeat effect: Scale pulse (1.0 ↔ 1.15)
+      videoScale.value = withRepeat(
+        withTiming(1.15, {
+          duration: 800, // 0.8초 (심장 박동 느낌)
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1, // Infinite
+        true // Reverse (1.0 → 1.15 → 1.0 → 1.15...)
+      );
+      
+      // ✨ Glow pulse: Intensity (0 ↔ 1)
+      videoGlow.value = withRepeat(
+        withTiming(1, {
+          duration: 1200, // 1.2초 (심장보다 약간 느림)
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1, // Infinite
+        true // Reverse
+      );
+      
+      // 🌟 Border glow pulse (0 ↔ 1)
+      videoBorderGlow.value = withRepeat(
+        withTiming(1, {
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1,
+        true
+      );
+      
+      // Opacity: Full
+      videoOpacity.value = withTiming(1.0, { duration: 300 });
+      
+      // Rotation: None
+      videoRotation.value = withTiming(0, { duration: 300 });
+    }
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // State 2: CONVERTING (Video converting) - 변환 중 효과 ⏳
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    else if (isVideoConverting) {
+      console.log('[QuickActionChipsAnimated] ⏳ Video chip: CONVERTING state (변환 중...)');
+      
+      // Stop heartbeat & glow
+      videoScale.value = withTiming(1.0, { duration: 400 });
+      videoGlow.value = withTiming(0, { duration: 400 });
+      videoBorderGlow.value = withTiming(0, { duration: 400 });
+      
+      // 🔄 Rotation (like hourglass)
+      videoRotation.value = withRepeat(
+        withTiming(360, {
+          duration: 2000, // 2초에 한 바퀴
+          easing: Easing.linear,
+        }),
+        -1, // Infinite
+        false // No reverse
+      );
+      
+      // Opacity: Slight transparency (0.85)
+      videoOpacity.value = withTiming(0.85, { duration: 400 });
+    }
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // State 3: COMPLETED (Has video) - 숨김 ✅
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    else if (hasVideo) {
+      console.log('[QuickActionChipsAnimated] ✅ Video chip: COMPLETED state (숨김)');
+      
+      // Stop all animations
+      videoScale.value = withTiming(1.0, { duration: 300 });
+      videoGlow.value = withTiming(0, { duration: 300 });
+      videoBorderGlow.value = withTiming(0, { duration: 300 });
+      videoRotation.value = withTiming(0, { duration: 300 });
+      videoOpacity.value = withTiming(1.0, { duration: 300 });
+    }
+  }, [currentPersona?.selected_dress_video_url, isVideoConverting]);
   
   // ⭐ Auto-hide tooltip after 3 seconds
   useEffect(() => {
@@ -374,14 +482,48 @@ const QuickActionChipsAnimated = ({
       {actions.map((action, index) => {
         const animatedStyle = animatedStyles[index];
         const isHistoryChip = action.id === 'history';
-        const isDressChip = action.id === 'dress'; // ⭐ Dress chip check
+        const isDressChip = action.id === 'dress';
+        const isVideoChip = action.id === 'video'; // ⭐ NEW: Video chip check
+        
+        // ⭐ Video chip states
+        const hasVideo = currentPersona?.selected_dress_video_url !== null;
+        const isWaitingState = isVideoChip && !hasVideo && !isVideoConverting; // State 1: 강렬한 효과
+        const isConvertingState = isVideoChip && isVideoConverting; // State 2: 변환 중
+        
+        // ⭐ Video chip icon & color
+        const videoIcon = isConvertingState ? 'timer-sand' : action.icon;
+        const videoColor = isConvertingState 
+          ? '#FFB84D' // 주황색 (변환 중)
+          : isWaitingState 
+            ? '#FF3B5C' // 강렬한 레드/핑크 (대기 중)
+            : action.color;
+        
+        // ⭐ Video chip style (주황색 테마 for converting)
+        const videoChipStyle = isVideoChip ? {
+          backgroundColor: isConvertingState 
+            ? 'rgba(255, 165, 0, 0.3)' // 주황색 배경 (변환 중)
+            : isWaitingState
+              ? 'rgba(255, 59, 92, 0.25)' // 레드 배경 (대기 중)
+              : 'rgba(0, 0, 0, 0.65)',
+          borderColor: isConvertingState
+            ? 'rgba(255, 165, 0, 0.6)' // 주황색 테두리 (변환 중)
+            : isWaitingState
+              ? 'rgba(255, 59, 92, 0.7)' // 레드 테두리 (대기 중)
+              : 'rgba(255, 255, 255, 0.3)',
+          borderWidth: isWaitingState ? 2.5 : 1.5, // 대기 중에는 더 두꺼운 테두리
+        } : {};
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
           currentPersona?.selected_dress_video_url === null ? 'flex' : 'none' 
           : 'flex' }]}>
-            <TouchableOpacity
-              style={[styles.chip, animatedStyle]}
+            <AnimatedTouchable
+              style={[
+                styles.chip, 
+                animatedStyle, 
+                videoChipStyle,
+                isVideoChip && videoChipAnimatedStyle // ⭐ Apply glow effect!
+              ]}
               onPress={() => handlePress(action)}
               activeOpacity={0.7}
             >
@@ -392,6 +534,15 @@ const QuickActionChipsAnimated = ({
                     name={action.icon} 
                     size={scale(24)} 
                     color={action.color || '#FFFFFF'} 
+                  />
+                </Animated.View>
+              ) : isVideoChip ? (
+                // ⭐ Video chip: Special icon animation (heartbeat or rotation)
+                <Animated.View style={videoIconAnimatedStyle}>
+                  <Icon 
+                    name={videoIcon}
+                    size={scale(24)} 
+                    color={videoColor} 
                   />
                 </Animated.View>
               ) : (
@@ -415,7 +566,7 @@ const QuickActionChipsAnimated = ({
                   count={currentDressState.count}
                 />
               )}
-            </TouchableOpacity>
+            </AnimatedTouchable>
           </View>
         );
       })}
