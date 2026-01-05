@@ -244,74 +244,65 @@ const ManagerAIOverlay = ({
     };
   }, [visible]);
   
-  // ⭐ NEW: Android Back Button Handler (UNIFIED - Issue 2 FINAL FIX!)
-  useEffect(() => {
-    if (!visible) return;
+  // ⭐ NEW: Unified Back Button Handler (used by both Modal and BackHandler!)
+  const handleBackPress = useCallback(() => {
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🎯 PRIORITY ORDER (Top to Bottom)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🎯 PRIORITY ORDER (Top to Bottom)
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      
-      // 🎛️ PRIORITY 1: Settings Menu (ChatInputBar)
-      if (isSettingsMenuOpen) {
-        setIsSettingsMenuOpen(false);
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 🎭 PRIORITY 2: Identity Settings Sheet
-      if (showIdentitySettings) {
-        setShowIdentitySettings(false);
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 🗣️ PRIORITY 3: Speaking Pattern Sheet
-      if (showSpeakingPattern) {
-        setShowSpeakingPattern(false);
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 🎵 PRIORITY 4: Create Music Sheet
-      if (showCreateMusic) {
-        setShowCreateMusic(false);
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 🎬 PRIORITY 5: YouTube Video Player
-      if (showYouTubePlayer) {
-        handleYouTubeClose();
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 🎵 PRIORITY 6: YouTube Music Player (Overlay)
-      if (floatingContent?.showPlayer) {
-        setFloatingContent(prev => ({ ...prev, showPlayer: false }));
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // ❓ PRIORITY 7: Help Sheet
-      if (isHelpOpen) {
-        setIsHelpOpen(false);
-        HapticService.light();
-        return true; // ⭐ Event handled!
-      }
-      
-      // 💬 PRIORITY 8: Close entire chat (if nothing is open)
-      handleClose();
+    // 🎛️ PRIORITY 1: Settings Menu (ChatInputBar)
+    if (isSettingsMenuOpen) {
+      setIsSettingsMenuOpen(false);
+      HapticService.light();
       return true; // ⭐ Event handled!
-    });
+    }
     
-    return () => {
-      backHandler.remove();
-    };
+    // 🎭 PRIORITY 2: Identity Settings Sheet
+    if (showIdentitySettings) {
+      setShowIdentitySettings(false);
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 🗣️ PRIORITY 3: Speaking Pattern Sheet
+    if (showSpeakingPattern) {
+      setShowSpeakingPattern(false);
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 🎵 PRIORITY 4: Create Music Sheet
+    if (showCreateMusic) {
+      setShowCreateMusic(false);
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 🎬 PRIORITY 5: YouTube Video Player
+    if (showYouTubePlayer) {
+      handleYouTubeClose();
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 🎵 PRIORITY 6: YouTube Music Player (Overlay)
+    if (floatingContent?.showPlayer) {
+      setFloatingContent(prev => ({ ...prev, showPlayer: false }));
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // ❓ PRIORITY 7: Help Sheet
+    if (isHelpOpen) {
+      setIsHelpOpen(false);
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 💬 PRIORITY 8: Close entire chat (if nothing is open)
+    handleClose();
+    return true; // ⭐ Event handled!
   }, [
-    visible, 
     isSettingsMenuOpen, 
     showIdentitySettings, 
     showSpeakingPattern, 
@@ -323,6 +314,17 @@ const ManagerAIOverlay = ({
     handleYouTubeClose,
     setFloatingContent,
   ]);
+  
+  // ⭐ NEW: Android Back Button Handler (uses handleBackPress!)
+  useEffect(() => {
+    if (!visible) return;
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    
+    return () => {
+      backHandler.remove();
+    };
+  }, [visible, handleBackPress]);
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -858,32 +860,44 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
   
   const handleClose = useCallback(() => {
-    // ⭐ NEW: Check if any sheet is open, close that first (not the entire chat!)
+    // ⭐ NEW: Check if any UI is open, close that first (not the entire chat!)
+    
+    // 🎛️ PRIORITY 1: Settings Menu
+    if (isSettingsMenuOpen) {
+      setIsSettingsMenuOpen(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    // 🎭 PRIORITY 2: Identity Settings Sheet
     if (showIdentitySettings) {
       setShowIdentitySettings(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
+    // 🗣️ PRIORITY 3: Speaking Pattern Sheet
     if (showSpeakingPattern) {
       setShowSpeakingPattern(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
+    // 🎵 PRIORITY 4: Create Music Sheet
     if (showCreateMusic) {
       setShowCreateMusic(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
+    // ❓ PRIORITY 5: Help Sheet
     if (isHelpOpen) {
       setIsHelpOpen(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
-    // ⭐ If no sheet is open, proceed with normal close logic
+    // ⭐ If no UI is open, proceed with normal close logic
     
     // 🧹 Clear all UI states before closing
     setFloatingContent(null);
@@ -980,7 +994,7 @@ const ManagerAIOverlay = ({
     if (onClose) {
       onClose();
     }
-  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: sheet states
+  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, isSettingsMenuOpen, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: UI states
   
   if (!visible) return null;
   
@@ -990,7 +1004,7 @@ const ManagerAIOverlay = ({
       visible={visible}
       transparent={true}
       animationType="fade"
-      onRequestClose={handleClose}
+      onRequestClose={handleBackPress} // ⭐ FIX: Use unified back press handler!
     >
       {/* ✅ Simple Dark Background (No BlurView!) */}
       <View style={styles.container}>
@@ -1087,6 +1101,92 @@ const ManagerAIOverlay = ({
               </View>
             )}
             
+            {/* 🎛️ NEW: Chat Settings Menu (Floating above input!) */}
+            {isSettingsMenuOpen && !showIdentitySettings && !showSpeakingPattern && !showCreateMusic && (
+              <View style={styles.settingsMenuContainer}>
+                <View style={styles.settingsMenu}>
+                  {/* 🧠 Brain Settings Section */}
+                  <CustomText type='middle' bold style={styles.settingsMenuTitle}>
+                    {t('ai_comment.brain_title')}
+                  </CustomText>
+
+                  {/* 🎭 자아 설정 */}
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => {
+                      handleToggleSettings('identity');
+                      setIsSettingsMenuOpen(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <CustomText type='middle' style={styles.menuIcon}>🧠</CustomText>
+                    <CustomText type='middle' style={styles.menuText}>
+                      {t('ai_comment.identity_setting_title')}
+                    </CustomText>
+                  </TouchableOpacity>
+                  
+                  {/* 🗣️ 말투 설정 (User-created personas only) */}
+                  {persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        handleToggleSettings('speaking');
+                        setIsSettingsMenuOpen(false);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <CustomText type='middle' style={styles.menuIcon}>🗣️</CustomText>
+                      <CustomText type='middle' style={styles.menuText}>
+                        {t('ai_comment.speaking_setting_title')}
+                      </CustomText>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* 구분선 */}
+                  <View style={styles.menuDivider} />
+
+                  {/* 🎨 Product Creation Section */}
+                  <CustomText type='middle' bold style={styles.settingsMenuTitle}>
+                    {t('ai_comment.product_create_title')}
+                  </CustomText>
+
+                  {/* 🎵 음악 생성 */}
+                  {persona && (
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        handleCreateMusic();
+                        setIsSettingsMenuOpen(false);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <CustomText type='middle' style={styles.menuIcon}>🎵</CustomText>
+                      <CustomText type='middle' style={styles.menuText}>
+                        {t('ai_comment.create_music_title')}
+                      </CustomText>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* 💬 메시지 생성 */}
+                  {persona && (
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        handleCreateMessage();
+                        setIsSettingsMenuOpen(false);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <CustomText type='middle' style={styles.menuIcon}>💬</CustomText>
+                      <CustomText type='middle' style={styles.menuText}>
+                        {t('ai_comment.create_message_title')}
+                      </CustomText>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            )}
+            
             {/* ✅ Chat Input Bar */}
             <View style={styles.inputContainer}>
               <ChatInputBar
@@ -1094,14 +1194,12 @@ const ManagerAIOverlay = ({
                 onImageSelect={handleImageSelect} // 🆕 Image selection callback
                 disabled={loadingServiceConfig || isLoading || isTyping || isAIContinuing} // ⭐ NEW: Disable when loading config or AI is continuing
                 placeholder={t('chatBottomSheet.placeholder')}
-                onAISettings={handleToggleSettings} // 🆕 Toggle settings menu
+                onSettingsPress={() => setIsSettingsMenuOpen(prev => !prev)} // 🎛️ NEW: Toggle settings menu!
                 onCreateMusic={handleCreateMusic} // 🆕 Create music callback
                 onCreateMessage={handleCreateMessage} // 🆕 Create message callback
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
                 persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
-                isSettingsMenuOpen={isSettingsMenuOpen} // 🎛️ NEW: Settings menu state (lifted up!)
-                setIsSettingsMenuOpen={setIsSettingsMenuOpen} // 🎛️ NEW: Settings menu setter
               />
             </View>
             
@@ -1175,7 +1273,7 @@ const ManagerAIOverlay = ({
     </Modal>
     
     {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
-    {persona && user && (
+    {user && (
     <IdentitySettingsSheet
       isOpen={showIdentitySettings}
       onClose={() => setShowIdentitySettings(false)}
@@ -1187,7 +1285,7 @@ const ManagerAIOverlay = ({
     )}
     
     {/* 🗣️ Speaking Pattern Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
-    {persona && user && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
+    {user && persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
       <SpeakingPatternSheet
         isOpen={showSpeakingPattern}
         onClose={() => setShowSpeakingPattern(false)}
@@ -1199,7 +1297,7 @@ const ManagerAIOverlay = ({
     )}
 
     {/* 🎵 Create Music Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
-    {persona && user && (
+    {user && persona && (
     <CreateMusicSheet
       isOpen={showCreateMusic}
       onClose={() => setShowCreateMusic(false)}
@@ -1383,6 +1481,58 @@ const styles = StyleSheet.create({
   helpButton: {
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Settings Menu (Floating above input!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  settingsMenuContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? verticalScale(70) : verticalScale(20), // Above input bar!
+    left: platformPadding(0),
+    right: platformPadding(0),
+    paddingHorizontal: platformPadding(20),
+    zIndex: 1000, // Float above everything!
+  },
+  settingsMenu: {
+    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+    borderRadius: moderateScale(12),
+    paddingVertical: verticalScale(4),
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  settingsMenuTitle: {
+    marginLeft: moderateScale(12),
+    marginTop: verticalScale(8),
+    marginBottom: verticalScale(8),
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: moderateScale(12),
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
+    marginHorizontal: moderateScale(4),
+  },
+  menuIcon: {
+    fontSize: moderateScale(18),
+    marginRight: moderateScale(8),
+  },
+  menuText: {
+    color: '#FFF',
+    fontSize: moderateScale(15),
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: verticalScale(8),
+    marginHorizontal: moderateScale(12),
   },
   
 });
