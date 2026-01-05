@@ -33,6 +33,7 @@ import {
   Alert,
   Image, // 🆕 For image preview
   AppState, // 🎵 NEW: For background state detection
+  BackHandler, // ⭐ NEW: For Android back button handling
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -239,6 +240,46 @@ const ManagerAIOverlay = ({
       }
     };
   }, [visible]);
+  
+  // ⭐ NEW: Android Back Button Handler (Issue 2 FIX!)
+  useEffect(() => {
+    if (!visible) return;
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // ⭐ Check if any sheet is open, close that first (not the entire chat!)
+      if (showIdentitySettings) {
+        setShowIdentitySettings(false);
+        HapticService.light();
+        return true; // ⭐ Event handled! Don't propagate!
+      }
+      
+      if (showSpeakingPattern) {
+        setShowSpeakingPattern(false);
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      if (showCreateMusic) {
+        setShowCreateMusic(false);
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      if (isHelpOpen) {
+        setIsHelpOpen(false);
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      // ⭐ If no sheet is open, proceed with normal close logic
+      handleClose();
+      return true; // ⭐ Event handled!
+    });
+    
+    return () => {
+      backHandler.remove();
+    };
+  }, [visible, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen, handleClose]);
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {

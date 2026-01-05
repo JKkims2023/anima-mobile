@@ -593,25 +593,24 @@ const ChatMessageList = ({
   }, []);
   
   // ⚡ NEW: Real-time scroll during typing (as bubble grows!)
-  // ⚡ THROTTLED: Prevent excessive calls (max once per 50ms)
+  // ⚡ OPTIMIZED: Less throttling during typing for smoother experience (Issue 3 FIX!)
   const lastScrollTimeRef = useRef(0);
   const handleContentSizeChange = useCallback((width, height) => {
     const now = Date.now();
     
-    // ⚡ Throttle: Only execute if 50ms has passed since last call
-    if (now - lastScrollTimeRef.current < 50) {
+    // ⚡ CHANGED: Reduced throttle from 50ms → 16ms (~60fps) for smoother typing scroll
+    if (now - lastScrollTimeRef.current < 16) {
       return;
     }
     
     lastScrollTimeRef.current = now;
     
-    // Only auto-scroll if:
-    // 1. Currently typing (bubble is growing)
-    // 2. User is not manually scrolling
-    if (isTyping && !isUserScrolling && flashListRef.current) {
+    // ⭐ FIX: Always auto-scroll during typing (ignore isUserScrolling during typing!)
+    // This prevents the typing bubble from being hidden behind the input bar
+    if (isTyping && flashListRef.current) {
       flashListRef.current.scrollToEnd({ animated: false });
     }
-  }, [isTyping, isUserScrolling]);
+  }, [isTyping]);
 
   // ⭐ NEW: Handle scroll (load more history + detect manual scrolling)
   const handleScroll = useCallback((event) => {
@@ -813,7 +812,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: moderateScale(0),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(0), // ✅ Space for input bar
+    paddingBottom: verticalScale(100), // ⭐ INCREASED: 0 → 100 (Issue 3 FIX! Space for input bar + typing bubble)
   },
   messageRow: {
     flexDirection: 'row',
