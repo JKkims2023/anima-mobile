@@ -207,17 +207,17 @@ const TypingMessageBubble = memo(({
 const styles = StyleSheet.create({
   messageRow: {
     flexDirection: 'row',
-    marginBottom: verticalScale(12),
-    paddingHorizontal: platformPadding(0),
     alignItems: 'flex-end',
+    marginBottom: verticalScale(10), // ⭐ CHANGED: 12 → 10 (match ChatMessageList!)
+    gap: moderateScale(8), // ⭐ ADDED: Gap between avatar and bubble (match ChatMessageList!)
   },
   avatarContainer: {
-    width: moderateScale(36),
-    height: moderateScale(36),
-    borderRadius: moderateScale(18),
-    marginRight: moderateScale(8),
+    width: moderateScale(52), // ⭐ CHANGED: 36 → 52 (match ChatMessageList!)
+    height: moderateScale(52), // ⭐ CHANGED: 36 → 52 (match ChatMessageList!)
+    borderRadius: moderateScale(26), // ⭐ CHANGED: 18 → 26 (match ChatMessageList!)
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 2, // ⭐ ADDED: Border (match ChatMessageList!)
+    borderColor: 'rgba(59, 130, 246, 0.5)', // ⭐ ADDED: Blue border (match ChatMessageList!)
   },
   avatar: {
     width: '100%',
@@ -225,17 +225,17 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     maxWidth: '75%',
-    paddingHorizontal: platformPadding(14),
-    paddingVertical: platformPadding(10),
     borderRadius: moderateScale(16),
+    paddingHorizontal: platformPadding(15), // ⭐ CHANGED: 14 → 15 (match ChatMessageList!)
+    paddingVertical: platformPadding(10),
     borderBottomLeftRadius: moderateScale(4),
   },
   messageText: {
-    fontSize: moderateScale(15),
-    lineHeight: moderateScale(22),
+    fontSize: moderateScale(16), // ⭐ CHANGED: 15 → 16 (match ChatMessageList!)
+    lineHeight: moderateScale(22), // ⭐ NOTE: Using moderateScale for consistency, platformLineHeight would be ideal
   },
   cursor: {
-    fontSize: moderateScale(15),
+    fontSize: moderateScale(16), // ⭐ CHANGED: 15 → 16 (match messageText!)
     fontWeight: 'bold',
   },
 });

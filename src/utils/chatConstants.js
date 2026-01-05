@@ -26,7 +26,7 @@ export const IDENTITY_EVOLUTION = {
 
 // 📜 Chat History Constants
 export const CHAT_HISTORY = {
-  INITIAL_LIMIT: 100, // Initial number of messages to load
+  INITIAL_LIMIT: 20, // ⭐ CHANGED: 100 → 20 (Load only recent 20 messages initially for better performance!)
   LOAD_MORE_LIMIT: 20, // Number of messages to load when "load more" is triggered
   MIN_MESSAGES_FOR_LEARNING: 3, // Minimum messages required to trigger background learning
 };

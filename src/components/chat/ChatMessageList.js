@@ -549,7 +549,11 @@ const ChatMessageList = ({
 
   // ✅ Auto-scroll to bottom on new message or typing starts
   // ⚡ OPTIMIZED: Only depends on isTyping (boolean), not typingMessage (string that changes 30ms)
+  // ⭐ CRITICAL FIX: isUserScrolling removed from dependencies to prevent auto-scroll when user is manually scrolling!
   useEffect(() => {
+    // ⚠️ CRITICAL: Only auto-scroll when NEW MESSAGE arrives!
+    // Don't auto-scroll just because isUserScrolling changed (1초 타이머 때문에 계속 변경됨!)
+    
     if (flashListRef.current && !isUserScrolling) {
       // ⚡ Initial load: Scroll without animation (instant!)
       if (isInitialLoad && completedMessages.length > 0) {
@@ -574,7 +578,7 @@ const ChatMessageList = ({
         return () => clearTimeout(scrollTimeout);
       }
     }
-  }, [completedMessages.length, messageVersion, isTyping, isUserScrolling, isInitialLoad]);
+  }, [completedMessages.length, messageVersion, isTyping, isInitialLoad]); // ⭐ REMOVED: isUserScrolling from dependencies!
   
   // ⚡ Cleanup timeout on unmount
   useEffect(() => {
@@ -616,13 +620,14 @@ const ChatMessageList = ({
     // ⚡ NEW: Mark user as manually scrolling
     setIsUserScrolling(true);
     
-    // Reset flag after 1 second of no scrolling
+    // ⭐ CHANGED: Reset flag after 5 seconds (increased from 1 second for better UX!)
+    // This prevents auto-scroll while user is reading old messages
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
     scrollTimeoutRef.current = setTimeout(() => {
       setIsUserScrolling(false);
-    }, 1000);
+    }, 5000); // ⭐ INCREASED: 1000 → 5000 (5 seconds of protection!)
     
     // ✅ Load more when scrolling to top (reaching old messages)
     if (onLoadMore && hasMoreHistory && !loadingHistory && contentOffset.y <= 100) {

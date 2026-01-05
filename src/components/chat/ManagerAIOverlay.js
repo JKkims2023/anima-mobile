@@ -774,6 +774,33 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
   
   const handleClose = useCallback(() => {
+    // ⭐ NEW: Check if any sheet is open, close that first (not the entire chat!)
+    if (showIdentitySettings) {
+      setShowIdentitySettings(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    if (showSpeakingPattern) {
+      setShowSpeakingPattern(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    if (showCreateMusic) {
+      setShowCreateMusic(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    if (isHelpOpen) {
+      setIsHelpOpen(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    // ⭐ If no sheet is open, proceed with normal close logic
+    
     // Clear floating content (music button and player)
     setFloatingContent(null);
     setIsHelpOpen(false);
@@ -865,7 +892,7 @@ const ManagerAIOverlay = ({
     if (onClose) {
       onClose();
     }
-  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona]);
+  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: sheet states
   
   if (!visible) return null;
   
