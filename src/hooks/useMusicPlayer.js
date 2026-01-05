@@ -2,13 +2,13 @@
  * 🎵 useMusicPlayer - Music Player Hook
  * 
  * Features:
- * - YouTube music playback
- * - Floating music widget control
- * - YouTube video modal
- * - Music player state management
+ * - YouTube music playback (direct player, no floating widget)
+ * - YouTube video player
+ * - Mutual exclusivity (music/video)
+ * - Simplified state management
  * 
  * @author JK & Hero Nexus
- * @date 2026-01-04
+ * @date 2026-01-05
  */
 
 import { useState, useCallback } from 'react';
@@ -21,10 +21,10 @@ import HapticService from '../utils/HapticService';
  * @returns {Object} Music player state and handlers
  */
 export const useMusicPlayer = () => {
-  // 🎨 Floating content state (music/image/video)
+  // 🎵 YouTube Music Player state (HiddenYoutubePlayer)
   const [floatingContent, setFloatingContent] = useState(null);
   
-  // 🎬 YouTube Video Player state
+  // 🎬 YouTube Video Player state (MiniYoutubeVideoPlayer)
   const [showYouTubePlayer, setShowYouTubePlayer] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
   
@@ -51,7 +51,7 @@ export const useMusicPlayer = () => {
     
     // 🎬 Check if source is YouTube
     if (actualSource === 'youtube') {
-      console.log('🎵 [Music Press] YouTube source detected! Using Hidden Player...');
+      console.log('🎵 [Music Press] YouTube source detected! Opening player...');
       
       // Extract videoId from YouTube URL
       let videoId = null;
@@ -76,29 +76,14 @@ export const useMusicPlayer = () => {
       if (videoId) {
         console.log('✅ [Music Press] VideoId extracted:', videoId);
         
-        // 🎵 If currently playing this track, pause
-        if (floatingContent?.track?.url === musicData.url && floatingContent?.isPlaying) {
-          console.log('⏸️  [Music Press] Pausing current YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: false
-          }));
-          HapticService.trigger('impactMedium');
-          return;
+        // ⭐ Close YouTube video player if open (mutual exclusivity!)
+        if (showYouTubePlayer) {
+          console.log('🎬 [Music Press] Closing video player (mutual exclusivity)');
+          setShowYouTubePlayer(false);
+          setCurrentVideo(null);
         }
         
-        // 🎵 If paused (same track), resume
-        if (floatingContent?.track?.url === musicData.url && !floatingContent?.isPlaying) {
-          console.log('▶️  [Music Press] Resuming YouTube track...');
-          setFloatingContent(prev => ({
-            ...prev,
-            isPlaying: true
-          }));
-          HapticService.trigger('impactMedium');
-          return;
-        }
-        
-        // Set floating content for YouTube music
+        // ⭐ Open music player directly (no floating widget!)
         setFloatingContent({
           contentType: 'music',
           status: 'completed',
@@ -112,12 +97,12 @@ export const useMusicPlayer = () => {
             source: 'youtube',
             videoId: videoId, // Store videoId for HiddenYoutubePlayer
           },
-          isPlaying: false,      // Don't auto-play
-          showPlayer: false      // Don't show player yet (only show widget)
+          isPlaying: true,      // ⭐ Auto-play!
+          showPlayer: true      // ⭐ Show player immediately!
         });
         
         HapticService.trigger('impactMedium');
-        console.log('✅ [Music Press] YouTube music ready to play!');
+        console.log('✅ [Music Press] YouTube music player opened and playing!');
         return;
       } else {
         console.error('❌ [Music Press] Failed to extract videoId from URL:', musicData.url);
@@ -137,46 +122,19 @@ export const useMusicPlayer = () => {
       'YouTube 음악만 재생 가능합니다.',
       [{ text: '확인' }]
     );
-  }, [floatingContent]);
+  }, [showYouTubePlayer]);
   
-  // 🎵 Handle music toggle (show/hide player for YouTube)
-  const handleMusicToggle = useCallback(async () => {
-    if (!floatingContent) return;
+  // 🎵 Handle music close (close button)
+  const handleMusicClose = useCallback(() => {
+    console.log('🛑 [Music Close] Closing music player...');
     
-    // Handle music player toggle
-    if (floatingContent.contentType === 'music' && floatingContent.track) {
-      console.log('🎵 [Music Toggle] Button clicked');
-      console.log('   isPlaying:', floatingContent.isPlaying);
-      console.log('   showPlayer:', floatingContent.showPlayer);
-      console.log('   Track:', floatingContent.track.title);
-      console.log('   Source:', floatingContent.track.source);
-      
-      // Haptic feedback
-      HapticService.trigger('impactMedium');
-      
-      // Handle YouTube music (Toggle player visibility)
-      if (floatingContent.track.source === 'youtube') {
-        console.log('🎵 [Music Toggle] YouTube music - toggling player visibility');
-        setFloatingContent(prev => ({
-          ...prev,
-          showPlayer: !prev.showPlayer  // Toggle player visibility
-        }));
-        return;
-      }
-    }
-  }, [floatingContent]);
-  
-  // 🎵 Handle music stop (long press)
-  const handleMusicStop = useCallback(() => {
-    console.log('🛑 [Music Stop] Stopping music (long press)...');
-    
-    // Clear floating content (hide widget and player)
+    // Clear floating content (hide player)
     setFloatingContent(null);
     
     // Haptic feedback
     HapticService.trigger('impactMedium');
     
-    console.log('✅ [Music Stop] Widget hidden');
+    console.log('✅ [Music Close] Music player closed');
   }, []);
   
   // 🎬 Handle YouTube video press
@@ -190,6 +148,12 @@ export const useMusicPlayer = () => {
     console.log('   Title:', youtubeData.title);
     console.log('   Video ID:', youtubeData.videoId);
     
+    // ⭐ Close music player if open (mutual exclusivity!)
+    if (floatingContent) {
+      console.log('🎵 [YouTube Press] Closing music player (mutual exclusivity)');
+      setFloatingContent(null);
+    }
+    
     // Haptic feedback
     HapticService.trigger('impactMedium');
     
@@ -200,7 +164,7 @@ export const useMusicPlayer = () => {
       channel: youtubeData.channel,
     });
     setShowYouTubePlayer(true);
-  }, []);
+  }, [floatingContent]);
   
   // 🎬 Handle YouTube player close
   const handleYouTubeClose = useCallback(() => {
@@ -219,12 +183,10 @@ export const useMusicPlayer = () => {
     
     // Handlers
     handleMusicPress,
-    handleMusicToggle,
-    handleMusicStop,
+    handleMusicClose, // ⭐ Renamed from handleMusicStop
     handleYouTubePress,
     handleYouTubeClose,
   };
 };
 
 export default useMusicPlayer;
-

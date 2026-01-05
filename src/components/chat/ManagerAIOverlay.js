@@ -46,11 +46,10 @@ import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-t
 import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
-import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
 import ChatLimitSheet from './ChatLimitSheet'; // 💰 NEW: Limit reached sheet
 import FloatingChatLimitButton from './FloatingChatLimitButton'; // 💰 NEW: Floating chat limit button
-import MiniMusicWidget from './MiniMusicWidget'; // 🎵 NEW: Mini floating music widget
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
+import MiniYoutubeVideoPlayer from './MiniYoutubeVideoPlayer'; // 🎬 NEW: Mini YouTube video player
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -192,8 +191,7 @@ const ManagerAIOverlay = ({
     showYouTubePlayer,
     currentVideo,
     handleMusicPress,
-    handleMusicToggle,
-    handleMusicStop,
+    handleMusicClose, // ⭐ NEW: Renamed from handleMusicStop
     handleYouTubePress,
     handleYouTubeClose,
   } = useMusicPlayer();
@@ -287,8 +285,7 @@ const ManagerAIOverlay = ({
     
     // 🎵 PRIORITY 6: YouTube Music Player (Overlay)
     if (floatingContent?.showPlayer) {
-      setFloatingContent(prev => ({ ...prev, showPlayer: false }));
-      HapticService.light();
+      handleMusicClose(); // ⭐ Close music player
       return true; // ⭐ Event handled!
     }
     
@@ -1203,16 +1200,6 @@ const ManagerAIOverlay = ({
               />
             </View>
             
-            {/* 🎵 NEW: Mini Floating Music Widget */}
-            {floatingContent?.contentType === 'music' && (
-              <MiniMusicWidget
-                isPlaying={floatingContent.isPlaying}
-                onToggle={handleMusicToggle}
-                onStop={handleMusicStop}
-                visible={true}
-              />
-            )}
-            
             {/* 💰 NEW: Floating Chat Limit Button */}
             {serviceConfig && (
               <FloatingChatLimitButton
@@ -1245,14 +1232,12 @@ const ManagerAIOverlay = ({
           isPlaying={floatingContent.isPlaying}
           visible={true}  // Always visible when mounted (animation on mount)
           topPosition={insets.top + verticalScale(52)} // Header height
+          onClose={handleMusicClose} // ⭐ NEW: Close button handler
           onStateChange={(state) => {
             // Handle state changes if needed
             if (state === 'ended') {
-              // Music ended, stop
-              setFloatingContent(prev => ({
-                ...prev,
-                isPlaying: false
-              }));
+              // Music ended, close player
+              handleMusicClose();
             }
           }}
           onError={(error) => {
@@ -1263,6 +1248,17 @@ const ManagerAIOverlay = ({
               [{ text: '확인' }]
             );
           }}
+        />
+      )}
+      
+      {/* 🎬 NEW: Mini YouTube Video Player (Overlay, 100% identical position to Music!) */}
+      {showYouTubePlayer && currentVideo?.videoId && (
+        <MiniYoutubeVideoPlayer
+          videoId={currentVideo.videoId}
+          title={currentVideo.title}
+          onClose={handleYouTubeClose}
+          topPosition={insets.top + verticalScale(52)} // ⭐ 100% identical to HiddenYoutubePlayer!
+          visible={true}
         />
       )}
       
@@ -1325,13 +1321,6 @@ const ManagerAIOverlay = ({
       />
     )}
     
-    {/* 🎬 YouTube Video Player Modal (Independent Modal - Outside ManagerAIOverlay Modal) */}
-    <VideoPlayerModal
-      visible={showYouTubePlayer}
-      videoId={currentVideo?.videoId}
-      title={currentVideo?.title}
-      onClose={handleYouTubeClose}
-    />
     {/* 🎬 Chat Help Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
     { isHelpOpen && (
       <ChatHelpSheet
