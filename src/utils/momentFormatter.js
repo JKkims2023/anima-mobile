@@ -178,7 +178,7 @@ export function getEmotionEmoji(emotion) {
 
 /**
  * Format time ago (relative time)
- * @param {string} dateString - ISO date string
+ * @param {string|number} dateString - ISO date string OR UNIX timestamp (milliseconds)
  * @param {string} lang - Language code
  * @returns {string} Formatted relative time
  */
@@ -186,8 +186,15 @@ export function formatTimeAgo(dateString, lang = 'ko') {
   if (!dateString) return '';
   
   const now = new Date();
-  const past = new Date(dateString);
+  // Handle both ISO string and UNIX timestamp (milliseconds)
+  const past = typeof dateString === 'number' ? new Date(dateString) : new Date(dateString);
   const diffMs = now - past;
+  
+  // Safety check: If diffMs is negative (future time), treat as "just now"
+  if (diffMs < 0) {
+    console.warn('[formatTimeAgo] Future time detected, treating as "just now":', dateString);
+    return lang === 'ko' ? '방금 전' : 'Just now';
+  }
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
