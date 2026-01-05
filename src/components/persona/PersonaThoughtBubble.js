@@ -228,7 +228,10 @@ const PersonaThoughtBubble = ({
         duration: 500,
         useNativeDriver: true
       }).start(() => {
-        setIsInitialMount(false);
+        // ⭐ FIX: Use setTimeout to defer setState (avoid useInsertionEffect warning)
+        setTimeout(() => {
+          setIsInitialMount(false);
+        }, 0);
       });
     }
   }, [isActive, visible, messages, isInitialMount, cloudOpacity]);
@@ -254,8 +257,11 @@ const PersonaThoughtBubble = ({
         duration: 300,
         useNativeDriver: true
       }).start(() => {
-        // Move to next message
-        setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+        // ⭐ FIX: Use setTimeout to defer setState (avoid useInsertionEffect warning)
+        setTimeout(() => {
+          // Move to next message
+          setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 0);
       });
     }, 4000);
     
@@ -350,8 +356,8 @@ const PersonaThoughtBubble = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: verticalScale(80), // Below safe area
-    left: scale(20),
+    top: verticalScale(20), // Below safe area
+    left: scale(-20),
     zIndex: 100,
     // Shadow (same as QuickActionChips)
     shadowColor: '#000',
@@ -370,14 +376,15 @@ const styles = StyleSheet.create({
     top: verticalScale(25),
     left: scale(45),
     right: scale(45),
+    padding: scale(10),
     bottom: verticalScale(25),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
   thoughtText: {
-    fontSize: scale(12),
+    fontSize: scale(14),
     color: '#FFFFFF', // White text (same as QuickActionChips)
-    textAlign: 'center',
+    textAlign: 'left',
     lineHeight: scale(17),
     fontWeight: '500', // Medium weight for better readability
   },
