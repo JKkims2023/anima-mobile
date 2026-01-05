@@ -52,6 +52,7 @@ import MiniMusicWidget from './MiniMusicWidget'; // 🎵 NEW: Mini floating musi
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
+import { getServiceConfig } from '../../services/api/serviceApi'; // 💰 NEW: Service config API
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
@@ -59,7 +60,6 @@ import { useUser } from '../../contexts/UserContext';
 import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: Alert function
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
-import useChatLimit from '../../hooks/useChatLimit'; // 💰 NEW: Chat limit hook
 import uuid from 'react-native-uuid';
 import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
@@ -193,17 +193,11 @@ const ManagerAIOverlay = ({
     handleYouTubeClose,
   } = useMusicPlayer();
   
-  // 💰 NEW: Chat Limit Hook (manages tier limits, loading, sheet)
-  const {
-    serviceConfig,
-    loadingServiceConfig,
-    showLimitSheet,
-    setShowLimitSheet,
-    limitReachedData,
-    checkLimit,
-    incrementChatCount,
-    showLimitReachedSheet,
-  } = useChatLimit(visible, user, showAlert);
+  // 💰 NEW: Daily Chat Limit state (Tier System)
+  const [serviceConfig, setServiceConfig] = useState(null); // Service config from /api/service
+  const [loadingServiceConfig, setLoadingServiceConfig] = useState(true); // ⭐ NEW: Loading state for service config
+  const [showLimitSheet, setShowLimitSheet] = useState(false); // Limit reached sheet
+  const [limitReachedData, setLimitReachedData] = useState(null); // Data for limit sheet
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -243,7 +237,54 @@ const ManagerAIOverlay = ({
     }
   }, [visible, user?.user_key]);
   
-  // 💰 REMOVED: Load service config useEffect (moved to useChatLimit hook)
+  // 💰 NEW: Load service config (Tier limits) when overlay opens
+  useEffect(() => {
+    const loadServiceConfig = async () => {
+      if (!visible || !user?.user_key) {
+        setLoadingServiceConfig(false); // ⭐ Not loading (overlay closed or no user)
+        return;
+      }
+      
+      setLoadingServiceConfig(true); // ⭐ Start loading
+      
+      try {
+        console.log('💰 [Service Config] Loading tier information...');
+        const response = await getServiceConfig(user.user_key);
+        
+        console.log('response: ', response);
+        if (response.data.success && response.data.data) {
+          setServiceConfig(response.data.data);
+          console.log(`✅ [Service Config] Loaded: ${response.data.data.userTier} (${response.data.data.dailyChatRemaining}/${response.data.data.dailyChatLimit} chats remaining)`);
+        } else {
+          console.warn('⚠️  [Service Config] API failed, applying Free tier fallback');
+          // ⭐ Fallback: Free tier (API responded but failed)
+          setServiceConfig({
+            userTier: 'free',
+            dailyChatLimit: 20,
+            dailyChatRemaining: 20, // ⚠️ Give benefit of doubt (API error, not user's fault)
+            dailyChatCount: 0,
+            isOnboarding: false,
+            onboardingDaysRemaining: 0
+          });
+        }
+      } catch (error) {
+        console.error('❌ [Service Config] Network error, applying Free tier fallback:', error);
+        // ⭐ Fallback: Free tier (Network error, server down, etc.)
+        setServiceConfig({
+          userTier: 'free',
+          dailyChatLimit: 20,
+          dailyChatRemaining: 20, // ⚠️ Give benefit of doubt (error, not user's fault)
+          dailyChatCount: 0,
+          isOnboarding: false,
+          onboardingDaysRemaining: 0
+        });
+      } finally {
+        setLoadingServiceConfig(false); // ⭐ Loading complete (success or fallback)
+      }
+    };
+    
+    loadServiceConfig();
+  }, [visible, user?.user_key]);
   
   // 🆕 Load AI settings when identity settings sheet opens
   useEffect(() => {
@@ -700,6 +741,21 @@ const ManagerAIOverlay = ({
   
   // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
+    // ⭐ STEP 0: Check if service config is still loading (Race Condition Fix!)
+    if (loadingServiceConfig) {
+      console.warn('⏳ [Chat] Service config still loading, please wait...');
+      showAlert({
+        title: '잠시만 기다려주세요',
+        message: '채팅 환경을 준비하고 있습니다.\n곧 준비될 거예요! ⏳',
+        emoji: '⏳',
+        buttons: [
+          { text: '확인', style: 'primary' }
+        ]
+      });
+      HapticService.trigger('warning');
+      return;
+    }
+    
     HapticService.medium();
     
     // 🆕 Create Data URI from base64 (avoid temporary file path issues)
@@ -749,20 +805,45 @@ const ManagerAIOverlay = ({
         return;
       }
       
-      // 💰 Check daily chat limit BEFORE sending to server!
-      const limitCheck = checkLimit(userMessage.id);
-      
-      if (!limitCheck.allowed) {
-        if (limitCheck.reason === 'loading') {
-          // Already showed alert in checkLimit
-          return;
-        } else if (limitCheck.reason === 'limit_reached') {
+      // 💰 CRITICAL: Check daily chat limit BEFORE sending to server!
+      if (user?.user_level !== 'ultimate') {
+        // ⭐ NEW: Use fallback if serviceConfig is null (should never happen after Step 6, but safety!)
+        const config = serviceConfig || {
+          userTier: 'free',
+          dailyChatLimit: 20,
+          dailyChatRemaining: 0, // ⚠️ 0 = Block! (Most strict safety measure)
+          dailyChatCount: 20,
+          isOnboarding: false,
+          onboardingDaysRemaining: 0,
+          dailyChatResetAt: new Date().toISOString()
+        };
+        
+        const remaining = config.dailyChatRemaining || 0;
+        const limit = config.dailyChatLimit || 20;
+        const currentCount = config.dailyChatCount || 0;
+        
+        console.log(`💰 [Chat Limit] Pre-send check: ${remaining} remaining (${currentCount}/${limit})`);
+        
+        // ⚡ INSTANT CHECK: If no remaining chats, block immediately!
+        if (remaining <= 0) {
+          console.warn(`🚫 [Chat Limit] BLOCKED! No remaining chats (${currentCount}/${limit})`);
+          
           // Remove user message from UI (revert optimistic update)
           setMessages(prev => prev.filter(m => m.id !== userMessage.id));
           setIsLoading(false);
           
           // Show limit sheet
-          showLimitReachedSheet(limitCheck.limitData);
+          setLimitReachedData({
+            tier: config.userTier || user.user_level || 'free',
+            limit: limit,
+            resetTime: config.dailyChatResetAt || new Date().toISOString(),
+            isOnboarding: config.isOnboarding || false,
+            onboardingDaysLeft: config.onboardingDaysRemaining || 0
+          });
+          setShowLimitSheet(true);
+          
+          // Haptic feedback
+          HapticService.error();
           
           return; // ⚡ STOP! Don't send to server!
         }
@@ -960,8 +1041,15 @@ const ManagerAIOverlay = ({
           setIsTyping(false);
           setCurrentTypingText('');
           
-          // 💰 Update chat count after successful message
-          incrementChatCount();
+          // 💰 NEW: Update service config (chat count) after successful message
+          if (serviceConfig && user?.user_level !== 'ultimate') {
+            setServiceConfig(prev => ({
+              ...prev,
+              dailyChatCount: (prev.dailyChatCount || 0) + 1,
+              dailyChatRemaining: Math.max(0, (prev.dailyChatRemaining || 0) - 1)
+            }));
+            console.log(`💰 [Chat Limit] UI updated: ${(serviceConfig.dailyChatCount || 0) + 1}/${serviceConfig.dailyChatLimit || 20}`);
+          }
           
           // ⭐ NEW: Check if AI wants to continue talking
           console.log('🔍 [ManagerAIOverlay] Checking shouldContinue:', shouldContinue);
@@ -1003,7 +1091,7 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
+  }, [t, user, persona, handleAIContinue, selectedImage]); // ⭐ FIX: Add handleAIContinue & selectedImage dependencies
   
   const handleClose = useCallback(() => {
     // Clear floating content (music button and player)
