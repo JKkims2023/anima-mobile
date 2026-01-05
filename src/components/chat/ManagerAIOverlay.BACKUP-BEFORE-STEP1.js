@@ -63,24 +63,6 @@ import useIdentitySettings from '../../hooks/useIdentitySettings'; // 🎭 NEW: 
 import uuid from 'react-native-uuid';
 import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
-// ⭐ NEW: Chat helpers and constants
-import { 
-  AI_BEHAVIOR, 
-  TIMING, 
-  IDENTITY_EVOLUTION,
-  SPECIAL_MARKERS,
-  IDENTITY_FIELD_LABELS,
-  CHAT_HISTORY,
-  calculateTotalDuration,
-} from '../../utils/chatConstants';
-import { 
-  CancelableTimeout,
-  addAIMessageWithTyping,
-  cancelableDelay,
-  normalizeMessage,
-  createErrorMessage,
-  createUserMessage,
-} from '../../utils/chatHelpers';
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -108,8 +90,19 @@ const IdentityEvolutionOverlay = ({ evolution }) => {
     }, 2000);
   }, []);
   
-  // Field labels from constants
-  const label = IDENTITY_FIELD_LABELS[evolution.field] || { icon: '✨', text: evolution.field };
+  // Field labels (i18n-ready)
+  const fieldLabels = {
+    personality: { icon: '🎭', text: '성격' },
+    speaking_style: { icon: '💬', text: '말투' },
+    interests: { icon: '💫', text: '관심사' },
+    name_ko: { icon: '✨', text: '이름' },
+    name_en: { icon: '✨', text: '이름' },
+    background: { icon: '🌟', text: '배경' },
+    profession: { icon: '👔', text: '직업' },
+    description: { icon: '📝', text: '설명' },
+  };
+  
+  const label = fieldLabels[evolution.field] || { icon: '✨', text: evolution.field };
   
   return (
     <Animated.View
@@ -219,25 +212,6 @@ const ManagerAIOverlay = ({
     updateSetting,
     handleToggleSettings,
   } = useIdentitySettings(visible, user);
-  
-  // 🛑 NEW: Timeout Manager for cleanup
-  const timeoutManagerRef = useRef(null);
-  
-  // 🧹 Initialize and cleanup timeout manager
-  useEffect(() => {
-    // Create timeout manager when component mounts or becomes visible
-    if (visible && !timeoutManagerRef.current) {
-      timeoutManagerRef.current = new CancelableTimeout();
-    }
-    
-    // Cleanup when component unmounts or becomes invisible
-    return () => {
-      if (timeoutManagerRef.current) {
-        timeoutManagerRef.current.cancelAll();
-        timeoutManagerRef.current = null;
-      }
-    };
-  }, [visible]);
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -338,13 +312,24 @@ const ManagerAIOverlay = ({
       const response = await chatApi.getChatHistory({
         user_key: userKey,
         persona_key: personaKey,
-        limit: isLoadMore ? CHAT_HISTORY.LOAD_MORE_LIMIT : CHAT_HISTORY.INITIAL_LIMIT,
+        limit: isLoadMore ? 20 : 100,
         offset: isLoadMore ? historyOffset : 0,
       });
       
       if (response.success && response.data.messages.length > 0) {
-        // ✅ Use helper function to normalize messages
-        const historyMessages = response.data.messages.map(normalizeMessage);
+        const historyMessages = response.data.messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          text: msg.text,
+          timestamp: msg.timestamp,
+          // ⭐ CRITICAL: Include rich media from history
+          image: msg.image || null, // User-sent image
+          images: msg.images || [], // AI-generated images
+          videos: msg.videos || [], // AI-generated videos
+          links: msg.links || [], // AI-generated links
+          music: msg.music || null, // 🎵 NEW: Music data (title, artist, duration, etc.)
+          youtube: msg.youtube || null, // 🎬 NEW: YouTube video data (videoId, title, channel, etc.)
+        }));
         
         if (isLoadMore) {
           // Prepend to existing messages
@@ -376,8 +361,8 @@ const ManagerAIOverlay = ({
     setIsTyping(true);
     setCurrentTypingText(message);
     
-    // ✅ Calculate typing duration using helper
-    const typingDuration = calculateTotalDuration(message);
+    // Calculate typing duration (30ms per character)
+    const typingDuration = message.length * 30;
     
     // After typing completes, add to messages
     setTimeout(() => {
@@ -410,8 +395,8 @@ const ManagerAIOverlay = ({
     setIsTyping(true);
     setCurrentTypingText(greeting);
     
-    // ✅ Calculate typing duration using helper
-    const typingDuration = calculateTotalDuration(greeting);
+    // Calculate typing duration
+    const typingDuration = greeting.length * 30;
     
     // After typing completes, add to messages
     setTimeout(() => {
@@ -434,12 +419,12 @@ const ManagerAIOverlay = ({
       
       // ⚡ Start typing effect
       setIsTyping(true);
-        setCurrentTypingText(greeting);
-        
-        // ✅ Calculate typing duration using helper
-        const typingDuration = calculateTotalDuration(greeting);
-        
-        // After typing completes, add to messages
+      setCurrentTypingText(greeting);
+      
+      // Calculate typing duration
+      const typingDuration = greeting.length * 30;
+      
+      // After typing completes, add to messages
       setTimeout(() => {
         const greetingMessage = {
           id: uuid.v4(),
@@ -477,8 +462,8 @@ const ManagerAIOverlay = ({
           setIsTyping(true);
           setCurrentTypingText(answer);
           
-          // ✅ Calculate typing duration using helper
-          const typingDuration = calculateTotalDuration(answer);
+          // Calculate typing duration
+          const typingDuration = answer.length * 30;
           
           // After typing completes, add to messages
           setTimeout(() => {
@@ -528,31 +513,30 @@ const ManagerAIOverlay = ({
     HapticService.success();
   }, []);
   
-  // ⭐ NEW: Handle AI continuous conversation (✅ WITH CLEANUP SUPPORT)
+  // ⭐ NEW: Handle AI continuous conversation
   const handleAIContinue = useCallback(async (userKey) => {
+    const MAX_CONTINUES = 5; // Maximum 5 continuous messages
+    
     // ⭐ Check count using ref
-    if (aiContinueCountRef.current >= AI_BEHAVIOR.MAX_CONTINUES) {
+    if (aiContinueCountRef.current >= MAX_CONTINUES) {
       setIsAIContinuing(false);
       aiContinueCountRef.current = 0; // Reset
       setIsLoading(false);
       return;
     }
     
-    // 🛑 Check if timeout manager is cancelled (component closed)
-    if (timeoutManagerRef.current?.isCancelledStatus()) {
-      return; // Stop execution if component is closing
-    }
-    
     // ⭐ Increment count
     aiContinueCountRef.current += 1;
+    const currentCount = aiContinueCountRef.current;
     
     setIsAIContinuing(true);
     setIsLoading(true);
     
     try {
+      
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
-        question: SPECIAL_MARKERS.CONTINUE, // Use constant
+        question: '[CONTINUE]', // Special marker
         persona_key: persona?.persona_key || null,
       });
       
@@ -560,43 +544,46 @@ const ManagerAIOverlay = ({
         const answer = response.data.answer;
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
         
-        // ✅ Use common function with cleanup support
-        const aiMessage = await addAIMessageWithTyping({
-          answer,
-          richContent,
-          messageId: `ai-continue-${Date.now()}`,
-          setIsTyping,
-          setCurrentTypingText,
-          setIsLoading,
-          setMessages,
-          timeoutManager: timeoutManagerRef.current,
-        });
+        // ⚡ Start typing effect
+        setIsLoading(false);
+        setIsTyping(true);
+        setCurrentTypingText(answer);
         
-        // 🛑 Check if cancelled during typing
-        if (!aiMessage) {
-          return; // Component was closed during typing
-        }
+        // Calculate typing duration
+        const typingDuration = answer.length * 30;
         
-        // Check if AI wants to continue AGAIN
-        if (response.data.continue_conversation) {
-          // ⭐ Show TypingIndicator
-          setIsLoading(true);
+        // After typing completes, add to messages
+        setTimeout(() => {
+          const aiMessage = {
+            id: `ai-continue-${Date.now()}`,
+            role: 'assistant',
+            text: answer,
+            timestamp: new Date().toISOString(),
+            // ⭐ NEW: Rich media content
+            images: richContent.images,
+            videos: richContent.videos,
+            links: richContent.links,
+          };
           
-          // ✅ Use cancelable delay
-          await cancelableDelay(TIMING.AI_CONTINUE_DELAY, timeoutManagerRef.current);
+          setMessages(prev => [...prev, aiMessage]);
+          setIsTyping(false);
+          setCurrentTypingText('');
           
-          // 🛑 Check if cancelled during delay
-          if (timeoutManagerRef.current?.isCancelledStatus()) {
-            return;
+          // Check if AI wants to continue AGAIN
+          if (response.data.continue_conversation) {
+            
+            // ⭐ Show TypingIndicator (same as user message send)
+            setIsLoading(true);
+            
+            setTimeout(() => {
+              handleAIContinue(userKey);
+            }, 800);
+          } else {
+            // Conversation ended
+            setIsAIContinuing(false);
+            aiContinueCountRef.current = 0; // ⭐ Reset ref
           }
-          
-          // Recursive call
-          await handleAIContinue(userKey);
-        } else {
-          // Conversation ended
-          setIsAIContinuing(false);
-          aiContinueCountRef.current = 0; // ⭐ Reset ref
-        }
+        }, typingDuration + 100);
       } else {
         setIsAIContinuing(false);
         aiContinueCountRef.current = 0; // ⭐ Reset ref
@@ -611,14 +598,27 @@ const ManagerAIOverlay = ({
     }
   }, [persona, chatApi]); // ⭐ Removed aiContinueCount from dependencies
   
-  // ✅ Send message handler (✅ WITH CLEANUP SUPPORT)
+  // ✅ Send message handler
   const handleSend = useCallback(async (text) => {
     HapticService.medium();
     
-    // ✅ Use helper function to create user message
-    const userMessage = createUserMessage(text, selectedImage);
+    // 🆕 Create Data URI from base64 (avoid temporary file path issues)
+    const imageDataUri = selectedImage 
+      ? `data:${selectedImage.type};base64,${selectedImage.base64}`
+      : null;
     
-    // Optimistic UI update
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      text: text,
+      timestamp: new Date().toISOString(),
+      // 🆕 Include selected image if available (use Data URI instead of file path)
+      image: selectedImage ? {
+        uri: imageDataUri, // ⭐ FIX: Use Data URI instead of temporary file path
+        type: selectedImage.type,
+      } : null,
+    };
+    
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     
@@ -678,29 +678,24 @@ const ManagerAIOverlay = ({
         const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
         const youtubeData = response.data.youtube || null; // 🎬 NEW: Real-time YouTube video search result
         
-        // 🌟 Show identity evolution notification (supports multiple tool calls) with cleanup
+        // 🌟 NEW: Show identity evolution notification (supports multiple tool calls)
         if (identityEvolution) {
           const evolutions = Array.isArray(identityEvolution) ? identityEvolution : [identityEvolution];
           
-          // Show each evolution sequentially with cleanup support
+          // Show each evolution sequentially with 2-second intervals
           evolutions.forEach((evolution, index) => {
-            if (evolution && evolution.field && timeoutManagerRef.current) {
-              timeoutManagerRef.current.setTimeout(() => {
-                // Check if still active
-                if (!timeoutManagerRef.current?.isCancelledStatus()) {
-                  setIdentityEvolutionDisplay(evolution);
-                  
-                  // Auto-hide after duration
-                  timeoutManagerRef.current?.setTimeout(() => {
-                    if (!timeoutManagerRef.current?.isCancelledStatus()) {
-                      setIdentityEvolutionDisplay(null);
-                    }
-                  }, IDENTITY_EVOLUTION.DISPLAY_DURATION);
-                  
-                  // Haptic feedback
-                  HapticService.trigger('success');
-                }
-              }, index * IDENTITY_EVOLUTION.INTERVAL);
+            if (evolution && evolution.field) {
+              setTimeout(() => {
+                setIdentityEvolutionDisplay(evolution);
+                
+                // Auto-hide after 2.5 seconds
+                setTimeout(() => {
+                  setIdentityEvolutionDisplay(null);
+                }, 2500);
+                
+                // Haptic feedback
+                HapticService.trigger('success');
+              }, index * 3000); // 3-second interval between each notification
             }
           });
         }
@@ -764,62 +759,71 @@ const ManagerAIOverlay = ({
           };
         }
         
-        // ✅ Add generated image to richContent
-        if (generatedImageForBubble) {
-          richContent.images = [...richContent.images, generatedImageForBubble];
-        }
+        // ⚡ OPTIMIZED: Start typing effect (TypingMessageBubble handles animation!)
+        setIsTyping(true);
+        setCurrentTypingText(answer);
+        setIsLoading(false);
         
-        // ✅ Use common function with cleanup support
-        const aiMessage = await addAIMessageWithTyping({
-          answer,
-          richContent,
-          music: musicForBubble,
-          youtube: youtubeForBubble,
-          setIsTyping,
-          setCurrentTypingText,
-          setIsLoading,
-          setMessages,
-          timeoutManager: timeoutManagerRef.current,
-        });
+        // Calculate typing duration
+        const typingDuration = answer.length * 30;
         
-        // 🛑 Check if cancelled during typing
-        if (!aiMessage) {
-          return; // Component was closed during typing
-        }
-        
-        // 💰 Update chat count after successful message
-        incrementChatCount();
-        
-        // ⭐ Check if AI wants to continue talking
-        if (shouldContinue) {
-          // ⭐ Show TypingIndicator
-          setIsLoading(true);
+        // After typing completes, add to messages
+        setTimeout(() => {
+          const aiMessage = {
+            id: `ai-${Date.now()}`,
+            role: 'assistant',
+            text: answer,
+            timestamp: new Date().toISOString(),
+            // ⭐ NEW: Rich media content + Pixabay generated image!
+            images: [
+              ...richContent.images,
+              ...(generatedImageForBubble ? [generatedImageForBubble] : [])
+            ],
+            videos: richContent.videos,
+            links: richContent.links,
+            music: musicForBubble, // 🎵 NEW: Music data for bubble!
+            youtube: youtubeForBubble, // 🎬 NEW: YouTube data for bubble!
+          };
           
-          // ✅ Use cancelable delay
-          await cancelableDelay(TIMING.AI_CONTINUE_DELAY, timeoutManagerRef.current);
+          setMessages(prev => [...prev, aiMessage]);
+          setIsTyping(false);
+          setCurrentTypingText('');
           
-          // 🛑 Check if cancelled during delay
-          if (timeoutManagerRef.current?.isCancelledStatus()) {
-            return;
+          // 💰 Update chat count after successful message
+          incrementChatCount();
+          
+          // ⭐ NEW: Check if AI wants to continue talking
+          if (shouldContinue) {
+            // ⭐ Show TypingIndicator (same as user message send)
+            setIsLoading(true);
+            
+            setTimeout(() => {
+              handleAIContinue(userKey);
+            }, 800); // Small delay for natural feel
+          } else {
+            aiContinueCountRef.current = 0; // ⭐ Reset counter
           }
-          
-          // Continue conversation
-          await handleAIContinue(userKey);
-        } else {
-          aiContinueCountRef.current = 0; // ⭐ Reset counter
-        }
+        }, typingDuration + 100);
         
       } else {
-        // ✅ Use helper function for error message
-        const errorMessage = createErrorMessage(t('errors.MANAGER_AI_ERROR'));
+        const errorMessage = {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          text: t('errors.MANAGER_AI_ERROR'),
+          timestamp: new Date().toISOString(),
+        };
         setMessages(prev => [...prev, errorMessage]);
       }
       
     } catch (error) {
       console.error('[ManagerAIOverlay] Error:', error);
       
-      // ✅ Use helper function for error message
-      const errorMessage = createErrorMessage(t('errors.MANAGER_AI_ERROR'));
+      const errorMessage = {
+        id: `error-${Date.now()}`,
+        role: 'assistant',
+        text: t('errors.MANAGER_AI_ERROR'),
+        timestamp: new Date().toISOString(),
+      };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
