@@ -46,8 +46,8 @@ import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identi
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
 import VideoPlayerModal from './VideoPlayerModal'; // 🎬 NEW: YouTube player
-import ChatLimitBar from './ChatLimitBar'; // 💰 NEW: Daily chat limit display
 import ChatLimitSheet from './ChatLimitSheet'; // 💰 NEW: Limit reached sheet
+import FloatingChatLimitButton from './FloatingChatLimitButton'; // 💰 NEW: Floating chat limit button
 import MiniMusicWidget from './MiniMusicWidget'; // 🎵 NEW: Mini floating music widget
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import { chatApi } from '../../services/api';
@@ -1163,29 +1163,6 @@ const ManagerAIOverlay = ({
               
             </View>
             
-            {/* 💰 NEW: Chat Limit Bar (Tier System) */}
-            {serviceConfig && (
-              <ChatLimitBar
-                currentCount={serviceConfig.dailyChatCount || 0}
-                dailyLimit={serviceConfig.dailyChatLimit || 20}
-                tier={user?.user_level || 'free'}
-                isOnboarding={serviceConfig.isOnboarding || false}
-                onUpgradePress={() => {
-                  // TODO: Navigate to upgrade screen
-                  console.log('💰 [Chat Limit] Upgrade button pressed');
-                  // For now, show limit sheet
-                  setLimitReachedData({
-                    tier: user?.user_level || 'free',
-                    limit: serviceConfig.dailyChatLimit || 20,
-                    resetTime: serviceConfig.dailyChatResetAt,
-                    isOnboarding: serviceConfig.isOnboarding || false,
-                    onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
-                  });
-                  setShowLimitSheet(true);
-                }}
-              />
-            )}
-            
             {/* ✅ Chat Messages (Scrollable) */}
             <View style={styles.chatContainer}>
               <ChatMessageList
@@ -1252,6 +1229,26 @@ const ManagerAIOverlay = ({
                 onToggle={handleMusicToggle}
                 onStop={handleMusicStop}
                 visible={true}
+              />
+            )}
+            
+            {/* 💰 NEW: Floating Chat Limit Button */}
+            {serviceConfig && (
+              <FloatingChatLimitButton
+                currentCount={serviceConfig.dailyChatCount || 0}
+                dailyLimit={serviceConfig.dailyChatLimit || 20}
+                tier={user?.user_level || 'free'}
+                isOnboarding={serviceConfig.isOnboarding || false}
+                onUpgradePress={() => {
+                  console.log('💰 [Chat Limit] Upgrade button pressed');
+                  showLimitReachedSheet({
+                    tier: user?.user_level || 'free',
+                    limit: serviceConfig.dailyChatLimit || 20,
+                    resetTime: serviceConfig.dailyChatResetAt,
+                    isOnboarding: serviceConfig.isOnboarding || false,
+                    onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
+                  });
+                }}
               />
             )}
           </View>
