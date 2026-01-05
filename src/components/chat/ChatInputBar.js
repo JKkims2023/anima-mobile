@@ -16,7 +16,7 @@
  */
 
 import React, { useState, memo, useCallback, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert, BackHandler } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -41,11 +41,13 @@ const ChatInputBar = memo(({
   visionMode = 'basic', // 🆕 Vision mode setting
   hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
   persona = null, // 🗣️ NEW: Persona info for speaking pattern visibility
+  isSettingsMenuOpen = false, // 🎛️ NEW: Settings menu state (lifted up to parent!)
+  setIsSettingsMenuOpen, // 🎛️ NEW: Settings menu setter (from parent!)
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const [text, setText] = useState('');
-  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
+  // 🎛️ REMOVED: isSettingsMenuOpen state (moved to parent!)
   // ✅ Android only: Dynamic height state
   const [inputHeight, setInputHeight] = useState(verticalScale(40));
   // ✅ iOS only: Track content height for scroll control
@@ -53,30 +55,8 @@ const ChatInputBar = memo(({
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
 
-  useEffect(() => {
-
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-
-      if (isSettingsMenuOpen) {
-        // ✅ BottomSheet가 열려 있으면 닫기
-        setIsSettingsMenuOpen(false);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('backHandler closed');
-        return true; // ✅ 이벤트 소비 (부모로 전달 안됨)
-      }
-      
-      return false; // ✅ 이벤트 전파 (부모가 처리)
-    });
-    
-    return () => {
-      backHandler.remove();
-    };
-
-  }, [])
-
-  useEffect(() => {
-
-  }, [isSettingsMenuOpen]);
+  // 🎛️ REMOVED: BackHandler useEffect (moved to parent ManagerAIOverlay!)
+  // 🎛️ REMOVED: Empty useEffect (no longer needed!)
   
 
   const handleSend = useCallback(() => {
@@ -114,8 +94,8 @@ const ChatInputBar = memo(({
   }, [minHeight]);
 
   const handleToggleSettings = useCallback(() => {
-    setIsSettingsMenuOpen(prev => !prev);
-  }, []);
+    setIsSettingsMenuOpen?.(prev => !prev); // 🎛️ FIX: Use prop from parent!
+  }, [setIsSettingsMenuOpen]);
 
   const handleImagePick = useCallback(async () => {
     // Check if vision is disabled

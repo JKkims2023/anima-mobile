@@ -182,6 +182,9 @@ const ManagerAIOverlay = ({
   // 🆕 Help Open State
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
+  // 🎛️ NEW: ChatInputBar Settings Menu State (Lifted up from child!)
+  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
+  
   // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
   const {
     floatingContent,
@@ -241,37 +244,65 @@ const ManagerAIOverlay = ({
     };
   }, [visible]);
   
-  // ⭐ NEW: Android Back Button Handler (Issue 2 FIX!)
+  // ⭐ NEW: Android Back Button Handler (UNIFIED - Issue 2 FINAL FIX!)
   useEffect(() => {
     if (!visible) return;
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // ⭐ Check if any sheet is open, close that first (not the entire chat!)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 🎯 PRIORITY ORDER (Top to Bottom)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      // 🎛️ PRIORITY 1: Settings Menu (ChatInputBar)
+      if (isSettingsMenuOpen) {
+        setIsSettingsMenuOpen(false);
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      // 🎭 PRIORITY 2: Identity Settings Sheet
       if (showIdentitySettings) {
         setShowIdentitySettings(false);
         HapticService.light();
-        return true; // ⭐ Event handled! Don't propagate!
+        return true; // ⭐ Event handled!
       }
       
+      // 🗣️ PRIORITY 3: Speaking Pattern Sheet
       if (showSpeakingPattern) {
         setShowSpeakingPattern(false);
         HapticService.light();
         return true; // ⭐ Event handled!
       }
       
+      // 🎵 PRIORITY 4: Create Music Sheet
       if (showCreateMusic) {
         setShowCreateMusic(false);
         HapticService.light();
         return true; // ⭐ Event handled!
       }
       
+      // 🎬 PRIORITY 5: YouTube Video Player
+      if (showYouTubePlayer) {
+        handleYouTubeClose();
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      // 🎵 PRIORITY 6: YouTube Music Player (Overlay)
+      if (floatingContent?.showPlayer) {
+        setFloatingContent(prev => ({ ...prev, showPlayer: false }));
+        HapticService.light();
+        return true; // ⭐ Event handled!
+      }
+      
+      // ❓ PRIORITY 7: Help Sheet
       if (isHelpOpen) {
         setIsHelpOpen(false);
         HapticService.light();
         return true; // ⭐ Event handled!
       }
       
-      // ⭐ If no sheet is open, proceed with normal close logic
+      // 💬 PRIORITY 8: Close entire chat (if nothing is open)
       handleClose();
       return true; // ⭐ Event handled!
     });
@@ -279,7 +310,19 @@ const ManagerAIOverlay = ({
     return () => {
       backHandler.remove();
     };
-  }, [visible, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen, handleClose]);
+  }, [
+    visible, 
+    isSettingsMenuOpen, 
+    showIdentitySettings, 
+    showSpeakingPattern, 
+    showCreateMusic, 
+    showYouTubePlayer,
+    floatingContent?.showPlayer,
+    isHelpOpen, 
+    handleClose,
+    handleYouTubeClose,
+    setFloatingContent,
+  ]);
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -1053,6 +1096,8 @@ const ManagerAIOverlay = ({
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
                 persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
+                isSettingsMenuOpen={isSettingsMenuOpen} // 🎛️ NEW: Settings menu state (lifted up!)
+                setIsSettingsMenuOpen={setIsSettingsMenuOpen} // 🎛️ NEW: Settings menu setter
               />
             </View>
             
