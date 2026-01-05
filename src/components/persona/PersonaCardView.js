@@ -38,6 +38,7 @@ import HapticService from '../../utils/HapticService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../styles/commonstyles';
 import PostcardBack from './PostcardBack'; // ⭐ NEW: Postcard component
+import PersonaThoughtBubble from './PersonaThoughtBubble'; // 💭 NEW: Thought bubble component
 // PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -480,6 +481,14 @@ const PersonaCardView = forwardRef(({
           </View>
         );
       })()}
+
+        {/* 💭 Persona Thought Bubble */}
+        <PersonaThoughtBubble 
+          user={user}
+          persona={persona}
+          isActive={isActive}
+          visible={!isFlipped} // Hide when card is flipped
+        />
 
         {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}
       </Animated.View>
