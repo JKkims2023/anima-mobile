@@ -17,31 +17,27 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconFace from 'react-native-vector-icons/FontAwesome6';
 
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
-import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
-import HapticService from '../../utils/HapticService';
-import amountService from '../../services/api/amountService';
+import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { useUser } from '../../contexts/UserContext';
-import PersonaHeartDisplay from './PersonaHeartDisplay'; // ⭐ NEW: Persona Heart UI
 
-const PersonaSettingsSheet = ({
+const PersonaShareSheet = ({
   isOpen = false,
   persona = null,
+  onHandleShare,
   onClose,
-  onNameChange,
-  onCategoryChange,
-  onVideoConvert,
-  onDelete,
 }) => {
   const { t } = useTranslation();
   const { currentTheme: theme } = useTheme();
   const { showAlert, showToast } = useAnima();
   const bottomSheetRef = useRef(null);
   const { user } = useUser();
+  const [shareType, setShareType] = useState('image'); // 'image' | 'video'
   // ═══════════════════════════════════════════════════════════════════════
   // CONTROL BOTTOM SHEET WITH isOpen PROP
   // ═══════════════════════════════════════════════════════════════════════
@@ -61,55 +57,22 @@ const PersonaSettingsSheet = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    console.log('shareType: ', shareType);
+  }, [shareType]);
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════
-
-  const handleNameChange = () => {
-    HapticService.light();
-    onNameChange?.(persona);
-    // ⚠️ Don't close here - close after name change is saved
+  const handleShare = () => {
+    onHandleShare(shareType);
+    onClose();
   };
 
+  const handleShareTypeSelect = (type) => {
 
 
-  const handleDelete = () => {
-    HapticService.warning();
-    
-    if (persona?.default_yn === 'Y') {
-      showAlert({
-        title: t('persona.default_persona_delete_confirm_title'),
-        message: t('persona.default_persona_delete_confirm_message'),
-        emoji: '⚠️',
-        buttons: [
-          { text: t('common.confirm'), style: 'primary' },
-        ],
-      });
+    setShareType(type);
 
-      return;
-    }
-
-    showAlert({
-      title: t('persona.settings.delete_confirm_title'),
-      message: t('persona.settings.delete_confirm_message', { name: persona?.persona_name }),
-      emoji: '⚠️',
-      buttons: [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: () => {
-            onDelete?.(persona);
-            // ⚠️ Don't close here - close after deletion is complete
-          },
-        },
-      ],
-    });
   };
+
 
   // ═══════════════════════════════════════════════════════════════════════
   // RENDER
@@ -120,24 +83,21 @@ const PersonaSettingsSheet = ({
       ref={bottomSheetRef}
       isOpen={isOpen}
       onClose={onClose}
-      title={t('persona.settings.title', { name: persona?.persona_name })}
-      snapPoints={['80%']}
-
-      
-      buttons={
-        [
+      title={t('persona_share_sheet.title', { name: persona?.persona_name })}
+      snapPoints={['50%']}
+      buttons={[
         {
-          title: t('common.close'),
+          title: t('common.cancel'),
           type: 'secondary',
           onPress: onClose,
         },
         {
-          title: t('common.delete'),
+          title: t('common.share'),
           type: 'primary',
-          onPress: handleDelete,
-          icon: 'delete',
-          iconColor: '#F44336',
-        }
+          onPress: handleShare,
+          icon: 'share-social-outline',
+          iconColor: '#FFFFFF',
+        },
       ]}
     >
       <ScrollView
@@ -145,27 +105,67 @@ const PersonaSettingsSheet = ({
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* ⭐ NEW: Persona Name (Clickable for editing) */}
-        <TouchableOpacity 
-          style={[styles.nameSection, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}
-          onPress={handleNameChange}
+
+      <CustomText type="normal" style={{ color: theme.textSecondary }}>
+        {t('persona_share_sheet.guide_message')}
+      </CustomText>
+
+      <CustomText type="middle" bold style={{ color: theme.textPrimary, marginTop: verticalScale(20) }}>  
+        {t('persona_share_sheet.share_type_title')}
+      </CustomText>
+
+      {/* Filter Chips */}
+      <View style={[styles.filterChips, { marginTop: verticalScale(20) }]}>
+      <TouchableOpacity
+          style={[
+            styles.filterChip,
+            { borderColor: theme.borderColor },
+            shareType === 'image' ? { 
+              backgroundColor: theme.mainColor,
+              borderColor: theme.mainColor,
+            } : {
+              backgroundColor: 'transparent',
+              borderColor: theme.borderColor,
+            }
+          ]}
+          onPress={() => handleShareTypeSelect('image')}
           activeOpacity={0.7}
         >
-          <View style={styles.nameContent}>
-            <CustomText type="big" bold style={{ color: theme.textPrimary }}>
-              {persona?.persona_name || t('persona.settings.no_persona')}
-            </CustomText>
-            <Icon name="pencil" size={scale(18)} color={theme.textSecondary} />
-          </View>
+          <CustomText
+            type="middle"
+            bold={shareType === 'image'}
+            style={{ color: shareType.current === 'image' ? '#FFFFFF' : theme.textPrimary }}
+          >
+            {t('persona_share_sheet.share_type.image')}
+          </CustomText>
         </TouchableOpacity>
 
-        {/* ⭐ NEW: Persona Heart (3-Layer UI) */}
-        <PersonaHeartDisplay 
-          persona={persona} 
-          relationshipData={{
-            how_ai_calls_user: persona?.how_ai_calls_user,
-          }}
-        />
+        <TouchableOpacity
+          style={[
+            styles.filterChip,
+            { borderColor: theme.borderColor },
+            shareType === 'video' ? { 
+              backgroundColor: theme.mainColor,
+              borderColor: theme.mainColor,
+            } : {
+              backgroundColor: 'transparent',
+              borderColor: theme.borderColor,
+            }
+          ]}
+          onPress={() => handleShareTypeSelect('video')}
+          activeOpacity={0.7}
+        >
+          <CustomText
+            type="middle"
+            bold={shareType === 'video'}
+            style={{ color: shareType.current === 'video' ? '#FFFFFF' : theme.textPrimary }}
+          >
+            {t('persona_share_sheet.share_type.video')}
+          </CustomText>
+        </TouchableOpacity>
+      </View>
+
+
       </ScrollView>
     </CustomBottomSheet>
   );
@@ -174,7 +174,6 @@ const PersonaSettingsSheet = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
   },
 
   contentContainer: {
@@ -182,22 +181,55 @@ const styles = StyleSheet.create({
     paddingBottom: platformPadding(20),
   },
 
-  // ⭐ NEW: Name Section (Clickable)
-  nameSection: {
+  // ⭐ Persona Info Card
+  personaInfoCard: {
+    padding: platformPadding(16),
+    borderRadius: scale(12),
+    marginBottom: platformPadding(20),
+
+  },
+
+  // ⭐ Settings Group
+  settingsGroup: {
+    gap: platformPadding(12),
+
+
+  },
+
+  // ⭐ Setting Item
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: platformPadding(16),
     borderRadius: scale(12),
     borderWidth: 1,
-    marginBottom: platformPadding(16),
-    display: 'none',
   },
-  
-  nameContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
 
+  settingIconContainer: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(24),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: platformPadding(12),
   },
+
+  settingTextContainer: {
+    flex: 1,
+  },
+   // Filter Chips
+   filterChips: {
+    flexDirection: 'row',
+    gap: scale(8),
+  },
+  filterChip: {
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(8),
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+  },
+
 });
 
-export default PersonaSettingsSheet;
+export default PersonaShareSheet;
 

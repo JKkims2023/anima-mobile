@@ -34,8 +34,6 @@ import { useTranslation } from 'react-i18next';
 import { launchImageLibrary } from 'react-native-image-picker';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
-import CustomTextInput from '../CustomTextInput';
-import CustomButton from '../CustomButton';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
@@ -48,6 +46,7 @@ import { useUser } from '../../contexts/UserContext';
 import amountService from '../../services/api/amountService';
 import { getPersonaDressList, updatePersonaDress } from '../../services/api/personaApi';
 import { FlashList } from '@shopify/flash-list';
+
 
 const DressManageSheer = ({
   isOpen,
@@ -295,12 +294,17 @@ const DressManageSheer = ({
 
         console.log('[ChoicePersonaSheet] User key not found');
         HapticService.warning();
-        showToast({
-          type: 'error',
+        showAlert ({
+          title: t('persona.creation.user_key_error', '로그인 후 이 용해주세요'),
           message: t('persona.creation.user_key_error', '로그인 후 이 용해주세요'),
+          buttons: [
+            { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
+            { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
+              navigation.navigate('Settings');
+            } },
+          ],
         });
 
-        navigation.navigate('Settings');
         return;
       }
 
@@ -424,6 +428,9 @@ const DressManageSheer = ({
                   onDressUpdated({
                     selected_dress_image_url: dress.media_url,
                     selected_dress_video_url: dress.video_url,
+                    persona_comment: dress.persona_comment,
+                    persona_comment_checked: dress.persona_comment_checked,
+                    convert_done_yn: dress.convert_done_yn,
                     history_key: dress.memory_key,
                   });
                 }
@@ -591,8 +598,8 @@ const DressManageSheer = ({
     <CustomBottomSheet
       ref={bottomSheetRef}
       onClose={onClose}
-      snapPoints={['85%']}
-      title={t('customization.dressing_room.title')}
+      snapPoints={['70%']}
+      title={t('customization.dressing_room.title', { name: currentPersona?.persona_name })}
       showCloseButton={true}
       buttons={[
         {
@@ -601,11 +608,29 @@ const DressManageSheer = ({
           onPress: onClose,
         },
         {
-          title: t('persona.creation.create_button', '생성하기'),
+          title: t('customization.dressing_room.create_new_dress', '선물하기'),
           type: 'primary',
           onPress: () => {
+
+            if (!user || !user?.user_key) {
+              HapticService.warning();
+              showAlert({
+                title: t('common.login_guide.title'),
+                message: t('common.login_guide.description'),
+                buttons: [
+                  { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
+                  { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
+                    navigation.navigate('Settings');
+                    onClose();
+                  } },
+                ],
+              });
+              return;
+            }
+
             HapticService.light();
             descriptionInputRef.current?.present();
+
           },
         }
       ]}
@@ -616,8 +641,11 @@ const DressManageSheer = ({
         {/* SECTION 1: Dress List (보유 드레스 목록) - 가로 스크롤               */}
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.dressListSection}>
+          <CustomText type="middle"  style={[styles.sectionHeader, { fontSize: moderateScale(14), marginTop: verticalScale(-10), marginBottom: verticalScale(10) }]}>
+            {t('customization.dressing_room.subtitle', { name: currentPersona?.persona_name })}
+          </CustomText>
           <View style={styles.sectionHeader}>
-            <Icon name="hanger" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
+            <Icon name="dresser" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" bold style={styles.sectionTitle}>
               {t('customization.dressing_room.dress_list', '보유 드레스')}
             </CustomText>
@@ -731,6 +759,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingHorizontal: scale(10),
     paddingVertical: verticalScale(8),
+    display: 'none',
   },
   dressPromptHorizontal: {
     color: '#FFFFFF',

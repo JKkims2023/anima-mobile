@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Pressable, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -36,7 +36,7 @@ import { isAnimaCorePersona } from '../../constants/persona';
 import { isPersonaCommentRead } from '../../utils/storage';
 import { useUser } from '../../contexts/UserContext'; // ⭐ FIXED: Use UserContext for user_key
 
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchable = Animated.createAnimatedComponent(Pressable);
 const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
 const QuickActionChipsAnimated = ({

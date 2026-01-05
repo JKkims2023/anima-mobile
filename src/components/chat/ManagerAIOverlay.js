@@ -37,6 +37,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IconSearch from 'react-native-vector-icons/MaterialCommunityIcons';
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
@@ -60,6 +61,8 @@ import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: Alert functi
 import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
 import uuid from 'react-native-uuid';
+import { useTheme } from '../../contexts/ThemeContext';
+import ChatHelpSheet from './ChatHelpSheet';
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -142,7 +145,7 @@ const ManagerAIOverlay = ({
   const insets = useSafeAreaInsets();
   const { user } = useUser(); // ✅ Get user info from context
   const { showAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
-  
+  const { currentTheme } = useTheme();
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,6 +176,9 @@ const ManagerAIOverlay = ({
   
   // 🌟 Identity Evolution Notification State
   const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
+
+  // 🆕 Help Open State
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
   const {
@@ -1090,7 +1096,7 @@ const ManagerAIOverlay = ({
   const handleClose = useCallback(() => {
     // Clear floating content (music button and player)
     setFloatingContent(null);
-    
+    setIsHelpOpen(false);
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
       // Only trigger if we have meaningful conversation (3+ messages)
@@ -1131,7 +1137,7 @@ const ManagerAIOverlay = ({
             onPress: () => {
               // Clear floating content
               setFloatingContent(null);
-              
+              setIsHelpOpen(false);
               // Force stop AI conversation
               setIsAIContinuing(false);
               aiContinueCountRef.current = 0; // ⭐ Reset ref
@@ -1144,7 +1150,7 @@ const ManagerAIOverlay = ({
               // Close overlay
               HapticService.medium();
               Keyboard.dismiss();
-              
+              setIsHelpOpen(false);
               setTimeout(() => {
                 setMessages([]);
                 setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
@@ -1220,12 +1226,12 @@ const ManagerAIOverlay = ({
                 style={styles.backButton}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Icon name="chevron-back" size={moderateScale(28)} color={COLORS.TEXT_PRIMARY} />
+                <Icon name="chevron-back" size={moderateScale(18)} color={COLORS.TEXT_PRIMARY} />
               </TouchableOpacity>
               
               {/* Center: Persona Info */}
               <View style={styles.headerCenter}>
-                <CustomText type="big" bold style={styles.headerTitle}>
+                <CustomText type="title" bold style={styles.headerTitle}>
                   {persona ? `${persona.persona_name}` : '💙 SAGE AI'}
                 </CustomText>
                 {false && (
@@ -1234,6 +1240,15 @@ const ManagerAIOverlay = ({
                   </CustomText>
                 )}
               </View>
+              {/* Help Icon */}
+              <TouchableOpacity
+                style={styles.helpButton}
+                onPress={() => setIsHelpOpen(true)}
+                activeOpacity={0.7}
+              >
+                <IconSearch name="help-circle-outline" size={moderateScale(28)} color={currentTheme.textPrimary} />
+              </TouchableOpacity>
+              
             </View>
             
             {/* 💰 NEW: Chat Limit Bar (Tier System) */}
@@ -1430,6 +1445,13 @@ const ManagerAIOverlay = ({
       title={currentVideo?.title}
       onClose={handleYouTubeClose}
     />
+    {/* 🎬 Chat Help Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    { isHelpOpen && (
+      <ChatHelpSheet
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
+    )}
     </>
   );
 };
@@ -1569,6 +1591,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(16),
     letterSpacing: 0.5,
   },
+  helpButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
+  },
+  
 });
 
 export default memo(ManagerAIOverlay);

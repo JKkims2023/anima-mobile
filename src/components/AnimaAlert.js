@@ -22,7 +22,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Modal, Dimensions, Platform, BackHandler } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -74,6 +74,28 @@ const AnimaAlert = ({ visible, title, message, emoji, buttons = [], onClose }) =
         duration: 200,
       });
     }
+
+
+    if (Platform.OS !== 'android') {
+      return; // iOS는 처리 불필요
+    }
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      
+      if (visible) {
+        
+        onClose();
+        return true; // ✅ 이벤트 소비 (부모로 전달 안됨)
+      }
+      
+      return false; // ✅ 이벤트 전파 (부모가 처리)
+
+    });
+    
+    return () => {
+      backHandler.remove();
+    };
+  
   }, [visible]);
 
   // ✅ Backdrop animated style
@@ -259,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
   },
   emoji: {
-    fontSize: moderateScale(38),
+    fontSize: moderateScale(30),
   },
   title: {
     color: COLORS.TEXT_PRIMARY,

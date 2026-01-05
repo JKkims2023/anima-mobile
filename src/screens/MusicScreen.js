@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(10),
     borderRadius: moderateScale(12),
-    marginTop: verticalScale(-15),
+    marginTop: verticalScale(-20),
     marginLeft: scale(-13),
     gap: scale(8),
   },

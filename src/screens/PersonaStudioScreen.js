@@ -30,7 +30,6 @@ import IconSearch from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // ⭐ NEW: For create button
 import { useTranslation } from 'react-i18next';
 import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
-// ❌ REMOVED: Gesture, GestureDetector, runOnJS (horizontal swipe removed)
 import SafeScreen from '../components/SafeScreen';
 import { useTheme } from '../contexts/ThemeContext';
 import { usePersona } from '../contexts/PersonaContext';
@@ -49,6 +48,7 @@ import { scale, verticalScale, platformPadding } from '../utils/responsive-utils
 import HapticService from '../utils/HapticService';
 import MainHelpSheet from '../components/persona/MainHelpSheet';
 import DressManageSheer from '../components/persona/DressManageSheer';
+import PersonaShareSheet from '../components/persona/PersonaShareSheet';
 
 import { 
   createPersona,
@@ -71,21 +71,6 @@ import {
 } from '../utils/pushNotification';
 import NotificationPermissionSheet from '../components/NotificationPermissionSheet';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EMOTION CATEGORY CONSTANTS (from PersonaSearchOverlay)
-// ═══════════════════════════════════════════════════════════════════════════
-const PERSONA_CATEGORIES = [
-  { key: 'all', emoji: '🌐' },
-  { key: 'normal', emoji: '☀️' },
-  { key: 'thanks', emoji: '🙏' },
-  { key: 'apologize', emoji: '🙇' },
-  { key: 'hope', emoji: '✨' },
-  { key: 'cheer_up', emoji: '📣' },
-  { key: 'congrats', emoji: '🎉' },
-  { key: 'romantic', emoji: '💕' },
-  { key: 'comfort', emoji: '🤗' },
-  { key: 'sadness', emoji: '😢' },
-];
 
 const PersonaStudioScreen = () => {
   const { t } = useTranslation();
@@ -154,6 +139,7 @@ const PersonaStudioScreen = () => {
   const [dressManagementData, setDressManagementData] = useState(null);
   // ⭐ NEW: Persona dress states (for badge count & rotation)
   const [personaDressStates, setPersonaDressStates] = useState({});
+  const [isShareOpen, setIsShareOpen] = useState(false);
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -430,13 +416,24 @@ const PersonaStudioScreen = () => {
     // ⭐ Check if user is logged in
     if (!user || !user.user_key) {
       console.log('[PersonaStudioScreen] ⚠️ User not logged in, redirecting to Settings');
-      showToast({
+      showAlert({
         type: 'warning',
-        message: t('errors.login_required'),
-        emoji: '🔐',
+        message: t('common.login_guide.description'),
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: t('common.confirm'),
+            style: 'primary',
+            onPress: () => {
+              navigation.navigate('Settings');
+            },
+          },
+        ],
       });
       HapticService.warning();
-      navigation.navigate('Settings');
       return;
     }
     
@@ -496,6 +493,7 @@ const PersonaStudioScreen = () => {
   const handleAddDress = useCallback(async () => {
     console.log('[PersonaStudioScreen] 📸 Add dress requested');
     
+    /*
     // ⭐ Check if user is logged in
     if (!user || !user.user_key) {
       console.log('[PersonaStudioScreen] ⚠️ User not logged in, redirecting to Settings');
@@ -511,7 +509,7 @@ const PersonaStudioScreen = () => {
     
     console.log('[PersonaStudioScreen] ✅ User logged in, checking notification permission');
     HapticService.light();
-
+*/
     // Permission already granted or requested, open creation sheet directly
     console.log('[PersonaStudioScreen] ✅ Permission checked, opening persona dress sheet');
     setIsDressManagementOpen(true);
@@ -607,10 +605,22 @@ const PersonaStudioScreen = () => {
       console.log('❌ [ERROR] user value:', user); // ⭐ DEBUG
       navigation.navigate('Settings');
       HapticService.warning();
-      showToast({
-        type: 'error',
-        message: t('errors.login_required'),
-        emoji: '🔐',
+      showAlert({
+        title: t('common.login_guide.title'),
+        message: t('common.login_guide.description'),
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: t('common.confirm'),
+            style: 'primary',
+            onPress: () => {
+              navigation.navigate('Settings');
+            },
+          },
+        ],
       });
       return;
     }
@@ -884,12 +894,19 @@ const PersonaStudioScreen = () => {
       const updatedPersonas = prevPersonas.map(p => {
         if (p.persona_key === currentPersona.persona_key) {
           console.log('[PersonaStudioScreen] ✅ Updating persona:', p.persona_key);
+
+          console.log('dressData: ', dressData);
           return {
             ...p,
             selected_dress_image_url: dressData.selected_dress_image_url,
             selected_dress_video_url: dressData.selected_dress_video_url,
+            selected_dress_persona_comment: dressData.persona_comment,
+            persona_comment_checked: dressData.persona_comment_checked,
+            selected_dress_video_convert_done: dressData.convert_done_yn,
+
             history_key: dressData.history_key,
             persona_url: dressData.selected_dress_image_url, // ⭐ Main image also updated
+
           };
         }
         return p;
@@ -905,10 +922,14 @@ const PersonaStudioScreen = () => {
         console.log('[PersonaStudioScreen] ✅ Updating currentPersona');
         return {
           ...prev,
-          selected_dress_image_url: dressData.selected_dress_image_url,
           selected_dress_video_url: dressData.selected_dress_video_url,
+          selected_dress_persona_comment: dressData.persona_comment,
+          persona_comment_checked: dressData.persona_comment_checked,
+          selected_dress_video_convert_done: dressData.convert_done_yn,
+
           history_key: dressData.history_key,
-          persona_url: dressData.selected_dress_image_url,
+          persona_url: dressData.selected_dress_image_url, // ⭐ Main image also updated
+
         };
       }
       return prev;
@@ -1148,9 +1169,12 @@ const PersonaStudioScreen = () => {
   }, [navigation]);
 
   const handleShareClick = useCallback(() => {
+    setIsShareOpen(true);
+  }, [isShareOpen]);
 
-  }, [navigation]);
-
+  const handlePersonaShare = useCallback(async (type) => {
+    console.log('type: ', type);
+  }, []);
 
   // ❌ REMOVED: handleFilterModeChange (UI simplified - single unified list)
 
@@ -1174,7 +1198,8 @@ const PersonaStudioScreen = () => {
 
     if(persona?.default_yn === 'Y') {
 
-      setIsPersonaManagerOpen(true);
+    //  setIsPersonaManagerOpen(true);
+    setIsPersonaSettingsOpen(true);
 
     }else{
 
@@ -1757,6 +1782,16 @@ const PersonaStudioScreen = () => {
         isOpen={isPersonaManagerOpen}
         persona={settingsPersona}
         onClose={() => setIsPersonaManagerOpen(false)}
+      />
+    )}
+
+    {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
+    {isShareOpen && (
+      <PersonaShareSheet
+        isOpen={isShareOpen}
+        persona={settingsPersona}
+        onHandleShare={handlePersonaShare}
+        onClose={() => setIsShareOpen(false)}
       />
     )}
     

@@ -191,6 +191,25 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
     if (__DEV__) {
       console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
     }
+
+    if(chipKey === 'lastInteraction') {
+
+      if(!chipData){
+
+        showAlert({
+          emoji: '💭',
+          title: t('alert.emotion.no_interaction'),
+          message: t('alert.emotion.no_interaction_description'),
+          type: 'warning',
+          buttons: [
+            { text: t('common.confirm'), style: 'primary', onPress: () => {} },
+          ]
+        });
+        return;
+      } else {
+        setSelectedChip({ key: chipKey, data: chipData });
+      }
+    }
     setSelectedChip({ key: chipKey, data: chipData });
   }, []); // No dependencies - stable function!
 
@@ -298,7 +317,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
               />
             </View>
             {/* ⭐ NEW: Relationship Chips (Living Emotions!) - ⚡ OPTIMIZED: No API calls! */}
-            {user?.user_key && persona?.persona_key && (
+            {true && (
               <RelationshipChipsContainer 
                 relationshipData={persona} // ⚡ Pass entire persona object (includes relationship fields)
                 onChipPress={handleChipPress} // ⚡ OPTIMIZED: Stable callback!
@@ -322,6 +341,27 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
                 <EmotionFloatingEffect
                   mainEmoji={getEmotionEmoji(persona.emotional_state)}
                   floatingEmojis={getFloatingEmojis(persona)}
+                  isFocused={isFocused}
+                  count={3}
+                />
+              </View>
+            )}
+            {/* ⭐ NEW: Instagram-style floating effect (rendered at card level to avoid clipping!) */}
+            {emotionChipLayout && (persona?.emotional_state === null || persona?.emotional_state === undefined) && isFocused && (
+              <View
+                style={{
+                  position: 'absolute',
+                  left: emotionChipLayout.x,
+                  top: emotionChipLayout.y,
+                  width: emotionChipLayout.width,
+                  height: emotionChipLayout.height,
+                  zIndex: 9999, // ⭐ iOS: High zIndex to ensure visibility above all elements
+                }}
+                pointerEvents="none" // Don't block touch events
+              >
+                <EmotionFloatingEffect
+                  mainEmoji={getEmotionEmoji(persona.emotional_state)}
+                  floatingEmojis={['⁉️', '⁉️', '⁉️']}
                   isFocused={isFocused}
                   count={3}
                 />

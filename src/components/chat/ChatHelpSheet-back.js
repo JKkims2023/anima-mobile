@@ -41,7 +41,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
 
-const MainHelpSheet = ({
+const ChatHelpSheet = ({
   isOpen,
   onClose,
   onCreateStart, // (data) => { file, name, gender }
@@ -704,5 +704,5 @@ const styles = StyleSheet.create({
   
 });
 
-export default MainHelpSheet;
+export default ChatHelpSheet;
 

@@ -36,6 +36,8 @@ import {
 import { isAnimaCorePersona } from '../../constants/persona';
 import { setPersonaCommentRead, isPersonaCommentRead } from '../../utils/storage';
 
+
+
 const PostcardBack = ({
   persona,
   onClose,
@@ -281,11 +283,15 @@ const PostcardBack = ({
   const titleAnimStyle = useAnimatedStyle(() => ({
     opacity: titleOpacity.value,
     transform: [{ translateY: titleTranslateY.value }],
+
   }));
 
   const messageAnimStyle = useAnimatedStyle(() => ({
     opacity: messageOpacity.value,
     transform: [{ translateY: messageTranslateY.value }],
+    width: '100%',
+
+
   }));
 
   const closeButtonAnimStyle = useAnimatedStyle(() => ({
@@ -354,7 +360,7 @@ const PostcardBack = ({
           {/* 2. Title - Animated */}
           <Animated.View style={titleAnimStyle}>
             <CustomText type="title" style={styles.titleText}>
-              💖 {personaName}가 보낸 추억
+              💖 From. {personaName}
             </CustomText>
           </Animated.View>
         </View>
@@ -367,7 +373,7 @@ const PostcardBack = ({
           showsVerticalScrollIndicator={false}
           backgroundColor="transparent" // ⚠️ CRITICAL: Android 이중 반투명 방지!
         >
-          <CustomText type="body" style={styles.messageText}>
+          <CustomText type="middle" style={styles.messageText}>
             {displayComment}
           </CustomText>
         </Animated.ScrollView>
@@ -521,6 +527,10 @@ const styles = StyleSheet.create({
     marginBottom: scale(20),
     backgroundColor: 'transparent', // ⚠️ CRITICAL: Android 이중 반투명 방지!
     borderRadius: 0, // ⚠️ Android: NO border radius on ScrollView!
+    alignContent: 'flex-start',
+
+    textAlign: 'left',
+    marginTop: scale(-40),
   },
   messageContent: {
     flexGrow: 1,
@@ -530,7 +540,7 @@ const styles = StyleSheet.create({
     borderRadius: 0, // ⚠️ Android: NO border radius!
   },
   messageText: {
-    fontSize: moderateScale(17),
+   // fontSize: moderateScale(17),
     lineHeight: moderateScale(28),
     color: '#FFFFFF',
     textAlign: 'center',

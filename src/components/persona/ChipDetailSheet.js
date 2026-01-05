@@ -129,7 +129,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
             {t('ai_chip.intimacy.current_level')}
           </CustomText>
-          <CustomText type="middle" bold style={[styles.infoValue, { color: chipData.color }]}>
+          <CustomText type="middle" bold style={[styles.infoValue, {display:'none', color: chipData.color }]}>
             {chipData.label} ({intimacy}%)
           </CustomText>
         </View>
@@ -204,7 +204,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         </View>
 
         {/* Intensity */}
-        <View style={styles.infoRow}>
+        <View style={[styles.infoRow, {display:'none'}]}>
           <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
             {t('ai_chip.emotion.next_emotion')}
           </CustomText>
@@ -216,25 +216,25 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.divider} />
 
         {/* Emotion Understanding */}
-        <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+        <CustomText type="big" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
           💭 {t('ai_chip.emotion.about_emotion')}
         </CustomText>
         
         <View style={styles.tipContainer}>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.emotion.about_emotion.item1')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.emotion.about_emotion.item2')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.emotion.about_emotion.item3')}
           </CustomText>
         </View>
         
         <View style={styles.divider} />
         
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+        <CustomText type="small" bold style={[styles.bottomTipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
           💙 {t('ai_chip.emotion.about_emotion.description')}
         </CustomText>
       </View>
@@ -286,7 +286,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Next Level */}
         {nextLevel && (
-          <View style={styles.infoRow}>
+          <View style={[styles.infoRow, {display:'none'}]}>
             <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
               {t('ai_chip.relationship.next_relationship')}
             </CustomText>
@@ -299,28 +299,28 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         <View style={styles.divider} />
 
         {/* Evolution Criteria */}
-        <CustomText type="middle" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+        <CustomText type="big" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
           📊 {t('ai_chip.relationship.evolution_criteria')}
         </CustomText>
         
         <View style={styles.tipContainer}>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.relationship.evolution_criteria.item1')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.relationship.evolution_criteria.item2')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.relationship.evolution_criteria.item3')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.relationship.evolution_criteria.item4')}
           </CustomText>
         </View>
         
         <View style={styles.divider} />
         
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+        <CustomText type="normal" bold style={[styles.bottomTipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
           💡 {t('ai_chip.relationship.about_relationship.description')}
         </CustomText>
       </View>
@@ -358,7 +358,7 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
 
         {/* Progress */}
         {trust < 100 && (
-          <View style={styles.infoRow}>
+          <View style={[styles.infoRow, {display:'none'}]}>
             <CustomText type="middle" style={[styles.infoLabel, { color: currentTheme.textSecondary }]}>
               {t('ai_chip.trust.next_trust')}
             </CustomText>
@@ -376,16 +376,16 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         </CustomText>
         
         <View style={styles.tipContainer}>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.trust.evolution_criteria.item1')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.trust.evolution_criteria.item2')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.trust.evolution_criteria.item3')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             ⚠️ {t('ai_chip.trust.evolution_criteria.item4')}
           </CustomText>
         </View>
@@ -426,21 +426,21 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
         </CustomText>
         
         <View style={styles.tipContainer}>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.last_interaction.evolution_criteria.item1')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.last_interaction.evolution_criteria.item2')}
           </CustomText>
-          <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.tipText, { color: currentTheme.textSecondary }]}>
             • {t('ai_chip.last_interaction.evolution_criteria.item3')}
           </CustomText>
         </View>
         
         <View style={styles.divider} />
         
-        <CustomText type="small" style={[styles.tipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
-          💙 페르소나는 당신을 기다리고 있습니다. 언제든 편하게 대화를 시작하세요.
+        <CustomText type="normal" bold style={[styles.bottomTipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
+          💙 {t('ai_chip.last_interaction.about_relationship.description')}
         </CustomText>
       </View>
     );
@@ -458,7 +458,8 @@ const ChipDetailSheet = ({ isOpen, onClose, chipKey, chipData, persona }) => {
     <CustomBottomSheet
       ref={bottomSheetRef}
       title={`${emoji} ${title}`}
-      subtitle={persona?.persona_name ? `${persona.persona_name}와의 관계` : null}
+//      subtitle={persona?.persona_name ? `${persona.persona_name}와의 관계` : null}
+      subtitle={null}
       snapPoints={['75%']}
       enablePanDownToClose={true}
       onClose={onClose}
@@ -518,7 +519,11 @@ const styles = StyleSheet.create({
     gap: verticalScale(8),
   },
   tipText: {
-    fontSize: scale(13),
+    fontSize: scale(14),
+    lineHeight: scale(20),
+  },
+  bottomTipText: {
+    fontSize: scale(15),
     lineHeight: scale(20),
   },
   emptyContainer: {

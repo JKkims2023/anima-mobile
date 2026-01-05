@@ -19,6 +19,7 @@ import CustomText from '../CustomText';
 import { useTheme } from '../../contexts/ThemeContext';
 import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { formatMomentSummary, getEmotionEmoji, formatTimeAgo } from '../../utils/momentFormatter';
+import { useTranslation } from 'react-i18next';
 
 /**
  * PersonaHeartDisplay Component
@@ -28,7 +29,10 @@ import { formatMomentSummary, getEmotionEmoji, formatTimeAgo } from '../../utils
  */
 const PersonaHeartDisplay = ({ persona, relationshipData }) => {
   const { currentTheme: theme } = useTheme();
-  
+  const { t } = useTranslation();
+
+  console.log('conversation_count', persona?.conversation_count);
+
   // Parse JSON fields from backend
   const recentMoment = persona?.recent_moment ? 
     (typeof persona.recent_moment === 'string' ? JSON.parse(persona.recent_moment) : persona.recent_moment) 
@@ -44,53 +48,59 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
   
   // If no data, don't render
   if (!recentMoment && (!aiInterests || aiInterests.length === 0) && (!aiNextQuestions || aiNextQuestions.length === 0)) {
-    return null;
+//    return null;
   }
   
   return (
     <View style={styles.container}>
-      {/* Layer 1: Recent Special Moment */}
-      {recentMoment && (
+      {/* Layer 1: Recent Special Moment - recentMoment */}
+      {true && (
+        
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
           <View style={styles.layerHeader}>
-            <Icon name="star-circle" size={scale(20)} color={theme.mainColor} />
-            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(8) }}>
-              ✨ 방금 특별했던 순간
+            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>
+              {t('persona_heart_display.recent_moment.title')}
             </CustomText>
           </View>
           <View style={styles.layerContent}>
             <CustomText type="body" style={{ color: theme.textPrimary, lineHeight: scale(20) }}>
-              "{formatMomentSummary(recentMoment.summary, relationshipData)}"
+              "{recentMoment && recentMoment.summary ? formatMomentSummary(recentMoment.summary, relationshipData) : t('persona_heart_display.recent_moment.empty_description')}"
             </CustomText>
             <View style={styles.momentMeta}>
-              {recentMoment.user_emotion && (
+              { recentMoment && recentMoment.user_emotion ? (
                 <View style={styles.emotionBadge}>
                   <CustomText type="small" style={{ color: theme.textSecondary }}>
                     {getEmotionEmoji(recentMoment.user_emotion)} {recentMoment.user_emotion}
                   </CustomText>
                 </View>
-              )}
-              <CustomText type="small" style={{ color: theme.textSecondary }}>
-                • 중요도 {recentMoment.importance}/10
-              </CustomText>
-              <CustomText type="small" style={{ color: theme.textSecondary }}>
-                • {formatTimeAgo(recentMoment.created_at)}
-              </CustomText>
+              ) : null}
+              { recentMoment && recentMoment.summary ? (
+                <CustomText type="small" style={{ color: theme.textSecondary }}>
+                  • 중요도 {recentMoment && recentMoment.importance ? recentMoment.importance : 0}/10
+                </CustomText>
+              ) : null}
+              { recentMoment && recentMoment.created_at ? (
+                <CustomText type="small" style={{ color: theme.textSecondary }}>
+                  • {recentMoment && recentMoment.created_at ? formatTimeAgo(recentMoment.created_at) : ''}
+                </CustomText>
+              ) : null}
             </View>
           </View>
         </View>
       )}
       
-      {/* Layer 2: Persona's Interests */}
-      {aiInterests && aiInterests.length > 0 && (
-        <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
+      {/* Layer 2: Persona's Interests - aiInterests && aiInterests.length > 0 */}
+      {true && (
+        <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor, marginTop: platformPadding(0) }]}>
           <View style={styles.layerHeader}>
-            <Icon name="lightbulb-on" size={scale(20)} color={theme.mainColor} />
-            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(8) }}>
-              💡 페르소나의 관심사
+            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>
+              {t('persona_heart_display.persona_interests.title')}
             </CustomText>
           </View>
           <View style={styles.layerContent}>
+
+            {aiInterests && aiInterests.length > 0 ? (
+            <>
             {aiInterests.map((interest, index) => (
               <View key={index} style={styles.interestItem}>
                 <View style={[styles.interestDot, { backgroundColor: theme.mainColor }]} />
@@ -104,27 +114,42 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
                 </View>
               </View>
             ))}
+            </>
+            ) : (
+              <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
+                {t('persona_heart_display.persona_interests.empty_description')}
+              </CustomText>
+            )}
           </View>
         </View>
       )}
       
-      {/* Layer 3: Persona's Thoughts (Next Questions) - 최근 1개만 표시 */}
-      {aiNextQuestions && aiNextQuestions.length > 0 && (
+      {/* Layer 3: Persona's Thoughts (Next Questions) - aiNextQuestions && aiNextQuestions.length > 0 */}
+      {true && (
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
           <View style={styles.layerHeader}>
-            <Icon name="chat-question" size={scale(20)} color={theme.mainColor} />
-            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(8) }}>
-              💭 페르소나가 궁금해하는 것
+            <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>
+              {t('persona_heart_display.persona_questions.title')}
             </CustomText>
           </View>
           <View style={styles.layerContent}>
-            {/* ⚠️ 사용자 집중을 위해 최근 1개만 표시 (JK 요청) */}
+   
             <View style={styles.questionItem}>
               <View style={[styles.interestDot, { backgroundColor: theme.mainColor, marginTop: verticalScale(6) }]} />
               <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
-                {aiNextQuestions[0].question}
+                {aiNextQuestions && aiNextQuestions.length > 0 ? aiNextQuestions[0].question : t('persona_heart_display.persona_questions.empty_description')}
               </CustomText>
             </View>
+          </View>
+        </View>
+      )}
+
+      {persona?.conversation_count == 0 && (
+        <View style={[styles.layer_empty_conversation_count, { }]}>
+          <View style={styles.layer_empty_conversation_count_header}>
+            <CustomText type="middle" italic style={{  color: theme.textPrimary, fontStyle: 'italic'  }}>
+              {t('persona_heart_display.empty_conversation_count')}
+            </CustomText>
           </View>
         </View>
       )}
@@ -143,6 +168,17 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     borderWidth: 1,
     overflow: 'hidden',
+  },
+
+  layer_empty_conversation_count: {
+
+    overflow: 'hidden',
+  },
+
+  layer_empty_conversation_count_header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: verticalScale(12),
   },
   
   layerHeader: {
