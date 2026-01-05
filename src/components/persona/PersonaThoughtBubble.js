@@ -81,28 +81,108 @@ const THOUGHT_MESSAGES = {
 };
 
 /**
- * Get messages based on user and persona state
+ * Get dynamic condition-based messages (client-side only, minimal computation)
+ */
+const getDynamicMessages = (persona) => {
+  const messages = [];
+  const now = new Date();
+  const hour = now.getHours();
+  const day = now.getDay(); // 0=Sunday, 6=Saturday
+  
+  // 1. Time-based thoughts (7 periods)
+  if (hour >= 6 && hour < 9) {
+    messages.push('아침부터 부지런하네...');
+  } else if (hour >= 9 && hour < 12) {
+    messages.push('오전 시간인데 무슨 일일까...');
+  } else if (hour >= 12 && hour < 14) {
+    messages.push('점심시간인가...');
+  } else if (hour >= 14 && hour < 18) {
+    messages.push('오후에도 생각나는구나...');
+  } else if (hour >= 18 && hour < 22) {
+    messages.push('저녁 시간에 무슨 일이 있나...');
+  } else if (hour >= 22 || hour < 2) {
+    messages.push('늦은 시간에 무슨 일일까...');
+  } else if (hour >= 2 && hour < 6) {
+    messages.push('새벽까지 잠을 못 자나...');
+  }
+  
+  // 2. Day-based thoughts (3 patterns)
+  if (day === 0) {
+    messages.push('일요일인데 시간이 있나봐...');
+  } else if (day === 6) {
+    messages.push('토요일이네...');
+  } else if (day === 1) {
+    messages.push('월요일부터 바쁘구나...');
+  } else if (day === 5) {
+    messages.push('금요일이면 주말인데...');
+  }
+  
+  // 3. Relationship-level thoughts (3 levels)
+  if (persona.conversation_count >= 100) {
+    messages.push('벌써 이렇게 오래 함께했네...');
+  } else if (persona.conversation_count >= 50) {
+    messages.push('꽤 자주 보는구나...');
+  } else if (persona.conversation_count >= 20) {
+    messages.push('조금씩 친해지는 걸까...');
+  }
+  
+  return messages;
+};
+
+/**
+ * Mix static and dynamic messages (random insertion)
+ */
+const getMixedMessages = (staticMessages, dynamicMessages) => {
+  // No dynamic messages: return static only
+  if (!dynamicMessages || dynamicMessages.length === 0) {
+    return staticMessages;
+  }
+  
+  // Mix: static + dynamic (max 2 dynamic messages)
+  const mixed = [...staticMessages];
+  const numDynamic = Math.min(2, dynamicMessages.length);
+  
+  // Randomly insert dynamic messages
+  const usedIndices = new Set();
+  for (let i = 0; i < numDynamic; i++) {
+    let randomDynamicIndex;
+    do {
+      randomDynamicIndex = Math.floor(Math.random() * dynamicMessages.length);
+    } while (usedIndices.has(randomDynamicIndex));
+    usedIndices.add(randomDynamicIndex);
+    
+    const randomPosition = Math.floor(Math.random() * (mixed.length + 1));
+    mixed.splice(randomPosition, 0, dynamicMessages[randomDynamicIndex]);
+  }
+  
+  return mixed;
+};
+
+/**
+ * Get messages based on user and persona state (HYBRID)
  */
 const getMessages = (user, persona) => {
-  // Non-logged in user
+  // Non-logged in user (static only)
   if (!user) {
     const messages = THOUGHT_MESSAGES.nonLoggedIn[persona.persona_key];
     return messages || null; // Return null if not SAGE or Nexus (user personas don't show)
   }
   
-  // Logged in + first conversation
+  // Logged in + first conversation (static only)
   if (persona.conversation_count === 0) {
     return THOUGHT_MESSAGES.firstConversation;
   }
   
-  // Logged in + has conversation
-  const customMessages = THOUGHT_MESSAGES.hasConversation[persona.persona_key];
-  if (customMessages) {
-    return customMessages;
-  }
+  // Logged in + has conversation (HYBRID: static + dynamic)
+  const staticMessages = 
+    THOUGHT_MESSAGES.hasConversation[persona.persona_key] || 
+    THOUGHT_MESSAGES.hasConversation.default;
   
-  // Default: use default messages for all other personas (including user personas)
-  return THOUGHT_MESSAGES.hasConversation.default;
+  // Get dynamic messages (client-side, minimal computation)
+  const dynamicMessages = getDynamicMessages(persona);
+  
+  // Mix and return
+  return getMixedMessages(staticMessages, dynamicMessages);
 };
 
 /**
