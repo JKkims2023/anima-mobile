@@ -81,6 +81,7 @@ import {
   createErrorMessage,
   createUserMessage,
 } from '../../utils/chatHelpers';
+import { parseRichContent } from '../../utils/chatResponseParser';
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -667,16 +668,16 @@ const ManagerAIOverlay = ({
       setSelectedImage(null);
       
       if (response.success && response.data?.answer) {
-        // ⚡ Prepare for typing effect (setup only, no setTypingMessage spam!)
-        
-        const answer = response.data.answer;
-        const shouldContinue = response.data.continue_conversation || false; // ⭐ 미리 저장!
-        const richContent = response.data.rich_content || { images: [], videos: [], links: [] }; // ⭐ Rich media
-        const identityDraftPending = response.data.identity_draft_pending || null; // 🎭 NEW: Identity draft flag
-        const identityEvolution = response.data.identity_evolution || null; // 🌟 NEW: Identity evolution notification
-        const generatedContent = response.data.generated_content || null; // 🎨 NEW: Real-time content generation
-        const musicData = response.data.music || null; // 🎵 NEW: Real-time music search result
-        const youtubeData = response.data.youtube || null; // 🎬 NEW: Real-time YouTube video search result
+        // ✅ Parse rich content (simplified with helper)
+        const {
+          answer,
+          shouldContinue,
+          richContent,
+          musicData,
+          youtubeData,
+          identityEvolution,
+          identityDraftPending,
+        } = parseRichContent(response.data);
         
         // 🌟 Show identity evolution notification (supports multiple tool calls) with cleanup
         if (identityEvolution) {
@@ -710,71 +711,17 @@ const ManagerAIOverlay = ({
           setPendingIdentityDraft(identityDraftPending);
         }
         
-        // 🎨 NEW: Handle real-time content generation (Pixabay is INSTANT!)
-        // ✅ STRATEGY: Add image directly to AI message bubble (not floating button!)
-        let generatedImageForBubble = null;
-        if (generatedContent && generatedContent.content_id && generatedContent.content_url) {
-          // ✅ Prepare image object for message bubble
-          generatedImageForBubble = {
-            url: generatedContent.content_url,
-            description: generatedContent.metadata?.photographer 
-              ? `📷 Photo by ${generatedContent.metadata.photographer}` 
-              : '🎨 AI Generated Image',
-            source: 'pixabay',
-            credit: generatedContent.metadata?.pageURL || null
-          };
-          
-          // Haptic feedback
+        // 🎵 Haptic feedback for rich content
+        if (musicData || youtubeData || richContent.images.length > 0) {
           HapticService.trigger('success');
-        }
-        
-        // 🎵 NEW: Handle real-time music search (instant!)
-        let musicForBubble = null; // ⭐ NEW: Music data for message bubble
-        if (musicData && musicData.track) {
-          // ⭐ NEW: Prepare music object for message bubble (same format as history!)
-          musicForBubble = {
-            id: musicData.track.id || `track-${Date.now()}`,
-            title: musicData.track.title,
-            artist: musicData.track.artist,
-            url: musicData.track.url,
-            duration: musicData.track.duration,
-            image: musicData.track.image,
-            source: musicData.track.source || 'jamendo'
-          };
-          
-          // 🔧 FIX: Don't set floatingContent here!
-          // Let user click the bubble → handleMusicPress will be called
-          // This ensures consistent behavior between real-time and history messages
-          
-          // Haptic feedback
-          HapticService.trigger('success');
-        }
-        
-        // 🎬 NEW: Handle real-time YouTube video search (instant!)
-        let youtubeForBubble = null; // ⭐ NEW: YouTube data for message bubble
-        if (youtubeData && youtubeData.videoId) {
-          // ⭐ NEW: Prepare YouTube object for message bubble (same format as history!)
-          youtubeForBubble = {
-            videoId: youtubeData.videoId,
-            title: youtubeData.title,
-            channel: youtubeData.channel,
-            thumbnail: youtubeData.thumbnail,
-            url: youtubeData.url,
-            embedUrl: youtubeData.embedUrl,
-          };
-        }
-        
-        // ✅ Add generated image to richContent
-        if (generatedImageForBubble) {
-          richContent.images = [...richContent.images, generatedImageForBubble];
         }
         
         // ✅ Use common function with cleanup support
         const aiMessage = await addAIMessageWithTyping({
           answer,
           richContent,
-          music: musicForBubble,
-          youtube: youtubeForBubble,
+          music: musicData,
+          youtube: youtubeData,
           setIsTyping,
           setCurrentTypingText,
           setIsLoading,
