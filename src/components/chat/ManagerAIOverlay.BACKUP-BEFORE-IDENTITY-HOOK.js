@@ -57,9 +57,9 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: Alert function
+import { SETTING_CATEGORIES, DEFAULT_SETTINGS } from '../../constants/aiSettings';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
 import useChatLimit from '../../hooks/useChatLimit'; // 💰 NEW: Chat limit hook
-import useIdentitySettings from '../../hooks/useIdentitySettings'; // 🎭 NEW: Identity settings hook
 import uuid from 'react-native-uuid';
 import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
@@ -162,7 +162,14 @@ const ManagerAIOverlay = ({
   const [historyOffset, setHistoryOffset] = useState(0);
   const [currentPersonaKey, setCurrentPersonaKey] = useState(null); // ⭐ Track current persona
   
-  // 🎭 REMOVED: Settings states (moved to useIdentitySettings hook)
+  // 🆕 Settings state (moved to bottom sheets)
+  const [showIdentitySettings, setShowIdentitySettings] = useState(false); // 🎭 Identity settings
+  const [showSpeakingPattern, setShowSpeakingPattern] = useState(false); // 🗣️ Speaking pattern
+  const [showCreateMusic, setShowCreateMusic] = useState(false); // 🎵 Create music sheet
+
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
   
   // 🆕 Vision state
   const [selectedImage, setSelectedImage] = useState(null); // Holds selected image before sending
@@ -197,21 +204,6 @@ const ManagerAIOverlay = ({
     incrementChatCount,
     showLimitReachedSheet,
   } = useChatLimit(visible, user, showAlert);
-  
-  // 🎭 NEW: Identity Settings Hook (manages AI preferences, sheets)
-  const {
-    settings,
-    loadingSettings,
-    savingSettings,
-    showIdentitySettings,
-    setShowIdentitySettings,
-    showSpeakingPattern,
-    setShowSpeakingPattern,
-    showCreateMusic,
-    setShowCreateMusic,
-    updateSetting,
-    handleToggleSettings,
-  } = useIdentitySettings(visible, user);
     
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
@@ -241,13 +233,86 @@ const ManagerAIOverlay = ({
   // ✅ REMOVED: Empty useEffect hooks (Line 227-233)
   // These were placeholders with no logic - safely removed!
   
-  // 💰 REMOVED: Load service config useEffect (moved to useChatLimit hook)
-  // 🎭 REMOVED: Load AI settings useEffect (moved to useIdentitySettings hook)
+  // 🆕 Load AI settings when overlay opens
+  useEffect(() => {
+    if (visible && user?.user_key) {
+      loadAISettings();
+    } else if (visible && !user?.user_key) {
+      // ⚠️ User context not loaded yet, wait...
+      console.log('⏳ [Settings] Waiting for user context...');
+    }
+  }, [visible, user?.user_key]);
   
-  // 🎭 REMOVED: loadAISettings, updateSetting, handleToggleSettings (moved to useIdentitySettings hook)
+  // 💰 REMOVED: Load service config useEffect (moved to useChatLimit hook)
+  
+  // 🆕 Load AI settings when identity settings sheet opens
+  useEffect(() => {
+    if (showIdentitySettings && user?.user_key) {
+      loadAISettings();
+    }
+  }, [showIdentitySettings, user?.user_key]);
+  
+  // 🆕 Load AI settings
+  const loadAISettings = async () => {
+    if (!user?.user_key) return;
+    
+    try {
+      setLoadingSettings(true);
+      const response = await chatApi.getAIPreferences(user.user_key);
+      
+      if (response.success) {
+        setSettings({
+          speech_style: response.data.speech_style || DEFAULT_SETTINGS.speech_style,
+          response_style: response.data.response_style || DEFAULT_SETTINGS.response_style,
+          advice_level: response.data.advice_level || DEFAULT_SETTINGS.advice_level,
+        });
+      }
+    } catch (error) {
+      console.error('[ManagerAI] Load settings error:', error);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+  
+  // 🆕 Update AI setting
+  const updateSetting = async (key, value) => {
+    // Optimistic update
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    HapticService.light();
+    
+    try {
+      setSavingSettings(true);
+      const response = await chatApi.updateAIPreferences(user.user_key, newSettings);
+      
+      if (response.success) {
+        HapticService.success();
+      } else {
+        throw new Error('Update failed');
+      }
+    } catch (error) {
+      console.error('[ManagerAI] Update settings error:', error);
+      // Revert on error
+      setSettings(settings);
+      HapticService.error();
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+  
+  // 🆕 Toggle settings (type: 'identity' | 'speaking')
+  const handleToggleSettings = useCallback((type) => {
+    HapticService.light();
+    
+    if (type === 'identity') {
+      setShowIdentitySettings(true);
+    } else if (type === 'speaking') {
+      setShowSpeakingPattern(true);
+    }
+  }, []);
 
   const handleCreateMusic = async () => {
-    handleToggleSettings('music');
+    setShowCreateMusic(true);
   }
 
   const handleCreateMessage = async () => {
