@@ -885,9 +885,10 @@ const ManagerAIOverlay = ({
     
     // ⭐ If no sheet is open, proceed with normal close logic
     
-    // Clear floating content (music button and player)
+    // 🧹 Clear all UI states before closing
     setFloatingContent(null);
     setIsHelpOpen(false);
+    setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
       // Only trigger if we have meaningful conversation (3+ messages)
@@ -924,9 +925,10 @@ const ManagerAIOverlay = ({
             text: '종료',
             style: 'destructive',
             onPress: () => {
-              // Clear floating content
+              // 🧹 Clear all UI states
               setFloatingContent(null);
               setIsHelpOpen(false);
+              setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
               // Force stop AI conversation
               setIsAIContinuing(false);
               aiContinueCountRef.current = 0; // ⭐ Reset ref
@@ -947,6 +949,7 @@ const ManagerAIOverlay = ({
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
                 setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
+                setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
               }, 200);
               
               if (onClose) {
@@ -965,12 +968,13 @@ const ManagerAIOverlay = ({
     // 🆕 Trigger background learning before closing
     triggerBackgroundLearning();
     
-    // Clear messages on close
+    // 🧹 Clear all states on close
     setTimeout(() => {
       setMessages([]);
       setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
       setIsTyping(false);
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
+      setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
     }, 200);
     
     if (onClose) {
