@@ -964,11 +964,6 @@ const ManagerAIOverlay = ({
     setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
     setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
     
-    // ⭐ CRITICAL FIX: Capture current state BEFORE any cleanup!
-    const currentMessages = messages;
-    const currentUser = user;
-    const currentPersona = persona;
-    
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = (capturedMessages, capturedUser, capturedPersona) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

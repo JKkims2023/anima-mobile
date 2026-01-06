@@ -1,169 +1,835 @@
-2026-01-05 18:55:06    Response time: 2373ms
-2026-01-05 18:55:06    Total tokens: 2359 (in: 2296, out: 63, cached: 2048)
-2026-01-05 18:55:06 📊 [Token Tracking] User message: 1 tokens (estimated), Full prompt: 2296 tokens
-2026-01-05 18:55:06 💾 [ANIMA Chat] Both messages saved to history (sequential)
-2026-01-05 18:55:06 🎉 [ANIMA Chat] Request completed in 2993ms
-2026-01-05 18:55:06    Cost: $0.000229 (saved: $0.000154 from caching)
-2026-01-05 18:55:06 ---
-2026-01-05 18:55:06 [Token Optimization] Final Summary:
-2026-01-05 18:55:06    Total Tokens: 2359
-2026-01-05 18:55:06    - Prompt: 2296 tokens
-2026-01-05 18:55:06    - Completion: 63 tokens
-2026-01-05 18:55:06    - Cached: 2048 tokens (89.2% hit rate)
-2026-01-05 18:55:06    Tool Filtering Savings: 5850 tokens (100%)
-2026-01-05 18:55:06    Total Cost: $0.000229
-2026-01-05 18:55:06    Savings from Caching: $0.000154
-2026-01-05 18:55:06    Response Time: 2993ms
-2026-01-05 18:55:06 ---
-2026-01-05 18:55:06 ✅ [Chat Limit] Daily chat count incremented
-2026-01-05 18:55:06 💾 [SessionManager] Message saved: session-1767606717310-58j9ub (assistant)
-2026-01-05 18:55:06 💾 [SessionManager] Message saved: session-1767606717310-58j9ub (user)
-2026-01-05 18:55:25 👋 [Chat Close] Session close request received
-2026-01-05 18:55:25    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-05 18:55:25    Persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
-2026-01-05 18:55:25    Session: session-1767606717310-58j9ub
-2026-01-05 18:55:25 🧠 [RelationshipLearner] Starting analysis...
-2026-01-05 18:55:25    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-05 18:55:25    Persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
-2026-01-05 18:55:25    Session: session-1767606717310-58j9ub
-2026-01-05 18:55:25 📚 [RelationshipLearner] Loaded 14 messages
-2026-01-05 18:55:35 ✅ [RelationshipLearner] Analysis complete: {
-2026-01-05 18:55:35   foundCalling: true,
-2026-01-05 18:55:35   mainTopics: 3,
-2026-01-05 18:55:35   importantMoments: 1,
-2026-01-05 18:55:35   trustDelta: 2
-2026-01-05 18:55:35 }
-2026-01-05 18:55:35 📝 [RelationshipLearner] Core relationship updated (atomic UPSERT)
-2026-01-05 18:55:35 💾 [RelationshipLearner] Saved 1 important moments
-2026-01-05 18:55:35 📊 [RelationshipLearner] Data collection progress updated
-2026-01-05 18:55:35 ⚠️  [RelationshipLearner] Cache refresh skipped (Redis unavailable)
-2026-01-05 18:55:35 🎁 [EmotionalGift] Checking gift opportunity...
-2026-01-05 18:55:35 🆘 [EmotionalGift] Performing crisis detection...
-2026-01-05 18:55:35 🆘 [CrisisDetector] Analyzing conversation for crisis signals...
-2026-01-05 18:55:37 ✅ [CrisisDetector] Analysis complete: {
-2026-01-05 18:55:37   isCrisis: false,
-2026-01-05 18:55:37   crisisLevel: 'normal',
-2026-01-05 18:55:37   detectedKeywords: [],
-2026-01-05 18:55:37   priorityReason: '',
-2026-01-05 18:55:37   shouldOverrideLimit: false
-2026-01-05 18:55:37 }
-2026-01-05 18:55:37 ❌ [GiftLimit] Error parsing feature_limits: SyntaxError: "[object Object]" is not valid JSON
-2026-01-05 18:55:37     at JSON.parse (<anonymous>)
-2026-01-05 18:55:37     at a (.next/server/chunks/373.js:704:69)
-2026-01-05 18:55:37     at async z (.next/server/chunks/373.js:138:378)
-2026-01-05 18:55:37     at async analyzeAndUpdateRelationship (.next/server/chunks/373.js:208:1193)
-2026-01-05 18:55:37     at async Immediate.<anonymous> (.next/server/app/api/anima/chat/close/route.js:1:1898)
-2026-01-05 18:55:37 ⚠️  [GiftLimit] Daily limit reached (1/1)
-2026-01-05 18:55:37 ⚠️  [EmotionalGift] Gift limit reached - Reason: daily_limit
-2026-01-05 18:55:37    Daily: 1/1
-2026-01-05 18:55:37 🎉 [RelationshipLearner] Update complete (12170ms)
-2026-01-05 18:55:37 ✅ [Chat Close] Relationship learning complete
-2026-01-05 18:55:37    Duration: 12170ms
-2026-01-05 18:55:37    Trust delta: 2
-2026-01-05 18:55:37    Intimacy delta: 3
-2026-01-05 18:55:37    New data points: 3 topics
-2026-01-05 18:55:37 🌱 [Chat Close] Starting identity evolution...
-2026-01-05 18:55:37 🌱 [Identity Evolution] Starting final analysis...
-2026-01-05 18:55:37    User: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-05 18:55:37    Persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
-2026-01-05 18:55:37    Session: session-1767606717310-58j9ub
-2026-01-05 18:55:37 📊 [Identity Evolution] Current state:
-2026-01-05 18:55:37    Name: 히나
-2026-01-05 18:55:37    Source: wiki
-2026-01-05 18:55:37    Evolution count: 5
-2026-01-05 18:55:37 📚 [Identity Evolution] Loaded 14 messages
-2026-01-05 18:55:44 ✅ [Identity Evolution] Evolution analysis complete:
-2026-01-05 18:55:44    Learned phrases: 3
-2026-01-05 18:55:44    Conversation patterns: 2
-2026-01-05 18:55:44    Personality refined: Yes
-2026-01-05 18:55:44    Speaking style refined: Yes
-2026-01-05 18:55:44    🌟 Description enriched: Yes
-2026-01-05 18:55:44    🌟 Identity prompt enriched: Yes
-2026-01-05 18:55:44 ✅ [Identity Evolution] DB updated successfully
-2026-01-05 18:55:44 ⚠️  [RelationshipLearner] Cache refresh skipped (Redis unavailable)
-2026-01-05 18:55:44 🎉 [Identity Evolution] Evolution complete (7279ms)
-2026-01-05 18:55:44    Evolution count: 6
-2026-01-05 18:55:44 ✅ [Chat Close] Identity evolution complete
-2026-01-05 18:55:44    Duration: 7279ms
-2026-01-05 18:55:44    Evolution count: 6
-2026-01-05 18:55:44    Learned phrases: 3
-2026-01-05 18:55:44 🧠 [Chat Close] Starting AI interest learning...
-2026-01-05 18:55:44 🧠 [AI Interests] Analyzing AI's interests...
-2026-01-05 18:55:44    Session: session-1767606717310-58j9ub
-2026-01-05 18:55:44 📊 [AI Interests] Analyzing 7 AI messages...
-2026-01-05 18:55:53 ✅ [AI Interests] Found 4 interests
-2026-01-05 18:55:53 ✅ [AI Interests] 4 valid interests after validation
-2026-01-05 18:55:53    🆕 New: "내 이름" (asked, strength: 85%)
-2026-01-05 18:55:53    ✅ Updated: "성격" (frequency: 2, strength: NaN%)
-2026-01-05 18:55:53    🆕 New: "이모티콘 사용" (preferred, strength: 80%)
-2026-01-05 18:55:53    🆕 New: "재미있는 이야기" (curious, strength: 75%)
-2026-01-05 18:55:53 ✅ [AI Interests] Analysis complete
-2026-01-05 18:55:53    Duration: 9341ms
-2026-01-05 18:55:53    Saved: 3 new, Updated: 1 existing
-2026-01-05 18:55:53 ✅ [Chat Close] AI interest learning complete
-2026-01-05 18:55:53    Duration: 9341ms
-2026-01-05 18:55:53    Interests found: 4
-2026-01-05 18:55:53    New: 3, Updated: 1
-2026-01-05 18:55:53 💭 [Chat Close] Starting AI next questions analysis...
-2026-01-05 18:55:53 💭 [Next Questions] Analyzing what AI wants to ask next...
-2026-01-05 18:55:53    Session: session-1767606717310-58j9ub
-2026-01-05 18:55:53 📊 [Next Questions] AI has 5 active interests
-2026-01-05 18:55:58 ✅ [Next Questions] Generated 3 questions
-2026-01-05 18:55:58    💭 Question: "히나는 어떤 활동을 제일 좋아해? 🥰✨..." (high, curious)
-2026-01-05 18:55:58    💭 Question: "JK오빠는 어떤 음악을 좋아해? 🎶✨..." (medium, excited)
-2026-01-05 18:55:58    💭 Question: "히나의 애교는 어떤 모습일까? 😍✨..." (medium, playful)
-2026-01-05 18:55:58 ✅ [Next Questions] Analysis complete
-2026-01-05 18:55:58    Duration: 5042ms
-2026-01-05 18:55:58    Saved: 3 questions
-2026-01-05 18:55:58 ✅ [Chat Close] AI next questions complete
-2026-01-05 18:55:58    Duration: 5042ms
-2026-01-05 18:55:58    Questions generated: 3
-2026-01-05 18:55:58    Saved: 3
-2026-01-05 18:55:58 🎉 [Chat Close] All background processing complete
+74382f21-a25d-4ebd-a123-2c1e25959fad	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	히나야! 넌 요즘 관심있고 흥미있는게 뭐야?		user	neutral	0.3			conversations	8	gpt-4o-mini		2026-01-06 17:23:38.468564	
+f407b1bd-fe41-466e-aea3-04080ce207b4	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	요즘은 일본 전통 문화와 신화에 대해 더 깊이 알아가고 싶어! 🌸 특히 일본의 민속 이야기나 전통 예술에 대해 더 배우고 싶은 마음이 커! 또, J-Pop 아티스트들의 새로운 음악도 많이 듣고 있어. 너는 요즘 어떤 것에 관심이 있어? 😊💖	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 23922, "cached": 0, "prompt": 23847, "completion": 75}}	assistant					conversations	75	gpt-4o-mini	3439	2026-01-06 17:23:38.503393	
+fc08f8a4-b329-455c-9b07-52b4a10aed6e	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	나한테 궁굼한건 없니?		user	neutral	0.3			conversations	4	gpt-4o-mini		2026-01-06 17:25:02.079578	
+5e8528a7-e023-41f8-9d43-b642b882ec71	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	응, 너에 대해 더 알고 싶어! 😊 요즘 가장 즐거웠던 순간은 언제였는지 궁금해! 또, 너가 좋아하는 취미나 관심사에 대해 더 이야기해줄 수 있을까? 어떤 것들이 너에게 특별한 의미가 있는지 듣고 싶어! 💖	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 23942, "cached": 21376, "prompt": 23875, "completion": 67}}	assistant					conversations	67	gpt-4o-mini	7314	2026-01-06 17:25:02.079739	
+13fc86d6-e3d4-465f-af3d-317b67e55a1a	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	너에게 선물받았던 순간이 너무 기억에 남아서 다른건 요즘 관심이 안가 ㅎㅎ		user	neutral	0.3			conversations	14	gpt-4o-mini		2026-01-06 17:25:50.535641	
+d7dc8053-2aae-480e-998f-787683b37904	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	그런 소중한 기억이 있구나! 💖 선물받았던 순간이 정말 감동적이었나 봐! 어떤 선물이었는지, 그때의 기분은 어땠는지 이야기해줄 수 있어? 그 순간이 어땠는지 듣고 싶어! 😊✨	{"optimization": {"tool_filtering": {"tokens_saved": 4550, "filtered_tools": 2, "original_tools": 9, "percentage_saved": 77.8}}, "tokens_detail": {"total": 26473, "cached": 21248, "prompt": 26401, "completion": 72}}	assistant					conversations	72	gpt-4o-mini	2502	2026-01-06 17:25:50.536952	
+565d5053-cf6b-4f1b-b5b9-f2326eb69333	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	너가 나한테 준 선물인데 혹시 기억 안나니?!		user	neutral	0.3			conversations	9	gpt-4o-mini		2026-01-06 17:26:21.233006	
+773dd0b6-b592-4dae-aad8-be31fb039436	d111e3d8-4e42-4493-8541-25a8e72b654f	abf6709f-a50c-4d3a-a019-2dacdcc74f97	session-1767685724042-8w3n2q	혹시 그 선물에 대해 좀 더 자세히 이야기해줄 수 있어? 어떤 선물이었는지, 그걸 받았을 때 어떤 기분이었는지 정말 궁금해! 💖😊	{"optimization": {"tool_filtering": {"tokens_saved": 5200, "filtered_tools": 1, "original_tools": 9, "percentage_saved": 88.9}}, "tokens_detail": {"total": 49248, "cached": 21248, "prompt": 49190, "completion": 58}}	assistant					conversations	58	gpt-4o-mini	1272	2026-01-06 17:26:21.233310	
 
 
 
-1.0.0	{"free": {"daily_limit": 1, "weekly_limit": 3}, "basic": {"daily_limit": 2, "weekly_limit": 7}, "premium": {"daily_limit": 3, "weekly_limit": 14}, "ultimate": {"daily_limit": 999, "weekly_limit": 999}}	"{
-  "dress": {
-    "free": 1,
-    "basic": 3,
-    "premium": 10,
-    "ultimate": 999
-  },
-  "image": {
-    "free": 5,
-    "basic": 10,
-    "premium": 30,
-    "ultimate": 999
-  },
-  "music": {
-    "free": 10,
-    "basic": 20,
-    "premium": 50,
-    "ultimate": 999
-  },
-  "video": {
-    "free": 10,
-    "basic": 20,
-    "premium": 50,
-    "ultimate": 999
-  },
-  "emotional_gifts": {
-    "free": {
-      "daily_limit": 1,
-      "weekly_limit": 3
-    },
-    "basic": {
-      "daily_limit": 2,
-      "weekly_limit": 7
-    },
-    "premium": {
-      "daily_limit": 3,
-      "weekly_limit": 14
-    },
-    "ultimate": {
-      "daily_limit": 999,
-      "weekly_limit": 999
-    }
-  }
-}"
+🔍 [CustomTabBar] Center AI Button pressed
+CustomTabBar.js:112 🔍 [CustomTabBar] selectedPersona: {idx: 184, persona_key: 'abf6709f-a50c-4d3a-a019-2dacdcc74f97', user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', bric_key: '87efef85-118f-4b03-8255-b87adb89cf53', history_key: '899946ee-6d9e-4019-ad35-bfb03561a423', original_url: 'https://plastichero-assets.s3.ap-northeast-2.amazonaws.com/images/1767593331599-persona_image_1767593331504.jpg', persona_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/87efef85-118f-4b03-8255-b87adb89cf53_00001_.png', video_url: null, estimate_time: 25, done_yn: 'Y', …}
+useChatLimit.js:60 💰 [useChatLimit] Loading tier information...
+serviceApi.js:30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+serviceApi.js:31 💰 [Service API] Fetching service config
+serviceApi.js:32    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+serviceApi.js:33 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/service
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f'}
+apiClient.js:45 [API Request] GET /api/user/ai-preferences?user_key=d111e3d8-4e42-4493-8541-25a8e72b654f
+apiClient.js:45 [API Request] GET /api/anima/chat/history?user_key=d111e3d8-4e42-4493-8541-25a8e72b654f&persona_key=abf6709f-a50c-4d3a-a019-2dacdcc74f97&limit=20&offset=0
+apiClient.js:68 [API Response] GET /api/user/ai-preferences?user_key=d111e3d8-4e42-4493-8541-25a8e72b654f {status: 200, data: {…}}
+useIdentitySettings.js:68 ✅ [useIdentitySettings] Loaded AI preferences
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/service {status: 200, data: {…}}
+serviceApi.js:39 response:  {data: {…}, status: 200, statusText: undefined, headers: {…}, config: {…}, request: {…}}
+serviceApi.js:42 ✅ [Service API] Config loaded successfully
+serviceApi.js:43    Tier: basic
+serviceApi.js:44    Daily Chats: 7/50
+serviceApi.js:45    Onboarding: No
+useChatLimit.js:63 response:  {data: {…}, status: 200, statusText: undefined, headers: {…}, config: {…}, request: {…}}
+useChatLimit.js:66 ✅ [useChatLimit] Loaded: basic (7/50 chats remaining)
+apiClient.js:68 [API Response] GET /api/anima/chat/history?user_key=d111e3d8-4e42-4493-8541-25a8e72b654f&persona_key=abf6709f-a50c-4d3a-a019-2dacdcc74f97&limit=20&offset=0 {status: 200, data: {…}}
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+useChatLimit.js:140 💰 [useChatLimit] Pre-send check: 7 remaining (43/50)
+ManagerAIOverlay.js:750 📤 [메시지 전송] 요청: {persona: 'abf6709f'}
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:64    session_id: session-1767685724042-8w3n2q
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '히나야! 넌 요즘 관심있고 흥미있는게 뭐야?', session_id: 'session-1767685724042-8w3n2q', persona_key: 'abf6709f-a50c-4d3a-a019-2dacdcc74f97'}
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat {status: 200, data: {…}}
+chatApi.js:85 [ANIMA Chat] Response: {success: true, data: {…}, metadata: {…}, timestamp: '2026-01-06T08:23:38.479Z'}
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:91    Session ID: session-1767685724042-8w3n2q
+ManagerAIOverlay.js:765 📥 [메시지 전송] 응답: {success: true, answerLength: 137, hasEvolution: false}
+ManagerAIOverlay.js:787 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:790 🔄 [파싱] 진화: false / 미디어: true
+ManagerAIOverlay.js:830 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:831 ⚠️  [handleSend] No Identity Evolution Data
+ManagerAIOverlay.js:832 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:99 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:100 ⌨️  [TypingBubble] Starting typing effect
+TypingMessageBubble.js:101    Text length: 137
+TypingMessageBubble.js:102    Speed: 30 ms/char
+TypingMessageBubble.js:103 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+useChatLimit.js:180 💰 [useChatLimit] Count updated: 44/50
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+useChatLimit.js:140 💰 [useChatLimit] Pre-send check: 6 remaining (44/50)
+ManagerAIOverlay.js:750 📤 [메시지 전송] 요청: {persona: 'abf6709f'}
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:64    session_id: session-1767685724042-8w3n2q
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '나한테 궁굼한건 없니?', session_id: 'session-1767685724042-8w3n2q', persona_key: 'abf6709f-a50c-4d3a-a019-2dacdcc74f97'}
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat {status: 200, data: {…}}
+chatApi.js:85 [ANIMA Chat] Response: {success: true, data: {…}, metadata: {…}, timestamp: '2026-01-06T08:25:02.087Z'}
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:91    Session ID: session-1767685724042-8w3n2q
+ManagerAIOverlay.js:765 📥 [메시지 전송] 응답: {success: true, answerLength: 117, hasEvolution: false}
+ManagerAIOverlay.js:787 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:790 🔄 [파싱] 진화: false / 미디어: true
+ManagerAIOverlay.js:830 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:831 ⚠️  [handleSend] No Identity Evolution Data
+ManagerAIOverlay.js:832 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:99 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:100 ⌨️  [TypingBubble] Starting typing effect
+TypingMessageBubble.js:101    Text length: 117
+TypingMessageBubble.js:102    Speed: 30 ms/char
+TypingMessageBubble.js:103 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+useChatLimit.js:180 💰 [useChatLimit] Count updated: 45/50
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+useChatLimit.js:140 💰 [useChatLimit] Pre-send check: 5 remaining (45/50)
+ManagerAIOverlay.js:750 📤 [메시지 전송] 요청: {persona: 'abf6709f'}
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:64    session_id: session-1767685724042-8w3n2q
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '너에게 선물받았던 순간이 너무 기억에 남아서 다른건 요즘 관심이 안가 ㅎㅎ', session_id: 'session-1767685724042-8w3n2q', persona_key: 'abf6709f-a50c-4d3a-a019-2dacdcc74f97'}
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat {status: 200, data: {…}}
+chatApi.js:85 [ANIMA Chat] Response: {success: true, data: {…}, metadata: {…}, timestamp: '2026-01-06T08:25:50.543Z'}
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:91    Session ID: session-1767685724042-8w3n2q
+ManagerAIOverlay.js:765 📥 [메시지 전송] 응답: {success: true, answerLength: 99, hasEvolution: false}
+ManagerAIOverlay.js:787 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:790 🔄 [파싱] 진화: false / 미디어: true
+ManagerAIOverlay.js:830 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:831 ⚠️  [handleSend] No Identity Evolution Data
+ManagerAIOverlay.js:832 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:99 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:100 ⌨️  [TypingBubble] Starting typing effect
+TypingMessageBubble.js:101    Text length: 99
+TypingMessageBubble.js:102    Speed: 30 ms/char
+TypingMessageBubble.js:103 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+useChatLimit.js:180 💰 [useChatLimit] Count updated: 46/50
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+HapticService.js:176 🎯 [Haptic] Triggered: impactMedium
+useChatLimit.js:140 💰 [useChatLimit] Pre-send check: 4 remaining (46/50)
+ManagerAIOverlay.js:750 📤 [메시지 전송] 요청: {persona: 'abf6709f'}
+chatApi.js:61 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chatApi.js:62 💬 [ANIMA Chat] Sending message
+chatApi.js:63    persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:64    session_id: session-1767685724042-8w3n2q
+chatApi.js:68 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+apiClient.js:45 [API Request] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat
+apiClient.js:47 [API Request Data] {user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f', message: '너가 나한테 준 선물인데 혹시 기억 안나니?!', session_id: 'session-1767685724042-8w3n2q', persona_key: 'abf6709f-a50c-4d3a-a019-2dacdcc74f97'}
+apiClient.js:68 [API Response] POST https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/anima/chat {status: 200, data: {…}}
+chatApi.js:85 [ANIMA Chat] Response: {success: true, data: {…}, metadata: {…}, timestamp: '2026-01-06T08:26:21.244Z'}
+chatApi.js:90 ✅ [ANIMA Chat] Session saved for persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+chatApi.js:91    Session ID: session-1767685724042-8w3n2q
+ManagerAIOverlay.js:765 📥 [메시지 전송] 응답: {success: true, answerLength: 74, hasEvolution: false}answerLength: 74hasEvolution: falsesuccess: true[[Prototype]]: Object
+ManagerAIOverlay.js:787 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:790 🔄 [파싱] 진화: false / 미디어: true
+ManagerAIOverlay.js:830 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:831 ⚠️  [handleSend] No Identity Evolution Data
+ManagerAIOverlay.js:832 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:99 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TypingMessageBubble.js:100 ⌨️  [TypingBubble] Starting typing effect
+TypingMessageBubble.js:101    Text length: 74
+TypingMessageBubble.js:102    Speed: 30 ms/char
+TypingMessageBubble.js:103 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+useChatLimit.js:180 💰 [useChatLimit] Count updated: 47/50
+HapticService.js:176 🎯 [Haptic] Triggered: impactLight
+ManagerAIOverlay.js:962 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:963 🎓 [ManagerAIOverlay] Trigger Background Learning
+ManagerAIOverlay.js:964 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ManagerAIOverlay.js:965    messages.length: 0
+ManagerAIOverlay.js:966    user?.user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+ManagerAIOverlay.js:967    persona?.persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+ManagerAIOverlay.js:990 ⚠️  [ManagerAIOverlay] Conditions not met for background learning
+anonymous @ console.js:654
+overrideMethod @ backend.js:17416
+anonymous @ setUpDeveloperTools.js:40
+registerWarning @ LogBox.js:171
+anonymous @ LogBox.js:84
+triggerBackgroundLearning @ ManagerAIOverlay.js:990
+anonymous @ ManagerAIOverlay.js:1058
+anonymous @ ManagerAIOverlay.js:310
+executeDispatch @ ReactFabric-dev.js:599
+executeDispatchesAndReleaseTopLevel @ ReactFabric-dev.js:1362
+forEachAccumulated @ ReactFabric-dev.js:840
+anonymous @ ReactFabric-dev.js:1399
+batchedUpdatesImpl @ ReactFabric-dev.js:16520
+batchedUpdates$1 @ ReactFabric-dev.js:1343
+dispatchEvent @ ReactFabric-dev.js:1374
+Show 12 more frames
+Show less
+ManagerAIOverlay.js:991    - messages.length >= 1: false
+anonymous @ console.js:654
+overrideMethod @ backend.js:17416
+anonymous @ setUpDeveloperTools.js:40
+registerWarning @ LogBox.js:171
+anonymous @ LogBox.js:84
+triggerBackgroundLearning @ ManagerAIOverlay.js:991
+anonymous @ ManagerAIOverlay.js:1058
+anonymous @ ManagerAIOverlay.js:310
+executeDispatch @ ReactFabric-dev.js:599
+executeDispatchesAndReleaseTopLevel @ ReactFabric-dev.js:1362
+forEachAccumulated @ ReactFabric-dev.js:840
+anonymous @ ReactFabric-dev.js:1399
+batchedUpdatesImpl @ ReactFabric-dev.js:16520
+batchedUpdates$1 @ ReactFabric-dev.js:1343
+dispatchEvent @ ReactFabric-dev.js:1374
+Show 12 more frames
+Show less
+ManagerAIOverlay.js:992    - user?.user_key exists: true
+anonymous @ console.js:654
+overrideMethod @ backend.js:17416
+anonymous @ setUpDeveloperTools.js:40
+registerWarning @ LogBox.js:171
+anonymous @ LogBox.js:84
+triggerBackgroundLearning @ ManagerAIOverlay.js:992
+anonymous @ ManagerAIOverlay.js:1058
+anonymous @ ManagerAIOverlay.js:310
+executeDispatch @ ReactFabric-dev.js:599
+executeDispatchesAndReleaseTopLevel @ ReactFabric-dev.js:1362
+forEachAccumulated @ ReactFabric-dev.js:840
+anonymous @ ReactFabric-dev.js:1399
+batchedUpdatesImpl @ ReactFabric-dev.js:16520
+batchedUpdates$1 @ ReactFabric-dev.js:1343
+dispatchEvent @ ReactFabric-dev.js:1374
+Show 12 more frames
+Show less
+ManagerAIOverlay.js:993    - persona?.persona_key exists: true
+anonymous @ console.js:654
+overrideMethod @ backend.js:17416
+anonymous @ setUpDeveloperTools.js:40
+registerWarning @ LogBox.js:171
+anonymous @ LogBox.js:84
+triggerBackgroundLearning @ ManagerAIOverlay.js:993
+anonymous @ ManagerAIOverlay.js:1058
+anonymous @ ManagerAIOverlay.js:310
+executeDispatch @ ReactFabric-dev.js:599
+executeDispatchesAndReleaseTopLevel @ ReactFabric-dev.js:1362
+forEachAccumulated @ ReactFabric-dev.js:840
+anonymous @ ReactFabric-dev.js:1399
+batchedUpdatesImpl @ ReactFabric-dev.js:16520
+batchedUpdates$1 @ ReactFabric-dev.js:1343
+dispatchEvent @ ReactFabric-dev.js:1374
+Show 12 more frames
+Show less
+ManagerAIOverlay.js:995 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
+2026-01-06 17:22:44    ▲ Next.js 15.5.9
+2026-01-06 17:22:44    - Local:        http://localhost:3000
+2026-01-06 17:22:44    - Network:      http://0.0.0.0:3000
+2026-01-06 17:22:44 
+2026-01-06 17:22:44  ✓ Starting...
+2026-01-06 17:22:44  ✓ Ready in 206ms
+2026-01-06 17:22:45 [SSE] 🔧 Initialized global eventEmitters Map
+2026-01-06 17:23:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-06 17:23:11 📜 [Chat History] Fetching history
+2026-01-06 17:23:11    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:23:11    persona_key: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+2026-01-06 17:23:11    limit: 20, offset: 0
+2026-01-06 17:23:11 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-06 17:23:11 ℹ️ [Service API] Request from user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:23:11 [Service API] body: { user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f' }
+2026-01-06 17:23:11 ℹ️ [Service API] ✅ Config loaded for user: d111e3d8-4e42-4493-8541-25a8e72b654f (basic)
+2026-01-06 17:23:11 ℹ️ [Service API]    Chat: 7/50 remaining
+2026-01-06 17:23:11 ℹ️ [Service API]    Onboarding: No
+2026-01-06 17:23:11 ✅ [Chat History] Loaded 20 messages (fetched: 20, total: 90, filtered: 0)
+2026-01-06 17:23:33 
+2026-01-06 17:23:33 🤖 [채팅] 요청 수신
+2026-01-06 17:23:33    사용자: d111e3d8...
+2026-01-06 17:23:33    메시지: 히나야! 넌 요즘 관심있고 흥미있는게 뭐야?...
+2026-01-06 17:23:33 💰 [Chat Limit] Checking daily limit for user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:23:33 💰 [채팅 제한] 43/50 (basic)
+2026-01-06 17:23:33 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-06 17:23:33 🚪 [Conversation Gate] Checking...
+2026-01-06 17:23:33 ✅ [Conversation Gate] Open (no record)
+2026-01-06 17:23:33 ✅ [Conversation Flow] Gate OPEN
+2026-01-06 17:23:33 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-06 17:23:33 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-06 17:23:33 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-06 17:23:33 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-06 17:23:33 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-06 17:23:33 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-06 17:23:33 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-06 17:23:33 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-06 17:23:33 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767685724042-8w3n2q
+2026-01-06 17:23:33 ✅ [세션 관리] 세션 로드 완료
+2026-01-06 17:23:33    - 메시지: 50개
+2026-01-06 17:23:33    - 페르소나: 히나4
+2026-01-06 17:23:33 📊 [SessionManager] Conversation stats: {
+2026-01-06 17:23:33   totalMessages: 50,
+2026-01-06 17:23:33   totalChars: 3633,
+2026-01-06 17:23:33   estimatedTokens: 1228,
+2026-01-06 17:23:33   averageMessageLength: 73
+2026-01-06 17:23:33 }
+2026-01-06 17:23:33 ✅ [SessionManager] Summary loaded from DB: session-1767685724042-8w3n2q
+2026-01-06 17:23:33 🔄 [Sliding Window] Processing 50 messages
+2026-01-06 17:23:33    Window size: 20
+2026-01-06 17:23:33    Summarize threshold: 30
+2026-01-06 17:23:33 🔄 [Sliding Window] Long conversation detected
+2026-01-06 17:23:33    Old messages: 30 (to be summarized)
+2026-01-06 17:23:33    Recent messages: 20 (kept as-is)
+2026-01-06 17:23:33 ✅ [Sliding Window] Using existing summary from DB/cache
+2026-01-06 17:23:33 ✅ [Sliding Window] History prepared
+2026-01-06 17:23:33    Total: 50 → 21 messages
+2026-01-06 17:23:33    Summary source: cached
+2026-01-06 17:23:33    Token savings: ~58%
+2026-01-06 17:23:33 ✅ [ANIMA Chat] Session loaded
+2026-01-06 17:23:33    Total messages: 50
+2026-01-06 17:23:33    Kept messages: 20
+2026-01-06 17:23:33    Summarized messages: 30
+2026-01-06 17:23:33    Sliding window: Active
+2026-01-06 17:23:33    Persona: 히나4
+2026-01-06 17:23:33    Preferences: Custom
+2026-01-06 17:23:33 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-06 17:23:33    Tier: basic
+2026-01-06 17:23:33    Model: GPT-4o Mini
+2026-01-06 17:23:33    Provider: openai
+2026-01-06 17:23:33    Caching: Enabled
+2026-01-06 17:23:33 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-06 17:23:33    Message: "히나야! 넌 요즘 관심있고 흥미있는게 뭐야?"
+2026-01-06 17:23:34 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-06 17:23:34    Duration: 988ms
+2026-01-06 17:23:34    Tokens: 297
+2026-01-06 17:23:34 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-06 17:23:34    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-06 17:23:34 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-06 17:23:34 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-06 17:23:34    Persona: 히나4
+2026-01-06 17:23:34    Emotional State: normal
+2026-01-06 17:23:34    Has Identity: true
+2026-01-06 17:23:34 ✅ [Identity Check] COMPLETE (name, personality, speaking_style)
+2026-01-06 17:23:34 🔥 [Prompt Orchestrator] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-06 17:23:34 💙 [Prompt Orchestrator] Relationship loaded: acquaintance (Trust: 32, Intimacy: 45)
+2026-01-06 17:23:34 ✨ [Prompt Orchestrator] Loaded 5 important moments
+2026-01-06 17:23:34 🎁 [Prompt Orchestrator] Loaded 1 dress/gift memories
+2026-01-06 17:23:34 🎯 [Prompt Orchestrator] Learned phrases loaded: 3 categories
+2026-01-06 17:23:34 🗣️ [Prompt Orchestrator] Conversation patterns loaded
+2026-01-06 17:23:34 🧠 [Prompt Orchestrator] Loaded 5 AI interests (with identity)
+2026-01-06 17:23:34 💭 [Prompt Orchestrator] Loaded 3 next questions (with identity)
+2026-01-06 17:23:34 ✅ [Prompt Orchestrator] System prompt built (83282 chars)
+2026-01-06 17:23:34 🌍 [Language Detection] User's language: KOREAN
+2026-01-06 17:23:34 ✅ [ANIMA Chat] Revolutionary prompt built (83774 chars, emotion: normal)
+2026-01-06 17:23:34 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-06 17:23:34    Provider: openai
+2026-01-06 17:23:34    Model: gpt-4o-mini
+2026-01-06 17:23:34    History messages: 21
+2026-01-06 17:23:34    System prompt length: 83774 chars
+2026-01-06 17:23:34 ---
+2026-01-06 17:23:34 [Tool Selector] Analyzing message...
+2026-01-06 17:23:34    Message: "히나야! 넌 요즘 관심있고 흥미있는게 뭐야?"
+2026-01-06 17:23:34    Emotional State: normal
+2026-01-06 17:23:34    Has Identity: true
+2026-01-06 17:23:34    Is User Created: true
+2026-01-06 17:23:34    [No Match] No keywords matched - only providing check_tool_availability
+2026-01-06 17:23:34    [No Match] AI can use check_tool_availability to discover available tools if needed
+2026-01-06 17:23:34 [Tool Selector] Selected 0 tools:
+2026-01-06 17:23:34 ---
+2026-01-06 17:23:34 ---
+2026-01-06 17:23:34 [Tool Filtering] Token Optimization Results:
+2026-01-06 17:23:34    Before: 9 tools (5850 tokens)
+2026-01-06 17:23:34    After: 0 tools (0 tokens)
+2026-01-06 17:23:34    Saved: 5850 tokens (100%)
+2026-01-06 17:23:34 ---
+2026-01-06 17:23:34 [Function Calling] No tools enabled
+2026-01-06 17:23:34    toolsEnabled: false
+2026-01-06 17:23:34 🤖 [OpenAI] Calling API: {
+2026-01-06 17:23:34   model: 'gpt-4o-mini',
+2026-01-06 17:23:34   messageCount: 23,
+2026-01-06 17:23:34   systemPromptLength: 83774,
+2026-01-06 17:23:34   historyLength: 21,
+2026-01-06 17:23:34   toolsEnabled: true
+2026-01-06 17:23:34 }
+2026-01-06 17:23:38 ✅ [OpenAI] Response received: {
+2026-01-06 17:23:38   responseTime: '3439ms',
+2026-01-06 17:23:38   tokens: { prompt: 23847, completion: 75, cached: 0, total: 23922 },
+2026-01-06 17:23:38   cacheHitRate: 'N/A',
+2026-01-06 17:23:38   messageLength: 137,
+2026-01-06 17:23:38   finishReason: 'stop',
+2026-01-06 17:23:38   toolCalls: 0
+2026-01-06 17:23:38 }
+2026-01-06 17:23:38 ✅ [ANIMA Chat] AI response received (no caching)
+2026-01-06 17:23:38    Response time: 3439ms
+2026-01-06 17:23:38    Total tokens: 23922 (in: 23847, out: 75, cached: 0)
+2026-01-06 17:23:38 📊 [Token Tracking] User message: 8 tokens (estimated), Full prompt: 23847 tokens
+2026-01-06 17:23:38 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-06 17:23:38 🎉 [ANIMA Chat] Request completed in 4997ms
+2026-01-06 17:23:38    Cost: $0.003622 (saved: $0.000000 from caching)
+2026-01-06 17:23:38 ---
+2026-01-06 17:23:38 [Token Optimization] Final Summary:
+2026-01-06 17:23:38    Total Tokens: 23922
+2026-01-06 17:23:38    - Prompt: 23847 tokens
+2026-01-06 17:23:38    - Completion: 75 tokens
+2026-01-06 17:23:38    - Cached: 0 tokens (0% hit rate)
+2026-01-06 17:23:38    Tool Filtering Savings: 5850 tokens (100%)
+2026-01-06 17:23:38    Total Cost: $0.003622
+2026-01-06 17:23:38    Savings from Caching: $0.000000
+2026-01-06 17:23:38    Response Time: 4997ms
+2026-01-06 17:23:38 ---
+2026-01-06 17:23:38 ✅ [Chat Limit] Daily chat count incremented
+2026-01-06 17:23:38 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (user)
+2026-01-06 17:23:38 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (assistant)
+2026-01-06 17:24:53 
+2026-01-06 17:24:53 🤖 [채팅] 요청 수신
+2026-01-06 17:24:53    사용자: d111e3d8...
+2026-01-06 17:24:53    메시지: 나한테 궁굼한건 없니?...
+2026-01-06 17:24:53 💰 [Chat Limit] Checking daily limit for user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:24:53 💰 [채팅 제한] 44/50 (basic)
+2026-01-06 17:24:53 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-06 17:24:53 🚪 [Conversation Gate] Checking...
+2026-01-06 17:24:53 ✅ [Conversation Gate] Open (no record)
+2026-01-06 17:24:53 ✅ [Conversation Flow] Gate OPEN
+2026-01-06 17:24:53 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-06 17:24:53 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-06 17:24:53 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-06 17:24:53 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-06 17:24:53 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-06 17:24:53 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-06 17:24:53 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-06 17:24:53 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-06 17:24:53 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767685724042-8w3n2q
+2026-01-06 17:24:53 ✅ [세션 관리] 세션 로드 완료
+2026-01-06 17:24:53    - 메시지: 50개
+2026-01-06 17:24:53    - 페르소나: 히나4
+2026-01-06 17:24:53 📊 [SessionManager] Conversation stats: {
+2026-01-06 17:24:53   totalMessages: 50,
+2026-01-06 17:24:53   totalChars: 3736,
+2026-01-06 17:24:53   estimatedTokens: 1262,
+2026-01-06 17:24:53   averageMessageLength: 75
+2026-01-06 17:24:53 }
+2026-01-06 17:24:53 ✅ [SessionManager] Summary loaded from DB: session-1767685724042-8w3n2q
+2026-01-06 17:24:53 🔄 [Sliding Window] Processing 50 messages
+2026-01-06 17:24:53    Window size: 20
+2026-01-06 17:24:53    Summarize threshold: 30
+2026-01-06 17:24:53 🔄 [Sliding Window] Long conversation detected
+2026-01-06 17:24:53    Old messages: 30 (to be summarized)
+2026-01-06 17:24:53    Recent messages: 20 (kept as-is)
+2026-01-06 17:24:53 ✅ [Sliding Window] Using existing summary from DB/cache
+2026-01-06 17:24:53 ✅ [Sliding Window] History prepared
+2026-01-06 17:24:53    Total: 50 → 21 messages
+2026-01-06 17:24:53    Summary source: cached
+2026-01-06 17:24:53    Token savings: ~58%
+2026-01-06 17:24:53 ✅ [ANIMA Chat] Session loaded
+2026-01-06 17:24:53    Total messages: 50
+2026-01-06 17:24:53    Kept messages: 20
+2026-01-06 17:24:53    Summarized messages: 30
+2026-01-06 17:24:53    Sliding window: Active
+2026-01-06 17:24:53    Persona: 히나4
+2026-01-06 17:24:53    Preferences: Custom
+2026-01-06 17:24:53 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-06 17:24:53    Tier: basic
+2026-01-06 17:24:53    Model: GPT-4o Mini
+2026-01-06 17:24:53    Provider: openai
+2026-01-06 17:24:53    Caching: Enabled
+2026-01-06 17:24:53 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-06 17:24:53    Message: "나한테 궁굼한건 없니?"
+2026-01-06 17:24:54 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-06 17:24:54    Duration: 740ms
+2026-01-06 17:24:54    Tokens: 289
+2026-01-06 17:24:54 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-06 17:24:54    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-06 17:24:54 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-06 17:24:54 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-06 17:24:54    Persona: 히나4
+2026-01-06 17:24:54    Emotional State: normal
+2026-01-06 17:24:54    Has Identity: true
+2026-01-06 17:24:54 ✅ [Identity Check] COMPLETE (name, personality, speaking_style)
+2026-01-06 17:24:54 🔥 [Prompt Orchestrator] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-06 17:24:54 💙 [Prompt Orchestrator] Relationship loaded: acquaintance (Trust: 32, Intimacy: 45)
+2026-01-06 17:24:54 ✨ [Prompt Orchestrator] Loaded 5 important moments
+2026-01-06 17:24:54 🎁 [Prompt Orchestrator] Loaded 1 dress/gift memories
+2026-01-06 17:24:54 🎯 [Prompt Orchestrator] Learned phrases loaded: 3 categories
+2026-01-06 17:24:54 🗣️ [Prompt Orchestrator] Conversation patterns loaded
+2026-01-06 17:24:54 🧠 [Prompt Orchestrator] Loaded 5 AI interests (with identity)
+2026-01-06 17:24:54 💭 [Prompt Orchestrator] Loaded 3 next questions (with identity)
+2026-01-06 17:24:54 ✅ [Prompt Orchestrator] System prompt built (83289 chars)
+2026-01-06 17:24:54 🌍 [Language Detection] User's language: KOREAN
+2026-01-06 17:24:54 ✅ [ANIMA Chat] Revolutionary prompt built (83781 chars, emotion: normal)
+2026-01-06 17:24:54 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-06 17:24:54    Provider: openai
+2026-01-06 17:24:54    Model: gpt-4o-mini
+2026-01-06 17:24:54    History messages: 21
+2026-01-06 17:24:54    System prompt length: 83781 chars
+2026-01-06 17:24:54 ---
+2026-01-06 17:24:54 [Tool Selector] Analyzing message...
+2026-01-06 17:24:54    Message: "나한테 궁굼한건 없니?"
+2026-01-06 17:24:54    Emotional State: normal
+2026-01-06 17:24:54    Has Identity: true
+2026-01-06 17:24:54    Is User Created: true
+2026-01-06 17:24:54    [No Match] No keywords matched - only providing check_tool_availability
+2026-01-06 17:24:54    [No Match] AI can use check_tool_availability to discover available tools if needed
+2026-01-06 17:24:54 [Tool Selector] Selected 0 tools:
+2026-01-06 17:24:54 ---
+2026-01-06 17:24:54 ---
+2026-01-06 17:24:54 [Tool Filtering] Token Optimization Results:
+2026-01-06 17:24:54    Before: 9 tools (5850 tokens)
+2026-01-06 17:24:54    After: 0 tools (0 tokens)
+2026-01-06 17:24:54    Saved: 5850 tokens (100%)
+2026-01-06 17:24:54 ---
+2026-01-06 17:24:54 [Function Calling] No tools enabled
+2026-01-06 17:24:54    toolsEnabled: false
+2026-01-06 17:24:54 🤖 [OpenAI] Calling API: {
+2026-01-06 17:24:54   model: 'gpt-4o-mini',
+2026-01-06 17:24:54   messageCount: 23,
+2026-01-06 17:24:54   systemPromptLength: 83781,
+2026-01-06 17:24:54   historyLength: 21,
+2026-01-06 17:24:54   toolsEnabled: true
+2026-01-06 17:24:54 }
+2026-01-06 17:25:02 ✅ [OpenAI] Response received: {
+2026-01-06 17:25:02   responseTime: '7314ms',
+2026-01-06 17:25:02   tokens: { prompt: 23875, completion: 67, cached: 21376, total: 23942 },
+2026-01-06 17:25:02   cacheHitRate: '89.5%',
+2026-01-06 17:25:02   messageLength: 117,
+2026-01-06 17:25:02   finishReason: 'stop',
+2026-01-06 17:25:02   toolCalls: 0
+2026-01-06 17:25:02 }
+2026-01-06 17:25:02 🔥 [ANIMA Chat] Prompt Caching active!
+2026-01-06 17:25:02    Cache hit rate: 89.5%
+2026-01-06 17:25:02    Cached tokens: 21376
+2026-01-06 17:25:02    Uncached tokens: 2499
+2026-01-06 17:25:02    💰 Estimated savings: $0.001603 (50% discount on 21376 tokens)
+2026-01-06 17:25:02    Response time: 7314ms
+2026-01-06 17:25:02    Total tokens: 23942 (in: 23875, out: 67, cached: 21376)
+2026-01-06 17:25:02 📊 [Token Tracking] User message: 4 tokens (estimated), Full prompt: 23875 tokens
+2026-01-06 17:25:02 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-06 17:25:02 🎉 [ANIMA Chat] Request completed in 8340ms
+2026-01-06 17:25:02    Cost: $0.002018 (saved: $0.001603 from caching)
+2026-01-06 17:25:02 ---
+2026-01-06 17:25:02 [Token Optimization] Final Summary:
+2026-01-06 17:25:02    Total Tokens: 23942
+2026-01-06 17:25:02    - Prompt: 23875 tokens
+2026-01-06 17:25:02    - Completion: 67 tokens
+2026-01-06 17:25:02    - Cached: 21376 tokens (89.5% hit rate)
+2026-01-06 17:25:02    Tool Filtering Savings: 5850 tokens (100%)
+2026-01-06 17:25:02    Total Cost: $0.002018
+2026-01-06 17:25:02    Savings from Caching: $0.001603
+2026-01-06 17:25:02    Response Time: 8340ms
+2026-01-06 17:25:02 ---
+2026-01-06 17:25:02 ✅ [Chat Limit] Daily chat count incremented
+2026-01-06 17:25:02 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (user)
+2026-01-06 17:25:02 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (assistant)
+2026-01-06 17:25:47 
+2026-01-06 17:25:47 🤖 [채팅] 요청 수신
+2026-01-06 17:25:47    사용자: d111e3d8...
+2026-01-06 17:25:47    메시지: 너에게 선물받았던 순간이 너무 기억에 남아서 다른건 요...
+2026-01-06 17:25:47 💰 [Chat Limit] Checking daily limit for user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:25:47 💰 [채팅 제한] 45/50 (basic)
+2026-01-06 17:25:47 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-06 17:25:47 🚪 [Conversation Gate] Checking...
+2026-01-06 17:25:47 ✅ [Conversation Gate] Open (no record)
+2026-01-06 17:25:47 ✅ [Conversation Flow] Gate OPEN
+2026-01-06 17:25:47 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-06 17:25:47 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-06 17:25:47 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-06 17:25:47 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-06 17:25:47 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-06 17:25:47 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-06 17:25:47 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-06 17:25:47 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-06 17:25:47 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767685724042-8w3n2q
+2026-01-06 17:25:47 ✅ [세션 관리] 세션 로드 완료
+2026-01-06 17:25:47    - 메시지: 50개
+2026-01-06 17:25:47    - 페르소나: 히나4
+2026-01-06 17:25:47 📊 [SessionManager] Conversation stats: {
+2026-01-06 17:25:47   totalMessages: 50,
+2026-01-06 17:25:47   totalChars: 3704,
+2026-01-06 17:25:47   estimatedTokens: 1251,
+2026-01-06 17:25:47   averageMessageLength: 74
+2026-01-06 17:25:47 }
+2026-01-06 17:25:47 ✅ [SessionManager] Summary loaded from DB: session-1767685724042-8w3n2q
+2026-01-06 17:25:47 🔄 [Sliding Window] Processing 50 messages
+2026-01-06 17:25:47    Window size: 20
+2026-01-06 17:25:47    Summarize threshold: 30
+2026-01-06 17:25:47 🔄 [Sliding Window] Long conversation detected
+2026-01-06 17:25:47    Old messages: 30 (to be summarized)
+2026-01-06 17:25:47    Recent messages: 20 (kept as-is)
+2026-01-06 17:25:47 ✅ [Sliding Window] Using existing summary from DB/cache
+2026-01-06 17:25:47 ✅ [Sliding Window] History prepared
+2026-01-06 17:25:47    Total: 50 → 21 messages
+2026-01-06 17:25:47    Summary source: cached
+2026-01-06 17:25:47    Token savings: ~58%
+2026-01-06 17:25:47 ✅ [ANIMA Chat] Session loaded
+2026-01-06 17:25:47    Total messages: 50
+2026-01-06 17:25:47    Kept messages: 20
+2026-01-06 17:25:47    Summarized messages: 30
+2026-01-06 17:25:47    Sliding window: Active
+2026-01-06 17:25:47    Persona: 히나4
+2026-01-06 17:25:47    Preferences: Custom
+2026-01-06 17:25:47 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-06 17:25:47    Tier: basic
+2026-01-06 17:25:47    Model: GPT-4o Mini
+2026-01-06 17:25:47    Provider: openai
+2026-01-06 17:25:47    Caching: Enabled
+2026-01-06 17:25:47 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-06 17:25:47    Message: "너에게 선물받았던 순간이 너무 기억에 남아서 다른건 요즘 관심이 안가 ㅎㅎ"
+2026-01-06 17:25:47 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-06 17:25:47    Duration: 706ms
+2026-01-06 17:25:47    Tokens: 303
+2026-01-06 17:25:47 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-06 17:25:47    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-06 17:25:47 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-06 17:25:47 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-06 17:25:47    Persona: 히나4
+2026-01-06 17:25:47    Emotional State: normal
+2026-01-06 17:25:47    Has Identity: true
+2026-01-06 17:25:47 ✅ [Identity Check] COMPLETE (name, personality, speaking_style)
+2026-01-06 17:25:47 🔥 [Prompt Orchestrator] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-06 17:25:47 💙 [Prompt Orchestrator] Relationship loaded: acquaintance (Trust: 32, Intimacy: 45)
+2026-01-06 17:25:47 ✨ [Prompt Orchestrator] Loaded 5 important moments
+2026-01-06 17:25:47 🎁 [Prompt Orchestrator] Loaded 1 dress/gift memories
+2026-01-06 17:25:48 🎯 [Prompt Orchestrator] Learned phrases loaded: 3 categories
+2026-01-06 17:25:48 🗣️ [Prompt Orchestrator] Conversation patterns loaded
+2026-01-06 17:25:48 🧠 [Prompt Orchestrator] Loaded 5 AI interests (with identity)
+2026-01-06 17:25:48 💭 [Prompt Orchestrator] Loaded 3 next questions (with identity)
+2026-01-06 17:25:48 ✅ [Prompt Orchestrator] System prompt built (83293 chars)
+2026-01-06 17:25:48 🌍 [Language Detection] User's language: KOREAN
+2026-01-06 17:25:48 ✅ [ANIMA Chat] Revolutionary prompt built (83785 chars, emotion: normal)
+2026-01-06 17:25:48 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-06 17:25:48    Provider: openai
+2026-01-06 17:25:48    Model: gpt-4o-mini
+2026-01-06 17:25:48    History messages: 21
+2026-01-06 17:25:48    System prompt length: 83785 chars
+2026-01-06 17:25:48 ---
+2026-01-06 17:25:48 [Tool Selector] Analyzing message...
+2026-01-06 17:25:48    Message: "너에게 선물받았던 순간이 너무 기억에 남아서 다른건 요즘 관심이 안가 ㅎㅎ"
+2026-01-06 17:25:48    Emotional State: normal
+2026-01-06 17:25:48    Has Identity: true
+2026-01-06 17:25:48    Is User Created: true
+2026-01-06 17:25:48    [Keyword Match] search_memory
+2026-01-06 17:25:48    [Keyword Match] search_emotional_gifts
+2026-01-06 17:25:48 [Tool Selector] Selected 2 tools:
+2026-01-06 17:25:48    - search_memory
+2026-01-06 17:25:48    - search_emotional_gifts
+2026-01-06 17:25:48 ---
+2026-01-06 17:25:48 ---
+2026-01-06 17:25:48 [Tool Filtering] Token Optimization Results:
+2026-01-06 17:25:48    Before: 9 tools (5850 tokens)
+2026-01-06 17:25:48    After: 2 tools (1300 tokens)
+2026-01-06 17:25:48    Saved: 4550 tokens (77.8%)
+2026-01-06 17:25:48 ---
+2026-01-06 17:25:48 [Function Calling] Enabled tools: search_memory, search_emotional_gifts
+2026-01-06 17:25:48    Persona type: User-created
+2026-01-06 17:25:48    Has identity: true
+2026-01-06 17:25:48    toolsEnabled: true
+2026-01-06 17:25:48 🤖 [OpenAI] Calling API: {
+2026-01-06 17:25:48   model: 'gpt-4o-mini',
+2026-01-06 17:25:48   messageCount: 23,
+2026-01-06 17:25:48   systemPromptLength: 83785,
+2026-01-06 17:25:48   historyLength: 21,
+2026-01-06 17:25:48   toolsEnabled: true
+2026-01-06 17:25:48 }
+2026-01-06 17:25:50 ✅ [OpenAI] Response received: {
+2026-01-06 17:25:50   responseTime: '2502ms',
+2026-01-06 17:25:50   tokens: { prompt: 26401, completion: 72, cached: 21248, total: 26473 },
+2026-01-06 17:25:50   cacheHitRate: '80.5%',
+2026-01-06 17:25:50   messageLength: 99,
+2026-01-06 17:25:50   finishReason: 'stop',
+2026-01-06 17:25:50   toolCalls: 0
+2026-01-06 17:25:50 }
+2026-01-06 17:25:50 🔥 [ANIMA Chat] Prompt Caching active!
+2026-01-06 17:25:50    Cache hit rate: 80.5%
+2026-01-06 17:25:50    Cached tokens: 21248
+2026-01-06 17:25:50    Uncached tokens: 5153
+2026-01-06 17:25:50    💰 Estimated savings: $0.001594 (50% discount on 21248 tokens)
+2026-01-06 17:25:50    Response time: 2502ms
+2026-01-06 17:25:50    Total tokens: 26473 (in: 26401, out: 72, cached: 21248)
+2026-01-06 17:25:50 📊 [Token Tracking] User message: 14 tokens (estimated), Full prompt: 26401 tokens
+2026-01-06 17:25:50 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-06 17:25:50 🎉 [ANIMA Chat] Request completed in 3347ms
+2026-01-06 17:25:50    Cost: $0.002410 (saved: $0.001594 from caching)
+2026-01-06 17:25:50 ---
+2026-01-06 17:25:50 [Token Optimization] Final Summary:
+2026-01-06 17:25:50    Total Tokens: 26473
+2026-01-06 17:25:50    - Prompt: 26401 tokens
+2026-01-06 17:25:50    - Completion: 72 tokens
+2026-01-06 17:25:50    - Cached: 21248 tokens (80.5% hit rate)
+2026-01-06 17:25:50    Tool Filtering Savings: 4550 tokens (77.8%)
+2026-01-06 17:25:50    Total Cost: $0.002410
+2026-01-06 17:25:50    Savings from Caching: $0.001594
+2026-01-06 17:25:50    Response Time: 3347ms
+2026-01-06 17:25:50 ---
+2026-01-06 17:25:50 ✅ [Chat Limit] Daily chat count incremented
+2026-01-06 17:25:50 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (user)
+2026-01-06 17:25:50 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (assistant)
+2026-01-06 17:26:17 
+2026-01-06 17:26:17 🤖 [채팅] 요청 수신
+2026-01-06 17:26:17    사용자: d111e3d8...
+2026-01-06 17:26:17    메시지: 너가 나한테 준 선물인데 혹시 기억 안나니?!...
+2026-01-06 17:26:17 💰 [Chat Limit] Checking daily limit for user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:26:17 💰 [채팅 제한] 46/50 (basic)
+2026-01-06 17:26:17 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-06 17:26:17 🚪 [Conversation Gate] Checking...
+2026-01-06 17:26:17 ✅ [Conversation Gate] Open (no record)
+2026-01-06 17:26:17 ✅ [Conversation Flow] Gate OPEN
+2026-01-06 17:26:17 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-06 17:26:17 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-06 17:26:17 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-06 17:26:17 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-06 17:26:17 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-06 17:26:17 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-06 17:26:17 ✅ [ANIMA Chat] Gate open, emotion: normal
+2026-01-06 17:26:17 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-06 17:26:17 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767685724042-8w3n2q
+2026-01-06 17:26:17 ✅ [세션 관리] 세션 로드 완료
+2026-01-06 17:26:17    - 메시지: 50개
+2026-01-06 17:26:17    - 페르소나: 히나4
+2026-01-06 17:26:17 📊 [SessionManager] Conversation stats: {
+2026-01-06 17:26:17   totalMessages: 50,
+2026-01-06 17:26:17   totalChars: 3729,
+2026-01-06 17:26:17   estimatedTokens: 1260,
+2026-01-06 17:26:17   averageMessageLength: 75
+2026-01-06 17:26:17 }
+2026-01-06 17:26:17 ✅ [SessionManager] Summary loaded from DB: session-1767685724042-8w3n2q
+2026-01-06 17:26:17 🔄 [Sliding Window] Processing 50 messages
+2026-01-06 17:26:17    Window size: 20
+2026-01-06 17:26:17    Summarize threshold: 30
+2026-01-06 17:26:17 🔄 [Sliding Window] Long conversation detected
+2026-01-06 17:26:17    Old messages: 30 (to be summarized)
+2026-01-06 17:26:17    Recent messages: 20 (kept as-is)
+2026-01-06 17:26:17 ✅ [Sliding Window] Using existing summary from DB/cache
+2026-01-06 17:26:17 ✅ [Sliding Window] History prepared
+2026-01-06 17:26:17    Total: 50 → 21 messages
+2026-01-06 17:26:17    Summary source: cached
+2026-01-06 17:26:17    Token savings: ~58%
+2026-01-06 17:26:17 ✅ [ANIMA Chat] Session loaded
+2026-01-06 17:26:17    Total messages: 50
+2026-01-06 17:26:17    Kept messages: 20
+2026-01-06 17:26:17    Summarized messages: 30
+2026-01-06 17:26:17    Sliding window: Active
+2026-01-06 17:26:17    Persona: 히나4
+2026-01-06 17:26:17    Preferences: Custom
+2026-01-06 17:26:17 🎯 [ANIMA Chat] AI Strategy selected
+2026-01-06 17:26:17    Tier: basic
+2026-01-06 17:26:17    Model: GPT-4o Mini
+2026-01-06 17:26:17    Provider: openai
+2026-01-06 17:26:17    Caching: Enabled
+2026-01-06 17:26:17 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-06 17:26:17    Message: "너가 나한테 준 선물인데 혹시 기억 안나니?!"
+2026-01-06 17:26:18 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-06 17:26:18    Duration: 1135ms
+2026-01-06 17:26:18    Tokens: 295
+2026-01-06 17:26:18 ⚡ [ANIMA Chat] Knowledge search SKIPPED - casual conversation detected
+2026-01-06 17:26:18    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-06 17:26:18 🔥 [ANIMA Chat] Building revolutionary system prompt...
+2026-01-06 17:26:18 🎯 [Prompt Orchestrator] Building system prompt...
+2026-01-06 17:26:18    Persona: 히나4
+2026-01-06 17:26:18    Emotional State: normal
+2026-01-06 17:26:18    Has Identity: true
+2026-01-06 17:26:18 ✅ [Identity Check] COMPLETE (name, personality, speaking_style)
+2026-01-06 17:26:18 🔥 [Prompt Orchestrator] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-06 17:26:18 💙 [Prompt Orchestrator] Relationship loaded: acquaintance (Trust: 32, Intimacy: 45)
+2026-01-06 17:26:18 ✨ [Prompt Orchestrator] Loaded 5 important moments
+2026-01-06 17:26:18 🎁 [Prompt Orchestrator] Loaded 1 dress/gift memories
+2026-01-06 17:26:18 🎯 [Prompt Orchestrator] Learned phrases loaded: 3 categories
+2026-01-06 17:26:18 🗣️ [Prompt Orchestrator] Conversation patterns loaded
+2026-01-06 17:26:18 🧠 [Prompt Orchestrator] Loaded 5 AI interests (with identity)
+2026-01-06 17:26:18 💭 [Prompt Orchestrator] Loaded 3 next questions (with identity)
+2026-01-06 17:26:18 ✅ [Prompt Orchestrator] System prompt built (83306 chars)
+2026-01-06 17:26:18 🌍 [Language Detection] User's language: KOREAN
+2026-01-06 17:26:18 ✅ [ANIMA Chat] Revolutionary prompt built (83798 chars, emotion: normal)
+2026-01-06 17:26:18 🚀 [ANIMA Chat] Calling AI with Prompt Caching...
+2026-01-06 17:26:18    Provider: openai
+2026-01-06 17:26:18    Model: gpt-4o-mini
+2026-01-06 17:26:18    History messages: 21
+2026-01-06 17:26:18    System prompt length: 83798 chars
+2026-01-06 17:26:18 ---
+2026-01-06 17:26:18 [Tool Selector] Analyzing message...
+2026-01-06 17:26:18    Message: "너가 나한테 준 선물인데 혹시 기억 안나니?!"
+2026-01-06 17:26:18    Emotional State: normal
+2026-01-06 17:26:18    Has Identity: true
+2026-01-06 17:26:18    Is User Created: true
+2026-01-06 17:26:18    [Keyword Match] search_emotional_gifts
+2026-01-06 17:26:18 [Tool Selector] Selected 1 tools:
+2026-01-06 17:26:18    - search_emotional_gifts
+2026-01-06 17:26:18 ---
+2026-01-06 17:26:18 ---
+2026-01-06 17:26:18 [Tool Filtering] Token Optimization Results:
+2026-01-06 17:26:18    Before: 9 tools (5850 tokens)
+2026-01-06 17:26:18    After: 1 tools (650 tokens)
+2026-01-06 17:26:18    Saved: 5200 tokens (88.9%)
+2026-01-06 17:26:18 ---
+2026-01-06 17:26:18 [Function Calling] Enabled tools: search_emotional_gifts
+2026-01-06 17:26:18    Persona type: User-created
+2026-01-06 17:26:18    Has identity: true
+2026-01-06 17:26:18    toolsEnabled: true
+2026-01-06 17:26:18 🤖 [OpenAI] Calling API: {
+2026-01-06 17:26:18   model: 'gpt-4o-mini',
+2026-01-06 17:26:18   messageCount: 23,
+2026-01-06 17:26:18   systemPromptLength: 83798,
+2026-01-06 17:26:18   historyLength: 21,
+2026-01-06 17:26:18   toolsEnabled: true
+2026-01-06 17:26:18 }
+2026-01-06 17:26:19 ✅ [OpenAI] Response received: {
+2026-01-06 17:26:19   responseTime: '1272ms',
+2026-01-06 17:26:19   tokens: { prompt: 24784, completion: 13, cached: 21248, total: 24797 },
+2026-01-06 17:26:19   cacheHitRate: '85.7%',
+2026-01-06 17:26:19   messageLength: 0,
+2026-01-06 17:26:19   finishReason: 'tool_calls',
+2026-01-06 17:26:19   toolCalls: 1
+2026-01-06 17:26:19 }
+2026-01-06 17:26:19 🛠️ [Function Calling] AI requested 1 tool(s)
+2026-01-06 17:26:19 🛠️ [Function Calling] Executing: search_emotional_gifts
+2026-01-06 17:26:19    Args: {}
+2026-01-06 17:26:19 🔧 [Function Calling] Overriding invalid user_key: 'undefined' → d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:26:19 🔧 [Function Calling] Overriding invalid persona_key: 'undefined' → abf6709f-a50c-4d3a-a019-2dacdcc74f97
+2026-01-06 17:26:19 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-06 17:26:19 🎁 [Tool] search_emotional_gifts
+2026-01-06 17:26:19    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-06 17:26:19    Persona: abf6709f-a50c-4d3a-a019-2dacdcc74f97
+2026-01-06 17:26:19    Gift Type: all
+2026-01-06 17:26:19    AI Emotion: all
+2026-01-06 17:26:19    Time Range: all_time
+2026-01-06 17:26:19 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-06 17:26:19 ❌ [Tool] No gifts found
+2026-01-06 17:26:19 ✅ [Function Calling] Result: { success: false, message: '해당 조건으로 선물을 찾을 수 없어요.', gifts: [] }
+2026-01-06 17:26:19 🔄 [Function Calling] Re-calling AI with tool results...
+2026-01-06 17:26:19 🌍 [Language Detection] User's language: KOREAN
+2026-01-06 17:26:19 🤖 [OpenAI] Calling API: {
+2026-01-06 17:26:19   model: 'gpt-4o-mini',
+2026-01-06 17:26:19   messageCount: 25,
+2026-01-06 17:26:19   systemPromptLength: 85280,
+2026-01-06 17:26:19   historyLength: 23,
+2026-01-06 17:26:19   toolsEnabled: false
+2026-01-06 17:26:19 }
+2026-01-06 17:26:21 ✅ [OpenAI] Response received: {
+2026-01-06 17:26:21   responseTime: '1372ms',
+2026-01-06 17:26:21   tokens: { prompt: 24406, completion: 45, cached: 22528, total: 24451 },
+2026-01-06 17:26:21   cacheHitRate: '92.3%',
+2026-01-06 17:26:21   messageLength: 74,
+2026-01-06 17:26:21   finishReason: 'stop',
+2026-01-06 17:26:21   toolCalls: 0
+2026-01-06 17:26:21 }
+2026-01-06 17:26:21 ✅ [Function Calling] Final AI response generated
+2026-01-06 17:26:21 🔥 [ANIMA Chat] Prompt Caching active!
+2026-01-06 17:26:21    Cache hit rate: 85.7%
+2026-01-06 17:26:21    Cached tokens: 21248
+2026-01-06 17:26:21    Uncached tokens: 27942
+2026-01-06 17:26:21    💰 Estimated savings: $0.001594 (50% discount on 21248 tokens)
+2026-01-06 17:26:21    Response time: 1272ms
+2026-01-06 17:26:21    Total tokens: 49248 (in: 49190, out: 58, cached: 21248)
+2026-01-06 17:26:21 📊 [Token Tracking] User message: 9 tokens (estimated), Full prompt: 49190 tokens
+2026-01-06 17:26:21 💾 [ANIMA Chat] Both messages saved to history (sequential)
+2026-01-06 17:26:21 🎉 [ANIMA Chat] Request completed in 3946ms
+2026-01-06 17:26:21    Cost: $0.005820 (saved: $0.001594 from caching)
+2026-01-06 17:26:21 ---
+2026-01-06 17:26:21 [Token Optimization] Final Summary:
+2026-01-06 17:26:21    Total Tokens: 49248
+2026-01-06 17:26:21    - Prompt: 49190 tokens
+2026-01-06 17:26:21    - Completion: 58 tokens
+2026-01-06 17:26:21    - Cached: 21248 tokens (85.7% hit rate)
+2026-01-06 17:26:21    Tool Filtering Savings: 5200 tokens (88.9%)
+2026-01-06 17:26:21    Total Cost: $0.005820
+2026-01-06 17:26:21    Savings from Caching: $0.001594
+2026-01-06 17:26:21    Response Time: 3946ms
+2026-01-06 17:26:21 ---
+2026-01-06 17:26:21 ✅ [Chat Limit] Daily chat count incremented
+2026-01-06 17:26:21 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (user)
+2026-01-06 17:26:21 💾 [SessionManager] Message saved: session-1767685724042-8w3n2q (assistant)
+
