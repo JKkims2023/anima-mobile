@@ -29,6 +29,9 @@ import Svg, { Path } from 'react-native-svg';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 
+// Create Animated SVG component
+const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+
 /**
  * Thought messages by scenario
  */
@@ -286,22 +289,22 @@ const getMessages = (user, persona) => {
  * Calculate dynamic bubble size based on message length
  * 
  * @param {string} message - The message to calculate size for
- * @returns {Object} - { width, height } in pixels
+ * @returns {Object} - { width, height } in scaled pixels
  */
 const getBubbleSize = (message) => {
-  if (!message) return { width: 220, height: 90 }; // Default size
+  if (!message) return { width: scale(220), height: verticalScale(90) }; // Default size
   
   const length = message.length;
   
   // 4 size tiers based on message length
   if (length <= 15) {
-    return { width: 200, height: 80 }; // Small
+    return { width: scale(200), height: verticalScale(80) }; // Small
   } else if (length <= 30) {
-    return { width: 220, height: 90 }; // Medium (default)
+    return { width: scale(220), height: verticalScale(90) }; // Medium (default)
   } else if (length <= 45) {
-    return { width: 250, height: 100 }; // Large
+    return { width: scale(250), height: verticalScale(100) }; // Large
   } else {
-    return { width: 270, height: 110 }; // Extra Large (max)
+    return { width: scale(270), height: verticalScale(110) }; // Extra Large (max)
   }
 };
 
@@ -318,8 +321,8 @@ const PersonaThoughtBubble = ({
   const [isInitialMount, setIsInitialMount] = useState(true);
   const cloudOpacity = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
-  const bubbleWidth = useRef(new Animated.Value(220)).current; // ⭐ NEW: Dynamic width
-  const bubbleHeight = useRef(new Animated.Value(90)).current; // ⭐ NEW: Dynamic height
+  const bubbleWidth = useRef(new Animated.Value(scale(220))).current; // ⭐ NEW: Dynamic width (scaled)
+  const bubbleHeight = useRef(new Animated.Value(verticalScale(90))).current; // ⭐ NEW: Dynamic height (scaled)
   const timerRef = useRef(null);
   
   // ⭐ NEW: Memoize messages to prevent re-computation on every render
@@ -428,13 +431,6 @@ const PersonaThoughtBubble = ({
     return null;
   }
   
-  // ⭐ Calculate scale for dynamic bubble size (from base 220x90)
-  const bubbleScale = bubbleWidth.interpolate({
-    inputRange: [200, 270],
-    outputRange: [0.91, 1.23], // Scale factors (200/220 = 0.91, 270/220 = 1.23)
-    extrapolate: 'clamp',
-  });
-  
   return (
     <Animated.View 
       style={[
@@ -445,15 +441,13 @@ const PersonaThoughtBubble = ({
       ]}
     >
       {/* Cloud Shape - Dynamic size with smooth animation */}
-      <Animated.View 
-        style={[
-          styles.cloudContainer,
-          {
-            transform: [{ scale: bubbleScale }]
-          }
-        ]}
-      >
-        <Svg width={scale(220)} height={verticalScale(90)} viewBox="0 0 220 90">
+      <View style={styles.cloudContainer}>
+        {/* ⭐ Animated SVG with dynamic width/height (font size stays fixed!) */}
+        <AnimatedSvg 
+          width={bubbleWidth} 
+          height={bubbleHeight} 
+          viewBox="0 0 220 90"
+        >
           {/* Main cloud body - rounded top and bottom */}
           <Path
             d="M 40 45 
@@ -500,14 +494,17 @@ const PersonaThoughtBubble = ({
             stroke="rgba(255, 255, 255, 0.3)"
             strokeWidth="1.5"
           />
-        </Svg>
+        </AnimatedSvg>
         
         {/* Text Content - Cross-fade effect */}
+        {/* ⭐ Dynamic positioning based on bubble size */}
         <Animated.View 
           style={[
             styles.textContainer,
             {
-              opacity: textOpacity
+              opacity: textOpacity,
+              width: Animated.subtract(bubbleWidth, scale(90)), // width - left(45) - right(45)
+              height: Animated.subtract(bubbleHeight, verticalScale(50)), // height - top(25) - bottom(25)
             }
           ]}
         >
@@ -515,7 +512,7 @@ const PersonaThoughtBubble = ({
             {messages && messages[currentMessageIndex]}
           </CustomText>
         </Animated.View>
-      </Animated.View>
+      </View>
     </Animated.View>
   );
 };
@@ -543,17 +540,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: verticalScale(25),
     left: scale(45),
-    right: scale(45),
+    // ⭐ width and height are now dynamic (set in JSX)
     padding: scale(10),
-    bottom: verticalScale(25),
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
   thoughtText: {
-    fontSize: scale(14),
+    fontSize: scale(14), // ⭐ Fixed font size (no transform scale!)
     color: '#FFFFFF', // White text (same as QuickActionChips)
     textAlign: 'left',
-    lineHeight: scale(17),
+    lineHeight: scale(17), // ⭐ Fixed line height
     fontWeight: '500', // Medium weight for better readability
   },
 });
