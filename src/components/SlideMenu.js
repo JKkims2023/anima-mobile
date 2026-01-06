@@ -29,23 +29,27 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // ⭐ NEW: SafeArea
 import { BlurView } from '@react-native-community/blur'; // ⭐ For iOS blur
-import Svg, { Path, Defs, Mask, Rect, G } from 'react-native-svg';
+import Svg, { Path, Defs, Mask, Rect, G, ClipPath } from 'react-native-svg';
 import { scale, verticalScale } from '../utils/responsive-utils';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView); // ⭐ NEW: Animated BlurView
 
 const SlideMenu = ({ visible, onClose }) => {
+  const insets = useSafeAreaInsets(); // ⭐ SafeArea for status bar
+  
   // ═══════════════════════════════════════════════════════════════════════
   // ANIMATION
   // ═══════════════════════════════════════════════════════════════════════
-  const translateX = useRef(new Animated.Value(-SCREEN_WIDTH)).current; // Start off-screen (left)
+  const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current; // ⭐ Start off-screen (RIGHT)
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
-      // Open: left → right
+      // ⭐ Open: right → left
       Animated.parallel([
         Animated.spring(translateX, {
           toValue: 0, // Slide to visible position
@@ -60,10 +64,10 @@ const SlideMenu = ({ visible, onClose }) => {
         }),
       ]).start();
     } else {
-      // Close: right → left
+      // ⭐ Close: left → right
       Animated.parallel([
         Animated.spring(translateX, {
-          toValue: -SCREEN_WIDTH, // Slide off-screen (left)
+          toValue: SCREEN_WIDTH, // ⭐ Slide off-screen (RIGHT)
           useNativeDriver: true,
           friction: 8,
           tension: 40,
@@ -77,26 +81,34 @@ const SlideMenu = ({ visible, onClose }) => {
     }
   }, [visible]);
 
-  if (!visible && translateX._value === -SCREEN_WIDTH) {
+  if (!visible && translateX._value === SCREEN_WIDTH) {
     // Don't render when completely closed
     return null;
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // SVG CURVE PATH
+  // SVG CURVE PATH (⭐ REVISED: Smooth S-curve)
+  // ⭐ SafeArea aware
   // ═══════════════════════════════════════════════════════════════════════
-  // Curve from top-left (0, 0) to bottom-right (40% from right, bottom)
-  const curveWidth = SCREEN_WIDTH * 0.8; // 80% of screen width for menu
-  const curveEndX = SCREEN_WIDTH * 0.6; // 60% from left (40% from right)
+  // Curve from top-left (0, 0) to bottom-right (25% from left, bottom)
+  const svgHeight = SCREEN_HEIGHT - insets.top; // ⭐ Adjusted for SafeArea
+  const menuStartX = SCREEN_WIDTH * 0.25; // ⭐ Menu starts at 25% from left
+  const curveControlX1 = SCREEN_WIDTH * 0.15; // ⭐ First control point X
+  const curveControlY1 = svgHeight * 0.25; // ⭐ First control point Y
+  const curveControlX2 = SCREEN_WIDTH * 0.35; // ⭐ Second control point X
+  const curveControlY2 = svgHeight * 0.75; // ⭐ Second control point Y
+  const curveEndX = menuStartX; // ⭐ End at menu start X
+  const curveEndY = svgHeight; // ⭐ End at bottom
   
-  // S-curve path (Cubic Bezier)
-  // M: Move to start point
-  // C: Cubic bezier curve (control point 1, control point 2, end point)
-  // L: Line to
+  // ⭐ Smooth S-curve path (Cubic Bezier)
+  // M: Move to start point (top-left)
+  // C: Cubic bezier curve (CP1, CP2, end point)
+  // L: Line to (right edge, then back to top)
+  // Z: Close path
   const curvePath = `
     M 0 0
-    C ${curveWidth * 0.3} ${SCREEN_HEIGHT * 0.2}, ${curveWidth * 0.5} ${SCREEN_HEIGHT * 0.6}, ${curveEndX} ${SCREEN_HEIGHT}
-    L ${SCREEN_WIDTH} ${SCREEN_HEIGHT}
+    C ${curveControlX1} ${curveControlY1}, ${curveControlX2} ${curveControlY2}, ${curveEndX} ${curveEndY}
+    L ${SCREEN_WIDTH} ${svgHeight}
     L ${SCREEN_WIDTH} 0
     Z
   `;
@@ -121,10 +133,12 @@ const SlideMenu = ({ visible, onClose }) => {
       </Animated.View>
 
       {/* Slide Menu Container */}
+      {/* ⭐ SafeArea: paddingTop to avoid status bar */}
       <Animated.View
         style={[
           styles.container,
           {
+            paddingTop: insets.top, // ⭐ SafeArea top
             transform: [{ translateX }],
           },
         ]}
@@ -132,11 +146,12 @@ const SlideMenu = ({ visible, onClose }) => {
       >
         {/* ═════════════════════════════════════════════════════════════ */}
         {/* CURVED BACKGROUND (SVG) */}
+        {/* ⭐ SafeArea aware - height adjusted */}
         {/* ═════════════════════════════════════════════════════════════ */}
         <View style={styles.backgroundContainer}>
           <Svg
             width={SCREEN_WIDTH}
-            height={SCREEN_HEIGHT}
+            height={SCREEN_HEIGHT - insets.top} // ⭐ Adjusted for SafeArea
             style={StyleSheet.absoluteFillObject}
           >
             <Defs>
@@ -150,25 +165,31 @@ const SlideMenu = ({ visible, onClose }) => {
             </Defs>
 
             {/* Background (masked by curve) */}
+            <Defs>
+              {/* ⭐ NEW: ClipPath for iOS BlurView */}
+              <ClipPath id="curveClip">
+                <Path d={curvePath} />
+              </ClipPath>
+            </Defs>
+            
             <G mask="url(#curveMask)">
               {/* Solid background (right side - menu area) */}
               <Rect
-                x={curveEndX}
+                x={menuStartX}
                 y={0}
-                width={SCREEN_WIDTH - curveEndX}
-                height={SCREEN_HEIGHT}
+                width={SCREEN_WIDTH - menuStartX}
+                height={svgHeight} // ⭐ SafeArea adjusted
                 fill="#0F172A" // ⭐ Same as PersonaStudioScreen
                 opacity={1}
               />
               
               {/* Semi-transparent background (left side - blur area) */}
-              {/* ⭐ Version C: Blur (will be replaced with BlurView below) */}
-              {/* ⭐ Version B: Semi-transparent (for testing) */}
+              {/* ⭐ Version B: Semi-transparent (for both platforms) */}
               <Rect
                 x={0}
                 y={0}
-                width={curveEndX}
-                height={SCREEN_HEIGHT}
+                width={menuStartX}
+                height={svgHeight} // ⭐ SafeArea adjusted
                 fill="#0F172A"
                 opacity={0.85} // ⭐ 85% opacity for semi-transparent effect (B)
               />
@@ -184,29 +205,22 @@ const SlideMenu = ({ visible, onClose }) => {
           </Svg>
 
           {/* ═════════════════════════════════════════════════════════════ */}
-          {/* BLUR EFFECT (LEFT SIDE) - iOS only for now */}
-          {/* ⭐ Version C: Blur effect */}
+          {/* ⭐ REMOVED: BlurView (conflicted with SVG mask on iOS) */}
+          {/* Will use different approach for blur effect later */}
           {/* ═════════════════════════════════════════════════════════════ */}
-          {Platform.OS === 'ios' && (
-            <BlurView
-              style={[
-                styles.blurContainer,
-                {
-                  width: curveEndX,
-                },
-              ]}
-              blurType="dark" // Dark blur
-              blurAmount={30} // Blur intensity
-              reducedTransparencyFallbackColor="#0F172A"
-            />
-          )}
         </View>
 
         {/* ═════════════════════════════════════════════════════════════ */}
         {/* CLOSE BUTTON (Top Right) */}
+        {/* ⭐ SafeArea aware */}
         {/* ═════════════════════════════════════════════════════════════ */}
         <TouchableOpacity
-          style={styles.closeButton}
+          style={[
+            styles.closeButton,
+            {
+              top: insets.top + verticalScale(10), // ⭐ Below status bar
+            },
+          ]}
           onPress={onClose}
           activeOpacity={0.7}
         >
@@ -257,7 +271,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: verticalScale(60), // Below status bar
+    // ⭐ top is set dynamically with SafeAreaInsets in JSX
     right: scale(20),
     width: scale(40),
     height: scale(40),
@@ -269,7 +283,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingTop: verticalScale(120), // Below close button
+    paddingTop: verticalScale(70), // ⭐ Below close button (SafeArea handled in container)
     paddingHorizontal: scale(20),
     // Menu content will be styled here
   },
