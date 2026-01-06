@@ -900,6 +900,18 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
   
   const handleClose = useCallback(() => {
+    // 🔥 CRITICAL: Capture current state BEFORE any async operations or cleanup!
+    const currentMessages = messages;
+    const currentUser = user;
+    const currentPersona = persona;
+    
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🚪 [handleClose] 호출됨 (State Captured)');
+    console.log(`   messages.length: ${currentMessages.length}`);
+    console.log(`   user?.user_key: ${currentUser?.user_key}`);
+    console.log(`   persona?.persona_key: ${currentPersona?.persona_key}`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     // ⭐ NEW: Check if any UI is open, close that first (not the entire chat!)
     
     // 🎛️ PRIORITY 1: Settings Menu
