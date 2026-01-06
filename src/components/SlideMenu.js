@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   menuContainer: {
     position: 'absolute',
     top: 0,
-    left: 0,
+    right: 0, // ⭐ Align to right side of screen
     width: MENU_WIDTH, // 80% of screen
     height: SCREEN_HEIGHT,
     zIndex: 9999,
