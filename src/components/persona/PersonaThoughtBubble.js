@@ -25,12 +25,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, StyleSheet, Animated, Platform } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
-
-// Create Animated SVG component
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 /**
  * Thought messages by scenario
@@ -440,80 +436,40 @@ const PersonaThoughtBubble = ({
         }
       ]}
     >
-      {/* Cloud Shape - Dynamic size with smooth animation */}
-      <View style={styles.cloudContainer}>
-        {/* ⭐ Animated SVG with dynamic width/height (font size stays fixed!) */}
-        <AnimatedSvg 
-          width={bubbleWidth} 
-          height={bubbleHeight} 
-          viewBox="0 0 220 90"
-        >
-          {/* Main cloud body - rounded top and bottom */}
-          <Path
-            d="M 40 45 
-               Q 35 30, 50 25
-               Q 65 20, 80 25
-               Q 95 20, 110 25
-               Q 125 20, 140 25
-               Q 155 20, 170 25
-               Q 185 30, 180 45
-               Q 185 60, 170 65
-               Q 155 70, 140 65
-               Q 125 70, 110 65
-               Q 95 70, 80 65
-               Q 65 70, 50 65
-               Q 35 60, 40 45
-               Z"
-            fill="rgba(0, 0, 0, 0.65)"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="1.5"
-          />
-          
-          {/* Small bubble 1 (tail - right side) */}
-          <Path
-            d="M 185 68
-               Q 185 63, 190 63
-               Q 195 63, 195 68
-               Q 195 73, 190 73
-               Q 185 73, 185 68
-               Z"
-            fill="rgba(0, 0, 0, 0.65)"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="1.5"
-          />
-          
-          {/* Small bubble 2 (tail - right side) */}
-          <Path
-            d="M 195 76
-               Q 195 72, 198 72
-               Q 201 72, 201 76
-               Q 201 80, 198 80
-               Q 195 80, 195 76
-               Z"
-            fill="rgba(0, 0, 0, 0.65)"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="1.5"
-          />
-        </AnimatedSvg>
-        
-        {/* Text Content - Cross-fade effect */}
-        {/* ⭐ Fixed size container with opacity animation only (useNativeDriver: true) */}
+      {/* Bubble Container */}
+      <View style={styles.bubbleWrapper}>
+        {/* Main Bubble - Rounded Rectangle with dynamic size */}
         <Animated.View 
           style={[
-            styles.textContainer,
+            styles.mainBubble,
             {
-              opacity: textOpacity,
+              width: bubbleWidth,
+              height: bubbleHeight,
             }
           ]}
         >
-          <CustomText 
-            type="small" 
-            style={styles.thoughtText}
-            numberOfLines={3} // ⭐ Prevent text overflow (max 3 lines)
+          {/* Text Content - Cross-fade effect */}
+          <Animated.View 
+            style={[
+              styles.textContainer,
+              {
+                opacity: textOpacity,
+              }
+            ]}
           >
-            {messages && messages[currentMessageIndex]}
-          </CustomText>
+            <CustomText 
+              type="small" 
+              style={styles.thoughtText}
+              numberOfLines={3} // ⭐ Prevent text overflow (max 3 lines)
+            >
+              {messages && messages[currentMessageIndex]}
+            </CustomText>
+          </Animated.View>
         </Animated.View>
+        
+        {/* Tail Bubbles (right side) - Small circles */}
+        <View style={styles.tailBubble1} />
+        <View style={styles.tailBubble2} />
       </View>
     </Animated.View>
   );
@@ -522,10 +478,23 @@ const PersonaThoughtBubble = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: verticalScale(0), // Below safe area
+    top: verticalScale(0),
     left: scale(-20),
     zIndex: 100,
-
+  },
+  bubbleWrapper: {
+    position: 'relative',
+  },
+  mainBubble: {
+    // Dynamic width/height set in JSX
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    borderRadius: scale(20), // ⭐ Rounded corners
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: scale(12),
+    
     // Shadow (same as QuickActionChips)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -535,25 +504,41 @@ const styles = StyleSheet.create({
       android: { elevation: 8 },
     }),
   },
-  cloudContainer: {
-    position: 'relative',
-  },
   textContainer: {
-    position: 'absolute',
-    top: verticalScale(25),
-    left: scale(45),
-    // ⭐ Fixed max width based on largest bubble (270 - 45*2 = 180)
-    maxWidth: scale(180),
-    padding: scale(10),
-    justifyContent: 'flex-start',
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'flex-start',
   },
   thoughtText: {
-    fontSize: scale(14), // ⭐ Fixed font size (no transform scale!)
-    color: '#FFFFFF', // White text (same as QuickActionChips)
+    fontSize: scale(14), // ⭐ Fixed font size
+    color: '#FFFFFF',
     textAlign: 'left',
-    lineHeight: scale(17), // ⭐ Fixed line height
-    fontWeight: '500', // Medium weight for better readability
+    lineHeight: scale(18), // ⭐ Fixed line height
+    fontWeight: '500',
+  },
+  // ⭐ Tail Bubble 1 (larger, closer to main bubble)
+  tailBubble1: {
+    position: 'absolute',
+    bottom: verticalScale(-8), // Below main bubble
+    right: scale(15), // Right side
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6), // Perfect circle
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  // ⭐ Tail Bubble 2 (smaller, further away)
+  tailBubble2: {
+    position: 'absolute',
+    bottom: verticalScale(-18), // Further below
+    right: scale(8), // More to the right
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4), // Perfect circle
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
 });
 
