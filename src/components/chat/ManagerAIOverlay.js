@@ -919,18 +919,24 @@ const ManagerAIOverlay = ({
     setIsHelpOpen(false);
     setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
     setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
+    
+    // ⭐ CRITICAL FIX: Capture current state BEFORE any cleanup!
+    const currentMessages = messages;
+    const currentUser = user;
+    const currentPersona = persona;
+    
     // 🆕 Helper function to trigger background learning
-    const triggerBackgroundLearning = () => {
+    const triggerBackgroundLearning = (capturedMessages, capturedUser, capturedPersona) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🎓 [ManagerAIOverlay] Trigger Background Learning');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('   messages.length:', messages.length);
-      console.log('   user?.user_key:', user?.user_key);
-      console.log('   persona?.persona_key:', persona?.persona_key);
+      console.log('   messages.length:', capturedMessages.length);
+      console.log('   user?.user_key:', capturedUser?.user_key);
+      console.log('   persona?.persona_key:', capturedPersona?.persona_key);
       
       // ⚡ FIX: Only trigger if we have at least 1 message (changed from 3)
-      if (messages.length >= 1 && user?.user_key && persona?.persona_key) {
-        const session_id = chatApi.getCurrentSessionId(persona.persona_key);
+      if (capturedMessages.length >= 1 && capturedUser?.user_key && capturedPersona?.persona_key) {
+        const session_id = chatApi.getCurrentSessionId(capturedPersona.persona_key);
         
         console.log('   session_id:', session_id);
         
@@ -939,8 +945,8 @@ const ManagerAIOverlay = ({
           
           // Fire-and-forget (don't wait for result)
           chatApi.closeChatSession({
-            user_key: user.user_key,
-            persona_key: persona.persona_key,
+            user_key: capturedUser.user_key,
+            persona_key: capturedPersona.persona_key,
             session_id: session_id,
           }).catch(err => {
             console.error('❌ [ManagerAIOverlay] Background learning failed:', err);
@@ -950,9 +956,9 @@ const ManagerAIOverlay = ({
         }
       } else {
         console.warn('⚠️  [ManagerAIOverlay] Conditions not met for background learning');
-        console.warn('   - messages.length >= 1:', messages.length >= 1);
-        console.warn('   - user?.user_key exists:', !!user?.user_key);
-        console.warn('   - persona?.persona_key exists:', !!persona?.persona_key);
+        console.warn('   - messages.length >= 1:', capturedMessages.length >= 1);
+        console.warn('   - user?.user_key exists:', !!capturedUser?.user_key);
+        console.warn('   - persona?.persona_key exists:', !!capturedPersona?.persona_key);
       }
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     };
@@ -986,7 +992,7 @@ const ManagerAIOverlay = ({
               setIsTyping(false);
               
               // 🆕 Trigger background learning before closing
-              triggerBackgroundLearning();
+              triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
               
               // Close overlay
               HapticService.medium();
@@ -1017,7 +1023,7 @@ const ManagerAIOverlay = ({
     Keyboard.dismiss();
     
     // 🆕 Trigger background learning before closing
-    triggerBackgroundLearning();
+    triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
     
     // 🧹 Clear all states on close
     setTimeout(() => {
