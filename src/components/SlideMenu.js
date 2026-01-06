@@ -183,19 +183,20 @@ const SlideMenu = ({ visible, onClose }) => {
             <CustomText style={styles.userEmail} numberOfLines={1}>
               {user.user_email || '사용자'}
             </CustomText>
-            <View style={[styles.userLevelBadge, { backgroundColor: `${levelColors[userLevel]}20` }]}>
-              <CustomText style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
-                {levelNames[userLevel]}
-              </CustomText>
+            <View style={styles.userLevelBadge}>
+            <Icon name="diamond-outline" size={scale(18)} color="#FFD700" />
+            <CustomText style={styles.userPointText}>
+                {(user.user_point || 0).toLocaleString()}P
+            </CustomText>
             </View>
           </View>
         </View>
-        <View style={styles.userPointContainer}>
-          <Icon name="diamond-outline" size={scale(18)} color="#FFD700" />
-          <CustomText style={styles.userPointText}>
-            {(user.user_point || 0).toLocaleString()}P
-          </CustomText>
+        <View style={[styles.userPointContainer, { backgroundColor: `${levelColors[userLevel]}20` }]}>
+            <CustomText style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
+            {levelNames[userLevel]}
+            </CustomText>
         </View>
+    
       </View>
     );
   };
@@ -239,6 +240,9 @@ const SlideMenu = ({ visible, onClose }) => {
   // Info Section
   const renderInfoSection = () => (
     <View style={styles.section}>
+
+    <View style={[styles.divider, { marginBottom: verticalScale(10) }]} />
+
       <TouchableOpacity 
         style={styles.menuItem}
         onPress={() => handleMenuItemPress('ANIMA 소개')}
@@ -246,7 +250,7 @@ const SlideMenu = ({ visible, onClose }) => {
       >
         <Icon name="information-circle-outline" size={scale(22)} color="#60A5FA" />
         <CustomText style={styles.menuItemText}>ANIMA 소개</CustomText>
-        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+        <Icon name="chevron-forward" style={{marginLeft: scale(12)}} size={scale(18)} color="#64748B" />
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.menuItem}
@@ -255,7 +259,7 @@ const SlideMenu = ({ visible, onClose }) => {
       >
         <Icon name="sparkles-outline" size={scale(22)} color="#FFD700" />
         <CustomText style={styles.menuItemText}>가능한 것을</CustomText>
-        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+        <Icon name="chevron-forward" style={{marginLeft: scale(12)}} size={scale(18)} color="#64748B" />
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.menuItem}
@@ -264,7 +268,7 @@ const SlideMenu = ({ visible, onClose }) => {
       >
         <Icon name="mail-outline" size={scale(22)} color="#94A3B8" />
         <CustomText style={styles.menuItemText}>Contact US</CustomText>
-        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+        <Icon name="chevron-forward" style={{marginLeft: scale(12)}} size={scale(18)} color="#64748B" />
       </TouchableOpacity>
     </View>
   );
@@ -329,15 +333,19 @@ const SlideMenu = ({ visible, onClose }) => {
             style={styles.scrollView}
             contentContainerStyle={[
               styles.scrollContent,
-              { paddingTop: insets.top + verticalScale(70) },
+              { paddingTop: insets.top + verticalScale(30) },
             ]}
             showsVerticalScrollIndicator={false}
           >
             {renderLogo()}
             {renderUserInfo()}
             {renderDivider()}
+            {user && (
+            <>
             {renderNewMessages()}
             {renderDivider()}
+            </>
+            )}
             {renderInfoSection()}
           </ScrollView>
         </View>
@@ -363,7 +371,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0, // ⭐ Align to right side of screen
-    width: MENU_WIDTH, // 80% of screen
+    
+    width: SCREEN_WIDTH * 0.8, // 80% of screen
     height: SCREEN_HEIGHT,
     zIndex: 9999,
     flexDirection: 'row', // ⭐ Horizontal layout (blur left, content right)
@@ -378,8 +387,8 @@ const styles = StyleSheet.create({
   menuContent: {
     position: 'absolute',
     top: 0,
-    left: BLUR_WIDTH, // Start after blur area (20%)
-    width: CONTENT_WIDTH, // 60% content area (right)
+
+    width: '100%', // 60% content area (right)
     height: SCREEN_HEIGHT,
     backgroundColor: '#0F172A', // PersonaStudioScreen header color
   },
@@ -446,6 +455,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(30, 41, 59, 0.6)',
     borderRadius: scale(16),
     padding: scale(16),
+    marginTop: verticalScale(-15),
     marginBottom: verticalScale(20),
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -468,10 +478,21 @@ const styles = StyleSheet.create({
     marginBottom: scale(6),
   },
   userLevelBadge: {
+
+    marginTop: scale(4),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderRadius: scale(12),
+    paddingVertical: scale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
     alignSelf: 'flex-start',
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
-    borderRadius: scale(8),
+    marginBottom: scale(4),
+
   },
   userLevelText: {
     fontSize: scale(12),
@@ -498,7 +519,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    marginVertical: verticalScale(20),
+    marginBottom: verticalScale(20),
   },
   
   // Section
@@ -524,7 +545,6 @@ const styles = StyleSheet.create({
   },
   menuItemTextContainer: {
     flex: 1,
-    marginLeft: scale(12),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -533,6 +553,7 @@ const styles = StyleSheet.create({
     fontSize: scale(15),
     color: '#F1F5F9',
     fontWeight: '500',
+    marginLeft: scale(12),
   },
   menuItemBadge: {
     fontSize: scale(13),
