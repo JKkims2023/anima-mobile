@@ -50,6 +50,7 @@ import FloatingChatLimitButton from './FloatingChatLimitButton'; // 💰 NEW: Fl
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import MiniYoutubeVideoPlayer from './MiniYoutubeVideoPlayer'; // 🎬 NEW: Mini YouTube video player
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎖️ NEW: Tier upgrade sheet
+import LimitedModeChips from './LimitedModeChips'; // 🔒 NEW: LIMITED MODE chips
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -163,6 +164,10 @@ const ManagerAIOverlay = ({
   // ⭐ NEW: Continuous conversation state
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
+  
+  // 🔒 NEW: LIMITED MODE state
+  const [requiredFields, setRequiredFields] = useState([]); // Array of { field_name, label, emoji, completed }
+  const [showLimitedModeChips, setShowLimitedModeChips] = useState(false); // Show/hide chips
   
   // 🔥 CRITICAL FIX: Refs to capture latest state for handleClose
   const messagesRef = useRef(messages);
@@ -808,42 +813,93 @@ const ManagerAIOverlay = ({
           console.log('🔄 [파싱] 진화:', !!identityEvolution, '/ 미디어:', !!richContent);
         }
         
-        // 🌟 Show identity evolution notification (supports multiple tool calls) with cleanup
+        // 🌟 Show identity evolution notification (ENHANCED for LIMITED MODE)
         if (identityEvolution) {
-          const evolutions = Array.isArray(identityEvolution) ? identityEvolution : [identityEvolution];
-          console.log('🌟 [자아 진화] 감지:', evolutions.length, '개');
+          // 🆕 NEW: Handle new structure { updates, metadata }
+          const updates = identityEvolution.updates || identityEvolution; // Fallback for old structure
+          const metadata = identityEvolution.metadata || {}; // New metadata object
           
-          // Show each evolution sequentially with cleanup support
-          evolutions.forEach((evolution, index) => {
-            if (evolution && evolution.field && timeoutManagerRef.current) {
-              
-              timeoutManagerRef.current.setTimeout(() => {
-                // Check if still active
-                if (!timeoutManagerRef.current?.isCancelledStatus()) {
-                  setIdentityEvolutionDisplay(evolution);
-                  
-                  // Auto-hide after duration
-                  timeoutManagerRef.current?.setTimeout(() => {
-                    if (!timeoutManagerRef.current?.isCancelledStatus()) {
-                      console.log(`   👋 Hiding evolution ${index + 1}`);
-                      setIdentityEvolutionDisplay(null);
-                    }
-                  }, IDENTITY_EVOLUTION.DISPLAY_DURATION);
-                  
-                  // Haptic feedback
-                  HapticService.trigger('success');
-                } else {
-                  console.log(`   ⚠️ Evolution ${index + 1} cancelled (timeout manager inactive)`);
-                }
-              }, index * IDENTITY_EVOLUTION.INTERVAL);
-            } else {
-              console.log(`   ❌ Skipping evolution ${index + 1}:`, {
-                hasEvolution: !!evolution,
-                hasField: evolution?.field,
-                hasTimeoutManager: !!timeoutManagerRef.current,
-              });
-            }
+          console.log('🌟 [자아 진화] 감지:', {
+            updates: updates.length,
+            break_conversation: metadata.break_conversation
           });
+          
+          // 🆕 NEW: Handle LIMITED MODE - Update required fields
+          if (updates && updates.length > 0 && requiredFields.length > 0) {
+            // Update completed fields in requiredFields state
+            setRequiredFields(prev => {
+              const updated = [...prev];
+              updates.forEach(update => {
+                const fieldIndex = updated.findIndex(f => f.field_name === update.field);
+                if (fieldIndex !== -1) {
+                  updated[fieldIndex] = { ...updated[fieldIndex], completed: true };
+                  console.log(`   ✅ [LIMITED MODE] Field completed: ${update.field}`);
+                }
+              });
+              
+              // Check if all fields are completed
+              const allCompleted = updated.every(f => f.completed);
+              if (allCompleted) {
+                console.log('🎉 [LIMITED MODE] All fields completed! Hiding chips...');
+                // Hide chips after a delay
+                timeoutManagerRef.current?.setTimeout(() => {
+                  if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                    setShowLimitedModeChips(false);
+                  }
+                }, 3000); // 3 seconds delay
+              }
+              
+              return updated;
+            });
+          }
+          
+          // Show evolution display (existing logic)
+          if (updates && updates.length > 0) {
+            const evolutions = Array.isArray(updates) ? updates : [updates];
+            
+            // Show each evolution sequentially with cleanup support
+            evolutions.forEach((evolution, index) => {
+              if (evolution && evolution.field && timeoutManagerRef.current) {
+                
+                timeoutManagerRef.current.setTimeout(() => {
+                  // Check if still active
+                  if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                    setIdentityEvolutionDisplay(evolution);
+                    
+                    // Auto-hide after duration
+                    timeoutManagerRef.current?.setTimeout(() => {
+                      if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                        console.log(`   👋 Hiding evolution ${index + 1}`);
+                        setIdentityEvolutionDisplay(null);
+                      }
+                    }, IDENTITY_EVOLUTION.DISPLAY_DURATION);
+                    
+                    // Haptic feedback
+                    HapticService.trigger('success');
+                  } else {
+                    console.log(`   ⚠️ Evolution ${index + 1} cancelled (timeout manager inactive)`);
+                  }
+                }, index * IDENTITY_EVOLUTION.INTERVAL);
+              } else {
+                console.log(`   ❌ Skipping evolution ${index + 1}:`, {
+                  hasEvolution: !!evolution,
+                  hasField: evolution?.field,
+                  hasTimeoutManager: !!timeoutManagerRef.current,
+                });
+              }
+            });
+          }
+          
+          // 🆕 NEW: Handle break_conversation (LIMITED MODE enforcement)
+          if (metadata.break_conversation) {
+            console.log('🔒 [LIMITED MODE] AI requested conversation break (irrelevant response)');
+            // Auto-close after 2 seconds (user can read AI message)
+            timeoutManagerRef.current?.setTimeout(() => {
+              if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                handleAutoClose();
+              }
+            }, 2000);
+          }
         } else {
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log('⚠️  [handleSend] No Identity Evolution Data');
@@ -915,7 +971,13 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
+  }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet, requiredFields]); // ⭐ FIX: Add chat limit dependencies + requiredFields
+  
+  // 🔒 NEW: Auto-close for LIMITED MODE (when AI requests conversation break)
+  const handleAutoClose = useCallback(() => {
+    console.log('🔒 [LIMITED MODE] Auto-closing chat (irrelevant user response)');
+    // Call handleClose directly (triggers background learning)    handleClose();
+  }, [handleClose]);
   
   const handleClose = useCallback(() => {
     // 🔥 CRITICAL FIX: Use refs to get LATEST state (not closure values!)
@@ -1092,13 +1154,15 @@ const ManagerAIOverlay = ({
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
       setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
       setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
+      setShowLimitedModeChips(false); // 🔒 NEW: Reset LIMITED MODE chips
+      setRequiredFields([]); // 🔒 NEW: Reset required fields
       
       // 🚪 Close overlay AFTER state cleanup (prevents premature unmount)
       if (onClose) {
         onClose();
       }
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
-  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ FIX: Removed messages, user, persona (using refs instead!)
+  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen, handleClose]); // ⭐ FIX: Removed messages, user, persona (using refs instead!)
   
   if (!visible) return null;
   
@@ -1164,6 +1228,11 @@ const ManagerAIOverlay = ({
               </TouchableOpacity>
               
             </View>
+            
+            {/* 🔒 NEW: LIMITED MODE Chips (Header 아래) */}
+            {showLimitedModeChips && requiredFields.length > 0 && (
+              <LimitedModeChips requiredFields={requiredFields} />
+            )}
             
             {/* ✅ Chat Messages (Scrollable) */}
             <View style={styles.chatContainer}>
