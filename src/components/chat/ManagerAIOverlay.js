@@ -164,6 +164,24 @@ const ManagerAIOverlay = ({
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
   
+  // 🔥 CRITICAL FIX: Refs to capture latest state for handleClose
+  const messagesRef = useRef(messages);
+  const userRef = useRef(user);
+  const personaRef = useRef(persona);
+  
+  // 🔄 Update refs whenever state changes
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+  
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+  
+  useEffect(() => {
+    personaRef.current = persona;
+  }, [persona]);
+  
   // ⭐ NEW: Chat history state
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
@@ -900,13 +918,13 @@ const ManagerAIOverlay = ({
   }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies
   
   const handleClose = useCallback(() => {
-    // 🔥 CRITICAL: Capture current state BEFORE any async operations or cleanup!
-    const currentMessages = messages;
-    const currentUser = user;
-    const currentPersona = persona;
+    // 🔥 CRITICAL FIX: Use refs to get LATEST state (not closure values!)
+    const currentMessages = messagesRef.current;
+    const currentUser = userRef.current;
+    const currentPersona = personaRef.current;
     
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🚪 [handleClose] 호출됨 (State Captured)');
+    console.log('🚪 [handleClose] 호출됨 (Ref Captured)');
     console.log(`   messages.length: ${currentMessages.length}`);
     console.log(`   user?.user_key: ${currentUser?.user_key}`);
     console.log(`   persona?.persona_key: ${currentPersona?.persona_key}`);
@@ -1061,10 +1079,12 @@ const ManagerAIOverlay = ({
     HapticService.light();
     Keyboard.dismiss();
     
-    // 🆕 Trigger background learning before closing
+    // 🔥 CRITICAL: Trigger background learning IMMEDIATELY with captured refs
+    // This MUST happen before any async operations or component unmount!
     triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
     
-    // 🧹 Clear all states on close
+    // 🧹 Clear all states and close overlay
+    // ⚠️ IMPORTANT: Delay onClose slightly to ensure background learning starts safely
     setTimeout(() => {
       setMessages([]);
       setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
@@ -1072,12 +1092,13 @@ const ManagerAIOverlay = ({
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
       setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
       setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
-    }, 200);
-    
-    if (onClose) {
-      onClose();
-    }
-  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: UI states
+      
+      // 🚪 Close overlay AFTER state cleanup (prevents premature unmount)
+      if (onClose) {
+        onClose();
+      }
+    }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
+  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ FIX: Removed messages, user, persona (using refs instead!)
   
   if (!visible) return null;
   
