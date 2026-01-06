@@ -5,22 +5,25 @@
  * - Cloud-shaped thought bubble
  * - Sequential message display with timer
  * - Fade in/out animation
- * - Typing effect
+ * - Dynamic bubble size based on message length
+ * - Hybrid message system: static + dynamic + AI real thoughts
  * - Only active when currentIndex matches
+ * - Zero re-render, zero performance impact
  * 
  * Messages:
  * 1. Non-logged in user (user === null)
- *    - SAGE & Nexus: Suspicious messages
+ *    - SAGE & Nexus: Suspicious messages (hardcoded only)
  * 2. Logged in + conversation_count === 0
- *    - All personas: Nervous/excited messages
+ *    - All personas: Nervous/excited messages (hardcoded only)
  * 3. Logged in + conversation_count > 0
- *    - Custom messages (future expansion)
+ *    - Hybrid: hardcoded + time/day/relationship + AI real thoughts (ai_interests + ai_next_questions)
  * 
  * @author JK & Hero Nexus AI
- * @date 2026-01-05
+ * @date 2026-01-05 (Initial)
+ * @updated 2026-01-06 (Hybrid system with AI real thoughts)
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, StyleSheet, Animated, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import CustomText from '../CustomText';
@@ -130,59 +133,176 @@ const getDynamicMessages = (persona) => {
 };
 
 /**
- * Mix static and dynamic messages (random insertion)
+ * ⭐ NEW: Get AI's real thoughts from learned data
+ * (Only for logged-in users with conversation history)
+ * 
+ * @param {Object} persona - Persona object with ai_interests and ai_next_questions
+ * @returns {Array<string>} - Array of AI's real thoughts
  */
-const getMixedMessages = (staticMessages, dynamicMessages) => {
-  // No dynamic messages: return static only
-  if (!dynamicMessages || dynamicMessages.length === 0) {
-    return staticMessages;
+const getAIThoughts = (persona) => {
+  const thoughts = [];
+  
+  // ⚠️ Safety check: Only for personas with conversation history
+  if (!persona || persona.conversation_count === 0) {
+    return thoughts;
   }
   
-  // Mix: static + dynamic (max 2 dynamic messages)
-  const mixed = [...staticMessages];
-  const numDynamic = Math.min(2, dynamicMessages.length);
+  // 1. AI Interests (관심사) - TOP 3 from backend
+  if (persona.ai_interests && Array.isArray(persona.ai_interests) && persona.ai_interests.length > 0) {
+    persona.ai_interests.forEach(interest => {
+      if (interest.topic) {
+        // Format: "{{topic}}에 대해 궁금한데..."
+        thoughts.push(`${interest.topic}에 대해 궁금한데...`);
+      }
+    });
+  }
   
-  // Randomly insert dynamic messages
-  const usedIndices = new Set();
-  for (let i = 0; i < numDynamic; i++) {
-    let randomDynamicIndex;
-    do {
-      randomDynamicIndex = Math.floor(Math.random() * dynamicMessages.length);
-    } while (usedIndices.has(randomDynamicIndex));
-    usedIndices.add(randomDynamicIndex);
+  // 2. AI Next Questions (궁금한 것) - TOP 3 from backend
+  if (persona.ai_next_questions && Array.isArray(persona.ai_next_questions) && persona.ai_next_questions.length > 0) {
+    persona.ai_next_questions.forEach(q => {
+      if (q.question) {
+        // Use question as-is (already formatted by AI)
+        thoughts.push(q.question);
+      }
+    });
+  }
+  
+  return thoughts;
+};
+
+/**
+ * Mix static, dynamic, and AI real thoughts (random insertion)
+ * 
+ * Strategy:
+ * - Static messages: Always included (4 messages)
+ * - Dynamic messages (time/day/relationship): Max 2 inserted
+ * - AI real thoughts: Max 3 inserted (from ai_interests + ai_next_questions)
+ * - Total pool: ~9-12 messages for variety
+ * 
+ * @param {Array<string>} staticMessages - Hardcoded static messages
+ * @param {Array<string>} dynamicMessages - Time/day/relationship messages
+ * @param {Array<string>} aiThoughts - AI's real interests and questions
+ * @returns {Array<string>} - Mixed message array
+ */
+const getMixedMessages = (staticMessages, dynamicMessages = [], aiThoughts = []) => {
+  // Start with static messages
+  const mixed = [...staticMessages];
+  
+  // 1. Add dynamic messages (time/day/relationship) - Max 2
+  if (dynamicMessages && dynamicMessages.length > 0) {
+    const numDynamic = Math.min(2, dynamicMessages.length);
+    const usedIndices = new Set();
     
-    const randomPosition = Math.floor(Math.random() * (mixed.length + 1));
-    mixed.splice(randomPosition, 0, dynamicMessages[randomDynamicIndex]);
+    for (let i = 0; i < numDynamic; i++) {
+      let randomDynamicIndex;
+      do {
+        randomDynamicIndex = Math.floor(Math.random() * dynamicMessages.length);
+      } while (usedIndices.has(randomDynamicIndex));
+      usedIndices.add(randomDynamicIndex);
+      
+      const randomPosition = Math.floor(Math.random() * (mixed.length + 1));
+      mixed.splice(randomPosition, 0, dynamicMessages[randomDynamicIndex]);
+    }
+  }
+  
+  // 2. Add AI real thoughts (ai_interests + ai_next_questions) - Max 3
+  if (aiThoughts && aiThoughts.length > 0) {
+    const numAI = Math.min(3, aiThoughts.length);
+    const usedIndices = new Set();
+    
+    for (let i = 0; i < numAI; i++) {
+      let randomAIIndex;
+      do {
+        randomAIIndex = Math.floor(Math.random() * aiThoughts.length);
+      } while (usedIndices.has(randomAIIndex));
+      usedIndices.add(randomAIIndex);
+      
+      const randomPosition = Math.floor(Math.random() * (mixed.length + 1));
+      mixed.splice(randomPosition, 0, aiThoughts[randomAIIndex]);
+    }
   }
   
   return mixed;
 };
 
 /**
- * Get messages based on user and persona state (HYBRID)
+ * Get messages based on user and persona state (HYBRID SYSTEM)
+ * 
+ * 3 Scenarios:
+ * 1. Non-logged in (user === null):
+ *    - SAGE & Nexus only: Hardcoded suspicious messages
+ *    - User personas: No bubble (return null)
+ *    - NO ai_interests, NO ai_next_questions (no user_key)
+ * 
+ * 2. Logged in + First conversation (conversation_count === 0):
+ *    - All personas: Hardcoded nervous/excited messages
+ *    - NO ai_interests, NO ai_next_questions (no data yet)
+ * 
+ * 3. Logged in + Has conversation (conversation_count > 0):
+ *    - HYBRID: hardcoded + time/day/relationship + AI real thoughts
+ *    - ✅ ai_interests (AI's learned interests)
+ *    - ✅ ai_next_questions (AI's pending questions)
+ * 
+ * @param {Object} user - User object (null if not logged in)
+ * @param {Object} persona - Persona object
+ * @returns {Array<string>|null} - Array of messages or null
  */
 const getMessages = (user, persona) => {
-  // Non-logged in user (static only)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Case 1: Non-logged in user (HARDCODED ONLY)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (!user) {
     const messages = THOUGHT_MESSAGES.nonLoggedIn[persona.persona_key];
-    return messages || null; // Return null if not SAGE or Nexus (user personas don't show)
+    return messages || null; // SAGE/Nexus only, user personas return null
   }
   
-  // Logged in + first conversation (static only)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Case 2: First conversation (HARDCODED ONLY)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (persona.conversation_count === 0) {
     return THOUGHT_MESSAGES.firstConversation;
   }
   
-  // Logged in + has conversation (HYBRID: static + dynamic)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Case 3: Has conversation (HYBRID SYSTEM!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  // 1. Get static messages (hardcoded)
   const staticMessages = 
     THOUGHT_MESSAGES.hasConversation[persona.persona_key] || 
     THOUGHT_MESSAGES.hasConversation.default;
   
-  // Get dynamic messages (client-side, minimal computation)
+  // 2. Get dynamic messages (time/day/relationship)
   const dynamicMessages = getDynamicMessages(persona);
   
-  // Mix and return
-  return getMixedMessages(staticMessages, dynamicMessages);
+  // 3. ⭐ Get AI real thoughts (ai_interests + ai_next_questions)
+  const aiThoughts = getAIThoughts(persona);
+  
+  // 4. Mix all three types and return
+  return getMixedMessages(staticMessages, dynamicMessages, aiThoughts);
+};
+
+/**
+ * Calculate dynamic bubble size based on message length
+ * 
+ * @param {string} message - The message to calculate size for
+ * @returns {Object} - { width, height } in pixels
+ */
+const getBubbleSize = (message) => {
+  if (!message) return { width: 220, height: 90 }; // Default size
+  
+  const length = message.length;
+  
+  // 4 size tiers based on message length
+  if (length <= 15) {
+    return { width: 200, height: 80 }; // Small
+  } else if (length <= 30) {
+    return { width: 220, height: 90 }; // Medium (default)
+  } else if (length <= 45) {
+    return { width: 250, height: 100 }; // Large
+  } else {
+    return { width: 270, height: 110 }; // Extra Large (max)
+  }
 };
 
 /**
@@ -198,10 +318,43 @@ const PersonaThoughtBubble = ({
   const [isInitialMount, setIsInitialMount] = useState(true);
   const cloudOpacity = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
+  const bubbleWidth = useRef(new Animated.Value(220)).current; // ⭐ NEW: Dynamic width
+  const bubbleHeight = useRef(new Animated.Value(90)).current; // ⭐ NEW: Dynamic height
   const timerRef = useRef(null);
   
-  // Get messages for current scenario
-  const messages = getMessages(user, persona);
+  // ⭐ NEW: Memoize messages to prevent re-computation on every render
+  // Only recalculate when these dependencies change
+  const messages = useMemo(() => {
+    return getMessages(user, persona);
+  }, [
+    user, 
+    persona?.persona_key,
+    persona?.conversation_count,
+    persona?.ai_interests,
+    persona?.ai_next_questions
+  ]);
+  
+  // ⭐ NEW: Update bubble size when current message changes
+  useEffect(() => {
+    if (!messages || messages.length === 0) return;
+    
+    const currentMessage = messages[currentMessageIndex];
+    const newSize = getBubbleSize(currentMessage);
+    
+    // Animate bubble size smoothly
+    Animated.parallel([
+      Animated.timing(bubbleWidth, {
+        toValue: newSize.width,
+        duration: 300,
+        useNativeDriver: false, // Layout animation requires false
+      }),
+      Animated.timing(bubbleHeight, {
+        toValue: newSize.height,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [currentMessageIndex, messages, bubbleWidth, bubbleHeight]);
   
   // Clear timers on unmount
   useEffect(() => {
@@ -275,6 +428,13 @@ const PersonaThoughtBubble = ({
     return null;
   }
   
+  // ⭐ Calculate scale for dynamic bubble size (from base 220x90)
+  const bubbleScale = bubbleWidth.interpolate({
+    inputRange: [200, 270],
+    outputRange: [0.91, 1.23], // Scale factors (200/220 = 0.91, 270/220 = 1.23)
+    extrapolate: 'clamp',
+  });
+  
   return (
     <Animated.View 
       style={[
@@ -284,8 +444,15 @@ const PersonaThoughtBubble = ({
         }
       ]}
     >
-      {/* Cloud Shape - Fixed (no fade out) */}
-      <View style={styles.cloudContainer}>
+      {/* Cloud Shape - Dynamic size with smooth animation */}
+      <Animated.View 
+        style={[
+          styles.cloudContainer,
+          {
+            transform: [{ scale: bubbleScale }]
+          }
+        ]}
+      >
         <Svg width={scale(220)} height={verticalScale(90)} viewBox="0 0 220 90">
           {/* Main cloud body - rounded top and bottom */}
           <Path
@@ -348,7 +515,7 @@ const PersonaThoughtBubble = ({
             {messages && messages[currentMessageIndex]}
           </CustomText>
         </Animated.View>
-      </View>
+      </Animated.View>
     </Animated.View>
   );
 };
@@ -356,9 +523,10 @@ const PersonaThoughtBubble = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: verticalScale(20), // Below safe area
+    top: verticalScale(0), // Below safe area
     left: scale(-20),
     zIndex: 100,
+
     // Shadow (same as QuickActionChips)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
