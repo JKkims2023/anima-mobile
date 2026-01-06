@@ -29,16 +29,16 @@ export const PersonaProvider = ({ children }) => {
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
   const { user } = useUser();
   
-  // ⭐ FIX: initializePersonas MUST depend on 'user' to avoid closure capture
+  // ⚡ PERFORMANCE FIX: Only depend on user_key, not entire user object
+  // This prevents unnecessary re-creation of initializePersonas
+  const userKey = user?.user_key; // Extract user_key for stable dependency
+  
   const initializePersonas = useCallback(async () => {
     try {
-      /*
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🎭 [PersonaContext] initializePersonas called');
-      console.log('👤 [PersonaContext] user:', user ? user.user_id : 'null');
-      console.log('🔑 [PersonaContext] user_key:', user ? user.user_key : 'null');
+      console.log('🔑 [PersonaContext] user_key:', userKey);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      */
       setIsLoading(true);
 
 
@@ -56,7 +56,7 @@ export const PersonaProvider = ({ children }) => {
       // ✅ Fetch user's personas from API (only if user exists)
       try {
         /*
-        if (!user || !user.user_key) {
+        if (!userKey) {
           console.log('⚠️  [PersonaContext] No user logged in, using empty persona list');
           setPersonas([]);
           setIsLoading(false);
@@ -65,7 +65,7 @@ export const PersonaProvider = ({ children }) => {
         */
 
 
-        const userPersonas = await getPersonaList(user != null ? user?.user_key : 'empty');
+        const userPersonas = await getPersonaList(userKey != null ? userKey : 'empty');
         
        // console.log('✅ [PersonaContext] User personas loaded:', userPersonas.length);
 
@@ -96,11 +96,13 @@ export const PersonaProvider = ({ children }) => {
       console.error('❌ [PersonaContext] Initialization error:', error);
       setIsLoading(false);
     }
-  }, [user]); // ⭐ FIX: Add 'user' dependency!
+  }, [userKey]); // ⚡ CRITICAL FIX: Only depend on userKey, not entire user object!
 
+  // ⚡ PERFORMANCE FIX: Only initialize once on mount + when user changes
+  // DO NOT depend on initializePersonas itself to avoid infinite loops!
   useEffect(() => {
     initializePersonas();
-  }, [initializePersonas]); // ⭐ FIX: Depend on initializePersonas, not user
+  }, [user?.user_key]); // ⭐ CRITICAL FIX: Only depend on user_key, not entire user or initializePersonas!
 
   /**
    * Switch between SAGE mode and Persona mode

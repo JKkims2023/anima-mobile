@@ -340,7 +340,7 @@ const ManagerAIOverlay = ({
         setMessages([]); // Clear previous persona's messages
         setHistoryOffset(0); // Reset offset
         setHasMoreHistory(false); // ⭐ Reset hasMore flag
-        loadChatHistory();
+      //  loadChatHistory();
       }
     }
   }, [visible, user, persona?.persona_key, currentPersonaKey]);
