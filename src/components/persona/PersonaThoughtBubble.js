@@ -497,18 +497,20 @@ const PersonaThoughtBubble = ({
         </AnimatedSvg>
         
         {/* Text Content - Cross-fade effect */}
-        {/* ⭐ Dynamic positioning based on bubble size */}
+        {/* ⭐ Fixed size container with opacity animation only (useNativeDriver: true) */}
         <Animated.View 
           style={[
             styles.textContainer,
             {
               opacity: textOpacity,
-              width: Animated.subtract(bubbleWidth, scale(90)), // width - left(45) - right(45)
-              height: Animated.subtract(bubbleHeight, verticalScale(50)), // height - top(25) - bottom(25)
             }
           ]}
         >
-          <CustomText type="small" style={styles.thoughtText}>
+          <CustomText 
+            type="small" 
+            style={styles.thoughtText}
+            numberOfLines={3} // ⭐ Prevent text overflow (max 3 lines)
+          >
             {messages && messages[currentMessageIndex]}
           </CustomText>
         </Animated.View>
@@ -540,7 +542,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: verticalScale(25),
     left: scale(45),
-    // ⭐ width and height are now dynamic (set in JSX)
+    // ⭐ Fixed max width based on largest bubble (270 - 45*2 = 180)
+    maxWidth: scale(180),
     padding: scale(10),
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
