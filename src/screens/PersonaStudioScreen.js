@@ -2037,7 +2037,7 @@ const styles = StyleSheet.create({
   },
   // ⭐ NEW: Hamburger Menu Button
   menuButton: {
-    marginLeft: platformPadding(12),
+    marginLeft: platformPadding(0),
     padding: platformPadding(8),
   },
   

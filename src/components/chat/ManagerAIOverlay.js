@@ -49,6 +49,7 @@ import ChatLimitSheet from './ChatLimitSheet'; // 💰 NEW: Limit reached sheet
 import FloatingChatLimitButton from './FloatingChatLimitButton'; // 💰 NEW: Floating chat limit button
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import MiniYoutubeVideoPlayer from './MiniYoutubeVideoPlayer'; // 🎬 NEW: Mini YouTube video player
+import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎖️ NEW: Tier upgrade sheet
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -183,6 +184,9 @@ const ManagerAIOverlay = ({
   // 🎛️ NEW: ChatInputBar Settings Menu State (Lifted up from child!)
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   
+  // 🎖️ NEW: Tier Upgrade Sheet State
+  const [showTierUpgrade, setShowTierUpgrade] = useState(false);
+  
   // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
   const {
     floatingContent,
@@ -254,52 +258,60 @@ const ManagerAIOverlay = ({
       return true; // ⭐ Event handled!
     }
     
-    // 🎭 PRIORITY 2: Identity Settings Sheet
+    // 🎖️ PRIORITY 2: Tier Upgrade Sheet
+    if (showTierUpgrade) {
+      setShowTierUpgrade(false);
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
+    // 🎭 PRIORITY 3: Identity Settings Sheet
     if (showIdentitySettings) {
       setShowIdentitySettings(false);
       HapticService.light();
       return true; // ⭐ Event handled!
     }
     
-    // 🗣️ PRIORITY 3: Speaking Pattern Sheet
+    // 🗣️ PRIORITY 4: Speaking Pattern Sheet
     if (showSpeakingPattern) {
       setShowSpeakingPattern(false);
       HapticService.light();
       return true; // ⭐ Event handled!
     }
     
-    // 🎵 PRIORITY 4: Create Music Sheet
+    // 🎵 PRIORITY 5: Create Music Sheet
     if (showCreateMusic) {
       setShowCreateMusic(false);
       HapticService.light();
       return true; // ⭐ Event handled!
     }
     
-    // 🎬 PRIORITY 5: YouTube Video Player
+    // 🎬 PRIORITY 6: YouTube Video Player
     if (showYouTubePlayer) {
       handleYouTubeClose();
       HapticService.light();
       return true; // ⭐ Event handled!
     }
     
-    // 🎵 PRIORITY 6: YouTube Music Player (Overlay)
+    // 🎵 PRIORITY 7: YouTube Music Player (Overlay)
     if (floatingContent?.showPlayer) {
       handleMusicClose(); // ⭐ Close music player
       return true; // ⭐ Event handled!
     }
     
-    // ❓ PRIORITY 7: Help Sheet
+    // ❓ PRIORITY 8: Help Sheet
     if (isHelpOpen) {
       setIsHelpOpen(false);
       HapticService.light();
       return true; // ⭐ Event handled!
     }
     
-    // 💬 PRIORITY 8: Close entire chat (if nothing is open)
+    // 💬 PRIORITY 9: Close entire chat (if nothing is open)
     handleClose();
     return true; // ⭐ Event handled!
   }, [
-    isSettingsMenuOpen, 
+    isSettingsMenuOpen,
+    showTierUpgrade, 
     showIdentitySettings, 
     showSpeakingPattern, 
     showCreateMusic, 
@@ -865,28 +877,35 @@ const ManagerAIOverlay = ({
       return; // ⭐ Don't close chat!
     }
     
-    // 🎭 PRIORITY 2: Identity Settings Sheet
+    // 🎖️ PRIORITY 2: Tier Upgrade Sheet
+    if (showTierUpgrade) {
+      setShowTierUpgrade(false);
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
+    // 🎭 PRIORITY 3: Identity Settings Sheet
     if (showIdentitySettings) {
       setShowIdentitySettings(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
-    // 🗣️ PRIORITY 3: Speaking Pattern Sheet
+    // 🗣️ PRIORITY 4: Speaking Pattern Sheet
     if (showSpeakingPattern) {
       setShowSpeakingPattern(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
-    // 🎵 PRIORITY 4: Create Music Sheet
+    // 🎵 PRIORITY 5: Create Music Sheet
     if (showCreateMusic) {
       setShowCreateMusic(false);
       HapticService.light();
       return; // ⭐ Don't close chat!
     }
     
-    // ❓ PRIORITY 5: Help Sheet
+    // ❓ PRIORITY 6: Help Sheet
     if (isHelpOpen) {
       setIsHelpOpen(false);
       HapticService.light();
@@ -899,6 +918,7 @@ const ManagerAIOverlay = ({
     setFloatingContent(null);
     setIsHelpOpen(false);
     setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
+    setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = () => {
       // Only trigger if we have meaningful conversation (3+ messages)
@@ -939,6 +959,7 @@ const ManagerAIOverlay = ({
               setFloatingContent(null);
               setIsHelpOpen(false);
               setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
+              setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
               // Force stop AI conversation
               setIsAIContinuing(false);
               aiContinueCountRef.current = 0; // ⭐ Reset ref
@@ -960,6 +981,7 @@ const ManagerAIOverlay = ({
                 aiContinueCountRef.current = 0;
                 setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
                 setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
+                setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
               }, 200);
               
               if (onClose) {
@@ -985,12 +1007,13 @@ const ManagerAIOverlay = ({
       setIsTyping(false);
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
       setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
+      setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
     }, 200);
     
     if (onClose) {
       onClose();
     }
-  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, isSettingsMenuOpen, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: UI states
+  }, [onClose, isAIContinuing, isLoading, isTyping, messages, user, persona, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ⭐ ADDED: UI states
   
   if (!visible) return null;
   
@@ -1220,13 +1243,9 @@ const ManagerAIOverlay = ({
                 tier={user?.user_level || 'free'}
                 isOnboarding={serviceConfig.isOnboarding || false}
                 onUpgradePress={() => {
-                  showLimitReachedSheet({
-                    tier: user?.user_level || 'free',
-                    limit: serviceConfig.dailyChatLimit || 0,
-                    resetTime: serviceConfig.dailyChatResetAt,
-                    isOnboarding: serviceConfig.isOnboarding || false,
-                    onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
-                  });
+                  // ⭐ Open TierUpgradeSheet directly
+                  HapticService.light();
+                  setShowTierUpgrade(true);
                 }}
                 onBuyPointPress={() => {
                   console.log('💰 [ManagerAIOverlay] Buy point button pressed');
@@ -1331,9 +1350,25 @@ const ManagerAIOverlay = ({
         canUpgrade={limitReachedData.tier !== 'ultimate'}
         onUpgrade={() => {
           setShowLimitSheet(false);
-          // TODO: Navigate to TierUpgradeSheet
+          // ⭐ Open TierUpgradeSheet
+          setShowTierUpgrade(true);
         }}
         isOnboarding={limitReachedData.isOnboarding}
+      />
+    )}
+    
+    {/* 🎖️ NEW: Tier Upgrade Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
+    {user && (
+      <TierUpgradeSheet
+        isOpen={showTierUpgrade}
+        onClose={() => setShowTierUpgrade(false)}
+        currentTier={user.user_level || 'basic'}
+        userKey={user.user_key}
+        onUpgradeSuccess={(newTier) => {
+          console.log('✅ [ManagerAIOverlay] Tier upgraded to:', newTier);
+          // ⭐ Reload service config to update chat limits
+          // (This will be handled by useChatLimit hook on next render)
+        }}
       />
     )}
     
