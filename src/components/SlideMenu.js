@@ -42,6 +42,8 @@ import HapticService from '../utils/HapticService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MENU_WIDTH = SCREEN_WIDTH * 0.8; // 80% of screen width
+const BLUR_WIDTH = SCREEN_WIDTH * 0.2; // 20% blur area (left)
+const CONTENT_WIDTH = SCREEN_WIDTH * 0.6; // 60% content area (right)
 
 const SlideMenu = ({ visible, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -296,7 +298,7 @@ const SlideMenu = ({ visible, onClose }) => {
         ]}
         pointerEvents={visible ? 'auto' : 'none'}
       >
-        {/* Blur Layer (Left side) */}
+        {/* Blur Layer (Left side - 20%) */}
         {Platform.OS === 'ios' ? (
           <BlurView
             style={styles.blurLayer}
@@ -308,7 +310,7 @@ const SlideMenu = ({ visible, onClose }) => {
           <View style={[styles.blurLayer, { backgroundColor: 'rgba(15, 23, 42, 0.85)' }]} />
         )}
 
-        {/* Menu Content */}
+        {/* Menu Content (Right side - 60%) */}
         <View style={styles.menuContent}>
           {/* Close Button */}
           <TouchableOpacity
@@ -361,20 +363,29 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: MENU_WIDTH,
+    width: MENU_WIDTH, // 80% of screen
     height: SCREEN_HEIGHT,
     zIndex: 9999,
+    flexDirection: 'row', // ⭐ Horizontal layout (blur left, content right)
   },
   blurLayer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: BLUR_WIDTH, // 20% blur area (left)
+    height: SCREEN_HEIGHT,
   },
   menuContent: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: BLUR_WIDTH, // Start after blur area (20%)
+    width: CONTENT_WIDTH, // 60% content area (right)
+    height: SCREEN_HEIGHT,
     backgroundColor: '#0F172A', // PersonaStudioScreen header color
   },
   closeButton: {
     position: 'absolute',
-    right: scale(20),
+    right: scale(20), // Relative to menuContent (60% area)
     width: scale(40),
     height: scale(40),
     borderRadius: scale(20),
