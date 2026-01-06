@@ -317,8 +317,6 @@ const PersonaThoughtBubble = ({
   const [isInitialMount, setIsInitialMount] = useState(true);
   const cloudOpacity = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
-  const bubbleWidth = useRef(new Animated.Value(scale(220))).current; // ⭐ NEW: Dynamic width (scaled)
-  const bubbleHeight = useRef(new Animated.Value(verticalScale(90))).current; // ⭐ NEW: Dynamic height (scaled)
   const timerRef = useRef(null);
   
   // ⭐ NEW: Memoize messages to prevent re-computation on every render
@@ -332,6 +330,18 @@ const PersonaThoughtBubble = ({
     persona?.ai_interests,
     persona?.ai_next_questions
   ]);
+  
+  // ⭐ NEW: Calculate initial bubble size based on first message
+  const initialSize = useMemo(() => {
+    if (!messages || messages.length === 0) {
+      return { width: scale(220), height: verticalScale(90) };
+    }
+    return getBubbleSize(messages[0]); // First message size
+  }, [messages]);
+  
+  // ⭐ NEW: Dynamic bubble size (initialized with first message size)
+  const bubbleWidth = useRef(new Animated.Value(initialSize.width)).current;
+  const bubbleHeight = useRef(new Animated.Value(initialSize.height)).current;
   
   // ⭐ NEW: Update bubble size when current message changes
   useEffect(() => {
@@ -479,7 +489,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     top: verticalScale(0),
-    left: scale(-20),
+    left: scale(20),
     zIndex: 100,
   },
   bubbleWrapper: {
@@ -493,7 +503,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: scale(12),
+    paddingHorizontal: scale(12), // ⭐ Horizontal padding
+    paddingVertical: scale(8), // ⭐ Vertical padding
     
     // Shadow (same as QuickActionChips)
     shadowColor: '#000',
@@ -505,15 +516,15 @@ const styles = StyleSheet.create({
     }),
   },
   textContainer: {
-    width: '100%',
+    width: '100%', // ⭐ Fill entire bubble width
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'center', // ⭐ Center text horizontally
   },
   thoughtText: {
-    fontSize: scale(14), // ⭐ Fixed font size
+    fontSize: scale(15), // ⭐ Fixed font size
     color: '#FFFFFF',
-    textAlign: 'left',
-    lineHeight: scale(18), // ⭐ Fixed line height
+    textAlign: 'center', // ⭐ Center text alignment
+    lineHeight: scale(20), // ⭐ Fixed line height (increased for better readability)
     fontWeight: '500',
   },
   // ⭐ Tail Bubble 1 (larger, closer to main bubble)
