@@ -746,6 +746,14 @@ const ManagerAIOverlay = ({
         }
       }
       
+      // 🔍 DEBUG: Log API request parameters
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📤 [handleSend] API Request Parameters:');
+      console.log('   user_key:', userKey);
+      console.log('   persona_key:', persona?.persona_key || null);
+      console.log('   question:', text);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
         question: text,
@@ -757,6 +765,15 @@ const ManagerAIOverlay = ({
           mimeType: selectedImage.type,
         } : null,
       });
+      
+      // 🔍 DEBUG: Log raw server response
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📥 [handleSend] Raw Server Response:');
+      console.log('   success:', response.success);
+      console.log('   answer length:', response.data?.answer?.length || 0);
+      console.log('   identity_evolution:', response.data?.identity_evolution);
+      console.log('   continue_conversation:', response.data?.continue_conversation);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       // 🆕 Clear selected image after sending
       setSelectedImage(null);
@@ -773,31 +790,66 @@ const ManagerAIOverlay = ({
           identityDraftPending,
         } = parseRichContent(response.data);
         
+        // 🔍 DEBUG: Log parsed content
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔄 [handleSend] Parsed Content:');
+        console.log('   identityEvolution:', identityEvolution);
+        console.log('   shouldContinue:', shouldContinue);
+        console.log('   richContent:', richContent);
+        console.log('   musicData:', musicData ? '✅' : '❌');
+        console.log('   youtubeData:', youtubeData ? '✅' : '❌');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
         // 🌟 Show identity evolution notification (supports multiple tool calls) with cleanup
         if (identityEvolution) {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('🌟 [handleSend] Identity Evolution Detected!');
+          console.log('   Evolution data:', JSON.stringify(identityEvolution, null, 2));
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
           const evolutions = Array.isArray(identityEvolution) ? identityEvolution : [identityEvolution];
+          
+          console.log('   Evolutions array length:', evolutions.length);
           
           // Show each evolution sequentially with cleanup support
           evolutions.forEach((evolution, index) => {
+            console.log(`   Processing evolution ${index + 1}:`, evolution);
+            
             if (evolution && evolution.field && timeoutManagerRef.current) {
+              console.log(`   ✅ Scheduling evolution ${index + 1} for display`);
+              
               timeoutManagerRef.current.setTimeout(() => {
                 // Check if still active
                 if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                  console.log(`   🎨 Displaying evolution ${index + 1}:`, evolution.field);
                   setIdentityEvolutionDisplay(evolution);
                   
                   // Auto-hide after duration
                   timeoutManagerRef.current?.setTimeout(() => {
                     if (!timeoutManagerRef.current?.isCancelledStatus()) {
+                      console.log(`   👋 Hiding evolution ${index + 1}`);
                       setIdentityEvolutionDisplay(null);
                     }
                   }, IDENTITY_EVOLUTION.DISPLAY_DURATION);
                   
                   // Haptic feedback
                   HapticService.trigger('success');
+                } else {
+                  console.log(`   ⚠️ Evolution ${index + 1} cancelled (timeout manager inactive)`);
                 }
               }, index * IDENTITY_EVOLUTION.INTERVAL);
+            } else {
+              console.log(`   ❌ Skipping evolution ${index + 1}:`, {
+                hasEvolution: !!evolution,
+                hasField: evolution?.field,
+                hasTimeoutManager: !!timeoutManagerRef.current,
+              });
             }
           });
+        } else {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('⚠️  [handleSend] No Identity Evolution Data');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }
         
         // 🎭 NEW: Update pending identity draft state
