@@ -41,6 +41,16 @@ const useChatLimit = (visible, user, showAlert) => {
     const loadServiceConfig = async () => {
       if (!visible || !user?.user_key) {
         setLoadingServiceConfig(false);
+
+        setServiceConfig({
+          userTier: 'free',
+          dailyChatLimit: 0,
+          dailyChatRemaining: 0,
+          dailyChatCount: 0,
+          isOnboarding: false,
+          onboardingDaysRemaining: 0
+        });
+
         return;
       }
       

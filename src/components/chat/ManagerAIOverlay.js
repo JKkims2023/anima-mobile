@@ -340,7 +340,7 @@ const ManagerAIOverlay = ({
         setMessages([]); // Clear previous persona's messages
         setHistoryOffset(0); // Reset offset
         setHasMoreHistory(false); // ⭐ Reset hasMore flag
-      //  loadChatHistory();
+        loadChatHistory();
       }
     }
   }, [visible, user, persona?.persona_key, currentPersonaKey]);
@@ -1216,13 +1216,13 @@ const ManagerAIOverlay = ({
             {serviceConfig && (
               <FloatingChatLimitButton
                 currentCount={serviceConfig.dailyChatCount || 0}
-                dailyLimit={serviceConfig.dailyChatLimit || 20}
+                dailyLimit={serviceConfig.dailyChatLimit || 0}
                 tier={user?.user_level || 'free'}
                 isOnboarding={serviceConfig.isOnboarding || false}
                 onUpgradePress={() => {
                   showLimitReachedSheet({
                     tier: user?.user_level || 'free',
-                    limit: serviceConfig.dailyChatLimit || 20,
+                    limit: serviceConfig.dailyChatLimit || 0,
                     resetTime: serviceConfig.dailyChatResetAt,
                     isOnboarding: serviceConfig.isOnboarding || false,
                     onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
