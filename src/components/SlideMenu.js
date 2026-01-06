@@ -35,6 +35,7 @@ import Svg, { Path, Defs, Mask, Rect, G, ClipPath } from 'react-native-svg';
 import { scale, verticalScale } from '../utils/responsive-utils';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView); // ⭐ NEW: Animated BlurView
 
@@ -46,6 +47,7 @@ const SlideMenu = ({ visible, onClose }) => {
   // ═══════════════════════════════════════════════════════════════════════
   const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current; // ⭐ Start off-screen (RIGHT)
   const backdropOpacity = useRef(new Animated.Value(0)).current;
+
 
   useEffect(() => {
     if (visible) {
@@ -87,18 +89,18 @@ const SlideMenu = ({ visible, onClose }) => {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // SVG CURVE PATH (⭐ REVISED: Smooth S-curve)
-  // ⭐ SafeArea aware
+  // SVG CURVE PATH (⭐ REVISED: Full screen coverage)
+  // ⭐ Cover from status bar (0,0) to bottom
   // ═══════════════════════════════════════════════════════════════════════
   // Curve from top-left (0, 0) to bottom-right (25% from left, bottom)
-  const svgHeight = SCREEN_HEIGHT - insets.top; // ⭐ Adjusted for SafeArea
+  const svgHeight = SCREEN_HEIGHT; // ⭐ Full screen height (no SafeArea adjustment)
   const menuStartX = SCREEN_WIDTH * 0.25; // ⭐ Menu starts at 25% from left
-  const curveControlX1 = SCREEN_WIDTH * 0.15; // ⭐ First control point X
-  const curveControlY1 = svgHeight * 0.25; // ⭐ First control point Y
-  const curveControlX2 = SCREEN_WIDTH * 0.35; // ⭐ Second control point X
+  const curveControlX1 = SCREEN_WIDTH * 0.55; // ⭐ First control point X
+  const curveControlY1 = svgHeight * 0.55; // ⭐ First control point Y
+  const curveControlX2 = SCREEN_WIDTH * 0.75; // ⭐ Second control point X
   const curveControlY2 = svgHeight * 0.75; // ⭐ Second control point Y
   const curveEndX = menuStartX; // ⭐ End at menu start X
-  const curveEndY = svgHeight; // ⭐ End at bottom
+  const curveEndY = svgHeight * 1.25; // ⭐ End at bottom
   
   // ⭐ Smooth S-curve path (Cubic Bezier)
   // M: Move to start point (top-left)
@@ -112,6 +114,58 @@ const SlideMenu = ({ visible, onClose }) => {
     L ${SCREEN_WIDTH} 0
     Z
   `;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+// STYLES (⭐ Full screen coverage - cover status bar & header)
+// ═══════════════════════════════════════════════════════════════════════════
+const styles = StyleSheet.create({
+    backdrop: {
+      position: 'absolute',
+      top: 0, // ⭐ Cover from top (status bar)
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+      zIndex: 9998,
+    },
+    container: {
+      position: 'absolute',
+      top: 0, // ⭐ Cover from top (status bar)
+      left: 0,
+      width: SCREEN_WIDTH,
+      height: SCREEN_HEIGHT, // ⭐ Full screen height (no SafeArea)
+      zIndex: 9999,
+    },
+    backgroundContainer: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    blurContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: SCREEN_HEIGHT,
+      // Width is set dynamically based on curve
+    },
+    closeButton: {
+      position: 'absolute',
+      // ⭐ top is set dynamically with SafeAreaInsets in JSX
+      right: scale(20),
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(20),
+      backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10000,
+    },
+    contentContainer: {
+      flex: 1,
+      // ⭐ paddingTop will be set dynamically in JSX (SafeArea + close button space)
+      paddingHorizontal: scale(20),
+      // Menu content will be styled here
+    },
+  });
+
 
   return (
     <>
@@ -133,12 +187,12 @@ const SlideMenu = ({ visible, onClose }) => {
       </Animated.View>
 
       {/* Slide Menu Container */}
-      {/* ⭐ SafeArea: paddingTop to avoid status bar */}
+      {/* ⭐ Full screen coverage (no paddingTop - cover header) */}
       <Animated.View
         style={[
           styles.container,
           {
-            paddingTop: insets.top, // ⭐ SafeArea top
+            // ⭐ No paddingTop - start from 0,0 to cover header
             transform: [{ translateX }],
           },
         ]}
@@ -146,12 +200,12 @@ const SlideMenu = ({ visible, onClose }) => {
       >
         {/* ═════════════════════════════════════════════════════════════ */}
         {/* CURVED BACKGROUND (SVG) */}
-        {/* ⭐ SafeArea aware - height adjusted */}
+        {/* ⭐ Full screen coverage */}
         {/* ═════════════════════════════════════════════════════════════ */}
         <View style={styles.backgroundContainer}>
           <Svg
             width={SCREEN_WIDTH}
-            height={SCREEN_HEIGHT - insets.top} // ⭐ Adjusted for SafeArea
+            height={SCREEN_HEIGHT} // ⭐ Full screen (cover header)
             style={StyleSheet.absoluteFillObject}
           >
             <Defs>
@@ -191,17 +245,10 @@ const SlideMenu = ({ visible, onClose }) => {
                 width={menuStartX}
                 height={svgHeight} // ⭐ SafeArea adjusted
                 fill="#0F172A"
-                opacity={0.85} // ⭐ 85% opacity for semi-transparent effect (B)
+                opacity={1} // ⭐ 85% opacity for semi-transparent effect (B)
               />
             </G>
 
-            {/* Curve border (optional, for visual guide) */}
-            <Path
-              d={curvePath}
-              fill="none"
-              stroke="rgba(96, 165, 250, 0.3)" // ANIMA blue border
-              strokeWidth={2}
-            />
           </Svg>
 
           {/* ═════════════════════════════════════════════════════════════ */}
@@ -229,8 +276,16 @@ const SlideMenu = ({ visible, onClose }) => {
 
         {/* ═════════════════════════════════════════════════════════════ */}
         {/* MENU CONTENT (TO BE ADDED) */}
+        {/* ⭐ SafeArea aware paddingTop */}
         {/* ═════════════════════════════════════════════════════════════ */}
-        <View style={styles.contentContainer}>
+        <View 
+          style={[
+            styles.contentContainer,
+            {
+              paddingTop: insets.top + verticalScale(70), // ⭐ SafeArea + close button space
+            },
+          ]}
+        >
           {/* Menu items will be added here */}
         </View>
       </Animated.View>
@@ -238,56 +293,7 @@ const SlideMenu = ({ visible, onClose }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STYLES
-// ═══════════════════════════════════════════════════════════════════════════
-const styles = StyleSheet.create({
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
-    zIndex: 9998,
-  },
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    zIndex: 9999,
-  },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  blurContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: SCREEN_HEIGHT,
-    // Width is set dynamically based on curve
-  },
-  closeButton: {
-    position: 'absolute',
-    // ⭐ top is set dynamically with SafeAreaInsets in JSX
-    right: scale(20),
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10000,
-  },
-  contentContainer: {
-    flex: 1,
-    paddingTop: verticalScale(70), // ⭐ Below close button (SafeArea handled in container)
-    paddingHorizontal: scale(20),
-    // Menu content will be styled here
-  },
-});
+
 
 export default SlideMenu;
 
