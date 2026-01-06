@@ -376,7 +376,7 @@ const ManagerAIOverlay = ({
   // 🗣️ NEW: Save speaking pattern
   const handleSaveSpeakingPattern = useCallback(async (pattern) => {
     if (!user?.user_key || !persona?.persona_key) {
-      console.error('[SpeakingPattern] Missing user or persona key');
+      console.error('[말투 설정] 사용자 또는 페르소나 키 누락');
       return;
     }
     
@@ -405,7 +405,7 @@ const ManagerAIOverlay = ({
         throw new Error(data.error || 'Failed to save speaking pattern');
       }
     } catch (error) {
-      console.error('❌ [SpeakingPattern] Save error:', error);
+      console.error('❌ [말투 설정] 저장 에러:', error);
       HapticService.error();
       throw error;
     }
@@ -458,7 +458,7 @@ const ManagerAIOverlay = ({
         showWelcomeMessage();
       }
     } catch (error) {
-      console.error('❌ [Chat History] Error:', error);
+      console.error('❌ [채팅 히스토리] 에러:', error);
       showWelcomeMessage();
     } finally {
       setLoadingHistory(false);
@@ -605,7 +605,7 @@ const ManagerAIOverlay = ({
           setCurrentTypingText('');
         }
       } catch (error) {
-        console.error('❌ [Chat] Auto start error:', error);
+        console.error('❌ [채팅] 자동 시작 에러:', error);
         setIsLoading(false);
         setIsTyping(false);
         setCurrentTypingText('');
@@ -699,7 +699,7 @@ const ManagerAIOverlay = ({
       }
       
     } catch (error) {
-      console.error('[ManagerAIOverlay] AI continue error:', error);
+      console.error('[채팅] AI 이어말하기 에러:', error);
       setIsAIContinuing(false);
       aiContinueCountRef.current = 0; // ⭐ Reset ref
       setIsLoading(false);
@@ -747,12 +747,7 @@ const ManagerAIOverlay = ({
       }
       
       // 🔍 DEBUG: Log API request parameters
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📤 [handleSend] API Request Parameters:');
-      console.log('   user_key:', userKey);
-      console.log('   persona_key:', persona?.persona_key || null);
-      console.log('   question:', text);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📤 [메시지 전송] 요청:', { persona: persona?.persona_key?.substring(0, 8) });
       
       const response = await chatApi.sendManagerAIMessage({
         user_key: userKey,
@@ -767,13 +762,11 @@ const ManagerAIOverlay = ({
       });
       
       // 🔍 DEBUG: Log raw server response
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📥 [handleSend] Raw Server Response:');
-      console.log('   success:', response.success);
-      console.log('   answer length:', response.data?.answer?.length || 0);
-      console.log('   identity_evolution:', response.data?.identity_evolution);
-      console.log('   continue_conversation:', response.data?.continue_conversation);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📥 [메시지 전송] 응답:', {
+        success: response.success,
+        answerLength: response.data?.answer?.length || 0,
+        hasEvolution: !!response.data?.identity_evolution
+      });
       
       // 🆕 Clear selected image after sending
       setSelectedImage(null);
@@ -792,36 +785,23 @@ const ManagerAIOverlay = ({
         
         // 🔍 DEBUG: Log parsed content
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🔄 [handleSend] Parsed Content:');
-        console.log('   identityEvolution:', identityEvolution);
-        console.log('   shouldContinue:', shouldContinue);
-        console.log('   richContent:', richContent);
-        console.log('   musicData:', musicData ? '✅' : '❌');
-        console.log('   youtubeData:', youtubeData ? '✅' : '❌');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // Core parsed content log (simplified)
+        if (identityEvolution || richContent) {
+          console.log('🔄 [파싱] 진화:', !!identityEvolution, '/ 미디어:', !!richContent);
+        }
         
         // 🌟 Show identity evolution notification (supports multiple tool calls) with cleanup
         if (identityEvolution) {
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.log('🌟 [handleSend] Identity Evolution Detected!');
-          console.log('   Evolution data:', JSON.stringify(identityEvolution, null, 2));
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          
           const evolutions = Array.isArray(identityEvolution) ? identityEvolution : [identityEvolution];
-          
-          console.log('   Evolutions array length:', evolutions.length);
+          console.log('🌟 [자아 진화] 감지:', evolutions.length, '개');
           
           // Show each evolution sequentially with cleanup support
           evolutions.forEach((evolution, index) => {
-            console.log(`   Processing evolution ${index + 1}:`, evolution);
-            
             if (evolution && evolution.field && timeoutManagerRef.current) {
-              console.log(`   ✅ Scheduling evolution ${index + 1} for display`);
               
               timeoutManagerRef.current.setTimeout(() => {
                 // Check if still active
                 if (!timeoutManagerRef.current?.isCancelledStatus()) {
-                  console.log(`   🎨 Displaying evolution ${index + 1}:`, evolution.field);
                   setIdentityEvolutionDisplay(evolution);
                   
                   // Auto-hide after duration
