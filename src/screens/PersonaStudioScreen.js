@@ -49,6 +49,7 @@ import HapticService from '../utils/HapticService';
 import MainHelpSheet from '../components/persona/MainHelpSheet';
 import DressManageSheer from '../components/persona/DressManageSheer';
 import PersonaShareSheet from '../components/persona/PersonaShareSheet';
+import SlideMenu from '../components/SlideMenu'; // ⭐ NEW: Slide menu
 
 import { 
   createPersona,
@@ -140,6 +141,7 @@ const PersonaStudioScreen = () => {
   // ⭐ NEW: Persona dress states (for badge count & rotation)
   const [personaDressStates, setPersonaDressStates] = useState({});
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false); // ⭐ NEW: Slide menu state
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -148,12 +150,20 @@ const PersonaStudioScreen = () => {
   
   // ❌ REMOVED: filterMode auto-adjust (UI simplified - single unified list)
   
-  // ⭐ Android back button handler for postcard and category dropdown
+  // ⭐ Android back button handler for slide menu, postcard, and category dropdown
   useEffect(() => {
-    if (!isCategoryDropdownVisible && !isPostcardVisible) return;
+    if (!isSlideMenuOpen && !isCategoryDropdownVisible && !isPostcardVisible) return;
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // ⭐ Priority 1: Close postcard (flip to front)
+      // ⭐ Priority 1: Close slide menu
+      if (isSlideMenuOpen) {
+        console.log('[PersonaStudioScreen] 🔙 Back button pressed, closing slide menu');
+        HapticService.light();
+        setIsSlideMenuOpen(false);
+        return true; // Prevent default back behavior
+      }
+      
+      // ⭐ Priority 2: Close postcard (flip to front)
       if (isPostcardVisible) {
         console.log('[PersonaStudioScreen] 🔙 Back button pressed, flipping postcard to front');
         HapticService.light();
@@ -169,7 +179,7 @@ const PersonaStudioScreen = () => {
         return true; // Prevent default back behavior
       }
       
-      // ⭐ Priority 2: Close category dropdown
+      // ⭐ Priority 3: Close category dropdown
       if (isCategoryDropdownVisible) {
         console.log('[PersonaStudioScreen] 🔙 Back button pressed, closing category dropdown');
         HapticService.light();
@@ -181,7 +191,7 @@ const PersonaStudioScreen = () => {
     });
     
     return () => backHandler.remove();
-  }, [isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
+  }, [isSlideMenuOpen, isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
   
   useEffect(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -1597,6 +1607,18 @@ const PersonaStudioScreen = () => {
           >
             <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
           </TouchableOpacity>
+          
+          {/* ⭐ NEW: Hamburger Menu Button */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => {
+              HapticService.light();
+              setIsSlideMenuOpen(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <IconSearch name="menu" size={scale(30)} color={currentTheme.mainColor} />
+          </TouchableOpacity>
         </View>
 
         {/* ⭐ Search Bar + Category Dropdown (Row layout) */}
@@ -1832,6 +1854,17 @@ const PersonaStudioScreen = () => {
         onDeny={handlePermissionDeny}
       />
     )}
+    
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* ⭐ NEW: Slide Menu (Curved menu from left) */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    <SlideMenu
+      visible={isSlideMenuOpen}
+      onClose={() => {
+        HapticService.light();
+        setIsSlideMenuOpen(false);
+      }}
+    />
     </>
   );
 };
@@ -1992,6 +2025,11 @@ const styles = StyleSheet.create({
     marginLeft: scale(-20), // ✅ 좌측으로 20px 이동
   },
   helpButton: {
+    marginLeft: platformPadding(12),
+    padding: platformPadding(8),
+  },
+  // ⭐ NEW: Hamburger Menu Button
+  menuButton: {
     marginLeft: platformPadding(12),
     padding: platformPadding(8),
   },
