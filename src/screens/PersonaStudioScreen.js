@@ -142,6 +142,7 @@ const PersonaStudioScreen = () => {
   const [personaDressStates, setPersonaDressStates] = useState({});
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false); // ⭐ NEW: Slide menu state
+  const [isManagerAIChatOpen, setIsManagerAIChatOpen] = useState(false); // ⭐ NEW: Track ManagerAI overlay state for performance
   
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
@@ -1205,6 +1206,7 @@ const PersonaStudioScreen = () => {
 
     HapticService.light();
     setSettingsPersona(persona);
+    setIsManagerAIChatOpen(true); // ⭐ NEW: Mark ManagerAI as open (for performance)
 
     if(persona?.default_yn === 'Y') {
 
@@ -1225,6 +1227,7 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   
   const handleSettingsClose = useCallback(() => {
+    setIsManagerAIChatOpen(false); // ⭐ NEW: Mark ManagerAI as closed (resume performance)
     setIsPersonaSettingsOpen(false);
     setSettingsPersona(null);
   }, []);
@@ -1660,6 +1663,7 @@ const PersonaStudioScreen = () => {
             personas={currentFilteredPersonas}
             isModeActive={true}
             isScreenFocused={isScreenFocused && !isMessageCreationVisible}
+            isScreenActive={!isManagerAIChatOpen} // ⭐ NEW: Deactivate background animations when ManagerAI is open (performance!)
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
             onIndexChange={handlePersonaChange}
@@ -1857,14 +1861,17 @@ const PersonaStudioScreen = () => {
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* ⭐ NEW: Slide Menu (Curved menu from left) */}
+    {/* ⚡ PERFORMANCE: Conditional mounting to save memory when closed */}
     {/* ═════════════════════════════════════════════════════════════════ */}
-    <SlideMenu
-      visible={isSlideMenuOpen}
-      onClose={() => {
-        HapticService.light();
-        setIsSlideMenuOpen(false);
-      }}
-    />
+    {isSlideMenuOpen && (
+      <SlideMenu
+        visible={isSlideMenuOpen}
+        onClose={() => {
+          HapticService.light();
+          setIsSlideMenuOpen(false);
+        }}
+      />
+    )}
     </>
   );
 };

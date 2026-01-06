@@ -311,7 +311,8 @@ const PersonaThoughtBubble = ({
   user,
   persona,
   isActive = false, // Only show when this persona is currently visible
-  visible = true
+  visible = true,
+  isScreenActive = true, // ⭐ NEW: Screen-level activity control (stop timers when ManagerAI is open for performance)
 }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [isInitialMount, setIsInitialMount] = useState(true);
@@ -374,8 +375,8 @@ const PersonaThoughtBubble = ({
   
   // Initial cloud fade in (only once)
   useEffect(() => {
-    if (!isActive || !visible || !messages || messages.length === 0) {
-      // Reset if not active
+    if (!isActive || !visible || !messages || messages.length === 0 || !isScreenActive) {
+      // Reset if not active OR screen is not active (ManagerAI open)
       setCurrentMessageIndex(0);
       setIsInitialMount(true);
       cloudOpacity.setValue(0);
@@ -396,11 +397,17 @@ const PersonaThoughtBubble = ({
         }, 0);
       });
     }
-  }, [isActive, visible, messages, isInitialMount, cloudOpacity]);
+  }, [isActive, visible, messages, isInitialMount, cloudOpacity, isScreenActive]);
   
   // Message rotation logic (text cross-fade)
   useEffect(() => {
-    if (!isActive || !visible || !messages || messages.length === 0) {
+    // ⭐ CRITICAL: Only run timer when BOTH isActive AND isScreenActive are true!
+    if (!isActive || !visible || !messages || messages.length === 0 || !isScreenActive) {
+      // 🧹 CLEANUP: Clear timer when inactive OR screen is not active (ManagerAI open)
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       return;
     }
     
@@ -430,7 +437,7 @@ const PersonaThoughtBubble = ({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isActive, visible, messages, currentMessageIndex, textOpacity]);
+  }, [isActive, visible, messages, currentMessageIndex, textOpacity, isScreenActive]);
   
   // Don't render if no messages
   if (!messages || messages.length === 0) {
@@ -453,7 +460,7 @@ const PersonaThoughtBubble = ({
           style={[
             styles.mainBubble,
             {
-              width: bubbleWidth,
+              width: scale(120),
               height: bubbleHeight,
             }
           ]}
@@ -488,7 +495,7 @@ const PersonaThoughtBubble = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: verticalScale(0),
+    top: verticalScale(10),
     left: scale(20),
     zIndex: 100,
   },
@@ -503,34 +510,28 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: scale(12), // ⭐ Horizontal padding
-    paddingVertical: scale(8), // ⭐ Vertical padding
+    paddingHorizontal: Platform.OS === 'ios' ? scale(10) : scale(10), // ⭐ Horizontal padding
+    paddingVertical: scale(10), // ⭐ Vertical padding
     
-    // Shadow (same as QuickActionChips)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    ...Platform.select({
-      android: { elevation: 8 },
-    }),
+
   },
   textContainer: {
-    width: '100%', // ⭐ Fill entire bubble width
+    padding: scale(2),
     justifyContent: 'center',
     alignItems: 'center', // ⭐ Center text horizontally
   },
   thoughtText: {
-    fontSize: scale(15), // ⭐ Fixed font size
+    fontSize: scale(14), // ⭐ Fixed font size
     color: '#FFFFFF',
     textAlign: 'center', // ⭐ Center text alignment
     lineHeight: scale(20), // ⭐ Fixed line height (increased for better readability)
     fontWeight: '500',
+    fontStyle: 'italic',  
   },
   // ⭐ Tail Bubble 1 (larger, closer to main bubble)
   tailBubble1: {
     position: 'absolute',
-    bottom: verticalScale(-8), // Below main bubble
+    bottom: verticalScale(-10), // Below main bubble
     right: scale(15), // Right side
     width: scale(12),
     height: scale(12),

@@ -33,15 +33,11 @@ export const UserProvider = ({ children }) => {
    */
   useEffect(() => {
     const checkAutoLogin = async () => {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('💙 [ANIMA] UserContext initialized');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       setLoading(true);
       
       let authResult = false;
       
       try {
-        console.log('🔍 [ANIMA] Checking for saved token...');
         
         const userData = await authService.autoLogin();
         
@@ -49,41 +45,29 @@ export const UserProvider = ({ children }) => {
           setUser(userData);
           setIsAuthenticated(true);
           authResult = true;
-          
-          console.log('✅ [ANIMA] Auto-login SUCCESSFUL');
-          console.log('👤 [ANIMA] User:', userData.user_id);
-          console.log('📧 [ANIMA] Email:', userData.user_email);
-          console.log('💰 [ANIMA] Points:', userData.user_point);
 
           // ⭐ NEW: Update FCM token on server after auto-login
           if (userData.user_key) {
             try {
               const { updateFCMTokenOnServer } = require('../services/fcmTokenService');
-              console.log('[ANIMA] 🔔 Updating FCM token on server...');
               await updateFCMTokenOnServer(userData.user_key);
             } catch (error) {
-              console.warn('[ANIMA] ⚠️  FCM token update failed (non-critical):', error.message);
+              console.log('[ANIMA] FCM token update failed (non-critical):', error.message);
             }
           }
         } else {
           setUser(null);
           setIsAuthenticated(false);
           authResult = false;
-          
-          console.log('⚠️  [ANIMA] No saved token found');
-          console.log('🔓 [ANIMA] User needs to login');
+      
         }
       } catch (error) {
-        console.error('❌ [ANIMA] Auto-login error:', error.message);
+        console.log('❌ [ANIMA] Auto-login error:', error.message);
         setUser(null);
         setIsAuthenticated(false);
         authResult = false;
       } finally {
         setLoading(false);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('💙 [ANIMA] Auth check complete');
-        console.log('📊 [ANIMA] isAuthenticated:', authResult ? 'YES ✅' : 'NO 🔓');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       }
     };
     
@@ -103,21 +87,16 @@ export const UserProvider = ({ children }) => {
     try {
       const response = await authService.login(userId, password);
 
-      console.log('🔐 [UserContext] login response:', response);
-
       if (response.success && response.user) {
         setUser(response.user);
         setIsAuthenticated(true);
-        
-        console.log('✅ [UserContext] Login successful:', response.user.user_id);
-        console.log('🔑 [UserContext] Token saved to AsyncStorage');
         
         return response;
       } else {
         throw new Error(response.message || 'Login failed');
       }
     } catch (error) {
-      console.error('❌ [UserContext] Login error:', error);
+      console.log('❌ [UserContext] Login error:', error);
       throw error;
     }
   }, []);
@@ -136,13 +115,9 @@ export const UserProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       
-      if (__DEV__) {
-        console.log('[UserContext] Logout successful');
-      }
-      
       return true;
     } catch (error) {
-      console.error('[UserContext] Logout error:', error);
+      console.log('[UserContext] Logout error:', error);
       throw error;
     }
   }, []);
@@ -173,16 +148,12 @@ export const UserProvider = ({ children }) => {
         setUser(response.data.user);
         setIsAuthenticated(true);
         
-        if (__DEV__) {
-          console.log('[UserContext] Registration successful:', response.data.user.user_id);
-        }
-        
         return response;
       } else {
         throw new Error(response.message || 'Registration failed');
       }
     } catch (error) {
-      console.error('[UserContext] Registration error:', error);
+      console.log('[UserContext] Registration error:', error);
       throw error;
     }
   }, []);
@@ -201,9 +172,6 @@ export const UserProvider = ({ children }) => {
       ...newUserInfo,
     }));
     
-    if (__DEV__) {
-      console.log('[UserContext] User info updated');
-    }
   }, []);
 
   // ==================== Set Authenticated User ====================
@@ -217,22 +185,14 @@ export const UserProvider = ({ children }) => {
   const setAuthenticatedUser = useCallback(async (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
-    
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ [UserContext] User authenticated');
-    console.log('👤 [UserContext] User:', userData.user_id);
-    console.log('📧 [UserContext] Email:', userData.user_email);
-    console.log('💰 [UserContext] Points:', userData.user_point);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
+      
     // ⭐ NEW: Update FCM token on server after authentication
     if (userData.user_key) {
       try {
         const { updateFCMTokenOnServer } = require('../services/fcmTokenService');
-        console.log('[UserContext] 🔔 Updating FCM token on server...');
         await updateFCMTokenOnServer(userData.user_key);
       } catch (error) {
-        console.warn('[UserContext] ⚠️  FCM token update failed (non-critical):', error.message);
+        console.log('[UserContext] FCM token update failed (non-critical):', error.message);
       }
     }
   }, []);
@@ -250,12 +210,7 @@ export const UserProvider = ({ children }) => {
       const token = await authService.getToken();
       
       if (!token) {
-        console.warn('[UserContext] No token found - Cannot refresh');
         throw new Error('No authentication token');
-      }
-      
-      if (__DEV__) {
-        console.log('[UserContext] Refreshing user with token:', token.substring(0, 20) + '...');
       }
       
       // ⭐ Step 2: Verify token with API
@@ -263,23 +218,18 @@ export const UserProvider = ({ children }) => {
       
       if (response.success && response.data && response.data.user) {
         setUser(response.data.user);
-        
-        if (__DEV__) {
-          console.log('[UserContext] User info refreshed');
-          console.log('💰 [UserContext] Updated points:', response.data.user.user_point);
-        }
-        
+          
         return response.data.user;
       } else {
         throw new Error('Failed to refresh user info');
       }
     } catch (error) {
-      console.error('[UserContext] Refresh user error:', error);
+      console.log('[UserContext] Refresh user error:', error);
       
       // ⭐ Only logout if token is ACTUALLY invalid (401 error)
       // Don't logout on network errors or other issues
       if (error.message.includes('token') || error.message.includes('Invalid') || error.message.includes('Expired')) {
-        console.warn('[UserContext] Token invalid - Logging out');
+
         await logout();
       }
       

@@ -45,7 +45,9 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage, isMessageCreationActive, showAlert: showAnimaAlert } = useAnima(); // ⭐ Get badge state and message creation state from Context
+  const { hasNewMessage, isMessageCreationActive, showAlert } = useAnima(); // ⭐ Get badge state and message creation state from Context
+
+
   const { t } = useTranslation();
   const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
@@ -106,8 +108,25 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
+    console.log('🔍 [CustomTabBar] Center AI Button pressed');
+    console.log('🔍 [CustomTabBar] selectedPersona:', selectedPersona);
     // ✅ Open Manager AI Overlay (Universal Chat)
-    setIsManagerOverlayVisible(true);
+
+    if(selectedPersona?.done_yn === 'N') {
+
+      showAlert({
+        emoji: '⌛',
+        title: t('persona.creation.still_processing_title') || '페르소나 생성 중',
+        message: t('persona.creation.still_processing_message') || '페르소나 생성 중입니다. 잠시 후 다시 시도해주세요.',
+        buttons: [
+          { text: t('common.confirm'), style: 'primary', onPress: () => {} },
+        ],
+      });
+
+    } else {
+      setIsManagerOverlayVisible(true);
+    }
+
   };
   
   // ✅ Handle Overlay Close
@@ -208,7 +227,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
               HapticService.warning();
               
               // Show confirmation dialog
-              showAnimaAlert({
+              showAlert({
                 title: t('message.alert.exit_message_creation'),
                 emoji: '⚠️',
                 message: t('message.alert.exit_message_creation_description'),

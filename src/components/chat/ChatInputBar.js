@@ -33,7 +33,7 @@ const ChatInputBar = memo(({
   placeholder,
   onToggleChatHeight,
   onToggleChatVisibility,
-  onAISettings, // 🆕 AI Settings callback
+  onSettingsPress, // 🎛️ NEW: Settings button callback (to parent!)
   onCreateMusic,
   onCreateMessage,
   chatHeight = 'medium',
@@ -41,22 +41,16 @@ const ChatInputBar = memo(({
   visionMode = 'basic', // 🆕 Vision mode setting
   hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
   persona = null, // 🗣️ NEW: Persona info for speaking pattern visibility
-  isSettingsMenuOpen = false, // 🎛️ NEW: Settings menu state (lifted up to parent!)
-  setIsSettingsMenuOpen, // 🎛️ NEW: Settings menu setter (from parent!)
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const [text, setText] = useState('');
-  // 🎛️ REMOVED: isSettingsMenuOpen state (moved to parent!)
   // ✅ Android only: Dynamic height state
   const [inputHeight, setInputHeight] = useState(verticalScale(40));
   // ✅ iOS only: Track content height for scroll control
   const [iosContentHeight, setIosContentHeight] = useState(0);
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
-
-  // 🎛️ REMOVED: BackHandler useEffect (moved to parent ManagerAIOverlay!)
-  // 🎛️ REMOVED: Empty useEffect (no longer needed!)
   
 
   const handleSend = useCallback(() => {
@@ -93,9 +87,7 @@ const ChatInputBar = memo(({
     }
   }, [minHeight]);
 
-  const handleToggleSettings = useCallback(() => {
-    setIsSettingsMenuOpen?.(prev => !prev); // 🎛️ FIX: Use prop from parent!
-  }, [setIsSettingsMenuOpen]);
+  // 🎛️ REMOVED: handleToggleSettings (parent handles it now!)
 
   const handleImagePick = useCallback(async () => {
     // Check if vision is disabled
@@ -179,93 +171,8 @@ const ChatInputBar = memo(({
 
   return (
     <View style={styles.wrapper}>
-      {/* Settings Menu */}
-      {isSettingsMenuOpen && (
-        <View style={styles.settingsMenu}>
-
-          <CustomText type='middle' bold style={{marginLeft: moderateScale(12), marginTop: verticalScale(8), marginBottom: verticalScale(8)}}>
-              {t('ai_comment.brain_title')}
-          </CustomText>
-
-          {/* 🎭 자아 설정 */}
-          {onAISettings && (
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                onAISettings?.('identity');
-                setIsSettingsMenuOpen(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.menuIcon}>🧠</Text>
-              <Text style={styles.menuText}>{t('ai_comment.identity_setting_title')}</Text>
-            </TouchableOpacity>
-          )}
-          
-          {/* 🗣️ 말투 설정 (User-created personas only) */}
-          {onAISettings && persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
-            <>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  onAISettings?.('speaking');
-                  setIsSettingsMenuOpen(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.menuIcon}>🗣️</Text>
-                <Text style={styles.menuText}>{t('ai_comment.speaking_setting_title')}</Text>
-              </TouchableOpacity>
-              
-            </>
-          )}
-
-          {/* 구분선 */}
-          <View style={styles.menuDivider} />
-
-          <CustomText type='middle' bold style={{marginLeft: moderateScale(12), marginTop: verticalScale(8), marginBottom: verticalScale(8)}}>
-            {t('ai_comment.product_create_title')}
-          </CustomText>
-
-          {/* 🎵 음악 설정 (User-created personas only) */}
-          {onCreateMusic && persona && (
-            <>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  onCreateMusic?.();
-                  setIsSettingsMenuOpen(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.menuIcon}>🎵</Text>
-                <Text style={styles.menuText}>{t('ai_comment.create_music_title')}</Text>
-              </TouchableOpacity>
-              
-            </>
-          )}
-
-          {/* � 메세지 설정 (User-created personas only) */}
-          {onCreateMessage && persona && (
-            <>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  onCreateMessage?.();
-                  setIsSettingsMenuOpen(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.menuIcon}>💬</Text>
-                <Text style={styles.menuText}>{t('ai_comment.create_message_title')}</Text>
-              </TouchableOpacity>
-              
-            </>
-          )}
-
-        </View>
-      )}
-
+      {/* 🎛️ REMOVED: Settings Menu (moved to parent ManagerAIOverlay!) */}
+      
       {/* Input Container */}
       <View style={[styles.container, { backgroundColor: 'rgba(255, 255, 255, 0.15)'}]}>
         {/* 🆕 Image Picker Button */}
@@ -366,17 +273,15 @@ const ChatInputBar = memo(({
           <Icon name="chat-bubble" size={moderateScale(22)} color="#FFF" />
         </TouchableOpacity>
 
-        {/* Settings Button */}
+        {/* 🎛️ Settings Button (calls parent!) */}
         <TouchableOpacity
           style={[
             styles.settingsButton,
             {
-              backgroundColor: isSettingsMenuOpen 
-                ? 'rgba(59, 130, 246, 0.3)' 
-                : currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
             },
           ]}
-          onPress={handleToggleSettings}
+          onPress={onSettingsPress}
           activeOpacity={0.7}
         >
           <Icon name="settings" size={moderateScale(22)} color="#FFF" />
@@ -392,36 +297,7 @@ const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
   },
-  settingsMenu: {
-    backgroundColor: 'rgba(17, 24, 39, 0.95)',
-    borderRadius: moderateScale(12),
-    marginBottom: verticalScale(8),
-    marginHorizontal: moderateScale(15),
-    padding: moderateScale(8),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: moderateScale(12),
-    borderRadius: moderateScale(8),
-    gap: moderateScale(12),
-  },
-  menuIcon: {
-    fontSize: moderateScale(18),
-  },
-  menuText: {
-    color: '#FFF',
-    fontSize: moderateScale(15),
-    lineHeight: platformLineHeight(moderateScale(15)), // ✅ Platform-aware lineHeight
-    fontWeight: '500',
-  },
-  menuDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    marginVertical: verticalScale(8),
-  },
+  // 🎛️ REMOVED: settingsMenu, menuItem, menuIcon, menuText, menuDivider (moved to parent!)
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',

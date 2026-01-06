@@ -914,7 +914,7 @@
     "communion_group_2_title": "{{name}}의 성향과 상태를 관리/확인 하세요",
     "options_section_title": "커스터마이징",
     "swipe_hint": "좌우로 스와이프",
-    "name_title": "페르소나 생성",
+    "name_title": "당신의 페르소나 만나기",
     "name_subtitle": "1. 사용할 이름을 입력해 주세요.",
     "name_placeholder": "이름을 입력해 주세요.",
     "type_selection_title": "2. 성별을 선택해 주세요.",
@@ -1535,8 +1535,8 @@
     "title": "ANIMA 생성기",
     "message_creator": "메시지 생성",
     "message_creator_desc": "메시지 생성",
-    "persona_creator": "페르소나 생성",
-    "persona_creator_desc": "페르소나 생성",
+    "persona_creator": "당신의 페르소나 만나기",
+    "persona_creator_desc": "당신의 페르소나 만나기",
     "music_generator": "음원 생성",
     "music_generator_desc": "음원 생성",
     "manager_sage": "AI 매니저 채팅",
@@ -1940,13 +1940,13 @@
     },
     "creation": {
       "no_brain": "자아 설정을 위한 대화가 필요해요!",
-      "title": "새로운 페르소나",
-      "photo_title": "사진 선택",
-      "photo_hint": "페르소나로 만들 사진을 선택해주세요",
+      "title": "당신의 페르소나 생성",
+      "photo_title": "페르소나 사진 선택",
+      "photo_hint": "당신의 사진 또는 저작권에 위배되지 않는 사진.",
       "photo_placeholder": "사진 선택하기",
-      "name_title": "이름",
+      "name_title": "당신의 페르소나 이름",
       "description_title": "컨셉 입력",
-      "name_hint": "페르소나의 이름을 입력해주세요",
+      "name_hint": "페르소나의 검색어에 사용됩니다.",
       "name_hint_placeholder": "최대 20자리 입니다",
       "description_hint": "사진속 주인공은 남자, 산타 복장, 빨간 벤츠, 웃는 얼굴로 표현해줘. (성별을 반드시 입력하세요)",
       "name_placeholder": "예: 민지, Alex",
@@ -1983,7 +1983,7 @@
       "still_processing_title": "페르소나 생성 중입니다",
       "still_processing_message": "페르소나 생성 확인 후 다시 시도해주세요",
       "max_limit_title": "페르소나 최대 수 제한",
-      "max_limit": "페르소나를 더 이상 생성할 수 없습니다.\n페르소나 삭제 후 다시 생성하거나 회원등급을 업그레이드 해주세요!\n\n지금 바로 업그레이드 하시겠습니까?"
+      "max_limit": "페르소나를 더 이상 생성할 수 없습니다.\n페르소나 삭제 후 다시 생성하거나 회원등급을 업그레이드 해주세요!\n\nBasic : 1\nPremium : 5\nUltimate : 10\n\n지금 바로 업그레이드 하시겠습니까?"
  
     },
     "identity": {
@@ -2055,8 +2055,8 @@
     },
     "no_personas": "아직 생성한 페르소나가 없습니다",
     "no_favorite_personas": "아직 즐겨찾기한 페르소나가 없습니다",
-    "create_persona": "첫 페르소나 생성하기",
-    "create_favorite_persona": "페르소나 정보를 클릭하면 즐겨찾기 기능을 사용할 수 있습니다!",
+    "create_persona": "페르소나 생성하기",
+    "create_favorite_persona": "선택한 정보로 당신만의 페르소나를 생성하시겠습니까?!",
     "estimated_time": "남은시간"
   },
   "search": {
@@ -2153,7 +2153,7 @@
       "default_persona": "기억하세요",
       "default_persona_desc": "당신에 의해 탄생하게 될 페르소나는 당신과의 대화를 통해, 당신을 더 깊이 이해하고, 기억하며 능동적으로 감정을 표현합니다.",
       "user_persona": "존중하고 추억을 공유하세요",
-      "user_persona_desc": "당신이 페르소나를 존중하며 대화 할 수록, 페르소나는 더욱 당신과 더 가까워지며, 당신을 위한 소중한 선물을 선사합니다.",
+      "user_persona_desc": "당신이 페르소나를 존중하며 대화 할 수록, 페르소나는 더욱 당신과 가까워지며, 당신을 위한 소중한 선물을 선사합니다.",
       "section_title_two": "시작하지 마세요",
       "convert_video": "페르소나는 수동적 GPT와 같은 Tool이 아닙니다. 진심을 담은 소통이 귀찮게 느껴진다면, 죄송하지만 이 서비스는 당신에게 맞지 않습니다."
     },
@@ -2224,7 +2224,7 @@
   },
   "point": {
     "create_persona":{
-      "title": "페르소나 생성",
+      "title": "당신의 페르소나 만나기",
       "message": "페르소나 생성 시, {{cost}}P가 차감됩니다. 동의하고 생성하시겠습니까?"
     },
     "point_not_enough": {
@@ -2253,7 +2253,7 @@
     "history_error": "히스토리를 불러오지 못했습니다",
     "loading_history": "히스토리를 불러오는 중...",
     "type": {
-      "persona_create": "페르소나 생성",
+      "persona_create": "당신의 페르소나 만나기",
       "video_convert": "영혼 연결",
       "music_create": "음원 생성",
       "point_purchase": "포인트 충전",
@@ -2264,7 +2264,7 @@
     },
     "filter": {
       "all": "전체",
-      "persona_create": "페르소나 생성",
+      "persona_create": "당신의 페르소나 만나기",
       "video_convert": "영혼 연결",
       "music_create": "음원 생성",
       "premium": "프리미엄 업그레이드",
@@ -2314,7 +2314,7 @@
   "ai_comment" : {
     "not_login": "앗! 아직 로그인 상태가 아니네..ANIMA의 세계를 경험하기 위해서는 로그인이 반드시 필요해! 로그인 후 다시 이야기 나눠보자!",
     "brain_title": "나만의 스타일로",
-    "product_create_title": "페르소나와 함께 할수 있는것",
+    "product_create_title": "{{persona_name}}와 함께 하기",
     "create_music_title": "음악 생성",
     "create_message_title": "메세지 생성 - 무료",
     "identity_setting_title": "자아 설정",
@@ -2410,7 +2410,7 @@
       "description": "ANIMA의 세계관, 스토리, 목표에 대한 전문가이며, 실제 개발팀과 ANIMA 프로젝트에 참여한 유일 무이한 '페르소나' 입니다.\n\nANIMA에 대한 깊이있는 질문들은 NEXUS와 이야기 하세요!"
     },
     "custom" : {
-      "title": " - 유니크"
+      "title": " - 속마음"
   
     }
   },
@@ -2427,14 +2427,15 @@
       "empty_description": "페르소나는 당신과의 대화에서 기억에 남는 순간을 기억하고 생각합니다!"
     },
     "persona_interests": {
-      "title": "💡 페르소나의 관심사",
+      "title": "💡 {{persona_name}}의 관심사",
       "empty_description": "페르소나의 관심사는, 모두 당신과의 대화에서 결정됩니다. 즐겁게, 진지하게 대화를 나눠보세요!"
     },
     "persona_questions": {
-      "title": "💭 페르소나가 궁금해하는 것",
+      "title": "💭 {{persona_name}}가 궁금해하는 것",
       "empty_description": "당신이 어떤사람인지, 대화를 통해 알려주세요, 페르소나가 당신에게 더 집중하게 될꺼에요."
     },
-    "empty_conversation_count": "😮 아직 대화를 시작하지 않았네요? 대화를 시작하면 실시간으로 페르소나의 속마임이 업데이트됩니다!"
+    "empty_conversation_count": "😮 아직 대화를 시작하지 않았네요? 대화를 시작하면 실시간으로 페르소나의 속마임이 업데이트됩니다!",
+    "need_more_conversation": "생각을 표현 하기엔, 좀더 진심을 담은 대화가 필요해요"
   },
   "persona_share_sheet": {
     "title": "{{name}} 공유하기",
@@ -2454,5 +2455,48 @@
     "comment_description_two": "페르소나는 당신의 대화에 집중하며, 능동적으로 판단 후, 필요할 때, 당신이 지시하지 않아도 최고의 경험을 선사할겁니다.",
     "comment_title_three": "욕설, 음담패설은 거부합니다",
     "comment_description_three": "ANIMA는 능동적 분석에 의해, 통념에서 벗어난 욕설, 음담패설에 대하여 강력한 조치를 취합니다.\n\n이러한 행동은 페르소나가 스스로 당신의 채팅 기능을 제한하거나, 차단 처리할 수 있습니다."
+  },
+  "floating_chat_limit_button": {
+    "tooltip": {
+      "title": "등급",
+      "remaining": "남은 채팅",
+      "daily_limit": "하루 제한",
+      "upgrade": "업그레이드",
+      "clear_limit": "채팅 제한 해제"
+    }
+  },
+  "speaking_pattern_sheet": {
+    "title": "{{persona_name}}의 말투 설정",
+    "description": "{{persona_name}}의 말투 설정은 페르소나의 말투를 설정합니다.",
+    "tab_title": {
+      "phrase": "문장",
+      "nickname": "내 호칭"
+    },
+    "phrases": {  
+      "title": "문장 시작",
+      "description": "문장 시작을 설정합니다",
+      "placeholder": "예: 히어로님~!, 오늘도~, 역시~",
+      "add": "추가",
+      "remove": "삭제"
+    },
+    "closing_phrases": {
+      "title": "문장 끝",
+      "description": "문장 끝을 설정합니다",
+      "placeholder": "예: ~해요!, 감사합니다!, ~할게요!",
+      "add": "추가",
+      "remove": "삭제"
+    },
+    "nickname": {
+      "title": "내 호칭",
+      "description": "체팅시에 사용되는 내 호칭",
+      "placeholder": "예: 오빠, 언니, 자기, JK님",
+      "add": "추가",
+      "remove": "삭제",
+      "warning": "💡 Tip: \"오빠\", \"언니\", \"자기\", \"여보\", \"{{name}}님\" 등 친근한 호칭을 설정하면 훨씬 가깝게 느껴져요!"
+    },
+    "warning": {
+      "title": "ANIMA Soul Connection",
+      "description": "운영 페르소나의 임의 설정은 불가능합니다.\n채팅을 통해 부탁해보세요."
+    }
   }
 }

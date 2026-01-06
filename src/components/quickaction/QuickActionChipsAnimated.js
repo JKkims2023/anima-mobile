@@ -51,7 +51,7 @@ const QuickActionChipsAnimated = ({
   currentPersona = null,
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
-  console.log('currentPersona: ', currentPersona);
+
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { user } = useUser(); // ⭐ FIXED: Get user from UserContext (not AnimaContext!)
@@ -164,7 +164,6 @@ const QuickActionChipsAnimated = ({
   // ⭐ Start/stop hourglass rotation based on isVideoConverting
   useEffect(() => {
     if (isVideoConverting) {
-      console.log('[QuickActionChipsAnimated] 🔄 Starting hourglass rotation');
       // Infinite rotation: 0 → 360 → 0 → 360...
       hourglassRotation.value = withRepeat(
         withTiming(360, {
@@ -183,7 +182,6 @@ const QuickActionChipsAnimated = ({
   // ⭐ NEW: Start/stop dress chip rotation based on hasCreating
   useEffect(() => {
     if (currentDressState.hasCreating) {
-      console.log('[QuickActionChipsAnimated] 🔄 Starting dress chip rotation (creating...)');
       
       // Infinite rotation: 0 → 360 → 0 → 360...
       dressRotation.value = withRepeat(
@@ -205,7 +203,6 @@ const QuickActionChipsAnimated = ({
         easing: Easing.out(Easing.ease) 
       });
     } else {
-      console.log('[QuickActionChipsAnimated] ✅ Stopping dress chip rotation (completed!)');
       
       // Stop rotation and reset to 0
       dressRotation.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.ease) });
@@ -230,7 +227,6 @@ const QuickActionChipsAnimated = ({
     // State 1: WAITING (No video, not converting) - 강렬한 효과! 🔥
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if (!hasVideo && !isVideoConverting) {
-      console.log('[QuickActionChipsAnimated] 🔥 Video chip: WAITING state (강렬한 효과!)');
       
       // 💓 Heartbeat effect: Scale pulse (1.0 ↔ 1.15)
       videoScale.value = withRepeat(
@@ -272,7 +268,6 @@ const QuickActionChipsAnimated = ({
     // State 2: CONVERTING (Video converting) - 변환 중 효과 ⏳
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     else if (isVideoConverting) {
-      console.log('[QuickActionChipsAnimated] ⏳ Video chip: CONVERTING state (변환 중...)');
       
       // Stop heartbeat & glow
       videoScale.value = withTiming(1.0, { duration: 400 });
@@ -296,7 +291,6 @@ const QuickActionChipsAnimated = ({
     // State 3: COMPLETED (Has video) - 숨김 ✅
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     else if (hasVideo) {
-      console.log('[QuickActionChipsAnimated] ✅ Video chip: COMPLETED state (숨김)');
       
       // Stop all animations
       videoScale.value = withTiming(1.0, { duration: 300 });
@@ -327,9 +321,6 @@ const QuickActionChipsAnimated = ({
   
   // ✅ Entry animation (fade in)
   useEffect(() => {
-    if (__DEV__) {
-      console.log('[QuickActionChipsAnimated] 🎬 Starting fade-in animation');
-    }
     
     opacityValues.forEach((opacity, index) => {
       // Reset to 0
@@ -347,10 +338,6 @@ const QuickActionChipsAnimated = ({
     
     // ✅ Exit animation on unmount (fade out in reverse order)
     return () => {
-      if (__DEV__) {
-        console.log('[QuickActionChipsAnimated] 🌅 Starting fade-out animation');
-      }
-      
       opacityValues.forEach((opacity, index) => {
         // Fade out in reverse order (last chip fades out first)
         const reverseIndex = opacityValues.length - 1 - index;
@@ -366,22 +353,14 @@ const QuickActionChipsAnimated = ({
   }, []);
 
   useEffect(() => {
-    console.log('currentPersona: ', currentPersona);
+
   }, [currentPersona]);
   
   // ⭐ NEW: Check if history badge should be shown (async check for ANIMA Core personas)
   useEffect(() => {
     const checkBadgeVisibility = async () => {
-      // ⭐ DEBUG: Check user availability
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('[QuickActionChipsAnimated] useEffect triggered');
-      console.log('  currentPersona:', currentPersona?.persona_key, currentPersona?.persona_name);
-      console.log('  user:', user);
-      console.log('  user?.user_key:', user?.user_key);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       if (!currentPersona) {
-        console.log('⚠️ [QuickActionChipsAnimated] No currentPersona, hiding badge');
         setShowHistoryBadge(false);
         return;
       }
@@ -389,11 +368,6 @@ const QuickActionChipsAnimated = ({
       // ⭐ CRITICAL: Use 'guest' as fallback for non-logged-in users
       // ANIMA_CORE personas (SAGE/NEXUS) are for ALL users, including free users!
       const effectiveUserKey = user?.user_key || 'guest';
-      console.log('  effectiveUserKey:', effectiveUserKey);
-
-      console.log('✅ [QuickActionChipsAnimated] Checking badge visibility...');
-      console.log('  persona_key:', currentPersona.persona_key);
-      console.log('  persona_name:', currentPersona.persona_name);
       
       // ⭐ Check if comment exists
       const hasComment = 
@@ -402,14 +376,12 @@ const QuickActionChipsAnimated = ({
         currentPersona.selected_dress_persona_comment.trim() !== '';
       
       if (!hasComment) {
-        console.log('  ℹ️ No comment, hiding badge');
         setShowHistoryBadge(false);
         return;
       }
       
       // ⭐ Check if ANIMA Core persona (SAGE/NEXUS)
       const isAnimaCore = isAnimaCorePersona(currentPersona.persona_key);
-      console.log('  is_anima_core:', isAnimaCore);
       
       let isUnread = false;
       
@@ -420,30 +392,24 @@ const QuickActionChipsAnimated = ({
         // So we only need to check if user has read it locally!
         
         const alreadyReadLocally = await isPersonaCommentRead(effectiveUserKey, currentPersona.persona_key);
-        console.log('  📦 [AsyncStorage] Already read locally:', alreadyReadLocally);
         
         // ⭐ Not read locally = show badge!
         isUnread = !alreadyReadLocally;
-        console.log('  ✅ Final isUnread:', isUnread);
+
       } else {
         // ⭐ User-created: Check DB field only
         // For user-created personas, we need actual user_key from DB
         if (!user?.user_key) {
-          console.log('  ⚠️ User-created persona but no user_key, hiding badge');
+
           isUnread = false;
         } else {
           isUnread = currentPersona.persona_comment_checked === 'N';
-          console.log('  🗄️ [Database] persona_comment_checked:', currentPersona.persona_comment_checked);
+
         }
       }
       
       const shouldShow = hasComment && isUnread;
-      console.log('  🔴 shouldShow:', shouldShow);
-      
-      if (__DEV__ && shouldShow) {
-        console.log('🔴 [QuickActionChipsAnimated] History badge ACTIVE!');
-      }
-      
+            
       setShowHistoryBadge(shouldShow);
     };
 
@@ -466,20 +432,17 @@ const QuickActionChipsAnimated = ({
   // ⭐ Handle message button click (with video converting check)
   const handleMessageClick = () => {
     if (isVideoConverting) {
-      // Show tooltip instead of opening overlay
-      console.log('[QuickActionChipsAnimated] ⏳ Video converting, showing tooltip');
+
       HapticService.warning();
       setShowTooltip(true);
       return;
     }
-    
-    // Normal flow: open message creation overlay
-    console.log('[QuickActionChipsAnimated] ✅ Opening message creation overlay');
+
     HapticService.medium();
     if (onMessageClick) {
       onMessageClick();
     } else {
-      console.warn('[QuickActionChipsAnimated] onMessageClick missing');
+
     }
   };
 

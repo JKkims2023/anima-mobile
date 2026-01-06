@@ -94,7 +94,7 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor, marginTop: platformPadding(0) }]}>
           <View style={styles.layerHeader}>
             <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>
-              {t('persona_heart_display.persona_interests.title')}
+              {t('persona_heart_display.persona_interests.title', { persona_name: persona.persona_name })}
             </CustomText>
           </View>
           <View style={styles.layerContent}>
@@ -129,7 +129,7 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
           <View style={styles.layerHeader}>
             <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>
-              {t('persona_heart_display.persona_questions.title')}
+              {t('persona_heart_display.persona_questions.title', { persona_name: persona.persona_name })}
             </CustomText>
           </View>
           <View style={styles.layerContent}>
@@ -137,7 +137,7 @@ const PersonaHeartDisplay = ({ persona, relationshipData }) => {
             <View style={styles.questionItem}>
               <View style={[styles.interestDot, { backgroundColor: theme.mainColor, marginTop: verticalScale(6) }]} />
               <CustomText type="body" style={{ color: theme.textPrimary, flex: 1 }}>
-                {aiNextQuestions && aiNextQuestions.length > 0 ? aiNextQuestions[0].question : t('persona_heart_display.persona_questions.empty_description')}
+                {aiNextQuestions && aiNextQuestions.length > 0 ? aiNextQuestions[0].question : t('persona_heart_display.persona_questions.need_more_conversation')}
               </CustomText>
             </View>
           </View>

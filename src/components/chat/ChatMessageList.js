@@ -812,7 +812,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: moderateScale(0),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(100), // ⭐ INCREASED: 0 → 100 (Issue 3 FIX! Space for input bar + typing bubble)
+    paddingBottom: verticalScale(0), // ⭐ INCREASED: 0 → 100 (Issue 3 FIX! Space for input bar + typing bubble)
   },
   messageRow: {
     flexDirection: 'row',

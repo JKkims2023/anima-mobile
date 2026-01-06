@@ -44,6 +44,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Array} props.personas - 자아 목록 (SAGE 제외)
  * @param {boolean} props.isModeActive - Whether persona mode is active
  * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
+ * @param {boolean} props.isScreenActive - Whether the screen is active (for background performance optimization)
  * @param {number} props.initialIndex - Initial selected index (for restoration)
  * @param {Function} props.onIndexChange - Callback when index changes
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent
@@ -58,6 +59,7 @@ const PersonaSwipeViewer = forwardRef(({
   personas,
   isModeActive = true, 
   isScreenFocused = true,
+  isScreenActive = true, // ⭐ NEW: For background performance optimization
   initialIndex = 0,
   onIndexChange = () => {},
   modeOpacity, 
@@ -93,15 +95,7 @@ const PersonaSwipeViewer = forwardRef(({
   
   // ⭐ DEBUG: Check user in PersonaSwipeViewer
   useEffect(() => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎯 [PersonaSwipeViewer] User Check:');
-    console.log('   userProp (from parent):', userProp);
-    console.log('   userProp?.user_key:', userProp?.user_key);
-    console.log('   userContext (from AnimaContext):', userContext);
-    console.log('   userContext?.user_key:', userContext?.user_key);
-    console.log('   Final user:', user);
-    console.log('   Final user?.user_key:', user?.user_key);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
   }, [userProp, userContext, user]);
 
   
@@ -128,20 +122,12 @@ const PersonaSwipeViewer = forwardRef(({
   
   // ⭐ DEBUG: Log enabled prop changes
   useEffect(() => {
-    if (__DEV__) {
-      console.log('[PersonaSwipeViewer] 🔓 Swipe enabled:', enabled);
-    }
+    
   }, [enabled]);
 
   // ⭐ DEBUG: Log isScreenFocused prop changes
   useEffect(() => {
-    /*
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎥 [PersonaSwipeViewer] isScreenFocused changed:', isScreenFocused);
-    console.log('  - Current persona:', currentPersona?.persona_name);
-    console.log('  - Will pass to PersonaCardView:', isScreenFocused);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    */
+    
   }, [isScreenFocused, currentPersona]);
 
   // ✅ Restore saved index on mount (after remount from screen focus)
@@ -154,9 +140,6 @@ const PersonaSwipeViewer = forwardRef(({
           animated: false, // No animation for restoration
         });
         
-        if (__DEV__) {
-         // console.log('[PersonaSwipeViewer] 🔄 Restored index:', initialIndex);
-        }
       }, 100);
       
       isInitialMount.current = false;
@@ -166,9 +149,6 @@ const PersonaSwipeViewer = forwardRef(({
   // ⭐ NEW: Listen to external index changes (from PersonaSelectorHorizontal)
   useEffect(() => {
     if (!isInitialMount.current && initialIndex !== lastScrolledIndex.current && flatListRef.current) {
-      if (__DEV__) {
-       // console.log('[PersonaSwipeViewer] 🎯 External index change detected:', initialIndex);
-      }
       
       // Scroll to new index with animation
       setTimeout(() => {
@@ -193,9 +173,6 @@ const PersonaSwipeViewer = forwardRef(({
       setSelectedIndex(index);
       onIndexChange(index); // ✅ Notify parent
 
-      if (__DEV__ && personas && personas[index]) {
-       // console.log('[PersonaSwipeViewer] 📱 Swiped to:', personas[index].persona_name);
-      }
     }
   }, [selectedIndex, personas, onIndexChange, availableHeight]);
 
@@ -222,6 +199,7 @@ const PersonaSwipeViewer = forwardRef(({
           persona={item} 
           isActive={isActive}
           isScreenFocused={isScreenFocused}
+          isScreenActive={isScreenActive} // ⭐ NEW: Pass down for performance optimization
           modeOpacity={modeOpacity}
           availableHeight={availableHeight}
           onCheckStatus={onCheckStatus}
@@ -231,7 +209,7 @@ const PersonaSwipeViewer = forwardRef(({
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, modeOpacity, availableHeight, onCheckStatus]);
+  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus]);
 
   // ✅ Key extractor (optimized)
   // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes

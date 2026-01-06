@@ -113,7 +113,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       
       case 'normal':
       default:
-        return ['💭', '💭', '💭']; // Thought bubble → "Thinking/pondering..." (메인 칩 😐와 다름!)
+        return ['❔', '❔', '❔']; // Thought bubble → "Thinking/pondering..." (메인 칩 😐와 다름!)
     }
   };
 

@@ -64,12 +64,12 @@ const MessageInputOverlay = forwardRef(({
   // ✅ Expose methods
   useImperativeHandle(ref, () => ({
     present: () => {
-      console.log('[MessageInputOverlay] present() called');
+
       setVisible(true);
       setValue(initialValue);
     },
     dismiss: () => {
-      console.log('[MessageInputOverlay] dismiss() called');
+
       handleClose();
     },
   }));
@@ -77,7 +77,7 @@ const MessageInputOverlay = forwardRef(({
   // ✅ Show animation & Auto focus (optional)
   useEffect(() => {
     if (visible) {
-      console.log('[MessageInputOverlay] Visible, starting animations...');
+
 
       if( guide && guide.length > 0) {
         setShowGuide(true);
@@ -93,11 +93,11 @@ const MessageInputOverlay = forwardRef(({
       // ✅ Optional: Single focus attempt after animation
       // 사용자가 직접 input을 탭하는 것을 권장
       setTimeout(() => {
-        console.log('[MessageInputOverlay] Animation complete, ready for input');
+
         // inputRef.current?.focus(); // ✅ Disabled: User will tap to focus
       }, 400);
     } else {
-      console.log('[MessageInputOverlay] Not visible, hiding...');
+
     }
   }, [visible]);
 
@@ -117,7 +117,7 @@ const MessageInputOverlay = forwardRef(({
     const keyboardWillShow = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => {
-        console.log('[MessageInputOverlay] Keyboard showing, height:', e.endCoordinates.height);
+
         setKeyboardHeight(e.endCoordinates.height);
         
         // Move modal up
@@ -129,7 +129,7 @@ const MessageInputOverlay = forwardRef(({
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
-        console.log('[MessageInputOverlay] Keyboard hiding');
+
         setKeyboardHeight(0);
         
         // Move modal back to center
@@ -156,7 +156,7 @@ const MessageInputOverlay = forwardRef(({
 
   // ✅ Handle close
   const handleClose = () => {
-    console.log('[MessageInputOverlay] handleClose() called');
+
     Keyboard.dismiss();
     opacity.value = withTiming(0, { duration: 250 });
     scale.value = withTiming(0.9, { duration: 250 }, () => {
@@ -166,7 +166,7 @@ const MessageInputOverlay = forwardRef(({
 
   // ✅ Handle backdrop press (only if not focusing on input)
   const handleBackdropPress = () => {
-    console.log('[MessageInputOverlay] Backdrop pressed, isFocused:', isFocused);
+
     // Don't close if input is focused (user is typing)
     if (!isFocused) {
       handleClose();
@@ -193,8 +193,6 @@ const MessageInputOverlay = forwardRef(({
   // }));
 
   if (!visible) return null;
-
-  console.log('[MessageInputOverlay] Rendering, visible:', visible, 'value:', value?.substring(0, 20));
 
   return (
     <Modal
@@ -279,7 +277,7 @@ const MessageInputOverlay = forwardRef(({
                 setValue(text);
               }}
               onFocus={() => {
-                console.log('[MessageInputOverlay] Input focused!');
+
                 setIsFocused(true);
                 HapticService.light();
 
@@ -288,7 +286,7 @@ const MessageInputOverlay = forwardRef(({
                 }
               }}
               onBlur={() => {
-                console.log('[MessageInputOverlay] Input blurred!');
+
                 setIsFocused(false);
 
                 if(guide && guide.length > 0) {

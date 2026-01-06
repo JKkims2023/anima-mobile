@@ -49,6 +49,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Object} props.persona - Persona data
  * @param {boolean} props.isActive - Whether this persona is currently active/selected
  * @param {boolean} props.isScreenFocused - Whether the screen is focused (for video playback)
+ * @param {boolean} props.isScreenActive - Whether the screen is active (for background performance optimization)
  * @param {Animated.Value} props.modeOpacity - Opacity animation value from parent (for mode transition)
  * @param {number} props.availableHeight - Available height (excluding header, tabbar, etc.)
  * @param {Function} props.onCheckStatus - Callback when user clicks "Check Status" button
@@ -60,6 +61,7 @@ const PersonaCardView = forwardRef(({
   persona, 
   isActive = false, 
   isScreenFocused = true,
+  isScreenActive = true, // ⭐ NEW: For background performance optimization
   modeOpacity,
   typingMessage = null,
   isLoading = false,
@@ -488,6 +490,7 @@ const PersonaCardView = forwardRef(({
           persona={persona}
           isActive={isActive}
           visible={!isFlipped} // Hide when card is flipped
+          isScreenActive={isScreenActive} // ⭐ NEW: Pass down for performance optimization (stop timers when ManagerAI is open)
         />
 
         {/* 3. Chat Overlay - Removed (now rendered in PersonaSwipeViewer) */}

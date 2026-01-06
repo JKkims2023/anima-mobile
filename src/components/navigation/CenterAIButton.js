@@ -38,6 +38,8 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
 
+
+
 /**
  * CenterAIButton Component
  * @param {Object} props
@@ -310,7 +312,7 @@ const styles = StyleSheet.create({
   },
   
   personaPlaceholder: {
-    fontSize: scale(24),
+    fontSize: Platform.OS === 'ios' ? scale(20) : scale(24),
     lineHeight: scale(24),
     
   },

@@ -93,7 +93,7 @@ const useIdentitySettings = (visible, user) => {
       
       if (response.success) {
         HapticService.success();
-        console.log(`✅ [useIdentitySettings] Updated ${key} to ${value}`);
+
       } else {
         throw new Error('Update failed');
       }

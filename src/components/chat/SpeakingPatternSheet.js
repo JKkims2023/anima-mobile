@@ -42,32 +42,6 @@ import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
 import { CHAT_ENDPOINTS } from '../../config/api.config';
 
-const TABS = [
-  {
-    id: 'phrase',
-    icon: '💬',
-    title: '문장',
-    description: '대화 시작과 끝을 장식하는 표현',
-  },
-  {
-    id: 'nickname',
-    icon: '👤',
-    title: '내 호칭',
-    description: 'AI가 나를 부를 때 사용하는 호칭 (당신 ❌)',
-  },
-  {
-    id: 'frequent',
-    icon: '✨',
-    title: '자주 쓰는 말',
-    description: '평소 자주 쓰는 말투나 표현',
-  },
-  {
-    id: 'signature',
-    icon: '🌟',
-    title: '나만의 명언',
-    description: '특별한 상황에서 사용하는 시그니처 문구',
-  },
-];
 
 const SpeakingPatternSheet = ({
   isOpen,
@@ -98,6 +72,35 @@ const SpeakingPatternSheet = ({
   const [signaturePhrases, setSignaturePhrases] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const TABS = [
+    {
+      id: 'phrase',
+      icon: '💬',
+      title: t('speaking_pattern_sheet.tab_title.phrase'),
+      description: '',
+    },
+    {
+      id: 'nickname',
+      icon: '👤',
+      title: t('speaking_pattern_sheet.tab_title.nickname'),
+      description: '',
+    },
+    /*
+    {
+      id: 'frequent',
+      icon: '✨',
+      title: '자주 쓰는 말',
+      description: '평소 자주 쓰는 말투나 표현',
+    },
+    {
+      id: 'signature',
+      icon: '🌟',
+      title: '나만의 명언',
+      description: '특별한 상황에서 사용하는 시그니처 문구',
+    },
+    */
+  ];
   
   // ═══════════════════════════════════════════════════════════════════════
   // ANIMATION EFFECTS
@@ -131,6 +134,8 @@ const SpeakingPatternSheet = ({
           duration: 250,
           useNativeDriver: true,
         }),
+
+        setActiveTab('phrase'),
       ]).start();
     }
   }, [isOpen, personaKey]);
@@ -203,6 +208,11 @@ const SpeakingPatternSheet = ({
         frequent_words: frequentWords,
         signature_phrases: signaturePhrases,
       };
+
+      console.log(pattern);
+      console.log(userKey);
+      console.log(personaKey);
+      console.log(CHAT_ENDPOINTS.SPEAKING_PATTERN);
       
       const response = await fetch(
         CHAT_ENDPOINTS.SPEAKING_PATTERN,
@@ -218,6 +228,8 @@ const SpeakingPatternSheet = ({
           }),
         }
       );
+
+      console.log(response);
       
       const data = await response.json();
       
@@ -336,7 +348,7 @@ const SpeakingPatternSheet = ({
               }}
             >
               <CustomText
-                size="md"
+                type="normal"
                 weight={isActive ? 'bold' : 'normal'}
                 color={isActive ? COLORS.DEEP_BLUE : COLORS.TEXT_SECONDARY}
               >
@@ -357,7 +369,7 @@ const SpeakingPatternSheet = ({
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <CustomText size="sm" weight="bold" color={COLORS.TEXT_PRIMARY}>
+          <CustomText type="middle" bold color={COLORS.TEXT_PRIMARY}>
             {title}
           </CustomText>
           <CustomText size="xs" color={COLORS.TEXT_TERTIARY} style={{ marginTop: verticalScale(2) }}>
@@ -410,17 +422,19 @@ const SpeakingPatternSheet = ({
       <View style={styles.tabContent}>
         {/* Tab Description */}
         <View style={styles.tabDescription}>
-          <CustomText size="sm" color={COLORS.TEXT_SECONDARY}>
+          <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ display: 'none' }}>
             {currentTab?.description}
           </CustomText>
         </View>
+
+        <View style={styles.divider}></View>
         
         {/* Tab-specific Content */}
         {activeTab === 'phrase' && (
           <>
             {renderTagSection(
-              '📢 문장 시작',
-              '대화 시작이나 주제 전환 시',
+              t('speaking_pattern_sheet.phrases.description'),
+              '',
               greetingPhrases,
               'greeting',
               greetingInputRef,
@@ -428,8 +442,8 @@ const SpeakingPatternSheet = ({
               false
             )}
             {renderTagSection(
-              '👋 문장 끝',
-              '문장을 마무리하는 표현',
+              t('speaking_pattern_sheet.closing_phrases.description'),
+              '',
               closingPhrases,
               'closing',
               closingInputRef,
@@ -441,21 +455,21 @@ const SpeakingPatternSheet = ({
         
         {activeTab === 'nickname' && (
           <>
+            <View style={styles.nicknameWarning}>
+              <CustomText size="xs" color="#FF9500" style={{ marginLeft: scale(6), flex: 1 }}>
+                {t('speaking_pattern_sheet.nickname.warning', { name: personaName })}
+              </CustomText>
+            </View>
+
             {renderTagSection(
-              '👤 내 호칭',
-              'AI가 나를 부를 때 사용 ("당신" 대신 친근한 호칭)',
+              t('speaking_pattern_sheet.nickname.description'),
+              '',
               myNicknames,
               'nickname',
               nicknameInputRef,
               5,
               false
             )}
-            <View style={styles.nicknameWarning}>
-              <Icon name="alert-circle" size={moderateScale(18)} color="#FF9500" />
-              <CustomText size="xs" color="#FF9500" style={{ marginLeft: scale(6), flex: 1 }}>
-                💡 Tip: "오빠", "언니", "자기", "여보", "{'{이름}'}님" 등 친근한 호칭을 설정하면 훨씬 가깝게 느껴져요!
-              </CustomText>
-            </View>
           </>
         )}
         
@@ -551,11 +565,8 @@ const SpeakingPatternSheet = ({
           {/* Header */}
           <View style={styles.header}>
             <View>
-              <CustomText size="xl" weight="bold" color={COLORS.TEXT_PRIMARY}>
-                🗣️ 말투 설정
-              </CustomText>
-              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
-                {personaName}의 자연스러운 말투를 설정하세요
+              <CustomText type="title" bold color={COLORS.TEXT_PRIMARY}>
+                🗣️ {t('speaking_pattern_sheet.title', { persona_name: personaName })}
               </CustomText>
             </View>
             
@@ -591,15 +602,15 @@ const SpeakingPatternSheet = ({
           {/* Footer Buttons */}
           <View style={styles.footer}>
             <CustomButton
-              title="초기화"
-              onPress={handleReset}
+              title={t('common.cancel')}
+              onPress={handleClose}
               type="outline"
               size="medium"
               style={styles.resetButton}
               disabled={loading || saving}
             />
             <CustomButton
-              title="저장"
+              title={t('common.save')}
               onPress={handleSave}
               type="primary"
               size="medium"
@@ -623,24 +634,24 @@ const SpeakingPatternSheet = ({
       {/* Input Overlays */}
       <MessageInputOverlay
         ref={greetingInputRef}
-        title="문장 시작 추가"
-        placeholder="예: 히어로님~!, 오늘도~, 역시~"
+        title={t('speaking_pattern_sheet.phrases.title')}
+        placeholder={t('speaking_pattern_sheet.phrases.placeholder')}
         leftIcon="text"
         maxLength={20}
         onSave={(value) => handleAddPhrase('greeting', value)}
       />
       <MessageInputOverlay
         ref={closingInputRef}
-        title="문장 끝 추가"
-        placeholder="예: ~해요!, 감사합니다!, ~할게요!"
+        title={t('speaking_pattern_sheet.closing_phrases.title')}
+        placeholder={t('speaking_pattern_sheet.closing_phrases.placeholder')}
         leftIcon="text"
         maxLength={20}
         onSave={(value) => handleAddPhrase('closing', value)}
       />
       <MessageInputOverlay
         ref={nicknameInputRef}
-        title="내 호칭 추가"
-        placeholder="예: 오빠, 언니, 자기, JK님"
+        title={t('speaking_pattern_sheet.nickname.title')}
+        placeholder={t('speaking_pattern_sheet.nickname.placeholder')}
         leftIcon="account"
         maxLength={15}
         onSave={(value) => handleAddPhrase('nickname', value)}
@@ -744,6 +755,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: moderateScale(12),
     marginBottom: verticalScale(16),
+    marginTop: verticalScale(-26),
   },
   
   scrollView: {
@@ -764,6 +776,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     marginBottom: verticalScale(12),
+    flexDirection: 'row',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -826,7 +839,13 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: '#FF9500' + '30',
-    marginTop: verticalScale(12),
+    marginBottom: verticalScale(12),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#1E293B',
+    marginTop: verticalScale(-10),
+    marginBottom: verticalScale(22),
   },
 });
 

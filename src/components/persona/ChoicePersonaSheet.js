@@ -288,11 +288,13 @@ const ChoicePersonaSheet = ({
       return;
     }
 
+    /*
     if (!validateDescription(description)) {
       HapticService.warning();
       console.log('[ChoicePersonaSheet] Description validation failed');
       return;
     }
+    */
 
     HapticService.success();
 
@@ -323,6 +325,7 @@ const ChoicePersonaSheet = ({
         return;
       }
 
+      /*
       if (!validateDescription(description)) {
         HapticService.warning();
         showToast({
@@ -331,6 +334,7 @@ const ChoicePersonaSheet = ({
         });
         return;
       }
+      */
 
       if (!photo) {
         HapticService.warning();
@@ -378,11 +382,12 @@ const ChoicePersonaSheet = ({
 
       }
 
+      
       HapticService.success();
 
       showAlert({
-        title: t('point.create_persona.title', '페르소나 생성'),
-        message: t('point.create_persona.message', '페르소나 생성이 완료되었습니다. 페르소나 생성 화면으로 이동합니다.', { cost: memory_amount }),
+        title: t('persona.creation.create_persona'),
+        message: t('persona.creation.create_favorite_persona'),
         buttons: [
           { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
           { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
@@ -391,6 +396,8 @@ const ChoicePersonaSheet = ({
 
         ],
       });
+      
+
 
     } catch (error) {
       console.error('[ChoicePersonaSheet] Validation error:', error);
@@ -438,7 +445,7 @@ const ChoicePersonaSheet = ({
     <CustomBottomSheet
       ref={bottomSheetRef}
       onClose={onClose}
-      snapPoints={['85%']}
+      snapPoints={['75%']}
       title={t('persona.creation.title', '새로운 페르소나')}
       showCloseButton={true}
       buttons={[
@@ -463,7 +470,7 @@ const ChoicePersonaSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 2: Name Input (클릭 시 Modal)                              */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(-10) }]}>
+        <View style={[styles.section, { marginTop: verticalScale(0) }]}>
           <View style={styles.sectionHeader}>
             <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" bold style={styles.sectionTitle}>
@@ -527,7 +534,7 @@ const ChoicePersonaSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 3: Description Input (클릭 시 Modal)                       */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
+        <View style={[styles.section, {display: 'none', marginTop: verticalScale(10) }]}>
           <View style={styles.sectionHeader}>
             <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" bold style={styles.sectionTitle}>
@@ -594,7 +601,7 @@ const ChoicePersonaSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 1: Photo Upload                                            */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.section}>
+        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
           <View style={styles.sectionHeader}>
             <Icon name="camera" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" bold style={styles.sectionTitle}>
@@ -720,51 +727,6 @@ const ChoicePersonaSheet = ({
           </View>
         </View>
 
-
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 4: Point Info (Optional)                                   */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { display: 'none' }]}>
-          <TouchableOpacity
-            style={styles.pointInfoHeader}
-            onPress={handlePointInfoToggle}
-            activeOpacity={0.7}
-          >
-            <View style={styles.sectionHeader}>
-              <Icon name="diamond-stone" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
-              <CustomText type="middle" bold style={styles.sectionTitle}>
-                {t('persona.creation.point_title', '포인트 안내')}
-              </CustomText>
-            </View>
-            <Icon 
-              name={showPointInfo ? 'chevron-up' : 'chevron-down'} 
-              size={moderateScale(24)} 
-              color={currentTheme.textSecondary} 
-            />
-          </TouchableOpacity>
-
-          <Animated.View style={[styles.pointInfoContent, pointInfoAnimStyle]}>
-            <View style={[styles.pointInfoCard, { backgroundColor: currentTheme.bgTertiary }]}>
-              <View style={styles.pointInfoRow}>
-                <CustomText type="small" style={{ color: currentTheme.textSecondary }}>
-                  {t('persona.creation.point_cost', '생성 비용')}
-                </CustomText>
-                <CustomText type="normal" bold style={{ color: COLORS.DEEP_BLUE_LIGHT }}>
-                  100P
-                </CustomText>
-              </View>
-              <View style={styles.pointInfoRow}>
-                <CustomText type="small" style={{ color: currentTheme.textSecondary }}>
-                  {t('persona.creation.point_time', '예상 시간')}
-                </CustomText>
-                <CustomText type="normal" bold style={{ color: currentTheme.textPrimary }}>
-                  30-60{t('common.seconds', '초')}
-                </CustomText>
-              </View>
-            </View>
-          </Animated.View>
-        </View>
-
       </View>
 
 
@@ -830,7 +792,7 @@ const styles = StyleSheet.create({
   // Divider
   divider: {
     height: 1,
-    marginVertical: verticalScale(20),
+    marginVertical: verticalScale(10),
   },
 
   // Photo Upload

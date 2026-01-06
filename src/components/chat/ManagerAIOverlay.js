@@ -42,7 +42,6 @@ import IconSearch from 'react-native-vector-icons/MaterialCommunityIcons';
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
-import FloatingContentButton from './FloatingContentButton'; // 🎨 NEW: Real-time content
 import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
@@ -1047,7 +1046,10 @@ const ManagerAIOverlay = ({
               {/* Help Icon */}
               <TouchableOpacity
                 style={styles.helpButton}
-                onPress={() => setIsHelpOpen(true)}
+                onPress={() => {
+                  console.log('🔍 [ManagerAIOverlay] Help button pressed');
+                  setIsHelpOpen(true);
+                }}
                 activeOpacity={0.7}
               >
                 <IconSearch name="help-circle-outline" size={moderateScale(28)} color={currentTheme.textPrimary} />
@@ -1109,7 +1111,7 @@ const ManagerAIOverlay = ({
 
                   {/* 🎭 자아 설정 */}
                   <TouchableOpacity
-                    style={styles.menuItem}
+                    style={[styles.menuItem, { display: 'none' }]}
                     onPress={() => {
                       handleToggleSettings('identity');
                       setIsSettingsMenuOpen(false);
@@ -1122,11 +1124,21 @@ const ManagerAIOverlay = ({
                     </CustomText>
                   </TouchableOpacity>
                   
-                  {/* 🗣️ 말투 설정 (User-created personas only) */}
-                  {persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && (
+                  {/* 🗣️ 말투 설정 (User-created personas only) {persona && !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) && ( */}
+                  {persona && (
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+
+                        if(persona.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' || persona.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248') {
+                          showAlert({
+                            emoji: '⚠️',
+                            title: t('speaking_pattern_sheet.warning.title'),
+                            message: t('speaking_pattern_sheet.warning.description'),
+                            buttons: [{ text: t('common.close'), style: 'primary', onPress: () => {} }],
+                          });
+                          return;
+                        }
                         handleToggleSettings('speaking');
                         setIsSettingsMenuOpen(false);
                       }}
@@ -1144,7 +1156,7 @@ const ManagerAIOverlay = ({
 
                   {/* 🎨 Product Creation Section */}
                   <CustomText type='middle' bold style={styles.settingsMenuTitle}>
-                    {t('ai_comment.product_create_title')}
+                    {t('ai_comment.product_create_title', { persona_name: persona.persona_name })}
                   </CustomText>
 
                   {/* 🎵 음악 생성 */}
@@ -1215,6 +1227,10 @@ const ManagerAIOverlay = ({
                     isOnboarding: serviceConfig.isOnboarding || false,
                     onboardingDaysLeft: serviceConfig.onboardingDaysRemaining || 0
                   });
+                }}
+                onBuyPointPress={() => {
+                  console.log('💰 [ManagerAIOverlay] Buy point button pressed');
+                  // TODO: Navigate to Buy Point Sheet
                 }}
               />
             )}
@@ -1468,16 +1484,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   helpButton: {
-    marginLeft: platformPadding(12),
+    marginRight: platformPadding(40),
     padding: platformPadding(8),
+
+
   },
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Settings Menu (Floating above input!)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   settingsMenuContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? verticalScale(70) : verticalScale(20), // Above input bar!
+    bottom: Platform.OS === 'ios' ? verticalScale(100) : verticalScale(70), // Above input bar!
     left: platformPadding(0),
     right: platformPadding(0),
     paddingHorizontal: platformPadding(20),
