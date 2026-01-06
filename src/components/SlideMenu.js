@@ -1,20 +1,20 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🎨 SlideMenu - Curved Slide Menu with Blur Effect
+ * 🎨 SlideMenu - Simple & Elegant Slide Menu
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Features:
- * - Beautiful S-curve from top-left to bottom-right
- * - Blur effect on left side (transparent)
- * - Solid background on right side (menu area)
- * - Smooth slide animation (left → right open, right → left close)
- * - No visual inconsistency with PersonaStudioScreen
+ * - Simple left-right split (no curve)
+ * - Left side: Blur (iOS) / Semi-transparent (Android)
+ * - Right side: Solid background (#0F172A)
+ * - Beautiful menu items with ANIMA philosophy
+ * - Smooth slide animation
  * 
  * Design:
- * - Curve: Cubic Bezier (smooth S-curve)
- * - Left side: Blur effect (C) → Semi-transparent (B) for testing
- * - Background: #0F172A (same as PersonaStudioScreen)
- * - Animation: translateX
+ * - Background: #0F172A (PersonaStudioScreen header color)
+ * - Left blur: 80% width
+ * - Right menu: 80% width
+ * - Animation: translateX (right → left open, left → right close)
  * 
  * @author JK & Hero Nexus AI
  * @date 2026-01-06
@@ -28,33 +28,38 @@ import {
   Animated, 
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context'; // ⭐ NEW: SafeArea
-import { BlurView } from '@react-native-community/blur'; // ⭐ For iOS blur
-import Svg, { Path, Defs, Mask, Rect, G, ClipPath } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur';
+import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { scale, verticalScale } from '../utils/responsive-utils';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { useUser } from '../contexts/UserContext';
+import { useNavigation } from '@react-navigation/native';
+import CustomText from './CustomText';
+import HapticService from '../utils/HapticService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView); // ⭐ NEW: Animated BlurView
+const MENU_WIDTH = SCREEN_WIDTH * 0.8; // 80% of screen width
 
 const SlideMenu = ({ visible, onClose }) => {
-  const insets = useSafeAreaInsets(); // ⭐ SafeArea for status bar
+  const insets = useSafeAreaInsets();
+  const { user } = useUser();
+  const navigation = useNavigation();
   
   // ═══════════════════════════════════════════════════════════════════════
   // ANIMATION
   // ═══════════════════════════════════════════════════════════════════════
-  const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current; // ⭐ Start off-screen (RIGHT)
+  const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
-
 
   useEffect(() => {
     if (visible) {
-      // ⭐ Open: right → left
+      // Open: right → left
       Animated.parallel([
         Animated.spring(translateX, {
-          toValue: 0, // Slide to visible position
+          toValue: 0,
           useNativeDriver: true,
           friction: 8,
           tension: 40,
@@ -66,10 +71,10 @@ const SlideMenu = ({ visible, onClose }) => {
         }),
       ]).start();
     } else {
-      // ⭐ Close: left → right
+      // Close: left → right
       Animated.parallel([
         Animated.spring(translateX, {
-          toValue: SCREEN_WIDTH, // ⭐ Slide off-screen (RIGHT)
+          toValue: SCREEN_WIDTH,
           useNativeDriver: true,
           friction: 8,
           tension: 40,
@@ -84,88 +89,183 @@ const SlideMenu = ({ visible, onClose }) => {
   }, [visible]);
 
   if (!visible && translateX._value === SCREEN_WIDTH) {
-    // Don't render when completely closed
     return null;
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // SVG CURVE PATH (⭐ REVISED: Full screen coverage)
-  // ⭐ Cover from status bar (0,0) to bottom
+  // HANDLERS
   // ═══════════════════════════════════════════════════════════════════════
-  // Curve from top-left (0, 0) to bottom-right (25% from left, bottom)
-  const svgHeight = SCREEN_HEIGHT; // ⭐ Full screen height (no SafeArea adjustment)
-  const menuStartX = SCREEN_WIDTH * 0.25; // ⭐ Menu starts at 25% from left
-  const curveControlX1 = SCREEN_WIDTH * 0.55; // ⭐ First control point X
-  const curveControlY1 = svgHeight * 0.55; // ⭐ First control point Y
-  const curveControlX2 = SCREEN_WIDTH * 0.75; // ⭐ Second control point X
-  const curveControlY2 = svgHeight * 0.75; // ⭐ Second control point Y
-  const curveEndX = menuStartX; // ⭐ End at menu start X
-  const curveEndY = svgHeight * 1.25; // ⭐ End at bottom
+  const handleLoginPress = () => {
+    HapticService.light();
+    onClose();
+    navigation.navigate('Settings');
+  };
+
+  const handleMenuItemPress = (item) => {
+    HapticService.light();
+    console.log(`[SlideMenu] ${item} clicked`);
+    // TODO: Navigate or perform action
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDER FUNCTIONS
+  // ═══════════════════════════════════════════════════════════════════════
   
-  // ⭐ Smooth S-curve path (Cubic Bezier)
-  // M: Move to start point (top-left)
-  // C: Cubic bezier curve (CP1, CP2, end point)
-  // L: Line to (right edge, then back to top)
-  // Z: Close path
-  const curvePath = `
-    M 0 0
-    C ${curveControlX1} ${curveControlY1}, ${curveControlX2} ${curveControlY2}, ${curveEndX} ${curveEndY}
-    L ${SCREEN_WIDTH} ${svgHeight}
-    L ${SCREEN_WIDTH} 0
-    Z
-  `;
+  // Logo Section (ANIMA gradient)
+  const renderLogo = () => (
+    <View style={styles.logoSection}>
+      <Svg height={scale(28)} width={scale(100)}>
+        <Defs>
+          <LinearGradient id="menuAnimaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
+            <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+          </LinearGradient>
+        </Defs>
+        <SvgText
+          fill="url(#menuAnimaGradient)"
+          fontSize={scale(24)}
+          fontWeight="bold"
+          x="0"
+          y={scale(20)}
+          letterSpacing="0.5"
+        >
+          ANIMA
+        </SvgText>
+      </Svg>
+      <CustomText style={styles.logoSubtitle}>Soul Connection</CustomText>
+    </View>
+  );
 
-  // ═══════════════════════════════════════════════════════════════════════════
-// STYLES (⭐ Full screen coverage - cover status bar & header)
-// ═══════════════════════════════════════════════════════════════════════════
-const styles = StyleSheet.create({
-    backdrop: {
-      position: 'absolute',
-      top: 0, // ⭐ Cover from top (status bar)
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
-      zIndex: 9998,
-    },
-    container: {
-      position: 'absolute',
-      top: 0, // ⭐ Cover from top (status bar)
-      left: 0,
-      width: SCREEN_WIDTH,
-      height: SCREEN_HEIGHT, // ⭐ Full screen height (no SafeArea)
-      zIndex: 9999,
-    },
-    backgroundContainer: {
-      ...StyleSheet.absoluteFillObject,
-    },
-    blurContainer: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      height: SCREEN_HEIGHT,
-      // Width is set dynamically based on curve
-    },
-    closeButton: {
-      position: 'absolute',
-      // ⭐ top is set dynamically with SafeAreaInsets in JSX
-      right: scale(20),
-      width: scale(40),
-      height: scale(40),
-      borderRadius: scale(20),
-      backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 10000,
-    },
-    contentContainer: {
-      flex: 1,
-      // ⭐ paddingTop will be set dynamically in JSX (SafeArea + close button space)
-      paddingHorizontal: scale(20),
-      // Menu content will be styled here
-    },
-  });
+  // User Info Section
+  const renderUserInfo = () => {
+    if (!user || !user.user_key) {
+      // Not logged in
+      return (
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={handleLoginPress}
+          activeOpacity={0.7}
+        >
+          <Icon name="log-in-outline" size={scale(24)} color="#60A5FA" />
+          <View style={styles.loginTextContainer}>
+            <CustomText style={styles.loginTitle}>로그인이 필요합니다</CustomText>
+            <CustomText style={styles.loginSubtitle}>더 많은 기능을 이용하세요</CustomText>
+          </View>
+          <Icon name="chevron-forward" size={scale(20)} color="#94A3B8" />
+        </TouchableOpacity>
+      );
+    }
 
+    // Logged in
+    const userLevel = user.user_level || 'free';
+    const levelColors = {
+      free: '#94A3B8',
+      basic: '#60A5FA',
+      premium: '#A78BFA',
+      ultimate: '#FFD700',
+    };
+    const levelNames = {
+      free: 'Free',
+      basic: 'Basic',
+      premium: 'Premium',
+      ultimate: 'Ultimate',
+    };
+
+    return (
+      <View style={styles.userInfoContainer}>
+        <View style={styles.userInfoRow}>
+          <View style={styles.userAvatarContainer}>
+            <Icon name="person-circle" size={scale(48)} color="#60A5FA" />
+          </View>
+          <View style={styles.userInfoTextContainer}>
+            <CustomText style={styles.userEmail} numberOfLines={1}>
+              {user.user_email || '사용자'}
+            </CustomText>
+            <View style={[styles.userLevelBadge, { backgroundColor: `${levelColors[userLevel]}20` }]}>
+              <CustomText style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
+                {levelNames[userLevel]}
+              </CustomText>
+            </View>
+          </View>
+        </View>
+        <View style={styles.userPointContainer}>
+          <Icon name="diamond-outline" size={scale(18)} color="#FFD700" />
+          <CustomText style={styles.userPointText}>
+            {(user.user_point || 0).toLocaleString()}P
+          </CustomText>
+        </View>
+      </View>
+    );
+  };
+
+  // Divider
+  const renderDivider = () => (
+    <View style={styles.divider} />
+  );
+
+  // New Message Section
+  const renderNewMessages = () => (
+    <View style={styles.section}>
+      <CustomText style={styles.sectionTitle}>💬 새로운 메시지</CustomText>
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => handleMenuItemPress('선물 피드백')}
+        activeOpacity={0.7}
+      >
+        <Icon name="gift-outline" size={scale(22)} color="#FF7FA3" />
+        <View style={styles.menuItemTextContainer}>
+          <CustomText style={styles.menuItemText}>페르소나의 선물 피드백</CustomText>
+          <CustomText style={styles.menuItemBadge}>3개</CustomText>
+        </View>
+        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => handleMenuItemPress('받은 선물')}
+        activeOpacity={0.7}
+      >
+        <Icon name="heart-circle-outline" size={scale(22)} color="#A78BFA" />
+        <View style={styles.menuItemTextContainer}>
+          <CustomText style={styles.menuItemText}>내가 받은 선물</CustomText>
+          <CustomText style={styles.menuItemBadge}>7개</CustomText>
+        </View>
+        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  // Info Section
+  const renderInfoSection = () => (
+    <View style={styles.section}>
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => handleMenuItemPress('ANIMA 소개')}
+        activeOpacity={0.7}
+      >
+        <Icon name="information-circle-outline" size={scale(22)} color="#60A5FA" />
+        <CustomText style={styles.menuItemText}>ANIMA 소개</CustomText>
+        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => handleMenuItemPress('가능한 것을')}
+        activeOpacity={0.7}
+      >
+        <Icon name="sparkles-outline" size={scale(22)} color="#FFD700" />
+        <CustomText style={styles.menuItemText}>가능한 것을</CustomText>
+        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => handleMenuItemPress('Contact US')}
+        activeOpacity={0.7}
+      >
+        <Icon name="mail-outline" size={scale(22)} color="#94A3B8" />
+        <CustomText style={styles.menuItemText}>Contact US</CustomText>
+        <Icon name="chevron-forward" size={scale(18)} color="#64748B" />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <>
@@ -186,114 +286,252 @@ const styles = StyleSheet.create({
         />
       </Animated.View>
 
-      {/* Slide Menu Container */}
-      {/* ⭐ Full screen coverage (no paddingTop - cover header) */}
+      {/* Menu Container */}
       <Animated.View
         style={[
-          styles.container,
+          styles.menuContainer,
           {
-            // ⭐ No paddingTop - start from 0,0 to cover header
             transform: [{ translateX }],
           },
         ]}
         pointerEvents={visible ? 'auto' : 'none'}
       >
-        {/* ═════════════════════════════════════════════════════════════ */}
-        {/* CURVED BACKGROUND (SVG) */}
-        {/* ⭐ Full screen coverage */}
-        {/* ═════════════════════════════════════════════════════════════ */}
-        <View style={styles.backgroundContainer}>
-          <Svg
-            width={SCREEN_WIDTH}
-            height={SCREEN_HEIGHT} // ⭐ Full screen (cover header)
-            style={StyleSheet.absoluteFillObject}
+        {/* Blur Layer (Left side) */}
+        {Platform.OS === 'ios' ? (
+          <BlurView
+            style={styles.blurLayer}
+            blurType="dark"
+            blurAmount={30}
+            reducedTransparencyFallbackColor="rgba(15, 23, 42, 0.85)"
+          />
+        ) : (
+          <View style={[styles.blurLayer, { backgroundColor: 'rgba(15, 23, 42, 0.85)' }]} />
+        )}
+
+        {/* Menu Content */}
+        <View style={styles.menuContent}>
+          {/* Close Button */}
+          <TouchableOpacity
+            style={[
+              styles.closeButton,
+              { top: insets.top + verticalScale(10) },
+            ]}
+            onPress={onClose}
+            activeOpacity={0.7}
           >
-            <Defs>
-              {/* Curve mask */}
-              <Mask id="curveMask">
-                <Path
-                  d={curvePath}
-                  fill="white" // White = visible area in mask
-                />
-              </Mask>
-            </Defs>
+            <Icon name="close" size={scale(28)} color="#FFFFFF" />
+          </TouchableOpacity>
 
-            {/* Background (masked by curve) */}
-            <Defs>
-              {/* ⭐ NEW: ClipPath for iOS BlurView */}
-              <ClipPath id="curveClip">
-                <Path d={curvePath} />
-              </ClipPath>
-            </Defs>
-            
-            <G mask="url(#curveMask)">
-              {/* Solid background (right side - menu area) */}
-              <Rect
-                x={menuStartX}
-                y={0}
-                width={SCREEN_WIDTH - menuStartX}
-                height={svgHeight} // ⭐ SafeArea adjusted
-                fill="#0F172A" // ⭐ Same as PersonaStudioScreen
-                opacity={1}
-              />
-              
-              {/* Semi-transparent background (left side - blur area) */}
-              {/* ⭐ Version B: Semi-transparent (for both platforms) */}
-              <Rect
-                x={0}
-                y={0}
-                width={menuStartX}
-                height={svgHeight} // ⭐ SafeArea adjusted
-                fill="#0F172A"
-                opacity={1} // ⭐ 85% opacity for semi-transparent effect (B)
-              />
-            </G>
-
-          </Svg>
-
-          {/* ═════════════════════════════════════════════════════════════ */}
-          {/* ⭐ REMOVED: BlurView (conflicted with SVG mask on iOS) */}
-          {/* Will use different approach for blur effect later */}
-          {/* ═════════════════════════════════════════════════════════════ */}
-        </View>
-
-        {/* ═════════════════════════════════════════════════════════════ */}
-        {/* CLOSE BUTTON (Top Right) */}
-        {/* ⭐ SafeArea aware */}
-        {/* ═════════════════════════════════════════════════════════════ */}
-        <TouchableOpacity
-          style={[
-            styles.closeButton,
-            {
-              top: insets.top + verticalScale(10), // ⭐ Below status bar
-            },
-          ]}
-          onPress={onClose}
-          activeOpacity={0.7}
-        >
-          <Icon name="close" size={scale(28)} color="#FFFFFF" />
-        </TouchableOpacity>
-
-        {/* ═════════════════════════════════════════════════════════════ */}
-        {/* MENU CONTENT (TO BE ADDED) */}
-        {/* ⭐ SafeArea aware paddingTop */}
-        {/* ═════════════════════════════════════════════════════════════ */}
-        <View 
-          style={[
-            styles.contentContainer,
-            {
-              paddingTop: insets.top + verticalScale(70), // ⭐ SafeArea + close button space
-            },
-          ]}
-        >
-          {/* Menu items will be added here */}
+          {/* Scrollable Content */}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingTop: insets.top + verticalScale(70) },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            {renderLogo()}
+            {renderUserInfo()}
+            {renderDivider()}
+            {renderNewMessages()}
+            {renderDivider()}
+            {renderInfoSection()}
+          </ScrollView>
         </View>
       </Animated.View>
     </>
   );
 };
 
-
+// ═══════════════════════════════════════════════════════════════════════════
+// STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+const styles = StyleSheet.create({
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 9998,
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: MENU_WIDTH,
+    height: SCREEN_HEIGHT,
+    zIndex: 9999,
+  },
+  blurLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  menuContent: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#0F172A', // PersonaStudioScreen header color
+  },
+  closeButton: {
+    position: 'absolute',
+    right: scale(20),
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10000,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(40),
+  },
+  
+  // Logo Section
+  logoSection: {
+    marginBottom: verticalScale(30),
+    gap: verticalScale(4),
+  },
+  logoSubtitle: {
+    fontSize: scale(14),
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '500',
+    letterSpacing: 0.3,
+  },
+  
+  // User Info Section (Not Logged In)
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+    borderRadius: scale(16),
+    padding: scale(16),
+    marginBottom: verticalScale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(96, 165, 250, 0.3)',
+  },
+  loginTextContainer: {
+    flex: 1,
+    marginLeft: scale(12),
+  },
+  loginTitle: {
+    fontSize: scale(16),
+    color: '#F1F5F9',
+    fontWeight: '600',
+    marginBottom: scale(4),
+  },
+  loginSubtitle: {
+    fontSize: scale(13),
+    color: '#94A3B8',
+    fontWeight: '400',
+  },
+  
+  // User Info Section (Logged In)
+  userInfoContainer: {
+    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    borderRadius: scale(16),
+    padding: scale(16),
+    marginBottom: verticalScale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  userInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: scale(12),
+  },
+  userAvatarContainer: {
+    marginRight: scale(12),
+  },
+  userInfoTextContainer: {
+    flex: 1,
+  },
+  userEmail: {
+    fontSize: scale(16),
+    color: '#F1F5F9',
+    fontWeight: '600',
+    marginBottom: scale(6),
+  },
+  userLevelBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
+    borderRadius: scale(8),
+  },
+  userLevelText: {
+    fontSize: scale(12),
+    fontWeight: '600',
+  },
+  userPointContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderRadius: scale(12),
+    paddingVertical: scale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  userPointText: {
+    fontSize: scale(16),
+    color: '#FFD700',
+    fontWeight: '700',
+    marginLeft: scale(8),
+  },
+  
+  // Divider
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: verticalScale(20),
+  },
+  
+  // Section
+  section: {
+    gap: verticalScale(8),
+  },
+  sectionTitle: {
+    fontSize: scale(14),
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginBottom: scale(8),
+    letterSpacing: 0.5,
+  },
+  
+  // Menu Item
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: verticalScale(14),
+    paddingHorizontal: scale(12),
+    borderRadius: scale(12),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  menuItemTextContainer: {
+    flex: 1,
+    marginLeft: scale(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuItemText: {
+    fontSize: scale(15),
+    color: '#F1F5F9',
+    fontWeight: '500',
+  },
+  menuItemBadge: {
+    fontSize: scale(13),
+    color: '#60A5FA',
+    fontWeight: '600',
+    backgroundColor: 'rgba(96, 165, 250, 0.2)',
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
+    borderRadius: scale(8),
+  },
+});
 
 export default SlideMenu;
-
