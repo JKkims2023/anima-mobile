@@ -39,24 +39,43 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const LimitedModeChips = ({ requiredFields = [] }) => {
+  // ✅ FIX: Ensure requiredFields is always an array
+  const safeFields = Array.isArray(requiredFields) ? requiredFields : [];
+  const fieldCount = safeFields.length;
+
   // Animation values for each chip (sequential fade-in)
-  const chipOpacities = useMemo(
-    () => requiredFields.map(() => useSharedValue(0)),
-    [requiredFields.length]
-  );
+  // ✅ FIX: Always create 4 slots (max expected fields)
+  const chipOpacities = useMemo(() => {
+    return [
+      useSharedValue(0),
+      useSharedValue(0),
+      useSharedValue(0),
+      useSharedValue(0),
+    ];
+  }, []);
 
   // Pulse animation for completed chips
-  const chipScales = useMemo(
-    () => requiredFields.map(() => useSharedValue(1)),
-    [requiredFields.length]
-  );
+  // ✅ FIX: Always create 4 slots (max expected fields)
+  const chipScales = useMemo(() => {
+    return [
+      useSharedValue(1),
+      useSharedValue(1),
+      useSharedValue(1),
+      useSharedValue(1),
+    ];
+  }, []);
+
+  // ✅ Early return AFTER all Hooks
+  if (fieldCount === 0) {
+    return null;
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Sequential fade-in animation on mount
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-    chipOpacities.forEach((opacity, index) => {
-      opacity.value = withDelay(
+    safeFields.forEach((_, index) => {
+      chipOpacities[index].value = withDelay(
         index * 150, // Sequential delay
         withTiming(1, {
           duration: 300,
@@ -64,13 +83,13 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
         })
       );
     });
-  }, []);
+  }, [fieldCount]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Pulse animation when field is completed
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-    requiredFields.forEach((field, index) => {
+    safeFields.forEach((field, index) => {
       if (field.completed) {
         // Pulse animation: scale up and down once
         chipScales[index].value = withSequence(
@@ -79,7 +98,7 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
         );
       }
     });
-  }, [requiredFields]);
+  }, [safeFields.map(f => f.completed).join(',')]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Color configuration
@@ -113,7 +132,7 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {requiredFields.map((field, index) => {
+        {safeFields.map((field, index) => {
           const isCompleted = field.completed;
           const colors = FIELD_COLORS[field.field_name] || FIELD_COLORS.name_ko;
           const gradient = isCompleted ? colors.gradient : GRAY_GRADIENT;
@@ -158,7 +177,7 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
       {/* Progress text */}
       <View style={styles.progressContainer}>
         <CustomText style={styles.progressText}>
-          {requiredFields.filter((f) => f.completed).length} / {requiredFields.length} 완료
+          {safeFields.filter((f) => f.completed).length} / {fieldCount} 완료
         </CustomText>
       </View>
     </View>
