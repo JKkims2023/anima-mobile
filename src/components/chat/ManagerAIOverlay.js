@@ -813,8 +813,16 @@ const ManagerAIOverlay = ({
           
           console.log('🌟 [자아 진화] 감지:', {
             updates: updates.length,
-            break_conversation: metadata.break_conversation
+            break_conversation: metadata.break_conversation,
+            required_fields: metadata.required_fields?.length || 0
           });
+          
+          // 🔒 NEW: Initialize LIMITED MODE chips if required_fields is provided
+          if (metadata.required_fields && metadata.required_fields.length > 0) {
+            console.log('🔒 [LIMITED MODE] Initializing chips with', metadata.required_fields.length, 'fields');
+            setRequiredFields(metadata.required_fields);
+            setShowLimitedModeChips(true);
+          }
           
           // 🆕 NEW: Handle LIMITED MODE - Update required fields
           if (updates && updates.length > 0 && requiredFields.length > 0) {
