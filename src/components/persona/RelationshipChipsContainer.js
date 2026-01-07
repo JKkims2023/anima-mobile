@@ -202,9 +202,7 @@ const RelationshipChipsContainer = React.memo(({
   
   // ⭐ Lift chip press to parent
   const handleChipPress = useCallback((chipKey, chipData) => {
-    if (__DEV__) {
-      console.log('💙 [RelationshipChips] Chip pressed:', chipKey);
-    }
+    
     onChipPress?.(chipKey, chipData);
   }, [onChipPress]);
   
@@ -213,12 +211,6 @@ const RelationshipChipsContainer = React.memo(({
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
-  if (__DEV__) {
-    console.log('🎨 [RelationshipChips] Rendering...');
-    console.log('   chips:', chips);
-    console.log('   isLoading:', isLoading);
-    // ⚡ REMOVED: error state (no longer used)
-  }
   
   if (!chips) {
     if (__DEV__) {
@@ -262,10 +254,7 @@ const RelationshipChipsContainer = React.memo(({
       emoji: '⏱️',
     },
   ];
-  
-  console.log('✅ [RelationshipChips] Rendering', chipConfigs.length, 'chips');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  
+    
   return (
     <>
       <View style={styles.container}>

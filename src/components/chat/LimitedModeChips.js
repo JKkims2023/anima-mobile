@@ -32,7 +32,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 

@@ -90,7 +90,7 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
           isUser ? styles.userBubble : styles.aiBubble,
           {
             backgroundColor: isUser 
-              ? currentTheme.chatStyles.userBubbleColor || '#3B82F6'
+              ? '#FFFFFF40' //currentTheme.chatStyles.userBubbleColor || '#3B82F6'
               : currentTheme.chatStyles.aiBubbleColor || '#1E293B',
           },
         ]}
@@ -848,7 +848,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: moderateScale(4),
   },
   messageText: {
-    fontSize: moderateScale(16),
+    fontSize: moderateScale(15),
     lineHeight: platformLineHeight(moderateScale(16)), // ✅ Platform-aware lineHeight
   },
   timestamp: {

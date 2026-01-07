@@ -189,7 +189,7 @@ const PersonaSwipeViewer = forwardRef(({
     const isActive = index === selectedIndex && isModeActive;
     
     return (
-      <View style={[styles.personaItemContainer, { height: Platform.OS === 'ios' ? availableHeight : availableHeight }]}>
+      <View style={[styles.personaItemContainer, { height: Platform.OS === 'ios' ? availableHeight  : availableHeight }]}>
         <PersonaCardView 
           ref={(ref) => {
             if (personaCardRefs && item.persona_key) {

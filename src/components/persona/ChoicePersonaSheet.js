@@ -386,8 +386,8 @@ const ChoicePersonaSheet = ({
       HapticService.success();
 
       showAlert({
-        title: t('persona.creation.create_persona'),
-        message: t('persona.creation.create_favorite_persona'),
+        title: t('choice_persona_sheet.title', '페르소나 생성'),
+        message: t('choice_persona_sheet.description', '당신이 선택한 이미지를 기반으로 새로운 케릭터 페르소나를 생성합니다.\n본 서비스는, 사용자 선택에 의해 참고된 사진의 어떤 법적 책임도 지지 않으며, 본인의 사진 또는, 저작권에 위배되지 않는 사진임을 다시 확인 후, 동의하고 페르소나를 생성 하시겠습니까'),
         buttons: [
           { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
           { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {

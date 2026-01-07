@@ -26,26 +26,12 @@ import { logError } from './errorHandler';
  */
 export const getPersonaList = async (userKey) => {
   try {
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Fetching persona list for:', userKey);
-    }
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.LIST, {
       user_key: userKey,
     });
 
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Response:', response);
-    }
-
     // Handle both response.data.data and response.data
     const personas = response.data?.data.data || [];
-
-    console.log('data.data.data', response.data.data.data);
-
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Personas loaded:', personas.length);
-    }
 
     return personas;
   } catch (error) {
@@ -64,17 +50,9 @@ export const getPersonaList = async (userKey) => {
  */
 export const getPersonaDashboard = async (personaKey) => {
   try {
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Fetching persona dashboard:', personaKey);
-    }
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.DASHBOARD, {
       persona_key: personaKey,
     });
-
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Dashboard response:', response);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -97,16 +75,6 @@ export const getPersonaDashboard = async (personaKey) => {
  */
 export const createPersona = async (userKey, personaData) => {
   try {
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Creating persona:', {
-        userKey,
-        name: personaData.name,
-        description: personaData.description,
-        gender: personaData.gender,
-        hasPhoto: !!personaData.photo,
-      });
-    }
-
     // Prepare FormData
     const formData = new FormData();
     formData.append('user_key', userKey);
@@ -130,26 +98,11 @@ export const createPersona = async (userKey, personaData) => {
       });
     }
 
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] FormData prepared:', {
-        user_key: userKey,
-        name: personaData.name,
-        description: personaData.description,
-        selectedType: personaData.gender,
-        selectedOptions: { gender: personaData.gender, style: '', outfit: '' },
-        hasPhoto: !!personaData.photo,
-      });
-    }
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.CREATE, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Persona created response:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -174,18 +127,6 @@ export const createPersona = async (userKey, personaData) => {
 export const createDress = async (userKey, personaData) => {
   try {
 
-    console.log('personaData: ', personaData);
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Creating dress:', {
-        userKey,
-        persona_key: personaData.persona_key,
-        name: personaData.name,
-        description: personaData.description,
-        gender: personaData.gender,
-        hasPhoto_url: personaData.selected_dress_image_url,
-      });
-    }
-
     // Prepare FormData
     const formData = new FormData();
     formData.append('user_key', userKey);
@@ -204,26 +145,11 @@ export const createDress = async (userKey, personaData) => {
     
 
 
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] FormData prepared:', {
-        user_key: userKey,
-        name: personaData.name,
-        description: personaData.description,
-        selectedType: personaData.gender,
-        selectedOptions: { gender: personaData.gender, style: '', outfit: '' },
-        hasPhoto_url: personaData.selected_dress_image_url,
-      });
-    }
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.CREATE_DRESS, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-
-    if (__DEV__) {
-      console.log('🎭 [PersonaAPI] Persona created response:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -308,23 +234,12 @@ export const updatePersonaDressCode = async (personaKey, historyKey) => {
  */
 export const updatePersonaBasic = async (personaKey, userKey, personaName, categoryType) => {
   try {
-    console.log('Update Persona Basic', {
-      personaKey,
-      userKey,
-      personaName,
-      categoryType,
-    });
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_BASIC, {
       persona_key: personaKey,
       user_key: userKey,
       persona_name: personaName,
       category_type: categoryType,
     });
-
-    if (__DEV__) {
-      console.log('✅ [personaApi] Update basic success:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -345,23 +260,12 @@ export const updatePersonaBasic = async (personaKey, userKey, personaName, categ
  */
 export const convertPersonaVideo = async (personaKey, userKey, imgUrl, memoryKey) => {
   try {
-    console.log('Convert Persona Video', {
-      personaKey,
-      userKey,
-      imgUrl,
-      memoryKey,
-    });
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.UPGRADE, {
       persona_key: personaKey,
       user_key: userKey,
       img_url: imgUrl,
       memory_key: memoryKey,
     });
-
-    if (__DEV__) {
-      console.log('✅ [personaApi] Video conversion success:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -380,19 +284,10 @@ export const convertPersonaVideo = async (personaKey, userKey, imgUrl, memoryKey
  */
 export const deletePersona = async (personaKey, userKey) => {
   try {
-    console.log('Delete Persona', {
-      personaKey,
-      userKey,
-    });
-
     const response = await apiClient.post(PERSONA_ENDPOINTS.REMOVE, {
       persona_key: personaKey,
       user_key: userKey,
     });
-
-    if (__DEV__) {
-      console.log('✅ [personaApi] Delete persona success:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -411,21 +306,11 @@ export const deletePersona = async (personaKey, userKey) => {
  */
 export const togglePersonaFavorite = async (personaKey, userKey) => {
   try {
-    if (__DEV__) {
-      console.log('⭐ [personaApi] Toggle favorite:', {
-        personaKey,
-        userKey,
-      });
-    }
-
+  
     const response = await apiClient.post(PERSONA_ENDPOINTS.FAVORITE, {
       persona_key: personaKey,
       user_key: userKey,
     });
-
-    if (__DEV__) {
-      console.log('✅ [personaApi] Toggle favorite success:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -444,13 +329,7 @@ export const togglePersonaFavorite = async (personaKey, userKey) => {
  */
 export const updatePersonaDress = async (personaKey, dressData) => {
   try {
-    if (__DEV__) {
-      console.log('👗 [personaApi] Update persona dress:', {
-        personaKey,
-        dressData,
-      });
-    }
-
+  
     const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_DRESS, {
       persona_key: personaKey,
       selected_dress_image_url: dressData.media_url,
@@ -458,9 +337,6 @@ export const updatePersonaDress = async (personaKey, dressData) => {
       history_key: dressData.memory_key,
     });
 
-    if (__DEV__) {
-      console.log('✅ [personaApi] Update dress success:', response.data);
-    }
 
     return response.data || {};
   } catch (error) {
@@ -479,17 +355,11 @@ export const updatePersonaDress = async (personaKey, dressData) => {
  */
 export const updatePersonaCommentChecked = async (personaKey, userKey) => {
 
-  console.log('Update Persona Comment Checked', {
-    personaKey,
-    userKey,
-  });
-
   const response = await apiClient.post(PERSONA_ENDPOINTS.UPDATE_COMMENT_CHECKED, {
     persona_key: personaKey,
     user_key: userKey,
   });
 
-  console.log('Update Persona Comment Checked response', response.data);
   return response.data || {};
 };
 

@@ -107,7 +107,7 @@ const IdentityEvolutionOverlay = ({ evolution }) => {
         duration: 500,
         useNativeDriver: true,
       }).start();
-    }, 2000);
+    }, 200000);
   }, []);
   
   // Field labels from constants
@@ -380,14 +380,6 @@ const ManagerAIOverlay = ({
     }
   }, [visible, user, persona?.persona_key, currentPersonaKey]);
   
-  // ✅ REMOVED: Empty useEffect hooks (Line 227-233)
-  // These were placeholders with no logic - safely removed!
-  
-  // 💰 REMOVED: Load service config useEffect (moved to useChatLimit hook)
-  // 🎭 REMOVED: Load AI settings useEffect (moved to useIdentitySettings hook)
-  
-  // 🎭 REMOVED: loadAISettings, updateSetting, handleToggleSettings (moved to useIdentitySettings hook)
-
   const handleCreateMusic = async () => {
     handleToggleSettings('music');
   }
@@ -1455,6 +1447,7 @@ const ManagerAIOverlay = ({
       {identityEvolutionDisplay && (
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
+      
     </Modal>
     
     {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
@@ -1522,6 +1515,7 @@ const ManagerAIOverlay = ({
           console.log('✅ [ManagerAIOverlay] Tier upgraded to:', newTier);
           // ⭐ Reload service config to update chat limits
           // (This will be handled by useChatLimit hook on next render)
+
         }}
       />
     )}
@@ -1645,10 +1639,10 @@ const styles = StyleSheet.create({
   // 🌟 Identity Evolution Overlay Styles
   evolutionOverlay: {
     position: 'absolute',
-    top: '40%',
-    left: '50%',
+    top: Platform.OS === 'ios' ? '17%' : '10%',
+    left: '3%',
     transform: [{ translateX: -scale(120) }, { translateY: -verticalScale(50) }],
-    width: scale(240),
+    width: scale(200),
     height: verticalScale(100),
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     borderRadius: moderateScale(16),
@@ -1664,7 +1658,7 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   evolutionIcon: {
-    fontSize: moderateScale(40),
+    fontSize: Platform.OS === 'ios' ? moderateScale(16) : moderateScale(20),
     marginBottom: verticalScale(8),
   },
   evolutionText: {
@@ -1675,6 +1669,7 @@ const styles = StyleSheet.create({
   helpButton: {
     marginRight: platformPadding(40),
     padding: platformPadding(8),
+    display: 'none',
 
 
   },

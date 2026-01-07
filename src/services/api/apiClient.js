@@ -40,14 +40,6 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Dev logging
-    if (__DEV__) {
-      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
-      if (config.data) {
-        console.log('[API Request Data]', config.data);
-      }
-    }
-    
     return config;
   },
   (error) => {
@@ -63,13 +55,6 @@ apiClient.interceptors.request.use(
  */
 apiClient.interceptors.response.use(
   (response) => {
-    // Dev logging
-    if (__DEV__) {
-      console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-        status: response.status,
-        data: response.data,
-      });
-    }
     
     return response;
   },

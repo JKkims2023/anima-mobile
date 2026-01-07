@@ -12,7 +12,7 @@
  * @date 2026-01-05
  */
 
-import React, { useRef, memo } from 'react';
+import React, { useRef, memo, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
 import Animated, {
@@ -83,6 +83,11 @@ const FloatingChatLimitButton = ({
   
   // Calculate stroke dash offset for progress (clockwise from top)
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+
+  useEffect(() => {
+    console.log('tier: ', tier);
+  }, [tier]);
   
   // Toggle tooltip
   const handlePress = () => {
@@ -123,7 +128,7 @@ const FloatingChatLimitButton = ({
   const styles = StyleSheet.create({
     container: {
       position: 'absolute',
-      top: Platform.OS === 'ios' ? insets.top + verticalScale(15) : verticalScale(14),
+      top: Platform.OS === 'ios' ? insets.top + verticalScale(12) : verticalScale(10),
       right: scale(12),
       zIndex: 1000,
     },
