@@ -43,54 +43,50 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
   const safeFields = Array.isArray(requiredFields) ? requiredFields : [];
   const fieldCount = safeFields.length;
 
-  // Animation values for each chip (sequential fade-in)
-  // ✅ FIX: Always create 4 slots (max expected fields)
-  const chipOpacities = useMemo(() => {
-    return [
-      useSharedValue(0),
-      useSharedValue(0),
-      useSharedValue(0),
-      useSharedValue(0),
-    ];
-  }, []);
+  // ✅ CRITICAL FIX: Hooks must be called at the top level (not inside useMemo!)
+  // Animation values for each chip (sequential fade-in) - Always create 4 slots
+  const chipOpacity0 = useSharedValue(0);
+  const chipOpacity1 = useSharedValue(0);
+  const chipOpacity2 = useSharedValue(0);
+  const chipOpacity3 = useSharedValue(0);
+  const chipOpacities = [chipOpacity0, chipOpacity1, chipOpacity2, chipOpacity3];
 
-  // Pulse animation for completed chips
-  // ✅ FIX: Always create 4 slots (max expected fields)
-  const chipScales = useMemo(() => {
-    return [
-      useSharedValue(1),
-      useSharedValue(1),
-      useSharedValue(1),
-      useSharedValue(1),
-    ];
-  }, []);
-
-  // ✅ Early return AFTER all Hooks
-  if (fieldCount === 0) {
-    return null;
-  }
+  // Pulse animation for completed chips - Always create 4 slots
+  const chipScale0 = useSharedValue(1);
+  const chipScale1 = useSharedValue(1);
+  const chipScale2 = useSharedValue(1);
+  const chipScale3 = useSharedValue(1);
+  const chipScales = [chipScale0, chipScale1, chipScale2, chipScale3];
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Sequential fade-in animation on mount
+  // ✅ CRITICAL FIX: useEffect MUST be before early return!
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
+    if (fieldCount === 0 || !safeFields || !Array.isArray(safeFields)) return; // Skip animation if no fields
+    
     safeFields.forEach((_, index) => {
-      chipOpacities[index].value = withDelay(
-        index * 150, // Sequential delay
-        withTiming(1, {
-          duration: 300,
-          easing: Easing.out(Easing.cubic),
-        })
-      );
+      if (chipOpacities[index]) {
+        chipOpacities[index].value = withDelay(
+          index * 150, // Sequential delay
+          withTiming(1, {
+            duration: 300,
+            easing: Easing.out(Easing.cubic),
+          })
+        );
+      }
     });
   }, [fieldCount]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Pulse animation when field is completed
+  // ✅ CRITICAL FIX: useEffect MUST be before early return!
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
+    if (fieldCount === 0 || !safeFields || !Array.isArray(safeFields)) return; // Skip animation if no fields
+    
     safeFields.forEach((field, index) => {
-      if (field.completed) {
+      if (field && field.completed && chipScales[index]) {
         // Pulse animation: scale up and down once
         chipScales[index].value = withSequence(
           withTiming(1.2, { duration: 200, easing: Easing.out(Easing.cubic) }),
@@ -98,7 +94,12 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
         );
       }
     });
-  }, [safeFields.map(f => f.completed).join(',')]);
+  }, [fieldCount]);
+
+  // ✅ Early return AFTER all Hooks
+  if (fieldCount === 0) {
+    return null;
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Color configuration
@@ -133,7 +134,10 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
         contentContainerStyle={styles.scrollContent}
       >
         {safeFields.map((field, index) => {
-          const isCompleted = field.completed;
+          // ✅ Safety check: skip if field is invalid
+          if (!field || !field.field_name) return null;
+          
+          const isCompleted = field.completed || false;
           const colors = FIELD_COLORS[field.field_name] || FIELD_COLORS.name_ko;
           const gradient = isCompleted ? colors.gradient : GRAY_GRADIENT;
           const glowColor = isCompleted ? colors.glow : GRAY_GLOW;
@@ -157,11 +161,11 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
                 ]}
               >
                 {/* Emoji Icon */}
-                <CustomText style={styles.emoji}>{field.emoji}</CustomText>
+                <CustomText style={styles.emoji}>{field.emoji || '✨'}</CustomText>
 
                 {/* Label */}
                 <CustomText style={[styles.label, !isCompleted && styles.labelGray]}>
-                  {field.label}
+                  {field.label || 'Unknown'}
                 </CustomText>
 
                 {/* Status indicator (checkmark or empty box) */}
@@ -177,7 +181,7 @@ const LimitedModeChips = ({ requiredFields = [] }) => {
       {/* Progress text */}
       <View style={styles.progressContainer}>
         <CustomText style={styles.progressText}>
-          {safeFields.filter((f) => f.completed).length} / {fieldCount} 완료
+          {safeFields.filter((f) => f && f.completed).length} / {fieldCount} 완료
         </CustomText>
       </View>
     </View>
