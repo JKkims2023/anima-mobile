@@ -50,7 +50,8 @@ import FloatingChatLimitButton from './FloatingChatLimitButton'; // 💰 NEW: Fl
 import HiddenYoutubePlayer from './HiddenYoutubePlayer'; // 🎵 NEW: Hidden YouTube player for audio
 import MiniYoutubeVideoPlayer from './MiniYoutubeVideoPlayer'; // 🎬 NEW: Mini YouTube video player
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎖️ NEW: Tier upgrade sheet
-import LimitedModeChips from './LimitedModeChips'; // 🔒 NEW: LIMITED MODE chips
+// import LimitedModeChips from './LimitedModeChips'; // ⚠️ DEPRECATED: LIMITED MODE 폐기 (클라이언트 측 직접 입력으로 전환)
+import PersonaIdentityCreatorView from './PersonaIdentityCreatorView'; // 🎭 NEW: Identity Creator
 import { chatApi } from '../../services/api';
 import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
@@ -165,9 +166,12 @@ const ManagerAIOverlay = ({
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
   
-  // 🔒 NEW: LIMITED MODE state
-  const [requiredFields, setRequiredFields] = useState([]); // Array of { field_name, label, emoji, completed }
-  const [showLimitedModeChips, setShowLimitedModeChips] = useState(false); // Show/hide chips
+  // 🔒 [DEPRECATED 2026-01-08] LIMITED MODE state (Replaced by client-side identity creator)
+  // const [requiredFields, setRequiredFields] = useState([]); // Array of { field_name, label, emoji, completed }
+  // const [showLimitedModeChips, setShowLimitedModeChips] = useState(false); // Show/hide chips
+  
+  // 🎭 NEW: Identity Creator state
+  const [showIdentityCreator, setShowIdentityCreator] = useState(false);
   
   // 🔥 CRITICAL FIX: Refs to capture latest state for handleClose
   const messagesRef = useRef(messages);
@@ -513,30 +517,73 @@ const ManagerAIOverlay = ({
   
   // ⚡ OPTIMIZED: Show welcome message (TypingMessageBubble handles animation!)
   const showWelcomeMessage = useCallback(() => {
-    const greetingKey = 'managerAI.public'; //`managerAI.greeting.${context}`;
-    const greeting = t(greetingKey);
+    // 🎭 Check if persona needs identity setup (user-created persona without identity)
+    const needsIdentitySetup = persona && 
+                               !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) &&
+                               !persona.identity_key;
     
-    // ⚡ Start typing effect
-    setIsTyping(true);
-    setCurrentTypingText(greeting);
-    
-    // ✅ Calculate typing duration using helper
-    const typingDuration = calculateTotalDuration(greeting);
-    
-    // After typing completes, add to messages
-    setTimeout(() => {
-      const greetingMessage = {
-        id: 'greeting',
-        role: 'assistant',
-        text: greeting,
-        timestamp: new Date().toISOString(),
-      };
+    if (needsIdentitySetup) {
+      // Show identity setup welcome message
+      const identityGreeting = `안녕! 만나서 반가워! 😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
       
-      setMessages([greetingMessage]);
-      setIsTyping(false);
-      setCurrentTypingText('');
-    }, typingDuration + 100);
-  }, [context, t]);
+      // ⚡ Start typing effect
+      setIsTyping(true);
+      setCurrentTypingText(identityGreeting);
+      
+      // ✅ Calculate typing duration
+      const typingDuration = calculateTotalDuration(identityGreeting);
+      
+      // After typing completes, add message + button
+      setTimeout(() => {
+        const greetingMessage = {
+          id: 'greeting-identity',
+          role: 'assistant',
+          text: identityGreeting,
+          timestamp: new Date().toISOString(),
+        };
+        
+        const buttonMessage = {
+          id: 'button-identity-start',
+          role: 'button',
+          text: '✨ 자아 입력 시작',
+          timestamp: new Date().toISOString(),
+          onPress: () => {
+            HapticService.medium();
+            setShowIdentityCreator(true);
+          },
+        };
+        
+        setMessages([greetingMessage, buttonMessage]);
+        setIsTyping(false);
+        setCurrentTypingText('');
+      }, typingDuration + 100);
+    } else {
+      // Normal welcome message
+      const greetingKey = 'managerAI.public';
+      const greeting = t(greetingKey);
+      
+      // ⚡ Start typing effect
+      setIsTyping(true);
+      setCurrentTypingText(greeting);
+      
+      // ✅ Calculate typing duration using helper
+      const typingDuration = calculateTotalDuration(greeting);
+      
+      // After typing completes, add to messages
+      setTimeout(() => {
+        const greetingMessage = {
+          id: 'greeting',
+          role: 'assistant',
+          text: greeting,
+          timestamp: new Date().toISOString(),
+        };
+        
+        setMessages([greetingMessage]);
+        setIsTyping(false);
+        setCurrentTypingText('');
+      }, typingDuration + 100);
+    }
+  }, [context, t, persona]);
 
     // ⚡ OPTIMIZED: Show not-login message (TypingMessageBubble handles animation!)
     const showNotLoginMessage = useCallback(() => {
@@ -817,16 +864,15 @@ const ManagerAIOverlay = ({
             required_fields: metadata.required_fields?.length || 0
           });
           
-          // 🔒 NEW: Initialize LIMITED MODE chips if required_fields is provided
-          if (metadata.required_fields && metadata.required_fields.length > 0) {
+          // 🔒 [DEPRECATED 2026-01-08] LIMITED MODE chips initialization (Replaced by client-side identity creator)
+          /* if (metadata.required_fields && metadata.required_fields.length > 0) {
             console.log('🔒 [LIMITED MODE] Initializing chips with', metadata.required_fields.length, 'fields');
             setRequiredFields(metadata.required_fields);
             setShowLimitedModeChips(true);
           }
           
-          // 🆕 NEW: Handle LIMITED MODE - Update required fields
+          // 🆕 [DEPRECATED] Handle LIMITED MODE - Update required fields
           if (updates && updates.length > 0 && requiredFields.length > 0) {
-            // Update completed fields in requiredFields state
             setRequiredFields(prev => {
               const updated = [...prev];
               updates.forEach(update => {
@@ -837,21 +883,19 @@ const ManagerAIOverlay = ({
                 }
               });
               
-              // Check if all fields are completed
               const allCompleted = updated.every(f => f.completed);
               if (allCompleted) {
                 console.log('🎉 [LIMITED MODE] All fields completed! Hiding chips...');
-                // Hide chips after a delay
                 timeoutManagerRef.current?.setTimeout(() => {
                   if (!timeoutManagerRef.current?.isCancelledStatus()) {
                     setShowLimitedModeChips(false);
                   }
-                }, 3000); // 3 seconds delay
+                }, 3000);
               }
               
               return updated;
             });
-          }
+          } */
           
           // Show evolution display (existing logic)
           if (updates && updates.length > 0) {
@@ -971,13 +1015,58 @@ const ManagerAIOverlay = ({
     } finally {
       setIsLoading(false);
     }
-  }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet, requiredFields]); // ⭐ FIX: Add chat limit dependencies + requiredFields
+  }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies (removed requiredFields - DEPRECATED)
   
   // 🔒 NEW: Auto-close for LIMITED MODE (when AI requests conversation break)
   const handleAutoClose = useCallback(() => {
     console.log('🔒 [LIMITED MODE] Auto-closing chat (irrelevant user response)');
-    // Call handleClose directly (triggers background learning)    handleClose();
+    // Call handleClose directly (triggers background learning)
+    handleClose();
   }, [handleClose]);
+  
+  // 🎭 NEW: Handle identity save
+  const handleIdentitySave = useCallback(async (identityData) => {
+    console.log('🎭 [Identity Creator] Saving identity:', identityData);
+    
+    try {
+      const userKey = user?.user_key;
+      const personaKey = persona?.persona_key;
+      
+      if (!userKey || !personaKey) {
+        throw new Error('User or persona key missing');
+      }
+      
+      // Call server API to save identity
+      const response = await fetch('https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/create-client-side', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_key: userKey,
+          persona_key: personaKey,
+          ...identityData,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ [Identity Creator] Identity saved successfully');
+        
+        // Show success message
+        const personaName = identityData.persona_name || persona?.persona_name || '페르소나';
+        showNotificationMessage(`🎉 ${personaName}의 영혼이 탄생했습니다! 이제 대화를 시작할게요!`, 2500);
+        
+        HapticService.success();
+      } else {
+        throw new Error(data.error || 'Failed to save identity');
+      }
+    } catch (error) {
+      console.error('❌ [Identity Creator] Save error:', error);
+      throw error;
+    }
+  }, [user, persona, showNotificationMessage]);
   
   const handleClose = useCallback(() => {
     // 🔥 CRITICAL FIX: Use refs to get LATEST state (not closure values!)
@@ -1154,8 +1243,8 @@ const ManagerAIOverlay = ({
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
       setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
       setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
-      setShowLimitedModeChips(false); // 🔒 NEW: Reset LIMITED MODE chips
-      setRequiredFields([]); // 🔒 NEW: Reset required fields
+      // setShowLimitedModeChips(false); // 🔒 [DEPRECATED] Reset LIMITED MODE chips
+      // setRequiredFields([]); // 🔒 [DEPRECATED] Reset required fields
       
       // 🚪 Close overlay AFTER state cleanup (prevents premature unmount)
       if (onClose) {
@@ -1229,10 +1318,10 @@ const ManagerAIOverlay = ({
               
             </View>
             
-            {/* 🔒 NEW: LIMITED MODE Chips (Header 아래) */}
-            {showLimitedModeChips && requiredFields.length > 0 && (
+            {/* 🔒 [DEPRECATED 2026-01-08] LIMITED MODE Chips (Replaced by client-side identity creator) */}
+            {/* {showLimitedModeChips && requiredFields.length > 0 && (
               <LimitedModeChips requiredFields={requiredFields} />
-            )}
+            )} */}
             
             {/* ✅ Chat Messages (Scrollable) */}
             <View style={styles.chatContainer}>
@@ -1288,7 +1377,7 @@ const ManagerAIOverlay = ({
 
                   {/* 🎭 자아 설정 */}
                   <TouchableOpacity
-                    style={[styles.menuItem, { display: 'none' }]}
+                    style={[styles.menuItem, {  }]}
                     onPress={() => {
                       handleToggleSettings('identity');
                       setIsSettingsMenuOpen(false);
@@ -1533,6 +1622,28 @@ const ManagerAIOverlay = ({
       <ChatHelpSheet
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
+      />
+    )}
+    
+    {/* 🎭 NEW: Identity Creator View (Covers entire chat area) */}
+    {showIdentityCreator && (
+      <PersonaIdentityCreatorView
+        visible={showIdentityCreator}
+        onClose={() => {
+          // Close identity creator and close entire chat
+          setShowIdentityCreator(false);
+          setTimeout(() => {
+            onClose?.();
+          }, 200);
+        }}
+        onSave={async (identityData) => {
+          // Save identity to server
+          await handleIdentitySave(identityData);
+          // Close identity creator
+          setShowIdentityCreator(false);
+        }}
+        personaName={persona?.persona_name || '페르소나'}
+        showAlert={showAlert}
       />
     )}
     </>

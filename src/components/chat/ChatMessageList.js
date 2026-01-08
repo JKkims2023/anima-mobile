@@ -40,6 +40,21 @@ const MessageItem = memo(({ message, onImagePress, onImageLongPress, onMusicPres
   const { currentTheme } = useTheme();
   const isUser = message.role === 'user';
   
+  // 🎭 NEW: Button message
+  if (message.role === 'button') {
+    return (
+      <View style={styles.buttonMessageContainer}>
+        <TouchableOpacity
+          style={styles.buttonMessage}
+          onPress={message.onPress}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonMessageText}>{message.text}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  
   // 🐛 DEBUG: Log message data
   if (false) {
     console.log('🖼️ [MessageItem] Rendering message with image:');
@@ -1105,6 +1120,28 @@ const styles = StyleSheet.create({
   imageViewerHint: {
     color: 'rgba(255, 255, 255, 0.7)',
     fontSize: moderateScale(14),
+    textAlign: 'center',
+  },
+  // 🎭 NEW: Button message styles
+  buttonMessageContainer: {
+    alignItems: 'center',
+    marginVertical: verticalScale(12),
+  },
+  buttonMessage: {
+    backgroundColor: COLORS.DEEP_BLUE,
+    paddingHorizontal: moderateScale(24),
+    paddingVertical: verticalScale(14),
+    borderRadius: moderateScale(24),
+    shadowColor: COLORS.DEEP_BLUE,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  buttonMessageText: {
+    color: '#FFFFFF',
+    fontSize: moderateScale(16),
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

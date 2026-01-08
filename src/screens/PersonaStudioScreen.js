@@ -1187,6 +1187,19 @@ const PersonaStudioScreen = () => {
     console.log('type: ', type);
   }, []);
 
+  const handleDeleteClick = useCallback((persona) => {
+    console.log('handleDeleteClick');
+    showAlert({
+      title: t('persona.settings.delete_confirm_title'),
+      message: t('persona.settings.delete_confirm_message',{name: currentPersona?.persona_name}),
+      emoji: '🗑️',
+      buttons: [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.confirm'), style: 'primary', onPress: () => { handlePersonaDelete(currentPersona) } },
+      ],
+    });
+  }, []);
+
   // ❌ REMOVED: handleFilterModeChange (UI simplified - single unified list)
 
   const handleCreatePersona = useCallback(() => {
@@ -1695,6 +1708,7 @@ const PersonaStudioScreen = () => {
               onMessageClick={handleQuickMessage}//{handleQuickMessage}
               onSettingsClick={handleQuickSettings}
               onShareClick={handleShareClick}
+              onDeleteClick={handleDeleteClick}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
               currentPersona={currentPersona}
               currentDressState={currentDressState} // ⭐ NEW: Dress state for badge

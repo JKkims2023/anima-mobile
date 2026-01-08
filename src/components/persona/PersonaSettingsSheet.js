@@ -132,11 +132,9 @@ const PersonaSettingsSheet = ({
           onPress: onClose,
         },
         {
-          title: t('common.delete'),
+          title: t('common.confirm'),
           type: 'primary',
-          onPress: handleDelete,
-          icon: 'delete',
-          iconColor: '#F44336',
+          onPress: onClose,
         }
       ]}
     >

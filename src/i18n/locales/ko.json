@@ -471,7 +471,7 @@
     "server_error": "서버 오류가 발생했습니다",
     "generic": "일시적인 오류가 발생했습니다",
     "network": "네트워크 연결을 확인해주세요",
-    "MANAGER_AI_ERROR": "AI 응답 오류가 발생했습니다",
+    "MANAGER_AI_ERROR": "앗.. 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
     "PERSONA_CHAT_ERROR": "페르소나 채팅 오류가 발생했습니다",
     "MEMORY_CHAT_ERROR": "메모리 채팅 오류가 발생했습니다",
     "PUBLIC_AI_ERROR": "AI 채팅 오류가 발생했습니다",

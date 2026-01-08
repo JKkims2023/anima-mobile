@@ -47,6 +47,7 @@ const QuickActionChipsAnimated = ({
   onSettingsClick,   // ⭐ 5. Settings
   onMusicClick,      // ⭐ 6. Music
   onShareClick,      // ⭐ 7. Share
+  onDeleteClick,     // ⭐ 8. Delete
   isVideoConverting = false, // ⭐ NEW: Video converting state
   currentPersona = null,
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
@@ -64,9 +65,11 @@ const QuickActionChipsAnimated = ({
     share: '#6BB6FF',    // 💙 스카이 블루 - 연결과 소통
     history: '#FFD93D',  // 🌟 골든 옐로우 - 빛나는 추억
     dress: '#A78BFA',    // 🦄 라벤더 - 꿈같은 변신
+    delete: '#FF0000',   // 🔴 빨간색 - 삭제
   };
 
   const actions = [
+    { id: 'delete', icon: 'delete-forever-outline', label: '삭제', onClick: onDeleteClick, color: chipColors.delete },
     { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick, color: chipColors.video },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
     { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick, color: chipColors.share },
