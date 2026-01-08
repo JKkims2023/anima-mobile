@@ -22,6 +22,7 @@ import {
   ScrollView,
   Animated,
   Platform,
+  Modal,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -363,17 +364,24 @@ const PersonaIdentityCreatorView = ({
   
   return (
     <>
-      <Animated.View 
-        style={[
-          styles.container,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
-        ]}
+      <Modal
+        visible={visible}
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={handleCancel}
       >
+        <Animated.View 
+          style={[
+            styles.container,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
+            },
+          ]}
+        >
         {/* Header */}
         <View style={styles.header}>
           <CustomText type="title" bold style={styles.headerTitle}>
@@ -448,6 +456,7 @@ const PersonaIdentityCreatorView = ({
           />
         </View>
       </Animated.View>
+      </Modal>
       
       {/* Input Overlays */}
       <MessageInputOverlay
