@@ -48,6 +48,7 @@ export const AUTH_ENDPOINTS = {
 export const PERSONA_ENDPOINTS = {
   LIST: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/persona-list',
   CREATE: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/create',
+  CREATE_IDENTITY: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/create-client-side', // 🎭 Soul Creator: Create persona identity
   CREATE_DRESS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/create-dress',
   DASHBOARD: '/api/persona/dashboard',
   CHECK_STATUS: 'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/check-status',

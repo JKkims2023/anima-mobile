@@ -363,6 +363,49 @@ export const updatePersonaCommentChecked = async (personaKey, userKey) => {
   return response.data || {};
 };
 
+/**
+ * Create persona identity (Soul Creator)
+ * 
+ * @param {string} userKey - User's unique key
+ * @param {string} personaKey - Persona's unique key
+ * @param {Object} identityData - Identity data
+ * @param {string} identityData.persona_name - Persona name
+ * @param {Array<string>} identityData.user_nicknames - How AI calls user (array)
+ * @param {string} identityData.speech_style - Speech style (friendly/formal/casual/sibling)
+ * @param {string} identityData.identity - Persona identity/role
+ * @param {string} identityData.hobby - Persona hobbies
+ * @param {string} identityData.favorite - What persona likes
+ * @returns {Promise<Object>} Creation result
+ */
+export const createPersonaIdentity = async (userKey, personaKey, identityData) => {
+  try {
+    const response = await apiClient.post(PERSONA_ENDPOINTS.CREATE_IDENTITY, {
+      user_key: userKey,
+      persona_key: personaKey,
+      persona_name: identityData.persona_name,
+      user_nicknames: identityData.user_nicknames,
+      speech_style: identityData.speech_style,
+      identity: identityData.identity,
+      hobby: identityData.hobby,
+      favorite: identityData.favorite,
+    });
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    if (__DEV__) {
+      console.error('🎭 [PersonaAPI] Error creating persona identity:', error);
+    }
+    logError('Create Persona Identity', error);
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'CREATE_IDENTITY_ERROR' },
+    };
+  }
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -376,5 +419,6 @@ export default {
   togglePersonaFavorite,
   updatePersonaDress,
   updatePersonaCommentChecked,
+  createPersonaIdentity,
 };
 

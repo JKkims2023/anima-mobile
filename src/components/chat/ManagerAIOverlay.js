@@ -53,7 +53,7 @@ import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎖️ NEW: Tier up
 // import LimitedModeChips from './LimitedModeChips'; // ⚠️ DEPRECATED: LIMITED MODE 폐기 (클라이언트 측 직접 입력으로 전환)
 import PersonaIdentityCreatorView from './PersonaIdentityCreatorView'; // 🎭 NEW: Identity Creator
 import { chatApi } from '../../services/api';
-import { createPersona } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation
+import { createPersona, createPersonaIdentity } from '../../services/api/personaApi'; // 🎭 NEW: For persona creation & identity
 import { scale, moderateScale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
@@ -1036,22 +1036,10 @@ const ManagerAIOverlay = ({
         throw new Error('User or persona key missing');
       }
       
-      // Call server API to save identity
-      const response = await fetch('https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/persona/identity/create-client-side', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_key: userKey,
-          persona_key: personaKey,
-          ...identityData,
-        }),
-      });
+      // ✅ Call personaApi.createPersonaIdentity (single API call!)
+      const result = await createPersonaIdentity(userKey, personaKey, identityData);
       
-      const data = await response.json();
-      
-      if (data.success) {
+      if (result.success) {
         console.log('✅ [Identity Creator] Identity saved successfully');
         
         // Show success message
@@ -1060,7 +1048,7 @@ const ManagerAIOverlay = ({
         
         HapticService.success();
       } else {
-        throw new Error(data.error || 'Failed to save identity');
+        throw new Error(result.error?.error_code || 'Failed to save identity');
       }
     } catch (error) {
       console.error('❌ [Identity Creator] Save error:', error);
