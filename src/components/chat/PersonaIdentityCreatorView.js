@@ -50,14 +50,26 @@ const IDENTITY_FIELDS = [
     group: 'basic',
   },
   {
-    id: 'user_nickname',
-    emoji: '👤',
-    label: '당신의 이름',
-    placeholder: '예: JK, 형, 누나',
-    guide: '페르소나가 당신을 어떻게 불러주길 원하나요?',
-    maxLength: 10,
+    id: 'ai_nicknames',
+    emoji: '💭',
+    label: '내가 AI를 부르는 호칭',
+    placeholder: '예: 지아야, 은하',
+    guide: 'AI를 어떻게 부르고 싶나요? (여러 개 가능)',
+    maxCount: 5,
     required: true,
     group: 'basic',
+    type: 'tags', // 🆕 Tag/Chip 타입
+  },
+  {
+    id: 'user_nicknames',
+    emoji: '👤',
+    label: 'AI가 나를 부르는 호칭',
+    placeholder: '예: JK, 형, 누나',
+    guide: 'AI가 당신을 어떻게 불러주길 원하나요? (여러 개 가능)',
+    maxCount: 5,
+    required: true,
+    group: 'basic',
+    type: 'tags', // 🆕 Tag/Chip 타입
   },
   {
     id: 'speaking_style',
@@ -129,7 +141,8 @@ const PersonaIdentityCreatorView = ({
   // Identity Data State
   const [identityData, setIdentityData] = useState({
     persona_name: '',
-    user_nickname: '',
+    ai_nicknames: [], // 🆕 내가 AI를 부르는 호칭 (여러 개)
+    user_nicknames: [], // 🆕 AI가 나를 부르는 호칭 (여러 개) - 기존 user_nickname을 배열로 변경
     speaking_style: '',
     identity: '',
     hobby: '',
@@ -142,7 +155,8 @@ const PersonaIdentityCreatorView = ({
   
   // Input Overlay Refs
   const personaNameInputRef = useRef(null);
-  const userNicknameInputRef = useRef(null);
+  const aiNicknameInputRef = useRef(null); // 🆕 내가 AI를 부르는 호칭
+  const userNicknameInputRef = useRef(null); // AI가 나를 부르는 호칭
   const identityInputRef = useRef(null);
   const hobbyInputRef = useRef(null);
   const favoriteInputRef = useRef(null);
@@ -180,6 +194,13 @@ const PersonaIdentityCreatorView = ({
     const totalFields = IDENTITY_FIELDS.length;
     const completedFields = IDENTITY_FIELDS.filter(field => {
       const value = identityData[field.id];
+      
+      // 🆕 배열 타입 (tags) 체크
+      if (field.type === 'tags') {
+        return Array.isArray(value) && value.length > 0;
+      }
+      
+      // 일반 문자열 타입 체크
       return value && value.trim().length > 0;
     }).length;
     
@@ -199,6 +220,11 @@ const PersonaIdentityCreatorView = ({
   const handleFieldPress = useCallback((field) => {
     HapticService.light();
     
+    // 🆕 Tags 타입은 별도 처리하지 않음 (inline에서 추가/제거)
+    if (field.type === 'tags') {
+      return;
+    }
+    
     if (field.type === 'select') {
       // 말투 선택 Sheet 표시
       setShowSpeakingStyleSheet(true);
@@ -207,9 +233,6 @@ const PersonaIdentityCreatorView = ({
       switch (field.id) {
         case 'persona_name':
           personaNameInputRef.current?.present();
-          break;
-        case 'user_nickname':
-          userNicknameInputRef.current?.present();
           break;
         case 'identity':
           identityInputRef.current?.present();
@@ -235,13 +258,58 @@ const PersonaIdentityCreatorView = ({
   }, []);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // TAG HANDLERS (🆕 SpeakingPatternSheet 스타일)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  const handleAddTag = useCallback((fieldId, value, maxCount) => {
+    if (!value || value.trim().length === 0) return;
+    
+    setIdentityData(prev => {
+      const currentTags = prev[fieldId] || [];
+      
+      // 중복 체크
+      if (currentTags.includes(value.trim())) {
+        return prev;
+      }
+      
+      // 최대 개수 체크
+      if (currentTags.length >= maxCount) {
+        return prev;
+      }
+      
+      return {
+        ...prev,
+        [fieldId]: [...currentTags, value.trim()],
+      };
+    });
+    
+    HapticService.success();
+  }, []);
+  
+  const handleRemoveTag = useCallback((fieldId, index) => {
+    setIdentityData(prev => ({
+      ...prev,
+      [fieldId]: prev[fieldId].filter((_, i) => i !== index),
+    }));
+    
+    HapticService.light();
+  }, []);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SAVE/CANCEL HANDLERS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   const handleSave = useCallback(async () => {
-    // 필수 항목 체크
+    // 필수 항목 체크 (배열 타입 지원)
     const missingFields = IDENTITY_FIELDS.filter(field => {
       const value = identityData[field.id];
+      
+      // 🆕 배열 타입 (tags) 체크
+      if (field.type === 'tags') {
+        return !Array.isArray(value) || value.length === 0;
+      }
+      
+      // 일반 문자열 타입 체크
       return !value || value.trim().length === 0;
     });
     
@@ -259,7 +327,21 @@ const PersonaIdentityCreatorView = ({
     
     try {
       setSaving(true);
-      await onSave(identityData);
+      
+      // 🆕 배열 → 쉼표 구분 문자열로 변환 (서버 전송용)
+      const dataToSend = {
+        persona_name: identityData.persona_name,
+        ai_nicknames: identityData.ai_nicknames, // 배열 그대로 전송
+        user_nicknames: identityData.user_nicknames, // 배열 그대로 전송
+        speaking_style: identityData.speaking_style,
+        identity: identityData.identity,
+        hobby: identityData.hobby,
+        favorite: identityData.favorite,
+      };
+      
+      console.log('🎭 [PersonaIdentityCreatorView] Saving data:', dataToSend);
+      
+      await onSave(dataToSend);
       HapticService.success();
     } catch (error) {
       console.error('❌ [PersonaIdentityCreatorView] Save error:', error);
@@ -302,10 +384,83 @@ const PersonaIdentityCreatorView = ({
   }, [onClose, showAlert]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // RENDER TAG FIELD (🆕 SpeakingPatternSheet 스타일)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  const renderTagField = useCallback((field) => {
+    const tags = identityData[field.id] || [];
+    const isCompleted = Array.isArray(tags) && tags.length > 0;
+    const maxCount = field.maxCount || 5;
+    const inputRef = field.id === 'ai_nicknames' ? aiNicknameInputRef : userNicknameInputRef;
+    
+    return (
+      <View key={field.id} style={styles.tagFieldContainer}>
+        {/* Header */}
+        <View style={styles.fieldHeader}>
+          <CustomText type="normal" style={styles.fieldEmoji}>
+            {field.emoji}
+          </CustomText>
+          <CustomText type="middle" bold style={styles.fieldLabel}>
+            {field.label}
+          </CustomText>
+          {isCompleted ? (
+            <Icon name="check-circle" size={moderateScale(20)} color="#10B981" />
+          ) : (
+            <View style={styles.emptyCheckbox} />
+          )}
+        </View>
+        
+        {/* Guide Text */}
+        <CustomText type="small" style={styles.tagFieldGuide}>
+          {field.guide}
+        </CustomText>
+        
+        {/* Tags Container */}
+        <View style={styles.tagsContainer}>
+          {tags.map((tag, index) => (
+            <View key={index} style={styles.tag}>
+              <CustomText size="sm" color={COLORS.TEXT_PRIMARY}>
+                {tag}
+              </CustomText>
+              <TouchableOpacity
+                onPress={() => handleRemoveTag(field.id, index)}
+                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              >
+                <Icon name="close-circle" size={moderateScale(16)} color={COLORS.TEXT_SECONDARY} />
+              </TouchableOpacity>
+            </View>
+          ))}
+          
+          {/* Add Button */}
+          {tags.length < maxCount && (
+            <TouchableOpacity
+              style={styles.addTagButton}
+              onPress={() => {
+                HapticService.light();
+                inputRef.current?.present();
+              }}
+            >
+              <Icon name="plus-circle" size={moderateScale(20)} color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.DEEP_BLUE} style={{ marginLeft: scale(4) }}>
+                추가 ({tags.length}/{maxCount})
+              </CustomText>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
+  }, [identityData, handleRemoveTag]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // RENDER FIELD ITEM
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   const renderFieldItem = useCallback((field) => {
+    // 🆕 Tags 타입은 별도 렌더링
+    if (field.type === 'tags') {
+      return renderTagField(field);
+    }
+    
     const value = identityData[field.id];
     const isCompleted = value && value.trim().length > 0;
     
@@ -354,7 +509,7 @@ const PersonaIdentityCreatorView = ({
         </CustomText>
       </TouchableOpacity>
     );
-  }, [identityData, handleFieldPress]);
+  }, [identityData, handleFieldPress, renderTagField]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // RENDER
@@ -469,43 +624,62 @@ const PersonaIdentityCreatorView = ({
         initialValue={identityData.persona_name}
         onSave={(value) => handleFieldUpdate('persona_name', value)}
       />
+      
+      {/* 🆕 Tag 입력용 Overlays */}
+      <MessageInputOverlay
+        ref={aiNicknameInputRef}
+        title="💭 AI 호칭 추가"
+        guide="AI를 어떻게 부르고 싶나요?"
+        placeholder="예: 지아야, 은하"
+        leftIcon="account-voice"
+        maxLength={15}
+        initialValue=""
+        onSave={(value) => {
+          const aiNicknamesField = IDENTITY_FIELDS.find(f => f.id === 'ai_nicknames');
+          handleAddTag('ai_nicknames', value, aiNicknamesField.maxCount);
+        }}
+      />
       <MessageInputOverlay
         ref={userNicknameInputRef}
-        title="👤 당신의 이름"
-        guide={IDENTITY_FIELDS[1].guide}
-        placeholder={IDENTITY_FIELDS[1].placeholder}
+        title="👤 내 호칭 추가"
+        guide="AI가 당신을 어떻게 불러주길 원하나요?"
+        placeholder="예: JK, 형, 누나"
         leftIcon="account"
-        maxLength={IDENTITY_FIELDS[1].maxLength}
-        initialValue={identityData.user_nickname}
-        onSave={(value) => handleFieldUpdate('user_nickname', value)}
+        maxLength={15}
+        initialValue=""
+        onSave={(value) => {
+          const userNicknamesField = IDENTITY_FIELDS.find(f => f.id === 'user_nicknames');
+          handleAddTag('user_nicknames', value, userNicknamesField.maxCount);
+        }}
       />
+      
       <MessageInputOverlay
         ref={identityInputRef}
         title="💫 자아 만들기"
-        guide={IDENTITY_FIELDS[3].guide}
-        placeholder={IDENTITY_FIELDS[3].placeholder}
+        guide={IDENTITY_FIELDS.find(f => f.id === 'identity').guide}
+        placeholder={IDENTITY_FIELDS.find(f => f.id === 'identity').placeholder}
         leftIcon="lightbulb"
-        maxLength={IDENTITY_FIELDS[3].maxLength}
+        maxLength={IDENTITY_FIELDS.find(f => f.id === 'identity').maxLength}
         initialValue={identityData.identity}
         onSave={(value) => handleFieldUpdate('identity', value)}
       />
       <MessageInputOverlay
         ref={hobbyInputRef}
         title="🎯 취미"
-        guide={IDENTITY_FIELDS[4].guide}
-        placeholder={IDENTITY_FIELDS[4].placeholder}
+        guide={IDENTITY_FIELDS.find(f => f.id === 'hobby').guide}
+        placeholder={IDENTITY_FIELDS.find(f => f.id === 'hobby').placeholder}
         leftIcon="music"
-        maxLength={IDENTITY_FIELDS[4].maxLength}
+        maxLength={IDENTITY_FIELDS.find(f => f.id === 'hobby').maxLength}
         initialValue={identityData.hobby}
         onSave={(value) => handleFieldUpdate('hobby', value)}
       />
       <MessageInputOverlay
         ref={favoriteInputRef}
         title="❤️ 좋아하는 것"
-        guide={IDENTITY_FIELDS[5].guide}
-        placeholder={IDENTITY_FIELDS[5].placeholder}
+        guide={IDENTITY_FIELDS.find(f => f.id === 'favorite').guide}
+        placeholder={IDENTITY_FIELDS.find(f => f.id === 'favorite').placeholder}
         leftIcon="heart"
-        maxLength={IDENTITY_FIELDS[5].maxLength}
+        maxLength={IDENTITY_FIELDS.find(f => f.id === 'favorite').maxLength}
         initialValue={identityData.favorite}
         onSave={(value) => handleFieldUpdate('favorite', value)}
       />
@@ -644,6 +818,54 @@ const styles = StyleSheet.create({
   saveButton: {
     flex: 2,
   },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🆕 Tag Field Styles (SpeakingPatternSheet 스타일)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tagFieldContainer: {
+    backgroundColor: COLORS.CARD_BACKGROUND,
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: COLORS.DIVIDER,
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: platformPadding(16),
+    marginBottom: verticalScale(12),
+  },
+  tagFieldGuide: {
+    color: COLORS.TEXT_TERTIARY,
+    marginBottom: verticalScale(12),
+    marginLeft: scale(28),
+    fontSize: moderateScale(12),
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: scale(8),
+    marginTop: verticalScale(8),
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(12),
+    backgroundColor: COLORS.DEEP_BLUE + '15',
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DEEP_BLUE + '30',
+    gap: scale(6),
+  },
+  addTagButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(12),
+    backgroundColor: 'transparent',
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DEEP_BLUE,
+    borderStyle: 'dashed',
+  },
+  
   speakingStyleSheet: {
     position: 'absolute',
     bottom: 0,
