@@ -15,6 +15,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native';
 import AnimaToast from '../components/AnimaToast';
 import AnimaAlert from '../components/AnimaAlert';
 
@@ -52,9 +53,54 @@ export const AnimaProvider = ({ children }) => {
   // ⭐ NEW: Show Default Personas setting
   const [showDefaultPersonas, setShowDefaultPersonas] = useState(true); // Default: true (show all 3 modes)
   
-  // ⭐ Load showDefaultPersonas from AsyncStorage on mount
+  // ⭐ NEW: Tab Badge states
+  const [hasMemoryBadge, setHasMemoryBadge] = useState(false); // Memory tab badge (gift_image, gift_music)
+  const [hasMusicBadge, setHasMusicBadge] = useState(false); // Music tab badge (create_music)
+  
+  // ⭐ Load showDefaultPersonas and badges from AsyncStorage on mount
   useEffect(() => {
     loadDefaultPersonasSetting();
+    loadTabBadges();
+  }, []);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Listen for Push notifications and activate badges
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    console.log('[AnimaContext] 🔔 Registering push event listener for badges...');
+    
+    const subscription = DeviceEventEmitter.addListener('ANIMA_PUSH_RECEIVED', async (data) => {
+      const { order_type } = data;
+      
+      console.log('[AnimaContext] 🔔 Push received for badge activation!');
+      console.log('   order_type:', order_type);
+      
+      // Activate badge based on order_type
+      if (order_type === 'gift_image' || order_type === 'gift_music') {
+        console.log('[AnimaContext] 🔔 Activating Memory badge...');
+        setHasMemoryBadge(true);
+        try {
+          await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
+          console.log('[AnimaContext] ✅ Memory badge activated (real-time)!');
+        } catch (error) {
+          console.error('[AnimaContext] Failed to save memory badge:', error);
+        }
+      } else if (order_type === 'create_music') {
+        console.log('[AnimaContext] 🔔 Activating Music badge...');
+        setHasMusicBadge(true);
+        try {
+          await AsyncStorage.setItem('@anima_music_tab_badge', 'true');
+          console.log('[AnimaContext] ✅ Music badge activated (real-time)!');
+        } catch (error) {
+          console.error('[AnimaContext] Failed to save music badge:', error);
+        }
+      }
+    });
+    
+    return () => {
+      console.log('[AnimaContext] 🔔 Removing push event listener for badges...');
+      subscription.remove();
+    };
   }, []);
   
   const loadDefaultPersonasSetting = async () => {
@@ -91,6 +137,92 @@ export const AnimaProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('[AnimaContext] Failed to save showDefaultPersonas:', error);
+    }
+  }, []);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Tab Badge Functions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  /**
+   * Load tab badges from AsyncStorage
+   */
+  const loadTabBadges = async () => {
+    try {
+      const memoryBadge = await AsyncStorage.getItem('@anima_memory_tab_badge');
+      const musicBadge = await AsyncStorage.getItem('@anima_music_tab_badge');
+      
+      setHasMemoryBadge(memoryBadge === 'true');
+      setHasMusicBadge(musicBadge === 'true');
+      
+      if (__DEV__) {
+        console.log('[AnimaContext] Loaded tab badges:', {
+          memory: memoryBadge === 'true',
+          music: musicBadge === 'true',
+        });
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to load tab badges:', error);
+    }
+  };
+  
+  /**
+   * Set Memory tab badge
+   */
+  const setMemoryBadge = useCallback(async () => {
+    setHasMemoryBadge(true);
+    try {
+      await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
+      if (__DEV__) {
+        console.log('[AnimaContext] 🔔 Memory badge activated!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to set memory badge:', error);
+    }
+  }, []);
+  
+  /**
+   * Clear Memory tab badge
+   */
+  const clearMemoryBadge = useCallback(async () => {
+    setHasMemoryBadge(false);
+    try {
+      await AsyncStorage.removeItem('@anima_memory_tab_badge');
+      if (__DEV__) {
+        console.log('[AnimaContext] ✅ Memory badge cleared!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to clear memory badge:', error);
+    }
+  }, []);
+  
+  /**
+   * Set Music tab badge
+   */
+  const setMusicBadge = useCallback(async () => {
+    setHasMusicBadge(true);
+    try {
+      await AsyncStorage.setItem('@anima_music_tab_badge', 'true');
+      if (__DEV__) {
+        console.log('[AnimaContext] 🔔 Music badge activated!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to set music badge:', error);
+    }
+  }, []);
+  
+  /**
+   * Clear Music tab badge
+   */
+  const clearMusicBadge = useCallback(async () => {
+    setHasMusicBadge(false);
+    try {
+      await AsyncStorage.removeItem('@anima_music_tab_badge');
+      if (__DEV__) {
+        console.log('[AnimaContext] ✅ Music badge cleared!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to clear music badge:', error);
     }
   }, []);
 
@@ -184,6 +316,13 @@ export const AnimaProvider = ({ children }) => {
     setIsMessageCreationActive,
     showDefaultPersonas,
     updateShowDefaultPersonas,
+    // Tab Badges
+    hasMemoryBadge,
+    hasMusicBadge,
+    setMemoryBadge,
+    clearMemoryBadge,
+    setMusicBadge,
+    clearMusicBadge,
   };
 
   return (

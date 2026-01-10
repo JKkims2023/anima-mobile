@@ -349,6 +349,16 @@ class NotificationService {
             persona_name: remoteMessage.data.persona_name,
           });
           
+          // ⭐ NEW: Set tab badge based on order_type
+          const orderType = remoteMessage.data.type;
+          if (orderType === 'gift_image' || orderType === 'gift_music') {
+            await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
+            console.log('[FCM] 🔔 Memory tab badge activated!');
+          } else if (orderType === 'create_music') {
+            await AsyncStorage.setItem('@anima_music_tab_badge', 'true');
+            console.log('[FCM] 🔔 Music tab badge activated!');
+          }
+          
           DeviceEventEmitter.emit('ANIMA_PUSH_RECEIVED', {
             order_type: remoteMessage.data.type,
             persona_key: remoteMessage.data.persona_key,
@@ -622,6 +632,16 @@ class NotificationService {
           persona_key: remoteMessage.data.persona_key,
           persona_name: remoteMessage.data.persona_name,
         });
+        
+        // ⭐ NEW: Set tab badge based on order_type
+        const orderType = remoteMessage.data.type;
+        if (orderType === 'gift_image' || orderType === 'gift_music') {
+          await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
+          console.log('[FCM] 🔔 Memory tab badge activated! (background)');
+        } else if (orderType === 'create_music') {
+          await AsyncStorage.setItem('@anima_music_tab_badge', 'true');
+          console.log('[FCM] 🔔 Music tab badge activated! (background)');
+        }
         
         DeviceEventEmitter.emit('ANIMA_PUSH_RECEIVED', {
           order_type: remoteMessage.data.type,

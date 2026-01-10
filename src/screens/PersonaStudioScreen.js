@@ -294,6 +294,9 @@ const PersonaStudioScreen = () => {
           // ✅ FIX: Get latest personas immediately!
           const latestPersonasReload = await initializePersonas();
           
+          // ✅ Wait for React to update Context and trigger re-renders
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           // ✅ FIX: Use latest personas DIRECTLY to update Context!
           if (latestPersonasReload && latestPersonasReload.length > 0) {
             // Restore index (ensure it's within bounds)
@@ -309,8 +312,12 @@ const PersonaStudioScreen = () => {
             if (__DEV__) {
               console.log('[PersonaStudioScreen] ✅ Index restored with LATEST data');
               console.log('   Persona:', targetPersona?.persona_name);
+              console.log('   persona_key:', targetPersona?.persona_key);
               console.log('   done_yn:', targetPersona?.done_yn);
+              console.log('   selected_dress_video_url:', targetPersona?.selected_dress_video_url);
+              console.log('   selected_dress_video_convert_done:', targetPersona?.selected_dress_video_convert_done);
               console.log('   Restored index:', validIndex);
+              console.log('   Latest personas count:', latestPersonasReload.length);
             }
             
             // ✅ FIX: Scroll to restored position immediately (no animation, no delay)

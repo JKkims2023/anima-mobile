@@ -26,6 +26,8 @@ export const STORAGE_KEYS = {
   THEME: '@anima_theme',
   FIRST_LAUNCH: '@anima_first_launch',
   PERSONA_COMMENT_READ_PREFIX: '@anima_persona_comment_read_', // ⭐ NEW: For SAGE/NEXUS (1:N personas)
+  MEMORY_TAB_BADGE: '@anima_memory_tab_badge', // ⭐ NEW: Memory tab badge (gift_image, gift_music)
+  MUSIC_TAB_BADGE: '@anima_music_tab_badge', // ⭐ NEW: Music tab badge (create_music)
 };
 
 /**

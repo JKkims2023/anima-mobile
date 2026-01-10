@@ -196,7 +196,7 @@ const PostcardBack = ({
     markCommentAsRead();
   }, [isVisible, persona?.persona_key, persona?.selected_dress_persona_comment, persona?.persona_comment_checked, user?.user_key, onMarkAsRead]);
   
-  // ⭐ Sequential fade-in animation - triggered when isVisible becomes true
+  // ⭐ Sequential fade-in animation - triggered when isVisible becomes true OR persona changes
   useEffect(() => {
     if (isVisible) {
       // ⭐ Reset all values first
@@ -211,7 +211,12 @@ const PostcardBack = ({
       closeButtonOpacity.value = 0;
       closeButtonScale.value = 0.8;
 
-      console.log('[PostcardBack] persona:', persona);
+      console.log('[PostcardBack] ✅ Animation reset triggered');
+      console.log('   persona_key:', persona?.persona_key);
+      console.log('   persona_name:', persona?.persona_name);
+      console.log('   selected_dress_image_url:', persona?.selected_dress_image_url);
+      console.log('   persona_url:', persona?.persona_url);
+      console.log('   done_yn:', persona?.done_yn);
 
       // ⭐ Start sequential animation (모든 항목 순차적!)
       // 1. Thumbnail (페르소나 썸네일) - 400ms
@@ -254,11 +259,8 @@ const PostcardBack = ({
         withSpring(1, { damping: 12 })
       );
     }
-  }, [isVisible]); // ⭐ Trigger animation when isVisible changes
+  }, [isVisible, persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url]); // ✅ FIX: Trigger animation when persona changes
 
-  useEffect(() => {
-    console.log('[PostcardBack] persona:', persona?.selected_dress_image_url);
-  }, [persona]);
   // ⭐ Pulse animation on close button press
   const handleClosePress = () => {
     HapticService.medium();

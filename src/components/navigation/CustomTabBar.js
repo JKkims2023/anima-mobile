@@ -45,7 +45,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage, isMessageCreationActive, showAlert } = useAnima(); // ⭐ Get badge state and message creation state from Context
+  const { hasNewMessage, isMessageCreationActive, showAlert, hasMemoryBadge, hasMusicBadge } = useAnima(); // ⭐ Get badge state and message creation state from Context
 
 
   const { t } = useTranslation();
@@ -300,6 +300,18 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
                     <CustomText style={styles.newMessageBadgeText}>N</CustomText>
                   </View>
                 )}
+                {/* ⭐ NEW: Memory Badge for Memory tab (gift_image, gift_music) */}
+                {tab.key === 'Memory' && hasMemoryBadge && (
+                  <View style={styles.newMessageBadge}>
+                    <CustomText style={styles.newMessageBadgeText}>N</CustomText>
+                  </View>
+                )}
+                {/* ⭐ NEW: Music Badge for Music tab (create_music) */}
+                {tab.key === 'Music' && hasMusicBadge && (
+                  <View style={styles.newMessageBadge}>
+                    <CustomText style={styles.newMessageBadgeText}>N</CustomText>
+                  </View>
+                )}
               </View>
               <CustomText
                 style={[
@@ -371,7 +383,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF4444',
     borderRadius: scale(8),
     minWidth: scale(16),
-    height: scale(16),
+    height: scale(20),
     paddingHorizontal: scale(4),
     alignItems: 'center',
     justifyContent: 'center',
@@ -381,7 +393,8 @@ const styles = StyleSheet.create({
   
   newMessageBadgeText: {
     fontSize: scale(10),
-    fontWeight: 'bold',
+
+    marginBottom: verticalScale(4),
     color: '#FFFFFF',
   },
   

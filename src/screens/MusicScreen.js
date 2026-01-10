@@ -75,7 +75,7 @@ const MusicScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
-  const { showAlert, showToast } = useAnima();
+  const { showAlert, showToast, clearMusicBadge } = useAnima();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
@@ -160,6 +160,16 @@ const MusicScreen = () => {
       loadMusicList(true); // true = reset
     }
   }, [isAuthenticated, user?.user_key]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Clear Music badge when screen is focused
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useFocusEffect(
+    useCallback(() => {
+      console.log('[MusicScreen] 🔔 Screen focused, clearing badge...');
+      clearMusicBadge();
+    }, [clearMusicBadge])
+  );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🔔 PUSH NOTIFICATION EVENT LISTENER
