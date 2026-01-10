@@ -39,6 +39,7 @@ import SpeakingStyleSheet from './SpeakingStyleSheet';
  * 🎯 입력 항목 정의
  */
 const IDENTITY_FIELDS = [
+  /*
   {
     id: 'persona_name',
     emoji: '🎭',
@@ -49,6 +50,8 @@ const IDENTITY_FIELDS = [
     required: true,
     group: 'basic',
   },
+  */
+ /*
   {
     id: 'ai_nicknames',
     emoji: '💭',
@@ -60,6 +63,7 @@ const IDENTITY_FIELDS = [
     group: 'basic',
     type: 'tags', // 🆕 Tag/Chip 타입
   },
+  */
   {
     id: 'user_nicknames',
     emoji: '👤',
@@ -117,11 +121,10 @@ const IDENTITY_FIELDS = [
  * 💬 말투 선택 옵션
  */
 const SPEAKING_STYLES = [
-  { id: 'friendly', name: '친근한 반말', emoji: '😊' },
-  { id: 'polite', name: '부드러운 존댓말', emoji: '🙏' },
-  { id: 'cute', name: '귀여운 말투', emoji: '🥰' },
-  { id: 'cool', name: '쿨한 말투', emoji: '😎' },
-  { id: 'professional', name: '전문적인 말투', emoji: '💼' },
+  { id: 'formal', name: '정중한 존댓말', emoji: '😊' },
+  { id: 'friendly', name: '친근한 반말', emoji: '👋' },
+  { id: 'casual', name: '편한 반말', emoji: '🥰' },
+  { id: 'sibling', name: '다정한 언니/오빠', emoji: '🤝' },
 ];
 
 const PersonaIdentityCreatorView = ({
@@ -319,7 +322,7 @@ const PersonaIdentityCreatorView = ({
         title: '입력 미완료',
         message: '모든 항목을 입력해야 대화를 시작할 수 있습니다.',
         buttons: [
-          { text: '확인', style: 'primary' }
+          { text: t('common.confirm', '확인'), style: 'primary' }
         ],
       });
       return;
@@ -328,10 +331,11 @@ const PersonaIdentityCreatorView = ({
     try {
       setSaving(true);
       
+      console.log('identityData: ', identityData);
       // 🆕 배열 → 쉼표 구분 문자열로 변환 (서버 전송용)
       const dataToSend = {
-        persona_name: identityData.persona_name,
-        ai_nicknames: identityData.ai_nicknames, // 배열 그대로 전송
+        persona_name: personaName,//identityData.persona_name,
+        ai_nicknames: [],//identityData.ai_nicknames, // 배열 그대로 전송
         user_nicknames: identityData.user_nicknames, // 배열 그대로 전송
         speaking_style: identityData.speaking_style,
         identity: identityData.identity,
@@ -365,15 +369,15 @@ const PersonaIdentityCreatorView = ({
       message: '자아를 입력하지 않으면 채팅이 불가능합니다.\n채팅을 종료하시겠습니까?',
       buttons: [
         { 
-          text: '계속 입력하기', 
+          text: t('common.cancel', '계속 입력하기'), 
           style: 'cancel',
           onPress: () => {
             HapticService.light();
           }
         },
         { 
-          text: '종료', 
-          style: 'destructive',
+          text: t('common.confirm', '종료'), 
+          style: 'primary',
           onPress: () => {
             HapticService.medium();
             onClose();

@@ -158,6 +158,7 @@ const ManagerAIOverlay = ({
   const { currentTheme } = useTheme();
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
   const [currentTypingText, setCurrentTypingText] = useState(''); // ⚡ Complete text (set once!)
@@ -269,6 +270,15 @@ const ManagerAIOverlay = ({
         timeoutManagerRef.current.cancelAll();
         timeoutManagerRef.current = null;
       }
+
+      setMessages([]);
+      setCurrentTypingText('');
+      setIsTyping(false);
+      setIsLoading(false);
+      setIsAIContinuing(false);
+      aiContinueCountRef.current = 0;
+      setCurrentPersonaKey(null);
+      setShowIdentityCreator(false);
     };
   }, [visible]);
   
@@ -357,6 +367,7 @@ const ManagerAIOverlay = ({
     const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
     
     return () => {
+      
       backHandler.remove();
     };
   }, [visible, handleBackPress]);
@@ -444,7 +455,16 @@ const ManagerAIOverlay = ({
       const personaKey = persona?.persona_key || 'SAGE';
       
       if (!userKey) {
-        showWelcomeMessage();
+
+        setIsTyping(true);
+        setIsLoading(true);
+        setIsInitializing(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          setIsLoading(false);
+          showWelcomeMessage();
+        }, 2000);
+
         setLoadingHistory(false);
         return;
       }
@@ -474,7 +494,22 @@ const ManagerAIOverlay = ({
         
         setHasMoreHistory(response.data.hasMore);
       } else {
-        showWelcomeMessage();
+
+        console.log('why not call here?')
+        setIsLoading(true);
+        setIsTyping(true);
+      
+        if(!persona.identity_key || persona.identity_key === '') {
+          setIsInitializing(true);
+        }else{
+          setIsInitializing(false);
+        }
+        setTimeout(() => {
+          setIsLoading(false);
+          setIsTyping(false);
+          showWelcomeMessage();
+        }, 3000);
+
       }
     } catch (error) {
       console.error('❌ [채팅 히스토리] 에러:', error);
@@ -520,8 +555,12 @@ const ManagerAIOverlay = ({
     // 🎭 Check if persona needs identity setup (user-created persona without identity)
     const needsIdentitySetup = persona && 
                                !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) &&
-                               !persona.identity_key;
+                               (!persona.identity_key || persona.identity_key === '');
     
+
+                               console.log('persona: ', persona);
+    console.log('needsIdentitySetup: ', needsIdentitySetup);
+    console.log('persona.identity_key: ', persona.identity_key);
     if (needsIdentitySetup) {
       // Show identity setup welcome message
       const identityGreeting = `안녕! 만나서 반가워! 😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
@@ -556,7 +595,7 @@ const ManagerAIOverlay = ({
         setMessages([greetingMessage, buttonMessage]);
         setIsTyping(false);
         setCurrentTypingText('');
-      }, typingDuration + 100);
+      }, typingDuration + 1500);
     } else {
       // Normal welcome message
       const greetingKey = 'managerAI.public';
@@ -581,7 +620,7 @@ const ManagerAIOverlay = ({
         setMessages([greetingMessage]);
         setIsTyping(false);
         setCurrentTypingText('');
-      }, typingDuration + 100);
+      }, typingDuration + 1500);
     }
   }, [context, t, persona]);
 
@@ -1035,13 +1074,22 @@ const ManagerAIOverlay = ({
       if (!userKey || !personaKey) {
         throw new Error('User or persona key missing');
       }
+
+      console.log('JK identityData: ', identityData);
+
+      console.log('JK userKey: ', userKey);
+      console.log('JK personaKey: ', personaKey);
+      console.log('JK identityData: ', identityData);
       
       // ✅ Call personaApi.createPersonaIdentity (single API call!)
-      const result = await createPersonaIdentity(userKey, personaKey, identityData);
+      const result = await createPersonaIdentity(
+        userKey, 
+        personaKey, identityData);
       
       if (result.success) {
         console.log('✅ [Identity Creator] Identity saved successfully');
         
+        setIsInitializing(false);
         // Show success message
         const personaName = identityData.persona_name || persona?.persona_name || '페르소나';
         showNotificationMessage(`🎉 ${personaName}의 영혼이 탄생했습니다! 이제 대화를 시작할게요!`, 2500);
@@ -1120,6 +1168,8 @@ const ManagerAIOverlay = ({
     setIsHelpOpen(false);
     setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
     setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
+    setIsInitializing(false);
+
     
     // 🆕 Helper function to trigger background learning
     const triggerBackgroundLearning = (capturedMessages, capturedUser, capturedPersona) => {
@@ -1161,7 +1211,7 @@ const ManagerAIOverlay = ({
     
     // ⭐ NEW: Prevent closing if AI is continuing conversation
     if (isAIContinuing || isLoading || isTyping) {
-      Alert.alert(
+      showAlert.alert(
         '💬 AI가 대화 중입니다',
         'AI가 아직 답변을 완료하지 못했습니다.\n정말 채팅을 종료하시겠습니까?',
         [
@@ -1213,10 +1263,23 @@ const ManagerAIOverlay = ({
         ]
       );
       return;
+    }else{
+
+      setMessages([]);
+      setCurrentTypingText('');
+      setIsTyping(false);
+      setIsLoading(false);
+      setIsAIContinuing(false);
+      aiContinueCountRef.current = 0;
+      setCurrentPersonaKey(null);
+      setShowIdentityCreator(false);
+
     }
     
     HapticService.light();
     Keyboard.dismiss();
+
+    setMessages([]);
     
     // 🔥 CRITICAL: Trigger background learning IMMEDIATELY with captured refs
     // This MUST happen before any async operations or component unmount!
@@ -1455,8 +1518,13 @@ const ManagerAIOverlay = ({
               <ChatInputBar
                 onSend={handleSend}
                 onImageSelect={handleImageSelect} // 🆕 Image selection callback
-                disabled={loadingServiceConfig || isLoading || isTyping || isAIContinuing} // ⭐ NEW: Disable when loading config or AI is continuing
-                placeholder={t('chatBottomSheet.placeholder')}
+                disabled={loadingServiceConfig || isLoading || isTyping || isAIContinuing || isInitializing} // ⭐ NEW: Disable when loading config or AI is continuing
+                placeholder={
+                  isInitializing ? t('chatBottomSheet.initializing') :
+                    isLoading ? t('chatBottomSheet.loading') :
+                    isTyping ? t('chatBottomSheet.ai_thinking') :
+                  t('chatBottomSheet.placeholder')
+                }
                 onSettingsPress={() => setIsSettingsMenuOpen(prev => !prev)} // 🎛️ NEW: Toggle settings menu!
                 onCreateMusic={handleCreateMusic} // 🆕 Create music callback
                 onCreateMessage={handleCreateMessage} // 🆕 Create message callback

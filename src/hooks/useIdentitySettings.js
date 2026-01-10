@@ -58,6 +58,8 @@ const useIdentitySettings = (visible, user) => {
     try {
       setLoadingSettings(true);
       const response = await chatApi.getAIPreferences(user.user_key);
+
+      console.log('JK response: ', response);
       
       if (response.success) {
         setSettings({

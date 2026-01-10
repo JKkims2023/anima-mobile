@@ -1187,7 +1187,7 @@ const PersonaStudioScreen = () => {
     console.log('type: ', type);
   }, []);
 
-  const handleDeleteClick = useCallback((persona) => {
+  const handleDeleteClick  = () => {
     console.log('handleDeleteClick');
     showAlert({
       title: t('persona.settings.delete_confirm_title'),
@@ -1195,10 +1195,10 @@ const PersonaStudioScreen = () => {
       emoji: '🗑️',
       buttons: [
         { text: t('common.cancel'), style: 'cancel' },
-        { text: t('common.confirm'), style: 'primary', onPress: () => { handlePersonaDelete(currentPersona) } },
+        { text: t('common.confirm'), style: 'primary', onPress: () => { handlePersonaDelete() } },
       ],
     });
-  }, []);
+  };
 
   // ❌ REMOVED: handleFilterModeChange (UI simplified - single unified list)
 
@@ -1461,28 +1461,50 @@ const PersonaStudioScreen = () => {
     handlePersonaVideoConvertInternal(persona);
   }, [handlePersonaVideoConvertInternal]);
   
-  const handlePersonaDelete = useCallback(async (persona) => {
+  const handlePersonaDelete = async () => {
+    
+    console.log('handlePersonaDelete');
+
+    console.log('user: ', user);
     if (!user?.user_key) return;
+
+    console.log('currentPersona: ', currentPersona);
+    console.log('please');
+
+    if(currentPersona?.default_yn === 'Y') {
+      showAlert({
+        title: t('persona.default_persona_delete_confirm_title'),
+        message: t('persona.default_persona_delete_confirm_message'),
+        emoji: '⚠️',
+        buttons: [
+          { text: t('common.confirm'), style: 'primary' },
+        ],
+      });
+      console.log('default persona delete');
+      return;
+    }
+
+    console.log('currentPersona?.default_yn: ', currentPersona?.default_yn);
     
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🗑️ Delete requested for:', {
-        persona_name: persona.persona_name,
-        persona_key: persona.persona_key,
+        persona_name: currentPersona?.persona_name,
+        persona_key: currentPersona?.persona_key,
       });
     }
     
     try {
       const result = await deletePersona(
-        persona.persona_key,
+        currentPersona?.persona_key,
         user.user_key
       );
 
       if (result.success) {
         // ✅ UPDATE LOCAL ARRAY ONLY (Remove item)
-        setPersonas(prev => prev.filter(p => p.persona_key !== persona.persona_key));
+        setPersonas(prev => prev.filter(p => p.persona_key !== currentPersona?.persona_key));
         
         // If deleted persona was current, reset to first persona
-        if (currentPersona?.persona_key === persona.persona_key) {
+        if (currentPersona?.persona_key === currentPersona?.persona_key) {
           setCurrentPersona(null);
           setCurrentPersonaIndex(0);
         }
@@ -1510,7 +1532,7 @@ const PersonaStudioScreen = () => {
         emoji: '⚠️',
       });
     }
-  }, [user, currentPersona, setPersonas, showToast, t]);
+  };
   
   // ═══════════════════════════════════════════════════════════════════════
   // FAVORITE TOGGLE HANDLER

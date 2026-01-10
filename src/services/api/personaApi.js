@@ -26,6 +26,8 @@ import { logError } from './errorHandler';
  */
 export const getPersonaList = async (userKey) => {
   try {
+
+    console.log('🎭 [PersonaAPI] Getting persona list:', PERSONA_ENDPOINTS.LIST);
     const response = await apiClient.post(PERSONA_ENDPOINTS.LIST, {
       user_key: userKey,
     });
@@ -384,7 +386,7 @@ export const createPersonaIdentity = async (userKey, personaKey, identityData) =
       persona_key: personaKey,
       persona_name: identityData.persona_name,
       user_nicknames: identityData.user_nicknames,
-      speech_style: identityData.speech_style,
+      speaking_style: identityData.speaking_style,
       identity: identityData.identity,
       hobby: identityData.hobby,
       favorite: identityData.favorite,

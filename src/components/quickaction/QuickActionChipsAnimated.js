@@ -485,7 +485,7 @@ const QuickActionChipsAnimated = ({
         // ⭐ Video chip style (주황색 테마 for converting)
         const videoChipStyle = isVideoChip ? {
           backgroundColor: isConvertingState 
-            ? 'rgba(255, 165, 0, 0.3)' // 주황색 배경 (변환 중)
+            ? 'rgba(0, 0, 0, 1)' // 주황색 배경 (변환 중)
             : isWaitingState
               ? 'rgba(255, 59, 92, 0.25)' // 레드 배경 (대기 중)
               : 'rgba(0, 0, 0, 0.65)',

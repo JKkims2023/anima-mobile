@@ -36,12 +36,15 @@ import HapticService from '../../utils/HapticService';
 /**
  * 💬 말투 선택 옵션
  */
+
+
+
+
 const SPEAKING_STYLES = [
-  { id: 'friendly', name: '친근한 반말', emoji: '😊', description: '편하고 친근하게 대화해요' },
-  { id: 'polite', name: '부드러운 존댓말', emoji: '🙏', description: '부드럽고 정중하게 대화해요' },
-  { id: 'cute', name: '귀여운 말투', emoji: '🥰', description: '사랑스럽고 귀엽게 대화해요' },
-  { id: 'cool', name: '쿨한 말투', emoji: '😎', description: '시크하고 멋있게 대화해요' },
-  { id: 'professional', name: '전문적인 말투', emoji: '💼', description: '격식있고 전문적으로 대화해요' },
+  { id: 'formal', name: '정중한 존댓말', emoji: '😊', description: '정중하고 존중하는 말투' },
+  { id: 'friendly', name: '친근한 반말', emoji: '�', description: '따뜻하고 친한 친구 같은 말투' },
+  { id: 'casual', name: '편한 반말', emoji: '🥰', description: '편안하고 격의 없는 말투' },
+  { id: 'sibling', name: '다정한 언니/오빠', emoji: '🤝', description: '든든한 형/언니 같은 말투' },
 ];
 
 const SpeakingStyleSheet = ({
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(8),
   },
   optionEmoji: {
-    fontSize: moderateScale(40),
+    fontSize: moderateScale(20),
   },
   optionName: {
     marginBottom: verticalScale(4),
