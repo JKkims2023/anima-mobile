@@ -84,17 +84,22 @@ export const PersonaProvider = ({ children }) => {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         */
         setPersonas(allPersonas);
+        setIsLoading(false);
+        
+        // ✅ FIX: Return latest personas for immediate access!
+        return allPersonas;
       } catch (apiError) {
         console.error('❌ [PersonaContext] API error:', apiError);
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         // Fallback: Empty array
         setPersonas([]);
+        setIsLoading(false);
+        return [];
       }
-
-      setIsLoading(false);
     } catch (error) {
       console.error('❌ [PersonaContext] Initialization error:', error);
       setIsLoading(false);
+      return [];
     }
   }, [userKey]); // ⚡ CRITICAL FIX: Only depend on userKey, not entire user object!
 

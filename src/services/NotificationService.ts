@@ -1,6 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
-import { Platform, PermissionsAndroid, Vibration } from 'react-native';
+import { Platform, PermissionsAndroid, Vibration, DeviceEventEmitter } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Constants
@@ -340,6 +340,24 @@ class NotificationService {
           return;
         }
         
+        // ⭐ NEW: Emit event for screen refresh (JK & Hero Nexus)
+        if (remoteMessage.data?.type) {
+          console.log('[FCM] 🔔 Emitting ANIMA_PUSH_RECEIVED event...');
+          console.log('[FCM] Event data:', {
+            order_type: remoteMessage.data.type,
+            persona_key: remoteMessage.data.persona_key,
+            persona_name: remoteMessage.data.persona_name,
+          });
+          
+          DeviceEventEmitter.emit('ANIMA_PUSH_RECEIVED', {
+            order_type: remoteMessage.data.type,
+            persona_key: remoteMessage.data.persona_key,
+            persona_name: remoteMessage.data.persona_name,
+          });
+          
+          console.log('[FCM] ✅ Event emitted successfully');
+        }
+        
         if (Platform.OS === 'android') {
           console.log('[FCM] 🤖 Handling Android foreground message...');
           this.handleAndroidForegroundMessage(remoteMessage);
@@ -594,6 +612,24 @@ class NotificationService {
           !remoteMessage.notification.body) {
         console.log('[FCM] ⚠️  Invalid background message, ignoring');
         return Promise.resolve();
+      }
+      
+      // ⭐ NEW: Emit event for screen refresh (JK & Hero Nexus)
+      if (remoteMessage.data?.type) {
+        console.log('[FCM] 🔔 Emitting ANIMA_PUSH_RECEIVED event (background)...');
+        console.log('[FCM] Event data:', {
+          order_type: remoteMessage.data.type,
+          persona_key: remoteMessage.data.persona_key,
+          persona_name: remoteMessage.data.persona_name,
+        });
+        
+        DeviceEventEmitter.emit('ANIMA_PUSH_RECEIVED', {
+          order_type: remoteMessage.data.type,
+          persona_key: remoteMessage.data.persona_key,
+          persona_name: remoteMessage.data.persona_name,
+        });
+        
+        console.log('[FCM] ✅ Event emitted successfully (background)');
       }
       
       try {

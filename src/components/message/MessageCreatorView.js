@@ -22,7 +22,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import PersonaSelectorHorizontal from './PersonaSelectorHorizontal';
 import PersonaBackgroundView from './PersonaBackgroundView';
 import MessagePreviewOverlay from './MessagePreviewOverlay';
 import MessageInputBottomSheet from './MessageInputBottomSheet';
@@ -65,37 +64,13 @@ const MessageCreatorView = ({
     `rgba(0, 0, 0, 0.7)` 
   ];
   
-  // Default personas (SAGE, Nexus)
-  const defaultPersonas = [
-    {
-      persona_key: 'default_sage',
-      persona_name: 'SAGE',
-      original_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png',
-      selected_dress_video_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/46fb3532-e41a-4b96-8105-a39e64f39407_00001_.mp4',
-      selected_dress_video_convert_yn: 'Y',
-      isDefault: true,
-      done_yn: 'Y',
-    },
-    {
-      persona_key: 'default_nexus',
-      persona_name: 'Nexus',
-      original_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/29e7b9c3-b2a2-4559-8021-a8744ef509cd_00001_.png',
-      selected_dress_video_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/5b444ca5-d161-47a1-bfae-81171f8df1f1_00001_.mp4',
-      selected_dress_video_convert_yn: 'Y',
-      isDefault: true,
-      done_yn: 'Y',
-    },
-  ];
-
-  // Always include default personas, then user personas
-  const displayPersonas = personas.length === 0 
-    ? defaultPersonas 
-    : [...defaultPersonas, ...personas];
+  // ✅ All personas (including SAGE/Nexus) are now loaded from DB via PersonaContext
+  // ✅ No hardcoded defaultPersonas needed
+  const displayPersonas = personas;
 
   // Debug log
   console.log('[MessageCreatorView] Personas:', {
-    userPersonas: personas.length,
-    defaultPersonas: defaultPersonas.length,
+    totalPersonas: personas.length,
     displayPersonas: displayPersonas.length,
     displayPersonasKeys: displayPersonas.map(p => p.persona_key),
   });

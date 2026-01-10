@@ -26,6 +26,7 @@ import {
   Platform,
   Share,
   Image,
+  DeviceEventEmitter,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
@@ -161,6 +162,53 @@ const MemoryScreen = () => {
       loadGiftList(true); // true = reset
     }
   }, [isAuthenticated, user?.user_key]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🔔 PUSH NOTIFICATION EVENT LISTENER
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    console.log('[MemoryScreen] 🔔 Registering push event listener...');
+    
+    const subscription = DeviceEventEmitter.addListener('ANIMA_PUSH_RECEIVED', async (data) => {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[MemoryScreen] 🔔 Push received!');
+      console.log('   order_type:', data.order_type);
+      console.log('   persona_key:', data.persona_key);
+      console.log('   persona_name:', data.persona_name);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const { order_type } = data;
+      
+      if (order_type === 'gift_image' || order_type === 'gift_music') {
+        // ✅ 완전 초기화 + 스크롤 최상단
+        console.log(`[MemoryScreen] 🎁 ${order_type}: Full reset + scroll to top`);
+        
+        // Reload gift list (reset = true)
+        await loadGiftList(true);
+        
+        // Scroll to top
+        if (flashListRef.current) {
+          requestAnimationFrame(() => {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          });
+        }
+        
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: order_type === 'gift_image' ? '🖼️' : '🎵',
+          message: order_type === 'gift_image'
+            ? t('memory.gift_image.received')
+            : t('memory.gift_music.received'),
+        });
+      }
+    });
+    
+    return () => {
+      console.log('[MemoryScreen] 🔔 Removing push event listener...');
+      subscription.remove();
+    };
+  }, [loadGiftList, showToast, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Filter music list by search and filter

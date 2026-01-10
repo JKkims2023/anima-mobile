@@ -235,7 +235,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   return (
     <>
     <GradientOverlay
-      height={400} // ⭐ Increase height to fit pagination + content! (200 → 400)
+      height={200} // ⭐ Increase height to fit pagination + content! (200 → 400)
       style={styles.gradientStyle} // ⭐ LinearGradient styles (position, zIndex, etc.)
       containerStyle={[
         styles.gradientContainerStyle, // ⭐ Inner View styles (padding, etc.)

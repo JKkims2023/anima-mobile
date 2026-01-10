@@ -23,7 +23,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
@@ -228,52 +228,131 @@ const PersonaStudioScreen = () => {
     }, [isMessageCreationVisible])
   );
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // 🔔 PUSH NOTIFICATION EVENT LISTENER
+  // ═══════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    console.log('[PersonaStudioScreen] 🔔 Registering push event listener...');
+    
+    const subscription = DeviceEventEmitter.addListener('ANIMA_PUSH_RECEIVED', async (data) => {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[PersonaStudioScreen] 🔔 Push received!');
+      console.log('   order_type:', data.order_type);
+      console.log('   persona_key:', data.persona_key);
+      console.log('   persona_name:', data.persona_name);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const { order_type } = data;
+      
+      switch (order_type) {
+        case 'create_persona':
+          // ✅ 완전 초기화 + 스크롤 최상단
+          console.log('[PersonaStudioScreen] 🎨 create_persona: Full reset + scroll to top');
+          
+          // ✅ FIX: Get latest personas immediately!
+          const latestPersonas = await initializePersonas();
+          
+          // ✅ FIX: Use latest personas DIRECTLY to update Context!
+          // This ensures CustomTabBar gets the correct data immediately!
+          if (latestPersonas && latestPersonas.length > 0) {
+            const targetPersona = latestPersonas[0];
+            
+            // ✅ Synchronize ALL states with latest data directly!
+            savedIndexRef.current = 0;
+            setCurrentPersonaIndex(0);
+            setSelectedIndex(0);
+            setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+            
+            if (__DEV__) {
+              console.log('[PersonaStudioScreen] ✅ Index synchronized with LATEST data');
+              console.log('   Persona:', targetPersona.persona_name);
+              console.log('   done_yn:', targetPersona.done_yn);
+            }
+            
+            // ✅ FIX: Scroll to top immediately (no animation, no delay)
+            if (swiperRef.current) {
+              swiperRef.current.scrollToIndex({ index: 0, animated: false });
+            }
+          }
+          
+          HapticService.success();
+          showToast({
+            type: 'success',
+            emoji: '✨',
+            message: t('persona.creation.completed'),
+          });
+          break;
+          
+        case 'create_dress':
+        case 'convert_video':
+          // ✅ 리로드 (인덱스/스크롤 유지)
+          console.log(`[PersonaStudioScreen] 👗 ${order_type}: Reload (keep index & scroll)`);
+          
+          // Save current index
+          const savedIndex = currentPersonaIndex;
+          
+          // ✅ FIX: Get latest personas immediately!
+          const latestPersonasReload = await initializePersonas();
+          
+          // ✅ FIX: Use latest personas DIRECTLY to update Context!
+          if (latestPersonasReload && latestPersonasReload.length > 0) {
+            // Restore index (ensure it's within bounds)
+            const validIndex = Math.min(savedIndex, latestPersonasReload.length - 1);
+            const targetPersona = latestPersonasReload[validIndex];
+            
+            // ✅ Synchronize ALL states with latest data directly!
+            savedIndexRef.current = validIndex;
+            setCurrentPersonaIndex(validIndex);
+            setSelectedIndex(validIndex);
+            setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+            
+            if (__DEV__) {
+              console.log('[PersonaStudioScreen] ✅ Index restored with LATEST data');
+              console.log('   Persona:', targetPersona?.persona_name);
+              console.log('   done_yn:', targetPersona?.done_yn);
+              console.log('   Restored index:', validIndex);
+            }
+            
+            // ✅ FIX: Scroll to restored position immediately (no animation, no delay)
+            if (swiperRef.current) {
+              swiperRef.current.scrollToIndex({ index: validIndex, animated: false });
+            }
+          }
+          
+          HapticService.success();
+          showToast({
+            type: 'success',
+            emoji: order_type === 'create_dress' ? '👗' : '🎬',
+            message: order_type === 'create_dress' 
+              ? t('persona.dress.created')
+              : t('persona.video.converted'),
+          });
+          break;
+          
+        default:
+          console.log('[PersonaStudioScreen] ⚠️ Unknown order_type:', order_type);
+          break;
+      }
+    });
+    
+    return () => {
+      console.log('[PersonaStudioScreen] 🔔 Removing push event listener...');
+      subscription.remove();
+    };
+  }, [initializePersonas, currentPersonaIndex, setSelectedPersona, setSelectedIndex, showToast, t]);
 
   
   // ═══════════════════════════════════════════════════════════════════════
-  // DEFAULT PERSONAS (SAGE, Nexus)
+  // USER PERSONAS (Loaded from Database via PersonaContext)
   // ═══════════════════════════════════════════════════════════════════════
-  const DEFAULT_PERSONAS = useMemo(() => [
-    {
-      persona_key: 'default_sage',
-      persona_name: 'SAGE',
-      persona_gender: 'male',
-      persona_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png',
-      selected_dress_video_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/46fb3532-e41a-4b96-8105-a39e64f39407_00001_.mp4',
-      selected_dress_video_convert_done: 'Y',
-      selected_dress_image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png',
-      isDefault: true,
-      done_yn: 'Y', // ⭐ FIX: Add done_yn to prevent loading indicator
-      dress_count: 0,
-    },
-    {
-      persona_key: 'default_nexus',
-      persona_name: 'Nexus',
-      persona_gender: 'female',
-      persona_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/29e7b9c3-b2a2-4559-8021-a8744ef509cd_00001_.png',
-      selected_dress_video_url: null, // ⭐ FIX: Temporarily disable video due to URL error
-      selected_dress_video_convert_done: 'N',
-      selected_dress_image_url: 'https://babi-cdn.logbrix.ai/babi/real/babi/29e7b9c3-b2a2-4559-8021-a8744ef509cd_00001_.png',
-      isDefault: true,
-      done_yn: 'Y', // ⭐ FIX: Add done_yn to prevent loading indicator
-      dress_count: 0,
-    },
-  ], []);
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // COMBINED PERSONAS (Default + User Personas)
-  // ═══════════════════════════════════════════════════════════════════════
+  // ✅ All personas (including SAGE/Nexus) are now loaded from DB
+  // ✅ No hardcoded DEFAULT_PERSONAS needed
   const personasWithDefaults = useMemo(() => {
-    // ⭐ FIX: Filter out Manager AI AND default personas to prevent key duplicates
-    const userPersonas = personas.filter(p => 
-      !p.isManager && 
-      p.persona_key !== 'default_sage' && 
-      p.persona_key !== 'default_nexus'
-    );
+    // Filter out Manager AI only (SAGE/Nexus are now from DB)
+    const userPersonas = personas.filter(p => !p.isManager);
     
- //   return [...DEFAULT_PERSONAS, ...userPersonas];
- return [...userPersonas];
-  }, [personas, DEFAULT_PERSONAS]);
+    return userPersonas;
+  }, [personas]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // ⭐ SIMPLIFIED: FILTERED PERSONAS (searchQuery only + showDefaultPersonas setting)
@@ -312,10 +391,17 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   // UPDATE CURRENT PERSONA ON INDEX CHANGE
   // ═══════════════════════════════════════════════════════════════════════
-  useMemo(() => {
+  // ✅ FIX: useMemo → useEffect (setState는 side effect이므로 useEffect에서!)
+  useEffect(() => {
     if (currentFilteredPersonas.length > 0) {
       const validIndex = Math.min(currentPersonaIndex, currentFilteredPersonas.length - 1);
       setCurrentPersona(currentFilteredPersonas[validIndex]);
+      
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔄 Current persona updated:');
+        console.log('   Index:', validIndex);
+        console.log('   Persona:', currentFilteredPersonas[validIndex]?.persona_name);
+      }
     }
   }, [currentPersonaIndex, currentFilteredPersonas]);
   
@@ -358,18 +444,69 @@ const PersonaStudioScreen = () => {
   // EVENT HANDLERS
   // ═══════════════════════════════════════════════════════════════════════
   
+  // ✅ MOVED: Handle persona change (MUST be defined before handleRefresh!)
+  const handlePersonaChange = useCallback((newIndex) => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 📍 Persona index changed:', newIndex);
+      console.log('   currentFilteredPersonas length:', currentFilteredPersonas?.length);
+    }
+    
+    savedIndexRef.current = newIndex;
+    setCurrentPersonaIndex(newIndex);
+    setSelectedIndex(newIndex); // Update index (legacy support)
+    
+    // ⭐ NEW: Update actual persona object in PersonaContext
+    const actualPersona = currentFilteredPersonas?.[newIndex];
+    if (actualPersona) {
+      setSelectedPersona(actualPersona);
+      if (__DEV__) {
+        console.log('✅ [PersonaStudioScreen] Set selectedPersona:', actualPersona.persona_name);
+        console.log('   persona_key:', actualPersona.persona_key);
+        console.log('   identity_name:', actualPersona.identity_name);
+      }
+    }
+  }, [setSelectedIndex, setSelectedPersona, currentFilteredPersonas]);
+  
   // ⭐ NEW: Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔄 [PersonaStudioScreen] Pull-to-refresh triggered');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
+    // ✅ FIX: Save current index before refresh (to restore after)
+    const savedIndex = currentPersonaIndex;
+    
     setIsRefreshing(true);
     HapticService.light();
     
     try {
-      // Reload persona list from API
-      await initializePersonas();
+      // ✅ FIX: Get latest personas immediately!
+      const latestPersonasRefresh = await initializePersonas();
+      
+      // ✅ FIX: Use latest personas DIRECTLY to update Context!
+      if (latestPersonasRefresh && latestPersonasRefresh.length > 0 && savedIndex >= 0) {
+        // Restore index (ensure it's within bounds)
+        const validIndex = Math.min(savedIndex, latestPersonasRefresh.length - 1);
+        const targetPersona = latestPersonasRefresh[validIndex];
+        
+        // ✅ Synchronize ALL states with latest data directly!
+        savedIndexRef.current = validIndex;
+        setCurrentPersonaIndex(validIndex);
+        setSelectedIndex(validIndex);
+        setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] 🎯 Index restored after refresh:', validIndex);
+          console.log('   Persona:', targetPersona?.persona_name);
+          console.log('   done_yn:', targetPersona?.done_yn);
+          console.log('   Latest personas count:', latestPersonasRefresh?.length);
+        }
+        
+        // ✅ FIX: Scroll to restored position immediately (no animation, no delay)
+        if (swiperRef.current) {
+          swiperRef.current.scrollToIndex({ index: validIndex, animated: false });
+        }
+      }
       
       HapticService.success();
       /*
@@ -394,30 +531,9 @@ const PersonaStudioScreen = () => {
       setIsRefreshing(false);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     }
-  }, [initializePersonas, showToast, t]);
+  }, [initializePersonas, showToast, t, currentPersonaIndex, setSelectedPersona, setSelectedIndex]);
   
-  // Handle persona change from PersonaSwipeViewer
-  const handlePersonaChange = useCallback((newIndex) => {
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📍 Persona index changed:', newIndex);
-      console.log('   currentFilteredPersonas length:', currentFilteredPersonas.length);
-    }
-    
-    savedIndexRef.current = newIndex;
-    setCurrentPersonaIndex(newIndex);
-    setSelectedIndex(newIndex); // Update index (legacy support)
-    
-    // ⭐ NEW: Update actual persona object in PersonaContext
-    const actualPersona = currentFilteredPersonas[newIndex];
-    if (actualPersona) {
-      setSelectedPersona(actualPersona);
-      if (__DEV__) {
-        console.log('✅ [PersonaStudioScreen] Set selectedPersona:', actualPersona.persona_name);
-        console.log('   persona_key:', actualPersona.persona_key);
-        console.log('   identity_name:', actualPersona.identity_name);
-      }
-    }
-  }, [setSelectedIndex, setSelectedPersona, currentFilteredPersonas]);
+  // ❌ REMOVED: Duplicate handlePersonaChange (now defined above handleRefresh)
   
   // ❌ REMOVED: handlePanelToggle, handlePanelClose, handlePersonaSelectFromPanel (PersonaSelectorButton/Panel removed)
   
@@ -697,8 +813,33 @@ const PersonaStudioScreen = () => {
       });
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      // ⭐ Refresh persona list immediately (new persona will appear with original_url)
-      await initializePersonas();
+      // ✅ FIX: Full reload with index synchronization (same as push notification)
+      const latestPersonas = await initializePersonas();
+      
+      // ✅ Wait for React to update Context and trigger re-renders
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (latestPersonas && latestPersonas.length > 0) {
+        // New persona should be at index 0 (most recent)
+        const targetPersona = latestPersonas[0];
+        
+        // ✅ Synchronize ALL states with latest data
+        savedIndexRef.current = 0;
+        setCurrentPersonaIndex(0);
+        setSelectedIndex(0);
+        setSelectedPersona(targetPersona);
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] ✅ New persona created, reset to index 0');
+          console.log('   New persona:', targetPersona.persona_name);
+          console.log('   Total personas:', latestPersonas.length);
+        }
+        
+        // ✅ Scroll to top (no animation)
+        if (swiperRef.current) {
+          swiperRef.current.scrollToIndex({ index: 0, animated: false });
+        }
+      }
       
       // ⭐ Hide loading overlay
       setIsCreatingPersona(false);
@@ -1189,6 +1330,19 @@ const PersonaStudioScreen = () => {
 
   const handleDeleteClick  = () => {
     console.log('handleDeleteClick');
+
+    if(currentPersona?.default_yn === 'Y') {
+      showAlert({
+        title: t('persona.default_persona_delete_confirm_title'),
+        message: t('persona.default_persona_delete_confirm_message'),
+        emoji: '⚠️',
+        buttons: [
+          { text: t('common.confirm'), style: 'primary' },
+        ],
+      });
+      return;
+    }
+
     showAlert({
       title: t('persona.settings.delete_confirm_title'),
       message: t('persona.settings.delete_confirm_message',{name: currentPersona?.persona_name}),
@@ -1500,17 +1654,55 @@ const PersonaStudioScreen = () => {
       );
 
       if (result.success) {
-        // ✅ UPDATE LOCAL ARRAY ONLY (Remove item)
-        setPersonas(prev => prev.filter(p => p.persona_key !== currentPersona?.persona_key));
-        
-        // If deleted persona was current, reset to first persona
-        if (currentPersona?.persona_key === currentPersona?.persona_key) {
-          setCurrentPersona(null);
-          setCurrentPersonaIndex(0);
-        }
-        
-        // ✅ Close settings sheet after successful deletion
+        // ✅ Close settings sheet immediately
         setIsPersonaSettingsOpen(false);
+        
+        // ✅ FIX: Reload personas from DB (same as push notification logic)
+        const deletedPersonaKey = currentPersona?.persona_key;
+        const currentIndex = currentPersonaIndex;
+        
+        // Get latest personas from DB
+        const latestPersonas = await initializePersonas();
+        
+        // ✅ Wait for React to update Context and trigger re-renders
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        if (latestPersonas && latestPersonas.length > 0) {
+          // Calculate new index after deletion
+          // If we deleted the last item, move to the new last item
+          // Otherwise, stay at the same index (which now shows the next item)
+          const newIndex = Math.min(currentIndex, latestPersonas.length - 1);
+          const targetPersona = latestPersonas[newIndex];
+          
+          // ✅ Synchronize ALL states with latest data
+          savedIndexRef.current = newIndex;
+          setCurrentPersonaIndex(newIndex);
+          setSelectedIndex(newIndex);
+          setSelectedPersona(targetPersona);
+          
+          if (__DEV__) {
+            console.log('[PersonaStudioScreen] ✅ Persona deleted, index updated');
+            console.log('   Deleted persona:', deletedPersonaKey);
+            console.log('   Previous index:', currentIndex);
+            console.log('   New index:', newIndex);
+            console.log('   New persona:', targetPersona?.persona_name);
+            console.log('   Remaining personas:', latestPersonas.length);
+          }
+          
+          // ✅ Scroll to new position (no animation)
+          if (swiperRef.current) {
+            swiperRef.current.scrollToIndex({ index: newIndex, animated: false });
+          }
+        } else {
+          // No personas left
+          if (__DEV__) {
+            console.log('[PersonaStudioScreen] ⚠️ No personas remaining after delete');
+          }
+          savedIndexRef.current = 0;
+          setCurrentPersonaIndex(0);
+          setSelectedIndex(0);
+          setSelectedPersona(null);
+        }
         
         showToast({
           type: 'success',
@@ -1519,7 +1711,7 @@ const PersonaStudioScreen = () => {
         });
         
         if (__DEV__) {
-          console.log('[PersonaStudioScreen] ✅ Persona deleted (local update only)');
+          console.log('[PersonaStudioScreen] ✅ Delete completed with index sync');
         }
       } else {
         throw new Error(result.message || 'Delete failed');

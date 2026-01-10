@@ -25,6 +25,7 @@ import {
   RefreshControl,
   Platform,
   Share,
+  DeviceEventEmitter,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
@@ -159,6 +160,51 @@ const MusicScreen = () => {
       loadMusicList(true); // true = reset
     }
   }, [isAuthenticated, user?.user_key]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🔔 PUSH NOTIFICATION EVENT LISTENER
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    console.log('[MusicScreen] 🔔 Registering push event listener...');
+    
+    const subscription = DeviceEventEmitter.addListener('ANIMA_PUSH_RECEIVED', async (data) => {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[MusicScreen] 🔔 Push received!');
+      console.log('   order_type:', data.order_type);
+      console.log('   persona_key:', data.persona_key);
+      console.log('   persona_name:', data.persona_name);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const { order_type } = data;
+      
+      if (order_type === 'create_music') {
+        // ✅ 완전 초기화 + 스크롤 최상단
+        console.log('[MusicScreen] 🎵 create_music: Full reset + scroll to top');
+        
+        // Reload music list (reset = true)
+        await loadMusicList(true);
+        
+        // Scroll to top
+        if (flashListRef.current) {
+          requestAnimationFrame(() => {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          });
+        }
+        
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: '🎵',
+          message: t('music.created'),
+        });
+      }
+    });
+    
+    return () => {
+      console.log('[MusicScreen] 🔔 Removing push event listener...');
+      subscription.remove();
+    };
+  }, [loadMusicList, showToast, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Filter music list by search and filter

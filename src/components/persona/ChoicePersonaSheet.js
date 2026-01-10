@@ -298,6 +298,8 @@ const ChoicePersonaSheet = ({
 
     HapticService.success();
 
+    console.log('[ChoicePersonaSheet] Gender:', gender);
+
     // Pass data to parent
     onCreateStart({
       file: photo,
@@ -445,7 +447,7 @@ const ChoicePersonaSheet = ({
     <CustomBottomSheet
       ref={bottomSheetRef}
       onClose={onClose}
-      snapPoints={['75%']}
+      snapPoints={['85%']}
       title={t('persona.creation.title', '새로운 페르소나')}
       showCloseButton={true}
       buttons={[
@@ -473,7 +475,7 @@ const ChoicePersonaSheet = ({
         <View style={[styles.section, { marginTop: verticalScale(0) }]}>
           <View style={styles.sectionHeader}>
             <Icon name="pencil" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
-            <CustomText type="title" bold style={styles.sectionTitle}>
+            <CustomText type="title"  style={styles.sectionTitle}>
               {t('persona.creation.name_title', '이름')}
             </CustomText>
           </View>
@@ -599,76 +601,17 @@ const ChoicePersonaSheet = ({
         <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
 
         {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 1: Photo Upload                                            */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
-          <View style={styles.sectionHeader}>
-            <Icon name="camera" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
-            <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('persona.creation.photo_title', '사진 선택')}
-            </CustomText>
-          </View>
-
-          <CustomText type="normal" style={[styles.sectionHint, {  color: currentTheme.textSecondary }]}>
-            {t('persona.creation.photo_hint', '페르소나로 만들 사진을 선택해주세요')}
-          </CustomText>
-
-          <TouchableOpacity
-            style={[
-              styles.photoUploadArea,
-              { 
-                backgroundColor: currentTheme.bgSecondary,
-                borderColor: photo ? COLORS.DEEP_BLUE : currentTheme.borderPrimary,
-              }
-            ]}
-            onPress={handlePhotoSelect}
-            activeOpacity={0.7}
-          >
-            {photo ? (
-              <Animated.View style={[styles.photoPreviewContainer, photoAnimStyle]}>
-                <Image
-                  source={{ uri: photo.uri }}
-                  style={styles.photoPreview}
-                  resizeMode="cover"
-                />
-                
-                {/* Remove button */}
-                <TouchableOpacity
-                  style={styles.photoRemoveButton}
-                  onPress={handlePhotoRemove}
-                  activeOpacity={0.8}
-                >
-                  <Icon name="close-circle" size={moderateScale(28)} color="#EF4444" />
-                </TouchableOpacity>
-
-                {/* Success indicator */}
-                <View style={styles.photoSuccessIndicator}>
-                  <Icon name="check-circle" size={moderateScale(24)} color="#10B981" />
-                </View>
-              </Animated.View>
-            ) : (
-              <View style={styles.photoPlaceholder}>
-                <Icon name="camera-plus" size={moderateScale(48)} color={currentTheme.textTertiary} />
-                <CustomText type="normal" style={[styles.photoPlaceholderText, { color: currentTheme.textSecondary }]}>
-                  {t('persona.creation.photo_placeholder', '사진 선택하기')}
-                </CustomText>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 3: Gender Selection                                        */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { display: 'none' }]}>
+        <View style={[styles.section, { }]}>
           <View style={styles.sectionHeader}>
             <Icon name="human-male-female" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
-            <CustomText type="big" bold style={styles.sectionTitle}>
+            <CustomText type="title"  style={styles.sectionTitle}>
               {t('persona.creation.gender_title', '성별')}
             </CustomText>
           </View>
 
-          <CustomText type="normal" style={[styles.sectionHint, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.sectionHint, { display: 'none', color: currentTheme.textSecondary }]}>
             {t('persona.creation.gender_hint', '페르소나의 성별을 선택해주세요')}
           </CustomText>
 
@@ -726,6 +669,66 @@ const ChoicePersonaSheet = ({
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* SECTION 1: Photo Upload                                            */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
+          <View style={styles.sectionHeader}>
+            <Icon name="camera" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
+            <CustomText type="title"  style={styles.sectionTitle}>
+              {t('persona.creation.photo_title', '사진 선택')}
+            </CustomText>
+          </View>
+
+          <CustomText type="normal" style={[styles.sectionHint, {  color: currentTheme.textSecondary }]}>
+            {t('persona.creation.photo_hint', '페르소나로 만들 사진을 선택해주세요')}
+          </CustomText>
+
+          <TouchableOpacity
+            style={[
+              styles.photoUploadArea,
+              { 
+                backgroundColor: currentTheme.bgSecondary,
+                borderColor: photo ? COLORS.DEEP_BLUE : currentTheme.borderPrimary,
+              }
+            ]}
+            onPress={handlePhotoSelect}
+            activeOpacity={0.7}
+          >
+            {photo ? (
+              <Animated.View style={[styles.photoPreviewContainer, photoAnimStyle]}>
+                <Image
+                  source={{ uri: photo.uri }}
+                  style={styles.photoPreview}
+                  resizeMode="cover"
+                />
+                
+                {/* Remove button */}
+                <TouchableOpacity
+                  style={styles.photoRemoveButton}
+                  onPress={handlePhotoRemove}
+                  activeOpacity={0.8}
+                >
+                  <Icon name="close-circle" size={moderateScale(28)} color="#EF4444" />
+                </TouchableOpacity>
+
+                {/* Success indicator */}
+                <View style={styles.photoSuccessIndicator}>
+                  <Icon name="check-circle" size={moderateScale(24)} color="#10B981" />
+                </View>
+              </Animated.View>
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                <Icon name="camera-plus" size={moderateScale(48)} color={currentTheme.textTertiary} />
+                <CustomText type="normal" style={[styles.photoPlaceholderText, { color: currentTheme.textSecondary }]}>
+                  {t('persona.creation.photo_placeholder', '사진 선택하기')}
+                </CustomText>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
 
       </View>
 
