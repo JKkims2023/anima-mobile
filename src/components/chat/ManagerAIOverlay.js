@@ -355,9 +355,9 @@ const ManagerAIOverlay = ({
     showYouTubePlayer,
     floatingContent?.showPlayer,
     isHelpOpen, 
-    handleClose,
+    handleClose, // ✅ KEPT: handleBackPress NEEDS handleClose (not circular!)
     handleYouTubeClose,
-    setFloatingContent,
+    handleMusicClose, // ✅ FIXED: Added handleMusicClose to dependencies
   ]);
   
   // ⭐ NEW: Android Back Button Handler (uses handleBackPress!)
@@ -378,6 +378,16 @@ const ManagerAIOverlay = ({
     
     // 🔥 CRITICAL: Only load if user is fully loaded!
     if (!user || !user.user_key) {
+
+        setIsTyping(true);
+        setIsLoading(true);
+        setIsInitializing(false);
+        setTimeout(() => {
+          setIsTyping(false);
+          setIsLoading(false);
+          showNotLoginMessage();
+        }, 2000);
+
       return; // ⚠️ Don't proceed without user!
     }
     
@@ -456,6 +466,7 @@ const ManagerAIOverlay = ({
       
       if (!userKey) {
 
+        console.log('user not login?')
         setIsTyping(true);
         setIsLoading(true);
         setIsInitializing(true);
@@ -499,8 +510,12 @@ const ManagerAIOverlay = ({
         setIsLoading(true);
         setIsTyping(true);
       
-        if(!persona.identity_key || persona.identity_key === '') {
-          setIsInitializing(true);
+        if(persona?.default_yn != 'Y') {
+          if(!persona.identity_key || persona.identity_key === '') {
+            setIsInitializing(true);
+          }else{
+            setIsInitializing(false);
+          }
         }else{
           setIsInitializing(false);
         }
@@ -517,7 +532,7 @@ const ManagerAIOverlay = ({
     } finally {
       setLoadingHistory(false);
     }
-  }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage, startAIConversation]);
+  }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage]); // ✅ FIXED BUG 3: Removed unused startAIConversation
   
   // ⚡ OPTIMIZED: Show notification message (TypingMessageBubble handles animation!)
   const showNotificationMessage = useCallback((message, autoHideDuration = 2000) => {
@@ -630,11 +645,11 @@ const ManagerAIOverlay = ({
       
       // ⚡ Start typing effect
       setIsTyping(true);
-        setCurrentTypingText(greeting);
+      setCurrentTypingText(greeting);
         
-        // ✅ Calculate typing duration using helper
-        const typingDuration = calculateTotalDuration(greeting);
-        
+      // ✅ Calculate typing duration using helper
+      const typingDuration = calculateTotalDuration(greeting);
+      
         // After typing completes, add to messages
       setTimeout(() => {
         const greetingMessage = {
@@ -648,6 +663,7 @@ const ManagerAIOverlay = ({
         setIsTyping(false);
         setCurrentTypingText('');
       }, typingDuration + 100);
+      
     }, [context, t]);
   
   // ⚡ OPTIMIZED: AI auto conversation starter (TypingMessageBubble handles animation!)
@@ -811,6 +827,11 @@ const ManagerAIOverlay = ({
   const handleSend = useCallback(async (text) => {
     HapticService.medium();
     
+    // ✅ FIX BUG 1: Create Data URI for image metadata storage
+    const imageDataUri = selectedImage 
+      ? `data:${selectedImage.type};base64,${selectedImage.base64}`
+      : null;
+    
     // ✅ Use helper function to create user message
     const userMessage = createUserMessage(text, selectedImage);
     
@@ -856,7 +877,7 @@ const ManagerAIOverlay = ({
         persona_key: persona?.persona_key || null, // ⭐ NEW: Include persona_key
         // 🆕 Include image data if available
         image: selectedImage ? {
-          uri: imageDataUri, // ⭐ FIX: Use Data URI for metadata storage
+          uri: imageDataUri, // ✅ FIXED: Now properly defined!
           data: selectedImage.base64,
           mimeType: selectedImage.type,
         } : null,
@@ -1226,60 +1247,57 @@ const ManagerAIOverlay = ({
             text: '종료',
             style: 'destructive',
             onPress: () => {
-              // 🧹 Clear all UI states
-              setFloatingContent(null);
-              setIsHelpOpen(false);
-              setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
-              setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
-              // Force stop AI conversation
+              // ✅ FIXED BUG 4: Removed duplicate initialization
+              // Force stop AI conversation immediately
               setIsAIContinuing(false);
-              aiContinueCountRef.current = 0; // ⭐ Reset ref
               setIsLoading(false);
               setIsTyping(false);
               
               // 🆕 Trigger background learning before closing
               triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
               
-              // Close overlay
+              // Close overlay with haptic feedback
               HapticService.medium();
               Keyboard.dismiss();
-              setIsHelpOpen(false);
+              
+              // 🧹 Unified cleanup in setTimeout
               setTimeout(() => {
+                // Reset all chat states
                 setMessages([]);
-                setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
+                setCurrentTypingText('');
                 setIsTyping(false);
+                setIsLoading(false);
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
-                setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
-                setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
-                setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
-              }, 200);
-              
-              if (onClose) {
-                onClose();
-              }
+                setCurrentPersonaKey(null);
+                
+                // Reset all sheet/modal states
+                setIsSettingsMenuOpen(false);
+                setShowTierUpgrade(false);
+                setShowIdentitySettings(false);
+                setShowSpeakingPattern(false);
+                setShowCreateMusic(false);
+                setShowIdentityCreator(false);
+                setIsHelpOpen(false);
+                setFloatingContent(null);
+                
+                if (onClose) {
+                  onClose();
+                }
+              }, 200); // ⚡ 200ms delay for Alert animation
             }
           }
         ]
       );
-      return;
-    }else{
-
-      setMessages([]);
-      setCurrentTypingText('');
-      setIsTyping(false);
-      setIsLoading(false);
-      setIsAIContinuing(false);
-      aiContinueCountRef.current = 0;
-      setCurrentPersonaKey(null);
-      setShowIdentityCreator(false);
-
+      return; // ⚡ Early exit for AI continuing case
     }
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ✅ FIXED BUG 4: Unified cleanup logic (removed duplicate initializations)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
     HapticService.light();
     Keyboard.dismiss();
-
-    setMessages([]);
     
     // 🔥 CRITICAL: Trigger background learning IMMEDIATELY with captured refs
     // This MUST happen before any async operations or component unmount!
@@ -1288,21 +1306,31 @@ const ManagerAIOverlay = ({
     // 🧹 Clear all states and close overlay
     // ⚠️ IMPORTANT: Delay onClose slightly to ensure background learning starts safely
     setTimeout(() => {
+      // Reset all chat states
       setMessages([]);
-      setCurrentTypingText(''); // ⚡ FIX: Changed from setTypingMessage
+      setCurrentTypingText('');
       setIsTyping(false);
+      setIsLoading(false);
+      setIsAIContinuing(false);
+      aiContinueCountRef.current = 0;
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
-      setIsSettingsMenuOpen(false); // ✅ FIX: Reset settings menu state!
-      setShowTierUpgrade(false); // ✅ FIX: Reset tier upgrade state!
-      // setShowLimitedModeChips(false); // 🔒 [DEPRECATED] Reset LIMITED MODE chips
-      // setRequiredFields([]); // 🔒 [DEPRECATED] Reset required fields
+      
+      // Reset all sheet/modal states
+      setIsSettingsMenuOpen(false);
+      setShowTierUpgrade(false);
+      setShowIdentitySettings(false);
+      setShowSpeakingPattern(false);
+      setShowCreateMusic(false);
+      setShowIdentityCreator(false);
+      setIsHelpOpen(false);
+      setFloatingContent(null);
       
       // 🚪 Close overlay AFTER state cleanup (prevents premature unmount)
       if (onClose) {
         onClose();
       }
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
-  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen, handleClose]); // ⭐ FIX: Removed messages, user, persona (using refs instead!)
+  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
   if (!visible) return null;
   
