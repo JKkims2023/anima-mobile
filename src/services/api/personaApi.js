@@ -408,6 +408,47 @@ export const createPersonaIdentity = async (userKey, personaKey, identityData) =
   }
 };
 
+/**
+ * Get real-time PersonaHeartDisplay data
+ * @param {string} userKey - User's unique key
+ * @param {string} personaKey - Persona's unique key
+ * @returns {Promise<Object>} Heart display data (recent_moment, ai_interests, ai_next_questions)
+ */
+export const getPersonaHeartData = async (userKey, personaKey) => {
+  try {
+    if (__DEV__) {
+      console.log('💖 [PersonaAPI] Getting heart display data:', { userKey, personaKey });
+    }
+    
+    const response = await apiClient.get(`${PERSONA_ENDPOINTS.HEART_DISPLAY}?user_key=${userKey}&persona_key=${personaKey}`);
+    
+    if (response.data?.success) {
+      if (__DEV__) {
+        console.log('💖 [PersonaAPI] Heart data received:');
+        console.log('   Recent moment:', response.data.data.recent_moment ? '✅' : '❌');
+        console.log('   AI Interests:', response.data.data.ai_interests?.length || 0);
+        console.log('   AI Questions:', response.data.data.ai_next_questions?.length || 0);
+      }
+      
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      throw new Error(response.data?.message || 'Failed to fetch heart data');
+    }
+  } catch (error) {
+    if (__DEV__) {
+      console.error('💖 [PersonaAPI] Error fetching heart data:', error);
+    }
+    logError('Get Persona Heart Data', error);
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'HEART_DATA_ERROR' },
+    };
+  }
+};
+
 export default {
   getPersonaList,
   getPersonaDashboard,
@@ -422,5 +463,6 @@ export default {
   updatePersonaDress,
   updatePersonaCommentChecked,
   createPersonaIdentity,
+  getPersonaHeartData, // ⭐ NEW
 };
 

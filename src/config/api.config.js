@@ -88,6 +88,7 @@ export const PERSONA_ENDPOINTS = {
   CREATE_FOOD_MEMORY: API_BASE_URL + '/api/persona/create-food-memory',
   RELATIONSHIP_STATUS: API_BASE_URL + '/api/anima/persona/relationship-status',
   UPDATE_COMMENT_CHECKED: API_BASE_URL + '/api/persona/mark-comment-read',
+  HEART_DISPLAY: API_BASE_URL + '/api/persona/heart-display', // 💖 Real-time heart display data
 };
 
 /**
