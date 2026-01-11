@@ -61,6 +61,8 @@ const FloatingChatLimitButton = ({
   isOnboarding = false,
   onUpgradePress,
   onBuyPointPress,
+  onTooltipVisibilityChange, // ⭐ NEW: Callback to notify parent of tooltip state
+  tooltipVisibleRef, // ⭐ NEW: Ref to expose close function to parent
 }) => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -89,6 +91,34 @@ const FloatingChatLimitButton = ({
     console.log('tier: ', tier);
   }, [tier]);
   
+  // ⭐ NEW: Close tooltip function (exposed to parent via ref)
+  const closeTooltip = () => {
+    const isVisible = tooltipVisible.value === 1;
+    
+    if (isVisible) {
+      tooltipVisible.value = withTiming(0, {
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+      });
+      tooltipTranslateX.value = withTiming(10, {
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+      });
+      
+      // ⭐ Notify parent that tooltip is closed
+      if (onTooltipVisibilityChange) {
+        onTooltipVisibilityChange(false);
+      }
+    }
+  };
+  
+  // ⭐ NEW: Expose closeTooltip function to parent via ref
+  useEffect(() => {
+    if (tooltipVisibleRef) {
+      tooltipVisibleRef.current = { closeTooltip };
+    }
+  }, [tooltipVisibleRef]);
+  
   // Toggle tooltip
   const handlePress = () => {
     HapticService.light();
@@ -105,6 +135,11 @@ const FloatingChatLimitButton = ({
         duration: 200,
         easing: Easing.out(Easing.ease),
       });
+      
+      // ⭐ Notify parent that tooltip is closed
+      if (onTooltipVisibilityChange) {
+        onTooltipVisibilityChange(false);
+      }
     } else {
       // Show tooltip
       tooltipVisible.value = withTiming(1, {
@@ -115,6 +150,11 @@ const FloatingChatLimitButton = ({
         duration: 250,
         easing: Easing.out(Easing.back(1.1)),
       });
+      
+      // ⭐ Notify parent that tooltip is opened
+      if (onTooltipVisibilityChange) {
+        onTooltipVisibilityChange(true);
+      }
     }
   };
   

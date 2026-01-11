@@ -209,6 +209,10 @@ const ManagerAIOverlay = ({
   // 🆕 Help Open State
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
+  // 💰 NEW: FloatingChatLimitButton Tooltip State (Lifted up for back button handling!)
+  const [isLimitTooltipOpen, setIsLimitTooltipOpen] = useState(false);
+  const limitTooltipRef = useRef(null); // ⭐ Ref to access closeTooltip function
+  
   // 🎛️ NEW: ChatInputBar Settings Menu State (Lifted up from child!)
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   
@@ -288,6 +292,16 @@ const ManagerAIOverlay = ({
     // 🎯 PRIORITY ORDER (Top to Bottom)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
+    // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
+    if (isLimitTooltipOpen) {
+      // Close tooltip via ref
+      if (limitTooltipRef.current?.closeTooltip) {
+        limitTooltipRef.current.closeTooltip();
+      }
+      HapticService.light();
+      return true; // ⭐ Event handled!
+    }
+    
     // 🎛️ PRIORITY 1: Settings Menu (ChatInputBar)
     if (isSettingsMenuOpen) {
       setIsSettingsMenuOpen(false);
@@ -347,6 +361,7 @@ const ManagerAIOverlay = ({
     handleClose();
     return true; // ⭐ Event handled!
   }, [
+    isLimitTooltipOpen, // 💰 NEW: FloatingChatLimitButton tooltip state
     isSettingsMenuOpen,
     showTierUpgrade, 
     showIdentitySettings, 
@@ -1140,6 +1155,16 @@ const ManagerAIOverlay = ({
     
     // ⭐ NEW: Check if any UI is open, close that first (not the entire chat!)
     
+    // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
+    if (isLimitTooltipOpen) {
+      // Close tooltip via ref
+      if (limitTooltipRef.current?.closeTooltip) {
+        limitTooltipRef.current.closeTooltip();
+      }
+      HapticService.light();
+      return; // ⭐ Don't close chat!
+    }
+    
     // 🎛️ PRIORITY 1: Settings Menu
     if (isSettingsMenuOpen) {
       setIsSettingsMenuOpen(false);
@@ -1330,7 +1355,7 @@ const ManagerAIOverlay = ({
         onClose();
       }
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
-  }, [onClose, isAIContinuing, isLoading, isTyping, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
+  }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
   if (!visible) return null;
   
@@ -1578,6 +1603,8 @@ const ManagerAIOverlay = ({
                   console.log('💰 [ManagerAIOverlay] Buy point button pressed');
                   // TODO: Navigate to Buy Point Sheet
                 }}
+                onTooltipVisibilityChange={setIsLimitTooltipOpen} // ⭐ NEW: Track tooltip state for back button
+                tooltipVisibleRef={limitTooltipRef} // ⭐ NEW: Access closeTooltip function
               />
             )}
           </View>
