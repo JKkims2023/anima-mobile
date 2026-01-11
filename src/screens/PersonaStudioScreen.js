@@ -50,6 +50,7 @@ import MainHelpSheet from '../components/persona/MainHelpSheet';
 import DressManageSheer from '../components/persona/DressManageSheer';
 import PersonaShareSheet from '../components/persona/PersonaShareSheet';
 import SlideMenu from '../components/SlideMenu'; // ⭐ NEW: Slide menu
+import TierUpgradeSheet from '../components/tier/TierUpgradeSheet'; // ⭐ NEW: Tier upgrade sheet
 
 import { 
   createPersona,
@@ -143,7 +144,7 @@ const PersonaStudioScreen = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false); // ⭐ NEW: Slide menu state
   const [isManagerAIChatOpen, setIsManagerAIChatOpen] = useState(false); // ⭐ NEW: Track ManagerAI overlay state for performance
-  
+  const [showTierUpgrade, setShowTierUpgrade] = useState(false); // ⭐ NEW: Track tier upgrade state for performance
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
     setIsMessageCreationActive(isMessageCreationVisible);
@@ -502,6 +503,21 @@ const PersonaStudioScreen = () => {
         setSelectedIndex(validIndex);
         setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
         
+        // 🔥 FIX: Update settingsPersona if PersonaSettingsSheet is open
+        if (settingsPersona && settingsPersona.persona_key) {
+          const updatedSettingsPersona = latestPersonasRefresh.find(
+            p => p.persona_key === settingsPersona.persona_key
+          );
+          if (updatedSettingsPersona) {
+            setSettingsPersona(updatedSettingsPersona);
+            if (__DEV__) {
+              console.log('[PersonaStudioScreen] 🔄 Updated settingsPersona with latest data');
+              console.log('   AI Interests:', updatedSettingsPersona.ai_interests ? JSON.parse(updatedSettingsPersona.ai_interests).length : 0);
+              console.log('   AI Questions:', updatedSettingsPersona.ai_next_questions ? JSON.parse(updatedSettingsPersona.ai_next_questions).length : 0);
+            }
+          }
+        }
+        
         if (__DEV__) {
           console.log('[PersonaStudioScreen] 🎯 Index restored after refresh:', validIndex);
           console.log('   Persona:', targetPersona?.persona_name);
@@ -538,7 +554,7 @@ const PersonaStudioScreen = () => {
       setIsRefreshing(false);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     }
-  }, [initializePersonas, showToast, t, currentPersonaIndex, setSelectedPersona, setSelectedIndex]);
+  }, [initializePersonas, showToast, t, currentPersonaIndex, setSelectedPersona, setSelectedIndex, settingsPersona]);
   
   // ❌ REMOVED: Duplicate handlePersonaChange (now defined above handleRefresh)
   
@@ -1485,6 +1501,10 @@ const PersonaStudioScreen = () => {
     HapticService.light();
     setIsCategorySelectionOpen(true);
   }, []);
+
+  const handleShowTier = useCallback(() => {
+    setShowTierUpgrade(true);
+  }, []);
   
   
   // ⭐ Internal function: Actual video conversion logic
@@ -2101,9 +2121,25 @@ const PersonaStudioScreen = () => {
     {isSlideMenuOpen && (
       <SlideMenu
         visible={isSlideMenuOpen}
+        onShowTier={handleShowTier}
         onClose={() => {
           HapticService.light();
           setIsSlideMenuOpen(false);
+        }}
+      />
+    )}
+
+    {showTierUpgrade && (
+      <TierUpgradeSheet
+        isOpen={showTierUpgrade}
+        onClose={() => setShowTierUpgrade(false)}
+        currentTier={user.user_level || 'basic'}
+        userKey={user.user_key}
+        onUpgradeSuccess={(newTier) => {
+          console.log('✅ [ManagerAIOverlay] Tier upgraded to:', newTier);
+          // ⭐ Reload service config to update chat limits
+          // (This will be handled by useChatLimit hook on next render)
+
         }}
       />
     )}

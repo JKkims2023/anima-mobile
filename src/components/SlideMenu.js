@@ -45,7 +45,7 @@ const MENU_WIDTH = SCREEN_WIDTH * 0.8; // 80% of screen width
 const BLUR_WIDTH = SCREEN_WIDTH * 0.2; // 20% blur area (left)
 const CONTENT_WIDTH = SCREEN_WIDTH * 0.6; // 60% content area (right)
 
-const SlideMenu = ({ visible, onClose }) => {
+const SlideMenu = ({ visible, onShowTier, onClose }) => {
   const insets = useSafeAreaInsets();
   const { user } = useUser();
   const navigation = useNavigation();
@@ -107,6 +107,12 @@ const SlideMenu = ({ visible, onClose }) => {
     HapticService.light();
     console.log(`[SlideMenu] ${item} clicked`);
     // TODO: Navigate or perform action
+  };
+
+  const handleShowTier = () => {
+    HapticService.light();
+    onShowTier();
+    onClose();
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -191,11 +197,13 @@ const SlideMenu = ({ visible, onClose }) => {
             </View>
           </View>
         </View>
-        <View style={[styles.userPointContainer, { backgroundColor: `${levelColors[userLevel]}20` }]}>
+        <TouchableOpacity 
+        onPress={handleShowTier}
+        style={[styles.userPointContainer, { backgroundColor: `${levelColors[userLevel]}20` }]} onPress={handleShowTier}>
             <CustomText style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
             {levelNames[userLevel]}
             </CustomText>
-        </View>
+        </TouchableOpacity>
     
       </View>
     );
@@ -339,11 +347,10 @@ const SlideMenu = ({ visible, onClose }) => {
           >
             {renderLogo()}
             {renderUserInfo()}
-            {renderDivider()}
+
             {user && (
             <>
-            {renderNewMessages()}
-            {renderDivider()}
+
             </>
             )}
             {renderInfoSection()}

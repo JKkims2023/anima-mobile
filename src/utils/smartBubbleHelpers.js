@@ -25,12 +25,24 @@ import { MESSAGE_TYPES } from './chatConstants';
  * Layer 1: Check if backend already split the message (array format)
  * Layer 2: If not split, apply client-side splitting logic
  * 
- * @param {string|array} message - AI response (can be string or array)
- * @returns {array} Array of bubble objects
+ * @param {string|array|object} messageInput - AI response (can be string, array, or {message: ...})
+ * @returns {object} { source, bubbles } - source: 'ai'|'client', bubbles: array of bubble objects
  */
-export const parseAIMessage = (message) => {
+export const parseAIMessage = (messageInput) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('🔍 [parseAIMessage] Analyzing message...');
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Step 0: Extract message from object if needed
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  let message = messageInput;
+  
+  // If object with .message field, extract it
+  if (typeof messageInput === 'object' && !Array.isArray(messageInput) && messageInput?.message) {
+    console.log('📦 [parseAIMessage] Extracting message from object wrapper');
+    message = messageInput.message;
+  }
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Layer 1: Backend Split Detection
@@ -44,11 +56,14 @@ export const parseAIMessage = (message) => {
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    return message.map((text, index) => ({
-      text: text.trim(),
-      delay: index === 0 ? 0 : 500, // First bubble: immediate, others: 500ms delay
-      source: 'backend'
-    }));
+    return {
+      source: 'ai',
+      bubbles: message.map((text, index) => ({
+        text: text.trim(),
+        delay: index === 0 ? 0 : 2000, // ✅ First bubble: immediate, others: 2s delay
+        sentences: text.split(/[.!?]+/).filter(s => s.trim()).length
+      }))
+    };
   }
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -62,7 +77,10 @@ export const parseAIMessage = (message) => {
   console.log(`✂️ [parseAIMessage] Client split result: ${bubbles.length} bubble(s)`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
-  return bubbles;
+  return {
+    source: 'client',
+    bubbles
+  };
 };
 
 /**
@@ -74,7 +92,16 @@ export const parseAIMessage = (message) => {
 export const splitMessageIntoBubbles = (text) => {
   const maxSingleBubbleSentences = 2;
   const maxSingleBubbleLength = 100;
-  const bubbleDelay = 500;
+  const bubbleDelay = 2000; // ✅ 2초 (자연스러운 대화 흐름)
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Step 0: Safety check - ensure text is a string
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  if (!text || typeof text !== 'string') {
+    console.error('❌ [splitMessageIntoBubbles] Invalid text input:', text);
+    return [{ text: String(text || ''), delay: 0, source: 'client' }];
+  }
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Step 1: Split by sentence markers (., !, ?)
@@ -187,10 +214,10 @@ export const addAIMessageWithBubbles = async ({
     // Step 1: Parse message into bubbles
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
-    const bubbles = parseAIMessage(answer);
+    const { source, bubbles } = parseAIMessage(answer);
     
     console.log(`📊 [addAIMessageWithBubbles] Total bubbles: ${bubbles.length}`);
-    console.log(`   Source: ${bubbles[0]?.source || 'unknown'}`);
+    console.log(`   Source: ${source}`);
     
     // Turn off loading
     setIsLoading(false);
