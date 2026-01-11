@@ -56,6 +56,7 @@ export const AnimaProvider = ({ children }) => {
   // ⭐ NEW: Tab Badge states
   const [hasMemoryBadge, setHasMemoryBadge] = useState(false); // Memory tab badge (gift_image, gift_music)
   const [hasMusicBadge, setHasMusicBadge] = useState(false); // Music tab badge (create_music)
+  const [hasHomeBadge, setHasHomeBadge] = useState(false); // 💙 NEW: Home tab badge (persona_heart_update)
   
   // ⭐ Load showDefaultPersonas and badges from AsyncStorage on mount
   useEffect(() => {
@@ -93,6 +94,16 @@ export const AnimaProvider = ({ children }) => {
           console.log('[AnimaContext] ✅ Music badge activated (real-time)!');
         } catch (error) {
           console.error('[AnimaContext] Failed to save music badge:', error);
+        }
+      } else if (order_type === 'persona_heart_update') {
+        // 💙 NEW: Home tab badge for Persona Heart updates
+        console.log('[AnimaContext] 💙 Activating Home badge (Persona Heart)...');
+        setHasHomeBadge(true);
+        try {
+          await AsyncStorage.setItem('@anima_home_tab_badge', 'true');
+          console.log('[AnimaContext] ✅ Home badge activated (real-time)!');
+        } catch (error) {
+          console.error('[AnimaContext] Failed to save home badge:', error);
         }
       }
     });
@@ -151,14 +162,17 @@ export const AnimaProvider = ({ children }) => {
     try {
       const memoryBadge = await AsyncStorage.getItem('@anima_memory_tab_badge');
       const musicBadge = await AsyncStorage.getItem('@anima_music_tab_badge');
+      const homeBadge = await AsyncStorage.getItem('@anima_home_tab_badge'); // 💙 NEW
       
       setHasMemoryBadge(memoryBadge === 'true');
       setHasMusicBadge(musicBadge === 'true');
+      setHasHomeBadge(homeBadge === 'true'); // 💙 NEW
       
       if (__DEV__) {
         console.log('[AnimaContext] Loaded tab badges:', {
           memory: memoryBadge === 'true',
           music: musicBadge === 'true',
+          home: homeBadge === 'true', // 💙 NEW
         });
       }
     } catch (error) {
@@ -223,6 +237,36 @@ export const AnimaProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('[AnimaContext] Failed to clear music badge:', error);
+    }
+  }, []);
+  
+  /**
+   * 💙 NEW: Set Home tab badge
+   */
+  const setHomeBadge = useCallback(async () => {
+    setHasHomeBadge(true);
+    try {
+      await AsyncStorage.setItem('@anima_home_tab_badge', 'true');
+      if (__DEV__) {
+        console.log('[AnimaContext] 💙 Home badge activated!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to set home badge:', error);
+    }
+  }, []);
+  
+  /**
+   * 💙 NEW: Clear Home tab badge
+   */
+  const clearHomeBadge = useCallback(async () => {
+    setHasHomeBadge(false);
+    try {
+      await AsyncStorage.removeItem('@anima_home_tab_badge');
+      if (__DEV__) {
+        console.log('[AnimaContext] ✅ Home badge cleared!');
+      }
+    } catch (error) {
+      console.error('[AnimaContext] Failed to clear home badge:', error);
     }
   }, []);
 
@@ -319,10 +363,13 @@ export const AnimaProvider = ({ children }) => {
     // Tab Badges
     hasMemoryBadge,
     hasMusicBadge,
+    hasHomeBadge, // 💙 NEW
     setMemoryBadge,
     clearMemoryBadge,
     setMusicBadge,
     clearMusicBadge,
+    setHomeBadge, // 💙 NEW
+    clearHomeBadge, // 💙 NEW
   };
 
   return (

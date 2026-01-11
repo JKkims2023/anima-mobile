@@ -45,7 +45,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage, isMessageCreationActive, showAlert, hasMemoryBadge, hasMusicBadge } = useAnima(); // ⭐ Get badge state and message creation state from Context
+  const { hasNewMessage, isMessageCreationActive, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state and message creation state from Context
 
 
   const { t } = useTranslation();
@@ -294,6 +294,12 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
                   size={TAB_BAR.REGULAR_ICON_SIZE}
                   color={isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
                 />
+                {/* 💙 NEW: Home Badge for Home tab (persona_heart_update) */}
+                {tab.key === 'Home' && hasHomeBadge && (
+                  <View style={styles.newMessageBadge}>
+                    <CustomText style={styles.newMessageBadgeText}>N</CustomText>
+                  </View>
+                )}
                 {/* ⭐ New Message Badge for History tab */}
                 {tab.key === 'History' && hasNewMessage && (
                   <View style={styles.newMessageBadge}>

@@ -80,7 +80,7 @@ const PersonaStudioScreen = () => {
   const { currentTheme } = useTheme();
   const { personas, setPersonas, selectedPersona: contextSelectedPersona, setSelectedIndex, setSelectedPersona, initializePersonas } = usePersona();
   const { user } = useUser();
-  const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas } = useAnima(); // ⭐ Default Personas setting
+  const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas, clearHomeBadge } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
   
@@ -215,6 +215,9 @@ const PersonaStudioScreen = () => {
     useCallback(() => {
       setIsScreenFocused(true);
       
+      // 💙 NEW: Clear Home badge when screen is focused
+      clearHomeBadge();
+      
       // ⚡ REMOVED: Automatic chips refresh (now only refreshes on pull-to-refresh or chat close)
       // Relationship data is already in persona list, no need to refresh on every focus!
       
@@ -226,7 +229,7 @@ const PersonaStudioScreen = () => {
           setIsMessageCreationVisible(false);
         }
       };
-    }, [isMessageCreationVisible])
+    }, [isMessageCreationVisible, clearHomeBadge])
   );
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -334,6 +337,37 @@ const PersonaStudioScreen = () => {
             message: order_type === 'create_dress' 
               ? t('persona.dress.created')
               : t('persona.video.converted'),
+          });
+          break;
+          
+        case 'persona_heart_update':
+          // 💙 NEW: Persona Heart Update (AI Interests, Next Questions)
+          console.log('[PersonaStudioScreen] 💙 persona_heart_update: Refresh heart display');
+          
+          // ✅ Trigger refresh for PersonaHeartDisplay (self-fetching component)
+          // No explicit refresh needed here - PersonaHeartDisplay handles its own data
+          // Badge will be cleared when PersonaHeartDisplay is viewed
+          
+          HapticService.success();
+          showToast({
+            type: 'success',
+            emoji: '💙',
+            message: t('persona.heart_updated') || '페르소나가 당신에 대해 더 알게 되었어요!',
+          });
+          break;
+          
+        case 'persona_heart_update':
+          // 💙 NEW: Persona Heart Update (AI Interests, Next Questions)
+          console.log('[PersonaStudioScreen] 💙 persona_heart_update: Heart data updated');
+          
+          // ✅ PersonaHeartDisplay will self-fetch when opened
+          // No explicit refresh needed here - badge will guide user to view
+          
+          HapticService.success();
+          showToast({
+            type: 'success',
+            emoji: '💙',
+            message: t('persona.heart_updated') || '페르소나가 당신에 대해 더 알게 되었어요!',
           });
           break;
           
