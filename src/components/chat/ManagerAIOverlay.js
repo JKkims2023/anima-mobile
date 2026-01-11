@@ -181,6 +181,7 @@ const ManagerAIOverlay = ({
   const userRef = useRef(user);
   const personaRef = useRef(persona);
   const isClosingRef = useRef(false); // 🛡️ NEW: Prevent duplicate close calls
+  const userMessageCountRef = useRef(0); // 🎯 SIMPLE: Track only real-time user messages sent via handleSend
   
   // 🔄 Update refs whenever state changes
   useEffect(() => {
@@ -409,6 +410,10 @@ const ManagerAIOverlay = ({
     // 1. Overlay becomes visible
     // 2. Persona changes OR persona key was reset (null)
     if (visible) {
+      // 🎯 SIMPLE: Reset user message count when chat opens
+      userMessageCountRef.current = 0;
+      console.log(`🔄 [Chat Open] User message count reset to 0`);
+      
       if (currentPersonaKey !== personaKey) {
         setCurrentPersonaKey(personaKey);
         setMessages([]); // Clear previous persona's messages
@@ -995,6 +1000,10 @@ const ManagerAIOverlay = ({
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     
+    // 🎯 SIMPLE: Increment user message count (real-time conversation only)
+    userMessageCountRef.current++;
+    console.log(`📊 [handleSend] User message count: ${userMessageCountRef.current}`);
+    
     try {
       const userKey = user?.user_key;
       
@@ -1282,12 +1291,19 @@ const ManagerAIOverlay = ({
   }, [user, persona, showNotificationMessage]);
   
   const handleClose = useCallback(() => {
+    const closeCallId = Date.now();
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`🚪 [handleClose] CALLED - ID: ${closeCallId}`);
+    console.log(`   isClosingRef.current: ${isClosingRef.current}`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     // 🛡️ STEP 0: Prevent duplicate close calls (CRITICAL!)
     if (isClosingRef.current) {
-      console.warn('⚠️  [handleClose] Already closing, skip duplicate call!');
+      console.warn(`⚠️  [handleClose] Already closing, skip duplicate call! (ID: ${closeCallId})`);
       return;
     }
     isClosingRef.current = true; // 🔒 Lock
+    console.log(`🔒 [handleClose] Lock acquired (ID: ${closeCallId})`);
     
     // 🔥 CRITICAL FIX: Use refs to get LATEST state (not closure values!)
     const currentMessages = messagesRef.current;
@@ -1295,17 +1311,17 @@ const ManagerAIOverlay = ({
     const currentPersona = personaRef.current;
     
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🚪 [handleClose] 호출됨 (Ref Captured)');
+    console.log(`🚪 [handleClose] State Captured (ID: ${closeCallId})`);
     console.log(`   messages.length: ${currentMessages.length}`);
-    console.log(`   user?.user_key: ${currentUser?.user_key}`);
-    console.log(`   persona?.persona_key: ${currentPersona?.persona_key}`);
+    console.log(`   user?.user_key: ${currentUser?.user_key?.substring(0, 8)}...`);
+    console.log(`   persona?.persona_key: ${currentPersona?.persona_key?.substring(0, 8)}...`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // ⭐ NEW: Check if any UI is open, close that first (not the entire chat!)
     
     // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
     if (isLimitTooltipOpen) {
-      // Close tooltip via ref
+      console.log(`🔓 [handleClose] Unlocking - Tooltip close only (ID: ${closeCallId})`);
       if (limitTooltipRef.current?.closeTooltip) {
         limitTooltipRef.current.closeTooltip();
       }
@@ -1316,6 +1332,7 @@ const ManagerAIOverlay = ({
     
     // 🎛️ PRIORITY 1: Settings Menu
     if (isSettingsMenuOpen) {
+      console.log(`🔓 [handleClose] Unlocking - Settings close only (ID: ${closeCallId})`);
       setIsSettingsMenuOpen(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1324,6 +1341,7 @@ const ManagerAIOverlay = ({
     
     // 🎖️ PRIORITY 2: Tier Upgrade Sheet
     if (showTierUpgrade) {
+      console.log(`🔓 [handleClose] Unlocking - Tier upgrade close only (ID: ${closeCallId})`);
       setShowTierUpgrade(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1332,6 +1350,7 @@ const ManagerAIOverlay = ({
     
     // 🎭 PRIORITY 3: Identity Settings Sheet
     if (showIdentitySettings) {
+      console.log(`🔓 [handleClose] Unlocking - Identity settings close only (ID: ${closeCallId})`);
       setShowIdentitySettings(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1340,6 +1359,7 @@ const ManagerAIOverlay = ({
     
     // 🗣️ PRIORITY 4: Speaking Pattern Sheet
     if (showSpeakingPattern) {
+      console.log(`🔓 [handleClose] Unlocking - Speaking pattern close only (ID: ${closeCallId})`);
       setShowSpeakingPattern(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1348,6 +1368,7 @@ const ManagerAIOverlay = ({
     
     // 🎵 PRIORITY 5: Create Music Sheet
     if (showCreateMusic) {
+      console.log(`🔓 [handleClose] Unlocking - Music sheet close only (ID: ${closeCallId})`);
       setShowCreateMusic(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1356,6 +1377,7 @@ const ManagerAIOverlay = ({
     
     // ❓ PRIORITY 6: Help Sheet
     if (isHelpOpen) {
+      console.log(`🔓 [handleClose] Unlocking - Help sheet close only (ID: ${closeCallId})`);
       setIsHelpOpen(false);
       HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
@@ -1373,34 +1395,32 @@ const ManagerAIOverlay = ({
 
     
     // 🆕 Helper function to trigger background learning
-    const triggerBackgroundLearning = (capturedMessages, capturedUser, capturedPersona) => {
+    const triggerBackgroundLearning = (capturedUser, capturedPersona) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🎓 [ManagerAIOverlay] Trigger Background Learning');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      // ✅ CRITICAL FIX: Count only ACTUAL user messages (not greeting/button/notification)
-      const actualUserMessages = capturedMessages.filter(msg => 
-        msg.role === 'user' && 
-        !msg.id?.startsWith('greeting-') && 
-        !msg.id?.startsWith('button-') && 
-        !msg.id?.startsWith('notification-')
-      );
+      // 🎯 SIMPLE: Check user message count from ref (real-time messages only)
+      const userMessageCount = userMessageCountRef.current;
       
-      console.log('   total messages:', capturedMessages.length);
-      console.log('   actual user messages:', actualUserMessages.length);
+      console.log('   user message count (real-time):', userMessageCount);
       console.log('   user?.user_key:', capturedUser?.user_key);
       console.log('   persona?.persona_key:', capturedPersona?.persona_key);
       
-      // 🔥 CRITICAL: Only trigger if we have meaningful conversation (3+ REAL user messages!)
-      // This prevents unnecessary API calls when user only sees welcome message
-      if (actualUserMessages.length >= 3 && capturedUser?.user_key && capturedPersona?.persona_key) {
+      // 🔥 SIMPLE: Only trigger if user sent 3+ real-time messages
+      // This AUTOMATICALLY excludes:
+      // - History messages (not sent via handleSend)
+      // - Welcome messages (not sent via handleSend)
+      // - Notification messages (not sent via handleSend)
+      // - Button clicks (not sent via handleSend)
+      if (userMessageCount >= 3 && capturedUser?.user_key && capturedPersona?.persona_key) {
         const session_id = chatApi.getCurrentSessionId(capturedPersona.persona_key);
         
         console.log('   session_id:', session_id);
         
-        // ✅ CRITICAL: Check session_id is valid (not null, not undefined, not empty string)
+        // ✅ Check session_id is valid
         if (session_id && session_id !== 'undefined' && session_id !== 'null' && session_id !== '') {
-          console.log('✅ [ManagerAIOverlay] Calling closeChatSession...');
+          console.log(`✅ [ManagerAIOverlay] ${userMessageCount} messages sent → Calling closeChatSession...`);
           
           // Fire-and-forget (don't wait for result)
           chatApi.closeChatSession({
@@ -1411,12 +1431,12 @@ const ManagerAIOverlay = ({
             console.error('❌ [ManagerAIOverlay] Background learning failed:', err);
           });
         } else {
-          console.warn('⚠️  [ManagerAIOverlay] Invalid session_id - skipping background learning');
+          console.warn('⚠️  [ManagerAIOverlay] Invalid session_id - skipping');
           console.warn('   - session_id:', session_id);
         }
       } else {
         console.warn('⚠️  [ManagerAIOverlay] Conditions not met for background learning');
-        console.warn('   - actual user messages >= 3:', actualUserMessages.length >= 3);
+        console.warn(`   - user message count >= 3: ${userMessageCount >= 3} (current: ${userMessageCount})`);
         console.warn('   - user?.user_key exists:', !!capturedUser?.user_key);
         console.warn('   - persona?.persona_key exists:', !!capturedPersona?.persona_key);
       }
@@ -1425,6 +1445,7 @@ const ManagerAIOverlay = ({
     
     // ⭐ NEW: Prevent closing if AI is continuing conversation
     if (isAIContinuing || isLoading || isTyping) {
+      console.log(`⚠️  [handleClose] AI is active, showing alert (ID: ${closeCallId})`);
       // ✅ FIXED: Restore showAlert with AnimaContext component
       showAlert({
         emoji: '💬',
@@ -1435,6 +1456,7 @@ const ManagerAIOverlay = ({
             text: '계속 대화하기',
             style: 'cancel',
             onPress: () => {
+              console.log(`🔓 [handleClose] Unlocking - User canceled (ID: ${closeCallId})`);
               HapticService.light();
               isClosingRef.current = false; // 🔓 Unlock
             }
@@ -1443,6 +1465,7 @@ const ManagerAIOverlay = ({
             text: '종료',
             style: 'destructive',
             onPress: () => {
+              console.log(`🔴 [handleClose] Force closing during AI response (ID: ${closeCallId})`);
               // ✅ FIXED BUG 4: Removed duplicate initialization
               // Force stop AI conversation immediately
               setIsAIContinuing(false);
@@ -1450,7 +1473,7 @@ const ManagerAIOverlay = ({
               setIsTyping(false);
               
               // 🆕 Trigger background learning before closing
-              triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
+              triggerBackgroundLearning(currentUser, currentPersona);
               
               // Close overlay with haptic feedback
               HapticService.medium();
@@ -1458,6 +1481,7 @@ const ManagerAIOverlay = ({
               
               // 🧹 Unified cleanup in setTimeout
               setTimeout(() => {
+                console.log(`🧹 [handleClose] Cleanup complete, unlocking (ID: ${closeCallId})`);
                 // Reset all chat states
                 setMessages([]);
                 setCurrentTypingText('');
@@ -1466,6 +1490,10 @@ const ManagerAIOverlay = ({
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
                 setCurrentPersonaKey(null);
+                
+                // 🎯 SIMPLE: Reset user message count for next session
+                userMessageCountRef.current = 0;
+                console.log(`🔄 [Chat Close] User message count reset to 0`);
                 
                 // Reset all sheet/modal states
                 setIsSettingsMenuOpen(false);
@@ -1483,11 +1511,14 @@ const ManagerAIOverlay = ({
                 
                 // 🔓 Unlock after close
                 isClosingRef.current = false;
+                console.log(`🔓 [handleClose] Lock released (ID: ${closeCallId})`);
               }, 200); // ⚡ 200ms delay for Alert animation
             }
           }
         ]
       });
+      console.log(`🔓 [handleClose] Unlocking - Early return for AI active (ID: ${closeCallId})`);
+      isClosingRef.current = false; // 🔓 Unlock for alert case
       return; // ✅ CRITICAL FIX: Early exit to prevent triggerBackgroundLearning!
     }
     
@@ -1495,16 +1526,18 @@ const ManagerAIOverlay = ({
     // ✅ FIXED BUG 4: Unified cleanup logic (removed duplicate initializations)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
+    console.log(`✅ [handleClose] Proceeding with normal close (ID: ${closeCallId})`);
     HapticService.light();
     Keyboard.dismiss();
     
     // 🔥 CRITICAL: Trigger background learning IMMEDIATELY with captured refs
     // This MUST happen before any async operations or component unmount!
-    triggerBackgroundLearning(currentMessages, currentUser, currentPersona);
+    triggerBackgroundLearning(currentUser, currentPersona);
     
     // 🧹 Clear all states and close overlay
     // ⚠️ IMPORTANT: Delay onClose slightly to ensure background learning starts safely
     setTimeout(() => {
+      console.log(`🧹 [handleClose] Normal cleanup complete, unlocking (ID: ${closeCallId})`);
       // Reset all chat states
       setMessages([]);
       setCurrentTypingText('');
@@ -1513,6 +1546,10 @@ const ManagerAIOverlay = ({
       setIsAIContinuing(false);
       aiContinueCountRef.current = 0;
       setCurrentPersonaKey(null); // ⭐ CRITICAL FIX: Reset persona key to force reload on reopen
+      
+      // 🎯 SIMPLE: Reset user message count for next session
+      userMessageCountRef.current = 0;
+      console.log(`🔄 [Chat Close] User message count reset to 0`);
       
       // Reset all sheet/modal states
       setIsSettingsMenuOpen(false);
@@ -1531,6 +1568,7 @@ const ManagerAIOverlay = ({
       
       // 🔓 Unlock after close (allow new close calls)
       isClosingRef.current = false;
+      console.log(`🔓 [handleClose] Lock released after normal close (ID: ${closeCallId})`);
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
   }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
