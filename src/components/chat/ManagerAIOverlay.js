@@ -73,7 +73,6 @@ import {
   SPECIAL_MARKERS,
   IDENTITY_FIELD_LABELS,
   CHAT_HISTORY,
-  calculateTotalDuration,
 } from '../../utils/chatConstants';
 import { 
   CancelableTimeout,
@@ -85,7 +84,7 @@ import {
   createUserMessage,
 } from '../../utils/chatHelpers';
 import { parseRichContent } from '../../utils/chatResponseParser';
-import { addAIMessageWithBubbles } from '../../utils/smartBubbleHelpers'; // 🎯 NEW: Smart bubble system (2026-01-11)
+import { addAIMessageWithBubbles, parseAIMessage } from '../../utils/smartBubbleHelpers'; // 🎯 NEW: Smart bubble system (2026-01-11)
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -160,6 +159,7 @@ const ManagerAIOverlay = ({
   const { currentTheme } = useTheme();
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
+  const [messageVersion, setMessageVersion] = useState(0); // 🎯 NEW: Trigger FlashList updates for Smart Bubble system
   const [isInitializing, setIsInitializing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
@@ -180,6 +180,7 @@ const ManagerAIOverlay = ({
   const messagesRef = useRef(messages);
   const userRef = useRef(user);
   const personaRef = useRef(persona);
+  const isClosingRef = useRef(false); // 🛡️ NEW: Prevent duplicate close calls
   
   // 🔄 Update refs whenever state changes
   useEffect(() => {
@@ -395,15 +396,11 @@ const ManagerAIOverlay = ({
     
     // 🔥 CRITICAL: Only load if user is fully loaded!
     if (!user || !user.user_key) {
-
-        setIsTyping(true);
-        setIsLoading(true);
-        setIsInitializing(false);
-        setTimeout(() => {
-          setIsTyping(false);
-          setIsLoading(false);
-          showNotLoginMessage();
-        }, 2000);
+      // ✅ FIX BUG 1: showNotLoginMessage now handles its own loading states!
+      setIsInitializing(false);
+      setTimeout(() => {
+        showNotLoginMessage();
+      }, 2000);
 
       return; // ⚠️ Don't proceed without user!
     }
@@ -482,18 +479,14 @@ const ManagerAIOverlay = ({
       const personaKey = persona?.persona_key || 'SAGE';
       
       if (!userKey) {
-
         console.log('user not login?')
-        setIsTyping(true);
-        setIsLoading(true);
+        // ✅ FIX BUG 2, 3: showWelcomeMessage now handles its own loading states!
         setIsInitializing(true);
         setTimeout(() => {
-          setIsTyping(false);
-          setIsLoading(false);
           showWelcomeMessage();
+          setLoadingHistory(false); // ✅ FIX: Move inside setTimeout for proper sequence!
         }, 2000);
 
-        setLoadingHistory(false);
         return;
       }
       
@@ -536,156 +529,284 @@ const ManagerAIOverlay = ({
         }else{
           setIsInitializing(false);
         }
+        // ✅ FIX BUG 4: showWelcomeMessage now handles its own loading states!
         setTimeout(() => {
-          setIsLoading(false);
-          setIsTyping(false);
           showWelcomeMessage();
         }, 3000);
 
       }
     } catch (error) {
       console.error('❌ [채팅 히스토리] 에러:', error);
+      // ✅ FIX BUG 4 & 5: showWelcomeMessage now handles its own loading states!
       showWelcomeMessage();
     } finally {
       setLoadingHistory(false);
     }
   }, [user, persona, loadingHistory, historyOffset, showWelcomeMessage]); // ✅ FIXED BUG 3: Removed unused startAIConversation
   
-  // ⚡ OPTIMIZED: Show notification message (TypingMessageBubble handles animation!)
+  // 🎨 SMART BUBBLE: Show notification message (Fade-in effect!)
   const showNotificationMessage = useCallback((message, autoHideDuration = 2000) => {
-    // ⚡ Start typing effect (TypingMessageBubble will handle the animation!)
-    setIsTyping(true);
-    setCurrentTypingText(message);
-    
-    // ✅ Calculate typing duration using helper
-    const typingDuration = calculateTotalDuration(message);
-    
-    // After typing completes, add to messages
-    setTimeout(() => {
-      const notificationMessage = {
+    try {
+      // ✨ Parse message (even short messages benefit from consistent UX)
+      const { bubbles } = parseAIMessage({ message });
+      
+      // 🚀 Display bubbles sequentially using setTimeout chain
+      let cumulativeDelay = 0;
+      
+      bubbles.forEach((bubble, index) => {
+        cumulativeDelay += bubble.delay;
+        
+        setTimeout(() => {
+          // Show loading between bubbles
+          if (index > 0 && index < bubbles.length) {
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              
+              const notificationMessage = {
+                id: `notification-${Date.now()}-${index}`,
+                role: 'assistant',
+                text: bubble.text,
+                timestamp: new Date().toISOString(),
+              };
+              
+              setMessages(prev => [...prev, notificationMessage]);
+              setMessageVersion(v => v + 1);
+              
+              // Auto-hide after duration (only for last bubble)
+              if (autoHideDuration > 0 && index === bubbles.length - 1) {
+                setTimeout(() => {
+                  setMessages(prev => prev.filter(m => !m.id.startsWith('notification-')));
+                }, autoHideDuration);
+              }
+            }, 50);
+          } else {
+            // First bubble - no loading
+            const notificationMessage = {
+              id: `notification-${Date.now()}-${index}`,
+              role: 'assistant',
+              text: bubble.text,
+              timestamp: new Date().toISOString(),
+            };
+            
+            setMessages(prev => [...prev, notificationMessage]);
+            setMessageVersion(v => v + 1);
+            
+            // Auto-hide after duration (only for last bubble)
+            if (autoHideDuration > 0 && index === bubbles.length - 1) {
+              setTimeout(() => {
+                setMessages(prev => prev.filter(m => !m.id.startsWith('notification-')));
+              }, autoHideDuration);
+            }
+          }
+        }, cumulativeDelay);
+      });
+    } catch (error) {
+      console.error('❌ [showNotificationMessage] Error:', error);
+      // Fallback: show simple message
+      const fallbackMessage = {
         id: `notification-${Date.now()}`,
         role: 'assistant',
         text: message,
-        timestamp: Date.now(),
+        timestamp: new Date().toISOString(),
       };
-      
-      setMessages(prev => [...prev, notificationMessage]);
-      setIsTyping(false);
-      setCurrentTypingText('');
-      
-      // Auto-hide after duration
-      if (autoHideDuration > 0) {
-        setTimeout(() => {
-          setMessages(prev => prev.filter(m => m.id !== notificationMessage.id));
-        }, autoHideDuration);
-      }
-    }, typingDuration + 100); // +100ms buffer
+      setMessages(prev => [...prev, fallbackMessage]);
+      setMessageVersion(v => v + 1);
+    }
   }, []);
   
-  // ⚡ OPTIMIZED: Show welcome message (TypingMessageBubble handles animation!)
+  // 🎨 SMART BUBBLE: Show welcome message (Fade-in effect!)
   const showWelcomeMessage = useCallback(() => {
-    // 🎭 Check if persona needs identity setup (user-created persona without identity)
-    const needsIdentitySetup = persona && 
-                               !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) &&
-                               (!persona.identity_key || persona.identity_key === '');
-    
-
-                               console.log('persona: ', persona);
-    console.log('needsIdentitySetup: ', needsIdentitySetup);
-    console.log('persona.identity_key: ', persona.identity_key);
-    if (needsIdentitySetup) {
-      // Show identity setup welcome message
-      const identityGreeting = `안녕! 만나서 반가워! 😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
+    try {
+      // 🎭 Check if persona needs identity setup (user-created persona without identity)
+      const needsIdentitySetup = persona && 
+                                 !['573db390-a505-4c9e-809f-cc511c235cbb', 'af444146-e796-468c-8e2c-0daf4f9b9248'].includes(persona.persona_key) &&
+                                 (!persona.identity_key || persona.identity_key === '');
       
-      // ⚡ Start typing effect
-      setIsTyping(true);
-      setCurrentTypingText(identityGreeting);
+      console.log('persona: ', persona);
+      console.log('needsIdentitySetup: ', needsIdentitySetup);
+      console.log('persona.identity_key: ', persona.identity_key);
       
-      // ✅ Calculate typing duration
-      const typingDuration = calculateTotalDuration(identityGreeting);
-      
-      // After typing completes, add message + button
-      setTimeout(() => {
-        const greetingMessage = {
-          id: 'greeting-identity',
-          role: 'assistant',
-          text: identityGreeting,
-          timestamp: new Date().toISOString(),
-        };
+      if (needsIdentitySetup) {
+        // Show identity setup welcome message
+        const identityGreeting = `안녕! 만나서 반가워! 😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
         
-        const buttonMessage = {
-          id: 'button-identity-start',
-          role: 'button',
-          text: '✨ 자아 입력 시작',
-          timestamp: new Date().toISOString(),
-          onPress: () => {
-            HapticService.medium();
-            setShowIdentityCreator(true);
-          },
-        };
+        // ✨ Parse message
+        const { bubbles } = parseAIMessage({ message: identityGreeting });
         
-        setMessages([greetingMessage, buttonMessage]);
-        setIsTyping(false);
-        setCurrentTypingText('');
-      }, typingDuration + 1500);
-    } else {
-      // Normal welcome message
-      const greetingKey = 'managerAI.public';
-      const greeting = t(greetingKey);
-      
-      // ⚡ Start typing effect
-      setIsTyping(true);
-      setCurrentTypingText(greeting);
-      
-      // ✅ Calculate typing duration using helper
-      const typingDuration = calculateTotalDuration(greeting);
-      
-      // After typing completes, add to messages
-      setTimeout(() => {
-        const greetingMessage = {
-          id: 'greeting',
-          role: 'assistant',
-          text: greeting,
-          timestamp: new Date().toISOString(),
-        };
+        const allMessages = [];
+        let cumulativeDelay = 0;
         
-        setMessages([greetingMessage]);
-        setIsTyping(false);
-        setCurrentTypingText('');
-      }, typingDuration + 1500);
+        // 🚀 Display bubbles sequentially using setTimeout chain
+        bubbles.forEach((bubble, index) => {
+          cumulativeDelay += bubble.delay;
+          
+          setTimeout(() => {
+            if (bubble.delay > 0 && index > 0) {
+              setIsLoading(true);
+              setTimeout(() => {
+                setIsLoading(false);
+                
+                const greetingMessage = {
+                  id: `greeting-identity-${Date.now()}-${index}`,
+                  role: 'assistant',
+                  text: bubble.text,
+                  timestamp: new Date().toISOString(),
+                };
+                
+                setMessages(prev => [...prev, greetingMessage]);
+                setMessageVersion(v => v + 1);
+              }, 50);
+            } else {
+              const greetingMessage = {
+                id: `greeting-identity-${Date.now()}-${index}`,
+                role: 'assistant',
+                text: bubble.text,
+                timestamp: new Date().toISOString(),
+              };
+              
+              setMessages(prev => [...prev, greetingMessage]);
+              setMessageVersion(v => v + 1);
+            }
+          }, cumulativeDelay);
+        });
+        
+        // Add button after all bubbles
+        setTimeout(() => {
+          const buttonMessage = {
+            id: 'button-identity-start',
+            role: 'button',
+            text: '✨ 자아 입력 시작',
+            timestamp: new Date().toISOString(),
+            onPress: () => {
+              HapticService.medium();
+              setShowIdentityCreator(true);
+            },
+          };
+          
+          setMessages(prev => [...prev, buttonMessage]);
+          setMessageVersion(v => v + 1);
+        }, cumulativeDelay + 300);
+        
+      } else {
+        // Normal welcome message
+        const greetingKey = 'managerAI.public';
+        const greeting = t(greetingKey);
+        
+        // ✨ Parse message
+        const { bubbles } = parseAIMessage({ message: greeting });
+        
+        let cumulativeDelay = 0;
+        
+        // 🚀 Display bubbles sequentially using setTimeout chain
+        bubbles.forEach((bubble, index) => {
+          cumulativeDelay += bubble.delay;
+          
+          setTimeout(() => {
+            if (bubble.delay > 0 && index > 0) {
+              setIsLoading(true);
+              setTimeout(() => {
+                setIsLoading(false);
+                
+                const greetingMessage = {
+                  id: `greeting-${Date.now()}-${index}`,
+                  role: 'assistant',
+                  text: bubble.text,
+                  timestamp: new Date().toISOString(),
+                };
+                
+                setMessages(prev => [...prev, greetingMessage]);
+                setMessageVersion(v => v + 1);
+              }, 50);
+            } else {
+              const greetingMessage = {
+                id: `greeting-${Date.now()}-${index}`,
+                role: 'assistant',
+                text: bubble.text,
+                timestamp: new Date().toISOString(),
+              };
+              
+              setMessages(prev => [...prev, greetingMessage]);
+              setMessageVersion(v => v + 1);
+            }
+          }, cumulativeDelay);
+        });
+      }
+    } catch (error) {
+      console.error('❌ [showWelcomeMessage] Error:', error);
+      // Fallback: show simple welcome
+      const fallbackMessage = {
+        id: `greeting-${Date.now()}`,
+        role: 'assistant',
+        text: '안녕하세요! 😊',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+      setMessageVersion(v => v + 1);
     }
   }, [context, t, persona]);
 
-    // ⚡ OPTIMIZED: Show not-login message (TypingMessageBubble handles animation!)
-    const showNotLoginMessage = useCallback(() => {
+  // 🎨 SMART BUBBLE: Show not-login message (Fade-in effect!)
+  const showNotLoginMessage = useCallback(() => {
+    try {
       const greeting = t('ai_comment.not_login');
       
-      // ⚡ Start typing effect
-      setIsTyping(true);
-      setCurrentTypingText(greeting);
-        
-      // ✅ Calculate typing duration using helper
-      const typingDuration = calculateTotalDuration(greeting);
+      // ✨ Parse message
+      const { bubbles } = parseAIMessage({ message: greeting });
       
-        // After typing completes, add to messages
-      setTimeout(() => {
-        const greetingMessage = {
-          id: uuid.v4(),
-          role: 'ai',
-          text: greeting,
-          timestamp: new Date().toISOString(),
-        };
-        
-        setMessages(prev => [...prev, greetingMessage]);
-        setIsTyping(false);
-        setCurrentTypingText('');
-      }, typingDuration + 100);
+      let cumulativeDelay = 0;
       
-    }, [context, t]);
+      // 🚀 Display bubbles sequentially using setTimeout chain
+      bubbles.forEach((bubble, index) => {
+        cumulativeDelay += bubble.delay;
+        
+        setTimeout(() => {
+          if (bubble.delay > 0 && index > 0) {
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              
+              const greetingMessage = {
+                id: `not-login-${Date.now()}-${index}`,
+                role: 'assistant',
+                text: bubble.text,
+                timestamp: new Date().toISOString(),
+              };
+              
+              setMessages(prev => [...prev, greetingMessage]);
+              setMessageVersion(v => v + 1);
+            }, 50);
+          } else {
+            const greetingMessage = {
+              id: `not-login-${Date.now()}-${index}`,
+              role: 'assistant',
+              text: bubble.text,
+              timestamp: new Date().toISOString(),
+            };
+            
+            setMessages(prev => [...prev, greetingMessage]);
+            setMessageVersion(v => v + 1);
+          }
+        }, cumulativeDelay);
+      });
+    } catch (error) {
+      console.error('❌ [showNotLoginMessage] Error:', error);
+      // Fallback: show simple message
+      const fallbackMessage = {
+        id: `not-login-${Date.now()}`,
+        role: 'assistant',
+        text: t('ai_comment.not_login'),
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+      setMessageVersion(v => v + 1);
+    }
+  }, [context, t]);
   
-  // ⚡ OPTIMIZED: AI auto conversation starter (TypingMessageBubble handles animation!)
-  const startAIConversation = useCallback(async (userKey) => {
-    
+  // 🎨 SMART BUBBLE: AI auto conversation starter (Fade-in effect!)
+  // ⚠️ NOTE: Currently NOT USED - Function exists for potential future use
+  // ⚠️ BUG 6: Dead Code - Consider removing if not needed
+  const startAIConversation = useCallback((userKey) => {
     // ⚡ Show loading indicator
     setIsLoading(true);
     
@@ -701,48 +822,67 @@ const ManagerAIOverlay = ({
           const answer = response.data.answer;
           const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
           
-          // ⚡ Start typing effect
+          // ✨ Parse AI message with Smart Bubble
+          const { bubbles } = parseAIMessage(response.data);
+          
           setIsLoading(false);
-          setIsTyping(true);
-          setCurrentTypingText(answer);
           
-          // ✅ Calculate typing duration using helper
-          const typingDuration = calculateTotalDuration(answer);
+          let cumulativeDelay = 0;
           
-          // After typing completes, add to messages
-          setTimeout(() => {
-            const aiMessage = {
-              id: `ai-start-${Date.now()}`,
-              role: 'assistant',
-              text: answer,
-              timestamp: new Date().toISOString(),
-              // ⭐ NEW: Rich media content
-              images: richContent.images,
-              videos: richContent.videos,
-              links: richContent.links,
-            };
+          // 🚀 Display bubbles sequentially using setTimeout chain
+          bubbles.forEach((bubble, index) => {
+            cumulativeDelay += bubble.delay;
             
-            setMessages(prev => [...prev, aiMessage]);
-            setIsTyping(false);
-            setCurrentTypingText('');
-            
-            // Check for continuation
-            if (response.data.continue_conversation) {
-              setTimeout(() => {
-                handleAIContinue(userKey);
-              }, 800);
-            }
-          }, typingDuration + 100);
+            setTimeout(() => {
+              if (bubble.delay > 0 && index > 0) {
+                setIsLoading(true);
+                setTimeout(() => {
+                  setIsLoading(false);
+                  
+                  const aiMessage = {
+                    id: `ai-start-${Date.now()}-${index}`,
+                    role: 'assistant',
+                    text: bubble.text,
+                    timestamp: new Date().toISOString(),
+                    // ⭐ Rich media content (only on first bubble to avoid duplication)
+                    images: index === 0 ? richContent.images : [],
+                    videos: index === 0 ? richContent.videos : [],
+                    links: index === 0 ? richContent.links : [],
+                  };
+                  
+                  setMessages(prev => [...prev, aiMessage]);
+                  setMessageVersion(v => v + 1);
+                }, 50);
+              } else {
+                const aiMessage = {
+                  id: `ai-start-${Date.now()}-${index}`,
+                  role: 'assistant',
+                  text: bubble.text,
+                  timestamp: new Date().toISOString(),
+                  // ⭐ Rich media content (only on first bubble to avoid duplication)
+                  images: index === 0 ? richContent.images : [],
+                  videos: index === 0 ? richContent.videos : [],
+                  links: index === 0 ? richContent.links : [],
+                };
+                
+                setMessages(prev => [...prev, aiMessage]);
+                setMessageVersion(v => v + 1);
+              }
+            }, cumulativeDelay);
+          });
+          
+          // Check for continuation
+          if (response.data.continue_conversation) {
+            setTimeout(() => {
+              handleAIContinue(userKey);
+            }, cumulativeDelay + 800);
+          }
         } else {
           setIsLoading(false);
-          setIsTyping(false);
-          setCurrentTypingText('');
         }
       } catch (error) {
         console.error('❌ [채팅] 자동 시작 에러:', error);
         setIsLoading(false);
-        setIsTyping(false);
-        setCurrentTypingText('');
       }
     }, 800);
   }, [persona, chatApi]);
@@ -1142,6 +1282,13 @@ const ManagerAIOverlay = ({
   }, [user, persona, showNotificationMessage]);
   
   const handleClose = useCallback(() => {
+    // 🛡️ STEP 0: Prevent duplicate close calls (CRITICAL!)
+    if (isClosingRef.current) {
+      console.warn('⚠️  [handleClose] Already closing, skip duplicate call!');
+      return;
+    }
+    isClosingRef.current = true; // 🔒 Lock
+    
     // 🔥 CRITICAL FIX: Use refs to get LATEST state (not closure values!)
     const currentMessages = messagesRef.current;
     const currentUser = userRef.current;
@@ -1163,6 +1310,7 @@ const ManagerAIOverlay = ({
         limitTooltipRef.current.closeTooltip();
       }
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1170,6 +1318,7 @@ const ManagerAIOverlay = ({
     if (isSettingsMenuOpen) {
       setIsSettingsMenuOpen(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1177,6 +1326,7 @@ const ManagerAIOverlay = ({
     if (showTierUpgrade) {
       setShowTierUpgrade(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1184,6 +1334,7 @@ const ManagerAIOverlay = ({
     if (showIdentitySettings) {
       setShowIdentitySettings(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1191,6 +1342,7 @@ const ManagerAIOverlay = ({
     if (showSpeakingPattern) {
       setShowSpeakingPattern(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1198,6 +1350,7 @@ const ManagerAIOverlay = ({
     if (showCreateMusic) {
       setShowCreateMusic(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1205,6 +1358,7 @@ const ManagerAIOverlay = ({
     if (isHelpOpen) {
       setIsHelpOpen(false);
       HapticService.light();
+      isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
     
@@ -1258,15 +1412,18 @@ const ManagerAIOverlay = ({
     
     // ⭐ NEW: Prevent closing if AI is continuing conversation
     if (isAIContinuing || isLoading || isTyping) {
-      showAlert.alert(
-        '💬 AI가 대화 중입니다',
-        'AI가 아직 답변을 완료하지 못했습니다.\n정말 채팅을 종료하시겠습니까?',
-        [
+      // ✅ FIXED: Restore showAlert with AnimaContext component
+      showAlert({
+        emoji: '💬',
+        title: 'AI가 대화 중입니다',
+        message: 'AI가 아직 답변을 완료하지 못했습니다.\n정말 채팅을 종료하시겠습니까?',
+        buttons: [
           {
             text: '계속 대화하기',
             style: 'cancel',
             onPress: () => {
               HapticService.light();
+              isClosingRef.current = false; // 🔓 Unlock
             }
           },
           {
@@ -1310,12 +1467,15 @@ const ManagerAIOverlay = ({
                 if (onClose) {
                   onClose();
                 }
+                
+                // 🔓 Unlock after close
+                isClosingRef.current = false;
               }, 200); // ⚡ 200ms delay for Alert animation
             }
           }
         ]
-      );
-      return; // ⚡ Early exit for AI continuing case
+      });
+      return; // ✅ CRITICAL FIX: Early exit to prevent triggerBackgroundLearning!
     }
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1355,6 +1515,9 @@ const ManagerAIOverlay = ({
       if (onClose) {
         onClose();
       }
+      
+      // 🔓 Unlock after close (allow new close calls)
+      isClosingRef.current = false;
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
   }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
@@ -1434,7 +1597,7 @@ const ManagerAIOverlay = ({
                 completedMessages={messages}
                 isTyping={isTyping} // ⚡ OPTIMIZED: Boolean flag only
                 currentTypingText={currentTypingText} // ⚡ OPTIMIZED: Complete text (set once!)
-                messageVersion={messages.length}
+                messageVersion={messageVersion} // 🎯 FIXED: Use state-managed version for Smart Bubble system
                 isLoading={isLoading}
                 onLoadMore={() => loadChatHistory(true)} // ⭐ NEW: Load more history
                 loadingHistory={loadingHistory} // ⭐ NEW: Loading indicator
