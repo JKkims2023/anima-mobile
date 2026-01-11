@@ -1377,17 +1377,29 @@ const ManagerAIOverlay = ({
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🎓 [ManagerAIOverlay] Trigger Background Learning');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('   messages.length:', capturedMessages.length);
+      
+      // ✅ CRITICAL FIX: Count only ACTUAL user messages (not greeting/button/notification)
+      const actualUserMessages = capturedMessages.filter(msg => 
+        msg.role === 'user' && 
+        !msg.id?.startsWith('greeting-') && 
+        !msg.id?.startsWith('button-') && 
+        !msg.id?.startsWith('notification-')
+      );
+      
+      console.log('   total messages:', capturedMessages.length);
+      console.log('   actual user messages:', actualUserMessages.length);
       console.log('   user?.user_key:', capturedUser?.user_key);
       console.log('   persona?.persona_key:', capturedPersona?.persona_key);
       
-      // ⚡ FIX: Only trigger if we have at least 1 message (changed from 3)
-      if (capturedMessages.length >= 1 && capturedUser?.user_key && capturedPersona?.persona_key) {
+      // 🔥 CRITICAL: Only trigger if we have meaningful conversation (3+ REAL user messages!)
+      // This prevents unnecessary API calls when user only sees welcome message
+      if (actualUserMessages.length >= 3 && capturedUser?.user_key && capturedPersona?.persona_key) {
         const session_id = chatApi.getCurrentSessionId(capturedPersona.persona_key);
         
         console.log('   session_id:', session_id);
         
-        if (session_id) {
+        // ✅ CRITICAL: Check session_id is valid (not null, not undefined, not empty string)
+        if (session_id && session_id !== 'undefined' && session_id !== 'null' && session_id !== '') {
           console.log('✅ [ManagerAIOverlay] Calling closeChatSession...');
           
           // Fire-and-forget (don't wait for result)
@@ -1399,11 +1411,12 @@ const ManagerAIOverlay = ({
             console.error('❌ [ManagerAIOverlay] Background learning failed:', err);
           });
         } else {
-          console.warn('⚠️  [ManagerAIOverlay] No session_id found - skipping background learning');
+          console.warn('⚠️  [ManagerAIOverlay] Invalid session_id - skipping background learning');
+          console.warn('   - session_id:', session_id);
         }
       } else {
         console.warn('⚠️  [ManagerAIOverlay] Conditions not met for background learning');
-        console.warn('   - messages.length >= 1:', capturedMessages.length >= 1);
+        console.warn('   - actual user messages >= 3:', actualUserMessages.length >= 3);
         console.warn('   - user?.user_key exists:', !!capturedUser?.user_key);
         console.warn('   - persona?.persona_key exists:', !!capturedPersona?.persona_key);
       }
