@@ -764,26 +764,9 @@ const ChatMessageList = ({
             setTimeout(() => setIsInitialLoad(false), 100);
           }
         }}
-        overrideItemLayout={(layout, item) => {
-          // ⚡ NEW: Override estimated size based on item type for PERFECT scrolling!
-          const itemType = getItemType(item);
-          switch (itemType) {
-            case 'user_text':
-              layout.size = verticalScale(80); // User messages are shorter
-              break;
-            case 'user_with_image':
-              layout.size = verticalScale(250); // User message + image
-              break;
-            case 'assistant_text':
-              layout.size = verticalScale(120); // AI text messages
-              break;
-            case 'assistant_with_media':
-              layout.size = verticalScale(350); // AI message + media (image/music/youtube)
-              break;
-            default:
-              layout.size = verticalScale(120);
-          }
-        }}
+        // ⚠️ REMOVED: overrideItemLayout (2026-01-11)
+        // Reason: Fixed sizes cause "disappearing message" issue when actual size differs
+        // Solution: Let FlashList automatically measure item sizes (more accurate!)
         extraData={messageVersion} // ✅ Only re-render when messageVersion changes
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

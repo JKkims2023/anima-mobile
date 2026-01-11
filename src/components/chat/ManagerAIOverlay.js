@@ -77,13 +77,15 @@ import {
 } from '../../utils/chatConstants';
 import { 
   CancelableTimeout,
-  addAIMessageWithTyping,
+  addAIMessageWithTyping, // ⚠️ DEPRECATED: Will be replaced with addAIMessageWithBubbles
+
   cancelableDelay,
   normalizeMessage,
   createErrorMessage,
   createUserMessage,
 } from '../../utils/chatHelpers';
 import { parseRichContent } from '../../utils/chatResponseParser';
+import { addAIMessageWithBubbles } from '../../utils/smartBubbleHelpers'; // 🎯 NEW: Smart bubble system (2026-01-11)
 
 /**
  * 🌟 IdentityEvolutionOverlay - Minimal notification for identity updates
@@ -787,11 +789,10 @@ const ManagerAIOverlay = ({
         const answer = response.data.answer;
         const richContent = response.data.rich_content || { images: [], videos: [], links: [] };
         
-        // ✅ Use common function with cleanup support
-        const aiMessage = await addAIMessageWithTyping({
+        // 🎯 NEW: Use smart bubble system (replaces typing animation)
+        const aiMessage = await addAIMessageWithBubbles({
           answer,
           richContent,
-          messageId: `ai-continue-${Date.now()}`,
           setIsTyping,
           setCurrentTypingText,
           setIsLoading,
@@ -1035,8 +1036,8 @@ const ManagerAIOverlay = ({
           HapticService.trigger('success');
         }
         
-        // ✅ Use common function with cleanup support
-        const aiMessage = await addAIMessageWithTyping({
+        // 🎯 NEW: Use smart bubble system (replaces typing animation)
+        const aiMessage = await addAIMessageWithBubbles({
           answer,
           richContent,
           music: musicData,
