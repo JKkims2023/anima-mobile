@@ -29,7 +29,6 @@ import HapticService from '../../utils/HapticService';
 import RNFS from 'react-native-fs';
 import { COLORS } from '../../styles/commonstyles';
 import TypingMessageBubble from './TypingMessageBubble'; // ⚡ NEW: Optimized typing component
-
 // SAGE Avatar URL
 const SAGE_AVATAR_URL = 'https://babi-cdn.logbrix.ai/babi/real/babi/f91b1fb7-d162-470d-9a43-2ee5835ee0bd_00001_.png';
 
@@ -564,12 +563,13 @@ const ChatMessageList = ({
 
   // ✅ Auto-scroll to bottom on new message or typing starts
   // ⚡ OPTIMIZED: Only depends on isTyping (boolean), not typingMessage (string that changes 30ms)
-  // ⭐ CRITICAL FIX: isUserScrolling removed from dependencies to prevent auto-scroll when user is manually scrolling!
+  // 🎨 ENHANCED: Force scroll during AI response (isLoading or isTyping)
   useEffect(() => {
-    // ⚠️ CRITICAL: Only auto-scroll when NEW MESSAGE arrives!
-    // Don't auto-scroll just because isUserScrolling changed (1초 타이머 때문에 계속 변경됨!)
+    // 🎯 PRIORITY 1: Force scroll when AI is responding
+    // This ensures smooth UX during Smart Bubble animations
+    const isAIResponding = isLoading || isTyping;
     
-    if (flashListRef.current && !isUserScrolling) {
+    if (flashListRef.current && (isAIResponding || !isUserScrolling)) {
       // ⚡ Initial load: Scroll without animation (instant!)
       if (isInitialLoad && completedMessages.length > 0) {
         const scrollTimeout = setTimeout(() => {
@@ -593,7 +593,7 @@ const ChatMessageList = ({
         return () => clearTimeout(scrollTimeout);
       }
     }
-  }, [completedMessages.length, messageVersion, isTyping, isInitialLoad]); // ⭐ REMOVED: isUserScrolling from dependencies!
+  }, [completedMessages.length, messageVersion, isTyping, isLoading, isInitialLoad]); // ✅ Added: isLoading
   
   // ⚡ Cleanup timeout on unmount
   useEffect(() => {
@@ -664,18 +664,6 @@ const ChatMessageList = ({
       return hasMedia ? 'assistant_with_media' : 'assistant_text';
     }
   }, []);
-
-  // Render message item
-  const renderItem = ({ item }) => (
-    <MessageItem 
-      message={item} 
-      onImagePress={handleImagePress}
-      onImageLongPress={handleImageLongPress}
-      onMusicPress={onMusicPress}
-      onYouTubePress={onYouTubePress}
-      personaUrl={personaUrl}
-    />
-  );
 
   // Key extractor
   const keyExtractor = (item, index) => item.id || `message-${index}`;
@@ -767,7 +755,7 @@ const ChatMessageList = ({
         // ⚠️ REMOVED: overrideItemLayout (2026-01-11)
         // Reason: Fixed sizes cause "disappearing message" issue when actual size differs
         // Solution: Let FlashList automatically measure item sizes (more accurate!)
-        extraData={messageVersion} // ✅ Only re-render when messageVersion changes
+        extraData={messageVersion} // ✅ Re-render only on new messages (not animation set changes)
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
@@ -810,7 +798,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: moderateScale(0),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(0), // ⭐ INCREASED: 0 → 100 (Issue 3 FIX! Space for input bar + typing bubble)
+    paddingBottom: verticalScale(20), // ✅ Extra space for input bar (prevents message cutoff)
   },
   messageRow: {
     flexDirection: 'row',
