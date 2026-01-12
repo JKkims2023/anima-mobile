@@ -108,10 +108,10 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
-    // 🔥 CRITICAL FIX: Get LATEST persona from Context (force re-read!)
-    // This ensures we always have the most up-to-date persona data
-    // especially after push notifications or persona updates
-    const latestPersona = selectedPersona;
+    // 🔥 CRITICAL FIX: Get LATEST persona DIRECTLY from PersonaContext!
+    // DO NOT use selectedPersona from destructured hook (it's from previous render)
+    // Use usePersona() INSIDE the function to get the most current value
+    const { selectedPersona: latestPersona } = usePersona();
     
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔍 [CustomTabBar] Center AI Button pressed');
