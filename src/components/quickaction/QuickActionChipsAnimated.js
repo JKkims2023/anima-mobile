@@ -52,12 +52,34 @@ const QuickActionChipsAnimated = ({
   currentPersona = null,
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
-  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
+  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp + prop tracking
   const renderCountRef = useRef(0);
+  const prevPropsRef = useRef({});
   renderCountRef.current++;
   if (__DEV__) {
     const timestamp = Date.now();
     console.log(`🔥 [QuickActionChips] Render #${renderCountRef.current}, persona: ${currentPersona?.persona_name} @ ${timestamp}`);
+    
+    // 🔥 Track prop changes
+    const currentProps = {
+      persona_key: currentPersona?.persona_key,
+      persona_comment_checked: currentPersona?.persona_comment_checked,
+      isVideoConverting,
+      dressCount: currentDressState?.count,
+      dressHasCreating: currentDressState?.hasCreating,
+    };
+    
+    const changedProps = Object.keys(currentProps).filter(key => 
+      currentProps[key] !== prevPropsRef.current[key]
+    );
+    
+    if (changedProps.length > 0 && renderCountRef.current > 1) {
+      console.log('   ⚠️  Changed props:', changedProps.map(key => 
+        `${key}: ${prevPropsRef.current[key]} → ${currentProps[key]}`
+      ).join(', '));
+    }
+    
+    prevPropsRef.current = currentProps;
   }
 
   const insets = useSafeAreaInsets();
