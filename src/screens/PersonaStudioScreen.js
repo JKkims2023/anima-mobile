@@ -115,7 +115,22 @@ const PersonaStudioScreen = () => {
   // ═══════════════════════════════════════════════════════════════════════
   const [isScreenFocused, setIsScreenFocused] = useState(true);
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
-  const [currentPersona, setCurrentPersona] = useState(null);
+  const [currentPersona, setCurrentPersonaInternal] = useState(null);
+  
+  // 🔥 DEBUG: Wrapper to track setCurrentPersona calls
+  const setCurrentPersona = useCallback((valueOrUpdater) => {
+    if (__DEV__) {
+      const timestamp = Date.now();
+      if (typeof valueOrUpdater === 'function') {
+        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (updater function) @ ${timestamp}`);
+      } else {
+        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (direct value):`, valueOrUpdater?.persona_name, '@ ${timestamp}');
+      }
+      // 스택 트레이스 출력 (호출 위치 확인)
+      console.trace('   Call stack:');
+    }
+    setCurrentPersonaInternal(valueOrUpdater);
+  }, []);
   // ❌ REMOVED: chipsRefreshKey (no longer needed - data is in persona list!)
   // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
