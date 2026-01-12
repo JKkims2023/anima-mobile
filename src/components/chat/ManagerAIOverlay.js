@@ -393,23 +393,27 @@ const ManagerAIOverlay = ({
     };
   }, [visible, handleBackPress]);
     
+  // 🔥 CRITICAL FIX: Separate useEffect for personaRef sync (performance optimization!)
+  // Only updates when persona.persona_key or persona.done_yn actually changes
+  useEffect(() => {
+    if (visible && persona) {
+      personaRef.current = persona;
+      
+      if (__DEV__) {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔄 [ManagerAIOverlay] personaRef synced with latest prop');
+        console.log('   persona_name:', persona.persona_name);
+        console.log('   persona_key:', persona.persona_key);
+        console.log('   done_yn:', persona.done_yn);
+        console.log('   identity_key:', persona.identity_key);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+    }
+  }, [visible, persona?.persona_key, persona?.done_yn, persona?.identity_key]); // ⚡ Only watch specific fields!
+  
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
-    
-    // 🔥 CRITICAL FIX: Sync personaRef with latest prop data when overlay opens!
-    // This ensures personaRef always has the most up-to-date persona data,
-    // even if PersonaContext updated after component mount
-    if (visible && persona) {
-      personaRef.current = persona;
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔄 [ManagerAIOverlay] personaRef synced with latest prop');
-      console.log('   persona_name:', persona.persona_name);
-      console.log('   persona_key:', persona.persona_key);
-      console.log('   done_yn:', persona.done_yn);
-      console.log('   identity_key:', persona.identity_key);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    }
     
     // 🔥 CRITICAL: Only load if user is fully loaded!
     if (!user || !user.user_key) {
@@ -438,7 +442,7 @@ const ManagerAIOverlay = ({
         loadChatHistory();
       }
     }
-  }, [visible, user, persona, persona?.persona_key, currentPersonaKey]); // ⭐ Added 'persona' to dependencies for full sync
+  }, [visible, user, persona?.persona_key, currentPersonaKey]); // ⚡ Removed 'persona' object - only watch persona_key
   
   const handleCreateMusic = async () => {
     handleToggleSettings('music');

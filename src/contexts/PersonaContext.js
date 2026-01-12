@@ -160,7 +160,7 @@ export const PersonaProvider = ({ children }) => {
     }
     
     return result;
-  }, [selectedPersona, personas, selectedIndex]);
+  }, [selectedPersona, personas, selectedIndex]); // ⚡ Keep original dependencies (safest approach)
 
   // 🔍 DEBUG: Log selectedPersona changes
   useEffect(() => {
