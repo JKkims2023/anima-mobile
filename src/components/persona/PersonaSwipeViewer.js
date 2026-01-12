@@ -95,7 +95,9 @@ const PersonaSwipeViewer = forwardRef(({
   }
   
   const flatListRef = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  // 🔥 PERF FIX: Remove internal selectedIndex state (use initialIndex directly from props!)
+  // Internal state was causing duplicate renders after scroll animation completes
+  const selectedIndex = initialIndex; // ← Use prop directly (no state!)
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
   const { t } = useTranslation();
@@ -177,8 +179,9 @@ const PersonaSwipeViewer = forwardRef(({
 
     if (index !== selectedIndex) {
       HapticService.selection();
-      setSelectedIndex(index);
-      onIndexChange(index); // ✅ Notify parent
+      // 🔥 PERF FIX: Don't update internal state! Parent manages index via initialIndex prop
+      // setSelectedIndex(index); // ← REMOVED! This was causing double renders
+      onIndexChange(index); // ✅ Notify parent only
 
     }
   }, [selectedIndex, personas, onIndexChange, availableHeight]);
