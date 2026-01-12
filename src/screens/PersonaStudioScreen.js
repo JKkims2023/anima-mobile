@@ -2004,22 +2004,27 @@ const PersonaStudioScreen = () => {
         </View>
         
         {/* QuickActionChips (Right Overlay) */}
-        {currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible && (
-          <View style={styles.quickChipsOverlay}>
-            <QuickActionChipsAnimated
-              onDressClick={handleAddDress}
-              onHistoryClick={handleQuickHistory}
-              onVideoClick={handleQuickVideo}
-              onMessageClick={handleQuickMessage}//{handleQuickMessage}
-              onSettingsClick={handleQuickSettings}
-              onShareClick={handleShareClick}
-              onDeleteClick={handleDeleteClick}
-              isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
-              currentPersona={currentPersona}
-              currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
-            />
-          </View>
-        )}
+        {/* 🔥 PERFORMANCE FIX: Always mounted to prevent unmount/remount (which bypasses React.memo!) */}
+        <View style={[
+          styles.quickChipsOverlay,
+          {
+            opacity: (currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible) ? 1 : 0,
+            pointerEvents: (currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible) ? 'auto' : 'none',
+          }
+        ]}>
+          <QuickActionChipsAnimated
+            onDressClick={handleAddDress}
+            onHistoryClick={handleQuickHistory}
+            onVideoClick={handleQuickVideo}
+            onMessageClick={handleQuickMessage}//{handleQuickMessage}
+            onSettingsClick={handleQuickSettings}
+            onShareClick={handleShareClick}
+            onDeleteClick={handleDeleteClick}
+            isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
+            currentPersona={currentPersona}
+            currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
+          />
+        </View>
 
         {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
         {!isPostcardVisible && (
