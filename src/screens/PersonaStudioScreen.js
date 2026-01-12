@@ -88,7 +88,8 @@ const PersonaStudioScreen = () => {
   const renderCountRef = useRef(0);
   renderCountRef.current++;
   if (__DEV__) {
-    console.log(`🔥 [PersonaStudioScreen] Render #${renderCountRef.current}`);
+    const timestamp = Date.now();
+    console.log(`🔥 [PersonaStudioScreen] Render #${renderCountRef.current} @ ${timestamp}`);
   }
   
   // ═══════════════════════════════════════════════════════════════════════

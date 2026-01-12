@@ -53,11 +53,12 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
   const insets = useSafeAreaInsets();
   
-  // 🔥 PERFORMANCE DEBUG: Render counter
+  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
   const renderCountRef = useRef(0);
   renderCountRef.current++;
   if (__DEV__) {
-    console.log(`🔥 [CustomTabBar] Render #${renderCountRef.current}`);
+    const timestamp = Date.now();
+    console.log(`🔥 [CustomTabBar] Render #${renderCountRef.current} @ ${timestamp}`);
   }
   
   // ⭐ Check if we should hide the tab bar (for MessageDetail & MessageCreation screens)

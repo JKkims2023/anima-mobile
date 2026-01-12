@@ -52,11 +52,12 @@ const QuickActionChipsAnimated = ({
   currentPersona = null,
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
-  // 🔥 PERFORMANCE DEBUG: Render counter
+  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
   const renderCountRef = useRef(0);
   renderCountRef.current++;
   if (__DEV__) {
-    console.log(`🔥 [QuickActionChips] Render #${renderCountRef.current}, persona: ${currentPersona?.persona_name}`);
+    const timestamp = Date.now();
+    console.log(`🔥 [QuickActionChips] Render #${renderCountRef.current}, persona: ${currentPersona?.persona_name} @ ${timestamp}`);
   }
 
   const insets = useSafeAreaInsets();

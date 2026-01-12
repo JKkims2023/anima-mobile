@@ -75,11 +75,33 @@ const PersonaCardView = forwardRef(({
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
   
-  // 🔥 PERFORMANCE DEBUG: Render counter
+  // 🔥 PERFORMANCE DEBUG: Render counter with detailed props
   const renderCountRef = useRef(0);
+  const prevPropsRef = useRef({});
   renderCountRef.current++;
+  
   if (__DEV__) {
-    console.log(`🔥 [PersonaCardView] Render #${renderCountRef.current}, persona: ${persona?.persona_name}, isActive: ${isActive}`);
+    const timestamp = Date.now();
+    const changedProps = [];
+    
+    // Check which props changed
+    if (prevPropsRef.current.isActive !== isActive) changedProps.push(`isActive: ${prevPropsRef.current.isActive} → ${isActive}`);
+    if (prevPropsRef.current.isScreenFocused !== isScreenFocused) changedProps.push(`isScreenFocused: ${prevPropsRef.current.isScreenFocused} → ${isScreenFocused}`);
+    if (prevPropsRef.current.isScreenActive !== isScreenActive) changedProps.push(`isScreenActive: ${prevPropsRef.current.isScreenActive} → ${isScreenActive}`);
+    if (prevPropsRef.current.persona_key !== persona?.persona_key) changedProps.push(`persona_key: ${prevPropsRef.current.persona_key} → ${persona?.persona_key}`);
+    
+    console.log(`🔥 [PersonaCardView] Render #${renderCountRef.current}, persona: ${persona?.persona_name}, isActive: ${isActive} @ ${timestamp}`);
+    if (changedProps.length > 0 && renderCountRef.current > 1) {
+      console.log(`   ⚠️  Changed props: ${changedProps.join(', ')}`);
+    }
+    
+    // Store current props for next comparison
+    prevPropsRef.current = {
+      isActive,
+      isScreenFocused,
+      isScreenActive,
+      persona_key: persona?.persona_key,
+    };
   }
   
   const [isFlipped, setIsFlipped] = useState(false);
