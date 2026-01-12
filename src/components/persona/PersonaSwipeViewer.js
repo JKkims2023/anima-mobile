@@ -189,6 +189,14 @@ const PersonaSwipeViewer = forwardRef(({
   const snapToOffsets = useMemo(() => {
     return personas.map((_, index) => index * availableHeight);
   }, [personas.length, availableHeight]);
+  
+  // 🔥 PERF: extraData for FlashList (explicit re-render control)
+  const flashListExtraData = useMemo(() => ({
+    selectedIndex,
+    isModeActive,
+    isScreenFocused,
+    isScreenActive,
+  }), [selectedIndex, isModeActive, isScreenFocused, isScreenActive]);
 
   // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
@@ -215,7 +223,7 @@ const PersonaSwipeViewer = forwardRef(({
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus]);
+  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onPostcardFlipChange, userProp, onMarkAsRead, personaCardRefs]);
 
   // ✅ Key extractor (optimized)
   // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes
@@ -256,6 +264,7 @@ const PersonaSwipeViewer = forwardRef(({
         data={personas}
         renderItem={renderPersona}
         keyExtractor={keyExtractor}
+        extraData={flashListExtraData} // 🔥 PERF: Explicit re-render control
         estimatedItemSize={availableHeight} // ⭐ CRITICAL: Required for FlashList (each persona takes full height)
         scrollEnabled={enabled && !isPostcardVisible} // ⭐ Disable scroll when postcard is visible
         showsVerticalScrollIndicator={false}
