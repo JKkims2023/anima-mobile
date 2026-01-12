@@ -197,12 +197,17 @@ const PersonaSwipeViewer = forwardRef(({
   }, [personas.length, availableHeight]);
   
   // 🔥 PERF: extraData for FlashList (explicit re-render control)
+  // 🔥 CRITICAL FIX: Removed selectedIndex from extraData!
+  // selectedIndex is used ONLY for calculating isActive in renderPersona
+  // isActive is passed as props to PersonaCardView
+  // React.memo already detects isActive changes
+  // Including selectedIndex in extraData causes ALL items to re-render unnecessarily!
   const flashListExtraData = useMemo(() => ({
-    selectedIndex,
+    // selectedIndex removed! ← Only global states here
     isModeActive,
     isScreenFocused,
     isScreenActive,
-  }), [selectedIndex, isModeActive, isScreenFocused, isScreenActive]);
+  }), [isModeActive, isScreenFocused, isScreenActive]);
 
   // ✅ Render each persona card (VIDEO/IMAGE ONLY - NO CHAT)
   const renderPersona = useCallback(({ item, index }) => {
