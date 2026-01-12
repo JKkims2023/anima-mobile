@@ -496,17 +496,59 @@ const ChatMessageList = ({
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
   
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [ChatMessageList] Render #${renderCountRef.current} @ ${Date.now()}`);
+    console.log(`   completedMessages: ${completedMessages?.length}`);
+    console.log(`   isTyping: ${isTyping}`);
+    console.log(`   currentTypingText length: ${currentTypingText?.length || 0}`);
+    console.log(`   isLoading: ${isLoading}`);
+    console.log(`   messageVersion: ${messageVersion}`);
+    console.log(`   loadingHistory: ${loadingHistory}`);
+    console.log(`   hasMoreHistory: ${hasMoreHistory}`);
+  }
+  
   // 🆕 Image viewer state
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
+  
+  // 🔥 [STATE LOG] selectedImageUri
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] selectedImageUri changed: ${selectedImageUri ? 'Image selected' : 'None'}`);
+    }
+  }, [selectedImageUri]);
+  
+  // 🔥 [STATE LOG] isImageViewerVisible
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isImageViewerVisible changed: ${isImageViewerVisible}`);
+    }
+  }, [isImageViewerVisible]);
   
   // ⚡ NEW: Track if user is manually scrolling (to prevent auto-scroll interruption)
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const scrollTimeoutRef = useRef(null);
   
+  // 🔥 [STATE LOG] isUserScrolling
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isUserScrolling changed: ${isUserScrolling}`);
+    }
+  }, [isUserScrolling]);
+  
   // ⚡ NEW: Track initial load to prevent "와다다다" scroll effect
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const initialLoadTimeoutRef = useRef(null);
+  
+  // 🔥 [STATE LOG] isInitialLoad
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isInitialLoad changed: ${isInitialLoad}`);
+    }
+  }, [isInitialLoad]);
   
   // 🆕 Handle image press (fullscreen viewer)
   const handleImagePress = useCallback((imageUri) => {
@@ -565,6 +607,16 @@ const ChatMessageList = ({
   // ⚡ OPTIMIZED: Only depends on isTyping (boolean), not typingMessage (string that changes 30ms)
   // 🎨 ENHANCED: Force scroll during AI response (isLoading or isTyping)
   useEffect(() => {
+    if (__DEV__) {
+      console.log(`⚡ [EFFECT] Auto-scroll effect triggered`);
+      console.log(`   completedMessages.length: ${completedMessages.length}`);
+      console.log(`   messageVersion: ${messageVersion}`);
+      console.log(`   isTyping: ${isTyping}`);
+      console.log(`   isLoading: ${isLoading}`);
+      console.log(`   isInitialLoad: ${isInitialLoad}`);
+      console.log(`   isUserScrolling: ${isUserScrolling}`);
+    }
+    
     // 🎯 PRIORITY 1: Force scroll when AI is responding
     // This ensures smooth UX during Smart Bubble animations
     const isAIResponding = isLoading || isTyping;
@@ -572,6 +624,10 @@ const ChatMessageList = ({
     if (flashListRef.current && (isAIResponding || !isUserScrolling)) {
       // ⚡ Initial load: Scroll without animation (instant!)
       if (isInitialLoad && completedMessages.length > 0) {
+        if (__DEV__) {
+          console.log(`⚡ [EFFECT] Initial load scroll (no animation)`);
+        }
+        
         const scrollTimeout = setTimeout(() => {
           flashListRef.current?.scrollToEnd({ animated: false });
           // Mark initial load complete after a short delay
@@ -585,6 +641,10 @@ const ChatMessageList = ({
         
         return () => clearTimeout(scrollTimeout);
       } else {
+        if (__DEV__) {
+          console.log(`⚡ [EFFECT] Subsequent scroll (animated)`);
+        }
+        
         // ⚡ Subsequent updates: Smooth animation
         const scrollTimeout = setTimeout(() => {
           flashListRef.current?.scrollToEnd({ animated: true });
@@ -592,12 +652,24 @@ const ChatMessageList = ({
         
         return () => clearTimeout(scrollTimeout);
       }
+    } else {
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] Auto-scroll skipped (user scrolling or not responding)`);
+      }
     }
   }, [completedMessages.length, messageVersion, isTyping, isLoading, isInitialLoad]); // ✅ Added: isLoading
   
   // ⚡ Cleanup timeout on unmount
   useEffect(() => {
+    if (__DEV__) {
+      console.log(`⚡ [EFFECT] Cleanup effect mounted`);
+    }
+    
     return () => {
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] Cleanup effect: Clearing timeouts`);
+      }
+      
       if (initialLoadTimeoutRef.current) {
         clearTimeout(initialLoadTimeoutRef.current);
       }
@@ -611,10 +683,21 @@ const ChatMessageList = ({
   // ⚡ OPTIMIZED: Less throttling during typing for smoother experience (Issue 3 FIX!)
   const lastScrollTimeRef = useRef(0);
   const handleContentSizeChange = useCallback((width, height) => {
+    if (__DEV__) {
+      const now = Date.now();
+      console.log(`🔧 [HANDLER] handleContentSizeChange @ ${now}`);
+      console.log(`   width: ${width}, height: ${height}`);
+      console.log(`   isTyping: ${isTyping}`);
+      console.log(`   throttle elapsed: ${now - lastScrollTimeRef.current}ms`);
+    }
+    
     const now = Date.now();
     
     // ⚡ CHANGED: Reduced throttle from 50ms → 16ms (~60fps) for smoother typing scroll
     if (now - lastScrollTimeRef.current < 16) {
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] handleContentSizeChange: Throttled (< 16ms)`);
+      }
       return;
     }
     
@@ -623,6 +706,9 @@ const ChatMessageList = ({
     // ⭐ FIX: Always auto-scroll during typing (ignore isUserScrolling during typing!)
     // This prevents the typing bubble from being hidden behind the input bar
     if (isTyping && flashListRef.current) {
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] handleContentSizeChange: Auto-scrolling to end`);
+      }
       flashListRef.current.scrollToEnd({ animated: false });
     }
   }, [isTyping]);
@@ -630,6 +716,11 @@ const ChatMessageList = ({
   // ⭐ NEW: Handle scroll (load more history + detect manual scrolling)
   const handleScroll = useCallback((event) => {
     const { contentOffset } = event.nativeEvent;
+    
+    if (__DEV__) {
+      console.log(`🔧 [HANDLER] handleScroll @ ${Date.now()}`);
+      console.log(`   contentOffset.y: ${contentOffset.y}`);
+    }
     
     // ⚡ NEW: Mark user as manually scrolling
     setIsUserScrolling(true);
@@ -640,11 +731,17 @@ const ChatMessageList = ({
       clearTimeout(scrollTimeoutRef.current);
     }
     scrollTimeoutRef.current = setTimeout(() => {
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] handleScroll: Resetting isUserScrolling to false`);
+      }
       setIsUserScrolling(false);
     }, 5000); // ⭐ INCREASED: 1000 → 5000 (5 seconds of protection!)
     
     // ✅ Load more when scrolling to top (reaching old messages)
     if (onLoadMore && hasMoreHistory && !loadingHistory && contentOffset.y <= 100) {
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] handleScroll: Reached top, loading more history...`);
+      }
       console.log('📜 [ChatMessageList] Reached top, loading more history...');
       onLoadMore();
     }
@@ -653,33 +750,66 @@ const ChatMessageList = ({
   // ⚡ NEW: Get item type for better FlashList performance
   const getItemType = useCallback((item) => {
     // Different types = different estimated sizes = smoother scrolling!
-    if (!item) return 'unknown';
+    if (!item) {
+      if (__DEV__) {
+        console.log(`🔧 [CALLBACK] getItemType: unknown (no item)`);
+      }
+      return 'unknown';
+    }
     
     const isUser = item.role === 'user';
     const hasMedia = item.images?.length > 0 || item.music || item.youtube;
     
+    let type;
     if (isUser) {
-      return item.image ? 'user_with_image' : 'user_text';
+      type = item.image ? 'user_with_image' : 'user_text';
     } else {
-      return hasMedia ? 'assistant_with_media' : 'assistant_text';
+      type = hasMedia ? 'assistant_with_media' : 'assistant_text';
     }
+    
+    if (__DEV__) {
+      console.log(`🔧 [CALLBACK] getItemType: ${type} (id: ${item.id?.substring(0, 8)}...)`);
+    }
+    
+    return type;
   }, []);
 
   // Key extractor
   const keyExtractor = (item, index) => item.id || `message-${index}`;
 
   // Empty state
-  const renderEmptyState = () => (
-    <View style={[styles.messageBubble, styles.aiBubble, { display: 'none', backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
-      <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
-        {t('manager_ai.empty_messages') || 'Start a conversation with SAGE'}
-      </Text>
-    </View>
-  );
+  const renderEmptyState = () => {
+    if (__DEV__) {
+      console.log(`🎨 [RENDER] renderEmptyState called`);
+    }
+    
+    return (
+      <View style={[styles.messageBubble, styles.aiBubble, { display: 'none', backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
+        <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
+          {t('manager_ai.empty_messages') || 'Start a conversation with SAGE'}
+        </Text>
+      </View>
+    );
+  };
   
   // ⭐ NEW: Loading header (when loading more history)
   const renderListHeader = () => {
-    if (!loadingHistory || !hasMoreHistory) return null;
+    if (__DEV__) {
+      console.log(`🎨 [RENDER] renderListHeader called`);
+      console.log(`   loadingHistory: ${loadingHistory}`);
+      console.log(`   hasMoreHistory: ${hasMoreHistory}`);
+    }
+    
+    if (!loadingHistory || !hasMoreHistory) {
+      if (__DEV__) {
+        console.log(`🎨 [RENDER] renderListHeader: returning null`);
+      }
+      return null;
+    }
+    
+    if (__DEV__) {
+      console.log(`🎨 [RENDER] renderListHeader: showing loading indicator`);
+    }
     
     return (
       <View style={styles.loadingHeader}>
@@ -694,8 +824,18 @@ const ChatMessageList = ({
   // ⚡ OPTIMIZED: Memoized typing footer (prevents re-render!)
   // Shows TypingIndicator (...) when loading, or TypingMessage when typing
   const renderTypingFooter = useMemo(() => {
+    if (__DEV__) {
+      console.log(`🎨 [MEMO] renderTypingFooter recalculated`);
+      console.log(`   isTyping: ${isTyping}`);
+      console.log(`   currentTypingText length: ${currentTypingText?.length || 0}`);
+      console.log(`   isLoading: ${isLoading}`);
+    }
+    
     // 1️⃣ Show typing message (⚡ NEW: Self-contained typing animation!)
     if (isTyping && currentTypingText) {
+      if (__DEV__) {
+        console.log(`🎨 [MEMO] renderTypingFooter: Showing TypingMessageBubble`);
+      }
       return (
         <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
           <TypingMessageBubble 
@@ -709,6 +849,9 @@ const ChatMessageList = ({
     
     // 2️⃣ Show typing indicator (... animation) when AI is thinking
     if (isLoading) {
+      if (__DEV__) {
+        console.log(`🎨 [MEMO] renderTypingFooter: Showing TypingIndicator`);
+      }
       return (
         <View style={{ paddingHorizontal: moderateScale(12), paddingVertical: verticalScale(8) }}>
           <TypingIndicator personaUrl={personaUrl} />
@@ -717,6 +860,9 @@ const ChatMessageList = ({
     }
     
     // 3️⃣ Nothing to show
+    if (__DEV__) {
+      console.log(`🎨 [MEMO] renderTypingFooter: Showing nothing`);
+    }
     return null;
   }, [isTyping, currentTypingText, isLoading, personaUrl]);
 
@@ -724,6 +870,10 @@ const ChatMessageList = ({
   // Typing indicator is rendered as ListFooterComponent (inside FlashList)
   // This prevents jumping when typing completes!
   const displayMessages = useMemo(() => {
+    if (__DEV__) {
+      console.log(`🎨 [MEMO] displayMessages recalculated`);
+      console.log(`   completedMessages.length: ${completedMessages?.length}`);
+    }
     return completedMessages; // ✅ No reverse! Keep chronological order
   }, [completedMessages]);
 
@@ -747,8 +897,17 @@ const ChatMessageList = ({
         estimatedItemSize={verticalScale(120)} // ⚡ OPTIMIZED: More accurate average (80 → 120)
         initialScrollIndex={displayMessages.length > 0 ? Math.max(0, displayMessages.length - 1) : undefined} // ⚡ NEW: Start at bottom (no "와다다다"!)
         onLoad={() => {
+          if (__DEV__) {
+            console.log(`🔧 [FLASHLIST] onLoad callback triggered`);
+            console.log(`   isInitialLoad: ${isInitialLoad}`);
+            console.log(`   displayMessages.length: ${displayMessages.length}`);
+          }
+          
           // ⚡ Mark initial load complete when FlashList finishes first render
           if (isInitialLoad) {
+            if (__DEV__) {
+              console.log(`🔧 [FLASHLIST] onLoad: Setting isInitialLoad to false in 100ms`);
+            }
             setTimeout(() => setIsInitialLoad(false), 100);
           }
         }}
