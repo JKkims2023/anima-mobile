@@ -750,7 +750,13 @@ export default memo(QuickActionChipsAnimated, (prevProps, nextProps) => {
     return false;
   }
   
+  // 🔥 CRITICAL FIX: Ignore function props (onDressClick, onHistoryClick, etc.)
+  // Function props are functionally identical even if their references change
+  // on parent re-renders. Ignoring them prevents unnecessary re-renders.
+  // This is the same strategy used in PersonaCardView.
+  
   // 나머지는 동일 (리렌더링 스킵)
+  // Function props (onXxxClick) are ignored - they don't affect rendering
   return true;
 });
 
