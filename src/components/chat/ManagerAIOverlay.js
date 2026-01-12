@@ -174,9 +174,58 @@ const ManagerAIOverlay = ({
   const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
   const [currentTypingText, setCurrentTypingText] = useState(''); // ⚡ Complete text (set once!)
   
+  // 🔥 [STATE LOG] messages
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] messages changed: ${messages.length} messages`);
+    }
+  }, [messages]);
+  
+  // 🔥 [STATE LOG] messageVersion
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] messageVersion changed: ${messageVersion}`);
+    }
+  }, [messageVersion]);
+  
+  // 🔥 [STATE LOG] isInitializing
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isInitializing changed: ${isInitializing}`);
+    }
+  }, [isInitializing]);
+  
+  // 🔥 [STATE LOG] isLoading
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isLoading changed: ${isLoading}`);
+    }
+  }, [isLoading]);
+  
+  // 🔥 [STATE LOG] isTyping
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isTyping changed: ${isTyping}`);
+    }
+  }, [isTyping]);
+  
+  // 🔥 [STATE LOG] currentTypingText
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] currentTypingText changed: ${currentTypingText?.substring(0, 50)}...`);
+    }
+  }, [currentTypingText]);
+  
   // ⭐ NEW: Continuous conversation state
   const [isAIContinuing, setIsAIContinuing] = useState(false);
   const aiContinueCountRef = useRef(0); // ⭐ Use ref instead of state to avoid stale closure
+  
+  // 🔥 [STATE LOG] isAIContinuing
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isAIContinuing changed: ${isAIContinuing}, count: ${aiContinueCountRef.current}`);
+    }
+  }, [isAIContinuing]);
   
   // 🔒 [DEPRECATED 2026-01-08] LIMITED MODE state (Replaced by client-side identity creator)
   // const [requiredFields, setRequiredFields] = useState([]); // Array of { field_name, label, emoji, completed }
@@ -184,6 +233,13 @@ const ManagerAIOverlay = ({
   
   // 🎭 NEW: Identity Creator state
   const [showIdentityCreator, setShowIdentityCreator] = useState(false);
+  
+  // 🔥 [STATE LOG] showIdentityCreator
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] showIdentityCreator changed: ${showIdentityCreator}`);
+    }
+  }, [showIdentityCreator]);
   
   // 🔥 CRITICAL FIX: Refs to capture latest state for handleClose
   const messagesRef = useRef(messages);
@@ -211,26 +267,93 @@ const ManagerAIOverlay = ({
   const [historyOffset, setHistoryOffset] = useState(0);
   const [currentPersonaKey, setCurrentPersonaKey] = useState(null); // ⭐ Track current persona
   
+  // 🔥 [STATE LOG] Chat history states
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] loadingHistory changed: ${loadingHistory}`);
+    }
+  }, [loadingHistory]);
+  
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] hasMoreHistory changed: ${hasMoreHistory}`);
+    }
+  }, [hasMoreHistory]);
+  
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] historyOffset changed: ${historyOffset}`);
+    }
+  }, [historyOffset]);
+  
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] currentPersonaKey changed: ${currentPersonaKey}`);
+    }
+  }, [currentPersonaKey]);
+  
   // 🎭 REMOVED: Settings states (moved to useIdentitySettings hook)
   
   // 🆕 Vision state
   const [selectedImage, setSelectedImage] = useState(null); // Holds selected image before sending
   
+  // 🔥 [STATE LOG] selectedImage
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] selectedImage changed: ${selectedImage ? 'Image selected' : 'No image'}`);
+    }
+  }, [selectedImage]);
+  
   // 🌟 Identity Evolution Notification State
   const [identityEvolutionDisplay, setIdentityEvolutionDisplay] = useState(null);
+  
+  // 🔥 [STATE LOG] identityEvolutionDisplay
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] identityEvolutionDisplay changed:`, identityEvolutionDisplay?.field);
+    }
+  }, [identityEvolutionDisplay]);
 
   // 🆕 Help Open State
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  
+  // 🔥 [STATE LOG] isHelpOpen
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isHelpOpen changed: ${isHelpOpen}`);
+    }
+  }, [isHelpOpen]);
   
   // 💰 NEW: FloatingChatLimitButton Tooltip State (Lifted up for back button handling!)
   const [isLimitTooltipOpen, setIsLimitTooltipOpen] = useState(false);
   const limitTooltipRef = useRef(null); // ⭐ Ref to access closeTooltip function
   
+  // 🔥 [STATE LOG] isLimitTooltipOpen
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isLimitTooltipOpen changed: ${isLimitTooltipOpen}`);
+    }
+  }, [isLimitTooltipOpen]);
+  
   // 🎛️ NEW: ChatInputBar Settings Menu State (Lifted up from child!)
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   
+  // 🔥 [STATE LOG] isSettingsMenuOpen
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] isSettingsMenuOpen changed: ${isSettingsMenuOpen}`);
+    }
+  }, [isSettingsMenuOpen]);
+  
   // 🎖️ NEW: Tier Upgrade Sheet State
   const [showTierUpgrade, setShowTierUpgrade] = useState(false);
+  
+  // 🔥 [STATE LOG] showTierUpgrade
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] showTierUpgrade changed: ${showTierUpgrade}`);
+    }
+  }, [showTierUpgrade]);
   
   // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
   const {
@@ -244,6 +367,17 @@ const ManagerAIOverlay = ({
     handleYouTubeClose,
   } = useMusicPlayer();
   
+  // 🔥 [HOOK LOG] useMusicPlayer
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🎣 [HOOK] useMusicPlayer changed:`, {
+        hasFloatingContent: !!floatingContent,
+        showYouTubePlayer,
+        hasVideo: !!currentVideo
+      });
+    }
+  }, [floatingContent, showYouTubePlayer, currentVideo]);
+  
   // 💰 NEW: Chat Limit Hook (manages tier limits, loading, sheet)
   const {
     serviceConfig,
@@ -255,6 +389,18 @@ const ManagerAIOverlay = ({
     incrementChatCount,
     showLimitReachedSheet,
   } = useChatLimit(visible, user, showAlert);
+  
+  // 🔥 [HOOK LOG] useChatLimit
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🎣 [HOOK] useChatLimit changed:`, {
+        hasServiceConfig: !!serviceConfig,
+        loadingServiceConfig,
+        showLimitSheet,
+        hasLimitData: !!limitReachedData
+      });
+    }
+  }, [serviceConfig, loadingServiceConfig, showLimitSheet, limitReachedData]);
   
   // 🎭 NEW: Identity Settings Hook (manages AI preferences, sheets)
   const {
@@ -271,18 +417,43 @@ const ManagerAIOverlay = ({
     handleToggleSettings,
   } = useIdentitySettings(visible, user);
   
+  // 🔥 [HOOK LOG] useIdentitySettings
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🎣 [HOOK] useIdentitySettings changed:`, {
+        hasSettings: !!settings,
+        loadingSettings,
+        savingSettings,
+        showIdentitySettings,
+        showSpeakingPattern,
+        showCreateMusic
+      });
+    }
+  }, [settings, loadingSettings, savingSettings, showIdentitySettings, showSpeakingPattern, showCreateMusic]);
+  
   // 🛑 NEW: Timeout Manager for cleanup
   const timeoutManagerRef = useRef(null);
   
   // 🧹 Initialize and cleanup timeout manager
   useEffect(() => {
+    if (__DEV__) {
+      console.log(`⚡ [EFFECT] Timeout Manager Effect (visible: ${visible})`);
+    }
+    
     // Create timeout manager when component mounts or becomes visible
     if (visible && !timeoutManagerRef.current) {
       timeoutManagerRef.current = new CancelableTimeout();
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] Timeout Manager created`);
+      }
     }
     
     // Cleanup when component unmounts or becomes invisible
     return () => {
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] Timeout Manager cleanup (visible: ${visible})`);
+      }
+      
       if (timeoutManagerRef.current) {
         timeoutManagerRef.current.cancelAll();
         timeoutManagerRef.current = null;
@@ -301,12 +472,28 @@ const ManagerAIOverlay = ({
   
   // ⭐ NEW: Unified Back Button Handler (used by both Modal and BackHandler!)
   const handleBackPress = useCallback(() => {
+    if (__DEV__) {
+      console.log(`🔧 [HANDLER] handleBackPress called @ ${Date.now()}`);
+      console.log(`   isLimitTooltipOpen: ${isLimitTooltipOpen}`);
+      console.log(`   isSettingsMenuOpen: ${isSettingsMenuOpen}`);
+      console.log(`   showTierUpgrade: ${showTierUpgrade}`);
+      console.log(`   showIdentitySettings: ${showIdentitySettings}`);
+      console.log(`   showSpeakingPattern: ${showSpeakingPattern}`);
+      console.log(`   showCreateMusic: ${showCreateMusic}`);
+      console.log(`   showYouTubePlayer: ${showYouTubePlayer}`);
+      console.log(`   floatingContent?.showPlayer: ${floatingContent?.showPlayer}`);
+      console.log(`   isHelpOpen: ${isHelpOpen}`);
+    }
+    
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // 🎯 PRIORITY ORDER (Top to Bottom)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
     // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
     if (isLimitTooltipOpen) {
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] handleBackPress → Closing limit tooltip`);
+      }
       // Close tooltip via ref
       if (limitTooltipRef.current?.closeTooltip) {
         limitTooltipRef.current.closeTooltip();
@@ -403,6 +590,11 @@ const ManagerAIOverlay = ({
   // 🔥 CRITICAL FIX: Separate useEffect for personaRef sync (performance optimization!)
   // Only updates when persona.persona_key or persona.done_yn actually changes
   useEffect(() => {
+    if (__DEV__) {
+      console.log(`⚡ [EFFECT] personaRef sync effect triggered`);
+      console.log(`   visible: ${visible}, hasPersona: ${!!persona}`);
+    }
+    
     if (visible && persona) {
       personaRef.current = persona;
       
@@ -420,10 +612,21 @@ const ManagerAIOverlay = ({
   
   // ⭐ NEW: Load chat history when visible or persona changes
   useEffect(() => {
+    if (__DEV__) {
+      console.log(`⚡ [EFFECT] Chat history loading effect triggered`);
+      console.log(`   visible: ${visible}`);
+      console.log(`   user: ${user?.user_key?.substring(0, 8)}...`);
+      console.log(`   persona_key: ${persona?.persona_key?.substring(0, 8)}...`);
+      console.log(`   currentPersonaKey: ${currentPersonaKey?.substring(0, 8)}...`);
+    }
+    
     const personaKey = persona?.persona_key || 'SAGE';
     
     // 🔥 CRITICAL: Only load if user is fully loaded!
     if (!user || !user.user_key) {
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] User not loaded, showing not-login message`);
+      }
       // ✅ FIX BUG 1: showNotLoginMessage now handles its own loading states!
       setIsInitializing(false);
       setTimeout(() => {
@@ -437,11 +640,21 @@ const ManagerAIOverlay = ({
     // 1. Overlay becomes visible
     // 2. Persona changes OR persona key was reset (null)
     if (visible) {
+      if (__DEV__) {
+        console.log(`⚡ [EFFECT] Overlay visible, checking persona change`);
+      }
+      
       // 🎯 SIMPLE: Reset user message count when chat opens
       userMessageCountRef.current = 0;
       console.log(`🔄 [Chat Open] User message count reset to 0`);
       
       if (currentPersonaKey !== personaKey) {
+        if (__DEV__) {
+          console.log(`⚡ [EFFECT] Persona changed, loading history`);
+          console.log(`   Old: ${currentPersonaKey?.substring(0, 8)}...`);
+          console.log(`   New: ${personaKey?.substring(0, 8)}...`);
+        }
+        
         setCurrentPersonaKey(personaKey);
         setMessages([]); // Clear previous persona's messages
         setHistoryOffset(0); // Reset offset
@@ -503,7 +716,21 @@ const ManagerAIOverlay = ({
   
   // ⭐ NEW: Load chat history
   const loadChatHistory = useCallback(async (isLoadMore = false) => {
-    if (loadingHistory) return;
+    if (__DEV__) {
+      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      console.log(`🔧 [HANDLER] loadChatHistory called @ ${Date.now()}`);
+      console.log(`   isLoadMore: ${isLoadMore}`);
+      console.log(`   loadingHistory: ${loadingHistory}`);
+      console.log(`   historyOffset: ${historyOffset}`);
+      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    }
+    
+    if (loadingHistory) {
+      if (__DEV__) {
+        console.log(`⚠️ [HANDLER] loadChatHistory: Already loading, skipping`);
+      }
+      return;
+    }
     
     try {
       setLoadingHistory(true);
@@ -511,6 +738,9 @@ const ManagerAIOverlay = ({
       const personaKey = persona?.persona_key || 'SAGE';
       
       if (!userKey) {
+        if (__DEV__) {
+          console.log(`⚠️ [HANDLER] loadChatHistory: User not logged in`);
+        }
         console.log('user not login?')
         // ✅ FIX BUG 2, 3: showWelcomeMessage now handles its own loading states!
         setIsInitializing(true);
@@ -520,6 +750,14 @@ const ManagerAIOverlay = ({
         }, 2000);
 
         return;
+      }
+      
+      if (__DEV__) {
+        console.log(`🔧 [HANDLER] loadChatHistory: Fetching from API`);
+        console.log(`   user_key: ${userKey?.substring(0, 8)}...`);
+        console.log(`   persona_key: ${personaKey?.substring(0, 8)}...`);
+        console.log(`   limit: ${isLoadMore ? CHAT_HISTORY.LOAD_MORE_LIMIT : CHAT_HISTORY.INITIAL_LIMIT}`);
+        console.log(`   offset: ${isLoadMore ? historyOffset : 0}`);
       }
       
       const response = await chatApi.getChatHistory({
@@ -1014,6 +1252,15 @@ const ManagerAIOverlay = ({
   
   // ✅ Send message handler (✅ WITH CLEANUP SUPPORT)
   const handleSend = useCallback(async (text) => {
+    if (__DEV__) {
+      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      console.log(`🔧 [HANDLER] handleSend called @ ${Date.now()}`);
+      console.log(`   text length: ${text?.length}`);
+      console.log(`   hasImage: ${!!selectedImage}`);
+      console.log(`   current messages: ${messages.length}`);
+      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    }
+    
     HapticService.medium();
     
     // ✅ FIX BUG 1: Create Data URI for image metadata storage
@@ -1262,11 +1509,25 @@ const ManagerAIOverlay = ({
     } catch (error) {
       console.error('[ManagerAIOverlay] Error:', error);
       
+      if (__DEV__) {
+        console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+        console.log(`❌ [HANDLER] handleSend ERROR @ ${Date.now()}`);
+        console.log(`   error:`, error);
+        console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      }
+      
       // ✅ Use helper function for error message
       const errorMessage = createErrorMessage(t('errors.MANAGER_AI_ERROR'));
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      
+      if (__DEV__) {
+        console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+        console.log(`✅ [HANDLER] handleSend COMPLETED @ ${Date.now()}`);
+        console.log(`   final messages count: ${messages.length + 1}`);
+        console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      }
     }
   }, [t, user, persona, handleAIContinue, selectedImage, checkLimit, incrementChatCount, showLimitReachedSheet]); // ⭐ FIX: Add chat limit dependencies (removed requiredFields - DEPRECATED)
   
@@ -1640,7 +1901,28 @@ const ManagerAIOverlay = ({
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
   }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
-  if (!visible) return null;
+  // 🔥 [RENDER LOG] Conditional rendering evaluation
+  if (__DEV__) {
+    console.log(`🎭 [RENDER] Evaluating sheet/modal rendering:`);
+    console.log(`   visible: ${visible}`);
+    console.log(`   showIdentitySettings: ${showIdentitySettings}`);
+    console.log(`   showSpeakingPattern: ${showSpeakingPattern}`);
+    console.log(`   showCreateMusic: ${showCreateMusic}`);
+    console.log(`   showLimitSheet: ${showLimitSheet}`);
+    console.log(`   showTierUpgrade: ${showTierUpgrade}`);
+    console.log(`   isHelpOpen: ${isHelpOpen}`);
+    console.log(`   showIdentityCreator: ${showIdentityCreator}`);
+    console.log(`   showYouTubePlayer: ${showYouTubePlayer}`);
+    console.log(`   floatingContent?.showPlayer: ${floatingContent?.showPlayer}`);
+    console.log(`   identityEvolutionDisplay: ${!!identityEvolutionDisplay}`);
+  }
+  
+  if (!visible) {
+    if (__DEV__) {
+      console.log(`🎭 [RENDER] NOT VISIBLE - returning null`);
+    }
+    return null;
+  }
   
   return (
     <>
