@@ -43,7 +43,7 @@ import { useTranslation } from 'react-i18next';
 const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // ⭐ ALL HOOKS MUST BE AT THE TOP (React Rules of Hooks)
   const { currentTheme } = useTheme();
-  const { setSelectedIndex, selectedPersona, selectedIndex, mode, switchMode } = usePersona();
+  const { setSelectedIndex, selectedPersona, selectedPersonaRef, selectedIndex, mode, switchMode } = usePersona(); // 🔥 NEW: Add selectedPersonaRef
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const { hasNewMessage, isMessageCreationActive, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state and message creation state from Context
 
@@ -108,14 +108,15 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
-    // 🔥 CRITICAL FIX: Get LATEST persona DIRECTLY from PersonaContext!
-    // DO NOT use selectedPersona from destructured hook (it's from previous render)
-    // Use usePersona() INSIDE the function to get the most current value
-    const { selectedPersona: latestPersona } = usePersona();
+    // 🔥 CRITICAL FIX: Use ref for IMMEDIATE access to latest persona
+    // This bypasses React's render cycle delay and ensures we ALWAYS have the most current data
+    const latestPersona = selectedPersonaRef.current || selectedPersona;
     
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔍 [CustomTabBar] Center AI Button pressed');
-    console.log('   selectedPersona:', latestPersona?.persona_name);
+    console.log('   selectedPersona (state):', selectedPersona?.persona_name, '/', selectedPersona?.done_yn);
+    console.log('   selectedPersonaRef (ref):', latestPersona?.persona_name, '/', latestPersona?.done_yn);
+    console.log('   Using:', latestPersona?.persona_name);
     console.log('   persona_key:', latestPersona?.persona_key);
     console.log('   done_yn:', latestPersona?.done_yn);
     console.log('   identity_key:', latestPersona?.identity_key);

@@ -12,7 +12,7 @@
  * @updated 2024-11-21 - API integration
  */
 
-import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getPersonaList } from '../services/api/personaApi';
 import { useUser } from '../contexts/UserContext';
 
@@ -28,6 +28,11 @@ export const PersonaProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
   const { user } = useUser();
+  
+  // 🔥 CRITICAL FIX: Add ref for immediate access (bypasses React render cycle)
+  // This ensures child components can always get the LATEST persona data
+  // even before React completes the re-render
+  const selectedPersonaRef = useRef(null);
   
   // ⚡ PERFORMANCE FIX: Only depend on user_key, not entire user object
   // This prevents unnecessary re-creation of initializePersonas
@@ -143,11 +148,34 @@ export const PersonaProvider = ({ children }) => {
     }
   }, [mode, personas.length]);
 
+  // 🔥 CRITICAL FIX: Wrap setSelectedPersona to update ref immediately
+  // This ensures ref is ALWAYS in sync with state, bypassing React render delays
+  const wrappedSetSelectedPersona = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🎭 [PersonaContext] setSelectedPersona called');
+      console.log('   persona_name:', persona?.persona_name);
+      console.log('   persona_key:', persona?.persona_key);
+      console.log('   done_yn:', persona?.done_yn);
+      console.log('   identity_key:', persona?.identity_key);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
+    // Step 1: Update ref IMMEDIATELY (synchronous)
+    selectedPersonaRef.current = persona;
+    
+    // Step 2: Update state (triggers re-render asynchronously)
+    setSelectedPersona(persona);
+  }, []);
+
   // ⭐ FIX: Use direct selectedPersona state (set by PersonaStudioScreen)
   // Fallback to personas[selectedIndex] if not set
   // 🔥 CRITICAL FIX: Memoize effectivePersona to maintain stable reference
   const effectivePersona = useMemo(() => {
     const result = selectedPersona || personas[selectedIndex] || null;
+    
+    // 🔥 CRITICAL: Also update ref when effectivePersona changes
+    selectedPersonaRef.current = result;
     
     if (__DEV__ && result) {
       console.log('🎭 [PersonaContext] effectivePersona calculated:', {
@@ -184,12 +212,13 @@ export const PersonaProvider = ({ children }) => {
     selectedIndex,
     setSelectedIndex,
     selectedPersona: effectivePersona, // ⭐ FIX: Use effectivePersona
-    setSelectedPersona, // ⭐ NEW: Expose setSelectedPersona
+    selectedPersonaRef, // 🔥 NEW: Expose ref for immediate access
+    setSelectedPersona: wrappedSetSelectedPersona, // 🔥 CHANGED: Use wrapped version
     isLoading,
     mode,
     switchMode,
     initializePersonas, // ⭐ NEW: Expose initializePersonas for manual refresh
-  }), [personas, selectedIndex, effectivePersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, setSelectedPersona, initializePersonas]);
+  }), [personas, selectedIndex, effectivePersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, wrappedSetSelectedPersona, initializePersonas]);
 
   return (
     <PersonaContext.Provider value={value}>
