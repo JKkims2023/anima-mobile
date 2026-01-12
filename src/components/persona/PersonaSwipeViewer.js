@@ -113,7 +113,7 @@ const PersonaSwipeViewer = forwardRef(({
     scrollToIndex: ({ index, animated = true }) => {
       if (flatListRef.current && index >= 0 && index < personas.length) {
         flatListRef.current.scrollToIndex({ index, animated });
-        setSelectedIndex(index);
+        // 🔥 REMOVED: setSelectedIndex(index); - Parent manages via initialIndex
         lastScrolledIndex.current = index;
       }
     },
@@ -123,11 +123,12 @@ const PersonaSwipeViewer = forwardRef(({
   const handleScrollToTop = useCallback(() => {
     if (flatListRef.current && personas.length > 0) {
       flatListRef.current.scrollToIndex({ index: 0, animated: true });
-      setSelectedIndex(0);
+      // 🔥 REMOVED: setSelectedIndex(0); - Parent manages via initialIndex
+      onIndexChange(0); // ✅ Notify parent instead
       lastScrolledIndex.current = 0;
       HapticService.medium();
     }
-  }, [personas.length]);
+  }, [personas.length, onIndexChange]);
   
   // ⭐ DEBUG: Log enabled prop changes
   useEffect(() => {
@@ -166,7 +167,7 @@ const PersonaSwipeViewer = forwardRef(({
           animated: true, // Smooth animation for user-triggered changes
         });
         
-        setSelectedIndex(initialIndex);
+        // 🔥 REMOVED: setSelectedIndex(initialIndex); - Parent manages via initialIndex prop
         lastScrolledIndex.current = initialIndex;
       }, 50);
     }
