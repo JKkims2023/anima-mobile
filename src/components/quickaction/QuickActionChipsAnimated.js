@@ -13,7 +13,7 @@
  * @date 2024-11-22
  */
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, memo } from 'react';
 import { View, TouchableOpacity, Pressable, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -701,5 +701,33 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuickActionChipsAnimated;
+// 🔥 PERFORMANCE FIX: Memoize to prevent unnecessary re-renders
+// Only re-render when currentPersona or currentDressState actually changes
+export default memo(QuickActionChipsAnimated, (prevProps, nextProps) => {
+  // persona_key 변경 시 리렌더링
+  if (prevProps.currentPersona?.persona_key !== nextProps.currentPersona?.persona_key) {
+    return false;
+  }
+  
+  // 비디오 변환 상태 변경 시 리렌더링
+  if (prevProps.isVideoConverting !== nextProps.isVideoConverting) {
+    return false;
+  }
+  
+  // 드레스 상태 변경 시 리렌더링
+  if (
+    prevProps.currentDressState?.count !== nextProps.currentDressState?.count ||
+    prevProps.currentDressState?.hasCreating !== nextProps.currentDressState?.hasCreating
+  ) {
+    return false;
+  }
+  
+  // 코멘트 읽음 상태 변경 시 리렌더링 (배지 표시)
+  if (prevProps.currentPersona?.persona_comment_checked !== nextProps.currentPersona?.persona_comment_checked) {
+    return false;
+  }
+  
+  // 나머지는 동일 (리렌더링 스킵)
+  return true;
+});
 

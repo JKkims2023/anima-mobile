@@ -399,9 +399,12 @@ const PersonaCardView = forwardRef(({
             resizeMode="cover"
             repeat
             muted
-            paused={!isScreenFocused || !isActive}
-            playInBackground={true}
-            playWhenInactive={true}
+            // 🔥 PERFORMANCE FIX: Strict video pause conditions
+            // - isActive: false → 현재 보이는 카드가 아님 (스크롤로 벗어남)
+            // - isScreenFocused: false → 화면이 포커스 안됨 (다른 탭으로 이동)
+            // - isScreenActive: false → ManagerAI 채팅 중 (백그라운드 성능 최적화)
+            paused={!isScreenFocused || !isActive || !isScreenActive}
+            // 🔥 REMOVED: playInBackground, playWhenInactive (백그라운드 재생 완전 차단!)
             ignoreSilentSwitch="ignore"
             onLoad={handleVideoLoad}
             onError={(error) => {
@@ -799,11 +802,47 @@ const styles = StyleSheet.create({
   },
 });
 
-// ✅ CRITICAL FIX: Remove React.memo comparison function
-// Problem: memo was blocking re-renders even when done_yn changed in API data
-// - New refresh: API returns correct data, but memo blocks render
-// - Manual update: setState forces render, memo is bypassed
-// Solution: Remove memo or use simpler comparison
-// For now: DISABLE memo to ensure BlurView always updates correctly
-export default PersonaCardView;
+// 🔥 PERFORMANCE FIX: Re-enable React.memo with CORRECT comparison
+// Previous issue: Memo was TOO STRICT (blocking necessary updates)
+// New solution: Only compare CRITICAL props that affect rendering
+const arePropsEqual = (prevProps, nextProps) => {
+  // 🔥 CRITICAL: persona_key 변경 시 무조건 리렌더링
+  if (prevProps.persona?.persona_key !== nextProps.persona?.persona_key) {
+    return false;
+  }
+  
+  // 🔥 CRITICAL: 상태 변경 시 리렌더링 (done_yn, video URL 등)
+  if (
+    prevProps.persona?.done_yn !== nextProps.persona?.done_yn ||
+    prevProps.persona?.selected_dress_video_url !== nextProps.persona?.selected_dress_video_url ||
+    prevProps.persona?.selected_dress_video_convert_done !== nextProps.persona?.selected_dress_video_convert_done ||
+    prevProps.persona?.selected_dress_image_url !== nextProps.persona?.selected_dress_image_url ||
+    prevProps.persona?.selected_dress_persona_comment !== nextProps.persona?.selected_dress_persona_comment ||
+    prevProps.persona?.persona_comment_checked !== nextProps.persona?.persona_comment_checked
+  ) {
+    return false;
+  }
+  
+  // 🔥 CRITICAL: 활성 상태 변경 시 리렌더링
+  if (
+    prevProps.isActive !== nextProps.isActive ||
+    prevProps.isScreenFocused !== nextProps.isScreenFocused ||
+    prevProps.isScreenActive !== nextProps.isScreenActive
+  ) {
+    return false;
+  }
+  
+  // 🔥 타이머 관련 필드 (생성 중인 페르소나)
+  if (
+    prevProps.persona?.created_date !== nextProps.persona?.created_date ||
+    prevProps.persona?.estimate_time !== nextProps.persona?.estimate_time
+  ) {
+    return false;
+  }
+  
+  // ✅ 나머지는 동일하다고 판단 (리렌더링 스킵)
+  return true;
+};
+
+export default memo(PersonaCardView, arePropsEqual);
 

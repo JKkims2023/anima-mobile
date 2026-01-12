@@ -356,12 +356,15 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       /> */}
       
       {/* ✅ ManagerAIOverlay - Universal AI Chat */}
-      <ManagerAIOverlay
-        visible={isManagerOverlayVisible}
-        onClose={handleOverlayClose}
-        context={getCurrentContext()}
-        persona={selectedPersona} // ⭐ NEW: Pass selected persona
-      />
+      {/* 🔥 PERFORMANCE FIX: Only mount when visible (prevents unnecessary renders!) */}
+      {isManagerOverlayVisible && (
+        <ManagerAIOverlay
+          visible={isManagerOverlayVisible}
+          onClose={handleOverlayClose}
+          context={getCurrentContext()}
+          persona={selectedPersonaRef.current} // 🔥 FIXED: Use ref for latest data
+        />
+      )}
     </View>
   );
 };
