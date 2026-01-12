@@ -353,8 +353,8 @@ export const AnimaProvider = ({ children }) => {
     setAlert((prev) => ({ ...prev, visible: false }));
   }, []);
 
-  // ✅ Context value
-  const value = {
+  // ✅ Context value (🔥 PERFORMANCE FIX: Memoized to prevent unnecessary re-renders!)
+  const value = React.useMemo(() => ({
     showToast,
     hideToast,
     showAlert,
@@ -377,7 +377,29 @@ export const AnimaProvider = ({ children }) => {
     clearMusicBadge,
     setHomeBadge, // 💙 NEW
     clearHomeBadge, // 💙 NEW
-  };
+  }), [
+    showToast,
+    hideToast,
+    showAlert,
+    hideAlert,
+    hasNewMessage,
+    setHasNewMessage,
+    createdMessageUrl,
+    setCreatedMessageUrl,
+    isMessageCreationActive,
+    setIsMessageCreationActive,
+    showDefaultPersonas,
+    updateShowDefaultPersonas,
+    hasMemoryBadge,
+    hasMusicBadge,
+    hasHomeBadge,
+    setMemoryBadge,
+    clearMemoryBadge,
+    setMusicBadge,
+    clearMusicBadge,
+    setHomeBadge,
+    clearHomeBadge,
+  ]);
 
   return (
     <AnimaContext.Provider value={value}>
