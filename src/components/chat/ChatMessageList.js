@@ -683,21 +683,10 @@ const ChatMessageList = ({
   // ⚡ OPTIMIZED: Less throttling during typing for smoother experience (Issue 3 FIX!)
   const lastScrollTimeRef = useRef(0);
   const handleContentSizeChange = useCallback((width, height) => {
-    if (__DEV__) {
-      const now = Date.now();
-      console.log(`🔧 [HANDLER] handleContentSizeChange @ ${now}`);
-      console.log(`   width: ${width}, height: ${height}`);
-      console.log(`   isTyping: ${isTyping}`);
-      console.log(`   throttle elapsed: ${now - lastScrollTimeRef.current}ms`);
-    }
-    
     const now = Date.now();
     
     // ⚡ CHANGED: Reduced throttle from 50ms → 16ms (~60fps) for smoother typing scroll
     if (now - lastScrollTimeRef.current < 16) {
-      if (__DEV__) {
-        console.log(`🔧 [HANDLER] handleContentSizeChange: Throttled (< 16ms)`);
-      }
       return;
     }
     
@@ -707,7 +696,7 @@ const ChatMessageList = ({
     // This prevents the typing bubble from being hidden behind the input bar
     if (isTyping && flashListRef.current) {
       if (__DEV__) {
-        console.log(`🔧 [HANDLER] handleContentSizeChange: Auto-scrolling to end`);
+        console.log(`🔧 [HANDLER] handleContentSizeChange: Auto-scrolling during typing (height: ${height})`);
       }
       flashListRef.current.scrollToEnd({ animated: false });
     }
@@ -716,11 +705,6 @@ const ChatMessageList = ({
   // ⭐ NEW: Handle scroll (load more history + detect manual scrolling)
   const handleScroll = useCallback((event) => {
     const { contentOffset } = event.nativeEvent;
-    
-    if (__DEV__) {
-      console.log(`🔧 [HANDLER] handleScroll @ ${Date.now()}`);
-      console.log(`   contentOffset.y: ${contentOffset.y}`);
-    }
     
     // ⚡ NEW: Mark user as manually scrolling
     setIsUserScrolling(true);
@@ -731,16 +715,13 @@ const ChatMessageList = ({
       clearTimeout(scrollTimeoutRef.current);
     }
     scrollTimeoutRef.current = setTimeout(() => {
-      if (__DEV__) {
-        console.log(`🔧 [HANDLER] handleScroll: Resetting isUserScrolling to false`);
-      }
       setIsUserScrolling(false);
     }, 5000); // ⭐ INCREASED: 1000 → 5000 (5 seconds of protection!)
     
     // ✅ Load more when scrolling to top (reaching old messages)
     if (onLoadMore && hasMoreHistory && !loadingHistory && contentOffset.y <= 100) {
       if (__DEV__) {
-        console.log(`🔧 [HANDLER] handleScroll: Reached top, loading more history...`);
+        console.log(`🔧 [HANDLER] handleScroll: Reached top (y: ${contentOffset.y}), loading more history...`);
       }
       console.log('📜 [ChatMessageList] Reached top, loading more history...');
       onLoadMore();
@@ -750,28 +731,16 @@ const ChatMessageList = ({
   // ⚡ NEW: Get item type for better FlashList performance
   const getItemType = useCallback((item) => {
     // Different types = different estimated sizes = smoother scrolling!
-    if (!item) {
-      if (__DEV__) {
-        console.log(`🔧 [CALLBACK] getItemType: unknown (no item)`);
-      }
-      return 'unknown';
-    }
+    if (!item) return 'unknown';
     
     const isUser = item.role === 'user';
     const hasMedia = item.images?.length > 0 || item.music || item.youtube;
     
-    let type;
     if (isUser) {
-      type = item.image ? 'user_with_image' : 'user_text';
+      return item.image ? 'user_with_image' : 'user_text';
     } else {
-      type = hasMedia ? 'assistant_with_media' : 'assistant_text';
+      return hasMedia ? 'assistant_with_media' : 'assistant_text';
     }
-    
-    if (__DEV__) {
-      console.log(`🔧 [CALLBACK] getItemType: ${type} (id: ${item.id?.substring(0, 8)}...)`);
-    }
-    
-    return type;
   }, []);
 
   // Key extractor
