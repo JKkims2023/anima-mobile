@@ -727,13 +727,21 @@ const styles = StyleSheet.create({
 // 🔥 PERFORMANCE FIX: Memoize to prevent unnecessary re-renders
 // Only re-render when currentPersona or currentDressState actually changes
 export default memo(QuickActionChipsAnimated, (prevProps, nextProps) => {
+  if (__DEV__) {
+    console.log('🔍 [QuickActionChips] React.memo comparison called');
+    console.log('   prevPersona:', prevProps.currentPersona?.persona_name);
+    console.log('   nextPersona:', nextProps.currentPersona?.persona_name);
+  }
+  
   // persona_key 변경 시 리렌더링
   if (prevProps.currentPersona?.persona_key !== nextProps.currentPersona?.persona_key) {
+    if (__DEV__) console.log('   ⚠️  persona_key changed → RE-RENDER');
     return false;
   }
   
   // 비디오 변환 상태 변경 시 리렌더링
   if (prevProps.isVideoConverting !== nextProps.isVideoConverting) {
+    if (__DEV__) console.log('   ⚠️  isVideoConverting changed → RE-RENDER');
     return false;
   }
   
@@ -742,11 +750,13 @@ export default memo(QuickActionChipsAnimated, (prevProps, nextProps) => {
     prevProps.currentDressState?.count !== nextProps.currentDressState?.count ||
     prevProps.currentDressState?.hasCreating !== nextProps.currentDressState?.hasCreating
   ) {
+    if (__DEV__) console.log('   ⚠️  dressState changed → RE-RENDER');
     return false;
   }
   
   // 코멘트 읽음 상태 변경 시 리렌더링 (배지 표시)
   if (prevProps.currentPersona?.persona_comment_checked !== nextProps.currentPersona?.persona_comment_checked) {
+    if (__DEV__) console.log('   ⚠️  persona_comment_checked changed → RE-RENDER');
     return false;
   }
   
@@ -755,6 +765,7 @@ export default memo(QuickActionChipsAnimated, (prevProps, nextProps) => {
   // on parent re-renders. Ignoring them prevents unnecessary re-renders.
   // This is the same strategy used in PersonaCardView.
   
+  if (__DEV__) console.log('   ✅ All props same → SKIP RENDER');
   // 나머지는 동일 (리렌더링 스킵)
   // Function props (onXxxClick) are ignored - they don't affect rendering
   return true;
