@@ -86,20 +86,20 @@ const PersonaSwipeViewer = forwardRef(({
   // ⭐ Use prop user first (from PersonaStudioScreen), fallback to context
   const user = userProp || userContext;
   
-  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
-  const renderCountRef = useRef(0);
-  renderCountRef.current++;
-  if (__DEV__) {
-    const timestamp = Date.now();
-    console.log(`🔥 [PersonaSwipeViewer] Render #${renderCountRef.current}, personas: ${personas?.length}, selectedIndex: ${selectedIndex}, isModeActive: ${isModeActive} @ ${timestamp}`);
-  }
-  
   const flatListRef = useRef(null);
   // 🔥 PERF FIX: Remove internal selectedIndex state (use initialIndex directly from props!)
   // Internal state was causing duplicate renders after scroll animation completes
   // 🔥 CRITICAL FIX: Default to 0 if initialIndex is undefined (prevents always-true comparisons!)
   const selectedIndex = initialIndex ?? 0; // ← Use prop directly with fallback (no state!)
   const isInitialMount = useRef(true);
+  
+  // 🔥 PERFORMANCE DEBUG: Render counter with timestamp (AFTER selectedIndex declaration!)
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    const timestamp = Date.now();
+    console.log(`🔥 [PersonaSwipeViewer] Render #${renderCountRef.current}, personas: ${personas?.length}, selectedIndex: ${selectedIndex}, isModeActive: ${isModeActive} @ ${timestamp}`);
+  }
   const lastScrolledIndex = useRef(initialIndex);
   const { t } = useTranslation();
   
