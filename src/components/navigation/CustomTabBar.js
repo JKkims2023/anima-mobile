@@ -53,6 +53,13 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
   const insets = useSafeAreaInsets();
   
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [CustomTabBar] Render #${renderCountRef.current}`);
+  }
+  
   // ⭐ Check if we should hide the tab bar (for MessageDetail & MessageCreation screens)
   // Method 1: Check props.style
   const shouldHideFromProps = props.style?.display === 'none';

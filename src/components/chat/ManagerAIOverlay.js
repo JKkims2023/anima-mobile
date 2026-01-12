@@ -159,6 +159,13 @@ const ManagerAIOverlay = ({
   const { showAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
   const { currentTheme } = useTheme();
   const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
+  
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [ManagerAIOverlay] Render #${renderCountRef.current}, visible: ${visible}`);
+  }
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
   const [messageVersion, setMessageVersion] = useState(0); // 🎯 NEW: Trigger FlashList updates for Smart Bubble system

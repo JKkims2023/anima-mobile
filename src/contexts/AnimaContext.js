@@ -13,7 +13,7 @@
  * showAlert({ title: '로그아웃', message: '떠나실 건가요?', ... });
  */
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceEventEmitter } from 'react-native';
 import AnimaToast from '../components/AnimaToast';
@@ -26,6 +26,13 @@ const AnimaContext = createContext();
  * AnimaProvider Component
  */
 export const AnimaProvider = ({ children }) => {
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [AnimaContext] Render #${renderCountRef.current}`);
+  }
+  
   // ✅ Toast state
   const [toast, setToast] = useState({
     visible: false,

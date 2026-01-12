@@ -174,8 +174,8 @@ const RelationshipChip = ({
   });
   
   return (
-    <Animated.View 
-      style={[styles.chipContainer, animatedStyle]}
+    <View 
+      style={[styles.chipContainer]}
       onLayout={onLayout} // ⭐ NEW: Report layout to parent
     >
       <TouchableOpacity
@@ -184,14 +184,13 @@ const RelationshipChip = ({
         disabled={!onPress || isLoading}
       >
         
-        <Animated.View
+        <View
           colors={[
             `${color}30`, // 30% opacity
             `${color}20`, // 20% opacity
             `${color}30`, // 30% opacity
           ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+         
           style={[styles.gradient, { }]}
         >
           {/* Shimmer Overlay (Loading State) */}
@@ -235,9 +234,9 @@ const RelationshipChip = ({
             
           {/* Border Highlight */}
           <View style={[styles.border, { borderColor: `${color}50` }]} />
-        </Animated.View>
+        </View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 

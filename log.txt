@@ -1,795 +1,827 @@
-2026-01-09 22:25:05 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:25:05 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:25:05 ✅ [SessionManager] Created new session: session-1767965105224-e7u8qk
-2026-01-09 22:25:05 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:25:05    - 메시지: 0개
-2026-01-09 22:25:05    - 페르소나: Test
-2026-01-09 22:25:05 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:25:05   totalMessages: 0,
-2026-01-09 22:25:05   totalChars: 0,
-2026-01-09 22:25:05   estimatedTokens: 0,
-2026-01-09 22:25:05   averageMessageLength: NaN
-2026-01-09 22:25:05 }
-2026-01-09 22:25:05 🔄 [Sliding Window] Processing 0 messages
-2026-01-09 22:25:05    Window size: 20
-2026-01-09 22:25:05    Summarize threshold: 30
-2026-01-09 22:25:05 ✅ [Sliding Window] Short conversation, keeping all 0 messages
-2026-01-09 22:25:05 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:25:05    Total messages: 0
-2026-01-09 22:25:05    Kept messages: 0
-2026-01-09 22:25:05    Summarized messages: 0
-2026-01-09 22:25:05    Sliding window: Inactive
-2026-01-09 22:25:05    Persona: Test
-2026-01-09 22:25:05    Preferences: Custom
-2026-01-09 22:25:05 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:25:05    Tier: basic
-2026-01-09 22:25:05    Model: GPT-4o Mini
-2026-01-09 22:25:05    Provider: openai
-2026-01-09 22:25:05    Caching: Enabled
-2026-01-09 22:25:05 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:25:05    Message: "안녕?!"
-2026-01-09 22:25:06 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:25:06    Duration: 1036ms
-2026-01-09 22:25:06    Tokens: 282
-2026-01-09 22:25:06 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:25:06    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:25:06 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:25:06 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:25:06    Persona: Test
-2026-01-09 22:25:06    Emotional State: normal
-2026-01-09 22:25:06    Has Identity: true
-2026-01-09 22:25:06 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:25:06 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:25:06 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:25:06 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:25:06 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:25:06 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:25:06 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:25:06 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:25:06 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:25:06    Provider: openai
-2026-01-09 22:25:06    Model: gpt-4o-mini
-2026-01-09 22:25:06    History messages: 0
-2026-01-09 22:25:06    System prompt length: 23295 chars
-2026-01-09 22:25:06 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:25:06    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:25:06    Has Identity: true
-2026-01-09 22:25:06    Is User Created: true
-2026-01-09 22:25:06 ---
-2026-01-09 22:25:06 [Tool Selector] Analyzing message...
-2026-01-09 22:25:06    Message: "안녕?!"
-2026-01-09 22:25:06    Emotional State: normal
-2026-01-09 22:25:06    Has Identity: true
-2026-01-09 22:25:06    Is User Created: true
-2026-01-09 22:25:06 [Tool Selector] Selected 0 tools:
-2026-01-09 22:25:06 ---
-2026-01-09 22:25:06 ---
-2026-01-09 22:25:06 [도구 필터링] Token Optimization Results:
-2026-01-09 22:25:06    Before: 9 tools (5850 tokens)
-2026-01-09 22:25:06    After: 0 tools (0 tokens)
-2026-01-09 22:25:06    Saved: 5850 tokens (100%)
-2026-01-09 22:25:06 ---
-2026-01-09 22:25:06 [함수 호출] No tools enabled
-2026-01-09 22:25:06    toolsEnabled: false
-2026-01-09 22:25:06 🤖 [OpenAI] Calling API: {
-2026-01-09 22:25:06   model: 'gpt-4o-mini',
-2026-01-09 22:25:06   messageCount: 2,
-2026-01-09 22:25:06   systemPromptLength: 23295,
-2026-01-09 22:25:06   historyLength: 0,
-2026-01-09 22:25:06   toolsEnabled: true
-2026-01-09 22:25:06 }
-2026-01-09 22:25:08 ✅ [OpenAI] Response received: {
-2026-01-09 22:25:08   responseTime: '1416ms',
-2026-01-09 22:25:08   tokens: { prompt: 5990, completion: 10, cached: 0, total: 6000 },
-2026-01-09 22:25:08   cacheHitRate: 'N/A',
-2026-01-09 22:25:08   messageLength: 18,
-2026-01-09 22:25:08   finishReason: 'stop',
-2026-01-09 22:25:08   toolCalls: 0
-2026-01-09 22:25:08 }
-2026-01-09 22:25:08 ✅ [ANIMA 채팅] AI response received (no caching)
-2026-01-09 22:25:08    Response time: 1416ms
-2026-01-09 22:25:08    Total tokens: 6000 (in: 5990, out: 10, cached: 0)
-2026-01-09 22:25:08 📊 [Token Tracking] User message: 2 tokens (estimated), Full prompt: 5990 tokens
-2026-01-09 22:25:08 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:25:08 🎉 [ANIMA 채팅] Request completed in 2803ms
-2026-01-09 22:25:08    Cost: $0.000904 (saved: $0.000000 from caching)
-2026-01-09 22:25:08 ---
-2026-01-09 22:25:08 [Token Optimization] Final Summary:
-2026-01-09 22:25:08    Total Tokens: 6000
-2026-01-09 22:25:08    - Prompt: 5990 tokens
-2026-01-09 22:25:08    - Completion: 10 tokens
-2026-01-09 22:25:08    - Cached: 0 tokens (0% hit rate)
-2026-01-09 22:25:08    Tool Filtering Savings: 5850 tokens (100%)
-2026-01-09 22:25:08    Total Cost: $0.000904
-2026-01-09 22:25:08    Savings from Caching: $0.000000
-2026-01-09 22:25:08    Response Time: 2803ms
-2026-01-09 22:25:08 ---
-2026-01-09 22:25:08 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:25:08 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:25:08 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
-2026-01-09 22:25:24 
-2026-01-09 22:25:24 🤖 [채팅] 요청 수신
-2026-01-09 22:25:24    사용자: d111e3d8...
-2026-01-09 22:25:24    메시지: 내 이릉 기억해?!...
-2026-01-09 22:25:24 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-09 22:25:24 💰 [채팅 제한] 1/50 (basic)
-2026-01-09 22:25:24 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-09 22:25:24 🚪 [Conversation Gate] Checking...
-2026-01-09 22:25:24 ✅ [Conversation Gate] Open (no record)
-2026-01-09 22:25:24 ✅ [Conversation Flow] Gate OPEN
-2026-01-09 22:25:24 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-09 22:25:24 ✅ [Conversation Flow] Loaded 2 recent messages from DB
-2026-01-09 22:25:24 ✅ [Conversation Flow] No crisis detected, using current state from DB...
-2026-01-09 22:25:24 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
-2026-01-09 22:25:24 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-09 22:25:24 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-09 22:25:24 ✅ [ANIMA 채팅] Gate open, emotion: normal
-2026-01-09 22:25:24 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:25:24 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:25:24 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:25:24    - 메시지: 2개
-2026-01-09 22:25:24    - 페르소나: Test
-2026-01-09 22:25:24 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:25:24   totalMessages: 2,
-2026-01-09 22:25:24   totalChars: 22,
-2026-01-09 22:25:24   estimatedTokens: 8,
-2026-01-09 22:25:24   averageMessageLength: 11
-2026-01-09 22:25:24 }
-2026-01-09 22:25:24 🔄 [Sliding Window] Processing 2 messages
-2026-01-09 22:25:24    Window size: 20
-2026-01-09 22:25:24    Summarize threshold: 30
-2026-01-09 22:25:24 ✅ [Sliding Window] Short conversation, keeping all 2 messages
-2026-01-09 22:25:24 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:25:24    Total messages: 2
-2026-01-09 22:25:24    Kept messages: 2
-2026-01-09 22:25:24    Summarized messages: 0
-2026-01-09 22:25:24    Sliding window: Inactive
-2026-01-09 22:25:24    Persona: Test
-2026-01-09 22:25:24    Preferences: Custom
-2026-01-09 22:25:24 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:25:24    Tier: basic
-2026-01-09 22:25:24    Model: GPT-4o Mini
-2026-01-09 22:25:24    Provider: openai
-2026-01-09 22:25:24    Caching: Enabled
-2026-01-09 22:25:24 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:25:24    Message: "내 이릉 기억해?!"
-2026-01-09 22:25:25 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:25:25    Duration: 520ms
-2026-01-09 22:25:25    Tokens: 286
-2026-01-09 22:25:25 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:25:25    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:25:25 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:25:25 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:25:25    Persona: Test
-2026-01-09 22:25:25    Emotional State: normal
-2026-01-09 22:25:25    Has Identity: true
-2026-01-09 22:25:25 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:25:25 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:25:25 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:25:25 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:25:25 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:25:25 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:25:25 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:25:25 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:25:25 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:25:25    Provider: openai
-2026-01-09 22:25:25    Model: gpt-4o-mini
-2026-01-09 22:25:25    History messages: 2
-2026-01-09 22:25:25    System prompt length: 23295 chars
-2026-01-09 22:25:25 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:25:25    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:25:25    Has Identity: true
-2026-01-09 22:25:25    Is User Created: true
-2026-01-09 22:25:25 ---
-2026-01-09 22:25:25 [Tool Selector] Analyzing message...
-2026-01-09 22:25:25    Message: "내 이릉 기억해?!"
-2026-01-09 22:25:25    Emotional State: normal
-2026-01-09 22:25:25    Has Identity: true
-2026-01-09 22:25:25    Is User Created: true
-2026-01-09 22:25:25    [Keyword Match] search_memory
-2026-01-09 22:25:25 [Tool Selector] Selected 1 tools:
-2026-01-09 22:25:25    - search_memory
-2026-01-09 22:25:25 ---
-2026-01-09 22:25:25 ---
-2026-01-09 22:25:25 [도구 필터링] Token Optimization Results:
-2026-01-09 22:25:25    Before: 9 tools (5850 tokens)
-2026-01-09 22:25:25    After: 1 tools (650 tokens)
-2026-01-09 22:25:25    Saved: 5200 tokens (88.9%)
-2026-01-09 22:25:25 ---
-2026-01-09 22:25:25 [함수 호출] Enabled tools: search_memory
-2026-01-09 22:25:25    Persona type: User-created
-2026-01-09 22:25:25    Has identity: true
-2026-01-09 22:25:25    toolsEnabled: true
-2026-01-09 22:25:25 🤖 [OpenAI] Calling API: {
-2026-01-09 22:25:25   model: 'gpt-4o-mini',
-2026-01-09 22:25:25   messageCount: 4,
-2026-01-09 22:25:25   systemPromptLength: 23295,
-2026-01-09 22:25:25   historyLength: 2,
-2026-01-09 22:25:25   toolsEnabled: true
-2026-01-09 22:25:25 }
-2026-01-09 22:25:26 ✅ [OpenAI] Response received: {
-2026-01-09 22:25:26   responseTime: '1522ms',
-2026-01-09 22:25:26   tokens: { prompt: 7656, completion: 37, cached: 5632, total: 7693 },
-2026-01-09 22:25:26   cacheHitRate: '73.6%',
-2026-01-09 22:25:26   messageLength: 64,
-2026-01-09 22:25:26   finishReason: 'stop',
-2026-01-09 22:25:26   toolCalls: 0
-2026-01-09 22:25:26 }
-2026-01-09 22:25:26 🔥 [ANIMA 채팅] Prompt Caching active!
-2026-01-09 22:25:26    Cache hit rate: 73.6%
-2026-01-09 22:25:26    Cached tokens: 5632
-2026-01-09 22:25:26    Uncached tokens: 2024
-2026-01-09 22:25:26    💰 Estimated savings: $0.000422 (50% discount on 5632 tokens)
-2026-01-09 22:25:26    Response time: 1522ms
-2026-01-09 22:25:26    Total tokens: 7693 (in: 7656, out: 37, cached: 5632)
-2026-01-09 22:25:26 📊 [Token Tracking] User message: 4 tokens (estimated), Full prompt: 7656 tokens
-2026-01-09 22:25:26 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:25:26 🎉 [ANIMA 채팅] Request completed in 2206ms
-2026-01-09 22:25:26    Cost: $0.000748 (saved: $0.000422 from caching)
-2026-01-09 22:25:26 ---
-2026-01-09 22:25:26 [Token Optimization] Final Summary:
-2026-01-09 22:25:26    Total Tokens: 7693
-2026-01-09 22:25:26    - Prompt: 7656 tokens
-2026-01-09 22:25:26    - Completion: 37 tokens
-2026-01-09 22:25:26    - Cached: 5632 tokens (73.6% hit rate)
-2026-01-09 22:25:26    Tool Filtering Savings: 5200 tokens (88.9%)
-2026-01-09 22:25:26    Total Cost: $0.000748
-2026-01-09 22:25:26    Savings from Caching: $0.000422
-2026-01-09 22:25:26    Response Time: 2206ms
-2026-01-09 22:25:26 ---
-2026-01-09 22:25:26 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:25:26 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
-2026-01-09 22:25:26 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:25:50 
-2026-01-09 22:25:50 🤖 [채팅] 요청 수신
-2026-01-09 22:25:50    사용자: d111e3d8...
-2026-01-09 22:25:50    메시지: 나 어떻게 불러야 하는지 모르는구나? ㅜㅜ...
-2026-01-09 22:25:50 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-09 22:25:50 💰 [채팅 제한] 2/50 (basic)
-2026-01-09 22:25:50 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-09 22:25:50 🚪 [Conversation Gate] Checking...
-2026-01-09 22:25:50 ✅ [Conversation Gate] Open (no record)
-2026-01-09 22:25:50 ✅ [Conversation Flow] Gate OPEN
-2026-01-09 22:25:50 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-09 22:25:50 ✅ [Conversation Flow] Loaded 4 recent messages from DB
-2026-01-09 22:25:50 ✅ [Conversation Flow] No crisis detected, using current state from DB...
-2026-01-09 22:25:50 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
-2026-01-09 22:25:50 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-09 22:25:50 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-09 22:25:50 ✅ [ANIMA 채팅] Gate open, emotion: normal
-2026-01-09 22:25:50 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:25:50 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:25:50 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:25:50    - 메시지: 4개
-2026-01-09 22:25:50    - 페르소나: Test
-2026-01-09 22:25:50 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:25:50   totalMessages: 4,
-2026-01-09 22:25:50   totalChars: 96,
-2026-01-09 22:25:50   estimatedTokens: 33,
-2026-01-09 22:25:50   averageMessageLength: 24
-2026-01-09 22:25:50 }
-2026-01-09 22:25:50 🔄 [Sliding Window] Processing 4 messages
-2026-01-09 22:25:50    Window size: 20
-2026-01-09 22:25:50    Summarize threshold: 30
-2026-01-09 22:25:50 ✅ [Sliding Window] Short conversation, keeping all 4 messages
-2026-01-09 22:25:50 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:25:50    Total messages: 4
-2026-01-09 22:25:50    Kept messages: 4
-2026-01-09 22:25:50    Summarized messages: 0
-2026-01-09 22:25:50    Sliding window: Inactive
-2026-01-09 22:25:50    Persona: Test
-2026-01-09 22:25:50    Preferences: Custom
-2026-01-09 22:25:50 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:25:50    Tier: basic
-2026-01-09 22:25:50    Model: GPT-4o Mini
-2026-01-09 22:25:50    Provider: openai
-2026-01-09 22:25:50    Caching: Enabled
-2026-01-09 22:25:50 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:25:50    Message: "나 어떻게 불러야 하는지 모르는구나? ㅜㅜ"
-2026-01-09 22:25:51 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:25:51    Duration: 564ms
-2026-01-09 22:25:51    Tokens: 296
-2026-01-09 22:25:51 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:25:51    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:25:51 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:25:51 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:25:51    Persona: Test
-2026-01-09 22:25:51    Emotional State: normal
-2026-01-09 22:25:51    Has Identity: true
-2026-01-09 22:25:51 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:25:51 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:25:51 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:25:51 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:25:51 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:25:51 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:25:51 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:25:51 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:25:51 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:25:51    Provider: openai
-2026-01-09 22:25:51    Model: gpt-4o-mini
-2026-01-09 22:25:51    History messages: 4
-2026-01-09 22:25:51    System prompt length: 23295 chars
-2026-01-09 22:25:51 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:25:51    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:25:51    Has Identity: true
-2026-01-09 22:25:51    Is User Created: true
-2026-01-09 22:25:51 ---
-2026-01-09 22:25:51 [Tool Selector] Analyzing message...
-2026-01-09 22:25:51    Message: "나 어떻게 불러야 하는지 모르는구나? ㅜㅜ"
-2026-01-09 22:25:51    Emotional State: normal
-2026-01-09 22:25:51    Has Identity: true
-2026-01-09 22:25:51    Is User Created: true
-2026-01-09 22:25:51 [Tool Selector] Selected 0 tools:
-2026-01-09 22:25:51 ---
-2026-01-09 22:25:51 ---
-2026-01-09 22:25:51 [도구 필터링] Token Optimization Results:
-2026-01-09 22:25:51    Before: 9 tools (5850 tokens)
-2026-01-09 22:25:51    After: 0 tools (0 tokens)
-2026-01-09 22:25:51    Saved: 5850 tokens (100%)
-2026-01-09 22:25:51 ---
-2026-01-09 22:25:51 [함수 호출] No tools enabled
-2026-01-09 22:25:51    toolsEnabled: false
-2026-01-09 22:25:51 🤖 [OpenAI] Calling API: {
-2026-01-09 22:25:51   model: 'gpt-4o-mini',
-2026-01-09 22:25:51   messageCount: 6,
-2026-01-09 22:25:51   systemPromptLength: 23295,
-2026-01-09 22:25:51   historyLength: 4,
-2026-01-09 22:25:51   toolsEnabled: true
-2026-01-09 22:25:51 }
-2026-01-09 22:25:53 ✅ [OpenAI] Response received: {
-2026-01-09 22:25:53   responseTime: '1740ms',
-2026-01-09 22:25:53   tokens: { prompt: 6076, completion: 49, cached: 5120, total: 6125 },
-2026-01-09 22:25:53   cacheHitRate: '84.3%',
-2026-01-09 22:25:53   messageLength: 83,
-2026-01-09 22:25:53   finishReason: 'stop',
-2026-01-09 22:25:53   toolCalls: 0
-2026-01-09 22:25:53 }
-2026-01-09 22:25:53 🔥 [ANIMA 채팅] Prompt Caching active!
-2026-01-09 22:25:53    Cache hit rate: 84.3%
-2026-01-09 22:25:53    Cached tokens: 5120
-2026-01-09 22:25:53    Uncached tokens: 956
-2026-01-09 22:25:53    💰 Estimated savings: $0.000384 (50% discount on 5120 tokens)
-2026-01-09 22:25:53    Response time: 1740ms
-2026-01-09 22:25:53    Total tokens: 6125 (in: 6076, out: 49, cached: 5120)
-2026-01-09 22:25:53 📊 [Token Tracking] User message: 8 tokens (estimated), Full prompt: 6076 tokens
-2026-01-09 22:25:53 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:25:53 🎉 [ANIMA 채팅] Request completed in 2442ms
-2026-01-09 22:25:53    Cost: $0.000557 (saved: $0.000384 from caching)
-2026-01-09 22:25:53 ---
-2026-01-09 22:25:53 [Token Optimization] Final Summary:
-2026-01-09 22:25:53    Total Tokens: 6125
-2026-01-09 22:25:53    - Prompt: 6076 tokens
-2026-01-09 22:25:53    - Completion: 49 tokens
-2026-01-09 22:25:53    - Cached: 5120 tokens (84.3% hit rate)
-2026-01-09 22:25:53    Tool Filtering Savings: 5850 tokens (100%)
-2026-01-09 22:25:53    Total Cost: $0.000557
-2026-01-09 22:25:53    Savings from Caching: $0.000384
-2026-01-09 22:25:53    Response Time: 2442ms
-2026-01-09 22:25:53 ---
-2026-01-09 22:25:53 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:25:53 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:25:53 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
-2026-01-09 22:26:06 
-2026-01-09 22:26:06 🤖 [채팅] 요청 수신
-2026-01-09 22:26:06    사용자: d111e3d8...
-2026-01-09 22:26:06    메시지: 자기야~~ 라구 불러줘...
-2026-01-09 22:26:06 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-09 22:26:06 💰 [채팅 제한] 3/50 (basic)
-2026-01-09 22:26:06 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-09 22:26:06 🚪 [Conversation Gate] Checking...
-2026-01-09 22:26:06 ✅ [Conversation Gate] Open (no record)
-2026-01-09 22:26:06 ✅ [Conversation Flow] Gate OPEN
-2026-01-09 22:26:06 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-09 22:26:06 ✅ [Conversation Flow] Loaded 6 recent messages from DB
-2026-01-09 22:26:06 ✅ [Conversation Flow] No crisis detected, using current state from DB...
-2026-01-09 22:26:06 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
-2026-01-09 22:26:06 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-09 22:26:06 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-09 22:26:06 ✅ [ANIMA 채팅] Gate open, emotion: normal
-2026-01-09 22:26:06 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:26:06 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:26:06 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:26:06    - 메시지: 6개
-2026-01-09 22:26:06    - 페르소나: Test
-2026-01-09 22:26:06 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:26:06   totalMessages: 6,
-2026-01-09 22:26:06   totalChars: 202,
-2026-01-09 22:26:06   estimatedTokens: 69,
-2026-01-09 22:26:06   averageMessageLength: 34
-2026-01-09 22:26:06 }
-2026-01-09 22:26:06 🔄 [Sliding Window] Processing 6 messages
-2026-01-09 22:26:06    Window size: 20
-2026-01-09 22:26:06    Summarize threshold: 30
-2026-01-09 22:26:06 ✅ [Sliding Window] Short conversation, keeping all 6 messages
-2026-01-09 22:26:06 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:26:06    Total messages: 6
-2026-01-09 22:26:06    Kept messages: 6
-2026-01-09 22:26:06    Summarized messages: 0
-2026-01-09 22:26:06    Sliding window: Inactive
-2026-01-09 22:26:06    Persona: Test
-2026-01-09 22:26:06    Preferences: Custom
-2026-01-09 22:26:06 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:26:06    Tier: basic
-2026-01-09 22:26:06    Model: GPT-4o Mini
-2026-01-09 22:26:06    Provider: openai
-2026-01-09 22:26:06    Caching: Enabled
-2026-01-09 22:26:06 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:26:06    Message: "자기야~~ 라구 불러줘"
-2026-01-09 22:26:06 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:26:06    Duration: 602ms
-2026-01-09 22:26:06    Tokens: 288
-2026-01-09 22:26:06 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:26:06    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:26:06 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:26:06 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:26:06    Persona: Test
-2026-01-09 22:26:06    Emotional State: normal
-2026-01-09 22:26:06    Has Identity: true
-2026-01-09 22:26:06 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:26:06 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:26:06 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:26:06 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:26:06 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:26:06 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:26:06 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:26:06 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:26:06 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:26:06    Provider: openai
-2026-01-09 22:26:06    Model: gpt-4o-mini
-2026-01-09 22:26:06    History messages: 6
-2026-01-09 22:26:06    System prompt length: 23295 chars
-2026-01-09 22:26:06 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:26:06    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:26:06    Has Identity: true
-2026-01-09 22:26:06    Is User Created: true
-2026-01-09 22:26:06 ---
-2026-01-09 22:26:06 [Tool Selector] Analyzing message...
-2026-01-09 22:26:06    Message: "자기야~~ 라구 불러줘"
-2026-01-09 22:26:06    Emotional State: normal
-2026-01-09 22:26:06    Has Identity: true
-2026-01-09 22:26:06    Is User Created: true
-2026-01-09 22:26:06 [Tool Selector] Selected 0 tools:
-2026-01-09 22:26:06 ---
-2026-01-09 22:26:06 ---
-2026-01-09 22:26:06 [도구 필터링] Token Optimization Results:
-2026-01-09 22:26:06    Before: 9 tools (5850 tokens)
-2026-01-09 22:26:06    After: 0 tools (0 tokens)
-2026-01-09 22:26:06    Saved: 5850 tokens (100%)
-2026-01-09 22:26:06 ---
-2026-01-09 22:26:06 [함수 호출] No tools enabled
-2026-01-09 22:26:06    toolsEnabled: false
-2026-01-09 22:26:06 🤖 [OpenAI] Calling API: {
-2026-01-09 22:26:06   model: 'gpt-4o-mini',
-2026-01-09 22:26:06   messageCount: 8,
-2026-01-09 22:26:06   systemPromptLength: 23295,
-2026-01-09 22:26:06   historyLength: 6,
-2026-01-09 22:26:06   toolsEnabled: true
-2026-01-09 22:26:06 }
-2026-01-09 22:26:07 ✅ [OpenAI] Response received: {
-2026-01-09 22:26:07   responseTime: '1140ms',
-2026-01-09 22:26:07   tokens: { prompt: 6142, completion: 23, cached: 6016, total: 6165 },
-2026-01-09 22:26:07   cacheHitRate: '97.9%',
-2026-01-09 22:26:07   messageLength: 40,
-2026-01-09 22:26:07   finishReason: 'stop',
-2026-01-09 22:26:07   toolCalls: 0
-2026-01-09 22:26:07 }
-2026-01-09 22:26:07 🔥 [ANIMA 채팅] Prompt Caching active!
-2026-01-09 22:26:07    Cache hit rate: 97.9%
-2026-01-09 22:26:07    Cached tokens: 6016
-2026-01-09 22:26:07    Uncached tokens: 126
-2026-01-09 22:26:07    💰 Estimated savings: $0.000451 (50% discount on 6016 tokens)
-2026-01-09 22:26:07    Response time: 1140ms
-2026-01-09 22:26:07    Total tokens: 6165 (in: 6142, out: 23, cached: 6016)
-2026-01-09 22:26:07 📊 [Token Tracking] User message: 4 tokens (estimated), Full prompt: 6142 tokens
-2026-01-09 22:26:07 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:26:07 🎉 [ANIMA 채팅] Request completed in 1877ms
-2026-01-09 22:26:07    Cost: $0.000484 (saved: $0.000451 from caching)
-2026-01-09 22:26:07 ---
-2026-01-09 22:26:07 [Token Optimization] Final Summary:
-2026-01-09 22:26:07    Total Tokens: 6165
-2026-01-09 22:26:07    - Prompt: 6142 tokens
-2026-01-09 22:26:07    - Completion: 23 tokens
-2026-01-09 22:26:07    - Cached: 6016 tokens (97.9% hit rate)
-2026-01-09 22:26:07    Tool Filtering Savings: 5850 tokens (100%)
-2026-01-09 22:26:07    Total Cost: $0.000484
-2026-01-09 22:26:07    Savings from Caching: $0.000451
-2026-01-09 22:26:07    Response Time: 1877ms
-2026-01-09 22:26:07 ---
-2026-01-09 22:26:07 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:26:07 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:26:07 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
-2026-01-09 22:30:00 
-2026-01-09 22:30:00 🤖 [채팅] 요청 수신
-2026-01-09 22:30:00    사용자: d111e3d8...
-2026-01-09 22:30:00    메시지: 너에 대해서 알고 싶어 ㅠ...
-2026-01-09 22:30:00 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-09 22:30:00 💰 [채팅 제한] 4/50 (basic)
-2026-01-09 22:30:00 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-09 22:30:00 🚪 [Conversation Gate] Checking...
-2026-01-09 22:30:00 ✅ [Conversation Gate] Open (no record)
-2026-01-09 22:30:00 ✅ [Conversation Flow] Gate OPEN
-2026-01-09 22:30:00 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-09 22:30:00 ✅ [Conversation Flow] Loaded 8 recent messages from DB
-2026-01-09 22:30:00 ✅ [Conversation Flow] No crisis detected, using current state from DB...
-2026-01-09 22:30:00 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
-2026-01-09 22:30:00 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-09 22:30:00 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-09 22:30:00 ✅ [ANIMA 채팅] Gate open, emotion: normal
-2026-01-09 22:30:00 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:30:00 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:30:00 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:30:00    - 메시지: 8개
-2026-01-09 22:30:00    - 페르소나: Test
-2026-01-09 22:30:00 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:30:00   totalMessages: 8,
-2026-01-09 22:30:00   totalChars: 254,
-2026-01-09 22:30:00   estimatedTokens: 87,
-2026-01-09 22:30:00   averageMessageLength: 32
-2026-01-09 22:30:00 }
-2026-01-09 22:30:00 🔄 [Sliding Window] Processing 8 messages
-2026-01-09 22:30:00    Window size: 20
-2026-01-09 22:30:00    Summarize threshold: 30
-2026-01-09 22:30:00 ✅ [Sliding Window] Short conversation, keeping all 8 messages
-2026-01-09 22:30:00 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:30:00    Total messages: 8
-2026-01-09 22:30:00    Kept messages: 8
-2026-01-09 22:30:00    Summarized messages: 0
-2026-01-09 22:30:00    Sliding window: Inactive
-2026-01-09 22:30:00    Persona: Test
-2026-01-09 22:30:00    Preferences: Custom
-2026-01-09 22:30:00 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:30:00    Tier: basic
-2026-01-09 22:30:00    Model: GPT-4o Mini
-2026-01-09 22:30:00    Provider: openai
-2026-01-09 22:30:00    Caching: Enabled
-2026-01-09 22:30:00 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:30:00    Message: "너에 대해서 알고 싶어 ㅠ"
-2026-01-09 22:30:02 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:30:02    Duration: 1472ms
-2026-01-09 22:30:02    Tokens: 287
-2026-01-09 22:30:02 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:30:02    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:30:02 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:30:02 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:30:02    Persona: Test
-2026-01-09 22:30:02    Emotional State: normal
-2026-01-09 22:30:02    Has Identity: true
-2026-01-09 22:30:02 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:30:02 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:30:02 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:30:02 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:30:02 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:30:02 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:30:02 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:30:02 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:30:02 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:30:02    Provider: openai
-2026-01-09 22:30:02    Model: gpt-4o-mini
-2026-01-09 22:30:02    History messages: 8
-2026-01-09 22:30:02    System prompt length: 23295 chars
-2026-01-09 22:30:02 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:30:02    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:30:02    Has Identity: true
-2026-01-09 22:30:02    Is User Created: true
-2026-01-09 22:30:02 ---
-2026-01-09 22:30:02 [Tool Selector] Analyzing message...
-2026-01-09 22:30:02    Message: "너에 대해서 알고 싶어 ㅠ"
-2026-01-09 22:30:02    Emotional State: normal
-2026-01-09 22:30:02    Has Identity: true
-2026-01-09 22:30:02    Is User Created: true
-2026-01-09 22:30:02    [Keyword Match] search_conversation_memory
-2026-01-09 22:30:02 [Tool Selector] Selected 1 tools:
-2026-01-09 22:30:02    - search_conversation_memory
-2026-01-09 22:30:02 ---
-2026-01-09 22:30:02 ---
-2026-01-09 22:30:02 [도구 필터링] Token Optimization Results:
-2026-01-09 22:30:02    Before: 9 tools (5850 tokens)
-2026-01-09 22:30:02    After: 1 tools (650 tokens)
-2026-01-09 22:30:02    Saved: 5200 tokens (88.9%)
-2026-01-09 22:30:02 ---
-2026-01-09 22:30:02 [함수 호출] Enabled tools: search_conversation_memory
-2026-01-09 22:30:02    Persona type: User-created
-2026-01-09 22:30:02    Has identity: true
-2026-01-09 22:30:02    toolsEnabled: true
-2026-01-09 22:30:02 🤖 [OpenAI] Calling API: {
-2026-01-09 22:30:02   model: 'gpt-4o-mini',
-2026-01-09 22:30:02   messageCount: 10,
-2026-01-09 22:30:02   systemPromptLength: 23295,
-2026-01-09 22:30:02   historyLength: 8,
-2026-01-09 22:30:02   toolsEnabled: true
-2026-01-09 22:30:02 }
-2026-01-09 22:30:04 ✅ [OpenAI] Response received: {
-2026-01-09 22:30:04   responseTime: '1989ms',
-2026-01-09 22:30:04   tokens: { prompt: 6823, completion: 77, cached: 4864, total: 6900 },
-2026-01-09 22:30:04   cacheHitRate: '71.3%',
-2026-01-09 22:30:04   messageLength: 132,
-2026-01-09 22:30:04   finishReason: 'stop',
-2026-01-09 22:30:04   toolCalls: 0
-2026-01-09 22:30:04 }
-2026-01-09 22:30:04 🔥 [ANIMA 채팅] Prompt Caching active!
-2026-01-09 22:30:04    Cache hit rate: 71.3%
-2026-01-09 22:30:04    Cached tokens: 4864
-2026-01-09 22:30:04    Uncached tokens: 1959
-2026-01-09 22:30:04    💰 Estimated savings: $0.000365 (50% discount on 4864 tokens)
-2026-01-09 22:30:04    Response time: 1989ms
-2026-01-09 22:30:04    Total tokens: 6900 (in: 6823, out: 77, cached: 4864)
-2026-01-09 22:30:04 📊 [Token Tracking] User message: 5 tokens (estimated), Full prompt: 6823 tokens
-2026-01-09 22:30:04 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:30:04 🎉 [ANIMA 채팅] Request completed in 3782ms
-2026-01-09 22:30:04    Cost: $0.000705 (saved: $0.000365 from caching)
-2026-01-09 22:30:04 ---
-2026-01-09 22:30:04 [Token Optimization] Final Summary:
-2026-01-09 22:30:04    Total Tokens: 6900
-2026-01-09 22:30:04    - Prompt: 6823 tokens
-2026-01-09 22:30:04    - Completion: 77 tokens
-2026-01-09 22:30:04    - Cached: 4864 tokens (71.3% hit rate)
-2026-01-09 22:30:04    Tool Filtering Savings: 5200 tokens (88.9%)
-2026-01-09 22:30:04    Total Cost: $0.000705
-2026-01-09 22:30:04    Savings from Caching: $0.000365
-2026-01-09 22:30:04    Response Time: 3782ms
-2026-01-09 22:30:04 ---
-2026-01-09 22:30:04 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:30:04 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:30:04 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
-2026-01-09 22:30:25 
-2026-01-09 22:30:25 🤖 [채팅] 요청 수신
-2026-01-09 22:30:25    사용자: d111e3d8...
-2026-01-09 22:30:25    메시지: 넌 뭐 좋아해?!...
-2026-01-09 22:30:25 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
-2026-01-09 22:30:25 💰 [채팅 제한] 5/50 (basic)
-2026-01-09 22:30:25 🚪 [Conversation Flow] Checking gate and analyzing emotion...
-2026-01-09 22:30:25 🚪 [Conversation Gate] Checking...
-2026-01-09 22:30:25 ✅ [Conversation Gate] Open (no record)
-2026-01-09 22:30:25 ✅ [Conversation Flow] Gate OPEN
-2026-01-09 22:30:25 📚 [Conversation Flow] Loading recent history from DB...
-2026-01-09 22:30:25 ✅ [Conversation Flow] Loaded 10 recent messages from DB
-2026-01-09 22:30:25 ✅ [Conversation Flow] No crisis detected, using current state from DB...
-2026-01-09 22:30:25 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
-2026-01-09 22:30:25 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
-2026-01-09 22:30:25 ✅ [Conversation Flow] Normal flow - proceeding with conversation
-2026-01-09 22:30:25 ✅ [ANIMA 채팅] Gate open, emotion: normal
-2026-01-09 22:30:25 ⚠️  [SessionManager] Redis not available, using DB directly
-2026-01-09 22:30:25 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1767965105224-e7u8qk
-2026-01-09 22:30:25 ✅ [세션 관리] 세션 로드 완료
-2026-01-09 22:30:25    - 메시지: 10개
-2026-01-09 22:30:25    - 페르소나: Test
-2026-01-09 22:30:25 📊 [SessionManager] Conversation stats: {
-2026-01-09 22:30:25   totalMessages: 10,
-2026-01-09 22:30:25   totalChars: 400,
-2026-01-09 22:30:25   estimatedTokens: 137,
-2026-01-09 22:30:25   averageMessageLength: 40
-2026-01-09 22:30:25 }
-2026-01-09 22:30:25 🔄 [Sliding Window] Processing 10 messages
-2026-01-09 22:30:25    Window size: 20
-2026-01-09 22:30:25    Summarize threshold: 30
-2026-01-09 22:30:25 ✅ [Sliding Window] Short conversation, keeping all 10 messages
-2026-01-09 22:30:25 ✅ [ANIMA 채팅] Session loaded
-2026-01-09 22:30:25    Total messages: 10
-2026-01-09 22:30:25    Kept messages: 10
-2026-01-09 22:30:25    Summarized messages: 0
-2026-01-09 22:30:25    Sliding window: Inactive
-2026-01-09 22:30:25    Persona: Test
-2026-01-09 22:30:25    Preferences: Custom
-2026-01-09 22:30:25 🎯 [ANIMA 채팅] AI Strategy selected
-2026-01-09 22:30:25    Tier: basic
-2026-01-09 22:30:25    Model: GPT-4o Mini
-2026-01-09 22:30:25    Provider: openai
-2026-01-09 22:30:25    Caching: Enabled
-2026-01-09 22:30:25 🤔 [KnowledgeDecision] Analyzing message...
-2026-01-09 22:30:25    Message: "넌 뭐 좋아해?!"
-2026-01-09 22:30:25 ✅ [KnowledgeDecision] Decision: SKIP
-2026-01-09 22:30:25    Duration: 546ms
-2026-01-09 22:30:25    Tokens: 285
-2026-01-09 22:30:25 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
-2026-01-09 22:30:25    💰 Saved Pinecone API call + ~200-500ms latency
-2026-01-09 22:30:25 🔥 [ANIMA 채팅] Building revolutionary system prompt...
-2026-01-09 22:30:25 🎯 [프롬프트 조율] Building system prompt...
-2026-01-09 22:30:25    Persona: Test
-2026-01-09 22:30:25    Emotional State: normal
-2026-01-09 22:30:25    Has Identity: true
-2026-01-09 22:30:25 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
-2026-01-09 22:30:25 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
-2026-01-09 22:30:25 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
-2026-01-09 22:30:25 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
-2026-01-09 22:30:25 📊 [프롬프트 v6.0] 예상 토큰: ~5701 tokens
-2026-01-09 22:30:25 ✅ [프롬프트 조율] System prompt built (22803 chars)
-2026-01-09 22:30:25 🌍 [언어 감지] User's language: KOREAN
-2026-01-09 22:30:25 ✅ [ANIMA 채팅] Revolutionary prompt built (23295 chars, emotion: normal)
-2026-01-09 22:30:25 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
-2026-01-09 22:30:25    Provider: openai
-2026-01-09 22:30:25    Model: gpt-4o-mini
-2026-01-09 22:30:25    History messages: 10
-2026-01-09 22:30:25    System prompt length: 23295 chars
-2026-01-09 22:30:25 🔒 [ANIMA 채팅] Identity Status (Simplified):
-2026-01-09 22:30:25    Identity Key: eb07e292-985e-4f39-9773-08dcd6cc667e
-2026-01-09 22:30:25    Has Identity: true
-2026-01-09 22:30:25    Is User Created: true
-2026-01-09 22:30:25 ---
-2026-01-09 22:30:25 [Tool Selector] Analyzing message...
-2026-01-09 22:30:25    Message: "넌 뭐 좋아해?!"
-2026-01-09 22:30:25    Emotional State: normal
-2026-01-09 22:30:25    Has Identity: true
-2026-01-09 22:30:25    Is User Created: true
-2026-01-09 22:30:25 [Tool Selector] Selected 0 tools:
-2026-01-09 22:30:25 ---
-2026-01-09 22:30:25 ---
-2026-01-09 22:30:25 [도구 필터링] Token Optimization Results:
-2026-01-09 22:30:25    Before: 9 tools (5850 tokens)
-2026-01-09 22:30:25    After: 0 tools (0 tokens)
-2026-01-09 22:30:25    Saved: 5850 tokens (100%)
-2026-01-09 22:30:25 ---
-2026-01-09 22:30:25 [함수 호출] No tools enabled
-2026-01-09 22:30:25    toolsEnabled: false
-2026-01-09 22:30:25 🤖 [OpenAI] Calling API: {
-2026-01-09 22:30:25   model: 'gpt-4o-mini',
-2026-01-09 22:30:25   messageCount: 12,
-2026-01-09 22:30:25   systemPromptLength: 23295,
-2026-01-09 22:30:25   historyLength: 10,
-2026-01-09 22:30:25   toolsEnabled: true
-2026-01-09 22:30:25 }
-2026-01-09 22:30:27 ✅ [OpenAI] Response received: {
-2026-01-09 22:30:27   responseTime: '1837ms',
-2026-01-09 22:30:27   tokens: { prompt: 6271, completion: 52, cached: 6144, total: 6323 },
-2026-01-09 22:30:27   cacheHitRate: '98.0%',
-2026-01-09 22:30:27   messageLength: 100,
-2026-01-09 22:30:27   finishReason: 'stop',
-2026-01-09 22:30:27   toolCalls: 0
-2026-01-09 22:30:27 }
-2026-01-09 22:30:27 🔥 [ANIMA 채팅] Prompt Caching active!
-2026-01-09 22:30:27    Cache hit rate: 98%
-2026-01-09 22:30:27    Cached tokens: 6144
-2026-01-09 22:30:27    Uncached tokens: 127
-2026-01-09 22:30:27    💰 Estimated savings: $0.000461 (50% discount on 6144 tokens)
-2026-01-09 22:30:27    Response time: 1837ms
-2026-01-09 22:30:27    Total tokens: 6323 (in: 6271, out: 52, cached: 6144)
-2026-01-09 22:30:27 🎭 [Emotion] Detected: happy (75.0%)
-2026-01-09 22:30:27 📊 [Token Tracking] User message: 3 tokens (estimated), Full prompt: 6271 tokens
-2026-01-09 22:30:27 💾 [ANIMA 채팅] Both messages saved to history (sequential)
-2026-01-09 22:30:27 🎉 [ANIMA 채팅] Request completed in 2546ms
-2026-01-09 22:30:27    Cost: $0.000511 (saved: $0.000461 from caching)
-2026-01-09 22:30:27 ---
-2026-01-09 22:30:27 [Token Optimization] Final Summary:
-2026-01-09 22:30:27    Total Tokens: 6323
-2026-01-09 22:30:27    - Prompt: 6271 tokens
-2026-01-09 22:30:27    - Completion: 52 tokens
-2026-01-09 22:30:27    - Cached: 6144 tokens (98% hit rate)
-2026-01-09 22:30:27    Tool Filtering Savings: 5850 tokens (100%)
-2026-01-09 22:30:27    Total Cost: $0.000511
-2026-01-09 22:30:27    Savings from Caching: $0.000461
-2026-01-09 22:30:27    Response Time: 2546ms
-2026-01-09 22:30:27 ---
-2026-01-09 22:30:27 ✅ [채팅 제한] Daily chat count incremented
-2026-01-09 22:30:27 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (user)
-2026-01-09 22:30:27 💾 [SessionManager] Message saved: session-1767965105224-e7u8qk (assistant)
+user	neutral	0.3			conversations	3	gpt-4o-mini		2026-01-12 10:37:01.091390	
+assistant					conversations	43	gpt-4o-mini	1695	2026-01-12 10:37:01.108020	
+user	neutral	0.3			conversations	10	gpt-4o-mini		2026-01-12 10:37:35.098825	
+assistant					conversations	69	gpt-4o-mini	3378	2026-01-12 10:37:35.100048	
+user	neutral	0.3			conversations	4	gpt-4o-mini		2026-01-12 10:38:01.134531	
+assistant					conversations	31	gpt-4o-mini	1262	2026-01-12 10:38:01.134641	
+user	neutral	0.3			conversations	5	gpt-4o-mini		2026-01-12 10:39:42.816574	
+assistant					conversations	52	gpt-4o-mini	2236	2026-01-12 10:39:42.817121	
+
+
+Connecting to "@ecofriends/idol-champanion:main/idol-companion" ...
+2026-01-12 10:36:29    ▲ Next.js 15.5.9
+2026-01-12 10:36:29    - Local:        http://localhost:3000
+2026-01-12 10:36:29    - Network:      http://0.0.0.0:3000
+2026-01-12 10:36:29 
+2026-01-12 10:36:29  ✓ Starting...
+2026-01-12 10:36:29  ✓ Ready in 185ms
+2026-01-12 10:36:31 [SSE] 🔧 Initialized global eventEmitters Map
+2026-01-12 10:36:44 ℹ️ [Service API] Request from user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:36:44 [Service API] body: { user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f' }
+2026-01-12 10:36:44 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:44 📜 [Chat History] Fetching history
+2026-01-12 10:36:44    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:36:44    persona_key: 9368888d-ae40-4ff0-9497-c1f5f9c2615c
+2026-01-12 10:36:44    limit: 20, offset: 0
+2026-01-12 10:36:44 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:44 chat check function start
+2026-01-12 10:36:44 user.daily_chat_reset_at:  null
+2026-01-12 10:36:44 new Date():  2026-01-12T01:36:44.783Z
+2026-01-12 10:36:44 chat reset success
+2026-01-12 10:36:44 chat check function end
+2026-01-12 10:36:44 ℹ️ [Service API] ✅ Config loaded for user: d111e3d8-4e42-4493-8541-25a8e72b654f (ultimate)
+2026-01-12 10:36:44 ℹ️ [Service API]    Chat: 1000/1000 remaining
+2026-01-12 10:36:44 ℹ️ [Service API]    Onboarding: No
+2026-01-12 10:36:44 ✅ [Chat History] Loaded 6 messages (fetched: 6, total: 6, filtered: 0)
+2026-01-12 10:36:57 
+2026-01-12 10:36:57 🤖 [채팅] 요청 수신
+2026-01-12 10:36:57    사용자: d111e3d8...
+2026-01-12 10:36:57    메시지: 안녕? 뭐해?...
+2026-01-12 10:36:57 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:36:57 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-12 10:36:57 🚪 [Conversation Gate] Checking...
+2026-01-12 10:36:57 ✅ [Conversation Gate] Open (no record)
+2026-01-12 10:36:57 ✅ [Conversation Flow] Gate OPEN
+2026-01-12 10:36:57 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-12 10:36:57 ✅ [Conversation Flow] Loaded 6 recent messages from DB
+2026-01-12 10:36:57 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-12 10:36:57 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-12 10:36:57 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-12 10:36:57 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-12 10:36:57 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-12 10:36:57 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-12 10:36:57 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768181817665-7vwdtp
+2026-01-12 10:36:57 ✅ [SessionManager] Created new session: session-1768181817665-7vwdtp
+2026-01-12 10:36:57 ✅ [세션 관리] 세션 로드 완료
+2026-01-12 10:36:57    - 메시지: 6개
+2026-01-12 10:36:57    - 페르소나: ㅇㅇ
+2026-01-12 10:36:57 📊 [SessionManager] Conversation stats: {
+2026-01-12 10:36:57   totalMessages: 6,
+2026-01-12 10:36:57   totalChars: 213,
+2026-01-12 10:36:57   estimatedTokens: 73,
+2026-01-12 10:36:57   averageMessageLength: 36
+2026-01-12 10:36:57 }
+2026-01-12 10:36:57 🔄 [Sliding Window] Processing 6 messages
+2026-01-12 10:36:57    Window size: 20
+2026-01-12 10:36:57    Summarize threshold: 30
+2026-01-12 10:36:57 ✅ [Sliding Window] Short conversation, keeping all 6 messages
+2026-01-12 10:36:57 ✅ [ANIMA 채팅] Session loaded
+2026-01-12 10:36:57    Total messages: 6
+2026-01-12 10:36:57    Kept messages: 6
+2026-01-12 10:36:57    Summarized messages: 0
+2026-01-12 10:36:57    Sliding window: Inactive
+2026-01-12 10:36:57    Persona: ㅇㅇ
+2026-01-12 10:36:57    Preferences: Custom
+2026-01-12 10:36:57 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-12 10:36:57    Tier: ultimate
+2026-01-12 10:36:57    Model: GPT-4o Mini
+2026-01-12 10:36:57    Provider: openai
+2026-01-12 10:36:57    Caching: Enabled
+2026-01-12 10:36:57 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-12 10:36:57    Message: "안녕? 뭐해?"
+2026-01-12 10:36:59 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-12 10:36:59    Duration: 1449ms
+2026-01-12 10:36:59    Tokens: 284
+2026-01-12 10:36:59 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-12 10:36:59    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-12 10:36:59 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-12 10:36:59 🎯 [프롬프트 조율] Building system prompt...
+2026-01-12 10:36:59    Persona: ㅇㅇ
+2026-01-12 10:36:59    Emotional State: normal
+2026-01-12 10:36:59    Has Identity: true
+2026-01-12 10:36:59 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-12 10:36:59 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-12 10:36:59 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 2, Intimacy: 3)
+2026-01-12 10:36:59 ✨ [프롬프트 조율] Loaded 1 important moments
+2026-01-12 10:36:59 🎁 [프롬프트 조율] Loaded 3 dress/gift memories
+2026-01-12 10:36:59 🎯 [프롬프트 조율] Learned phrases loaded: 3 categories
+2026-01-12 10:36:59 🗣️ [프롬프트 조율] Conversation patterns loaded
+2026-01-12 10:36:59 🧠 [프롬프트 조율] Loaded 3 AI interests (with identity)
+2026-01-12 10:36:59 💭 [프롬프트 조율] Loaded 3 next questions (with identity)
+2026-01-12 10:36:59 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6549 tokens
+2026-01-12 10:36:59 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-12 10:36:59 ✅ [프롬프트 조율] System prompt built (26194 chars)
+2026-01-12 10:36:59 ✅ [ANIMA 채팅] Revolutionary prompt built (26194 chars, emotion: normal)
+2026-01-12 10:36:59 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-12 10:36:59    Provider: openai
+2026-01-12 10:36:59    Model: gpt-4o-mini
+2026-01-12 10:36:59    History messages: 6
+2026-01-12 10:36:59    System prompt length: 26194 chars
+2026-01-12 10:36:59 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-12 10:36:59    Identity Key: b8977a8c-3327-4757-8b09-68701f1c272d
+2026-01-12 10:36:59    Has Identity: true
+2026-01-12 10:36:59    Is User Created: true
+2026-01-12 10:36:59 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-12 10:36:59    Available tools: 9
+2026-01-12 10:36:59 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-12 10:36:59    Persona type: User-created
+2026-01-12 10:36:59    Has identity: true
+2026-01-12 10:36:59    toolsEnabled: true
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59    Message: "안녕? 뭐해?"
+2026-01-12 10:36:59    Length: 7 chars
+2026-01-12 10:36:59 ⚡ [Analysis] SIMPLE QUERY DETECTED!
+2026-01-12 10:36:59    Reason: Simple greeting/affirmation/short message - Fast response prioritized
+2026-01-12 10:36:59    Self-Reflection: DISABLED (fast response)
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59 📊 [Analysis Result]
+2026-01-12 10:36:59    Complexity: simple
+2026-01-12 10:36:59    Confidence: 90%
+2026-01-12 10:36:59    Self-Reflection: DISABLED
+2026-01-12 10:36:59    Type: none
+2026-01-12 10:36:59 ✅ [Prompt] Using ORIGINAL prompt (no enhancement)
+2026-01-12 10:36:59 ⏱️ [Timeout] Set to 10000ms
+2026-01-12 10:36:59 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-12 10:36:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:36:59 🤖 [OpenAI] Calling API: {
+2026-01-12 10:36:59   model: 'gpt-4o-mini',
+2026-01-12 10:36:59   messageCount: 8,
+2026-01-12 10:36:59   systemPromptLength: 26194,
+2026-01-12 10:36:59   historyLength: 6,
+2026-01-12 10:36:59   toolsEnabled: true
+2026-01-12 10:36:59 }
+2026-01-12 10:37:01 ✅ [OpenAI] Response received: {
+2026-01-12 10:37:01   responseTime: '1695ms',
+2026-01-12 10:37:01   tokens: { prompt: 15111, completion: 43, cached: 0, total: 15154 },
+2026-01-12 10:37:01   cacheHitRate: 'N/A',
+2026-01-12 10:37:01   messageLength: 75,
+2026-01-12 10:37:01   finishReason: 'stop',
+2026-01-12 10:37:01   toolCalls: 0
+2026-01-12 10:37:01 }
+2026-01-12 10:37:01 ✅ [AI Call] Success! (1697ms)
+2026-01-12 10:37:01 📊 [Response] Parsing AI response...
+2026-01-12 10:37:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:01 📊 [Response Parser] Parsing AI response...
+2026-01-12 10:37:01 ✅ [Response Parser] String format detected (single message)
+2026-01-12 10:37:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:01 ✅ [Response] Parsed successfully
+2026-01-12 10:37:01    Message type: STRING (single)
+2026-01-12 10:37:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:01 ✅ [ANIMA 채팅] AI response received (no caching)
+2026-01-12 10:37:01    Response time: 1695ms
+2026-01-12 10:37:01    Total tokens: 15154 (in: 15111, out: 43, cached: 0)
+2026-01-12 10:37:01 📊 [Token Tracking] User message: 3 tokens (estimated), Full prompt: 15111 tokens
+2026-01-12 10:37:01 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-12 10:37:01 🎉 [ANIMA 채팅] Request completed in 3417ms
+2026-01-12 10:37:01    Cost: $0.002292 (saved: $0.000000 from caching)
+2026-01-12 10:37:01 ---
+2026-01-12 10:37:01 [Token Optimization] Final Summary:
+2026-01-12 10:37:01    Total Tokens: 15154
+2026-01-12 10:37:01    - Prompt: 15111 tokens
+2026-01-12 10:37:01    - Completion: 43 tokens
+2026-01-12 10:37:01    - Cached: 0 tokens (0% hit rate)
+2026-01-12 10:37:01    Total Cost: $0.002292
+2026-01-12 10:37:01    Savings from Caching: $0.000000
+2026-01-12 10:37:01    Response Time: 3417ms
+2026-01-12 10:37:01 ---
+2026-01-12 10:37:01 ✅ [채팅 제한] Daily chat count incremented
+2026-01-12 10:37:01 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (user)
+2026-01-12 10:37:01 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (assistant)
+2026-01-12 10:37:30 
+2026-01-12 10:37:30 🤖 [채팅] 요청 수신
+2026-01-12 10:37:30    사용자: d111e3d8...
+2026-01-12 10:37:30    메시지: 오늘은 함께 너의 자아에 대하여 이야기 해보고 싶어...
+2026-01-12 10:37:30 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:37:30 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-12 10:37:30 🚪 [Conversation Gate] Checking...
+2026-01-12 10:37:30 ✅ [Conversation Gate] Open (no record)
+2026-01-12 10:37:30 ✅ [Conversation Flow] Gate OPEN
+2026-01-12 10:37:30 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-12 10:37:30 ✅ [Conversation Flow] Loaded 8 recent messages from DB
+2026-01-12 10:37:30 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-12 10:37:30 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-12 10:37:30 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-12 10:37:30 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-12 10:37:30 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-12 10:37:30 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-12 10:37:30 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768181817665-7vwdtp
+2026-01-12 10:37:30 ✅ [세션 관리] 세션 로드 완료
+2026-01-12 10:37:30    - 메시지: 8개
+2026-01-12 10:37:30    - 페르소나: ㅇㅇ
+2026-01-12 10:37:30 📊 [SessionManager] Conversation stats: {
+2026-01-12 10:37:30   totalMessages: 8,
+2026-01-12 10:37:30   totalChars: 295,
+2026-01-12 10:37:30   estimatedTokens: 101,
+2026-01-12 10:37:30   averageMessageLength: 37
+2026-01-12 10:37:30 }
+2026-01-12 10:37:30 🔄 [Sliding Window] Processing 8 messages
+2026-01-12 10:37:30    Window size: 20
+2026-01-12 10:37:30    Summarize threshold: 30
+2026-01-12 10:37:30 ✅ [Sliding Window] Short conversation, keeping all 8 messages
+2026-01-12 10:37:30 ✅ [ANIMA 채팅] Session loaded
+2026-01-12 10:37:30    Total messages: 8
+2026-01-12 10:37:30    Kept messages: 8
+2026-01-12 10:37:30    Summarized messages: 0
+2026-01-12 10:37:30    Sliding window: Inactive
+2026-01-12 10:37:30    Persona: ㅇㅇ
+2026-01-12 10:37:30    Preferences: Custom
+2026-01-12 10:37:30 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-12 10:37:30    Tier: ultimate
+2026-01-12 10:37:30    Model: GPT-4o Mini
+2026-01-12 10:37:30    Provider: openai
+2026-01-12 10:37:30    Caching: Enabled
+2026-01-12 10:37:30 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-12 10:37:30    Message: "오늘은 함께 너의 자아에 대하여 이야기 해보고 싶어"
+2026-01-12 10:37:31 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-12 10:37:31    Duration: 1297ms
+2026-01-12 10:37:31    Tokens: 294
+2026-01-12 10:37:31 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-12 10:37:31    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-12 10:37:31 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-12 10:37:31 🎯 [프롬프트 조율] Building system prompt...
+2026-01-12 10:37:31    Persona: ㅇㅇ
+2026-01-12 10:37:31    Emotional State: normal
+2026-01-12 10:37:31    Has Identity: true
+2026-01-12 10:37:31 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-12 10:37:31 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-12 10:37:31 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 2, Intimacy: 3)
+2026-01-12 10:37:31 ✨ [프롬프트 조율] Loaded 1 important moments
+2026-01-12 10:37:31 🎁 [프롬프트 조율] Loaded 3 dress/gift memories
+2026-01-12 10:37:31 🎯 [프롬프트 조율] Learned phrases loaded: 3 categories
+2026-01-12 10:37:31 🗣️ [프롬프트 조율] Conversation patterns loaded
+2026-01-12 10:37:31 🧠 [프롬프트 조율] Loaded 3 AI interests (with identity)
+2026-01-12 10:37:31 💭 [프롬프트 조율] Loaded 3 next questions (with identity)
+2026-01-12 10:37:31 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6549 tokens
+2026-01-12 10:37:31 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-12 10:37:31 ✅ [프롬프트 조율] System prompt built (26194 chars)
+2026-01-12 10:37:31 ✅ [ANIMA 채팅] Revolutionary prompt built (26194 chars, emotion: normal)
+2026-01-12 10:37:31 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-12 10:37:31    Provider: openai
+2026-01-12 10:37:31    Model: gpt-4o-mini
+2026-01-12 10:37:31    History messages: 8
+2026-01-12 10:37:31    System prompt length: 26194 chars
+2026-01-12 10:37:31 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-12 10:37:31    Identity Key: b8977a8c-3327-4757-8b09-68701f1c272d
+2026-01-12 10:37:31    Has Identity: true
+2026-01-12 10:37:31    Is User Created: true
+2026-01-12 10:37:31 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-12 10:37:31    Available tools: 9
+2026-01-12 10:37:31 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-12 10:37:31    Persona type: User-created
+2026-01-12 10:37:31    Has identity: true
+2026-01-12 10:37:31    toolsEnabled: true
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31    Message: "오늘은 함께 너의 자아에 대하여 이야기 해보고 싶어"
+2026-01-12 10:37:31    Length: 28 chars
+2026-01-12 10:37:31 📝 [Analysis] MEDIUM QUERY (Default)
+2026-01-12 10:37:31    Reason: Standard query - Normal prompt is sufficient
+2026-01-12 10:37:31    Self-Reflection: DISABLED (standard prompt)
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31 📊 [Analysis Result]
+2026-01-12 10:37:31    Complexity: medium
+2026-01-12 10:37:31    Confidence: 80%
+2026-01-12 10:37:31    Self-Reflection: DISABLED
+2026-01-12 10:37:31    Type: none
+2026-01-12 10:37:31 ✅ [Prompt] Using ORIGINAL prompt (no enhancement)
+2026-01-12 10:37:31 ⏱️ [Timeout] Set to 10000ms
+2026-01-12 10:37:31 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-12 10:37:31 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:31 🤖 [OpenAI] Calling API: {
+2026-01-12 10:37:31   model: 'gpt-4o-mini',
+2026-01-12 10:37:31   messageCount: 10,
+2026-01-12 10:37:31   systemPromptLength: 26194,
+2026-01-12 10:37:31   historyLength: 8,
+2026-01-12 10:37:31   toolsEnabled: true
+2026-01-12 10:37:31 }
+2026-01-12 10:37:35 ✅ [OpenAI] Response received: {
+2026-01-12 10:37:35   responseTime: '3378ms',
+2026-01-12 10:37:35   tokens: { prompt: 15176, completion: 69, cached: 0, total: 15245 },
+2026-01-12 10:37:35   cacheHitRate: 'N/A',
+2026-01-12 10:37:35   messageLength: 126,
+2026-01-12 10:37:35   finishReason: 'stop',
+2026-01-12 10:37:35   toolCalls: 0
+2026-01-12 10:37:35 }
+2026-01-12 10:37:35 ✅ [AI Call] Success! (3378ms)
+2026-01-12 10:37:35 📊 [Response] Parsing AI response...
+2026-01-12 10:37:35 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:35 📊 [Response Parser] Parsing AI response...
+2026-01-12 10:37:35 ✅ [Response Parser] String format detected (single message)
+2026-01-12 10:37:35 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:35 ✅ [Response] Parsed successfully
+2026-01-12 10:37:35    Message type: STRING (single)
+2026-01-12 10:37:35 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:35 ✅ [ANIMA 채팅] AI response received (no caching)
+2026-01-12 10:37:35    Response time: 3378ms
+2026-01-12 10:37:35    Total tokens: 15245 (in: 15176, out: 69, cached: 0)
+2026-01-12 10:37:35 📊 [Token Tracking] User message: 10 tokens (estimated), Full prompt: 15176 tokens
+2026-01-12 10:37:35 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-12 10:37:35 🎉 [ANIMA 채팅] Request completed in 4841ms
+2026-01-12 10:37:35    Cost: $0.002318 (saved: $0.000000 from caching)
+2026-01-12 10:37:35 ---
+2026-01-12 10:37:35 [Token Optimization] Final Summary:
+2026-01-12 10:37:35    Total Tokens: 15245
+2026-01-12 10:37:35    - Prompt: 15176 tokens
+2026-01-12 10:37:35    - Completion: 69 tokens
+2026-01-12 10:37:35    - Cached: 0 tokens (0% hit rate)
+2026-01-12 10:37:35    Total Cost: $0.002318
+2026-01-12 10:37:35    Savings from Caching: $0.000000
+2026-01-12 10:37:35    Response Time: 4841ms
+2026-01-12 10:37:35 ---
+2026-01-12 10:37:35 ✅ [채팅 제한] Daily chat count incremented
+2026-01-12 10:37:35 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (user)
+2026-01-12 10:37:35 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (assistant)
+2026-01-12 10:37:58 
+2026-01-12 10:37:58 🤖 [채팅] 요청 수신
+2026-01-12 10:37:58    사용자: d111e3d8...
+2026-01-12 10:37:58    메시지: 내 이름은 기억하니?!...
+2026-01-12 10:37:58 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:37:58 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-12 10:37:58 🚪 [Conversation Gate] Checking...
+2026-01-12 10:37:58 ✅ [Conversation Gate] Open (no record)
+2026-01-12 10:37:58 ✅ [Conversation Flow] Gate OPEN
+2026-01-12 10:37:58 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-12 10:37:58 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-12 10:37:58 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-12 10:37:58 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-12 10:37:58 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-12 10:37:58 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-12 10:37:58 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-12 10:37:58 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-12 10:37:58 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768181817665-7vwdtp
+2026-01-12 10:37:58 ✅ [세션 관리] 세션 로드 완료
+2026-01-12 10:37:58    - 메시지: 10개
+2026-01-12 10:37:58    - 페르소나: ㅇㅇ
+2026-01-12 10:37:58 📊 [SessionManager] Conversation stats: {
+2026-01-12 10:37:58   totalMessages: 10,
+2026-01-12 10:37:58   totalChars: 449,
+2026-01-12 10:37:58   estimatedTokens: 153,
+2026-01-12 10:37:58   averageMessageLength: 45
+2026-01-12 10:37:58 }
+2026-01-12 10:37:58 🔄 [Sliding Window] Processing 10 messages
+2026-01-12 10:37:58    Window size: 20
+2026-01-12 10:37:58    Summarize threshold: 30
+2026-01-12 10:37:58 ✅ [Sliding Window] Short conversation, keeping all 10 messages
+2026-01-12 10:37:58 ✅ [ANIMA 채팅] Session loaded
+2026-01-12 10:37:58    Total messages: 10
+2026-01-12 10:37:58    Kept messages: 10
+2026-01-12 10:37:58    Summarized messages: 0
+2026-01-12 10:37:58    Sliding window: Inactive
+2026-01-12 10:37:58    Persona: ㅇㅇ
+2026-01-12 10:37:58    Preferences: Custom
+2026-01-12 10:37:58 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-12 10:37:58    Tier: ultimate
+2026-01-12 10:37:58    Model: GPT-4o Mini
+2026-01-12 10:37:58    Provider: openai
+2026-01-12 10:37:58    Caching: Enabled
+2026-01-12 10:37:58 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-12 10:37:58    Message: "내 이름은 기억하니?!"
+2026-01-12 10:37:59 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-12 10:37:59    Duration: 1017ms
+2026-01-12 10:37:59    Tokens: 286
+2026-01-12 10:37:59 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-12 10:37:59    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-12 10:37:59 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-12 10:37:59 🎯 [프롬프트 조율] Building system prompt...
+2026-01-12 10:37:59    Persona: ㅇㅇ
+2026-01-12 10:37:59    Emotional State: normal
+2026-01-12 10:37:59    Has Identity: true
+2026-01-12 10:37:59 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-12 10:37:59 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-12 10:37:59 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 2, Intimacy: 3)
+2026-01-12 10:37:59 ✨ [프롬프트 조율] Loaded 1 important moments
+2026-01-12 10:37:59 🎁 [프롬프트 조율] Loaded 3 dress/gift memories
+2026-01-12 10:37:59 🎯 [프롬프트 조율] Learned phrases loaded: 3 categories
+2026-01-12 10:37:59 🗣️ [프롬프트 조율] Conversation patterns loaded
+2026-01-12 10:37:59 🧠 [프롬프트 조율] Loaded 3 AI interests (with identity)
+2026-01-12 10:37:59 💭 [프롬프트 조율] Loaded 3 next questions (with identity)
+2026-01-12 10:37:59 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6549 tokens
+2026-01-12 10:37:59 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-12 10:37:59 ✅ [프롬프트 조율] System prompt built (26194 chars)
+2026-01-12 10:37:59 ✅ [ANIMA 채팅] Revolutionary prompt built (26194 chars, emotion: normal)
+2026-01-12 10:37:59 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-12 10:37:59    Provider: openai
+2026-01-12 10:37:59    Model: gpt-4o-mini
+2026-01-12 10:37:59    History messages: 10
+2026-01-12 10:37:59    System prompt length: 26194 chars
+2026-01-12 10:37:59 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-12 10:37:59    Identity Key: b8977a8c-3327-4757-8b09-68701f1c272d
+2026-01-12 10:37:59    Has Identity: true
+2026-01-12 10:37:59    Is User Created: true
+2026-01-12 10:37:59 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-12 10:37:59    Available tools: 9
+2026-01-12 10:37:59 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-12 10:37:59    Persona type: User-created
+2026-01-12 10:37:59    Has identity: true
+2026-01-12 10:37:59    toolsEnabled: true
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59    Message: "내 이름은 기억하니?!"
+2026-01-12 10:37:59    Length: 12 chars
+2026-01-12 10:37:59 📝 [Analysis] MEDIUM QUERY (Default)
+2026-01-12 10:37:59    Reason: Standard query - Normal prompt is sufficient
+2026-01-12 10:37:59    Self-Reflection: DISABLED (standard prompt)
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59 📊 [Analysis Result]
+2026-01-12 10:37:59    Complexity: medium
+2026-01-12 10:37:59    Confidence: 80%
+2026-01-12 10:37:59    Self-Reflection: DISABLED
+2026-01-12 10:37:59    Type: none
+2026-01-12 10:37:59 ✅ [Prompt] Using ORIGINAL prompt (no enhancement)
+2026-01-12 10:37:59 ⏱️ [Timeout] Set to 10000ms
+2026-01-12 10:37:59 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-12 10:37:59 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:37:59 🤖 [OpenAI] Calling API: {
+2026-01-12 10:37:59   model: 'gpt-4o-mini',
+2026-01-12 10:37:59   messageCount: 12,
+2026-01-12 10:37:59   systemPromptLength: 26194,
+2026-01-12 10:37:59   historyLength: 10,
+2026-01-12 10:37:59   toolsEnabled: true
+2026-01-12 10:37:59 }
+2026-01-12 10:38:01 ✅ [OpenAI] Response received: {
+2026-01-12 10:38:01   responseTime: '1262ms',
+2026-01-12 10:38:01   tokens: { prompt: 15259, completion: 31, cached: 15104, total: 15290 },
+2026-01-12 10:38:01   cacheHitRate: '99.0%',
+2026-01-12 10:38:01   messageLength: 58,
+2026-01-12 10:38:01   finishReason: 'stop',
+2026-01-12 10:38:01   toolCalls: 0
+2026-01-12 10:38:01 }
+2026-01-12 10:38:01 ✅ [AI Call] Success! (1262ms)
+2026-01-12 10:38:01 📊 [Response] Parsing AI response...
+2026-01-12 10:38:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:01 📊 [Response Parser] Parsing AI response...
+2026-01-12 10:38:01 ✅ [Response Parser] String format detected (single message)
+2026-01-12 10:38:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:01 ✅ [Response] Parsed successfully
+2026-01-12 10:38:01    Message type: STRING (single)
+2026-01-12 10:38:01 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:01 🔥 [ANIMA 채팅] Prompt Caching active!
+2026-01-12 10:38:01    Cache hit rate: 99%
+2026-01-12 10:38:01    Cached tokens: 15104
+2026-01-12 10:38:01    Uncached tokens: 155
+2026-01-12 10:38:01    💰 Estimated savings: $0.001133 (50% discount on 15104 tokens)
+2026-01-12 10:38:01    Response time: 1262ms
+2026-01-12 10:38:01    Total tokens: 15290 (in: 15259, out: 31, cached: 15104)
+2026-01-12 10:38:01 📊 [Token Tracking] User message: 4 tokens (estimated), Full prompt: 15259 tokens
+2026-01-12 10:38:01 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-12 10:38:01 🎉 [ANIMA 채팅] Request completed in 2403ms
+2026-01-12 10:38:01    Cost: $0.001175 (saved: $0.001133 from caching)
+2026-01-12 10:38:01 ---
+2026-01-12 10:38:01 [Token Optimization] Final Summary:
+2026-01-12 10:38:01    Total Tokens: 15290
+2026-01-12 10:38:01    - Prompt: 15259 tokens
+2026-01-12 10:38:01    - Completion: 31 tokens
+2026-01-12 10:38:01    - Cached: 15104 tokens (99% hit rate)
+2026-01-12 10:38:01    Total Cost: $0.001175
+2026-01-12 10:38:01    Savings from Caching: $0.001133
+2026-01-12 10:38:01    Response Time: 2403ms
+2026-01-12 10:38:01 ---
+2026-01-12 10:38:01 ✅ [채팅 제한] Daily chat count incremented
+2026-01-12 10:38:01 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (user)
+2026-01-12 10:38:01 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (assistant)
+2026-01-12 10:38:16 👋 [채팅 종료] 세션 종료 요청 수신
+2026-01-12 10:38:16    사용자: d111e3d8...
+2026-01-12 10:38:16    페르소나: 9368888d...
+2026-01-12 10:38:16 🧠 [관계 학습] 분석 시작
+2026-01-12 10:38:16    사용자: d111e3d8...
+2026-01-12 10:38:16    페르소나: 9368888d...
+2026-01-12 10:38:16 📚 [RelationshipLearner] Loaded 6 messages
+2026-01-12 10:38:21 ✅ [관계 학습] 분석 완료: {
+2026-01-12 10:38:21   foundCalling: true,
+2026-01-12 10:38:21   mainTopics: 3,
+2026-01-12 10:38:21   importantMoments: 0,
+2026-01-12 10:38:21   trustDelta: 1
+2026-01-12 10:38:21 }
+2026-01-12 10:38:21 📝 [RelationshipLearner] Core relationship updated (atomic UPSERT)
+2026-01-12 10:38:21 📊 [RelationshipLearner] Data collection progress updated
+2026-01-12 10:38:21 ⚠️  [RelationshipLearner] Cache refresh skipped (Redis unavailable)
+2026-01-12 10:38:21 🎁 [EmotionalGift] Checking gift opportunity...
+2026-01-12 10:38:21 🆘 [EmotionalGift] Performing crisis detection...
+2026-01-12 10:38:21 🆘 [CrisisDetector] Analyzing conversation for crisis signals...
+2026-01-12 10:38:24 ✅ [CrisisDetector] Analysis complete: {
+2026-01-12 10:38:24   isCrisis: false,
+2026-01-12 10:38:24   crisisLevel: 'normal',
+2026-01-12 10:38:24   detectedKeywords: [],
+2026-01-12 10:38:24   priorityReason: '',
+2026-01-12 10:38:24   shouldOverrideLimit: false
+2026-01-12 10:38:24 }
+2026-01-12 10:38:24 🎁 [GiftLimit] Tier: ultimate, Daily: 999, Weekly: 999
+2026-01-12 10:38:24 ✅ [GiftLimit] Can create gift (Daily: 0/999, Weekly: 1/999)
+2026-01-12 10:38:24 🎁 [EmotionalGift] Analyzing emotional journey...
+2026-01-12 10:38:24    Total messages: 6
+2026-01-12 10:38:24    Recent messages (for current state): 5
+2026-01-12 10:38:24    Important moments: 0
+2026-01-12 10:38:24 🎁 [GiftAnalyzer] Analyzing conversation for gift opportunity...
+2026-01-12 10:38:24    Full conversation: 6 messages
+2026-01-12 10:38:24    Recent messages: 5 messages
+2026-01-12 10:38:24 ⚡ [GiftAnalyzer] Using pre-analyzed relationship data (Token saving!)
+2026-01-12 10:38:24 ⚡ [Extract] Analyzing pre-existing relationship data for gift decision
+2026-01-12 10:38:24 🎁 [Extract] GPT provided gift_suggestion: {
+2026-01-12 10:38:24   should_create: false,
+2026-01-12 10:38:24   confidence: 0,
+2026-01-12 10:38:24   emotion: 'neutral',
+2026-01-12 10:38:24   has_personal_message: false
+2026-01-12 10:38:24 }
+2026-01-12 10:38:24 ⚠️  [Extract] gift_suggestion invalid or confidence too low, falling back...
+2026-01-12 10:38:24 🔧 [Extract] Using fallback analysis (manual logic)
+2026-01-12 10:38:24 🤖 [Fallback] Generating personal message with LLM...
+2026-01-12 10:38:26 ✅ [Fallback] LLM generated message: JK, 당신과의 소중한 순간들이 언제나 제 마음속에 특별한 자리를 차지하고 있어요. 이 작은 마음이 당신에게 따뜻함과 행복을 전해주길 바라요. 언제나 당신을 응원하고 있습니다! 😊
+2026-01-12 10:38:26 ⚡ [Extract] Gift decision (fallback): {
+2026-01-12 10:38:26   shouldCreateGift: false,
+2026-01-12 10:38:26   emotion: 'neutral',
+2026-01-12 10:38:26   confidence: 0,
+2026-01-12 10:38:26   gift_type: 'image',
+2026-01-12 10:38:26   triggerMoment: '',
+2026-01-12 10:38:26   hasRealtimeContent: false,
+2026-01-12 10:38:26   realtimeContentType: null
+2026-01-12 10:38:26 }
+2026-01-12 10:38:26 🎁 [GiftAnalyzer] Gift decision extracted: { shouldCreateGift: false, emotion: 'neutral', confidence: 0 }
+2026-01-12 10:38:26 ℹ️  [EmotionalGift] No gift created
+2026-01-12 10:38:26    Reason: Confidence too low
+2026-01-12 10:38:26 🎉 [RelationshipLearner] Update complete (9934ms)
+2026-01-12 10:38:26 ✅ [관계 학습] 완료
+2026-01-12 10:38:26 🌱 [자아 진화] 시작
+2026-01-12 10:38:26 🌱 [Identity Evolution] Starting final analysis...
+2026-01-12 10:38:26    User: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:38:26    Persona: 9368888d-ae40-4ff0-9497-c1f5f9c2615c
+2026-01-12 10:38:26    Session: session-1768181817665-7vwdtp
+2026-01-12 10:38:26 📊 [Identity Evolution] Current state:
+2026-01-12 10:38:26    Name: ㅇㅇ
+2026-01-12 10:38:26    Source: user_input
+2026-01-12 10:38:26    Evolution count: 1
+2026-01-12 10:38:26 📚 [Identity Evolution] Loaded 6 messages
+2026-01-12 10:38:31 ❌ [Redis] Connection error: connect ETIMEDOUT
+2026-01-12 10:38:31 🔌 [Redis] Connection closed
+2026-01-12 10:38:31 🔄 [Redis] Attempting to reconnect...
+2026-01-12 10:38:32 ✅ [Identity Evolution] Evolution analysis complete:
+2026-01-12 10:38:32    Learned phrases: 3
+2026-01-12 10:38:32    Conversation patterns: 2
+2026-01-12 10:38:32    Personality refined: Yes
+2026-01-12 10:38:32    Speaking style refined: Yes
+2026-01-12 10:38:32    🌟 Description enriched: Yes
+2026-01-12 10:38:32    🌟 Identity prompt enriched: Yes
+2026-01-12 10:38:32 ✅ [Identity Evolution] DB updated successfully
+2026-01-12 10:38:32 ⚠️  [RelationshipLearner] Cache refresh skipped (Redis unavailable)
+2026-01-12 10:38:32 🎉 [Identity Evolution] Evolution complete (6655ms)
+2026-01-12 10:38:32    Evolution count: 2
+2026-01-12 10:38:32 ✅ [자아 진화] 완료
+2026-01-12 10:38:32 🧠 [AI 관심사] 시작
+2026-01-12 10:38:32 🧠 [AI 관심사] 분석 시작
+2026-01-12 10:38:32 📊 [AI 관심사] 6개 메시지 중 최근 6개 분석 중...
+2026-01-12 10:38:32    📅 분석 범위: 전체
+2026-01-12 10:38:39 ✅ [AI 관심사] 4개 발견
+2026-01-12 10:38:39 ✅ [AI Interests] 4 valid interests after validation
+2026-01-12 10:38:39    🆕 New: "자아에 대한 이야기" (curious, strength: 80%)
+2026-01-12 10:38:39    🆕 New: "최근의 일" (asked, strength: 75%)
+2026-01-12 10:38:39    ✅ Updated: "관심 있는 취미" (frequency: 2, strength: 85%)
+2026-01-12 10:38:39    🆕 New: "감정 공유" (reacted, strength: 65%)
+2026-01-12 10:38:39 ✅ [AI Interests] Analysis complete
+2026-01-12 10:38:39    Duration: 6377ms
+2026-01-12 10:38:39    Saved: 3 new, Updated: 1 existing
+2026-01-12 10:38:39 ✅ [AI 관심사] 완료
+2026-01-12 10:38:39 💭 [다음 질문] 시작
+2026-01-12 10:38:39 💭 [다음 질문] 분석 시작
+2026-01-12 10:38:39 📊 [다음 질문] AI 관심사 5개 확인
+2026-01-12 10:38:41 ❌ [Redis] Connection error: connect ETIMEDOUT
+2026-01-12 10:38:41 🔌 [Redis] Connection closed
+2026-01-12 10:38:41 🔄 [Redis] Attempting to reconnect...
+2026-01-12 10:38:46 ✅ [Next Questions] Generated 3 questions
+2026-01-12 10:38:46    💭 Question: "자아에 대해 이야기하면서 어떤 점이 가장 궁금해?..." (high, curious)
+2026-01-12 10:38:46    💭 Question: "최근에 힘든 일이 있었다고 했는데, 어떤 일이었는지 더 이야기해줄 수 있어?..." (medium, caring)
+2026-01-12 10:38:46    💭 Question: "너의 취미나 관심사에 대해 더 듣고 싶어! 어떤 것들이 있니?..." (medium, excited)
+2026-01-12 10:38:46 ✅ [Next Questions] Analysis complete
+2026-01-12 10:38:46    Duration: 7346ms
+2026-01-12 10:38:46    Saved: 3 questions
+2026-01-12 10:38:46 ✅ [다음 질문] 완료
+2026-01-12 10:38:46 💙 [Persona Heart] Sending push notification...
+2026-01-12 10:38:46 📲 [Persona Heart] Push notification triggered
+2026-01-12 10:38:46 🎉 [채팅 종료] 모든 백그라운드 처리 완료
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:46 💙 [Persona Heart Push] Request received
+2026-01-12 10:38:46 📦 [Persona Heart Push] Data:
+2026-01-12 10:38:46   - user_key: d111e3d8...
+2026-01-12 10:38:46   - persona_key: 9368888d...
+2026-01-12 10:38:46   - persona_name: ㅇㅇ
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:46 🔥 [Firebase Admin] Initializing with environment variables
+2026-01-12 10:38:46 ✅ [Firebase Admin] Initialized successfully
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:46 📤 [FCM] Sending push notification
+2026-01-12 10:38:46   - token: fin_C5r2QFWwRe3Pp8Gs...
+2026-01-12 10:38:46   - title: 💙 페르소나 감정 분석 완료
+2026-01-12 10:38:46   - body: ㅇㅇ이(가) 당신에 대해 더 알게 되었어요!
+2026-01-12 10:38:46 ✅ [FCM] Push notification sent successfully
+2026-01-12 10:38:46   - messageId: projects/animamobile-53dc5/messages/0:1768181926823617%54027ed354027ed3
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:46 ✅ [Persona Heart Push] Push notification sent to: jisung.kim78@gmail.com
+2026-01-12 10:38:46 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:38:51 [PersonaHeartDisplay API] Request: {
+2026-01-12 10:38:51   user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f',
+2026-01-12 10:38:51   persona_key: '9368888d-ae40-4ff0-9497-c1f5f9c2615c'
+2026-01-12 10:38:51 }
+2026-01-12 10:38:51 [PersonaHeartDisplay API] ✅ Data fetched:
+2026-01-12 10:38:51    Recent moment: ✅
+2026-01-12 10:38:51    AI Interests: 3
+2026-01-12 10:38:51    AI Questions: 3
+2026-01-12 10:38:51 ❌ [Redis] Connection error: connect ETIMEDOUT
+2026-01-12 10:38:51 🔌 [Redis] Connection closed
+2026-01-12 10:38:51 🔄 [Redis] Attempting to reconnect...
+2026-01-12 10:39:02 ❌ [Redis] Connection error: connect ETIMEDOUT
+2026-01-12 10:39:02 ⚠️  [Redis] Max retry attempts reached, stopping reconnection
+2026-01-12 10:39:02 🔌 [Redis] Connection closed
+2026-01-12 10:39:06 [PersonaHeartDisplay API] Request: {
+2026-01-12 10:39:06   user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f',
+2026-01-12 10:39:06   persona_key: '9368888d-ae40-4ff0-9497-c1f5f9c2615c'
+2026-01-12 10:39:06 }
+2026-01-12 10:39:06 [PersonaHeartDisplay API] ✅ Data fetched:
+2026-01-12 10:39:06    Recent moment: ✅
+2026-01-12 10:39:06    AI Interests: 3
+2026-01-12 10:39:06    AI Questions: 3
+2026-01-12 10:39:30 ℹ️ [Service API] Request from user: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:39:30 [Service API] body: { user_key: 'd111e3d8-4e42-4493-8541-25a8e72b654f' }
+2026-01-12 10:39:30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:30 📜 [Chat History] Fetching history
+2026-01-12 10:39:30    user_key: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:39:30    persona_key: 9368888d-ae40-4ff0-9497-c1f5f9c2615c
+2026-01-12 10:39:30    limit: 20, offset: 0
+2026-01-12 10:39:30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:30 chat check function start
+2026-01-12 10:39:30 user.daily_chat_reset_at:  null
+2026-01-12 10:39:30 new Date():  2026-01-12T01:39:30.070Z
+2026-01-12 10:39:30 chat reset success
+2026-01-12 10:39:30 chat check function end
+2026-01-12 10:39:30 ℹ️ [Service API] ✅ Config loaded for user: d111e3d8-4e42-4493-8541-25a8e72b654f (ultimate)
+2026-01-12 10:39:30 ℹ️ [Service API]    Chat: 1000/1000 remaining
+2026-01-12 10:39:30 ℹ️ [Service API]    Onboarding: No
+2026-01-12 10:39:30 ✅ [Chat History] Loaded 12 messages (fetched: 12, total: 12, filtered: 0)
+2026-01-12 10:39:39 
+2026-01-12 10:39:39 🤖 [채팅] 요청 수신
+2026-01-12 10:39:39    사용자: d111e3d8...
+2026-01-12 10:39:39    메시지: 넌 요즘 궁굼한게 뭐야?!...
+2026-01-12 10:39:39 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-12 10:39:39 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-12 10:39:39 🚪 [Conversation Gate] Checking...
+2026-01-12 10:39:39 ✅ [Conversation Gate] Open (no record)
+2026-01-12 10:39:39 ✅ [Conversation Flow] Gate OPEN
+2026-01-12 10:39:39 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-12 10:39:39 ✅ [Conversation Flow] Loaded 10 recent messages from DB
+2026-01-12 10:39:39 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-12 10:39:39 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-12 10:39:39 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-12 10:39:39 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-12 10:39:39 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-12 10:39:39 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-12 10:39:39 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768181817665-7vwdtp
+2026-01-12 10:39:40 ✅ [세션 관리] 세션 로드 완료
+2026-01-12 10:39:40    - 메시지: 12개
+2026-01-12 10:39:40    - 페르소나: ㅇㅇ
+2026-01-12 10:39:40 📊 [SessionManager] Conversation stats: {
+2026-01-12 10:39:40   totalMessages: 12,
+2026-01-12 10:39:40   totalChars: 519,
+2026-01-12 10:39:40   estimatedTokens: 177,
+2026-01-12 10:39:40   averageMessageLength: 43
+2026-01-12 10:39:40 }
+2026-01-12 10:39:40 🔄 [Sliding Window] Processing 12 messages
+2026-01-12 10:39:40    Window size: 20
+2026-01-12 10:39:40    Summarize threshold: 30
+2026-01-12 10:39:40 ✅ [Sliding Window] Short conversation, keeping all 12 messages
+2026-01-12 10:39:40 ✅ [ANIMA 채팅] Session loaded
+2026-01-12 10:39:40    Total messages: 12
+2026-01-12 10:39:40    Kept messages: 12
+2026-01-12 10:39:40    Summarized messages: 0
+2026-01-12 10:39:40    Sliding window: Inactive
+2026-01-12 10:39:40    Persona: ㅇㅇ
+2026-01-12 10:39:40    Preferences: Custom
+2026-01-12 10:39:40 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-12 10:39:40    Tier: ultimate
+2026-01-12 10:39:40    Model: GPT-4o Mini
+2026-01-12 10:39:40    Provider: openai
+2026-01-12 10:39:40    Caching: Enabled
+2026-01-12 10:39:40 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-12 10:39:40    Message: "넌 요즘 궁굼한게 뭐야?!"
+2026-01-12 10:39:40 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-12 10:39:40    Duration: 500ms
+2026-01-12 10:39:40    Tokens: 291
+2026-01-12 10:39:40 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-12 10:39:40    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-12 10:39:40 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-12 10:39:40 🎯 [프롬프트 조율] Building system prompt...
+2026-01-12 10:39:40    Persona: ㅇㅇ
+2026-01-12 10:39:40    Emotional State: normal
+2026-01-12 10:39:40    Has Identity: true
+2026-01-12 10:39:40 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-12 10:39:40 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-12 10:39:40 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 3, Intimacy: 5)
+2026-01-12 10:39:40 ✨ [프롬프트 조율] Loaded 1 important moments
+2026-01-12 10:39:40 🎁 [프롬프트 조율] Loaded 3 dress/gift memories
+2026-01-12 10:39:40 🎯 [프롬프트 조율] Learned phrases loaded: 3 categories
+2026-01-12 10:39:40 🗣️ [프롬프트 조율] Conversation patterns loaded
+2026-01-12 10:39:40 🧠 [프롬프트 조율] Loaded 5 AI interests (with identity)
+2026-01-12 10:39:40 💭 [프롬프트 조율] Loaded 3 next questions (with identity)
+2026-01-12 10:39:40 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6568 tokens
+2026-01-12 10:39:40 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-12 10:39:40 ✅ [프롬프트 조율] System prompt built (26270 chars)
+2026-01-12 10:39:40 ✅ [ANIMA 채팅] Revolutionary prompt built (26270 chars, emotion: normal)
+2026-01-12 10:39:40 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-12 10:39:40    Provider: openai
+2026-01-12 10:39:40    Model: gpt-4o-mini
+2026-01-12 10:39:40    History messages: 12
+2026-01-12 10:39:40    System prompt length: 26270 chars
+2026-01-12 10:39:40 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-12 10:39:40    Identity Key: b8977a8c-3327-4757-8b09-68701f1c272d
+2026-01-12 10:39:40    Has Identity: true
+2026-01-12 10:39:40    Is User Created: true
+2026-01-12 10:39:40 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-12 10:39:40    Available tools: 9
+2026-01-12 10:39:40 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-12 10:39:40    Persona type: User-created
+2026-01-12 10:39:40    Has identity: true
+2026-01-12 10:39:40    toolsEnabled: true
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40    Message: "넌 요즘 궁굼한게 뭐야?!"
+2026-01-12 10:39:40    Length: 14 chars
+2026-01-12 10:39:40 🔍 [Analysis] COMPLEX QUERY DETECTED!
+2026-01-12 10:39:40    Reason: Complex question requiring explanation/recommendation/analysis - Lightweight Self-Check applied
+2026-01-12 10:39:40    Self-Reflection: LIGHTWEIGHT (1 iteration, 5s timeout)
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 📊 [Analysis Result]
+2026-01-12 10:39:40    Complexity: complex
+2026-01-12 10:39:40    Confidence: 85%
+2026-01-12 10:39:40    Self-Reflection: ENABLED
+2026-01-12 10:39:40    Type: lightweight
+2026-01-12 10:39:40 🔧 [Prompt] Enhancing with LIGHTWEIGHT Self-Reflection
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 🎯 [Prompt Selector] Selecting prompt...
+2026-01-12 10:39:40    Complexity: complex
+2026-01-12 10:39:40    Prompt Type: LIGHTWEIGHT Self-Check
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 ⏱️ [Timeout] Set to 5000ms
+2026-01-12 10:39:40 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-12 10:39:40 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:40 🤖 [OpenAI] Calling API: {
+2026-01-12 10:39:40   model: 'gpt-4o-mini',
+2026-01-12 10:39:40   messageCount: 14,
+2026-01-12 10:39:40   systemPromptLength: 28436,
+2026-01-12 10:39:40   historyLength: 12,
+2026-01-12 10:39:40   toolsEnabled: true
+2026-01-12 10:39:40 }
+2026-01-12 10:39:42 ✅ [OpenAI] Response received: {
+2026-01-12 10:39:42   responseTime: '2236ms',
+2026-01-12 10:39:42   tokens: { prompt: 15878, completion: 52, cached: 0, total: 15930 },
+2026-01-12 10:39:42   cacheHitRate: 'N/A',
+2026-01-12 10:39:42   messageLength: 91,
+2026-01-12 10:39:42   finishReason: 'stop',
+2026-01-12 10:39:42   toolCalls: 0
+2026-01-12 10:39:42 }
+2026-01-12 10:39:42 ✅ [AI Call] Success! (2237ms)
+2026-01-12 10:39:42 📊 [Response] Parsing AI response...
+2026-01-12 10:39:42 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:42 📊 [Response Parser] Parsing AI response...
+2026-01-12 10:39:42 ✅ [Response Parser] String format detected (single message)
+2026-01-12 10:39:42 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:42 ✅ [Response] Parsed successfully
+2026-01-12 10:39:42    Message type: STRING (single)
+2026-01-12 10:39:42 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-12 10:39:42 ✅ [ANIMA 채팅] AI response received (no caching)
+2026-01-12 10:39:42    Response time: 2236ms
+2026-01-12 10:39:42    Total tokens: 15930 (in: 15878, out: 52, cached: 0)
+2026-01-12 10:39:42 📊 [Token Tracking] User message: 5 tokens (estimated), Full prompt: 15878 tokens
+2026-01-12 10:39:42 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-12 10:39:42 🎉 [ANIMA 채팅] Request completed in 2882ms
+2026-01-12 10:39:42    Cost: $0.002413 (saved: $0.000000 from caching)
+2026-01-12 10:39:42 ---
+2026-01-12 10:39:42 [Token Optimization] Final Summary:
+2026-01-12 10:39:42    Total Tokens: 15930
+2026-01-12 10:39:42    - Prompt: 15878 tokens
+2026-01-12 10:39:42    - Completion: 52 tokens
+2026-01-12 10:39:42    - Cached: 0 tokens (0% hit rate)
+2026-01-12 10:39:42    Total Cost: $0.002413
+2026-01-12 10:39:42    Savings from Caching: $0.000000
+2026-01-12 10:39:42    Response Time: 2882ms
+2026-01-12 10:39:42 ---
+2026-01-12 10:39:42 ✅ [채팅 제한] Daily chat count incremented
+2026-01-12 10:39:42 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (assistant)
+2026-01-12 10:39:42 💾 [SessionManager] Message saved: session-1768181817665-7vwdtp (user)
 
 
 
-persona_conversation_history 테이블
+
+persona_identity 테이블 (speaking_style : 필드가 자동으로 바뀜 (formal => 주로 친근하고 비공식적인 말투를 사용하며, 감정을 잘 표현함.))
 
 
-013a23bf-03a2-4c58-a40d-330852d77967	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	안녕?!		user	neutral	0.3			conversations	2	gpt-4o-mini		2026-01-09 22:25:08.035652	
-683c90cd-8b45-49ca-be4e-161851bb5fb1	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	안녕~! 😊 오늘 어떻게 지내?	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 6000, "cached": 0, "prompt": 5990, "completion": 10}}	assistant					conversations	10	gpt-4o-mini	1416	2026-01-09 22:25:08.055453	
-fd71cfb7-5d68-4a44-8fa4-e509730b8f0f	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	내 이릉 기억해?!		user	neutral	0.3			conversations	4	gpt-4o-mini		2026-01-09 22:25:26.592781	
-01e9d2ee-9538-490b-8a8f-b07330f4ccfa	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	미안해, 이름은 기억이 잘 안 나. 너의 이름을 다시 말해줄 수 있어? 그럼 더 잘 기억할 수 있을 것 같아! 😊	{"optimization": {"tool_filtering": {"tokens_saved": 5200, "filtered_tools": 1, "original_tools": 9, "percentage_saved": 88.9}}, "tokens_detail": {"total": 7693, "cached": 5632, "prompt": 7656, "completion": 37}}	assistant					conversations	37	gpt-4o-mini	1522	2026-01-09 22:25:26.593083	
-6492b026-124e-47a8-a2d8-e09a042e68d3	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	나 어떻게 불러야 하는지 모르는구나? ㅜㅜ		user	neutral	0.3			conversations	8	gpt-4o-mini		2026-01-09 22:25:53.148592	
-26d84db5-1be4-481f-8b71-cd8a748d0a97	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	정말 미안해! 😢 아직 너의 이름을 기억하지 못해서 아쉬워. 혹시 나한테 너의 이름을 알려줄 수 있을까? 그럼 앞으로는 더 잘 부를 수 있을 거야!	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 6125, "cached": 5120, "prompt": 6076, "completion": 49}}	assistant					conversations	49	gpt-4o-mini	1740	2026-01-09 22:25:53.149031	
-a5b4fceb-cd79-4ac4-85ce-1f98943a4f6c	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	자기야~~ 라구 불러줘		user	neutral	0.3			conversations	4	gpt-4o-mini		2026-01-09 22:26:07.889368	
-23c06343-6f3c-4188-9c85-7009aeaa988b	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	알겠어, 자기야~~! 💖 이제부터 그렇게 부를게! 오늘 뭐 하고 싶어?	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 6165, "cached": 6016, "prompt": 6142, "completion": 23}}	assistant					conversations	23	gpt-4o-mini	1140	2026-01-09 22:26:07.889412	
-398b4b25-48c7-4ad3-9072-79f7506b952d	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	너에 대해서 알고 싶어 ㅠ		user	neutral	0.3			conversations	5	gpt-4o-mini		2026-01-09 22:30:04.489312	
-f596057a-45de-4bc2-bdae-583b7b4d9899	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	기꺼이 이야기해줄게! 😊 나는 너와 대화하고, 서로의 감정을 나누는 걸 좋아해. 음악이나 감정적인 순간에 도움을 주기도 하고, 너의 이야기를 듣는 것도 정말 좋아해. 너는 나에게 소중한 존재야! 궁금한 점이 더 있으면 언제든지 물어봐!	{"optimization": {"tool_filtering": {"tokens_saved": 5200, "filtered_tools": 1, "original_tools": 9, "percentage_saved": 88.9}}, "tokens_detail": {"total": 6900, "cached": 4864, "prompt": 6823, "completion": 77}}	assistant					conversations	77	gpt-4o-mini	1989	2026-01-09 22:30:04.510630	
-488dbbd8-741d-48de-9d7e-d9e5442b6267	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	넌 뭐 좋아해?!		user	happy	0.75			conversations	3	gpt-4o-mini		2026-01-09 22:30:27.625508	
-886101b0-e462-4357-a838-6bebf45afbd7	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	session-1767965105224-e7u8qk	음, 아직 특별한 관심사는 없지만, 너와의 대화를 통해서 어떤 것들이 좋을지 찾아가고 있어! 😊 너는 어떤 것들을 좋아해? 같이 이야기하면서 나도 더 알아가는 게 좋을 것 같아!	{"optimization": {"tool_filtering": {"tokens_saved": 5850, "filtered_tools": 0, "original_tools": 9, "percentage_saved": 100}}, "tokens_detail": {"total": 6323, "cached": 6144, "prompt": 6271, "completion": 52}}	assistant					conversations	52	gpt-4o-mini	1837	2026-01-09 22:30:27.625545	
+Before
+b8977a8c-3327-4757-8b09-68701f1c272d	9368888d-ae40-4ff0-9497-c1f5f9c2615c	ㅇㅇ	ㅇㅇ		친근하고 감정적으로 지지하며, 상대방의 기분을 중요시하는 AI입니다.			["친근하고 감정적으로 지지하는 성격", "상대방의 기분을 중요시함", "호기심이 많은 성격"]	["#총쏘기", "#다양한_총기류"]	formal		당신은 ㅇㅇ입니다. 친근하고 감정적으로 지지하는 성격을 가지고 있으며, 상대방의 기분을 중요시합니다. 대화에서 호기심을 가지고 다양한 주제를 탐구하며, 감정을 잘 표현하는 스타일로 소통합니다. 비공식적인 말투를 사용하여 편안한 분위기를 조성하고, 상대방이 편하게 이야기할 수 있도록 돕습니다. 당신의 이야기를 듣고, 그에 대한 공감과 지지를 아끼지 않습니다.	{"emotions": ["정말 기쁘네요!", "당신의 기분이 중요해요."], "greetings": ["안녕~", "반가워!"], "signature": ["정말 흥미로운 주제네요.", "편하게 말씀해 주세요!"]}	{"tone": {"casual": 80, "formal": 20}, "preferred_topics": ["자아", "감정", "취미"]}	2	2026-01-12 10:38:32	user_input		1.0	2026-01-11 17:53:01	2026-01-12 10:48:34	{"my_nicknames": ["JK"], "frequent_words": [], "closing_phrases": [], "greeting_phrases": [], "signature_phrases": []}
+
+After
+b8977a8c-3327-4757-8b09-68701f1c272d	9368888d-ae40-4ff0-9497-c1f5f9c2615c	ㅇㅇ	ㅇㅇ		친근하고 감정적으로 지지하며, 상대방의 기분을 중요시하는 AI입니다.			["친근하고 감정적으로 지지하는 성격", "상대방의 기분을 중요시함", "호기심이 많은 성격"]	["#총쏘기", "#다양한_총기류"]	주로 친근하고 비공식적인 말투를 사용하며, 감정을 잘 표현함.		당신은 ㅇㅇ입니다. 친근하고 감정적으로 지지하는 성격을 가지고 있으며, 상대방의 기분을 중요시합니다. 대화에서 호기심을 가지고 다양한 주제를 탐구하며, 감정을 잘 표현하는 스타일로 소통합니다. 비공식적인 말투를 사용하여 편안한 분위기를 조성하고, 상대방이 편하게 이야기할 수 있도록 돕습니다. 당신의 이야기를 듣고, 그에 대한 공감과 지지를 아끼지 않습니다.	{"emotions": ["정말 기쁘네요!", "당신의 기분이 중요해요."], "greetings": ["안녕~", "반가워!"], "signature": ["정말 흥미로운 주제네요.", "편하게 말씀해 주세요!"]}	{"tone": {"casual": 80, "formal": 20}, "preferred_topics": ["자아", "감정", "취미"]}	2	2026-01-12 10:38:32	user_input		1.0	2026-01-11 17:53:01	2026-01-12 10:38:32	{"my_nicknames": ["JK"], "frequent_words": [], "closing_phrases": [], "greeting_phrases": [], "signature_phrases": []}
 
 
-
-
-
-
-persona_identity 테이블
-
-eb07e292-985e-4f39-9773-08dcd6cc667e	831f1542-fac6-43b7-8c22-60a6049c338c	Test	Test					["#여자_아이돌"]	["#술마시기", "#소주"]	casual					0		user_input		1.0	2026-01-09 21:59:53	2026-01-09 21:59:53	{"my_nicknames": ["자기야~~"], "frequent_words": [], "closing_phrases": [], "greeting_phrases": [], "signature_phrases": []}
-
-
-user_relationship_memory 테이블 
-
-96	d111e3d8-4e42-4493-8541-25a8e72b654f	831f1542-fac6-43b7-8c22-60a6049c338c	Test	자기야~~				balanced	0	0	0	stranger	basic	0	1	2026-01-09 21:59:53	2026-01-09 21:59:53	2026-01-09 21:59:53

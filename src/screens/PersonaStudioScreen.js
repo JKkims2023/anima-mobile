@@ -84,6 +84,13 @@ const PersonaStudioScreen = () => {
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
   
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [PersonaStudioScreen] Render #${renderCountRef.current}`);
+  }
+  
   // ═══════════════════════════════════════════════════════════════════════
   // SCREEN DIMENSIONS & AVAILABLE HEIGHT CALCULATION
   // ═══════════════════════════════════════════════════════════════════════

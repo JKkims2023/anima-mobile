@@ -111,9 +111,9 @@ const PersonaHeartDisplay = ({ persona }) => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <View style={[styles.loadingContainer, { backgroundColor: theme.bgSecondary }]}>
+        <View style={[styles.loadingContainer, { backgroundColor: 'transparent' }]}>
           <ActivityIndicator size="large" color={theme.mainColor} />
-          <CustomText type="body" style={{ color: theme.textSecondary, marginTop: verticalScale(12) }}>
+          <CustomText type="body" style={{ display: 'none', color: theme.textSecondary, marginTop: verticalScale(12) }}>
             {t('persona_heart_display.loading') || '데이터 불러오는 중...'}
           </CustomText>
         </View>

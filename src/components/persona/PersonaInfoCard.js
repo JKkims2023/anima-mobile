@@ -26,8 +26,6 @@ import GradientOverlay from '../GradientOverlay';
 import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext';
 import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress bar color
-import FastImage from 'react-native-fast-image';
-import PersonaSettingsSheet from './PersonaSettingsSheet';
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
 import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
@@ -235,7 +233,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   return (
     <>
     <GradientOverlay
-      height={200} // ⭐ Increase height to fit pagination + content! (200 → 400)
+      height={170} // ⭐ Increase height to fit pagination + content! (200 → 400)
       style={styles.gradientStyle} // ⭐ LinearGradient styles (position, zIndex, etc.)
       containerStyle={[
         styles.gradientContainerStyle, // ⭐ Inner View styles (padding, etc.)
@@ -438,8 +436,9 @@ const styles = StyleSheet.create({
   
   // ⭐ GradientOverlay - Container styles (inner View)
   gradientContainerStyle: {
-    paddingTop: verticalScale(20),
+    paddingTop: verticalScale(0),  // check ios
     paddingHorizontal: scale(20),
+
   },
   
   // ⭐ Pagination Container (Clickable for scroll to top)
@@ -448,6 +447,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(0),
     paddingBottom: verticalScale(10), // Bottom padding for spacing
     marginBottom: verticalScale(2),
+
+
     // ⭐ NO border, NO background - Pure integration with gradient
   },
   
@@ -455,6 +456,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start', // ⭐ Changed from 'center' to 'flex-start' to prevent arrow from being pushed down
     width: '100%',
+
   },
   
   paginationLeft: {

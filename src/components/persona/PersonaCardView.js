@@ -74,6 +74,14 @@ const PersonaCardView = forwardRef(({
 }, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
+  
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [PersonaCardView] Render #${renderCountRef.current}, persona: ${persona?.persona_name}, isActive: ${isActive}`);
+  }
+  
   const [isFlipped, setIsFlipped] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [modeOpacityValue, setModeOpacityValue] = useState(1);

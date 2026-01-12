@@ -86,6 +86,12 @@ const PersonaSwipeViewer = forwardRef(({
   // ⭐ Use prop user first (from PersonaStudioScreen), fallback to context
   const user = userProp || userContext;
   
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [PersonaSwipeViewer] Render #${renderCountRef.current}, personas: ${personas?.length}`);
+  }
   
   const flatListRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);

@@ -22,6 +22,13 @@ const PersonaContext = createContext();
 const DEV_USER_KEY = '5e3ee6dd-7809-4f04-9cee-cc32bfaf0512';
 
 export const PersonaProvider = ({ children }) => {
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [PersonaContext] Render #${renderCountRef.current}`);
+  }
+  
   const [personas, setPersonas] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedPersona, setSelectedPersona] = useState(null); // ⭐ NEW: Direct persona storage

@@ -13,7 +13,7 @@
  * @date 2024-11-22
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { View, TouchableOpacity, Pressable, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -52,6 +52,12 @@ const QuickActionChipsAnimated = ({
   currentPersona = null,
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
+  // 🔥 PERFORMANCE DEBUG: Render counter
+  const renderCountRef = useRef(0);
+  renderCountRef.current++;
+  if (__DEV__) {
+    console.log(`🔥 [QuickActionChips] Render #${renderCountRef.current}, persona: ${currentPersona?.persona_name}`);
+  }
 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();

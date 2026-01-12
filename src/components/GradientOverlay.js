@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 20,
     // paddingBottom: Platform.OS === 'ios' ? 30 : 20,
     // paddingTop: 20,
+
   },
 });
 

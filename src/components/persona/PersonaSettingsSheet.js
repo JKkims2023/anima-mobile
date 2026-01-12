@@ -127,11 +127,6 @@ const PersonaSettingsSheet = ({
       buttons={
         [
         {
-          title: t('common.close'),
-          type: 'secondary',
-          onPress: onClose,
-        },
-        {
           title: t('common.confirm'),
           type: 'primary',
           onPress: onClose,
