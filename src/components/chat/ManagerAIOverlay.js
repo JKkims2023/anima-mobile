@@ -59,6 +59,7 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { useUser } from '../../contexts/UserContext';
 import { useAnima } from '../../contexts/AnimaContext'; // ⭐ NEW: Alert function
+import { usePersona } from '../../contexts/PersonaContext'; // 🎭 NEW: For identity update sync
 import { useMusicPlayer } from '../../hooks/useMusicPlayer'; // 🎵 NEW: Music player hook
 import useChatLimit from '../../hooks/useChatLimit'; // 💰 NEW: Chat limit hook
 import useIdentitySettings from '../../hooks/useIdentitySettings'; // 🎭 NEW: Identity settings hook
@@ -157,6 +158,7 @@ const ManagerAIOverlay = ({
   const { user } = useUser(); // ✅ Get user info from context
   const { showAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
   const { currentTheme } = useTheme();
+  const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
   const [messageVersion, setMessageVersion] = useState(0); // 🎯 NEW: Trigger FlashList updates for Smart Bubble system
@@ -395,6 +397,20 @@ const ManagerAIOverlay = ({
   useEffect(() => {
     const personaKey = persona?.persona_key || 'SAGE';
     
+    // 🔥 CRITICAL FIX: Sync personaRef with latest prop data when overlay opens!
+    // This ensures personaRef always has the most up-to-date persona data,
+    // even if PersonaContext updated after component mount
+    if (visible && persona) {
+      personaRef.current = persona;
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔄 [ManagerAIOverlay] personaRef synced with latest prop');
+      console.log('   persona_name:', persona.persona_name);
+      console.log('   persona_key:', persona.persona_key);
+      console.log('   done_yn:', persona.done_yn);
+      console.log('   identity_key:', persona.identity_key);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
     // 🔥 CRITICAL: Only load if user is fully loaded!
     if (!user || !user.user_key) {
       // ✅ FIX BUG 1: showNotLoginMessage now handles its own loading states!
@@ -422,7 +438,7 @@ const ManagerAIOverlay = ({
         loadChatHistory();
       }
     }
-  }, [visible, user, persona?.persona_key, currentPersonaKey]);
+  }, [visible, user, persona, persona?.persona_key, currentPersonaKey]); // ⭐ Added 'persona' to dependencies for full sync
   
   const handleCreateMusic = async () => {
     handleToggleSettings('music');
@@ -523,7 +539,7 @@ const ManagerAIOverlay = ({
 
         console.log('why not call here?')
         setIsLoading(true);
-        setIsTyping(true);
+//        setIsTyping(true);
       
         if(persona?.default_yn != 'Y') {
           if(!persona.identity_key || persona.identity_key === '') {
@@ -536,6 +552,7 @@ const ManagerAIOverlay = ({
         }
         // ✅ FIX BUG 4: showWelcomeMessage now handles its own loading states!
         setTimeout(() => {
+          setIsLoading(false);
           showWelcomeMessage();
         }, 3000);
 
@@ -1249,7 +1266,7 @@ const ManagerAIOverlay = ({
     handleClose();
   }, [handleClose]);
   
-  // 🎭 NEW: Handle identity save
+  // 🎭 NEW: Handle identity save (ENHANCED with Optimistic Update + Background Sync)
   const handleIdentitySave = useCallback(async (identityData) => {
     console.log('🎭 [Identity Creator] Saving identity:', identityData);
     
@@ -1274,21 +1291,61 @@ const ManagerAIOverlay = ({
       
       if (result.success) {
         console.log('✅ [Identity Creator] Identity saved successfully');
+        console.log('📦 [Identity Creator] API Response:', result.data);
         
+        // 🎯 1️⃣ OPTIMISTIC UPDATE: 즉시 로컬 persona 업데이트
+        // (사용자가 바로 채팅을 시작할 수 있도록)
+        if (personaRef.current) {
+          personaRef.current = {
+            ...personaRef.current,
+            identity_key: result.data?.identity_key || 'pending', // API 응답에서 받거나 임시 값
+            identity_name: identityData.persona_name,
+            identity_enabled: 'Y',
+            speaking_style: identityData.speaking_style,
+          };
+          console.log('🚀 [Identity Creator] Optimistic update applied to personaRef');
+          console.log('   identity_key:', personaRef.current.identity_key);
+          console.log('   identity_name:', personaRef.current.identity_name);
+        }
+        
+        // 🎯 2️⃣ BACKGROUND SYNC: PersonaContext 전체 동기화
+        // (다른 컴포넌트들도 최신 데이터를 받을 수 있도록)
+        setTimeout(async () => {
+          try {
+            console.log('🔄 [Identity Creator] Syncing PersonaContext in background...');
+            await initializePersonas();
+            console.log('✅ [Identity Creator] PersonaContext synced successfully');
+          } catch (syncError) {
+            console.error('⚠️ [Identity Creator] Context sync failed (non-critical):', syncError);
+            // Non-critical error: User can still chat, but other components might have stale data
+          }
+        }, 500); // 0.5초 후 백그라운드에서 동기화
+        
+        // 🎯 3️⃣ UI UPDATE: Identity creator 닫기 및 상태 초기화
         setIsInitializing(false);
-        // Show success message
-        const personaName = identityData.persona_name || persona?.persona_name || '페르소나';
-        showNotificationMessage(`🎉 ${personaName}의 영혼이 탄생했습니다! 이제 대화를 시작할게요!`, 2500);
+        setShowIdentityCreator(false); // ⭐ NEW: Identity Creator 자동 닫기
         
-        HapticService.success();
+        setMessages([]);
+
+        setIsLoading(true);
+        setTimeout(() => {
+
+          setIsLoading(false);
+          // Show success message
+          const personaName = identityData.persona_name || persona?.persona_name || '페르소나';
+          showNotificationMessage(`🎉 ${personaName}의 영혼이 탄생했습니다! 이제 대화를 시작할게요!`, 2500);
+        
+        }, 2000);
+ 
+
       } else {
         throw new Error(result.error?.error_code || 'Failed to save identity');
       }
     } catch (error) {
       console.error('❌ [Identity Creator] Save error:', error);
-      throw error;
+      throw error; // PersonaIdentityCreatorView가 에러 처리
     }
-  }, [user, persona, showNotificationMessage]);
+  }, [user, persona, showNotificationMessage, initializePersonas]); // ⭐ initializePersonas 추가
   
   const handleClose = useCallback(() => {
     const closeCallId = Date.now();

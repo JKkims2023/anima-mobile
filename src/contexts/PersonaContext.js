@@ -145,7 +145,22 @@ export const PersonaProvider = ({ children }) => {
 
   // ⭐ FIX: Use direct selectedPersona state (set by PersonaStudioScreen)
   // Fallback to personas[selectedIndex] if not set
-  const effectivePersona = selectedPersona || personas[selectedIndex] || null;
+  // 🔥 CRITICAL FIX: Memoize effectivePersona to maintain stable reference
+  const effectivePersona = useMemo(() => {
+    const result = selectedPersona || personas[selectedIndex] || null;
+    
+    if (__DEV__ && result) {
+      console.log('🎭 [PersonaContext] effectivePersona calculated:', {
+        source: selectedPersona ? 'direct' : 'from_array',
+        persona_name: result.persona_name,
+        persona_key: result.persona_key,
+        done_yn: result.done_yn,
+        identity_key: result.identity_key,
+      });
+    }
+    
+    return result;
+  }, [selectedPersona, personas, selectedIndex]);
 
   // 🔍 DEBUG: Log selectedPersona changes
   useEffect(() => {

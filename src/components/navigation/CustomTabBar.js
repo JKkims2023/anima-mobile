@@ -108,12 +108,21 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
+    // 🔥 CRITICAL FIX: Get LATEST persona from Context (force re-read!)
+    // This ensures we always have the most up-to-date persona data
+    // especially after push notifications or persona updates
+    const latestPersona = selectedPersona;
+    
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔍 [CustomTabBar] Center AI Button pressed');
-    console.log('🔍 [CustomTabBar] selectedPersona:', selectedPersona);
+    console.log('   selectedPersona:', latestPersona?.persona_name);
+    console.log('   persona_key:', latestPersona?.persona_key);
+    console.log('   done_yn:', latestPersona?.done_yn);
+    console.log('   identity_key:', latestPersona?.identity_key);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     // ✅ Open Manager AI Overlay (Universal Chat)
-
-    if(selectedPersona?.done_yn === 'N') {
-
+    if(latestPersona?.done_yn === 'N') {
       showAlert({
         emoji: '⌛',
         title: t('persona.creation.still_processing_title') || '페르소나 생성 중',
@@ -122,11 +131,9 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           { text: t('common.confirm'), style: 'primary', onPress: () => {} },
         ],
       });
-
     } else {
       setIsManagerOverlayVisible(true);
     }
-
   };
   
   // ✅ Handle Overlay Close
