@@ -97,7 +97,8 @@ const PersonaSwipeViewer = forwardRef(({
   const flatListRef = useRef(null);
   // 🔥 PERF FIX: Remove internal selectedIndex state (use initialIndex directly from props!)
   // Internal state was causing duplicate renders after scroll animation completes
-  const selectedIndex = initialIndex; // ← Use prop directly (no state!)
+  // 🔥 CRITICAL FIX: Default to 0 if initialIndex is undefined (prevents always-true comparisons!)
+  const selectedIndex = initialIndex ?? 0; // ← Use prop directly with fallback (no state!)
   const isInitialMount = useRef(true);
   const lastScrolledIndex = useRef(initialIndex);
   const { t } = useTranslation();
