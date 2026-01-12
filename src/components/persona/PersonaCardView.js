@@ -840,6 +840,11 @@ const arePropsEqual = (prevProps, nextProps) => {
     return false;
   }
   
+  // 🔥 PERFORMANCE FIX: Ignore function/object props (reference changes don't affect rendering)
+  // These props (onCheckStatus, onFlipChange, user, onMarkAsRead, modeOpacity) are functionally
+  // identical even if their references change on parent re-renders.
+  // Ignoring them prevents unnecessary re-renders when parent (PersonaSwipeViewer) updates.
+  
   // ✅ 나머지는 동일하다고 판단 (리렌더링 스킵)
   return true;
 };

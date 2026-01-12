@@ -388,7 +388,7 @@ const PersonaStudioScreen = () => {
       console.log('[PersonaStudioScreen] 🔔 Removing push event listener...');
       subscription.remove();
     };
-  }, [initializePersonas, currentPersonaIndex, setSelectedPersona, setSelectedIndex, showToast, t]);
+  }, [initializePersonas, setSelectedPersona, setSelectedIndex, showToast, t]); // 🔥 REMOVED: currentPersonaIndex (uses savedIndexRef instead!)
 
   
   // ═══════════════════════════════════════════════════════════════════════
@@ -438,21 +438,27 @@ const PersonaStudioScreen = () => {
   }, [currentFilteredPersonas]);
   
   // ═══════════════════════════════════════════════════════════════════════
-  // UPDATE CURRENT PERSONA ON INDEX CHANGE
+  // UPDATE CURRENT PERSONA WHEN PERSONA LIST CHANGES (e.g., add/delete)
   // ═══════════════════════════════════════════════════════════════════════
-  // ✅ FIX: useMemo → useEffect (setState는 side effect이므로 useEffect에서!)
+  // 🔥 PERFORMANCE FIX: Only update when persona LIST changes, not on every index change
+  // Index changes are now handled directly in handlePersonaChange to prevent double renders
   useEffect(() => {
     if (currentFilteredPersonas.length > 0) {
       const validIndex = Math.min(currentPersonaIndex, currentFilteredPersonas.length - 1);
-      setCurrentPersona(currentFilteredPersonas[validIndex]);
+      const targetPersona = currentFilteredPersonas[validIndex];
       
-      if (__DEV__) {
-        console.log('[PersonaStudioScreen] 🔄 Current persona updated:');
-        console.log('   Index:', validIndex);
-        console.log('   Persona:', currentFilteredPersonas[validIndex]?.persona_name);
+      // ✅ Only update if persona actually changed (prevents unnecessary renders)
+      if (currentPersona?.persona_key !== targetPersona?.persona_key) {
+        setCurrentPersona(targetPersona);
+        
+        if (__DEV__) {
+          console.log('[PersonaStudioScreen] 🔄 Current persona updated (list changed):');
+          console.log('   Index:', validIndex);
+          console.log('   Persona:', targetPersona?.persona_name);
+        }
       }
     }
-  }, [currentPersonaIndex, currentFilteredPersonas]);
+  }, [currentFilteredPersonas]); // 🔥 CRITICAL: Removed currentPersonaIndex dependency!
   
   // ═══════════════════════════════════════════════════════════════════════
   // ⭐ NEW: Check if current persona is video converting (메시지 작성 불가 조건)
@@ -504,10 +510,13 @@ const PersonaStudioScreen = () => {
     setCurrentPersonaIndex(newIndex);
     setSelectedIndex(newIndex); // Update index (legacy support)
     
-    // ⭐ NEW: Update actual persona object in PersonaContext
+    // 🔥 PERFORMANCE FIX: Update BOTH selectedPersona AND currentPersona together
+    // This prevents the useEffect from triggering an additional render
     const actualPersona = currentFilteredPersonas?.[newIndex];
     if (actualPersona) {
-      setSelectedPersona(actualPersona);
+      setSelectedPersona(actualPersona); // ← PersonaContext update
+      setCurrentPersona(actualPersona);  // ← Local state update (prevents useEffect trigger!)
+      
       if (__DEV__) {
         console.log('✅ [PersonaStudioScreen] Set selectedPersona:', actualPersona.persona_name);
         console.log('   persona_key:', actualPersona.persona_key);
