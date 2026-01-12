@@ -34,7 +34,7 @@ export const PersonaProvider = ({ children }) => {
   const [selectedPersona, setSelectedPersona] = useState(null); // ⭐ NEW: Direct persona storage
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser(); // 🔥 CRITICAL: Get loading state from UserContext
   
   // 🔥 CRITICAL FIX: Add ref for immediate access (bypasses React render cycle)
   // This ensures child components can always get the LATEST persona data
@@ -115,11 +115,31 @@ export const PersonaProvider = ({ children }) => {
     }
   }, [userKey]); // ⚡ CRITICAL FIX: Only depend on userKey, not entire user object!
 
-  // ⚡ PERFORMANCE FIX: Only initialize once on mount + when user changes
-  // DO NOT depend on initializePersonas itself to avoid infinite loops!
+  // 🔥 CRITICAL FIX: Wait for UserContext to complete auto-login before fetching personas
+  // This prevents the "flicker" effect where default personas (SAGE/Nexus) show first,
+  // then user personas appear after login completes
+  // 
+  // Flow:
+  // 1. App starts → UserContext loading = true (checking token...)
+  // 2. UserContext checks token → auto-login if token exists
+  // 3. UserContext loading = false (login complete OR no token confirmed)
+  // 4. PersonaContext THEN calls initializePersonas() ONCE with correct user_key
   useEffect(() => {
+    // ✅ WAIT for UserContext to finish loading
+    if (userLoading) {
+      console.log('[PersonaContext] ⏳ Waiting for UserContext to finish loading...');
+      return; // Don't initialize yet
+    }
+    
+    // ✅ UserContext loading complete → NOW fetch personas
+    console.log('[PersonaContext] ✅ UserContext loaded, fetching personas...');
+    console.log('[PersonaContext]    user_key:', user?.user_key || 'none (guest)');
     initializePersonas();
-  }, [user?.user_key]); // ⭐ CRITICAL FIX: Only depend on user_key, not entire user or initializePersonas!
+    
+    // 🔥 DEPENDENCIES:
+    // - userLoading: Wait for initial load
+    // - user?.user_key: Re-fetch when user logs in/out
+  }, [userLoading, user?.user_key, initializePersonas]);
 
   /**
    * Switch between SAGE mode and Persona mode
