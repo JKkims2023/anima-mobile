@@ -124,7 +124,7 @@ const PersonaStudioScreen = () => {
       if (typeof valueOrUpdater === 'function') {
         console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (updater function) @ ${timestamp}`);
       } else {
-        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (direct value):`, valueOrUpdater?.persona_name, '@ ${timestamp}');
+        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (direct value):`, valueOrUpdater?.persona_name, `@ ${timestamp}`);
       }
       // 스택 트레이스 출력 (호출 위치 확인)
       console.trace('   Call stack:');
