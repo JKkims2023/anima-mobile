@@ -509,19 +509,11 @@ const PersonaStudioScreen = () => {
     };
   }, [personaDressStates, currentPersona?.persona_key, currentPersona?.dress_count]);
   
-  // 🔥 PERFORMANCE FIX: Memoize QuickActionChips visibility condition & style
-  // This prevents parent style changes from forcing child re-renders
-  const isQuickChipsVisible = useMemo(() => {
+  // 🔥 PERFORMANCE FIX: Memoize QuickActionChips visibility condition
+  // Conditional rendering is the KEY to preventing unnecessary re-renders!
+  const shouldShowQuickChips = useMemo(() => {
     return currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible;
   }, [currentFilteredPersonas.length, currentPersona?.done_yn, isPostcardVisible]);
-  
-  const quickChipsOverlayStyle = useMemo(() => [
-    styles.quickChipsOverlay,
-    {
-      opacity: isQuickChipsVisible ? 1 : 0,
-      pointerEvents: isQuickChipsVisible ? 'auto' : 'none',
-    }
-  ], [isQuickChipsVisible]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
@@ -2018,21 +2010,24 @@ const PersonaStudioScreen = () => {
         </View>
         
         {/* QuickActionChips (Right Overlay) */}
-        {/* 🔥 PERFORMANCE FIX: Always mounted + memoized style to prevent unnecessary re-renders */}
-        <View style={quickChipsOverlayStyle}>
-          <QuickActionChipsAnimated
-            onDressClick={handleAddDress}
-            onHistoryClick={handleQuickHistory}
-            onVideoClick={handleQuickVideo}
-            onMessageClick={handleQuickMessage}//{handleQuickMessage}
-            onSettingsClick={handleQuickSettings}
-            onShareClick={handleShareClick}
-            onDeleteClick={handleDeleteClick}
-            isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
-            currentPersona={currentPersona}
-            currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
-          />
-        </View>
+        {/* 🔥 CRITICAL PERFORMANCE FIX: Conditional rendering is KEY! */}
+        {/* React.memo ONLY works correctly when component is conditionally mounted! */}
+        {shouldShowQuickChips && (
+          <View style={styles.quickChipsOverlay}>
+            <QuickActionChipsAnimated
+              onDressClick={handleAddDress}
+              onHistoryClick={handleQuickHistory}
+              onVideoClick={handleQuickVideo}
+              onMessageClick={handleQuickMessage}//{handleQuickMessage}
+              onSettingsClick={handleQuickSettings}
+              onShareClick={handleShareClick}
+              onDeleteClick={handleDeleteClick}
+              isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
+              currentPersona={currentPersona}
+              currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
+            />
+          </View>
+        )}
 
         {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
         {!isPostcardVisible && (
