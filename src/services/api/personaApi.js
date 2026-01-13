@@ -386,6 +386,7 @@ export const createPersonaIdentity = async (userKey, personaKey, identityData) =
       persona_key: personaKey,
       persona_name: identityData.persona_name,
       user_nicknames: identityData.user_nicknames,
+      relationship_type: identityData.relationship_type, // 🆕 우리의 관계
       speaking_style: identityData.speaking_style,
       identity: identityData.identity,
       hobby: identityData.hobby,

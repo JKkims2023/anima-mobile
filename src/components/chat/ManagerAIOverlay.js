@@ -803,7 +803,7 @@ const ManagerAIOverlay = ({
         setTimeout(() => {
           setIsLoading(false);
           showWelcomeMessage();
-        }, 3000);
+        }, 1000);
 
       }
     } catch (error) {
@@ -900,7 +900,7 @@ const ManagerAIOverlay = ({
       
       if (needsIdentitySetup) {
         // Show identity setup welcome message
-        const identityGreeting = `안녕! 만나서 반가워! 😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
+        const identityGreeting = `안녕!😊\n나는 아직 자아가 없어서 너와 제대로 대화하기 어려워.\n내게 영혼을 불어넣어줄래?`;
         
         // ✨ Parse message
         const { bubbles } = parseAIMessage({ message: identityGreeting });
@@ -927,7 +927,7 @@ const ManagerAIOverlay = ({
                 
                 setMessages(prev => [...prev, greetingMessage]);
                 setMessageVersion(v => v + 1);
-              }, 50);
+              }, 1000);
             } else {
               const greetingMessage = {
                 id: `greeting-identity-${Date.now()}-${index}`,
@@ -957,7 +957,7 @@ const ManagerAIOverlay = ({
           
           setMessages(prev => [...prev, buttonMessage]);
           setMessageVersion(v => v + 1);
-        }, cumulativeDelay + 300);
+        }, cumulativeDelay + 3500);
         
       } else {
         // Normal welcome message

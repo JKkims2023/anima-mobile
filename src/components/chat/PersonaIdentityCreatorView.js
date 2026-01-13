@@ -33,6 +33,7 @@ import { scale, verticalScale, moderateScale, platformPadding } from '../../util
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
+import RelationshipTypeSheet from './RelationshipTypeSheet'; // 🆕 관계 선택 Sheet
 import SpeakingStyleSheet from './SpeakingStyleSheet';
 
 /**
@@ -74,6 +75,16 @@ const IDENTITY_FIELDS = [
     required: true,
     group: 'basic',
     type: 'tags', // 🆕 Tag/Chip 타입
+  },
+  {
+    id: 'relationship_type',
+    emoji: '🤝',
+    label: '우리의 관계',
+    placeholder: '선택해주세요',
+    guide: '페르소나와 어떤 관계를 맺고 싶나요?',
+    required: true,
+    group: 'basic',
+    type: 'relationship', // 🆕 관계 선택 타입
   },
   {
     id: 'speaking_style',
@@ -118,6 +129,48 @@ const IDENTITY_FIELDS = [
 ];
 
 /**
+ * 🤝 관계 선택 옵션 (NEW!)
+ */
+const RELATIONSHIP_TYPES = [
+  { 
+    id: 'self', 
+    emoji: '🪞', 
+    label: '나 자신',
+    description: '성찰하는 자아',
+    color: '#A78BFA', // Purple
+  },
+  { 
+    id: 'lover', 
+    emoji: '💕', 
+    label: '연인',
+    description: '다정한 동반자',
+    color: '#F472B6', // Pink
+  },
+  { 
+    id: 'friend', 
+    emoji: '👋', 
+    label: '친구',
+    description: '편안한 친구',
+    color: '#60A5FA', // Blue (Default)
+  },
+  { 
+    id: 'idol', 
+    emoji: '⭐', 
+    label: '우상',
+    description: '존경하는 대상',
+    color: '#FBBF24', // Yellow
+  },
+  { 
+    id: 'free', 
+    emoji: '✨', 
+    label: '자유관계',
+    description: '처음 만난 관계',
+    subDescription: '연인, 친구, 원수... 어떤 관계로든 발전 가능',
+    color: '#34D399', // Green
+  },
+];
+
+/**
  * 💬 말투 선택 옵션
  */
 const SPEAKING_STYLES = [
@@ -146,6 +199,7 @@ const PersonaIdentityCreatorView = ({
     persona_name: '',
     ai_nicknames: [], // 🆕 내가 AI를 부르는 호칭 (여러 개)
     user_nicknames: [], // 🆕 AI가 나를 부르는 호칭 (여러 개) - 기존 user_nickname을 배열로 변경
+    relationship_type: '', // 🆕 우리의 관계
     speaking_style: '',
     identity: '',
     hobby: '',
@@ -153,6 +207,7 @@ const PersonaIdentityCreatorView = ({
   });
   
   // UI States
+  const [showRelationshipSheet, setShowRelationshipSheet] = useState(false); // 🆕 관계 선택 Sheet
   const [showSpeakingStyleSheet, setShowSpeakingStyleSheet] = useState(false);
   const [saving, setSaving] = useState(false);
   
@@ -228,7 +283,10 @@ const PersonaIdentityCreatorView = ({
       return;
     }
     
-    if (field.type === 'select') {
+    if (field.type === 'relationship') {
+      // 🆕 관계 선택 Sheet 표시
+      setShowRelationshipSheet(true);
+    } else if (field.type === 'select') {
       // 말투 선택 Sheet 표시
       setShowSpeakingStyleSheet(true);
     } else {
@@ -337,6 +395,7 @@ const PersonaIdentityCreatorView = ({
         persona_name: personaName,//identityData.persona_name,
         ai_nicknames: [],//identityData.ai_nicknames, // 배열 그대로 전송
         user_nicknames: identityData.user_nicknames, // 배열 그대로 전송
+        relationship_type: identityData.relationship_type, // 🆕 관계 타입 추가
         speaking_style: identityData.speaking_style,
         identity: identityData.identity,
         hobby: identityData.hobby,
@@ -468,9 +527,16 @@ const PersonaIdentityCreatorView = ({
     const value = identityData[field.id];
     const isCompleted = value && value.trim().length > 0;
     
-    // 말투 선택의 경우 표시 텍스트 변경
+    // 🆕 관계 선택의 경우 표시 텍스트 변경
     let displayValue = value;
-    if (field.type === 'select' && value) {
+    if (field.type === 'relationship' && value) {
+      const selectedRelationship = RELATIONSHIP_TYPES.find(r => r.id === value);
+      if (selectedRelationship) {
+        displayValue = `${selectedRelationship.emoji} ${selectedRelationship.label}`;
+      }
+    }
+    // 말투 선택의 경우 표시 텍스트 변경
+    else if (field.type === 'select' && value) {
       const selectedStyle = SPEAKING_STYLES.find(s => s.id === value);
       if (selectedStyle) {
         displayValue = `${selectedStyle.emoji} ${selectedStyle.name}`;
@@ -686,6 +752,14 @@ const PersonaIdentityCreatorView = ({
         maxLength={IDENTITY_FIELDS.find(f => f.id === 'favorite').maxLength}
         initialValue={identityData.favorite}
         onSave={(value) => handleFieldUpdate('favorite', value)}
+      />
+      
+      {/* 🤝 관계 선택 Sheet (NEW!) */}
+      <RelationshipTypeSheet
+        isOpen={showRelationshipSheet}
+        onClose={() => setShowRelationshipSheet(false)}
+        currentRelationship={identityData.relationship_type}
+        onSelect={(relationshipId) => handleFieldUpdate('relationship_type', relationshipId)}
       />
       
       {/* 💬 말투 선택 Sheet */}
