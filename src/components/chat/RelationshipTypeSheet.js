@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: moderateScale(24),
     paddingTop: platformPadding(12),
     maxHeight: '80%',
+    minHeight: '50%', // 🔧 최소 높이 보장
   },
   handleBar: {
     width: scale(40),
@@ -280,7 +281,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1, // 🔧 flex: 1 대신 flexGrow: 1로 변경
+    flexShrink: 1,
   },
   scrollContent: {
     paddingHorizontal: platformPadding(20),
