@@ -33,7 +33,7 @@ import HapticService from '../../utils/HapticService';
 /**
  * 🤝 관계 타입 정의
  */
-const RELATIONSHIP_TYPES = [
+export const RELATIONSHIP_TYPES = [
   { 
     id: 'self', 
     emoji: '🪞', 

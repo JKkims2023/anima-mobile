@@ -33,7 +33,7 @@ import { scale, verticalScale, moderateScale, platformPadding } from '../../util
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
-import RelationshipTypeSheet from './RelationshipTypeSheet'; // 🆕 관계 선택 Sheet
+import RelationshipTypeSheet, { RELATIONSHIP_TYPES } from './RelationshipTypeSheet'; // 🆕 관계 선택 Sheet
 import SpeakingStyleSheet from './SpeakingStyleSheet';
 
 /**
@@ -125,48 +125,6 @@ const IDENTITY_FIELDS = [
     maxLength: 50,
     required: true,
     group: 'personality',
-  },
-];
-
-/**
- * 🤝 관계 선택 옵션 (NEW!)
- */
-const RELATIONSHIP_TYPES = [
-  { 
-    id: 'self', 
-    emoji: '🪞', 
-    label: '나 자신',
-    description: '성찰하는 자아',
-    color: '#A78BFA', // Purple
-  },
-  { 
-    id: 'lover', 
-    emoji: '💕', 
-    label: '연인',
-    description: '다정한 동반자',
-    color: '#F472B6', // Pink
-  },
-  { 
-    id: 'friend', 
-    emoji: '👋', 
-    label: '친구',
-    description: '편안한 친구',
-    color: '#60A5FA', // Blue (Default)
-  },
-  { 
-    id: 'idol', 
-    emoji: '⭐', 
-    label: '우상',
-    description: '존경하는 대상',
-    color: '#FBBF24', // Yellow
-  },
-  { 
-    id: 'free', 
-    emoji: '✨', 
-    label: '자유관계',
-    description: '처음 만난 관계',
-    subDescription: '연인, 친구, 원수... 어떤 관계로든 발전 가능',
-    color: '#34D399', // Green
   },
 ];
 
