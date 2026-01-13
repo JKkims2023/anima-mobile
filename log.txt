@@ -1,135 +1,310 @@
--- ecocentre0.persona_persona_main definition
+대화 내역.
 
-CREATE TABLE `persona_persona_main` (
-  `idx` int NOT NULL AUTO_INCREMENT COMMENT '인덱스 (Auto Increment)',
-  `persona_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '페르소나 고유 키 (UUID)',
-  `user_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '사용자 고유 키',
-  `bric_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'AI 생성 요청 키 (외부 AI API용)',
-  `bric_convert_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `history_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `original_url` text COLLATE utf8mb4_unicode_ci COMMENT '원본 이미지 URL',
-  `persona_url` text COLLATE utf8mb4_unicode_ci COMMENT '생성된 페르소나 이미지 URL',
-  `video_url` text COLLATE utf8mb4_unicode_ci COMMENT '생성된 페르소나 비디오 URL',
-  `estimate_time` int DEFAULT '0' COMMENT '예상 완료 시간 (초)',
-  `done_yn` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N' COMMENT '생성 완료 여부 (Y: 완료, N: 대기, F: 실패)',
-  `time_done_yn` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N' COMMENT '타이머 종료 여부 (Y: 종료, N: 진행중)',
-  `check_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '상태 확인 여부 (Y: 확인 완료, N: 미확인)',
-  `persona_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 이름',
-  `persona_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'human' COMMENT '페르소나 타입 (human, animal, object)',
-  `persona_gender` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 성별 (male, female, neutral)',
-  `persona_age` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 나이대',
-  `persona_style` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 스타일',
-  `persona_outfit` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 복장',
-  `persona_personality` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 성격',
-  `persona_voice` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '페르소나 목소리',
-  `persona_description` text COLLATE utf8mb4_unicode_ci COMMENT '페르소나 설명',
-  `category_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'normal',
-  `default_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
-  `create_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'D' COMMENT '생성 타입 (D: 기본, P: 프리미엄)',
-  `favorite_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
-  `generation_mode` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'fast' COMMENT '생성 모드 (fast, perfect)',
-  `free_request` text COLLATE utf8mb4_unicode_ci COMMENT '추가 요청사항 (프롬프트)',
-  `edit_count` int DEFAULT '0' COMMENT '수정 횟수',
-  `downloaded` int DEFAULT '0' COMMENT '다운로드 횟수',
-  `shared` int DEFAULT '0' COMMENT '공유 횟수',
-  `vote_count` int DEFAULT '0' COMMENT '투표 수',
-  `join_vote_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '투표 참여 여부 (Y/N)',
-  `vote_comment` text COLLATE utf8mb4_unicode_ci COMMENT '투표 코멘트',
-  `vote_comment_language` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '투표 코멘트 언어 (ko, en)',
-  `approve_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '승인 여부 (Y: 승인, N: 미승인)',
-  `intimacy` int DEFAULT '100',
-  `happiness` int DEFAULT '100',
-  `memories` int DEFAULT '0',
-  `intelligence` int DEFAULT '0',
-  `convert_done_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
-  `selected_dress_image_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `selected_dress_video_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `selected_dress_video_convert_done` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
-  `public_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'N',
-  `persona_comment` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `business_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'free',
-  `brain_type` int DEFAULT '0',
-  `created_date` datetime NOT NULL COMMENT '생성 시작 시간',
-  `updated_date` datetime DEFAULT NULL COMMENT '수정 시간',
-  `delete_flag` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N' COMMENT '삭제 플래그 (Y: 삭제, N: 정상)',
-  `identity_updated_at` timestamp NULL DEFAULT NULL COMMENT '자아 설정 마지막 수정일',
-  `identity_key` varchar(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK to persona_identity (1:1)',
-  PRIMARY KEY (`idx`),
-  UNIQUE KEY `persona_key` (`persona_key`),
-  KEY `idx_user_key` (`user_key`),
-  KEY `idx_done_yn` (`done_yn`),
-  KEY `idx_created_date` (`created_date`),
-  KEY `idx_delete_flag` (`delete_flag`),
-  KEY `idx_identity_key` (`identity_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=231 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI Persona 정보';
+e97ed4c5-defc-40db-a90b-2c4faa315d36	d111e3d8-4e42-4493-8541-25a8e72b654f	8535cd4c-4388-407a-a5fb-35ffb03c967e	session-1768275307395-5jy7jf	안녕?!		user	neutral	0.3			conversations	2	gpt-4o-mini		2026-01-13 12:35:10.414146	
+dc4dce26-32a1-4a4c-a2bf-62ab1e488c91	d111e3d8-4e42-4493-8541-25a8e72b654f	8535cd4c-4388-407a-a5fb-35ffb03c967e	session-1768275307395-5jy7jf	안녕! 😊 오늘 뭐하고 있어?	{"tokens_detail": {"total": 14382, "cached": 0, "prompt": 14372, "completion": 10}}	assistant					conversations	10	gpt-4o-mini	1724	2026-01-13 12:35:10.427947	
+68debb7e-7a46-4a83-95a1-7b8c6c570582	d111e3d8-4e42-4493-8541-25a8e72b654f	8535cd4c-4388-407a-a5fb-35ffb03c967e	session-1768275307395-5jy7jf	음..우리 어떤 관계야?		user	neutral	0.3			conversations	5	gpt-4o-mini		2026-01-13 12:35:43.512880	
+2a45e8e1-4e2f-43bf-bcaf-f5cb23f98ec9	d111e3d8-4e42-4493-8541-25a8e72b654f	8535cd4c-4388-407a-a5fb-35ffb03c967e	session-1768275307395-5jy7jf	우리는 친구 관계야! 편안하게 이야기할 수 있는 친구 같은 사이야. 😊 너는 어떻게 생각해?	{"tokens_detail": {"total": 14422, "cached": 14336, "prompt": 14396, "completion": 26}}	assistant					conversations	26	gpt-4o-mini	1532	2026-01-13 12:35:43.513713	
 
 
--- ecocentre0.user_relationship_memory definition
-
-CREATE TABLE `user_relationship_memory` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User unique identifier',
-  `persona_key` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Persona unique identifier',
-  `how_user_calls_ai` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'User''s preferred name for AI (e.g., "히어로님", "넥서스")',
-  `how_ai_calls_user` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'AI''s name for user (e.g., "JK", "나의 친구")',
-  `preferred_tone` json DEFAULT NULL COMMENT '{"formal": 30, "casual": 70, "playful": 40, "emotional": 60}',
-  `main_topics` json DEFAULT NULL COMMENT 'User''s main interests ["music", "AI", "philosophy"]',
-  `signature_phrases` json DEFAULT NULL COMMENT 'AI''s effective phrases ["함께 해요", "히어로님"]',
-  `conversation_style` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'balanced' COMMENT 'question_driven, story_driven, balanced',
-  `trust_score` int DEFAULT '0' COMMENT 'Trust level (0-100)',
-  `intimacy_level` int DEFAULT '0' COMMENT 'Intimacy level (0-100)',
-  `interaction_count` int DEFAULT '0' COMMENT 'Total conversation count',
-  `relationship_level` enum('stranger','acquaintance','friend','close_friend','partner') COLLATE utf8mb4_unicode_ci DEFAULT 'stranger',
-  `user_tier` enum('free','basic','premium','ultimate') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'basic',
-  `data_completeness` int DEFAULT '0' COMMENT 'How much data collected (0-100)',
-  `needs_data_collection` tinyint(1) DEFAULT '1' COMMENT 'Should AI ask questions to learn?',
-  `first_interaction_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `last_interaction_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_user_persona` (`user_key`,`persona_key`),
-  KEY `idx_relationship_level` (`relationship_level`),
-  KEY `idx_needs_data` (`needs_data_collection`),
-  KEY `idx_last_interaction` (`last_interaction_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Core relationship memory between users and AI personas';
 
 
--- ecocentre0.persona_identity definition
+Backend 로그.
 
-CREATE TABLE `persona_identity` (
-  `identity_id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT (uuid()) COMMENT 'Identity unique ID',
-  `persona_key` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK to persona_persona_main (1:1 relationship)',
-  `identity_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '자아 이름 (e.g., 함은정)',
-  `name_ko` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '한국어 이름',
-  `name_en` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '영어 이름',
-  `description` text COLLATE utf8mb4_unicode_ci COMMENT '간단 설명 (1-2문장)',
-  `background` text COLLATE utf8mb4_unicode_ci COMMENT '배경 (직업, 경력 등)',
-  `profession` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '직업',
-  `personality` json DEFAULT NULL COMMENT '성격 특징 배열 (e.g., ["친근한", "밝은", "긍정적"])',
-  `personality_pending` json DEFAULT NULL,
-  `interests` json DEFAULT NULL COMMENT '관심사 배열 (e.g., ["음악", "공연", "팬소통"])',
-  `speaking_style` text COLLATE utf8mb4_unicode_ci COMMENT '말투 스타일 설명',
-  `representative_work` text COLLATE utf8mb4_unicode_ci COMMENT '대표작',
-  `identity_prompt` text COLLATE utf8mb4_unicode_ci COMMENT 'AI가 이 인물처럼 행동하기 위한 프롬프트 (200-500자)',
-  `identity_prompt_pending` text COLLATE utf8mb4_unicode_ci,
-  `learned_phrases` json DEFAULT NULL COMMENT '학습된 특정 말투/표현 (e.g., {"greetings": ["안녕하세요~"], "signature": ["함께 해요"]})',
-  `learned_phrases_pending` json DEFAULT NULL,
-  `conversation_patterns` json DEFAULT NULL COMMENT '대화 패턴 학습 (e.g., {"preferred_topics": ["음악", "팬들"], "tone": {"formal": 20, "casual": 80}})',
-  `evolution_count` int DEFAULT '0' COMMENT '진화 횟수 (채팅 종료 시 +1)',
-  `last_evolved_at` timestamp NULL DEFAULT NULL COMMENT '마지막 진화 시간',
-  `source` enum('wiki','user_input','ai_generated') COLLATE utf8mb4_unicode_ci DEFAULT 'user_input' COMMENT 'Identity 출처',
-  `wiki_url` text COLLATE utf8mb4_unicode_ci COMMENT 'Wikipedia URL (if source=wiki)',
-  `confidence` float DEFAULT '1' COMMENT 'AI 분석 신뢰도 (0.0-1.0)',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `live_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `pending_updated_at` timestamp NULL DEFAULT NULL,
-  `speaking_pattern` json DEFAULT NULL,
-  PRIMARY KEY (`identity_id`),
-  UNIQUE KEY `persona_key` (`persona_key`),
-  KEY `idx_persona_key` (`persona_key`),
-  KEY `idx_identity_name` (`identity_name`),
-  KEY `idx_source` (`source`),
-  KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Universal identity storage for all personas (Wiki + Manual + AI)';
+2026-01-13 12:35:07 🤖 [채팅] 요청 수신
+2026-01-13 12:35:07    사용자: d111e3d8...
+2026-01-13 12:35:07    메시지: 안녕?!...
+2026-01-13 12:35:07 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-13 12:35:07 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-13 12:35:07 🚪 [Conversation Gate] Checking...
+2026-01-13 12:35:07 ✅ [Conversation Gate] Open (no record)
+2026-01-13 12:35:07 ✅ [Conversation Flow] Gate OPEN
+2026-01-13 12:35:07 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-13 12:35:07 ℹ️  [Conversation Flow] No recent history found
+2026-01-13 12:35:07 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-13 12:35:07 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-13 12:35:07 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-13 12:35:07 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-13 12:35:07 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-13 12:35:07 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-13 12:35:07 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768275307395-5jy7jf
+2026-01-13 12:35:07 ✅ [SessionManager] Created new session: session-1768275307395-5jy7jf
+2026-01-13 12:35:07 ✅ [세션 관리] 세션 로드 완료
+2026-01-13 12:35:07    - 메시지: 0개
+2026-01-13 12:35:07    - 페르소나: 함은정
+2026-01-13 12:35:07 📊 [SessionManager] Conversation stats: {
+2026-01-13 12:35:07   totalMessages: 0,
+2026-01-13 12:35:07   totalChars: 0,
+2026-01-13 12:35:07   estimatedTokens: 0,
+2026-01-13 12:35:07   averageMessageLength: NaN
+2026-01-13 12:35:07 }
+2026-01-13 12:35:07 🔄 [Sliding Window] Processing 0 messages
+2026-01-13 12:35:07    Window size: 20
+2026-01-13 12:35:07    Summarize threshold: 30
+2026-01-13 12:35:07 ✅ [Sliding Window] Short conversation, keeping all 0 messages
+2026-01-13 12:35:07 ✅ [ANIMA 채팅] Session loaded
+2026-01-13 12:35:07    Total messages: 0
+2026-01-13 12:35:07    Kept messages: 0
+2026-01-13 12:35:07    Summarized messages: 0
+2026-01-13 12:35:07    Sliding window: Inactive
+2026-01-13 12:35:07    Persona: 함은정
+2026-01-13 12:35:07    Preferences: Custom
+2026-01-13 12:35:07 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-13 12:35:07    Tier: ultimate
+2026-01-13 12:35:07    Model: GPT-4o Mini
+2026-01-13 12:35:07    Provider: openai
+2026-01-13 12:35:07    Caching: Enabled
+2026-01-13 12:35:07 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-13 12:35:07    Message: "안녕?!"
+2026-01-13 12:35:08 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-13 12:35:08    Duration: 1006ms
+2026-01-13 12:35:08    Tokens: 282
+2026-01-13 12:35:08 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-13 12:35:08    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-13 12:35:08 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-13 12:35:08 🎯 [프롬프트 조율] Building system prompt...
+2026-01-13 12:35:08    Persona: 함은정
+2026-01-13 12:35:08    Emotional State: normal
+2026-01-13 12:35:08    Has Identity: true
+2026-01-13 12:35:08 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-13 12:35:08 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-13 12:35:08 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
+2026-01-13 12:35:08 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
+2026-01-13 12:35:08 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6106 tokens
+2026-01-13 12:35:08 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-13 12:35:08 ✅ [프롬프트 조율] System prompt built (24423 chars)
+2026-01-13 12:35:08 ✅ [ANIMA 채팅] Revolutionary prompt built (24423 chars, emotion: normal)
+2026-01-13 12:35:08 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-13 12:35:08    Provider: openai
+2026-01-13 12:35:08    Model: gpt-4o-mini
+2026-01-13 12:35:08    History messages: 0
+2026-01-13 12:35:08    System prompt length: 24423 chars
+2026-01-13 12:35:08 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-13 12:35:08    Identity Key: c520321e-fc44-463c-b3af-718f0a15587a
+2026-01-13 12:35:08    Has Identity: true
+2026-01-13 12:35:08    Is User Created: true
+2026-01-13 12:35:08 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-13 12:35:08    Available tools: 9
+2026-01-13 12:35:08 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-13 12:35:08    Persona type: User-created
+2026-01-13 12:35:08    Has identity: true
+2026-01-13 12:35:08    toolsEnabled: true
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08    Message: "안녕?!"
+2026-01-13 12:35:08    Length: 4 chars
+2026-01-13 12:35:08 ⚡ [Analysis] SIMPLE QUERY DETECTED!
+2026-01-13 12:35:08    Reason: Simple greeting/affirmation/short message - Fast response prioritized
+2026-01-13 12:35:08    Self-Reflection: DISABLED (fast response)
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08 📊 [Analysis Result]
+2026-01-13 12:35:08    Complexity: simple
+2026-01-13 12:35:08    Confidence: 90%
+2026-01-13 12:35:08    Self-Reflection: DISABLED
+2026-01-13 12:35:08    Type: none
+2026-01-13 12:35:08 ✅ [Prompt] Using ORIGINAL prompt (no enhancement)
+2026-01-13 12:35:08 ⏱️ [Timeout] Set to 10000ms
+2026-01-13 12:35:08 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-13 12:35:08 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:08 🤖 [OpenAI] Calling API: {
+2026-01-13 12:35:08   model: 'gpt-4o-mini',
+2026-01-13 12:35:08   messageCount: 2,
+2026-01-13 12:35:08   systemPromptLength: 24423,
+2026-01-13 12:35:08   historyLength: 0,
+2026-01-13 12:35:08   toolsEnabled: true
+2026-01-13 12:35:08 }
+2026-01-13 12:35:10 ✅ [OpenAI] Response received: {
+2026-01-13 12:35:10   responseTime: '1724ms',
+2026-01-13 12:35:10   tokens: { prompt: 14372, completion: 10, cached: 0, total: 14382 },
+2026-01-13 12:35:10   cacheHitRate: 'N/A',
+2026-01-13 12:35:10   messageLength: 17,
+2026-01-13 12:35:10   finishReason: 'stop',
+2026-01-13 12:35:10   toolCalls: 0
+2026-01-13 12:35:10 }
+2026-01-13 12:35:10 ✅ [AI Call] Success! (1727ms)
+2026-01-13 12:35:10 📊 [Response] Parsing AI response...
+2026-01-13 12:35:10 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:10 📊 [Response Parser] Parsing AI response...
+2026-01-13 12:35:10 ✅ [Response Parser] String format detected (single message)
+2026-01-13 12:35:10 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:10 ✅ [Response] Parsed successfully
+2026-01-13 12:35:10    Message type: STRING (single)
+2026-01-13 12:35:10 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:10 ✅ [ANIMA 채팅] AI response received (no caching)
+2026-01-13 12:35:10    Response time: 1724ms
+2026-01-13 12:35:10    Total tokens: 14382 (in: 14372, out: 10, cached: 0)
+2026-01-13 12:35:10 📊 [Token Tracking] User message: 2 tokens (estimated), Full prompt: 14372 tokens
+2026-01-13 12:35:10 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-13 12:35:10 🎉 [ANIMA 채팅] Request completed in 3006ms
+2026-01-13 12:35:10    Cost: $0.002162 (saved: $0.000000 from caching)
+2026-01-13 12:35:10 ---
+2026-01-13 12:35:10 [Token Optimization] Final Summary:
+2026-01-13 12:35:10    Total Tokens: 14382
+2026-01-13 12:35:10    - Prompt: 14372 tokens
+2026-01-13 12:35:10    - Completion: 10 tokens
+2026-01-13 12:35:10    - Cached: 0 tokens (0% hit rate)
+2026-01-13 12:35:10    Total Cost: $0.002162
+2026-01-13 12:35:10    Savings from Caching: $0.000000
+2026-01-13 12:35:10    Response Time: 3006ms
+2026-01-13 12:35:10 ---
+2026-01-13 12:35:10 ✅ [채팅 제한] Daily chat count incremented
+2026-01-13 12:35:10 💾 [SessionManager] Message saved: session-1768275307395-5jy7jf (user)
+2026-01-13 12:35:10 💾 [SessionManager] Message saved: session-1768275307395-5jy7jf (assistant)
+2026-01-13 12:35:40 
+2026-01-13 12:35:40 🤖 [채팅] 요청 수신
+2026-01-13 12:35:40    사용자: d111e3d8...
+2026-01-13 12:35:40    메시지: 음..우리 어떤 관계야?...
+2026-01-13 12:35:40 💰 [채팅 제한] 일일 제한 확인 중: d111e3d8-4e42-4493-8541-25a8e72b654f
+2026-01-13 12:35:40 🚪 [Conversation Flow] Checking gate and analyzing emotion...
+2026-01-13 12:35:40 🚪 [Conversation Gate] Checking...
+2026-01-13 12:35:40 ✅ [Conversation Gate] Open (no record)
+2026-01-13 12:35:40 ✅ [Conversation Flow] Gate OPEN
+2026-01-13 12:35:40 📚 [Conversation Flow] Loading recent history from DB...
+2026-01-13 12:35:40 ✅ [Conversation Flow] Loaded 2 recent messages from DB
+2026-01-13 12:35:40 ✅ [Conversation Flow] No crisis detected, using current state from DB...
+2026-01-13 12:35:40 🎭 [Conversation Flow] Current State: normal (intensity: 50%) [DB only, no LLM analysis]
+2026-01-13 12:35:40 ✅ [Conversation Flow] Normal flow - AI will judge tool usage via Revolutionary Prompt
+2026-01-13 12:35:40 ✅ [Conversation Flow] Normal flow - proceeding with conversation
+2026-01-13 12:35:40 ✅ [ANIMA 채팅] Gate open, emotion: normal
+2026-01-13 12:35:40 ⚠️  [SessionManager] Redis not available, using DB directly
+2026-01-13 12:35:40 🔄 [SessionManager] Loading session from DB: d111e3d8-4e42-4493-8541-25a8e72b654f/session-1768275307395-5jy7jf
+2026-01-13 12:35:40 ✅ [세션 관리] 세션 로드 완료
+2026-01-13 12:35:40    - 메시지: 2개
+2026-01-13 12:35:40    - 페르소나: 함은정
+2026-01-13 12:35:40 📊 [SessionManager] Conversation stats: {
+2026-01-13 12:35:40   totalMessages: 2,
+2026-01-13 12:35:40   totalChars: 21,
+2026-01-13 12:35:40   estimatedTokens: 8,
+2026-01-13 12:35:40   averageMessageLength: 11
+2026-01-13 12:35:40 }
+2026-01-13 12:35:40 🔄 [Sliding Window] Processing 2 messages
+2026-01-13 12:35:40    Window size: 20
+2026-01-13 12:35:40    Summarize threshold: 30
+2026-01-13 12:35:40 ✅ [Sliding Window] Short conversation, keeping all 2 messages
+2026-01-13 12:35:40 ✅ [ANIMA 채팅] Session loaded
+2026-01-13 12:35:40    Total messages: 2
+2026-01-13 12:35:40    Kept messages: 2
+2026-01-13 12:35:40    Summarized messages: 0
+2026-01-13 12:35:40    Sliding window: Inactive
+2026-01-13 12:35:40    Persona: 함은정
+2026-01-13 12:35:40    Preferences: Custom
+2026-01-13 12:35:40 🎯 [ANIMA 채팅] AI Strategy selected
+2026-01-13 12:35:40    Tier: ultimate
+2026-01-13 12:35:40    Model: GPT-4o Mini
+2026-01-13 12:35:40    Provider: openai
+2026-01-13 12:35:40    Caching: Enabled
+2026-01-13 12:35:40 🤔 [KnowledgeDecision] Analyzing message...
+2026-01-13 12:35:40    Message: "음..우리 어떤 관계야?"
+2026-01-13 12:35:41 ✅ [KnowledgeDecision] Decision: SKIP
+2026-01-13 12:35:41    Duration: 1256ms
+2026-01-13 12:35:41    Tokens: 285
+2026-01-13 12:35:41 ⚡ [ANIMA 채팅] Knowledge search SKIPPED - casual conversation detected
+2026-01-13 12:35:41    💰 Saved Pinecone API call + ~200-500ms latency
+2026-01-13 12:35:41 🔥 [ANIMA 채팅] Building revolutionary system prompt...
+2026-01-13 12:35:41 🎯 [프롬프트 조율] Building system prompt...
+2026-01-13 12:35:41    Persona: 함은정
+2026-01-13 12:35:41    Emotional State: normal
+2026-01-13 12:35:41    Has Identity: true
+2026-01-13 12:35:41 ✅ [자아 체크] COMPLETE (name, personality, speaking_style)
+2026-01-13 12:35:41 🔥 [프롬프트 조율] Building REVOLUTIONARY PROMPT for User Persona...
+2026-01-13 12:35:41 💙 [프롬프트 조율] Relationship loaded: stranger (Trust: 0, Intimacy: 0)
+2026-01-13 12:35:41 🎁 [프롬프트 조율] Loaded 1 dress/gift memories
+2026-01-13 12:35:41 📊 [프롬프트 v6.1 - SURGERY!] 예상 토큰: ~6106 tokens
+2026-01-13 12:35:41 🔥 [Layer 0] Persona Identity & Relationship - PRIORITY #1!
+2026-01-13 12:35:41 ✅ [프롬프트 조율] System prompt built (24423 chars)
+2026-01-13 12:35:41 ✅ [ANIMA 채팅] Revolutionary prompt built (24423 chars, emotion: normal)
+2026-01-13 12:35:41 🚀 [ANIMA 채팅] Calling AI with Prompt Caching...
+2026-01-13 12:35:41    Provider: openai
+2026-01-13 12:35:41    Model: gpt-4o-mini
+2026-01-13 12:35:41    History messages: 2
+2026-01-13 12:35:41    System prompt length: 24423 chars
+2026-01-13 12:35:41 🔒 [ANIMA 채팅] Identity Status (Simplified):
+2026-01-13 12:35:41    Identity Key: c520321e-fc44-463c-b3af-718f0a15587a
+2026-01-13 12:35:41    Has Identity: true
+2026-01-13 12:35:41    Is User Created: true
+2026-01-13 12:35:41 🔓 [NORMAL MODE] All tools available (cache-friendly!)
+2026-01-13 12:35:41    Available tools: 9
+2026-01-13 12:35:41 [함수 호출] Enabled tools: search_music, generate_chat_content, search_conversation_memory, search_youtube_video, search_memory, get_user_relationships, get_relationship_milestones, search_emotional_gifts, search_creative_history
+2026-01-13 12:35:41    Persona type: User-created
+2026-01-13 12:35:41    Has identity: true
+2026-01-13 12:35:41    toolsEnabled: true
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41 🎯 [Self-Reflection Wrapper] Starting...
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41 🎯 [Query Complexity Analyzer] Starting analysis...
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41    Message: "음..우리 어떤 관계야?"
+2026-01-13 12:35:41    Length: 13 chars
+2026-01-13 12:35:41 📝 [Analysis] MEDIUM QUERY (Default)
+2026-01-13 12:35:41    Reason: Standard query - Normal prompt is sufficient
+2026-01-13 12:35:41    Self-Reflection: DISABLED (standard prompt)
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41 📊 [Analysis Result]
+2026-01-13 12:35:41    Complexity: medium
+2026-01-13 12:35:41    Confidence: 80%
+2026-01-13 12:35:41    Self-Reflection: DISABLED
+2026-01-13 12:35:41    Type: none
+2026-01-13 12:35:41 ✅ [Prompt] Using ORIGINAL prompt (no enhancement)
+2026-01-13 12:35:41 ⏱️ [Timeout] Set to 10000ms
+2026-01-13 12:35:41 🤖 [AI Call] Calling AI with enhanced prompt...
+2026-01-13 12:35:41 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:41 🤖 [OpenAI] Calling API: {
+2026-01-13 12:35:41   model: 'gpt-4o-mini',
+2026-01-13 12:35:41   messageCount: 4,
+2026-01-13 12:35:41   systemPromptLength: 24423,
+2026-01-13 12:35:41   historyLength: 2,
+2026-01-13 12:35:41   toolsEnabled: true
+2026-01-13 12:35:41 }
+2026-01-13 12:35:43 ✅ [OpenAI] Response received: {
+2026-01-13 12:35:43   responseTime: '1532ms',
+2026-01-13 12:35:43   tokens: { prompt: 14396, completion: 26, cached: 14336, total: 14422 },
+2026-01-13 12:35:43   cacheHitRate: '99.6%',
+2026-01-13 12:35:43   messageLength: 52,
+2026-01-13 12:35:43   finishReason: 'stop',
+2026-01-13 12:35:43   toolCalls: 0
+2026-01-13 12:35:43 }
+2026-01-13 12:35:43 ✅ [AI Call] Success! (1533ms)
+2026-01-13 12:35:43 📊 [Response] Parsing AI response...
+2026-01-13 12:35:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:43 📊 [Response Parser] Parsing AI response...
+2026-01-13 12:35:43 ✅ [Response Parser] String format detected (single message)
+2026-01-13 12:35:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:43 ✅ [Response] Parsed successfully
+2026-01-13 12:35:43    Message type: STRING (single)
+2026-01-13 12:35:43 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-01-13 12:35:43 🔥 [ANIMA 채팅] Prompt Caching active!
+2026-01-13 12:35:43    Cache hit rate: 99.6%
+2026-01-13 12:35:43    Cached tokens: 14336
+2026-01-13 12:35:43    Uncached tokens: 60
+2026-01-13 12:35:43    💰 Estimated savings: $0.001075 (50% discount on 14336 tokens)
+2026-01-13 12:35:43    Response time: 1532ms
+2026-01-13 12:35:43    Total tokens: 14422 (in: 14396, out: 26, cached: 14336)
+2026-01-13 12:35:43 📊 [Token Tracking] User message: 5 tokens (estimated), Full prompt: 14396 tokens
+2026-01-13 12:35:43 💾 [ANIMA 채팅] Both messages saved to history (sequential)
+2026-01-13 12:35:43 🎉 [ANIMA 채팅] Request completed in 2932ms
+2026-01-13 12:35:43    Cost: $0.001100 (saved: $0.001075 from caching)
+2026-01-13 12:35:43 ---
+2026-01-13 12:35:43 [Token Optimization] Final Summary:
+2026-01-13 12:35:43    Total Tokens: 14422
+2026-01-13 12:35:43    - Prompt: 14396 tokens
+2026-01-13 12:35:43    - Completion: 26 tokens
+2026-01-13 12:35:43    - Cached: 14336 tokens (99.6% hit rate)
+2026-01-13 12:35:43    Total Cost: $0.001100
+2026-01-13 12:35:43    Savings from Caching: $0.001075
+2026-01-13 12:35:43    Response Time: 2932ms
+2026-01-13 12:35:43 ---
+2026-01-13 12:35:43 ✅ [채팅 제한] Daily chat count incremented
+2026-01-13 12:35:43 💾 [SessionManager] Message saved: session-1768275307395-5jy7jf (user)
+2026-01-13 12:35:43 💾 [SessionManager] Message saved: session-1768275307395-5jy7jf (assistant)
+
+
+
+persona_identity 테이블.
+
+c520321e-fc44-463c-b3af-718f0a15587a	8535cd4c-4388-407a-a5fb-35ffb03c967e	함은정	함은정					["#걸그룹_티아라_멤버"]		["#술마시기", "#소주"]		casual							0		user_input		1.0	2026-01-13 12:34:51	2026-01-13 12:34:51	2026-01-13 12:34:51		{"my_nicknames": ["자기야~", "울자기~"], "frequent_words": [], "closing_phrases": [], "greeting_phrases": [], "signature_phrases": []}	lover
+
 

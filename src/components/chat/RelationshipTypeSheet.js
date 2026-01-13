@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   relationshipHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: verticalScale(8),
+
   },
   relationshipEmojiContainer: {
     width: moderateScale(44),
@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
     marginLeft: scale(56),
     lineHeight: moderateScale(18),
+    marginTop: verticalScale(-8),
   },
   relationshipSubDescription: {
     marginTop: verticalScale(4),

@@ -36,107 +36,7 @@ import MessageInputOverlay from '../message/MessageInputOverlay';
 import RelationshipTypeSheet, { RELATIONSHIP_TYPES } from './RelationshipTypeSheet'; // 🆕 관계 선택 Sheet
 import SpeakingStyleSheet from './SpeakingStyleSheet';
 
-/**
- * 🎯 입력 항목 정의
- */
-const IDENTITY_FIELDS = [
-  /*
-  {
-    id: 'persona_name',
-    emoji: '🎭',
-    label: '페르소나 이름',
-    placeholder: '예: 지아, 루나, 은하',
-    guide: '페르소나에게 특별한 이름을 지어주세요.\n이름은 정체성의 시작입니다.',
-    maxLength: 15,
-    required: true,
-    group: 'basic',
-  },
-  */
- /*
-  {
-    id: 'ai_nicknames',
-    emoji: '💭',
-    label: '내가 AI를 부르는 호칭',
-    placeholder: '예: 지아야, 은하',
-    guide: 'AI를 어떻게 부르고 싶나요? (여러 개 가능)',
-    maxCount: 5,
-    required: true,
-    group: 'basic',
-    type: 'tags', // 🆕 Tag/Chip 타입
-  },
-  */
-  {
-    id: 'user_nicknames',
-    emoji: '👤',
-    label: 'AI가 나를 부르는 호칭',
-    placeholder: '예: JK, 형, 누나',
-    guide: 'AI가 당신을 어떻게 불러주길 원하나요? (여러 개 가능)',
-    maxCount: 5,
-    required: true,
-    group: 'basic',
-    type: 'tags', // 🆕 Tag/Chip 타입
-  },
-  {
-    id: 'relationship_type',
-    emoji: '🤝',
-    label: '우리의 관계',
-    placeholder: '선택해주세요',
-    guide: '페르소나와 어떤 관계를 맺고 싶나요?',
-    required: true,
-    group: 'basic',
-    type: 'relationship', // 🆕 관계 선택 타입
-  },
-  {
-    id: 'speaking_style',
-    emoji: '💬',
-    label: '말투',
-    placeholder: '선택해주세요',
-    guide: '페르소나가 어떤 말투로 대화하길 원하나요?',
-    required: true,
-    group: 'basic',
-    type: 'select', // 🆕 선택 타입
-  },
-  {
-    id: 'identity',
-    emoji: '💫',
-    label: '자아 (직업/역할)',
-    placeholder: '예: K-POP 아이돌, 영화배우, 의사',
-    guide: '이 페르소나는 어떤 존재인가요?\n직업, 역할, 배경 등을 자유롭게 입력하세요.',
-    maxLength: 50,
-    required: true,
-    group: 'personality',
-  },
-  {
-    id: 'hobby',
-    emoji: '🎯',
-    label: '취미',
-    placeholder: '예: 음악 감상, 영화 보기, 책 읽기',
-    guide: '페르소나가 좋아하는 활동을 입력하세요.',
-    maxLength: 50,
-    required: true,
-    group: 'personality',
-  },
-  {
-    id: 'favorite',
-    emoji: '❤️',
-    label: '좋아하는 것',
-    placeholder: '예: 라떼, 봄날, 클래식 음악',
-    guide: '페르소나가 좋아하는 것들을 입력하세요.',
-    maxLength: 50,
-    required: true,
-    group: 'personality',
-  },
-];
 
-/**
- * 💬 말투 선택 옵션
- */
-const SPEAKING_STYLES = [
-  { id: 'formal', name: '정중한 존댓말', emoji: '😊' },
-  { id: 'friendly', name: '친근한 반말', emoji: '👋' },
-  { id: 'casual', name: '편한 반말', emoji: '🥰' },
-  { id: 'sibling', name: '다정한 언니/오빠', emoji: '🤝' },
-];
 
 const PersonaIdentityCreatorView = ({
   visible = false,
@@ -176,6 +76,108 @@ const PersonaIdentityCreatorView = ({
   const identityInputRef = useRef(null);
   const hobbyInputRef = useRef(null);
   const favoriteInputRef = useRef(null);
+
+  /**
+ * 🎯 입력 항목 정의
+ */
+const IDENTITY_FIELDS = [
+  /*
+  {
+    id: 'persona_name',
+    emoji: '🎭',
+    label: '페르소나 이름',
+    placeholder: '예: 지아, 루나, 은하',
+    guide: '페르소나에게 특별한 이름을 지어주세요.\n이름은 정체성의 시작입니다.',
+    maxLength: 15,
+    required: true,
+    group: 'basic',
+  },
+  */
+ /*
+  {
+    id: 'ai_nicknames',
+    emoji: '💭',
+    label: '내가 AI를 부르는 호칭',
+    placeholder: '예: 지아야, 은하',
+    guide: 'AI를 어떻게 부르고 싶나요? (여러 개 가능)',
+    maxCount: 5,
+    required: true,
+    group: 'basic',
+    type: 'tags', // 🆕 Tag/Chip 타입
+  },
+  */
+  {
+    id: 'user_nicknames',
+    emoji: '👤',
+    label: t('persona_identity_creator_view.basic_sub_title_my_nickname'),
+    placeholder: t('persona_identity_creator_view.basic_sub_title_my_nickname'),
+    guide: t('persona_identity_creator_view.basic_sub_title_my_nickname_guide'),
+    maxCount: 5,
+    required: true,
+    group: 'basic',
+    type: 'tags', // 🆕 Tag/Chip 타입
+  },
+  {
+    id: 'relationship_type',
+    emoji: '🤝',
+    label: t('persona_identity_creator_view.basic_sub_title_relationship'),
+    placeholder: t('persona_identity_creator_view.need_choose'),
+    guide: t('persona_identity_creator_view.basic_sub_title_relationship_guide'),
+    required: true,
+    group: 'basic',
+    type: 'relationship', // 🆕 관계 선택 타입
+  },
+  {
+    id: 'speaking_style',
+    emoji: '💬',
+    label: t('persona_identity_creator_view.basic_sub_title_speaking_style'),
+    placeholder: t('persona_identity_creator_view.need_choose'),
+    guide: t('persona_identity_creator_view.basic_sub_title_speaking_style_guide'),
+    required: true,
+    group: 'basic',
+    type: 'select', // 🆕 선택 타입
+  },
+  {
+    id: 'identity',
+    emoji: '💫',
+    label: t('persona_identity_creator_view.personality_sub_title_identity'),
+    placeholder: t('persona_identity_creator_view.personality_sub_title_identity_placeholder'),
+    guide: '이 페르소나는 어떤 존재인가요?\n직업, 역할, 배경 등을 자유롭게 입력하세요.',
+    maxLength: 50,
+    required: true,
+    group: 'personality',
+  },
+  {
+    id: 'hobby',
+    emoji: '🎯',
+    label: t('persona_identity_creator_view.personality_sub_title_hobby'),
+    placeholder: t('persona_identity_creator_view.personality_sub_title_hobby_placeholder'),
+    guide: t('persona_identity_creator_view.personality_sub_title_hobby_guide'),
+    maxLength: 50,
+    required: true,
+    group: 'personality',
+  },
+  {
+    id: 'favorite',
+    emoji: '❤️',
+    label: t('persona_identity_creator_view.personality_sub_title_favorite'),
+    placeholder: t('persona_identity_creator_view.personality_sub_title_favorite_placeholder'),
+    guide: t('persona_identity_creator_view.personality_sub_title_favorite_guide'),
+    maxLength: 50,
+    required: true,
+    group: 'personality',
+  },
+];
+
+/**
+ * 💬 말투 선택 옵션
+ */
+const SPEAKING_STYLES = [
+  { id: 'formal', name: t('persona_identity_creator_view.speaking_style_formal'), emoji: '😊' },
+  { id: 'friendly', name: t('persona_identity_creator_view.speaking_style_friendly'), emoji: '👋' },
+  { id: 'casual', name: t('persona_identity_creator_view.speaking_style_casual'), emoji: '🥰' },
+  { id: 'sibling', name: t('persona_identity_creator_view.speaking_style_sibling'), emoji: '🤝' },
+];
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ANIMATION EFFECTS
@@ -335,8 +337,8 @@ const PersonaIdentityCreatorView = ({
     if (missingFields.length > 0) {
       showAlert({
         emoji: '⚠️',
-        title: '입력 미완료',
-        message: '모든 항목을 입력해야 대화를 시작할 수 있습니다.',
+        title: t('persona_identity_creator_view.not_complete'),
+        message: t('persona_identity_creator_view.not_complete_description'),
         buttons: [
           { text: t('common.confirm', '확인'), style: 'primary' }
         ],
@@ -368,10 +370,10 @@ const PersonaIdentityCreatorView = ({
       console.error('❌ [PersonaIdentityCreatorView] Save error:', error);
       showAlert({
         emoji: '❌',
-        title: '저장 실패',
-        message: '자아 정보를 저장하는 중 오류가 발생했습니다.',
+        title: t('persona_identity_creator_view.save_failed'),
+        message: t('persona_identity_creator_view.save_failed_description'),
         buttons: [
-          { text: '확인', style: 'primary' }
+          { text: t('common.confirm', '확인'), style: 'primary' }
         ],
       });
     } finally {
@@ -382,8 +384,8 @@ const PersonaIdentityCreatorView = ({
   const handleCancel = useCallback(() => {
     showAlert({
       emoji: '🔒',
-      title: '정말 취소하시겠습니까?',
-      message: '자아를 입력하지 않으면 채팅이 불가능합니다.\n채팅을 종료하시겠습니까?',
+      title: t('persona_identity_creator_view.cancel_confirm_title'),
+      message: t('persona_identity_creator_view.cancel_confirm_description'),
       buttons: [
         { 
           text: t('common.cancel', '계속 입력하기'), 
@@ -530,6 +532,7 @@ const PersonaIdentityCreatorView = ({
           style={[
             styles.fieldValue,
             !isCompleted && styles.fieldPlaceholder,
+            {color: 'white'}
           ]}
           numberOfLines={1}
         >
@@ -568,10 +571,10 @@ const PersonaIdentityCreatorView = ({
         {/* Header */}
         <View style={styles.header}>
           <CustomText type="title" bold style={styles.headerTitle}>
-            🎭 영혼 불어넣기
+            {t('persona_identity_creator_view.title', { persona_name: personaName })}
           </CustomText>
-          <CustomText type="small" style={styles.headerSubtitle}>
-            {progress.completed} / {progress.total} 완료
+          <CustomText type="normal" style={styles.headerSubtitle}>
+            ({progress.completed} / {progress.total})
           </CustomText>
         </View>
         
@@ -597,31 +600,23 @@ const PersonaIdentityCreatorView = ({
           showsVerticalScrollIndicator={false}
         >
           {/* 📝 기본 정보 */}
-          <CustomText type="middle" bold style={styles.sectionTitle}>
-            📝 기본 정보
+          <CustomText type="title" bold style={styles.sectionTitle}>
+          {t('persona_identity_creator_view.title_basic')}
           </CustomText>
           {IDENTITY_FIELDS.filter(f => f.group === 'basic').map(renderFieldItem)}
           
           {/* 🎨 개성 만들기 */}
           <CustomText type="middle" bold style={[styles.sectionTitle, { marginTop: verticalScale(20) }]}>
-            🎨 개성 만들기
+           {t('persona_identity_creator_view.title_personality')}
           </CustomText>
           {IDENTITY_FIELDS.filter(f => f.group === 'personality').map(renderFieldItem)}
           
-          {/* Story Message */}
-          <View style={styles.storyMessage}>
-            <CustomText type="small" style={styles.storyText}>
-              ✨ {progress.completed === progress.total 
-                ? '축하합니다! 이제 새로운 영혼이 탄생할 준비가 되었습니다!'
-                : '당신의 페르소나가 숨을 쉬기 시작합니다... 💙'}
-            </CustomText>
-          </View>
         </ScrollView>
         
         {/* Footer Buttons */}
         <View style={styles.footer}>
           <CustomButton
-            title="취소"
+            title={t('common.cancel', '취소')}
             onPress={handleCancel}
             type="outline"
             size="medium"
@@ -629,7 +624,7 @@ const PersonaIdentityCreatorView = ({
             disabled={saving}
           />
           <CustomButton
-            title="저장 ✨"
+            title={t('common.save', '저장')}
             onPress={handleSave}
             type="primary"
             size="medium"
@@ -669,9 +664,9 @@ const PersonaIdentityCreatorView = ({
       />
       <MessageInputOverlay
         ref={userNicknameInputRef}
-        title="👤 내 호칭 추가"
-        guide="AI가 당신을 어떻게 불러주길 원하나요?"
-        placeholder="예: JK, 형, 누나"
+        title={t('persona_identity_creator_view.message_input_overlay.title')}
+        guide={t('persona_identity_creator_view.message_input_overlay.guide')}
+        placeholder={t('persona_identity_creator_view.message_input_overlay.placeholder')}
         leftIcon="account"
         maxLength={15}
         initialValue=""
@@ -683,7 +678,7 @@ const PersonaIdentityCreatorView = ({
       
       <MessageInputOverlay
         ref={identityInputRef}
-        title="💫 자아 만들기"
+        title={t('persona_identity_creator_view.message_input_overlay.identity.title')}
         guide={IDENTITY_FIELDS.find(f => f.id === 'identity').guide}
         placeholder={IDENTITY_FIELDS.find(f => f.id === 'identity').placeholder}
         leftIcon="lightbulb"
@@ -693,7 +688,7 @@ const PersonaIdentityCreatorView = ({
       />
       <MessageInputOverlay
         ref={hobbyInputRef}
-        title="🎯 취미"
+        title={t('persona_identity_creator_view.message_input_overlay.hobby.title')}
         guide={IDENTITY_FIELDS.find(f => f.id === 'hobby').guide}
         placeholder={IDENTITY_FIELDS.find(f => f.id === 'hobby').placeholder}
         leftIcon="music"
@@ -703,7 +698,7 @@ const PersonaIdentityCreatorView = ({
       />
       <MessageInputOverlay
         ref={favoriteInputRef}
-        title="❤️ 좋아하는 것"
+        title={t('persona_identity_creator_view.message_input_overlay.favorite.title')}
         guide={IDENTITY_FIELDS.find(f => f.id === 'favorite').guide}
         placeholder={IDENTITY_FIELDS.find(f => f.id === 'favorite').placeholder}
         leftIcon="heart"
@@ -740,12 +735,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.BACKGROUND,
     zIndex: 1000,
+    marginTop: scale(100),
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
   },
   header: {
     paddingHorizontal: platformPadding(20),
-    paddingVertical: platformPadding(16),
+
     borderBottomWidth: 1,
     borderBottomColor: COLORS.DIVIDER,
+    flexDirection: 'row',
   },
   headerTitle: {
     color: COLORS.TEXT_PRIMARY,
@@ -753,6 +752,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: COLORS.TEXT_SECONDARY,
+    marginLeft: scale(8),
   },
   progressContainer: {
     paddingHorizontal: platformPadding(20),
@@ -789,7 +789,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: COLORS.DIVIDER,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingVertical: verticalScale(12),
     paddingHorizontal: platformPadding(16),
     marginBottom: verticalScale(12),
@@ -819,11 +819,11 @@ const styles = StyleSheet.create({
     borderColor: COLORS.TEXT_TERTIARY,
   },
   fieldValue: {
-    color: COLORS.TEXT_PRIMARY,
+    color: 'white',
     marginLeft: scale(28),
   },
   fieldPlaceholder: {
-    color: COLORS.TEXT_TERTIARY,
+    color: 'white',
     opacity: 0.6,
   },
   storyMessage: {
@@ -862,13 +862,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: COLORS.DIVIDER,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingVertical: verticalScale(16),
     paddingHorizontal: platformPadding(16),
     marginBottom: verticalScale(12),
   },
   tagFieldGuide: {
-    color: COLORS.TEXT_TERTIARY,
+    color: 'white',
     marginBottom: verticalScale(12),
     marginLeft: scale(28),
     fontSize: moderateScale(12),

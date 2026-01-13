@@ -14,7 +14,7 @@
  * @date 2026-01-04 - REDESIGNED for visual consistency with Front
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView, ImageBackground, Platform } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -57,6 +57,15 @@ const PostcardBack = ({
   const messageTranslateY = useSharedValue(20); // ⭐ Slide up effect
   const closeButtonOpacity = useSharedValue(0);
   const closeButtonScale = useSharedValue(0.8);
+  const [backImage, setBackImage] = useState(null);
+
+  useEffect(() => {
+    if (persona?.selected_dress_image_url) {
+      setBackImage(persona.selected_dress_image_url);
+    } else if (persona?.persona_url) {
+      setBackImage(persona.persona_url);
+    }
+  }, [persona?.selected_dress_image_url, persona?.persona_url]);
 
   // ⭐ Get persona data
   const personaComment = persona?.selected_dress_persona_comment || '';
@@ -217,6 +226,7 @@ const PostcardBack = ({
       console.log('   selected_dress_image_url:', persona?.selected_dress_image_url);
       console.log('   persona_url:', persona?.persona_url);
       console.log('   done_yn:', persona?.done_yn);
+      console.log('   backImage:', backImage);
 
       // ⭐ Start sequential animation (모든 항목 순차적!)
       // 1. Thumbnail (페르소나 썸네일) - 400ms
@@ -307,21 +317,16 @@ const PostcardBack = ({
   return (
     <View style={styles.container}>
       {/* ⭐ Background: Generated Image with Blur (or fallback gradient) */}
-      {backgroundImage ? (
+    
         <ImageBackground
-          source={{ uri: backgroundImage }}
+          source={{ uri: backImage }}
           style={styles.backgroundImage}
           blurRadius={Platform.OS === 'ios' ? 12 : 8} // ⭐ iOS: stronger blur, Android: lighter (performance)
           resizeMode="cover"
         >
           {renderOverlayAndCard()}
         </ImageBackground>
-      ) : (
-        // ⭐ Fallback: Dark gradient background
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          {renderOverlayAndCard()}
-        </View>
-      )}
+      
     </View>
   );
 
@@ -348,15 +353,13 @@ const PostcardBack = ({
         <View style={styles.headerSection}>
           {/* 1. Persona Thumbnail - Animated */}
           <Animated.View style={[styles.thumbnailContainer, thumbnailAnimStyle]}>
-            {personaThumbnail ? (
+ 
               <Image
-                source={{ uri: personaThumbnail }}
+                source={{ uri: backImage }}
                 style={styles.thumbnailImage}
                 resizeMode="cover"
               />
-            ) : (
-              <Icon name="account-circle" size={scale(60)} color="rgba(255, 255, 255, 0.8)" />
-            )}
+
           </Animated.View>
           
           {/* 2. Title - Animated */}

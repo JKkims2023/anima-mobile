@@ -910,7 +910,7 @@ const ManagerAIOverlay = ({
         
         // 🚀 Display bubbles sequentially using setTimeout chain
         bubbles.forEach((bubble, index) => {
-          cumulativeDelay += bubble.delay;
+          cumulativeDelay += (bubble.delay - 500);
           
           setTimeout(() => {
             if (bubble.delay > 0 && index > 0) {
@@ -957,7 +957,7 @@ const ManagerAIOverlay = ({
           
           setMessages(prev => [...prev, buttonMessage]);
           setMessageVersion(v => v + 1);
-        }, cumulativeDelay + 3500);
+        }, cumulativeDelay + 2000);
         
       } else {
         // Normal welcome message

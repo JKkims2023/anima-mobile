@@ -2519,5 +2519,67 @@
   "choice_persona_sheet": {
     "title": "페르소나 생성",
     "description": "당신이 선택한 이미지를 기반으로 새로운 케릭터 페르소나를 생성합니다.\n본 서비스는, 사용자 선택에 의해 참고된 사진의 어떤 법적 책임도 지지 않으며, 본인의 사진 또는, 저작권에 위배되지 않는 사진임을 확인 후,이에 동의하고 페르소나를 생성 하시겠습니까?"
+  },
+  "persona_identity_creator_view": {
+    "title": "{{persona_name}}의 자아 설정",
+    "title_basic" : "기본정보",
+    "basic_sub_title_my_nickname" : "페르소나가 나를 부르는 호칭",
+    "basic_sub_title_my_nickname_placeholder" : "예: 자기야~, 형, 누나",
+    "basic_sub_title_my_nickname_guide" : "AI가 당신을 어떻게 불러주길 원하나요? (여러 개 가능)",
+    "basic_sub_title_relationship" : "우리의 관계 (페르소나)",
+    "basic_sub_title_speaking_style" : "페르소나 말투",
+    "title_personality" : "개성 만들기",
+    "personality_sub_title_identity" : "자아 (직업/역할)",
+    "personality_sub_title_identity_placeholder" : "예: K-POP 아이돌, 영화배우, 의사",
+    "personality_sub_title_hobby" : "취미",
+    "personality_sub_title_hobby_placeholder" : "예: 음악 감상, 영화 보기, 책 읽기",
+    "personality_sub_title_hobby_guide" : "페르소나가 좋아하는 활동을 입력하세요.",
+    "personality_sub_title_favorite" : "좋아하는 것",
+    "need_choose" : "선택해주세요",
+    "speaking_style_formal" : "정중한 존댓말",
+    "speaking_style_friendly" : "친근한 반말",
+    "speaking_style_casual" : "편한 반말",
+    "speaking_style_sibling" : "다정한 언니/오빠",
+    "not_complete" : "입력 미완료",
+    "not_complete_description" : "모든 항목을 입력해야 대화를 시작할 수 있습니다.",
+    "cancel_confirm_title" : "정말 취소하시겠습니까?",
+    "cancel_confirm_description" : "자아를 입력하지 않으면 채팅이 불가능합니다.\n채팅을 종료하시겠습니까?",
+    "save_failed" : "저장 실패",
+    "save_failed_description" : "자아 정보를 저장하는 중 오류가 발생했습니다.",
+    "save_success" : "저장 성공",
+    "save_success_description" : "자아 정보가 저장되었습니다.",
+    "message_input_overlay" : {
+      "title" : "👤 내 호칭 추가",
+      "guide" : "당신을 어떻게 불러주길 원하나요?",
+      "placeholder" : "예: 자기야~, 형, 누나",
+      "left_icon" : "account",
+      "max_length" : 15,
+      "initial_value" : "",
+      "on_save" : "저장",
+      "identity" : {
+        "title" : "💫 자아 만들기",
+        "guide" : "자아를 입력하세요.",
+        "placeholder" : "예: K-POP 아이돌, 영화배우, 의사",
+        "left_icon" : "lightbulb",
+        "max_length" : 100,
+        "initial_value" : ""
+      },
+      "hobby" : {
+        "title" : "🎯 취미",
+        "guide" : "취미를 입력하세요.",
+        "placeholder" : "예: 음악 감상, 영화 보기, 책 읽기",
+        "left_icon" : "music",
+        "max_length" : 100,
+        "initial_value" : ""
+      },
+      "favorite" : {
+        "title" : "❤️ 좋아하는 것",
+        "guide" : "좋아하는 것을 입력하세요.",
+        "placeholder" : "예: 라떼, 봄날, 클래식 음악",
+        "left_icon" : "heart",
+        "max_length" : 100,
+        "initial_value" : ""
+      }
+    }
   }
 }
