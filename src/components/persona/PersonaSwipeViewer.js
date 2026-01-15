@@ -54,6 +54,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {boolean} props.refreshing - Whether the list is refreshing (pull-to-refresh)
  * @param {Function} props.onRefresh - Callback when user pulls to refresh
  * @param {Object} props.user - User object (from parent, for chips)
+ * @param {Function} props.onOpenFullView - Callback when user clicks on persona image (전체창 오픈)
  */
 const PersonaSwipeViewer = forwardRef(({ 
   personas,
@@ -78,6 +79,7 @@ const PersonaSwipeViewer = forwardRef(({
   isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
   onMarkAsRead, // ⭐ NEW: Callback when comment is marked as read
+  onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
   // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
 }, ref) => {
   const { currentTheme } = useTheme();
@@ -231,10 +233,11 @@ const PersonaSwipeViewer = forwardRef(({
           onFlipChange={onPostcardFlipChange} // ⭐ NEW: Pass flip change callback
           user={userProp} // ⭐ NEW: Pass user for PostcardBack API call
           onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for comment read
+          onOpenFullView={onOpenFullView} // ⭐ NEW: Pass callback for full view (전체창)
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onPostcardFlipChange, userProp, onMarkAsRead, personaCardRefs]);
+  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onPostcardFlipChange, userProp, onMarkAsRead, personaCardRefs, onOpenFullView]);
 
   // ✅ Key extractor (optimized)
   // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes

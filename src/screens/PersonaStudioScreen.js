@@ -23,7 +23,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter, Share } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
@@ -51,6 +51,7 @@ import DressManageSheer from '../components/persona/DressManageSheer';
 import PersonaShareSheet from '../components/persona/PersonaShareSheet';
 import SlideMenu from '../components/SlideMenu'; // ⭐ NEW: Slide menu
 import TierUpgradeSheet from '../components/tier/TierUpgradeSheet'; // ⭐ NEW: Tier upgrade sheet
+import PersonaFullViewOverlay from '../components/persona/PersonaFullViewOverlay'; // ⭐ NEW: Full view overlay
 
 import { 
   createPersona,
@@ -166,6 +167,8 @@ const PersonaStudioScreen = () => {
   const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false); // ⭐ NEW: Slide menu state
   const [isManagerAIChatOpen, setIsManagerAIChatOpen] = useState(false); // ⭐ NEW: Track ManagerAI overlay state for performance
   const [showTierUpgrade, setShowTierUpgrade] = useState(false); // ⭐ NEW: Track tier upgrade state for performance
+  const [isFullViewOpen, setIsFullViewOpen] = useState(false); // ⭐ NEW: Persona full view state
+  const [fullViewPersona, setFullViewPersona] = useState(null); // ⭐ NEW: Persona for full view
   // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
   useEffect(() => {
     setIsMessageCreationActive(isMessageCreationVisible);
@@ -1417,9 +1420,112 @@ const PersonaStudioScreen = () => {
     setIsShareOpen(true);
   }, [isShareOpen]);
 
-  const handlePersonaShare = useCallback(async (type) => {
-    console.log('type: ', type);
+  // ⭐ NEW: Handle open full view (전체창 오픈)
+  const handleOpenFullView = useCallback((persona) => {
+    if (__DEV__) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🖼️ [PersonaStudioScreen] Opening full view');
+      console.log('   Persona:', persona.persona_name);
+      console.log('   done_yn:', persona.done_yn);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
+    if (persona.done_yn !== 'Y') {
+      showToast({
+        type: 'warning',
+        emoji: '⏳',
+        message: t('persona.creation.still_processing'),
+      });
+      return;
+    }
+    
+    HapticService.medium();
+    setFullViewPersona(persona);
+    setIsFullViewOpen(true);
+  }, [showToast, t]);
+
+  // ⭐ NEW: Handle close full view (전체창 닫기)
+  const handleCloseFullView = useCallback(() => {
+    console.log('handleCloseFullView');
+    HapticService.light();
+    setIsFullViewOpen(false);
+    setFullViewPersona(null);
   }, []);
+
+  // ⭐ NEW: Handle open share from full view (전체창에서 공유하기)
+  const handleOpenShareFromFullView = useCallback(() => {
+    HapticService.light();
+    setIsShareOpen(true); // ⭐ PersonaShareSheet 오픈
+  }, []);
+
+  const handlePersonaShare = useCallback(async (type) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔗 [PersonaStudioScreen] Share requested');
+    console.log('   Type:', type);
+    console.log('   Persona:', fullViewPersona?.persona_name);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    if (!fullViewPersona) {
+      console.warn('[PersonaStudioScreen] No persona to share');
+      return;
+    }
+    
+    try {
+      let shareContent = {
+        title: `ANIMA Persona - ${fullViewPersona.persona_name}`,
+        message: fullViewPersona.persona_description || `Check out my ANIMA Persona: ${fullViewPersona.persona_name}`,
+      };
+      
+      // Determine URL based on share type
+      switch (type) {
+        case 'image':
+          shareContent.url = fullViewPersona.selected_dress_image_url || fullViewPersona.persona_url;
+          break;
+        case 'video':
+          if (fullViewPersona.selected_dress_video_url && 
+              fullViewPersona.selected_dress_video_convert_done === 'Y') {
+            shareContent.url = fullViewPersona.selected_dress_video_url;
+          } else {
+            showToast({
+              type: 'warning',
+              emoji: '⚠️',
+              message: t('persona.share.no_video') || '비디오가 아직 준비되지 않았습니다.',
+            });
+            return;
+          }
+          break;
+        case 'link':
+          // TODO: Generate persona profile link
+          shareContent.url = `https://anima.app/persona/${fullViewPersona.persona_key}`;
+          break;
+        default:
+          shareContent.url = fullViewPersona.persona_url;
+      }
+      
+      const result = await Share.share(shareContent);
+      
+      if (result.action === Share.sharedAction) {
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: '✅',
+          message: t('persona.share.success') || '공유가 완료되었습니다!',
+        });
+        
+        // Close sheets after successful share
+        setIsShareOpen(false);
+        setIsFullViewOpen(false);
+      }
+    } catch (error) {
+      console.error('[PersonaStudioScreen] Share error:', error);
+      HapticService.warning();
+      showToast({
+        type: 'error',
+        emoji: '⚠️',
+        message: t('errors.generic'),
+      });
+    }
+  }, [fullViewPersona, showToast, t]);
 
   const handleDeleteClick  = () => {
     console.log('handleDeleteClick');
@@ -1987,7 +2093,7 @@ const PersonaStudioScreen = () => {
             personas={currentFilteredPersonas}
             isModeActive={true}
             isScreenFocused={isScreenFocused && !isMessageCreationVisible}
-            isScreenActive={!isManagerAIChatOpen} // ⭐ NEW: Deactivate background animations when ManagerAI is open (performance!)
+            isScreenActive={!isManagerAIChatOpen && !isFullViewOpen} // ⭐ UPDATED: Also pause when full view is open!
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
             onIndexChange={handlePersonaChange}
@@ -2005,6 +2111,7 @@ const PersonaStudioScreen = () => {
             isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
             onMarkAsRead={handleMarkAsRead} // ⭐ NEW: Callback for comment marked as read (badge removal!)
+            onOpenFullView={handleOpenFullView} // ⭐ NEW: Callback for full view (전체창)
             // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
           />
         </View>
@@ -2142,12 +2249,24 @@ const PersonaStudioScreen = () => {
     {isShareOpen && (
       <PersonaShareSheet
         isOpen={isShareOpen}
-        persona={settingsPersona}
+        persona={fullViewPersona} // ⭐ CHANGED: Use fullViewPersona instead of settingsPersona
         onHandleShare={handlePersonaShare}
         onClose={() => setIsShareOpen(false)}
       />
     )}
     
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {/* ⭐ NEW: Persona Full View Overlay (전체창 with 핀치줌) */}
+    {/* ⚡ PERFORMANCE FIX: Conditional mounting */}
+    {/* ═════════════════════════════════════════════════════════════════ */}
+    {isFullViewOpen && (
+      <PersonaFullViewOverlay
+        visible={isFullViewOpen}
+        persona={fullViewPersona}
+        onClose={handleCloseFullView}
+        onShare={handleOpenShareFromFullView}
+      />
+    )}
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* MessageInputOverlay for Name Change (Always rendered, ref-based) */}

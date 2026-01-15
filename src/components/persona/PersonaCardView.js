@@ -20,6 +20,7 @@ import React, { useState, useRef, useEffect, useMemo, memo, forwardRef, useImper
 import {
   View,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   StyleSheet,
   Dimensions,
@@ -56,6 +57,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * @param {Function} props.onFlipChange - Callback when card flips (true = postcard visible, false = persona visible)
  * @param {Object} props.user - User object (for API calls in PostcardBack)
  * @param {Function} props.onMarkAsRead - Callback when comment is marked as read
+ * @param {Function} props.onOpenFullView - Callback when user clicks on persona image (전체창 오픈)
  */
 const PersonaCardView = forwardRef(({ 
   persona, 
@@ -71,6 +73,7 @@ const PersonaCardView = forwardRef(({
   onFlipChange, // ⭐ NEW: Callback for flip state change
   user, // ⭐ NEW: User object for PostcardBack
   onMarkAsRead, // ⭐ NEW: Callback for comment read
+  onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
 }, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
@@ -377,16 +380,28 @@ const PersonaCardView = forwardRef(({
   };
 
   return (
-    <View style={[styles.flipContainer, { height: availableHeight_local }]}>
-      {/* ⭐ FRONT VIEW - Original Persona Card */}
-      <Animated.View 
-        style={[
-          styles.container, 
-          { height: availableHeight_local },
-          frontAnimatedStyle
-        ]}
-        pointerEvents={isFlipped ? 'none' : 'box-none'}
-      >
+    <TouchableWithoutFeedback
+      onPress={() => {
+        // ✅ 전체창 오픈 조건:
+        // 1. done_yn === 'Y' (생성 완료)
+        // 2. !isFlipped (뒷면이 아닐 때)
+        // 3. onOpenFullView가 존재할 때
+        if (persona?.done_yn === 'Y' && !isFlipped && onOpenFullView) {
+          HapticService.medium();
+          onOpenFullView(persona);
+        }
+      }}
+    >
+      <View style={[styles.flipContainer, { height: availableHeight_local }]}>
+        {/* ⭐ FRONT VIEW - Original Persona Card */}
+        <Animated.View 
+          style={[
+            styles.container, 
+            { height: availableHeight_local },
+            frontAnimatedStyle
+          ]}
+          pointerEvents={isFlipped ? 'none' : 'box-none'}
+        >
         {/* 1. Background Image (Native Image) - Testing if FastImage is the issue */}
         <Image
           source={{ uri: imageUrl }}
@@ -546,7 +561,8 @@ const PersonaCardView = forwardRef(({
           onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for read notification
         />
       </Animated.View>
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 });
 
