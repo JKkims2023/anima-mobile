@@ -215,6 +215,7 @@ export const MESSAGE_ENDPOINTS = {
   FAVORITE: API_BASE_URL + '/api/message/favorite',
   REPLY: API_BASE_URL + '/api/message/reply', // ⭐ Reply to message
   REPLIES: API_BASE_URL + '/api/message/replies', // ⭐ Get replies list
+  VALIDATE: API_BASE_URL + '/api/validate-message', // ⭐ Message content validation (LLM-based)
 };
 
 /**
