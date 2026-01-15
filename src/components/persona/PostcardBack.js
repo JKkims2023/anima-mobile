@@ -59,13 +59,28 @@ const PostcardBack = ({
   const closeButtonScale = useSharedValue(0.8);
   const [backImage, setBackImage] = useState(null);
 
+  // 🔥 CRITICAL FIX: Force image reset on isVisible change!
+  // This ensures images reload even with the same URL
   useEffect(() => {
-    if (persona?.selected_dress_image_url) {
-      setBackImage(persona.selected_dress_image_url);
-    } else if (persona?.persona_url) {
-      setBackImage(persona.persona_url);
+    if (isVisible && persona) {
+      // Step 1: Reset to null first (force unmount)
+      setBackImage(null);
+      
+      // Step 2: Set new image on next tick (force remount)
+      const timer = setTimeout(() => {
+        if (persona?.selected_dress_image_url) {
+          setBackImage(persona.selected_dress_image_url);
+        } else if (persona?.persona_url) {
+          setBackImage(persona.persona_url);
+        }
+      }, 0);
+      
+      return () => clearTimeout(timer);
+    } else if (!isVisible) {
+      // Reset when closing (cleanup)
+      setBackImage(null);
     }
-  }, [persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url]); // 🔥 FIX: persona_key 추가!
+  }, [isVisible, persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url]);
 
   // ⭐ Get persona data
   const personaComment = persona?.selected_dress_persona_comment || '';
