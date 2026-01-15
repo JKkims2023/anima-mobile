@@ -65,7 +65,7 @@ const PostcardBack = ({
     } else if (persona?.persona_url) {
       setBackImage(persona.persona_url);
     }
-  }, [persona?.selected_dress_image_url, persona?.persona_url]);
+  }, [persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url]); // 🔥 FIX: persona_key 추가!
 
   // ⭐ Get persona data
   const personaComment = persona?.selected_dress_persona_comment || '';
