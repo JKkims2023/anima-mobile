@@ -45,7 +45,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { currentTheme } = useTheme();
   const { setSelectedIndex, selectedPersona, selectedPersonaRef, selectedIndex, mode, switchMode } = usePersona(); // 🔥 NEW: Add selectedPersonaRef
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage, isMessageCreationActive, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state and message creation state from Context
+  const { hasNewMessage, isMessageCreationActive, messageCreateHandler, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state, message creation state, and handler from Context
 
 
   const { t } = useTranslation();
@@ -116,6 +116,16 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
+    
+    // ⭐ NEW: If message creation mode is active, trigger message creation
+    if (isMessageCreationActive && messageCreateHandler) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🎯 [CustomTabBar] Message Creation Mode Active!');
+      console.log('   Calling messageCreateHandler...');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      messageCreateHandler();
+      return; // ⭐ Stop here - don't open chat!
+    }
     
     // 🔥 CRITICAL FIX: Use ref for IMMEDIATE access to latest persona
     // This bypasses React's render cycle delay and ensures we ALWAYS have the most current data
@@ -205,7 +215,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       {/* Center AI Button (elevated, positioned absolutely) */}
       <View style={styles.centerButtonContainer}>
         <CenterAIButton
-          state={selectedPersona?.isManager ? 'sage' : 'persona'}
+          state={isMessageCreationActive ? 'message' : (selectedPersona?.isManager ? 'sage' : 'persona')}
           personaVideoUrl={
             selectedPersona?.selected_dress_video_url && 
             selectedPersona?.selected_dress_video_convert_yn === 'Y' 

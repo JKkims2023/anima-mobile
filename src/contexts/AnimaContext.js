@@ -57,6 +57,9 @@ export const AnimaProvider = ({ children }) => {
   // ⭐ Message Creation Active state (for Tab Bar blocking)
   const [isMessageCreationActive, setIsMessageCreationActive] = useState(false);
   
+  // ⭐ NEW: Message Create Handler (from MessageCreationOverlay)
+  const [messageCreateHandler, setMessageCreateHandler] = useState(null);
+  
   // ⭐ NEW: Show Default Personas setting
   const [showDefaultPersonas, setShowDefaultPersonas] = useState(true); // Default: true (show all 3 modes)
   
@@ -365,6 +368,8 @@ export const AnimaProvider = ({ children }) => {
     setCreatedMessageUrl,
     isMessageCreationActive,
     setIsMessageCreationActive,
+    messageCreateHandler,
+    setMessageCreateHandler,
     showDefaultPersonas,
     updateShowDefaultPersonas,
     // Tab Badges
@@ -388,6 +393,8 @@ export const AnimaProvider = ({ children }) => {
     setCreatedMessageUrl,
     isMessageCreationActive,
     setIsMessageCreationActive,
+    messageCreateHandler,
+    setMessageCreateHandler,
     showDefaultPersonas,
     updateShowDefaultPersonas,
     hasMemoryBadge,

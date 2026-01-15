@@ -119,7 +119,7 @@ import {
 const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const { theme,currentTheme } = useTheme();
   const { user } = useUser();
-  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl } = useAnima();
+  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl, createdMessageUrl, setMessageCreateHandler } = useAnima();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
@@ -311,6 +311,20 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       particleOpacity.value = withTiming(0, { duration: 400 });
     }
   }, [visible]);
+
+  // ⭐ Register message create handler in AnimaContext (for CustomTabBar)
+  useEffect(() => {
+    if (visible && setMessageCreateHandler) {
+      console.log('[MessageCreationOverlay] 🎯 Registering message create handler...');
+      // Register handleGenerateURL as the global message create handler
+      setMessageCreateHandler(() => handleGenerateURL);
+      
+      return () => {
+        console.log('[MessageCreationOverlay] 🎯 Unregistering message create handler...');
+        setMessageCreateHandler(null);
+      };
+    }
+  }, [visible, setMessageCreateHandler, handleGenerateURL]);
 
   // Animated Styles
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -819,7 +833,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
           message: feedbackMessage.message,
           buttons: [
             {
-              text: t('common.confirm') || '다시 작성하기',
+              text: t('common.rewrite') || '다시 작성하기',
               style: 'primary',
               onPress: () => {
                 console.log('[MessageCreationOverlay] User will rewrite message');
@@ -885,23 +899,18 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         // ⭐ Show AnimaAlert (with share option)
         HapticService.success();
         showAlert({
-          title: '메시지 생성 완료!',
+          title: t('message.create_done_alert.title') || '메시지 생성 완료!',
           emoji: '🎉',
-          message: '메시지가 성공적으로 생성되었습니다.\n지금 바로 공유하시겠습니까?',
+          message: t('message.create_done_alert.description') || '메시지가 성공적으로 생성되었습니다.\n지금 바로 공유하시겠습니까?',
           buttons: [
+
             {
-              text: '나중에',
-              style: 'cancel',
-              onPress: () => {
-                console.log('[MessageCreationOverlay] User chose to share later');
-              }
-            },
-            {
-              text: '공유하기',
+              text: t('common.confirm') || '확인',
               style: 'primary',
               onPress: () => {
-                console.log('[MessageCreationOverlay] User chose to share now');
-                handleShareMessage(shareUrl);
+
+                onClose();
+
               }
             }
           ]
@@ -909,7 +918,21 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       }
     } catch (error) {
       console.error('[MessageCreationOverlay] Create message error:', error);
-      Alert.alert(t('common.error'), '메시지 생성에 실패했습니다.');
+      showAlert({
+        title: t('common.error_title') || '오류발생',
+        emoji: '❌',
+        message: t('common.error') || '메시지 생성에 실패했습니다.',
+        buttons: [
+          {
+            text: t('common.confirm') || '확인',
+            style: 'primary',
+            onPress: () => {
+              // Focus on content input
+              onClose();
+            }
+          }
+        ]
+      });
     } finally {
       setIsCreating(false);
       setProcessingMessage(''); // ⭐ Clear processing message

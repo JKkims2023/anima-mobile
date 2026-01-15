@@ -7,7 +7,7 @@
  * "AI at the center of human connection"
  * 
  * Features:
- * - 3 States: Empty (+), SAGE (Manager), Persona (Face)
+ * - 4 States: Empty (+), SAGE (Manager), Persona (Face), Message (✉️)
  * - Semi-circle design (top rounded)
  * - Pulse animation for empty state
  * - Smooth state transitions
@@ -17,6 +17,7 @@
  * 1. Empty: Animated '+' icon with pulse (no persona selected)
  * 2. SAGE: Manager AI logo with blue theme
  * 3. Persona: Persona face image with theme color border
+ * 4. Message: Message creation icon (✉️) with gradient theme
  * 
  * @author JK & Hero AI
  * @date 2024-11-21
@@ -43,14 +44,14 @@ import HapticService from '../../utils/HapticService';
 /**
  * CenterAIButton Component
  * @param {Object} props
- * @param {string} props.state - 'empty' | 'sage' | 'persona'
+ * @param {string} props.state - 'empty' | 'sage' | 'persona' | 'message'
  * @param {string} props.personaImageUrl - Persona image URL (if state is 'persona')
  * @param {string} props.personaVideoUrl - Persona video URL (if state is 'persona')
  * @param {string} props.personaName - Persona name (if state is 'persona')
  * @param {Function} props.onPress - Press handler
  */
 const CenterAIButton = ({ 
-  state = 'sage', // 'empty' | 'sage' | 'persona'
+  state = 'sage', // 'empty' | 'sage' | 'persona' | 'message'
   personaImageUrl = null,
   personaVideoUrl = null,
   personaName = '',
@@ -189,6 +190,21 @@ const CenterAIButton = ({
           </View>
         );
         
+      case 'message':
+        return (
+          <View style={styles.contentContainer}>
+            <View style={[styles.messageIcon, { 
+              backgroundColor: '#FF6B9D', // ⭐ Gradient-like pink theme
+              borderColor: '#FFFFFF', // ✅ White border for contrast
+            }]}>
+              <CustomText style={styles.messageEmoji}>✉️</CustomText>
+            </View>
+            <CustomText style={[styles.label, { color: currentTheme.text }]}>
+              메시지
+            </CustomText>
+          </View>
+        );
+        
       default:
         return null;
     }
@@ -315,6 +331,25 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === 'ios' ? scale(20) : scale(24),
     lineHeight: scale(24),
     
+  },
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Message State
+  // ═══════════════════════════════════════════════════════════════════════════
+  messageIcon: {
+    width: TAB_BAR.CENTER_BUTTON_ICON_SIZE,
+    height: TAB_BAR.CENTER_BUTTON_ICON_SIZE,
+    borderRadius: TAB_BAR.CENTER_BUTTON_ICON_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: verticalScale(2),
+    // ✅ Border for visual clarity (color applied dynamically)
+    borderWidth: 2,
+  },
+  
+  messageEmoji: {
+    fontSize: scale(28),
+    lineHeight: scale(28),
   },
   
   // ═══════════════════════════════════════════════════════════════════════════
