@@ -102,7 +102,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       'Home': 'home',
    //   'History': 'history',
       'Memory': 'memory',
-      'Music': 'music',
+   //   'Music': 'music',
+      'History': 'history',
       'Settings': 'settings',
       'Persona': 'home', // Fallback to home context
       'AI': 'home', // Fallback to home context
@@ -159,10 +160,10 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     },
     /*
     { 
-      key: 'History',
-      icon: 'time-outline',
-      label: t('navigation.history') || '히스토리',
-      route: 'History', // Navigate to History screen
+      key: 'Music',
+      icon: 'musical-notes',
+      label: t('navigation.music') || '스튜디오',
+      route: 'Music', // Navigate to Music screen
     },
     */
     { 
@@ -172,11 +173,11 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       route: 'Memory', // Navigate to Memory screen
     },
     { key: 'AI', icon: null, label: '' }, // Center AI button
-    { 
-      key: 'Music',
-      icon: 'musical-notes',
-      label: t('navigation.music') || '스튜디오',
-      route: 'Music', // Navigate to Music screen
+    {
+      key: 'History',
+      icon: 'paper-plane',
+      label: t('navigation.history') || '히스토리',
+      route: 'History', // Navigate to History screen
     },
     { 
       key: 'Settings',

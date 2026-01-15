@@ -160,9 +160,9 @@ const IDENTITY_FIELDS = [
   {
     id: 'favorite',
     emoji: '❤️',
-    label: t('persona_identity_creator_view.personality_sub_title_favorite'),
-    placeholder: t('persona_identity_creator_view.personality_sub_title_favorite_placeholder'),
-    guide: t('persona_identity_creator_view.personality_sub_title_favorite_guide'),
+    label: t('persona_identity_creator_view.message_input_overlay.favorite.title'),
+    placeholder: t('persona_identity_creator_view.message_input_overlay.favorite.placeholder'),
+    guide: t('persona_identity_creator_view.message_input_overlay.favorite.guide'),
     maxLength: 50,
     required: true,
     group: 'personality',

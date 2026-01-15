@@ -174,6 +174,17 @@ const ManagerAIOverlay = ({
   const [isTyping, setIsTyping] = useState(false); // ⚡ Boolean only (true/false)
   const [currentTypingText, setCurrentTypingText] = useState(''); // ⚡ Complete text (set once!)
   
+  // 😴 NEW (2026-01-13): Real-time emotion from LLM
+  const [currentEmotion, setCurrentEmotion] = useState('sleeping');
+  
+  // 😴 Reset emotion when chat opens/closes
+  useEffect(() => {
+    if (visible) {
+      setCurrentEmotion('sleeping');
+      console.log('😴 [Emotion] Reset to sleeping');
+    }
+  }, [visible]);
+  
   // 🔥 [STATE LOG] messages
   useEffect(() => {
     if (__DEV__) {
@@ -1345,6 +1356,12 @@ const ManagerAIOverlay = ({
           identityDraftPending,
         } = parseRichContent(response.data);
         
+        // 😴 NEW (2026-01-13): Update emotion indicator
+        if (response.data?.user_emotion?.primary) {
+          setCurrentEmotion(response.data.user_emotion.primary);
+          console.log('😴 [Emotion] Updated:', response.data.user_emotion.primary);
+        }
+        
         // 🔍 DEBUG: Log parsed content
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         // Core parsed content log (simplified)
@@ -2149,6 +2166,7 @@ const ManagerAIOverlay = ({
                 visionMode={settings.vision_mode} // 🆕 Vision mode setting
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
                 persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
+                currentEmotion={currentEmotion} // 😴 NEW (2026-01-13): Real-time emotion indicator
               />
             </View>
             

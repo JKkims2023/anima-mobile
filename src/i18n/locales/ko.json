@@ -4,7 +4,7 @@
     "room": "자아",
     "persona": "페르소나",
     "music": "스튜디오",
-    "history": "히스토리",
+    "history": "메세지",
     "memory": "선물",
     "point": "포인트",
     "training": "선택모드",
@@ -15,7 +15,7 @@
       "memory": "페르소나의 선물",
       "message_mode": "메세지 편집",
       "studio": "스튜디오",
-      "history": "메세지 히스토리",
+      "history": "감성 메세지",
       "history_detail": "보낸 메세지",
       "point": "포인트 스토어",
       "settings": "설정"
@@ -61,6 +61,7 @@
     "delete": "삭제",
     "save": "저장",
     "share": "공유",
+    "zoom_pan_hint": "확대/축소 및 이동 가능 • 두 손가락 떼면 리셋",
     "loading": "로딩 중...",
     "loading_detail": "정보를 불러오는중",
     "complete": "완료",
@@ -2076,7 +2077,7 @@
     "message": "작성하기"
   },
   "history": {
-    "title": "메시지 히스토리",
+    "title": "감성 메세지",
     "messages_count": "개",
     "loading": "메시지 불러오는 중...",
     "empty": "생성한 메시지가 없습니다",

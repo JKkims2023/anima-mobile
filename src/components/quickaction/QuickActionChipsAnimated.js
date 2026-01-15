@@ -95,16 +95,17 @@ const QuickActionChipsAnimated = ({
     history: '#FFD93D',  // 🌟 골든 옐로우 - 빛나는 추억
     dress: '#A78BFA',    // 🦄 라벤더 - 꿈같은 변신
     delete: '#FF0000',   // 🔴 빨간색 - 삭제
+    message: '#6BB6FF',  // 
   };
 
   const actions = [
     { id: 'delete', icon: 'delete-forever-outline', label: '삭제', onClick: onDeleteClick, color: chipColors.delete },
     { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick, color: chipColors.video },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
-    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick, color: chipColors.share },
+//    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick, color: chipColors.share },
     { id: 'history', icon: 'mailbox-outline', label: '추억', onClick: onHistoryClick, color: chipColors.history },
     { id: 'dress', icon: 'tshirt-crew-outline', label: '드레스', onClick: onDressClick, color: chipColors.dress },
-//    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick },
+    { id: 'message', icon: 'message-text', label: '메시지', onClick: onMessageClick, color: chipColors.message },
   ];
   
   // ⭐ Rotation animation for hourglass (continuous)

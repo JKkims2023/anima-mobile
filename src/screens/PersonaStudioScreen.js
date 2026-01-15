@@ -23,7 +23,7 @@
  */
 
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter, Share } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter, Share, Animated, Easing } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconSearch from 'react-native-vector-icons/Ionicons';
@@ -84,6 +84,12 @@ const PersonaStudioScreen = () => {
   const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas, clearHomeBadge } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
+  
+  // ✨ Header Logo Animation Values (ANIMA 철학을 위한 감성적 등장 애니메이션)
+  const animaLogoTranslateX = useRef(new Animated.Value(-100)).current;
+  const animaLogoOpacity = useRef(new Animated.Value(0)).current;
+  const soulConnectionTranslateX = useRef(new Animated.Value(-100)).current;
+  const soulConnectionOpacity = useRef(new Animated.Value(0)).current;
   
   // 🔥 PERFORMANCE DEBUG: Render counter
   const renderCountRef = useRef(0);
@@ -218,6 +224,48 @@ const PersonaStudioScreen = () => {
     
     return () => backHandler.remove();
   }, [isSlideMenuOpen, isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
+  
+  // ✨ Start header logo animation on mount (ANIMA 감성적 등장)
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💫 [PersonaStudioScreen] Starting header logo animation');
+    console.log('   💙 ANIMA 철학을 위한 감성적 등장...');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // ANIMA 로고 애니메이션 (즉시 시작, 좌→우 슬라이드 + Fade In)
+    Animated.parallel([
+      Animated.timing(animaLogoTranslateX, {
+        toValue: 0,
+        duration: 1200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(animaLogoOpacity, {
+        toValue: 1,
+        duration: 1200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Soul Connection 애니메이션 (0.3초 지연, 좌→우 슬라이드 + Fade In)
+    Animated.parallel([
+      Animated.timing(soulConnectionTranslateX, {
+        toValue: 0,
+        duration: 1200,
+        delay: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(soulConnectionOpacity, {
+        toValue: 1,
+        duration: 1200,
+        delay: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []); // ✅ 빈 dependency array = 마운트 시 1회만 실행
   
   useEffect(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -1501,6 +1549,10 @@ const PersonaStudioScreen = () => {
         default:
           shareContent.url = fullViewPersona.persona_url;
       }
+
+      console.log('type: ', type);
+
+      console.log('shareContent: ', shareContent);
       
       const result = await Share.share(shareContent);
       
@@ -2005,30 +2057,44 @@ const PersonaStudioScreen = () => {
           <View style={styles.headerContent}>
             {/* ⭐ One-line Gradient Title: ANIMA + Soul Connection */}
             <View style={styles.titleRow}>
-              {/* ANIMA - Gradient Text (SVG) */}
-              <Svg height={scale(30)} width={scale(105)}>
-                <Defs>
-                  <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
-                    <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
-                  </LinearGradient>
-                </Defs>
-                <SvgText
-                  fill="url(#animaGradient)"
-                  fontSize={scale(26)}
-                  fontWeight="bold"
-                  x="0"
-                  y={scale(22)}
-                  letterSpacing="0.5"
-                >
-                  ANIMA
-                </SvgText>
-              </Svg>
+              {/* ✨ ANIMA - Gradient Text (SVG) with slide-in animation */}
+              <Animated.View 
+                style={{ 
+                  transform: [{ translateX: animaLogoTranslateX }],
+                  opacity: animaLogoOpacity 
+                }}
+              >
+                <Svg height={scale(30)} width={scale(105)}>
+                  <Defs>
+                    <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
+                      <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+                    </LinearGradient>
+                  </Defs>
+                  <SvgText
+                    fill="url(#animaGradient)"
+                    fontSize={scale(26)}
+                    fontWeight="bold"
+                    x="0"
+                    y={scale(22)}
+                    letterSpacing="0.5"
+                  >
+                    ANIMA
+                  </SvgText>
+                </Svg>
+              </Animated.View>
               
-              {/* Soul Connection - Subtitle */}
-              <CustomText style={styles.soulConnection}>
-                - Soul Connection
-              </CustomText>
+              {/* ✨ Soul Connection - Subtitle with delayed slide-in animation */}
+              <Animated.View 
+                style={{ 
+                  transform: [{ translateX: soulConnectionTranslateX }],
+                  opacity: soulConnectionOpacity 
+                }}
+              >
+                <CustomText style={styles.soulConnection}>
+                  - Soul Connection
+                </CustomText>
+              </Animated.View>
             </View>
           </View>
           

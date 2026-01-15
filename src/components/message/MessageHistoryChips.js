@@ -42,11 +42,6 @@ const MessageHistoryChips = memo(({
     onCommentPress?.();
   };
 
-  const handleFavoritePress = () => {
-    HapticService.light();
-    onFavoriteToggle?.();
-  };
-
   const handleSharePress = async () => {
     HapticService.light();
     
@@ -98,22 +93,6 @@ const MessageHistoryChips = memo(({
         )}
       </TouchableOpacity>
 
-      {/* Favorite Button */}
-      <TouchableOpacity
-        style={[
-          styles.chip,
-          {  },
-          isFavorite && { backgroundColor: currentTheme.mainColor }
-        ]}
-        onPress={handleFavoritePress}
-        activeOpacity={0.7}
-      >
-        <Icon
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          size={scale(20)}
-          color={isFavorite ? '#FFFFFF' : currentTheme.mainColor}
-        />
-      </TouchableOpacity>
 
       {/* Share Button */}
       <TouchableOpacity
@@ -158,6 +137,7 @@ const styles = StyleSheet.create({
     // position: 'absolute', // ← Removed
     // top: verticalScale(120), // ← Removed
     // right: scale(16), // ← Removed
+    marginTop: verticalScale(20),
     gap: verticalScale(10),
     zIndex: 100,
     elevation: 10, // Android

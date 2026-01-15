@@ -126,6 +126,9 @@ export const sendManagerAIMessage = async ({
         // 🎬 NEW: Real-time YouTube video search result
         youtube: response.data.data?.youtube || null,
         
+        // 😴 NEW (2026-01-13): Real-time user emotion from LLM
+        user_emotion: response.data.data?.user_emotion || null,
+        
         // Performance metrics
         response_time_ms: response.data.metadata?.response_time_ms,
         tokens: response.data.metadata?.tokens,

@@ -197,7 +197,7 @@ const PersonaFullViewOverlay = ({
           {/* Zoom + Pan Hint */}
           <View style={styles.hintContainer}>
             <CustomText type="small" style={[styles.hintText, { color: currentTheme.textSecondary }]}>
-              {t('persona.fullview.zoom_pan_hint') || '확대/축소 및 이동 가능 • 두 손가락 떼면 리셋'}
+              {t('common.zoom_pan_hint') || '확대/축소 및 이동 가능 • 두 손가락 떼면 리셋'}
             </CustomText>
           </View>
         </View>
@@ -214,7 +214,7 @@ const PersonaFullViewOverlay = ({
           >
             <Icon name="share" size={scale(24)} color="#FFFFFF" />
             <CustomText bold style={styles.shareButtonText}>
-              {t('persona.share') || '공유하기'}
+              {t('common.share')}
             </CustomText>
           </TouchableOpacity>
         </View>
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   },
   hintContainer: {
     position: 'absolute',
-    bottom: verticalScale(20),
+    bottom: verticalScale(0),
     alignSelf: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(8),

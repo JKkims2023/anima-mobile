@@ -15,7 +15,7 @@
  * @date 2024-11-21
  */
 
-import React, { useState, memo, useCallback, useEffect } from 'react';
+import React, { useState, memo, useCallback, useEffect, useMemo } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text, Animated, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -25,6 +25,7 @@ import { moderateScale, verticalScale, platformLineHeight, platformPadding } fro
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import CustomText from '../CustomText';
+import EmotionIndicator from './EmotionIndicator';
 
 const ChatInputBar = memo(({ 
   onSend, 
@@ -41,6 +42,7 @@ const ChatInputBar = memo(({
   visionMode = 'basic', // 🆕 Vision mode setting
   hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
   persona = null, // 🗣️ NEW: Persona info for speaking pattern visibility
+  currentEmotion = 'sleeping', // 😴 NEW: Current user emotion from LLM
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -51,6 +53,11 @@ const ChatInputBar = memo(({
   const [iosContentHeight, setIosContentHeight] = useState(0);
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
+  
+  // 🎯 PERFORMANCE DEBUG: Render tracking
+  if (__DEV__) {
+    console.log('🔄 [ChatInputBar] Rendering (emotion:', currentEmotion, ')');
+  }
   
 
   const handleSend = useCallback(() => {
@@ -169,14 +176,37 @@ const ChatInputBar = memo(({
     }
   }, [visionMode, disabled, onImageSelect]);
 
+  // 🎯 OPTIMIZATION: Memoize EmotionIndicator to prevent TextInput re-render
+  // When currentEmotion changes, only EmotionIndicator updates
+  const emotionIndicator = useMemo(() => {
+    if (__DEV__) {
+      console.log('🎭 [ChatInputBar] EmotionIndicator rendering:', currentEmotion);
+    }
+    return (
+      <View
+        style={[
+          styles.emotionButton,
+          {
+            backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
+          },
+        ]}
+      >
+        <EmotionIndicator emotion={currentEmotion} animated={true} />
+      </View>
+    );
+  }, [currentEmotion, currentTheme.backgroundColor]);
+
   return (
     <View style={styles.wrapper}>
       {/* 🎛️ REMOVED: Settings Menu (moved to parent ManagerAIOverlay!) */}
       
       {/* Input Container */}
       <View style={[styles.container, { backgroundColor: 'rgba(255, 255, 255, 0.15)'}]}>
-        {/* 🆕 Image Picker Button */}
-        {onImageSelect && (
+        {/* 😴 Emotion Indicator - Memoized for performance */}
+        {emotionIndicator}
+
+        {/* 🆕 Image Picker Button - HIDDEN (display: none 효과) */}
+        {false && onImageSelect && (
           <TouchableOpacity
             style={[
               styles.imageButton,
@@ -323,6 +353,15 @@ const styles = StyleSheet.create({
       textAlignVertical: 'top',
       lineHeight: platformLineHeight(moderateScale(16)),
     }),
+  },
+  emotionButton: {
+    width: moderateScale(44),
+    height: moderateScale(44),
+    borderRadius: moderateScale(22),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   imageButton: {
     width: moderateScale(44),
