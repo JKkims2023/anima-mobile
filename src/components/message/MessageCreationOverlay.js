@@ -786,6 +786,53 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       console.log('🚀 [MessageCreationOverlay] PROCEED GENERATION');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
+
+      console.log('messageContent:', messageContent);
+      console.log('JK')
+      
+      const validation = await validateMessage(messageContent);
+      
+      console.log('📊 [MessageCreationOverlay] Validation result:', validation);
+      
+      if (!validation.safe) {
+        // ═══════════════════════════════════════════════════════════════
+        // ⚠️ Validation Failed: Show LLM-generated emotional feedback
+        // ═══════════════════════════════════════════════════════════════
+        console.log('❌ [MessageCreationOverlay] Validation failed!');
+        console.log('   Category:', validation.category);
+        console.log('   Feedback:', validation.feedback);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        setIsCreating(false);
+        HapticService.warning();
+        
+        // ⭐ Use LLM-generated feedback (or fallback)
+        const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
+        
+        showAlert({
+          title: feedbackMessage.title,
+          emoji: feedbackMessage.emoji || '💙', // ⭐ Use backend emoji or default
+          message: feedbackMessage.message,
+          buttons: [
+            {
+              text: t('message.validation.rewrite_button') || '다시 작성하기',
+              style: 'primary',
+              onPress: () => {
+                console.log('[MessageCreationOverlay] User will rewrite message');
+                HapticService.light();
+                // ⭐ Focus on content input for rewrite
+                setTimeout(() => {
+                  contentInputRef.current?.present();
+                }, 300);
+              }
+            }
+          ]
+        });
+        
+        return;
+      }
+      
+
       // ⭐ Generate title from first 30 chars of content
       const autoTitle = messageContent.length > 30 
         ? messageContent.substring(0, 30) + '...'
@@ -890,6 +937,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       
       // Warning haptic + Toast
       HapticService.warning();
+
       showAlert({
         title: t('message.validation.content_required'),
         emoji: '✍️',
@@ -997,6 +1045,9 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
             
             setIsCreating(true); // ⭐ Show loading
             HapticService.light();
+
+            console.log('messageContent:', messageContent);
+            console.log('JK')
             
             const validation = await validateMessage(messageContent);
             
@@ -1019,7 +1070,7 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
               
               showAlert({
                 title: feedbackMessage.title,
-                emoji: '💙', // ⭐ Default emoji (title may include emoji)
+                emoji: feedbackMessage.emoji || '💙', // ⭐ Use backend emoji or default
                 message: feedbackMessage.message,
                 buttons: [
                   {
@@ -1366,18 +1417,6 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
         </LinearGradient>
       </Animated.View>
       </View>
-
-      {/* ⭐ Step 2 Guide: 효과 설정 가이드 */}
-      {showChipsGuide && messageContent && (
-        <Animated.View style={[
-          styles.stepGuideChips,
-          stepGuideChipsStyle,
-          guideChipsAnimatedStyle
-        ]}>
-          <CustomText style={styles.guideEmoji}>👉</CustomText>
-          <CustomText style={styles.guideText}>효과 설정</CustomText>
-        </Animated.View>
-      )}
 
       {/* ⭐ Quick Action Chips with Sequential Bounce Animation (2-Layer System + Emotion Preset) */}
       <Animated.View style={[
