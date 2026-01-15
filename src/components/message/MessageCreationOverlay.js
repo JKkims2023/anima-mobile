@@ -135,6 +135,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
   const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
+  const handleGenerateURLRef = useRef(null); // 🔧 FIX: Ref to always access latest handleGenerateURL (Closure Fix)
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management (2-Layer System)
@@ -317,19 +318,27 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     }
   }, [visible]);
 
+  // 🔧 FIX: Update ref whenever handleGenerateURL changes (Closure Fix)
+  useEffect(() => {
+    handleGenerateURLRef.current = handleGenerateURL;
+  }, [handleGenerateURL]);
+
   // ⭐ Register message create handler in AnimaContext (for CustomTabBar)
   useEffect(() => {
     if (visible && setMessageCreateHandler) {
       console.log('[MessageCreationOverlay] 🎯 Registering message create handler...');
-      // Register handleGenerateURL as the global message create handler
-      setMessageCreateHandler(() => handleGenerateURL);
+      // 🔧 FIX: Use ref to always call the latest handleGenerateURL (Closure Fix)
+      setMessageCreateHandler(() => () => {
+        console.log('[MessageCreationOverlay] 🎯 CustomTabBar triggered! Calling latest handleGenerateURL via ref...');
+        handleGenerateURLRef.current?.();
+      });
       
       return () => {
         console.log('[MessageCreationOverlay] 🎯 Unregistering message create handler...');
         setMessageCreateHandler(null);
       };
     }
-  }, [visible, setMessageCreateHandler, handleGenerateURL]);
+  }, [visible, setMessageCreateHandler]); // 🔧 FIX: Remove handleGenerateURL from deps (use ref instead)
 
   // Animated Styles
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -1720,21 +1729,35 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
       {/* ═════════════════════════════════════════════════════════════════ */}
       <CustomBottomSheet
         ref={validationFeedbackSheetRef}
-        height={verticalScale(400)}
-        snapPoints={[verticalScale(400)]}
+        snapPoints={['60%']}
+        title={'From. ' + selectedPersona?.persona_name}
+        buttons={[
+          {
+            title: t('common.rewrite'),
+            type: 'primary',
+            onPress: () => {
+              validationFeedbackSheetRef.current?.dismiss();
+              HapticService.light();
+              // Focus on content input for rewrite
+              setTimeout(() => {
+                contentInputRef.current?.present();
+              }, 300);
+            }
+          }
+        ]}
       >
         {validationFeedback && (
           <View style={{
             flex: 1,
             paddingHorizontal: scale(20),
             paddingTop: verticalScale(20),
-            paddingBottom: verticalScale(30),
+            paddingBottom: verticalScale(20),
           }}>
             {/* Title */}
             <CustomText style={{
-              fontSize: scale(20),
+              fontSize: scale(18),
               fontWeight: '700',
-              color: currentTheme.text,
+              color: 'white',
               marginBottom: verticalScale(20),
               textAlign: 'center',
             }}>
@@ -1748,7 +1771,7 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
               marginBottom: verticalScale(24),
             }}>
               {/* Left: Persona Image/Video */}
-              {validationFeedback.persona && (
+              {selectedPersona?.persona_key && (
                 <View style={{
                   width: scale(100),
                   height: scale(100),
@@ -1756,19 +1779,19 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
                   overflow: 'hidden',
                   backgroundColor: currentTheme.border,
                 }}>
-                  {validationFeedback.persona.video_url ? (
+                  {selectedPersona?.selected_dress_video_url && selectedPersona?.selected_dress_video_convert_done === 'Y' ? (
                     <Video
-                      source={{ uri: validationFeedback.persona.video_url }}
-                      style={{ width: '100%', height: '100%' }}
+                      source={{ uri: selectedPersona?.selected_dress_video_url }}
+                      style={{ width: '100%', height: '100%', backgroundColor:'red' }}
                       resizeMode="cover"
                       repeat
                       muted
                       paused={false}
                     />
-                  ) : validationFeedback.persona.image_url ? (
+                  ) : selectedPersona?.selected_dress_image_url ? (
                     <Image
-                      source={{ uri: validationFeedback.persona.image_url }}
-                      style={{ width: '100%', height: '100%' }}
+                      source={{ uri: selectedPersona?.selected_dress_image_url }}
+                      style={{ width: '100%', height: '100%', backgroundColor:'blue' }}
                       resizeMode="cover"
                     />
                   ) : null}
@@ -1787,31 +1810,14 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
               </View>
             </View>
 
-            {/* Button: Rewrite */}
-            <TouchableOpacity
-              style={{
-                backgroundColor: currentTheme.primary,
-                paddingVertical: verticalScale(14),
-                borderRadius: scale(12),
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                validationFeedbackSheetRef.current?.dismiss();
-                HapticService.light();
-                // Focus on content input for rewrite
-                setTimeout(() => {
-                  contentInputRef.current?.present();
-                }, 300);
-              }}
-            >
-              <CustomText style={{
-                fontSize: scale(16),
-                fontWeight: '600',
-                color: '#FFFFFF',
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <CustomText type='middle' bold style={{
+               
               }}>
-                {t('common.rewrite') || '다시 작성하기'}
+                {t('common.rejected_message_description')}
               </CustomText>
-            </TouchableOpacity>
+            </View>
+
           </View>
         )}
       </CustomBottomSheet>

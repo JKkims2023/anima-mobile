@@ -45,6 +45,7 @@
   },
   "common": {
     "error_title": "오류발생",
+    "rejected_message_description": "ANIMA의 서비스 정책과, 철학에 어긋나는 메시지입니다. 다시 작성해주세요.",
     "back": "뒤로가기",
     "notification": "알림",
     "messageHistory": "메시지 기록",
