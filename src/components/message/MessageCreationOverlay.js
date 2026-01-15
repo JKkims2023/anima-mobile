@@ -135,6 +135,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
   const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
+  
+  // 🔧 CRITICAL FIX: Ref for messageContent to avoid stale closure
+  const messageContentRef = useRef('');
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management (2-Layer System)
@@ -568,6 +571,13 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const textTranslateX = useSharedValue(0); // ✅ Only for slide_cross
   const textOpacity = useSharedValue(1); // ✅ Only for slide_cross
 
+  // 🔧 CRITICAL FIX: Keep ref in sync with state
+  useEffect(() => {
+    console.log('[MessageCreationOverlay] 🔄 Syncing messageContentRef with state');
+    console.log('   messageContent:', messageContent);
+    messageContentRef.current = messageContent;
+  }, [messageContent]);
+
   // ⭐ Fixed 'slide_cross' animation: Trigger on messageContent change
   useEffect(() => {
     console.log('[MessageCreationOverlay] 🎬 messageContent changed:', messageContent);
@@ -764,6 +774,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     console.log('   value length:', value.length);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setMessageContent(value);
+    messageContentRef.current = value; // 🔧 FIX: Update ref immediately!
     contentInputRef.current?.dismiss();
   }, []);
 
@@ -827,15 +838,18 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       setProcessingMessage(t('message.validation.validating') || '메시지 검증 중...'); // ⭐ NEW: Show validation message
       HapticService.success();
 
+      // 🔧 CRITICAL FIX: Use ref to get latest messageContent
+      const currentContent = messageContentRef.current;
+      
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🚀 [MessageCreationOverlay] PROCEED GENERATION');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
 
-      console.log('messageContent:', messageContent);
+      console.log('messageContent (REF):', currentContent);
       console.log('JK')
       
-      const validation = await validateMessage(messageContent);
+      const validation = await validateMessage(currentContent);
       
       console.log('📊 [MessageCreationOverlay] Validation result:', validation);
       
@@ -877,10 +891,10 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       console.log('✅ [MessageCreationOverlay] Validation passed! Creating message...');
       setProcessingMessage(t('message.creation.creating') || '메시지 생성 중...'); // ⭐ NEW: Change to creation message
 
-      // ⭐ Generate title from first 30 chars of content
-      const autoTitle = messageContent.length > 30 
-        ? messageContent.substring(0, 30) + '...'
-        : messageContent;
+      // ⭐ Generate title from first 30 chars of content (using ref!)
+      const autoTitle = currentContent.length > 30 
+        ? currentContent.substring(0, 30) + '...'
+        : currentContent;
 
       // ⭐ Build effect_config with 2-Layer System
       const effectConfig = {
@@ -894,7 +908,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         persona_key: selectedPersona?.persona_key,
         memory_key: selectedPersona?.history_key,
         message_title: autoTitle, // ⭐ 자동 생성된 제목
-        message_content: messageContent,
+        message_content: currentContent, // 🔧 FIX: Use ref value!
         text_animation: 'slide_cross', // ⭐ Fixed: 슬라이드 효과 (좌→우)
         particle_effect: activeEffect, // ⭐ 2-Layer System: activeEffect (backward compatibility)
         bg_music: bgMusic || 'none',
@@ -958,7 +972,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       setProcessingMessage(''); // ⭐ Clear processing message
     }
   }, [
-    messageContent,
+    // 🔧 FIX: messageContent removed (using ref instead!)
     customWords,
     user,
     selectedPersona,
@@ -976,19 +990,22 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // Handler: Generate URL (3단계 벨리데이션)
   // ═══════════════════════════════════════════════════════════════════════════
   const handleGenerateURL = useCallback(async () => {
+    // 🔧 CRITICAL FIX: Use ref to get latest messageContent (avoid stale closure!)
+    const currentContent = messageContentRef.current;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎯 [MessageCreationOverlay] GENERATE URL CLICKED');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📊 [DEBUG] Current messageContent:', messageContent);
-    console.log('📊 [DEBUG] messageContent length:', messageContent.length);
-    console.log('📊 [DEBUG] messageContent.trim():', messageContent.trim());
-    console.log('📊 [DEBUG] messageContent.trim() length:', messageContent.trim().length);
+    console.log('📊 [DEBUG] Current messageContent (REF):', currentContent);
+    console.log('📊 [DEBUG] messageContent length:', currentContent.length);
+    console.log('📊 [DEBUG] messageContent.trim():', currentContent.trim());
+    console.log('📊 [DEBUG] messageContent.trim() length:', currentContent.trim().length);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // ═══════════════════════════════════════════════════════════════════════════
     // 1️⃣ VALIDATION: Content Required
     // ═══════════════════════════════════════════════════════════════════════════
-    if (!messageContent.trim()) {
+    if (!currentContent.trim()) {
       console.log('❌ [MessageCreationOverlay] Content is empty!');
       
       // Shake animation
@@ -1096,6 +1113,9 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
           text: t('message.validation.button_create'), 
           style: 'destructive',
           onPress: async () => {
+            // 🔧 CRITICAL FIX: Use ref to get latest messageContent
+            const finalContent = messageContentRef.current;
+            
             // ═══════════════════════════════════════════════════════════════
             // 🛡️ NEW: Step 4 - Message Content Validation (ANIMA's Guardian)
             // ═══════════════════════════════════════════════════════════════
@@ -1105,10 +1125,10 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
             setIsCreating(true); // ⭐ Show loading
             HapticService.light();
 
-            console.log('messageContent:', messageContent);
+            console.log('messageContent (REF):', finalContent);
             console.log('JK')
             
-            const validation = await validateMessage(messageContent);
+            const validation = await validateMessage(finalContent);
             
             console.log('📊 [MessageCreationOverlay] Validation result:', validation);
             
@@ -1162,7 +1182,7 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
       ]
     });
   }, [
-    messageContent,
+    // 🔧 FIX: messageContent removed (using ref instead!)
     backgroundEffect, // ⭐ 2-Layer System: Layer 1
     activeEffect, // ⭐ 2-Layer System: Layer 2
     bgMusic,
