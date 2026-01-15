@@ -22,40 +22,50 @@ import { logError } from './errorHandler';
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * 🛡️ Validate Message Content (LLM-based Safety Check)
+ * 🛡️ Validate Message Content (LLM-based Safety Check) - Persona Voice Edition 💙
  * ═══════════════════════════════════════════════════════════════════════
  * 
- * Uses Claude 3.5 Sonnet via OpenRouter to perform content safety validation.
+ * Uses GPT-4o-mini via OpenRouter to perform content safety validation.
  * The LLM checks for inappropriate themes (violence, sexual content, hate speech, etc.)
- * and generates empathetic feedback messages in the user's language.
+ * and generates empathetic feedback messages IN PERSONA'S VOICE.
  * 
  * @param {string} messageContent - Message content to validate
+ * @param {string} personaKey - Persona key (for voice/tone)
+ * @param {string} userKey - User key (for relationship data)
  * @returns {Promise<Object>} Validation result
  * @returns {boolean} result.safe - Whether the content is safe
  * @returns {string} result.category - Category of violation (if unsafe)
- * @returns {Object} result.feedback - LLM-generated feedback message
+ * @returns {Object} result.feedback - LLM-generated feedback message (in persona's voice!)
  * @returns {string} result.feedback.title - Emotional title (15 chars max)
  * @returns {string} result.feedback.message - Empathetic feedback message (3-4 lines)
+ * @returns {Object} result.persona - Persona info (for CustomBottomSheet)
+ * @returns {string} result.persona.name - Persona name
+ * @returns {string} result.persona.image_url - Persona image URL
+ * @returns {string} result.persona.video_url - Persona video URL (if available)
  * 
  * @example
- * const result = await validateMessage("안녕하세요!");
+ * const result = await validateMessage("안녕하세요!", persona_key, user_key);
  * if (result.safe) {
  *   // Proceed with message creation
  * } else {
- *   // Show feedback: result.feedback.title, result.feedback.message
+ *   // Show feedback in CustomBottomSheet with persona's voice & image
  * }
  */
-export const validateMessage = async (messageContent) => {
+export const validateMessage = async (messageContent, personaKey, userKey) => {
   try {
     if (__DEV__) {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🛡️ [MessageAPI] Validating message content');
+      console.log('💙 [MessageAPI] Validating message (Persona Voice)');
       console.log('   Length:', messageContent?.length || 0);
+      console.log('   Persona Key:', personaKey);
+      console.log('   User Key:', userKey);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
     
     const response = await apiClient.post(MESSAGE_ENDPOINTS.VALIDATE, {
       message_content: messageContent,
+      persona_key: personaKey,
+      user_key: userKey,
     });
     
     if (__DEV__) {

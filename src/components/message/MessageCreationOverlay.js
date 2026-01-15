@@ -41,6 +41,7 @@ import {
   Platform,
   Share,
   Dimensions,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -133,6 +134,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const activeEffectSheetRef = useRef(null); // ⭐ NEW: Layer 2 (액티브 효과, 기존 particleEffectSheetRef)
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
+  const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management (2-Layer System)
@@ -195,6 +197,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [selectedActiveGroup, setSelectedActiveGroup] = useState('none'); // ⭐ NEW: Layer 2 group (기존 selectedParticleGroup)
   
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  
+  // ⭐ Validation Feedback State (for CustomBottomSheet)
+  const [validationFeedback, setValidationFeedback] = useState(null); // {feedback, persona}
   // ═══════════════════════════════════════════════════════════════════════════
   // Sequential Animation (악마의 디테일 🎨)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -765,14 +770,18 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   }), []);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ⭐ Message Validation (LLM-based content safety check)
+  // ⭐ Message Validation (LLM-based content safety check) - Persona Voice Edition 💙
   // ✅ ARCHITECTURE FIX: Use messageApi service instead of direct fetch
   // ═══════════════════════════════════════════════════════════════════════════
   const validateMessage = useCallback(async (content) => {
     try {
-      console.log('🛡️ [MessageCreationOverlay] Starting message validation...');
+      console.log('💙 [MessageCreationOverlay] Starting message validation (Persona Voice)...');
       
-      const result = await messageApi.validateMessage(content);
+      const result = await messageApi.validateMessage(
+        content,
+        selectedPersona?.persona_key, // ⭐ Persona Key for voice/tone
+        user?.user_key                // ⭐ User Key for relationship data
+      );
       
       console.log('✅ [MessageCreationOverlay] Validation result:', result);
       
@@ -788,7 +797,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         } 
       };
     }
-  }, [t]);
+  }, [t, selectedPersona, user]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handler: Proceed Generation (실제 메시지 생성)
@@ -813,11 +822,12 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       
       if (!validation.safe) {
         // ═══════════════════════════════════════════════════════════════
-        // ⚠️ Validation Failed: Show LLM-generated emotional feedback
+        // ⚠️ Validation Failed: Show Persona Voice Feedback in CustomBottomSheet 💙
         // ═══════════════════════════════════════════════════════════════
         console.log('❌ [MessageCreationOverlay] Validation failed!');
         console.log('   Category:', validation.category);
         console.log('   Feedback:', validation.feedback);
+        console.log('   Persona:', validation.persona);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         setIsCreating(false);
@@ -827,25 +837,16 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         // ⭐ Use LLM-generated feedback (or fallback)
         const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
         
-        showAlert({
-          title: feedbackMessage.title,
-          emoji: feedbackMessage.emoji || '💙', // ⭐ Use backend emoji or default
-          message: feedbackMessage.message,
-          buttons: [
-            {
-              text: t('common.rewrite') || '다시 작성하기',
-              style: 'primary',
-              onPress: () => {
-                console.log('[MessageCreationOverlay] User will rewrite message');
-                HapticService.light();
-                // ⭐ Focus on content input for rewrite
-                setTimeout(() => {
-                  contentInputRef.current?.present();
-                }, 300);
-              }
-            }
-          ]
+        // ⭐ Store validation feedback for CustomBottomSheet
+        setValidationFeedback({
+          feedback: feedbackMessage,
+          persona: validation.persona // ⭐ Persona info (name, image_url, video_url)
         });
+        
+        // ⭐ Open CustomBottomSheet with persona voice feedback
+        setTimeout(() => {
+          validationFeedbackSheetRef.current?.present();
+        }, 100);
         
         return;
       }
@@ -1713,6 +1714,107 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
 
         />
       </View>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* 💙 Validation Feedback (Persona Voice with Image/Video) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <CustomBottomSheet
+        ref={validationFeedbackSheetRef}
+        height={verticalScale(400)}
+        snapPoints={[verticalScale(400)]}
+      >
+        {validationFeedback && (
+          <View style={{
+            flex: 1,
+            paddingHorizontal: scale(20),
+            paddingTop: verticalScale(20),
+            paddingBottom: verticalScale(30),
+          }}>
+            {/* Title */}
+            <CustomText style={{
+              fontSize: scale(20),
+              fontWeight: '700',
+              color: currentTheme.text,
+              marginBottom: verticalScale(20),
+              textAlign: 'center',
+            }}>
+              {validationFeedback.feedback.title || '💙'}
+            </CustomText>
+
+            {/* Content: Persona Image/Video (Left) + Message (Right) */}
+            <View style={{
+              flexDirection: 'row',
+              gap: scale(16),
+              marginBottom: verticalScale(24),
+            }}>
+              {/* Left: Persona Image/Video */}
+              {validationFeedback.persona && (
+                <View style={{
+                  width: scale(100),
+                  height: scale(100),
+                  borderRadius: scale(12),
+                  overflow: 'hidden',
+                  backgroundColor: currentTheme.border,
+                }}>
+                  {validationFeedback.persona.video_url ? (
+                    <Video
+                      source={{ uri: validationFeedback.persona.video_url }}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                      repeat
+                      muted
+                      paused={false}
+                    />
+                  ) : validationFeedback.persona.image_url ? (
+                    <Image
+                      source={{ uri: validationFeedback.persona.image_url }}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
+                  ) : null}
+                </View>
+              )}
+
+              {/* Right: Feedback Message */}
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                <CustomText style={{
+                  fontSize: scale(15),
+                  lineHeight: scale(22),
+                  color: currentTheme.textSecondary,
+                }}>
+                  {validationFeedback.feedback.message}
+                </CustomText>
+              </View>
+            </View>
+
+            {/* Button: Rewrite */}
+            <TouchableOpacity
+              style={{
+                backgroundColor: currentTheme.primary,
+                paddingVertical: verticalScale(14),
+                borderRadius: scale(12),
+                alignItems: 'center',
+              }}
+              onPress={() => {
+                validationFeedbackSheetRef.current?.dismiss();
+                HapticService.light();
+                // Focus on content input for rewrite
+                setTimeout(() => {
+                  contentInputRef.current?.present();
+                }, 300);
+              }}
+            >
+              <CustomText style={{
+                fontSize: scale(16),
+                fontWeight: '600',
+                color: '#FFFFFF',
+              }}>
+                {t('common.rewrite') || '다시 작성하기'}
+              </CustomText>
+            </TouchableOpacity>
+          </View>
+        )}
+      </CustomBottomSheet>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* ⭐ Processing Loading Overlay (Validation & Creation) */}
