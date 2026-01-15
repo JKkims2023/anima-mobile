@@ -87,6 +87,7 @@ import EffectListView from '../EffectListView'; // ⭐ NEW: Effect list display
 import CustomBottomSheet from '../CustomBottomSheet';
 import WordInputOverlay from './WordInputOverlay'; // ⭐ FIXED: Modal-based for Korean input stability // ⭐ NEW: Custom words input
 import EmotionPresetBottomSheet from '../EmotionPresetBottomSheet'; // ⭐ NEW: Emotion presets
+import ProcessingLoadingOverlay from '../persona/ProcessingLoadingOverlay'; // ⭐ NEW: Universal loading overlay for validation & creation
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconSearch from 'react-native-vector-icons/Ionicons';
 import IconCreate from 'react-native-vector-icons/Ionicons';
@@ -148,6 +149,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [processingMessage, setProcessingMessage] = useState(''); // ⭐ NEW: Dynamic message for ProcessingLoadingOverlay
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
 
   // ⭐ NEW: Chip Tooltip Visibility (ANIMA's Ultimate Kindness)
@@ -780,6 +782,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const proceedGeneration = useCallback(async () => {
     try {
       setIsCreating(true);
+      setProcessingMessage(t('message.validation.validating') || '메시지 검증 중...'); // ⭐ NEW: Show validation message
       HapticService.success();
 
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -804,6 +807,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         setIsCreating(false);
+        setProcessingMessage(''); // ⭐ Clear processing message
         HapticService.warning();
         
         // ⭐ Use LLM-generated feedback (or fallback)
@@ -815,7 +819,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
           message: feedbackMessage.message,
           buttons: [
             {
-              text: t('message.validation.rewrite_button') || '다시 작성하기',
+              text: t('common.confirm') || '다시 작성하기',
               style: 'primary',
               onPress: () => {
                 console.log('[MessageCreationOverlay] User will rewrite message');
@@ -832,6 +836,12 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
         return;
       }
       
+
+      // ═══════════════════════════════════════════════════════════════
+      // ✅ Validation Passed: Proceed with message creation
+      // ═══════════════════════════════════════════════════════════════
+      console.log('✅ [MessageCreationOverlay] Validation passed! Creating message...');
+      setProcessingMessage(t('message.creation.creating') || '메시지 생성 중...'); // ⭐ NEW: Change to creation message
 
       // ⭐ Generate title from first 30 chars of content
       const autoTitle = messageContent.length > 30 
@@ -902,6 +912,7 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
       Alert.alert(t('common.error'), '메시지 생성에 실패했습니다.');
     } finally {
       setIsCreating(false);
+      setProcessingMessage(''); // ⭐ Clear processing message
     }
   }, [
     messageContent,
@@ -1679,6 +1690,14 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
 
         />
       </View>
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* ⭐ Processing Loading Overlay (Validation & Creation) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <ProcessingLoadingOverlay
+        visible={isCreating}
+        message={processingMessage}
+      />
 
     </Animated.View>
   );

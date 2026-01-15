@@ -1758,7 +1758,12 @@
       "final_confirm_message": "한번 생성한 메시지는 수정이 불가능합니다.\n\n정말 생성하시겠습니까?",
       "button_cancel": "취소",
       "button_recheck": "다시 확인",
-      "button_create": "생성하기"
+      "button_create": "생성하기",
+      "validating": "메시지 검증 중...",
+      "rewrite_button": "다시 작성하기"
+    },
+    "creation": {
+      "creating": "메시지 생성 중..."
     },
     "alert": {
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",
