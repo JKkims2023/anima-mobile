@@ -135,7 +135,6 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const wordInputSheetRef = useRef(null); // ⭐ NEW: Custom words input sheet
   const musicSelectionOverlayRef = useRef(null); // ⭐ NEW: Music selection overlay ref
   const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
-  const handleGenerateURLRef = useRef(null); // 🔧 FIX: Ref to always access latest handleGenerateURL (Closure Fix)
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State Management (2-Layer System)
@@ -318,27 +317,23 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
     }
   }, [visible]);
 
-  // 🔧 FIX: Update ref whenever handleGenerateURL changes (Closure Fix)
-  useEffect(() => {
-    handleGenerateURLRef.current = handleGenerateURL;
-  }, [handleGenerateURL]);
-
-  // ⭐ Register message create handler in AnimaContext (for CustomTabBar)
+  // 🔧 FIX: Register message create handler with latest handleGenerateURL
+  // 핵심: handleGenerateURL이 변경될 때마다 Context에 최신 함수를 등록!
   useEffect(() => {
     if (visible && setMessageCreateHandler) {
       console.log('[MessageCreationOverlay] 🎯 Registering message create handler...');
-      // 🔧 FIX: Use ref to always call the latest handleGenerateURL (Closure Fix)
-      setMessageCreateHandler(() => () => {
-        console.log('[MessageCreationOverlay] 🎯 CustomTabBar triggered! Calling latest handleGenerateURL via ref...');
-        handleGenerateURLRef.current?.();
-      });
+      console.log('[MessageCreationOverlay] 📊 messageContent at registration:', messageContent);
+      
+      // 🔧 CRITICAL FIX: Register CURRENT handleGenerateURL directly
+      // No ref! Context will hold the latest version!
+      setMessageCreateHandler(() => handleGenerateURL);
       
       return () => {
         console.log('[MessageCreationOverlay] 🎯 Unregistering message create handler...');
         setMessageCreateHandler(null);
       };
     }
-  }, [visible, setMessageCreateHandler]); // 🔧 FIX: Remove handleGenerateURL from deps (use ref instead)
+  }, [visible, setMessageCreateHandler, handleGenerateURL]); // ⭐ Include handleGenerateURL!
 
   // Animated Styles
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -968,6 +963,11 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   const handleGenerateURL = useCallback(async () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎯 [MessageCreationOverlay] GENERATE URL CLICKED');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📊 [DEBUG] Current messageContent:', messageContent);
+    console.log('📊 [DEBUG] messageContent length:', messageContent.length);
+    console.log('📊 [DEBUG] messageContent.trim():', messageContent.trim());
+    console.log('📊 [DEBUG] messageContent.trim() length:', messageContent.trim().length);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // ═══════════════════════════════════════════════════════════════════════════
