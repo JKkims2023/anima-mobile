@@ -320,6 +320,13 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // 🔧 FIX: Register message create handler with latest handleGenerateURL
   // 핵심: handleGenerateURL이 변경될 때마다 Context에 최신 함수를 등록!
   useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔄 [MessageCreationOverlay] useEffect (Registration) triggered!');
+    console.log('   visible:', visible);
+    console.log('   messageContent:', messageContent);
+    console.log('   messageContent length:', messageContent.length);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     if (visible && setMessageCreateHandler) {
       console.log('[MessageCreationOverlay] 🎯 Registering message create handler...');
       console.log('[MessageCreationOverlay] 📊 messageContent at registration:', messageContent);
@@ -563,6 +570,9 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
 
   // ⭐ Fixed 'slide_cross' animation: Trigger on messageContent change
   useEffect(() => {
+    console.log('[MessageCreationOverlay] 🎬 messageContent changed:', messageContent);
+    console.log('   messageContent length:', messageContent.length);
+    
     if (!messageContent) {
       // Reset animation values when content is empty
       textTranslateX.value = 0;
@@ -748,6 +758,11 @@ const MessageCreationOverlay = ({ visible, selectedPersona, onClose }) => {
   // Handlers: Message Input
   // ═══════════════════════════════════════════════════════════════════════════
   const handleContentSave = useCallback((value) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💾 [MessageCreationOverlay] handleContentSave CALLED!');
+    console.log('   value:', value);
+    console.log('   value length:', value.length);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setMessageContent(value);
     contentInputRef.current?.dismiss();
   }, []);
@@ -1404,24 +1419,6 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
           style={styles.gradient}
         >
 
-           {/* URL 생성 플로팅 버튼 (우측 상단) */}
-          <TouchableOpacity
-            onPress={handleGenerateURL}
-            disabled={isCreating}
-            style={[
-              styles.urlFloatingButton, 
-              { 
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-
-              }
-            ]}
-          >
-            {isCreating ? (
-              <IconCreate name="checkmark" size={scale(30)} color="#fff" />
-            ) : (
-              <IconCreate name="create" size={scale(30)} color="#fff" />
-            )}
-          </TouchableOpacity>
           
           {/* ⭐ Step 1 Guide: 컨텐츠 클릭 가이드 */}
           {showContentGuide && !messageContent && (
