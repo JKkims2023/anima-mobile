@@ -337,7 +337,8 @@ const PersonaStudioScreen = () => {
             savedIndexRef.current = 0;
             setCurrentPersonaIndex(0);
             setSelectedIndex(0);
-            setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+            setSelectedPersona(targetPersona); // ← Context 업데이트!
+            setCurrentPersona(targetPersona);  // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
             
             if (__DEV__) {
               console.log('[PersonaStudioScreen] ✅ Index synchronized with LATEST data');
@@ -383,7 +384,8 @@ const PersonaStudioScreen = () => {
             savedIndexRef.current = validIndex;
             setCurrentPersonaIndex(validIndex);
             setSelectedIndex(validIndex);
-            setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+            setSelectedPersona(targetPersona); // ← Context 업데이트!
+            setCurrentPersona(targetPersona);  // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
             
             if (__DEV__) {
               console.log('[PersonaStudioScreen] ✅ Index restored with LATEST data');
@@ -622,7 +624,8 @@ const PersonaStudioScreen = () => {
         savedIndexRef.current = validIndex;
         setCurrentPersonaIndex(validIndex);
         setSelectedIndex(validIndex);
-        setSelectedPersona(targetPersona); // ← 최신 데이터 즉시 Context 업데이트!
+        setSelectedPersona(targetPersona); // ← Context 업데이트!
+        setCurrentPersona(targetPersona);  // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
         
         // 🔥 FIX: Update settingsPersona if PersonaSettingsSheet is open
         if (settingsPersona && settingsPersona.persona_key) {
@@ -971,7 +974,8 @@ const PersonaStudioScreen = () => {
         savedIndexRef.current = 0;
         setCurrentPersonaIndex(0);
         setSelectedIndex(0);
-        setSelectedPersona(targetPersona);
+        setSelectedPersona(targetPersona); // ← Context 업데이트!
+        setCurrentPersona(targetPersona);  // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
         
         if (__DEV__) {
           console.log('[PersonaStudioScreen] ✅ New persona created, reset to index 0');
@@ -1933,7 +1937,8 @@ const PersonaStudioScreen = () => {
           savedIndexRef.current = newIndex;
           setCurrentPersonaIndex(newIndex);
           setSelectedIndex(newIndex);
-          setSelectedPersona(targetPersona);
+          setSelectedPersona(targetPersona); // ← Context 업데이트!
+          setCurrentPersona(targetPersona);  // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
           
           if (__DEV__) {
             console.log('[PersonaStudioScreen] ✅ Persona deleted, index updated');
@@ -1956,7 +1961,8 @@ const PersonaStudioScreen = () => {
           savedIndexRef.current = 0;
           setCurrentPersonaIndex(0);
           setSelectedIndex(0);
-          setSelectedPersona(null);
+          setSelectedPersona(null);  // ← Context 업데이트!
+          setCurrentPersona(null);   // ← 🔥 CRITICAL FIX: Local 상태도 업데이트!
         }
         
         showToast({
