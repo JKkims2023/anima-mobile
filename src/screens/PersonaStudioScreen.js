@@ -22,7 +22,7 @@
  * @date 2024-11-30
  */
 
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet, TouchableOpacity, Dimensions, TextInput, BackHandler, TouchableWithoutFeedback, DeviceEventEmitter, Share, Animated, Easing } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,7 +41,6 @@ import PersonaSettingsSheet from '../components/persona/PersonaSettingsSheet';
 import PersonaManagerSheet from '../components/persona/PersonaManagerSheet';
 import ChoicePersonaSheet from '../components/persona/ChoicePersonaSheet';
 import MessageInputOverlay from '../components/message/MessageInputOverlay';
-import MessageCreationOverlay from '../components/message/MessageCreationOverlay';
 import ProcessingLoadingOverlay from '../components/persona/ProcessingLoadingOverlay'; // ⭐ RENAMED: Universal loading overlay
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
@@ -84,7 +83,10 @@ const PersonaStudioScreen = () => {
   const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas, clearHomeBadge } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
   const refPersonaCount = useRef(0);
-  
+  // 2. Memory History (추억/히스토리)
+  // ⭐ Ref for PersonaCardView (to control flip animation)
+  const personaCardRefs = useRef({});
+  const refFiipType = useRef('');
   // ✨ Header Logo Animation Values (ANIMA 철학을 위한 감성적 등장 애니메이션)
   const animaLogoTranslateX = useRef(new Animated.Value(-100)).current;
   const animaLogoOpacity = useRef(new Animated.Value(0)).current;
@@ -156,8 +158,7 @@ const PersonaStudioScreen = () => {
   const savedIndexRef = useRef(0);
   const personaCreationDataRef = useRef(null);
   // ❌ REMOVED: filterMode (UI simplified - single unified list)
-  const [isMessageCreationVisible, setIsMessageCreationVisible] = useState(false);
-  const [isPostcardVisible, setIsPostcardVisible] = useState(false); // ⭐ NEW: Postcard flip state
+  const [isBackViewVisible, setIsBackViewVisible] = useState(false); // ⭐ NEW: Back view visibility (PostcardBack or MessageCreationBack)
   const [isCreatingPersona, setIsCreatingPersona] = useState(false); // ⭐ Loading overlay for persona creation
   const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
   const [processingMessage, setProcessingMessage] = useState(''); // ⭐ NEW: Dynamic message for processing overlay
@@ -175,16 +176,12 @@ const PersonaStudioScreen = () => {
   const [showTierUpgrade, setShowTierUpgrade] = useState(false); // ⭐ NEW: Track tier upgrade state for performance
   const [isFullViewOpen, setIsFullViewOpen] = useState(false); // ⭐ NEW: Persona full view state
   const [fullViewPersona, setFullViewPersona] = useState(null); // ⭐ NEW: Persona for full view
-  // Sync isMessageCreationVisible with AnimaContext (for Tab Bar blocking)
-  useEffect(() => {
-    setIsMessageCreationActive(isMessageCreationVisible);
-  }, [isMessageCreationVisible, setIsMessageCreationActive]);
   
   // ❌ REMOVED: filterMode auto-adjust (UI simplified - single unified list)
   
-  // ⭐ Android back button handler for slide menu, postcard, and category dropdown
+  // ⭐ Android back button handler for slide menu, back views (postcard/message), and category dropdown
   useEffect(() => {
-    if (!isSlideMenuOpen && !isCategoryDropdownVisible && !isPostcardVisible) return;
+    if (!isSlideMenuOpen && !isCategoryDropdownVisible && !isBackViewVisible) return;
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       // ⭐ Priority 1: Close slide menu
@@ -195,9 +192,9 @@ const PersonaStudioScreen = () => {
         return true; // Prevent default back behavior
       }
       
-      // ⭐ Priority 2: Close postcard (flip to front)
-      if (isPostcardVisible) {
-        console.log('[PersonaStudioScreen] 🔙 Back button pressed, flipping postcard to front');
+      // ⭐ Priority 2: Close back view (postcard or message creation) - flip to front
+      if (isBackViewVisible) {
+        console.log('[PersonaStudioScreen] 🔙 Back button pressed, flipping back view to front');
         HapticService.light();
         
         // Get current persona and flip to front
@@ -223,7 +220,7 @@ const PersonaStudioScreen = () => {
     });
     
     return () => backHandler.remove();
-  }, [isSlideMenuOpen, isCategoryDropdownVisible, isPostcardVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
+  }, [isSlideMenuOpen, isCategoryDropdownVisible, isBackViewVisible, currentFilteredPersonas, currentPersonaIndex, personaCardRefs]);
   
   // ✨ Start header logo animation on mount (ANIMA 감성적 등장)
   useEffect(() => {
@@ -295,13 +292,8 @@ const PersonaStudioScreen = () => {
       
       return () => {
         setIsScreenFocused(false);
-        
-        // Close overlay when screen loses focus
-        if (isMessageCreationVisible) {
-          setIsMessageCreationVisible(false);
-        }
       };
-    }, [isMessageCreationVisible, clearHomeBadge])
+    }, [clearHomeBadge])
   );
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -565,8 +557,8 @@ const PersonaStudioScreen = () => {
   // 🔥 PERFORMANCE FIX: Memoize QuickActionChips visibility condition
   // Conditional rendering is the KEY to preventing unnecessary re-renders!
   const shouldShowQuickChips = useMemo(() => {
-    return currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isPostcardVisible;
-  }, [currentFilteredPersonas.length, currentPersona?.done_yn, isPostcardVisible]);
+    return currentFilteredPersonas.length > 0 && currentPersona?.done_yn === 'Y' && !isBackViewVisible;
+  }, [currentFilteredPersonas.length, currentPersona?.done_yn, isBackViewVisible]);
   
   // ═══════════════════════════════════════════════════════════════════════
   // EVENT HANDLERS
@@ -679,10 +671,6 @@ const PersonaStudioScreen = () => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     }
   }, [initializePersonas, showToast, t, currentPersonaIndex, setSelectedPersona, setSelectedIndex, settingsPersona]);
-  
-  // ❌ REMOVED: Duplicate handlePersonaChange (now defined above handleRefresh)
-  
-  // ❌ REMOVED: handlePanelToggle, handlePanelClose, handlePersonaSelectFromPanel (PersonaSelectorButton/Panel removed)
   
   // Handle add persona
   const handleAddPersona = useCallback(async () => {
@@ -1284,10 +1272,6 @@ const PersonaStudioScreen = () => {
     }
   }, [showToast, t, initializePersonas]);
   
-  
-  // 2. Memory History (추억/히스토리)
-  // ⭐ Ref for PersonaCardView (to control flip animation)
-  const personaCardRefs = useRef({});
 
   const handleQuickHistory = useCallback(() => {
     if (__DEV__) {
@@ -1329,24 +1313,35 @@ const PersonaStudioScreen = () => {
     
     // Trigger flip animation on current PersonaCardView
     const cardRef = personaCardRefs.current[currentPersona.persona_key];
+
     if (cardRef && cardRef.flipToBack) {
       if (__DEV__) {
         console.log('[PersonaStudioScreen] 🔄 Flipping persona card to postcard view');
       }
       cardRef.flipToBack();
+      refFiipType.current = 'postcard';
     } else {
       console.warn('[PersonaStudioScreen] PersonaCardView ref not found:', currentPersona.persona_key);
     }
-  }, [currentFilteredPersonas, currentPersonaIndex, showAlert, t]);
+  }, [currentFilteredPersonas, currentPersonaIndex, showAlert, t, refFiipType]);
 
-  // ⭐ Handle postcard flip state change
-  const handlePostcardFlipChange = useCallback((isFlipped) => {
+  // ⭐ Handle back view state change (postcard or message creation)
+  const handleBackViewChange = useCallback((isFlipped) => {
     if (__DEV__) {
-      console.log('[PersonaStudioScreen] 📮 Postcard flip state changed:', isFlipped);
+      console.log('[PersonaStudioScreen] 🔄 Back view state changed:', isFlipped);
     }
-    setIsPostcardVisible(isFlipped);
+    setIsBackViewVisible(isFlipped);
+
+    if(!isFlipped) {
+      refFiipType.current = '';
+    }
+    
+    
+    // ⭐ REMOVED: setIsMessageCreationActive(false)
+    // MessageCreationBack will manage this itself in cleanup!
+    
     HapticService.light();
-  }, []);
+  }, [refFiipType]);
   
   // ⭐ NEW: Handle comment marked as read (update local state without re-fetching)
   const handleMarkAsRead = useCallback((personaKey) => {
@@ -1445,23 +1440,44 @@ const PersonaStudioScreen = () => {
 
   };
   
-  // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Opens MessageCreationOverlay
+
+  // 4. Message Toggle (메시지 모드 진입) - ⭐ NEW: Flip to MessageCreationBack
   const handleQuickMessage = useCallback(() => {
+    if (__DEV__) {
+      console.log('[PersonaStudioScreen] 💌 Message creation clicked');
+    }
     
-    HapticService.success();
-    setIsMessageCreationVisible(true); // ⭐ Open overlay instead of message mode
+    HapticService.medium();
+
+    // Get current persona
+    const currentPersona = currentFilteredPersonas[currentPersonaIndex];
+
+    console.log('currentPersonaIndex: ', currentPersonaIndex);
+    console.log('currentFilteredPersonas: ', currentFilteredPersonas);
+    console.log('currentPersona: ', currentPersona);
+
+    if (!currentPersona) {
+      console.warn('[PersonaStudioScreen] No current persona for message creation');
+      return;
+    }
     
-    console.log('✅ [PersonaStudioScreen] setIsMessageCreationVisible(true) called');
-  }, [isScreenFocused, isMessageCreationVisible, currentPersona]);
-  
-  // ⭐ NEW: Close Message Creation Overlay
-  const handleCloseMessageCreation = useCallback(() => {
- 
-    HapticService.light();
-    setIsMessageCreationVisible(false);
+    // ⭐ REMOVED: setIsMessageCreationActive(true)
+    // MessageCreationBack will manage this itself after handler registration!
+    console.log('[PersonaStudioScreen] 🎯 Triggering message creation view...');
     
-    console.log('✅ [PersonaStudioScreen] setIsMessageCreationVisible(false) called');
-  }, [isScreenFocused, isMessageCreationVisible]);
+    // ⭐ Trigger flip animation on current PersonaCardView (same as PostcardBack)
+    const cardRef = personaCardRefs.current[currentPersona.persona_key];
+    if (cardRef && cardRef.flipToMessageBack) {
+      if (__DEV__) {
+        console.log('[PersonaStudioScreen] 🔄 Flipping persona card to message creation view');
+      }
+
+      refFiipType.current = 'message';
+      cardRef.flipToMessageBack();
+    } else {
+      console.warn('[PersonaStudioScreen] PersonaCardView ref not found:', currentPersona.persona_key);
+    }
+  }, [currentFilteredPersonas, currentPersonaIndex, setIsMessageCreationActive, refFiipType]);
 
   // Settings (설정)
   const handleQuickSettings = useCallback(() => {
@@ -2129,7 +2145,7 @@ const PersonaStudioScreen = () => {
         {/* ⭐ Search Bar + Category Dropdown (Row layout) */}
         <View style={styles.searchRow}>
           {/* Search Bar */}
-          <View style={[styles.searchBar, { backgroundColor: currentTheme.cardBackground }]}>
+          <View style={[styles.searchBar, {display: isBackViewVisible ? 'none' : 'flex', backgroundColor: currentTheme.cardBackground }]}>
             <IconSearch name="search" size={scale(18)} color={currentTheme.textSecondary} />
             <TextInput
               ref={searchInputRef}
@@ -2146,6 +2162,24 @@ const PersonaStudioScreen = () => {
                 <IconSearch name="close-circle" size={scale(18)} color={currentTheme.textSecondary} />
               </TouchableOpacity>
             )}
+          </View>
+          {/* postcard Bar */}
+          <View style={[styles.searchBar, {display: isBackViewVisible && refFiipType.current === 'postcard' ? 'flex' : 'none', backgroundColor: currentTheme.cardBackground }]}>
+            
+            <CustomText
+              style={[styles.searchInput, { fontSize: scale(16), color: currentTheme.textPrimary }]}
+            >
+              {t('main_header_title.postcard', { persona_name: currentPersona?.persona_name })}
+            </CustomText>
+
+          </View>
+          {/* Message Bar */}
+          <View style={[styles.searchBar, {display: isBackViewVisible && refFiipType.current === 'message' ? 'flex' : 'none', backgroundColor: currentTheme.cardBackground }]}>
+            <CustomText              
+              style={[styles.searchInput, { fontSize: scale(16), color: currentTheme.textPrimary }]}
+            >
+              {t('main_header_title.message')}
+            </CustomText>
           </View>
         </View>
 
@@ -2164,7 +2198,7 @@ const PersonaStudioScreen = () => {
             ref={swiperRef}
             personas={currentFilteredPersonas}
             isModeActive={true}
-            isScreenFocused={isScreenFocused && !isMessageCreationVisible}
+            isScreenFocused={isScreenFocused}
             isScreenActive={!isManagerAIChatOpen && !isFullViewOpen} // ⭐ UPDATED: Also pause when full view is open!
             initialIndex={currentPersonaIndex}
             availableHeight={availableHeight}
@@ -2178,9 +2212,9 @@ const PersonaStudioScreen = () => {
             onCreatePersona={handleAddPersona}
             refreshing={isRefreshing} // ⭐ NEW: Pull-to-refresh state
             onRefresh={handleRefresh} // ⭐ NEW: Pull-to-refresh callback (this refreshes everything!)
-            personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard view)
-            onPostcardFlipChange={handlePostcardFlipChange} // ⭐ NEW: Callback for postcard flip state change
-            isPostcardVisible={isPostcardVisible} // ⭐ NEW: Pass postcard visibility state
+            personaCardRefs={personaCardRefs} // ⭐ NEW: Pass refs for flip control (postcard/message view)
+            onBackViewChange={handleBackViewChange} // ⭐ NEW: Callback for back view state change (postcard or message)
+            isBackViewVisible={isBackViewVisible} // ⭐ NEW: Pass back view visibility state
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
             onMarkAsRead={handleMarkAsRead} // ⭐ NEW: Callback for comment marked as read (badge removal!)
             onOpenFullView={handleOpenFullView} // ⭐ NEW: Callback for full view (전체창)
@@ -2209,7 +2243,7 @@ const PersonaStudioScreen = () => {
         )}
 
         {/* ⭐ SIMPLIFIED: Create Button (replaces PersonaTypeSelector) */}
-        {!isPostcardVisible && (
+        {!isBackViewVisible && (
           <View style={styles.typeSelectorOverlay}>
             <View style={styles.createButtonContainer}>
               <TouchableOpacity
@@ -2352,17 +2386,6 @@ const PersonaStudioScreen = () => {
       leftIcon="account-edit"
       onSave={handlePersonaNameSave}
     />
-    
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {/* Message Creation Overlay (⭐ NEW: Full-screen overlay) */}
-    {/* ═════════════════════════════════════════════════════════════════ */}
-    {isMessageCreationVisible && (
-      <MessageCreationOverlay
-        visible={isMessageCreationVisible}
-        selectedPersona={currentPersona}
-        onClose={handleCloseMessageCreation}
-      />
-    )}
     
     {/* ═════════════════════════════════════════════════════════════════ */}
     {/* ⭐ NEW: Notification Permission Sheet (Pre-permission for persona creation) */}

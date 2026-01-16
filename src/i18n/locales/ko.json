@@ -1691,7 +1691,9 @@
       "password_label": "비밀번호 보호 (선택사항)",
       "password_placeholder": "비밀번호 입력",
       "password_confirm_placeholder": "비밀번호 확인",
-      "password_hint": "비밀번호를 설정하면 메시지를 보려면 비밀번호가 필요합니다"
+      "password_hint": "비밀번호를 설정하면 메시지를 보려면 비밀번호가 필요합니다",
+      "title" : "메세지 작성",
+      "placeholder": "메시지 내용을 입력하세요, ANIMA 서비스에 위배되는 내용은 작성시, 생성이 불가능합니다."
     },
     "preview": {
       "title": "미리보기",
@@ -1724,7 +1726,8 @@
       "password_required": "비밀번호를 입력하세요",
       "password_mismatch": "비밀번호가 일치하지 않습니다",
       "creation_failed": "메시지 생성에 실패했습니다",
-      "network_error": "네트워크 오류가 발생했습니다"
+      "network_error": "네트워크 오류가 발생했습니다",
+      "content_required_description": "감성적인 메세지를 작성 후, 메신저에 공유가능합니다!"
     },
     "history": {
       "title": "최근 메시지",
@@ -1765,7 +1768,17 @@
       "rewrite_button": "다시 작성하기"
     },
     "creation": {
-      "creating": "메시지 생성 중..."
+      "creating": "메시지 생성 중...",
+      "empty": "오직 당신만을 위해 제공되는, ANIMA의 유니크한 메시지를 만들고 메신저에 공유하세요! 💌\n\n클릭하여 메시지를 입력해주세요."
+    },
+    "input": {
+      "title": "내용 입력",
+      "placeholder": "메시지 내용을 입력하세요"
+    },
+    "word": {
+      "title": "단어 입력",
+      "subtitle": "메시지에 표시할 단어를 입력하세요 (최대 5개)",
+      "placeholder": "예: 사랑해, 영원히, 함께"
     },
     "alert": {
       "exit_message_mode": "메시지 작성을 취소하시겠습니까?",
@@ -1819,6 +1832,40 @@
       "neon_desc": "화려한 네온 빛",
       "gradient": "그라디언트",
       "gradient_desc": "부드러운 색상 조화"
+    },
+    "background": {
+      "category_sheet": {
+        "title": "🌌 백그라운드 효과",
+        "subtitle": "화면에 감성적인 빛을 더해보세요"
+      },
+      "detail_modal": {
+        "title": "빛의 방향 선택",
+        "subtitle": "원하는 방향을 선택하세요"
+      },
+      "direction": {
+        "top_left": "↖️ 상단 좌측",
+        "top_right": "↗️ 상단 우측",
+        "bottom_left": "↙️ 하단 좌측",
+        "bottom_right": "↘️ 하단 우측"
+      },
+      "direction_desc": {
+        "sun_top_left": "좌측 상단에서 햇빛",
+        "sun_top_right": "우측 상단에서 햇빛",
+        "sun_bottom_left": "좌측 하단에서 햇빛",
+        "sun_bottom_right": "우측 하단에서 햇빛",
+        "aurora_top_left": "좌측 상단에서 오로라",
+        "aurora_top_right": "우측 상단에서 오로라",
+        "aurora_bottom_left": "좌측 하단에서 오로라",
+        "aurora_bottom_right": "우측 하단에서 오로라",
+        "neon_top_left": "좌측 상단에서 네온 빛",
+        "neon_top_right": "우측 상단에서 네온 빛",
+        "neon_bottom_left": "좌측 하단에서 네온 빛",
+        "neon_bottom_right": "우측 하단에서 네온 빛",
+        "gradient_top_left": "좌측 상단에서 그라디언트",
+        "gradient_top_right": "우측 상단에서 그라디언트",
+        "gradient_bottom_left": "좌측 하단에서 그라디언트",
+        "gradient_bottom_right": "우측 하단에서 그라디언트"
+      }
     },
     "particle_group": {
       "love_romance": "사랑",
@@ -2597,5 +2644,9 @@
         "initial_value" : ""
       }
     }
+  },
+  "main_header_title": {
+    "postcard": "💌  From. {{persona_name}}",
+    "message": "📝  제작 가능 메시지 : {{count}}"
   }
 }

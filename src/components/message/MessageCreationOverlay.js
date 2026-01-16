@@ -1470,7 +1470,7 @@ ${(activeEffect === 'floating_words' || activeEffect === 'scrolling_words') && c
               <Animated.View style={animatedTextStyle}>
                 {/* ⭐ Simple Text Display with fixed slide animation */}
                 <CustomText type="title" style={styles.content}>
-                  {messageContent || '클릭하여 메시지를 입력하세요'}
+                  {messageContent || t('message.creation.empty')}
                 </CustomText>
               </Animated.View>
             </TouchableOpacity>

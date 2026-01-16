@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.BG_PRIMARY,
-    marginTop: Platform.OS === 'ios' ? verticalScale(115) : verticalScale(88),
+//    marginTop: Platform.OS === 'ios' ? verticalScale(115) : verticalScale(88),
 
   },
   video: {

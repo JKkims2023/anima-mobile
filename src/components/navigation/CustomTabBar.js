@@ -117,6 +117,14 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     // ✅ Haptic feedback
     HapticService.cameraFullPress();
     
+    // ⭐ DEBUG: Check message creation state
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 [CustomTabBar] Center Button Pressed - Debug Info:');
+    console.log('   isMessageCreationActive:', isMessageCreationActive);
+    console.log('   messageCreateHandler:', messageCreateHandler ? 'EXISTS' : 'NULL');
+    console.log('   messageCreateHandler type:', typeof messageCreateHandler);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     // ⭐ NEW: If message creation mode is active, trigger message creation
     if (isMessageCreationActive && messageCreateHandler) {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -125,6 +133,13 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       messageCreateHandler();
       return; // ⭐ Stop here - don't open chat!
+    }
+    
+    // ⭐ If isMessageCreationActive is true but handler is null, show error
+    if (isMessageCreationActive && !messageCreateHandler) {
+      console.error('❌ [CustomTabBar] ERROR: isMessageCreationActive is true but messageCreateHandler is NULL!');
+      console.error('   This means MessageCreationBack did not register the handler properly.');
+      // Continue to chat as fallback
     }
     
     // 🔥 CRITICAL FIX: Use ref for IMMEDIATE access to latest persona
@@ -241,8 +256,11 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           
           // ✅ Custom onPress for tabs
           const onPress = () => {
-            // ⭐ CRITICAL FIX: Block navigation if message creation is active
-            if (isMessageCreationActive && !isFocused) {
+
+            console.log('JK TAB PRESS');
+            console.log('isMessageCreationActive:', isMessageCreationActive);
+            // ⭐ CRITICAL FIX: Block ALL navigation if message creation is active
+            if (isMessageCreationActive) {
               /*
               console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
               console.log('🚨 [CustomTabBar] TAB PRESS BLOCKED!');
@@ -252,6 +270,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
               console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
               */
               HapticService.warning();
+
+              return;
               
               // Show confirmation dialog
               showAlert({
@@ -308,39 +328,53 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           // ✅ Fourth tab (Quick Action) uses tab.isActive, others use isFocused
           const isActive = index === 3 ? tab.isActive : isFocused;
           
+          // ⭐ CRITICAL UX: Disable ALL tabs visually when message creation is active
+          // (including currently focused tab for consistent UX)
+          const isDisabled = isMessageCreationActive;
+          
           return (
             <TouchableOpacity
               key={tab.key}
-              style={styles.tab}
+              style={[
+                styles.tab,
+                isDisabled && styles.tabDisabled // ⭐ Add disabled style
+              ]}
               onPress={onPress}
-              activeOpacity={0.7}
+              activeOpacity={isDisabled ? 1 : 0.7} // ⭐ No opacity change when disabled
             >
               <View style={styles.iconContainer}>
                 <Icon
                   name={tab.icon}
                   size={TAB_BAR.REGULAR_ICON_SIZE}
-                  color={isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888')}
+                  color={
+                    isDisabled 
+                      ? '#444444' // ⭐ Gray when disabled
+                      : isActive 
+                        ? (currentTheme.primary || '#4285F4') 
+                        : (currentTheme.textSecondary || '#888')
+                  }
                 />
                 {/* 💙 NEW: Home Badge for Home tab (persona_heart_update) */}
-                {tab.key === 'Home' && hasHomeBadge && (
+                {/* ⭐ Hide badges when disabled for cleaner UX */}
+                {!isDisabled && tab.key === 'Home' && hasHomeBadge && (
                   <View style={styles.newMessageBadge}>
                     <CustomText style={styles.newMessageBadgeText}>N</CustomText>
                   </View>
                 )}
                 {/* ⭐ New Message Badge for History tab */}
-                {tab.key === 'History' && hasNewMessage && (
+                {!isDisabled && tab.key === 'History' && hasNewMessage && (
                   <View style={styles.newMessageBadge}>
                     <CustomText style={styles.newMessageBadgeText}>N</CustomText>
                   </View>
                 )}
                 {/* ⭐ NEW: Memory Badge for Memory tab (gift_image, gift_music) */}
-                {tab.key === 'Memory' && hasMemoryBadge && (
+                {!isDisabled && tab.key === 'Memory' && hasMemoryBadge && (
                   <View style={styles.newMessageBadge}>
                     <CustomText style={styles.newMessageBadgeText}>N</CustomText>
                   </View>
                 )}
                 {/* ⭐ NEW: Music Badge for Music tab (create_music) */}
-                {tab.key === 'Music' && hasMusicBadge && (
+                {!isDisabled && tab.key === 'Music' && hasMusicBadge && (
                   <View style={styles.newMessageBadge}>
                     <CustomText style={styles.newMessageBadgeText}>N</CustomText>
                   </View>
@@ -350,7 +384,11 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
                 style={[
                   styles.tabLabel,
                   {
-                    color: isActive ? (currentTheme.primary || '#4285F4') : (currentTheme.textSecondary || '#888'),
+                    color: isDisabled 
+                      ? '#444444' // ⭐ Gray when disabled
+                      : isActive 
+                        ? (currentTheme.primary || '#4285F4') 
+                        : (currentTheme.textSecondary || '#888'),
                   },
                 ]}
               >
@@ -399,6 +437,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: verticalScale(8),
+  },
+  
+  // ⭐ Disabled tab style (Message Creation Mode)
+  tabDisabled: {
+    opacity: 0.3, // ⭐ Visual feedback: semi-transparent
   },
   
   iconContainer: {

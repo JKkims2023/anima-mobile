@@ -75,8 +75,8 @@ const PersonaSwipeViewer = forwardRef(({
   refreshing = false, // ⭐ NEW: Pull-to-refresh state
   onRefresh = () => {}, // ⭐ NEW: Pull-to-refresh callback (refreshes persona list with relationship data!)
   personaCardRefs = null, // ⭐ NEW: Refs for PersonaCardView (for flip animation control)
-  onPostcardFlipChange, // ⭐ NEW: Callback when postcard flip state changes
-  isPostcardVisible = false, // ⭐ NEW: Whether postcard is currently visible
+  onBackViewChange, // ⭐ NEW: Callback when back view state changes (postcard or message)
+  isBackViewVisible = false, // ⭐ NEW: Whether back view is currently visible (postcard or message creation)
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
   onMarkAsRead, // ⭐ NEW: Callback when comment is marked as read
   onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
@@ -230,14 +230,14 @@ const PersonaSwipeViewer = forwardRef(({
           modeOpacity={modeOpacity}
           availableHeight={availableHeight}
           onCheckStatus={onCheckStatus}
-          onFlipChange={onPostcardFlipChange} // ⭐ NEW: Pass flip change callback
-          user={userProp} // ⭐ NEW: Pass user for PostcardBack API call
+          onFlipChange={onBackViewChange} // ⭐ NEW: Pass back view change callback (postcard or message)
+          user={userProp} // ⭐ NEW: Pass user for PostcardBack/MessageCreationBack API call
           onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for comment read
           onOpenFullView={onOpenFullView} // ⭐ NEW: Pass callback for full view (전체창)
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onPostcardFlipChange, userProp, onMarkAsRead, personaCardRefs, onOpenFullView]);
+  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onBackViewChange, userProp, onMarkAsRead, personaCardRefs, onOpenFullView]);
 
   // ✅ Key extractor (optimized)
   // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes
@@ -280,7 +280,7 @@ const PersonaSwipeViewer = forwardRef(({
         keyExtractor={keyExtractor}
         extraData={flashListExtraData} // 🔥 PERF: Explicit re-render control
         estimatedItemSize={availableHeight} // ⭐ CRITICAL: Required for FlashList (each persona takes full height)
-        scrollEnabled={enabled && !isPostcardVisible} // ⭐ Disable scroll when postcard is visible
+        scrollEnabled={enabled && !isBackViewVisible} // ⭐ Disable scroll when back view is visible (postcard or message)
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollToIndexFailed={(info) => {
@@ -300,7 +300,7 @@ const PersonaSwipeViewer = forwardRef(({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            enabled={!isPostcardVisible} // ⭐ Disable pull-to-refresh when postcard is visible
+            enabled={!isBackViewVisible} // ⭐ Disable pull-to-refresh when back view is visible (postcard or message)
             tintColor={currentTheme.mainColor || '#4285F4'}
             colors={[currentTheme.mainColor || '#4285F4']}
             progressBackgroundColor={currentTheme.backgroundColor || '#000'}
@@ -309,7 +309,7 @@ const PersonaSwipeViewer = forwardRef(({
       />
 
       {/* PersonaInfoCard (with Pagination & Scroll to Top) */}
-      {personas.length > 0 && !isPostcardVisible && (
+      {personas.length > 0 && !isBackViewVisible && (
         <PersonaInfoCard 
           persona={currentPersona} 
           onChatPress={onChatWithPersona}

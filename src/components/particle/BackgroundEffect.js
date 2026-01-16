@@ -109,12 +109,12 @@ const BackgroundEffect = ({ type, isActive = true }) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SunTopLeft = () => {
-  const opacity = useSharedValue(0.3);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -125,12 +125,11 @@ const SunTopLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopLeft, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FFD700', '#FFD700D0', '#FFA50090', '#FF8C0050', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐: 시작점 강하게, 끝으로 갈수록 부드럽게
         start={{ x: 0, y: 0 }}  // ⭐ 좌상단에서 시작
         end={{ x: 1, y: 1 }}    // ⭐ 우하단으로
         style={styles.gradient}
@@ -140,12 +139,12 @@ const SunTopLeft = () => {
 };
 
 const SunTopRight = () => {
-  const opacity = useSharedValue(0.3);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -156,12 +155,11 @@ const SunTopRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopRight, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FFD700', '#FFD700D0', '#FFA50090', '#FF8C0050', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 0 }}  // ⭐ 우상단에서 시작
         end={{ x: 0, y: 1 }}    // ⭐ 좌하단으로
         style={styles.gradient}
@@ -171,12 +169,12 @@ const SunTopRight = () => {
 };
 
 const SunBottomLeft = () => {
-  const opacity = useSharedValue(0.3);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -187,12 +185,10 @@ const SunBottomLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomLeft, animatedStyle]}>
       <LinearGradient
-        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FFD700', '#FFD700D0', '#FFA50090', '#FF8C0050', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 1 }}  // ⭐ 좌하단에서 시작
         end={{ x: 1, y: 0 }}    // ⭐ 우상단으로
         style={styles.gradient}
@@ -202,12 +198,12 @@ const SunBottomLeft = () => {
 };
 
 const SunBottomRight = () => {
-  const opacity = useSharedValue(0.3);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
@@ -218,12 +214,10 @@ const SunBottomRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomRight, animatedStyle]}>
       <LinearGradient
-        colors={['#d4c097', '#d2af6f80', '#cf9e9240', 'transparent']}
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FFD700', '#FFD700D0', '#FFA50090', '#FF8C0050', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 1 }}  // ⭐ 우하단에서 시작
         end={{ x: 0, y: 0 }}    // ⭐ 좌상단으로
         style={styles.gradient}
@@ -237,12 +231,12 @@ const SunBottomRight = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const AuroraTopLeft = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -253,12 +247,11 @@ const AuroraTopLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopLeft, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑 (태양과 확실히 구분)
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#9370DB', '#9370DBD0', '#8A2BE290', '#DA70D650', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -268,12 +261,12 @@ const AuroraTopLeft = () => {
 };
 
 const AuroraTopRight = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -284,12 +277,11 @@ const AuroraTopRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopRight, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#9370DB', '#9370DBD0', '#8A2BE290', '#DA70D650', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
@@ -299,12 +291,12 @@ const AuroraTopRight = () => {
 };
 
 const AuroraBottomLeft = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -315,12 +307,10 @@ const AuroraBottomLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomLeft, animatedStyle]}>
       <LinearGradient
-        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#9370DB', '#9370DBD0', '#8A2BE290', '#DA70D650', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 1 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}
@@ -330,12 +320,12 @@ const AuroraBottomLeft = () => {
 };
 
 const AuroraBottomRight = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.7, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -346,12 +336,10 @@ const AuroraBottomRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomRight, animatedStyle]}>
       <LinearGradient
-        colors={['#8b9ed8', '#9d7bb060', '#da9fdd30', 'transparent']} // ⭐ 오로라: 진한 보라-파랑
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#9370DB', '#9370DBD0', '#8A2BE290', '#DA70D650', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.gradient}
@@ -365,12 +353,12 @@ const AuroraBottomRight = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const NeonTopLeft = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -381,12 +369,11 @@ const NeonTopLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopLeft, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FF1493', '#FF1493D0', '#FF00FF90', '#00FFFF50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -396,12 +383,12 @@ const NeonTopLeft = () => {
 };
 
 const NeonTopRight = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -412,12 +399,11 @@ const NeonTopRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopRight, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FF1493', '#FF1493D0', '#FF00FF90', '#00FFFF50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
@@ -427,12 +413,12 @@ const NeonTopRight = () => {
 };
 
 const NeonBottomLeft = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -443,12 +429,10 @@ const NeonBottomLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomLeft, animatedStyle]}>
       <LinearGradient
-        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FF1493', '#FF1493D0', '#FF00FF90', '#00FFFF50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 1 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}
@@ -458,12 +442,12 @@ const NeonBottomLeft = () => {
 };
 
 const NeonBottomRight = () => {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.5);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.7, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -474,12 +458,10 @@ const NeonBottomRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomRight, animatedStyle]}>
       <LinearGradient
-        colors={['#ff008070', '#cc00ff50', '#00ffcc30', 'transparent']} // ⭐ 네온: 강렬한 핑크-퍼플-시안
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#FF1493', '#FF1493D0', '#FF00FF90', '#00FFFF50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.gradient}
@@ -493,12 +475,12 @@ const NeonBottomRight = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const GradientTopLeft = () => {
-  const opacity = useSharedValue(0.35);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -509,12 +491,11 @@ const GradientTopLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopLeft, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#B0E0E6', '#B0E0E6D0', '#FFB6C190', '#E6E6FA50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -524,12 +505,12 @@ const GradientTopLeft = () => {
 };
 
 const GradientTopRight = () => {
-  const opacity = useSharedValue(0.35);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -540,12 +521,11 @@ const GradientTopRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
+    <Animated.View style={[styles.cornerTopRight, animatedStyle, {
     }]}>
       <LinearGradient
-        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#B0E0E6', '#B0E0E6D0', '#FFB6C190', '#E6E6FA50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
@@ -555,12 +535,12 @@ const GradientTopRight = () => {
 };
 
 const GradientBottomLeft = () => {
-  const opacity = useSharedValue(0.35);
+  const opacity = useSharedValue(0.4);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -571,12 +551,10 @@ const GradientBottomLeft = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomLeft, animatedStyle]}>
       <LinearGradient
-        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#B0E0E6', '#B0E0E6D0', '#FFB6C190', '#E6E6FA50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 0, y: 1 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}
@@ -586,12 +564,11 @@ const GradientBottomLeft = () => {
 };
 
 const GradientBottomRight = () => {
-  const opacity = useSharedValue(0.35);
-  const insets = useSafeAreaInsets();
+  const opacity = useSharedValue(0.4);
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.6, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) }), // ⭐ 타이밍 통일: 2000ms
       -1,
       true
     );
@@ -602,12 +579,10 @@ const GradientBottomRight = () => {
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, {
-      ...(Platform.OS === 'android' ? { top: insets.top + verticalScale(58) } : { top: insets.top + verticalScale(70) }),
-    }]}>
+    <Animated.View style={[styles.cornerBottomRight, animatedStyle]}>
       <LinearGradient
-        colors={['#a0d8d870', '#ffb3d960', '#d4b5e040', 'transparent']} // ⭐ 그라디언트: 진한 민트-핑크-라벤더
-        locations={[0, 0.3, 0.6, 1]}
+        colors={['#B0E0E6', '#B0E0E6D0', '#FFB6C190', '#E6E6FA50', 'transparent']} // ⭐ 5단계: 강함 → 약함 → 투명
+        locations={[0, 0.2, 0.4, 0.7, 1]} // ⭐ 자연스러운 퍼짐
         start={{ x: 1, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.gradient}
@@ -621,14 +596,45 @@ const GradientBottomRight = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const styles = StyleSheet.create({
-  container: {
+  // ⭐ NEW: Limited corner styles with natural border radius
+  // 정사각형 + 대각선 방향 Radius로 자연스러운 빛의 퍼짐 효과
+  cornerTopLeft: {
     position: 'absolute',
-    top: 0,    // ⭐ CRITICAL FIX: Full screen coverage from top!
     left: 0,
-    right: 0,
-    bottom: 0,
+    width: SCREEN_WIDTH * 0.6, // 30% of screen width
+    height: SCREEN_WIDTH * 0.6, // ⭐ 정사각형: width와 동일
+    borderBottomRightRadius: SCREEN_WIDTH * 0.6, // ⭐ 우하단 모서리만 둥글게 (자연스러운 퍼짐)
+    overflow: 'hidden', // ⭐ Radius 적용을 위해 필수
     zIndex: 10, // Layer 1: Background
-
+  },
+  cornerTopRight: {
+    position: 'absolute',
+    right: 0,
+    width: SCREEN_WIDTH * 0.6, // 30% of screen width
+    height: SCREEN_WIDTH * 0.6, // ⭐ 정사각형: width와 동일
+    borderBottomLeftRadius: SCREEN_WIDTH * 0.6, // ⭐ 좌하단 모서리만 둥글게 (자연스러운 퍼짐)
+    overflow: 'hidden', // ⭐ Radius 적용을 위해 필수
+    zIndex: 10, // Layer 1: Background
+  },
+  cornerBottomLeft: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: SCREEN_WIDTH * 0.6, // 30% of screen width
+    height: SCREEN_WIDTH * 0.6, // ⭐ 정사각형: width와 동일
+    borderTopRightRadius: SCREEN_WIDTH * 0.6, // ⭐ 우상단 모서리만 둥글게 (자연스러운 퍼짐)
+    overflow: 'hidden', // ⭐ Radius 적용을 위해 필수
+    zIndex: 10, // Layer 1: Background
+  },
+  cornerBottomRight: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: SCREEN_WIDTH * 0.6, // 30% of screen width
+    height: SCREEN_WIDTH * 0.6, // ⭐ 정사각형: width와 동일
+    borderTopLeftRadius: SCREEN_WIDTH * 0.6, // ⭐ 좌상단 모서리만 둥글게 (자연스러운 퍼짐)
+    overflow: 'hidden', // ⭐ Radius 적용을 위해 필수
+    zIndex: 10, // Layer 1: Background
   },
   gradient: {
     flex: 1,

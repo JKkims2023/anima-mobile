@@ -270,7 +270,7 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: Platform.OS === 'ios' ? verticalScale(210) : verticalScale(180) }]} pointerEvents="none">
+    <View style={[styles.container, {  }]} pointerEvents="none">
       {renderParticleEffect()}
     </View>
   );
@@ -283,6 +283,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
+
     zIndex: 50, // ⭐ Layer 2: Above BackgroundEffect (z-index: 10), below content
   },
 });

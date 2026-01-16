@@ -38,8 +38,9 @@ import CustomText from '../CustomText';
 import HapticService from '../../utils/HapticService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../styles/commonstyles';
-import PostcardBack from './PostcardBack'; // ⭐ NEW: Postcard component
-import PersonaThoughtBubble from './PersonaThoughtBubble'; // 💭 NEW: Thought bubble component
+import PostcardBack from './PostcardBack'; // ⭐ Postcard component
+import PersonaThoughtBubble from './PersonaThoughtBubble'; // 💭 Thought bubble component
+import MessageCreationBack from '../message/MessageCreationBack'; // ⭐ NEW: Message creation flip view
 // PersonaChatView is now rendered in PersonaSwipeViewer (outside FlatList)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -107,7 +108,8 @@ const PersonaCardView = forwardRef(({
     };
   }
   
-  const [isFlipped, setIsFlipped] = useState(false);
+  // ⭐ NEW: Current back view state (none = front, postcard = PostcardBack, message = MessageCreationBack)
+  const [currentBackView, setCurrentBackView] = useState('none'); // 'none' | 'postcard' | 'message'
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [modeOpacityValue, setModeOpacityValue] = useState(1);
   const [remainingSeconds, setRemainingSeconds] = useState(null); // ⭐ NEW: Countdown timer
@@ -115,6 +117,7 @@ const PersonaCardView = forwardRef(({
   const flipAnim = useRef(new Animated.Value(0)).current;
   const videoOpacity = useRef(new Animated.Value(0)).current;
   const containerOpacity = useRef(new Animated.Value(0)).current;
+  const videoRef = useRef(null); // ⭐ NEW: Video ref for manual control (seek, etc.)
   const insets = useSafeAreaInsets();
   const timerIntervalRef = useRef(null); // ⭐ NEW: Ref to store interval ID for cleanup
   
@@ -297,12 +300,32 @@ const PersonaCardView = forwardRef(({
    
   }, [isScreenFocused, isActive, persona.persona_name, hasVideo]);
 
+  // 🔥 CRITICAL FIX: Smooth video restart when returning from MessageCreationBack
+  // - Use Video ref + seek(0) instead of remount (more performant!)
+  // - Wait for flip animation to complete (600ms) + small buffer (100ms)
+  // - Then restart video from beginning using seek(0)
+  useEffect(() => {
+    if (currentBackView === 'none' && hasVideo && videoRef.current && isScreenFocused && isActive) {
+      console.log('[PersonaCardView] 🎬 Scheduling video restart after flip animation:', persona.persona_name);
+      
+      // ⭐ Wait for flip animation to complete (600ms) + buffer (100ms)
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          console.log('[PersonaCardView] ✅ Restarting video now (seek to 0):', persona.persona_name);
+          videoRef.current.seek(0); // ⭐ Restart from beginning (no remount!)
+        }
+      }, 700); // 600ms flip + 100ms buffer
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentBackView, hasVideo, isScreenFocused, isActive, persona.persona_name]);
+
 
 
   // ✅ Handle card flip
   // ⭐ Flip to Back (for postcard view)
   const flipToBack = () => {
-    if (isFlipped) return; // Already flipped
+    if (currentBackView !== 'none') return; // Already flipped
     HapticService.medium();
     
     Animated.timing(flipAnim, {
@@ -311,7 +334,7 @@ const PersonaCardView = forwardRef(({
       useNativeDriver: true,
     }).start();
     
-    setIsFlipped(true);
+    setCurrentBackView('postcard');
     
     // ⭐ Notify parent about flip state change
     if (onFlipChange) {
@@ -319,9 +342,28 @@ const PersonaCardView = forwardRef(({
     }
   };
 
+  // ⭐ NEW: Flip to Message Creation Back (for message creation view)
+  const flipToMessageBack = () => {
+    if (currentBackView !== 'none') return; // Already flipped
+    HapticService.medium();
+    
+    Animated.timing(flipAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+    
+    setCurrentBackView('message');
+    
+    // ⭐ Notify parent about flip state change
+    if (onFlipChange) {
+      onFlipChange(true); // true = message creation visible
+    }
+  };
+
   // ⭐ Flip to Front (back to persona view)
   const flipToFront = () => {
-    if (!isFlipped) return; // Already on front
+    if (currentBackView === 'none') return; // Already on front
     HapticService.light();
     
     Animated.timing(flipAnim, {
@@ -330,17 +372,18 @@ const PersonaCardView = forwardRef(({
       useNativeDriver: true,
     }).start();
     
-    setIsFlipped(false);
+    const hadBackView = currentBackView !== 'none';
+    setCurrentBackView('none');
     
-    // ⭐ Notify parent about flip state change
-    if (onFlipChange) {
+    // ⭐ Notify parent about flip state change (for both postcard and message)
+    if (hadBackView && onFlipChange) {
       onFlipChange(false); // false = persona visible
     }
   };
 
   // ⭐ Toggle flip (legacy method)
   const handleFlip = () => {
-    if (isFlipped) {
+    if (currentBackView !== 'none') {
       flipToFront();
     } else {
       flipToBack();
@@ -350,8 +393,10 @@ const PersonaCardView = forwardRef(({
   // ⭐ Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     flipToBack,
+    flipToMessageBack, // ⭐ NEW: Expose message creation flip
     flipToFront,
-    isFlipped,
+    isFlipped: currentBackView !== 'none', // Backward compatibility
+    currentBackView, // ⭐ NEW: Expose current back view state
   }));
 
   // ✅ Interpolate rotation for FULL SCREEN flip
@@ -364,6 +409,9 @@ const PersonaCardView = forwardRef(({
     inputRange: [0, 1],
     outputRange: ['180deg', '360deg'], // ⭐ 360deg for complete rotation
   });
+
+  // ⭐ Computed: isFlipped for backward compatibility
+  const isFlipped = currentBackView !== 'none';
 
   // ⭐ Front Animated Style (iOS + Android compatible)
   const frontAnimatedStyle = {
@@ -429,6 +477,7 @@ const PersonaCardView = forwardRef(({
         >
           <Video
             key={`video-${persona.persona_key}`}
+            ref={videoRef}
             source={{ uri: videoUrl }}
             poster={imageUrl}
             posterResizeMode="cover"
@@ -440,7 +489,8 @@ const PersonaCardView = forwardRef(({
             // - isActive: false → 현재 보이는 카드가 아님 (스크롤로 벗어남)
             // - isScreenFocused: false → 화면이 포커스 안됨 (다른 탭으로 이동)
             // - isScreenActive: false → ManagerAI 채팅 중 (백그라운드 성능 최적화)
-            paused={!isScreenFocused || !isActive || !isScreenActive}
+            // - currentBackView !== 'none' → 뒤집혀 있을 때 (MessageCreationBack or PostcardBack)
+            paused={!isScreenFocused || !isActive || !isScreenActive || currentBackView !== 'none'}
             // 🔥 REMOVED: playInBackground, playWhenInactive (백그라운드 재생 완전 차단!)
             ignoreSilentSwitch="ignore"
             onLoad={handleVideoLoad}
@@ -545,22 +595,43 @@ const PersonaCardView = forwardRef(({
       </Animated.View>
 
       {/* ⭐ BACK VIEW - Postcard */}
-      <Animated.View 
-        style={[
-          styles.backContainer,
-          { height: availableHeight_local },
-          backAnimatedStyle
-        ]}
-        pointerEvents={isFlipped ? 'box-none' : 'none'}
-      >
-        <PostcardBack
-          persona={persona}
-          onClose={flipToFront}
-          isVisible={isFlipped} // ⭐ NEW: Pass flip state to trigger animation
-          user={user} // ⭐ NEW: Pass user for API call
-          onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for read notification
-        />
-      </Animated.View>
+      {currentBackView === 'postcard' && (
+        <Animated.View 
+          style={[
+            styles.backContainer,
+            { height: availableHeight_local },
+            backAnimatedStyle
+          ]}
+          pointerEvents={isFlipped ? 'box-none' : 'none'}
+        >
+          <PostcardBack
+            persona={persona}
+            onClose={flipToFront}
+            isVisible={currentBackView === 'postcard'} // ⭐ FIXED: Use currentBackView instead of isFlipped
+            user={user} // ⭐ Pass user for API call
+            onMarkAsRead={onMarkAsRead} // ⭐ Pass callback for read notification
+          />
+        </Animated.View>
+      )}
+
+      {/* ⭐ BACK VIEW - Message Creation */}
+      {currentBackView === 'message' && (
+        <Animated.View 
+          style={[
+            styles.backContainer,
+            { height: availableHeight_local },
+            backAnimatedStyle
+          ]}
+          pointerEvents={isFlipped ? 'box-none' : 'none'}
+        >
+          <MessageCreationBack
+            persona={persona}
+            onClose={flipToFront}
+            isVisible={currentBackView === 'message'} // ⭐ FIXED: Use currentBackView instead of isFlipped
+            user={user} // ⭐ Pass user for API call
+          />
+        </Animated.View>
+      )}
       </View>
     </TouchableWithoutFeedback>
   );
