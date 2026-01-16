@@ -1,7 +1,14 @@
 /**
- * 🎨 CustomBottomSheet - Universal Bottom Sheet Component
+ * 🎨 CustomBottomSheet - Universal Bottom Sheet Component (ANIMA Emotional Design)
  * 
  * Based on @gorhom/bottom-sheet with ANIMA design system
+ * 
+ * ✨ ANIMA Philosophy:
+ * - Glassmorphic Background (iOS BlurView + Android semi-transparent)
+ * - Pink/Purple Gradient Overlay (ANIMA Signature)
+ * - Warm border colors (Pink tint)
+ * - Light backdrop (not too dark)
+ * - Emotional, living UI
  * 
  * Features:
  * - Fixed header (title, subtitle, close button)
@@ -65,6 +72,8 @@ import {
   BottomSheetTextInput, // ✅ BottomSheet 전용 TextInput
 } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur'; // ⭐ NEW: ANIMA Glassmorphic
+import LinearGradient from 'react-native-linear-gradient'; // ⭐ NEW: ANIMA Gradient
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale, moderateScale, platformPadding, verticalScale } from '../utils/responsive-utils';
 import CustomText from './CustomText';
@@ -179,6 +188,7 @@ const CustomBottomSheet = forwardRef((props, ref) => {
   }, [isOpen]);
 
   // ==================== Backdrop Component ====================
+  // ✨ ANIMA: Lighter backdrop (not too dark)
   
   const renderBackdrop = useCallback(
     (props) => (
@@ -186,10 +196,10 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
-        opacity={0.8} // ⭐ Increased for better visibility over other modals
+        opacity={0.7} // ✨ ANIMA: Lighter (0.8 → 0.7)
         pressBehavior="close"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.9)', // ⭐ Explicit dark background
+          backgroundColor: 'rgba(0, 0, 0, 0.6)', // ✨ ANIMA: More transparent (0.9 → 0.6)
         }}
       />
     ),
@@ -197,49 +207,62 @@ const CustomBottomSheet = forwardRef((props, ref) => {
   );
 
   // ==================== Header Component ====================
+  // ✨ ANIMA: Glassmorphic header with gradient overlay
   
   const renderHeader = useCallback(() => {
     return (
-      <View style={[styles.header, { borderBottomColor: theme.borderPrimary }, headerStyle]}>
-        {/* Title & Subtitle */}
-        <View style={styles.headerTextContainer}>
-          <CustomText 
-            type="title" 
-            bold={true} 
-            style={[styles.title, { color: theme.textPrimary }]}
-          >
-            {title}
-          </CustomText>
-          
-          {subtitle && (
+      <View style={styles.headerWrapper}>
+        {/* ✨ ANIMA: Gradient Overlay */}
+        <LinearGradient
+          colors={['rgba(255, 107, 157, 0.08)', 'rgba(167, 139, 250, 0.05)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        
+        {/* Header Content */}
+        <View style={[styles.header, headerStyle]}>
+          {/* Title & Subtitle */}
+          <View style={styles.headerTextContainer}>
             <CustomText 
-              type="middle" 
-              style={[styles.subtitle, { color: theme.textSecondary }]}
+              type="title" 
+              bold={true} 
+              style={[styles.title, { color: theme.textPrimary }]}
             >
-              {subtitle}
+              {title}
             </CustomText>
+            
+            {subtitle && (
+              <CustomText 
+                type="middle" 
+                style={[styles.subtitle, { color: theme.textSecondary }]}
+              >
+                {subtitle}
+              </CustomText>
+            )}
+          </View>
+
+          {/* Close Button */}
+          {showCloseButton && onClose && (
+            <TouchableOpacity 
+              style={[styles.closeButton, { backgroundColor: 'rgba(255, 107, 157, 0.1)' }]}
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Icon 
+                name="close" 
+                size={moderateScale(20)} 
+                color="rgba(255, 107, 157, 0.8)" 
+              />
+            </TouchableOpacity>
           )}
         </View>
-
-        {/* Close Button */}
-        {showCloseButton && onClose && (
-          <TouchableOpacity 
-            style={[styles.closeButton, { backgroundColor: theme.bgSecondary }]}
-            onPress={onClose}
-            activeOpacity={0.7}
-          >
-            <Icon 
-              name="close" 
-              size={moderateScale(20)} 
-              color={theme.textSecondary} 
-            />
-          </TouchableOpacity>
-        )}
       </View>
     );
   }, [title, subtitle, showCloseButton, onClose, theme, headerStyle]);
 
   // ==================== Footer Component ====================
+  // ✨ ANIMA: Glassmorphic footer with gradient overlay
   
   const renderFooter = useCallback(
     (props) => {
@@ -255,38 +278,47 @@ const CustomBottomSheet = forwardRef((props, ref) => {
 
       return (
         <BottomSheetFooter {...props} bottomInset={0}>
-          <View 
-            onLayout={handleFooterLayout}
-            style={[
-              styles.footer, 
-              { 
-                backgroundColor: theme.backgroundColor,
-                borderTopColor: theme.borderPrimary,
-                paddingBottom: insets.bottom + platformPadding(16)
-              },
-              footerStyle
-            ]}
-          >
-            {buttons.map((button, index) => (
-              <CustomButton
-                key={index}
-                title={button.title}
-                type={button.type || 'primary'}
-                onPress={button.onPress}
-                disabled={button.disabled || false}
-                loading={button.loading || false}
-                style={[
-                  styles.footerButton,
-                  buttons.length === 1 && styles.footerButtonSingle,
-                  button.style,
-                ]}
-              />
-            ))}
+          <View style={styles.footerWrapper}>
+            {/* ✨ ANIMA: Gradient Overlay */}
+            <LinearGradient
+              colors={['rgba(255, 107, 157, 0.05)', 'rgba(167, 139, 250, 0.08)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            
+            {/* Footer Content */}
+            <View 
+              onLayout={handleFooterLayout}
+              style={[
+                styles.footer, 
+                { 
+                  paddingBottom: insets.bottom + platformPadding(16)
+                },
+                footerStyle
+              ]}
+            >
+              {buttons.map((button, index) => (
+                <CustomButton
+                  key={index}
+                  title={button.title}
+                  type={button.type || 'primary'}
+                  onPress={button.onPress}
+                  disabled={button.disabled || false}
+                  loading={button.loading || false}
+                  style={[
+                    styles.footerButton,
+                    buttons.length === 1 && styles.footerButtonSingle,
+                    button.style,
+                  ]}
+                />
+              ))}
+            </View>
           </View>
         </BottomSheetFooter>
       );
     },
-    [buttons, insets.bottom, theme, footerStyle, footerHeight]
+    [buttons, insets.bottom, footerStyle, footerHeight]
   );
 
   // ==================== Handle Component ====================
@@ -306,13 +338,16 @@ const CustomBottomSheet = forwardRef((props, ref) => {
   );
 
   // ==================== Background Style ====================
+  // ✨ ANIMA: Glassmorphic background (semi-transparent)
   
   const backgroundStyle = useMemo(
     () => ({
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: Platform.OS === 'ios' 
+        ? 'rgba(26, 26, 26, 0.85)' // ✨ iOS: Semi-transparent for BlurView
+        : 'rgba(26, 26, 26, 0.95)', // ✨ Android: Slightly more opaque
       elevation: 50, // ✅ Android elevation (그림자 + z-order)
     }),
-    [theme]
+    []
   );
 
   // ==================== Container Style (z-index) ====================
@@ -396,6 +431,11 @@ const CustomBottomSheet = forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
   // ==================== Header ====================
+  // ✨ ANIMA: Glassmorphic header wrapper
+  headerWrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -404,6 +444,8 @@ const styles = StyleSheet.create({
     paddingTop: platformPadding(20),
     paddingBottom: platformPadding(16),
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink tint border
+    backgroundColor: 'transparent', // ✨ For gradient overlay
   },
   headerTextContainer: {
     flex: 1,
@@ -421,6 +463,8 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(18),
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 157, 0.2)', // ✨ ANIMA: Pink border
   },
 
   // ==================== Content ====================
@@ -431,12 +475,19 @@ const styles = StyleSheet.create({
   },
 
   // ==================== Footer ====================
+  // ✨ ANIMA: Glassmorphic footer wrapper
+  footerWrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
   footer: {
     flexDirection: 'row',
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(16),
     paddingBottom: platformPadding(0), // ✅ 고정 패딩 (BottomSheetFooter가 Safe Area 자동 처리)
     borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink tint border
+    backgroundColor: 'transparent', // ✨ For gradient overlay
     gap: scale(12),
   },
   footerButton: {
