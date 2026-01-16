@@ -155,11 +155,13 @@ const HistoryScreen = ({ navigation }) => {
   // Load messages on mount
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
+    console.log('📊 [HistoryScreen] Mount useEffect triggered, isAuthenticated:', isAuthenticated, 'user_key:', user?.user_key);
     if (isAuthenticated && user?.user_key) {
+      console.log('📊 [HistoryScreen] Loading messages and music...');
       loadMessages(true); // true = reset
       loadMusicList(true); // ⭐ NEW: Also load music
     }
-  }, [isAuthenticated, user?.user_key, loadMusicList]);
+  }, [isAuthenticated, user?.user_key]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Apply filters when search or filter changes
@@ -214,7 +216,7 @@ const HistoryScreen = ({ navigation }) => {
       console.log('[HistoryScreen] 🔔 Removing push event listener...');
       subscription.remove();
     };
-  }, [loadMusicList, showToast, t]);
+  }, [showToast, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
@@ -273,8 +275,13 @@ const HistoryScreen = ({ navigation }) => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ NEW: Load music list from API
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const loadMusicList = useCallback(async (reset = false) => {
-    if (!isAuthenticated || !user?.user_key) return;
+  const loadMusicList = async (reset = false) => {
+    if (!user?.user_key) {
+      console.log('❌ [HistoryScreen] loadMusicList: No user_key');
+      return;
+    }
+    
+    console.log('🎵 [HistoryScreen] loadMusicList called, reset:', reset);
     
     if (reset) {
       setIsMusicLoading(true);
@@ -283,13 +290,17 @@ const HistoryScreen = ({ navigation }) => {
     }
 
     try {
+      console.log('🎵 [HistoryScreen] Calling musicService.listMusic for user:', user.user_key);
       const result = await musicService.listMusic(user.user_key, {
         music_type: 'all',
         sort_by: 'created_desc',
       });
 
+      console.log('🎵 [HistoryScreen] Music API response:', result);
+
       if (result.success && result.data?.music_list) {
         const newList = result.data.music_list;
+        console.log('🎵 [HistoryScreen] Music list loaded:', newList.length, 'items');
         
         if (reset) {
           setMusicList(newList);
@@ -300,22 +311,31 @@ const HistoryScreen = ({ navigation }) => {
         setHasMusicMore(newList.length >= 20);
         
         // Check if any music is still creating
-        const creatingMusic = newList.find(m => m.status === 'creating');
+        const creatingMusic = newList.find(m => m.status === 'creating' || m.status === 'pending' || m.status === 'processing');
         if (creatingMusic) {
           setIsCreating(true);
           setCreatingMusicKey(creatingMusic.music_key);
+          console.log('🎵 [HistoryScreen] Creating music found:', creatingMusic.music_key);
         } else {
           setIsCreating(false);
           setCreatingMusicKey(null);
         }
+      } else {
+        console.log('❌ [HistoryScreen] Music API failed or no data:', result);
+        if (reset) {
+          setMusicList([]);
+        }
       }
     } catch (error) {
-      console.error('[HistoryScreen] Load music error:', error);
+      console.error('❌ [HistoryScreen] Load music error:', error);
+      if (reset) {
+        setMusicList([]);
+      }
     } finally {
       setIsMusicLoading(false);
       setIsMusicRefreshing(false);
     }
-  }, [isAuthenticated, user]);
+  };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Apply filters (search + filter chips)
@@ -528,19 +548,34 @@ const HistoryScreen = ({ navigation }) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle refresh
+  // Handle refresh (Dynamic!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleRefresh = () => {
     HapticService.light();
-    loadMessages(true);
+    console.log('🔄 [HistoryScreen] Refresh triggered for tab:', activeTab);
+    if (activeTab === 'message') {
+      loadMessages(true);
+    } else {
+      setIsMusicRefreshing(true);
+      loadMusicList(true);
+    }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Handle load more (infinite scroll)
+  // Handle load more (infinite scroll, Dynamic!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleLoadMore = () => {
-    if (hasMore && !isLoadingMore && !isLoading) {
-      loadMessages(false);
+    console.log('📜 [HistoryScreen] Load more triggered for tab:', activeTab);
+    if (activeTab === 'message') {
+      if (hasMore && !isLoadingMore && !isLoading) {
+        loadMessages(false);
+      }
+    } else {
+      // Music doesn't have pagination yet, but we keep the structure
+      if (hasMusicMore && !isMusicLoading) {
+        // TODO: Implement music pagination if needed
+        console.log('🎵 [HistoryScreen] Music pagination not implemented yet');
+      }
     }
   };
 
