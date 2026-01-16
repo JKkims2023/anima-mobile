@@ -4,7 +4,7 @@
     "room": "자아",
     "persona": "페르소나",
     "music": "스튜디오",
-    "history": "메세지",
+    "history": "보관함",
     "memory": "선물",
     "point": "포인트",
     "training": "선택모드",
@@ -15,7 +15,9 @@
       "memory": "페르소나의 선물",
       "message_mode": "메세지 편집",
       "studio": "스튜디오",
-      "history": "감성 메세지",
+      "history": "보관함",
+      "history_message": "감성 메세지",
+      "history_music": "음원",
       "history_detail": "보낸 메세지",
       "point": "포인트 스토어",
       "settings": "설정"
@@ -25,6 +27,7 @@
       "message_mode": "단계 : 2 / 2 (메세지 편집)",
       "studio": "나만의 메세지에 음악을 연결하세요!",
       "history": "스와이프로 메세지를 탐색하세요!",
+      "history_message": "감성 메세지를 확인하세요",
       "point": "포인트를 사용하여 나만의 메세지를 만들어보세요.",
       "settings": "나만의 메세지를 만들어보세요."
     }
@@ -1566,7 +1569,11 @@
     "status_check_failed": "상태 확인에 실패했습니다. 잠시 후 다시 시도해주세요.",
     "already_creating_title": "음원 생성 중",
     "already_creating_message": "이미 음원 생성이 진행 중입니다.\n완료 후 다시 시도해주세요.",
+    "creation_failed": "음원 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
     "playing_title": "재생 중",
+    "toast": {
+      "create_started": "음원 생성이 시작되었습니다! 완료되면 알림으로 알려드립니다."
+    },
     "select_title": "음원 선택",
     "search_placeholder": "음원 제목, 태그 검색...",
     "loading": "음원 불러오는 중...",
@@ -2141,7 +2148,7 @@
     "message": "작성하기"
   },
   "history": {
-    "title": "감성 메세지",
+    "title": "보관함",
     "messages_count": "개",
     "loading": "메시지 불러오는 중...",
     "empty": "생성한 메시지가 없습니다",

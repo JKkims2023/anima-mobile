@@ -27,7 +27,7 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -77,12 +77,13 @@ const MUSIC_FILTERS = {
 /**
  * HistoryScreen Component
  */
-const HistoryScreen = ({ navigation }) => {
+const HistoryScreen = () => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
   const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl, clearMusicBadge } = useAnima(); // ⭐ Badge clearing
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation(); // ⭐ NEW: For music creation error handling
 
   // ✅ Refs
   const flashListRef = useRef(null);
@@ -172,8 +173,9 @@ const HistoryScreen = ({ navigation }) => {
 
   // ⭐ NEW: Apply music filters
   useEffect(() => {
+    console.log('🎵 [HistoryScreen] Music filter useEffect triggered');
     applyMusicFilters();
-  }, [applyMusicFilters]);
+  }, [musicList, musicFilter, musicSearchQuery]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ NEW: Push Notification Event Listener (Music)
@@ -363,16 +365,20 @@ const HistoryScreen = ({ navigation }) => {
   };
 
   // ⭐ NEW: Apply music filters
-  const applyMusicFilters = useCallback(() => {
+  const applyMusicFilters = () => {
+    console.log('🎵 [HistoryScreen] applyMusicFilters called, musicList length:', musicList.length);
     let filtered = [...musicList];
 
     // Filter by type
     if (musicFilter === MUSIC_FILTERS.SYSTEM) {
       filtered = filtered.filter(m => m.is_default === 'Y');
+      console.log('🎵 [HistoryScreen] Filter: SYSTEM, filtered length:', filtered.length);
     } else if (musicFilter === MUSIC_FILTERS.USER) {
       filtered = filtered.filter(m => m.is_default !== 'Y');
+      console.log('🎵 [HistoryScreen] Filter: USER, filtered length:', filtered.length);
     } else if (musicFilter === MUSIC_FILTERS.FAVORITE) {
       filtered = filtered.filter(m => m.favorite_yn === 'Y');
+      console.log('🎵 [HistoryScreen] Filter: FAVORITE, filtered length:', filtered.length);
     }
 
     // Filter by search query
@@ -382,10 +388,12 @@ const HistoryScreen = ({ navigation }) => {
         m.music_title?.toLowerCase().includes(query) ||
         m.tag?.toLowerCase().includes(query)
       );
+      console.log('🎵 [HistoryScreen] Search query:', musicSearchQuery, ', filtered length:', filtered.length);
     }
 
+    console.log('🎵 [HistoryScreen] Final filtered music list length:', filtered.length);
     setFilteredMusicList(filtered);
-  }, [musicList, musicFilter, musicSearchQuery]);
+  };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle filter chip press
@@ -545,6 +553,106 @@ const HistoryScreen = ({ navigation }) => {
     
     HapticService.light();
     creatorSheetRef.current?.present();
+  };
+
+  // ⭐ NEW: Handle music creation submit (from MusicCreatorSheet)
+  const handleMusicCreationSubmit = async (formData) => {
+    console.log('🎵 [HistoryScreen] handleMusicCreationSubmit called:', formData);
+    
+    // Show processing overlay
+    setIsProcessingMusic(true);
+    
+    // Close creator sheet
+    creatorSheetRef.current?.dismiss();
+    
+    try {
+      console.log('🎵 [HistoryScreen] Calling musicService.createMusic...');
+      const result = await musicService.createMusic({
+        user_key: user.user_key,
+        music_title: formData.music_title,
+        music_type: formData.music_type,
+        prompt: formData.prompt,
+        lyrics: formData.lyrics,
+      });
+
+      console.log('🎵 [HistoryScreen] Music creation result:', result);
+
+      if (result.success) {
+        // Optimistic Update: Add to list immediately
+        const newMusic = {
+          music_key: result.data.music_key,
+          music_title: formData.music_title,
+          music_type: formData.music_type,
+          status: 'creating',
+          estimated_time: result.data.estimated_time || 30,
+          is_default: 'N',
+          created_at: new Date().toISOString(),
+          music_url: result.data.music_url,
+          request_key: result.data.request_key,
+        };
+
+        console.log('🎵 [HistoryScreen] Adding new music to list:', newMusic);
+        setMusicList(prev => [newMusic, ...prev]);
+        setIsCreating(true);
+        setCreatingMusicKey(newMusic.music_key);
+
+        // Hide processing overlay
+        setIsProcessingMusic(false);
+
+        showToast({
+          type: 'success',
+          message: t('music.toast.create_started'),
+          emoji: '🎵',
+        });
+
+        // Switch to music tab
+        setActiveTab('music');
+        if (flashListRef.current) {
+          requestAnimationFrame(() => {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          });
+        }
+      } else {
+        // Hide processing overlay on failure
+        setIsProcessingMusic(false);
+        
+        console.log('❌ [HistoryScreen] Music creation failed:', result);
+        
+        switch(result.errorCode){
+          case 'INSUFFICIENT_POINT':
+            showAlert({
+              title: t('common.not_enough_point_title'),
+              message: t('common.not_enough_point'),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.settings'),
+                  onPress: () => navigation.navigate('Settings'),
+                },
+              ],
+            });
+            break;
+          default:
+            showAlert({
+              title: t('common.error'),
+              message: result.error || t('music.creation_failed'),
+              buttons: [{ text: t('common.ok') }],
+            });
+        }
+      }
+    } catch (error) {
+      console.error('❌ [HistoryScreen] Music creation error:', error);
+      setIsProcessingMusic(false);
+      
+      showAlert({
+        title: t('common.error'),
+        message: error.message || t('music.creation_failed'),
+        buttons: [{ text: t('common.ok') }],
+      });
+    }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -774,7 +882,7 @@ const HistoryScreen = ({ navigation }) => {
           <CustomText type="small" style={[styles.headerSubtitle, { color: currentTheme.textSecondary }]}>
             {filteredMessages.length > 0 
               ? `${filteredMessages.length}${t('history.messages_count')}` 
-              : t('navigation.subtitle.history')}
+              : t('navigation.subtitle.history_message')}
           </CustomText>
         </View>
         <TouchableOpacity
@@ -813,10 +921,12 @@ const HistoryScreen = ({ navigation }) => {
 
       {/* ⭐ NEW: Tab Buttons */}
       <View style={styles.tabContainer}>
-        {renderTabButton('message', t('navigation.title.history'), 'chatbubbles')}
-        {renderTabButton('music', t('navigation.title.studio'), 'musical-notes')}
+        {renderTabButton('message', t('navigation.title.history_message'), 'chatbubbles')}
+        {renderTabButton('music', t('navigation.title.history_music'), 'musical-notes')}
       </View>
 
+      {false && (
+      <>
       {/* Filter Chips (Dynamic!) */}
       {activeTab === 'message' ? (
         <View style={styles.filterContainer}>
@@ -831,6 +941,8 @@ const HistoryScreen = ({ navigation }) => {
           {renderMusicFilterChip(MUSIC_FILTERS.USER, t('music.filter_user'), 'person')}
           {renderMusicFilterChip(MUSIC_FILTERS.FAVORITE, t('music.filter_favorite'), 'star')}
         </View>
+      )}
+      </>
       )}
 
       {/* List (Dynamic!) */}
@@ -914,11 +1026,7 @@ const HistoryScreen = ({ navigation }) => {
       {/* ⭐ NEW: Music Creator Sheet */}
       <MusicCreatorSheet
         ref={creatorSheetRef}
-        onMusicCreated={async (musicKey) => {
-          setIsCreating(true);
-          setCreatingMusicKey(musicKey);
-          await loadMusicList(true);
-        }}
+        onSubmit={handleMusicCreationSubmit}
       />
 
       {/* ⭐ NEW: Music Player Sheet */}
