@@ -1,19 +1,27 @@
 /**
- * 🎵 MusicCreatorSheet Component
+ * 🎵 MusicCreatorSheet Component - ANIMA Emotional Design
  * 
  * Bottom sheet for music creation input
- * - Music type selection (Radio buttons)
+ * - Music type selection (Radio buttons with gradient)
  * - Title input
  * - Prompt input
  * - Lyrics input (conditional for vocal type)
  * 
+ * ✨ ANIMA Philosophy:
+ * - Warm Pink/Purple Gradient (ANIMA Signature)
+ * - Glassmorphic Design
+ * - Smooth Animations
+ * - Emotional Feedback
+ * 
  * @author JK & Hero Nexus AI
+ * @date 2026-01-16 (ANIMA Emotional Design Revolution)
  */
 
 import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from 'react-native-linear-gradient'; // ⭐ NEW: ANIMA Gradient
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
@@ -48,8 +56,10 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
   const [prompt, setPrompt] = useState('');
   const [lyrics, setLyrics] = useState('');
 
-  // Animation for lyrics field
+  // ✨ ANIMA: Animations
   const lyricsHeight = useRef(new Animated.Value(0)).current;
+  const instrumentalScale = useRef(new Animated.Value(1)).current;
+  const vocalScale = useRef(new Animated.Value(1)).current;
 
   // Expose present/dismiss methods
   useImperativeHandle(ref, () => ({
@@ -74,10 +84,25 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
     setLyrics('');
   };
 
-  // Handle type selection
+  // ✨ ANIMA: Handle type selection with animation
   const handleTypeSelect = (type) => {
     HapticService.light();
     setMusicType(type);
+    
+    // ⭐ Pulse animation on selection
+    const targetScale = type === 'instrumental' ? instrumentalScale : vocalScale;
+    Animated.sequence([
+      Animated.timing(targetScale, {
+        toValue: 1.05,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(targetScale, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   // Handle submit
@@ -216,73 +241,71 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
             {t('music.creator.type_label')}
           </CustomText>
 
-          {/* Radio Buttons */}
+          {/* ✨ ANIMA: Radio Buttons (Gradient Border) */}
           <View style={styles.radioGroup}>
             {/* Instrumental */}
-            <TouchableOpacity
-              style={[
-                styles.radioOption,
-                musicType === 'instrumental' && {
-                  backgroundColor: `${currentTheme.mainColor || COLORS.MAIN_COLOR}20`,
-                  borderColor: currentTheme.mainColor || COLORS.MAIN_COLOR,
-                },
-              ]}
-              onPress={() => handleTypeSelect('instrumental')}
-              activeOpacity={0.7}
-            >
-              <View style={styles.radioLeft}>
-                <View style={[
-                  styles.radioCircle,
-                  musicType === 'instrumental' && {
-                    borderColor: currentTheme.mainColor || COLORS.MAIN_COLOR,
-                  },
-                ]}>
-                  {musicType === 'instrumental' && (
-                    <View style={[
-                      styles.radioCircleFill,
-                      { backgroundColor: currentTheme.mainColor || COLORS.MAIN_COLOR },
-                    ]} />
-                  )}
-                </View>
-                <Icon name="music" size={scale(20)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-              </View>
-              <CustomText type="middle" bold style={styles.radioLabel}>
-                  {t('music.creator.type_instrumental')}
-              </CustomText>
-            </TouchableOpacity>
+            <Animated.View style={{ flex: 1, transform: [{ scale: instrumentalScale }] }}>
+              <TouchableOpacity
+                style={styles.radioOptionWrapper}
+                onPress={() => handleTypeSelect('instrumental')}
+                activeOpacity={0.7}
+              >
+                {musicType === 'instrumental' ? (
+                  <LinearGradient
+                    colors={['#FF6B9D', '#FF1493', '#A78BFA']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.radioGradientBorder}
+                  >
+                    <View style={[styles.radioOption, styles.radioOptionSelected]}>
+                      <Icon name="music" size={scale(32)} color="#FF6B9D" />
+                      <CustomText type="middle" bold style={[styles.radioLabel, { color: '#FF6B9D' }]}>
+                        {t('music.creator.type_instrumental')}
+                      </CustomText>
+                    </View>
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.radioOption, styles.radioOptionUnselected]}>
+                    <Icon name="music" size={scale(28)} color={currentTheme.textSecondary} />
+                    <CustomText type="middle" style={[styles.radioLabel, { color: currentTheme.textSecondary }]}>
+                      {t('music.creator.type_instrumental')}
+                    </CustomText>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
 
             {/* Vocal */}
-            <TouchableOpacity
-              style={[
-                styles.radioOption,
-                musicType === 'vocal' && {
-                  backgroundColor: `${currentTheme.mainColor || COLORS.MAIN_COLOR}20`,
-                  borderColor: currentTheme.mainColor || COLORS.MAIN_COLOR,
-                },
-              ]}
-              onPress={() => handleTypeSelect('vocal')}
-              activeOpacity={0.7}
-            >
-              <View style={styles.radioLeft}>
-                <View style={[
-                  styles.radioCircle,
-                  musicType === 'vocal' && {
-                    borderColor: currentTheme.mainColor || COLORS.MAIN_COLOR,
-                  },
-                ]}>
-                  {musicType === 'vocal' && (
-                    <View style={[
-                      styles.radioCircleFill,
-                      { backgroundColor: currentTheme.mainColor || COLORS.MAIN_COLOR },
-                    ]} />
-                  )}
-                </View>
-                <Icon name="microphone" size={scale(20)} color={currentTheme.mainColor || COLORS.MAIN_COLOR} />
-              </View>
-              <CustomText type="middle" bold style={styles.radioLabel}>
-                  {t('music.creator.type_vocal')}
-                </CustomText>
-            </TouchableOpacity>
+            <Animated.View style={{ flex: 1, transform: [{ scale: vocalScale }] }}>
+              <TouchableOpacity
+                style={styles.radioOptionWrapper}
+                onPress={() => handleTypeSelect('vocal')}
+                activeOpacity={0.7}
+              >
+                {musicType === 'vocal' ? (
+                  <LinearGradient
+                    colors={['#FF6B9D', '#FF1493', '#A78BFA']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.radioGradientBorder}
+                  >
+                    <View style={[styles.radioOption, styles.radioOptionSelected]}>
+                      <Icon name="microphone" size={scale(32)} color="#FF6B9D" />
+                      <CustomText type="middle" bold style={[styles.radioLabel, { color: '#FF6B9D' }]}>
+                        {t('music.creator.type_vocal')}
+                      </CustomText>
+                    </View>
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.radioOption, styles.radioOptionUnselected]}>
+                    <Icon name="microphone" size={scale(28)} color={currentTheme.textSecondary} />
+                    <CustomText type="middle" style={[styles.radioLabel, { color: currentTheme.textSecondary }]}>
+                      {t('music.creator.type_vocal')}
+                    </CustomText>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         </View>
 
@@ -387,14 +410,24 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
           </CustomText>
         </Animated.View>
 
-        {/* Submit Button */}
-        <View style={styles.submitSection}>
-          <CustomButton
-            title={t('music.creator.submit_button_points')}
-            onPress={handleSubmit}
-            leftIcon={<Icon name="sparkles" size={scale(20)} color="#FFFFFF" />}
-          />
-        </View>
+        {/* ✨ ANIMA: Gradient Submit Button */}
+        <TouchableOpacity
+          style={styles.submitButtonWrapper}
+          onPress={handleSubmit}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#FF6B9D', '#FF1493', '#A78BFA', '#8B7BFA']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.submitButtonGradient}
+          >
+            <Icon name="sparkles" size={scale(24)} color="#FFFFFF" />
+            <CustomText type="middle" bold style={styles.submitButtonText}>
+              {t('music.creator.submit_button_points')}
+            </CustomText>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Input Overlays */}
@@ -445,48 +478,43 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     marginBottom: scale(12),
   },
+  // ✨ ANIMA: Radio Group (Gradient Border)
   radioGroup: {
     flexDirection: 'row',
     gap: scale(12),
   },
+  radioOptionWrapper: {
+    flex: 1,
+  },
+  radioGradientBorder: {
+    borderRadius: scale(16),
+    padding: 2, // ⭐ Border width (gradient thickness)
+  },
   radioOption: {
-    borderWidth: 2,
-    borderColor: 'rgba(62, 80, 180, 0.3)',
-    borderRadius: scale(12),
-    padding: scale(16),
-  },
-  radioLeft: {
-    flexDirection: 'row',
+    borderRadius: scale(14),
+    padding: scale(20),
     alignItems: 'center',
-    gap: scale(12),
-    marginBottom: scale(8),
-    display: 'none',
-  },
-  radioCircle: {
-    width: scale(20),
-    height: scale(20),
-    borderRadius: scale(10),
-    borderWidth: 2,
-    borderColor: 'rgba(62, 80, 180, 0.5)',
     justifyContent: 'center',
-    alignItems: 'center',
+    gap: verticalScale(10),
   },
-  radioCircleFill: {
-    width: scale(10),
-    height: scale(10),
-    borderRadius: scale(5),
+  radioOptionSelected: {
+    backgroundColor: 'rgba(255, 107, 157, 0.08)', // ⭐ Pink tint
+  },
+  radioOptionUnselected: {
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   radioLabel: {
-    color: COLORS.TEXT_PRIMARY,
+    fontSize: moderateScale(14),
+    textAlign: 'center',
   },
-  radioDesc: {
-    color: COLORS.TEXT_SECONDARY,
-    paddingLeft: scale(32),
-  },
-  // Read-only Input Styles
+  // ✨ ANIMA: Read-only Input Styles (Glassmorphic)
   inputLabel: {
     color: COLORS.TEXT_SECONDARY,
     marginBottom: scale(8),
+    fontSize: moderateScale(13),
+    fontWeight: '600',
   },
   readOnlyInput: {
     flexDirection: 'row',
@@ -496,6 +524,8 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(14),
     borderRadius: moderateScale(12),
     borderWidth: 1,
+    borderColor: 'rgba(255, 107, 157, 0.15)', // ⭐ Pink tint border
+    backgroundColor: 'rgba(255, 107, 157, 0.03)', // ⭐ Subtle pink background
   },
   readOnlyInputMultiline: {
     alignItems: 'flex-start',
@@ -512,10 +542,36 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
     marginTop: scale(8),
     fontStyle: 'italic',
+    fontSize: moderateScale(12),
   },
-  submitSection: {
-    marginTop: scale(20),
-    display: 'none',
+  // ✨ ANIMA: Gradient Submit Button
+  submitButtonWrapper: {
+    marginTop: scale(30),
+    borderRadius: moderateScale(14),
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FF6B9D',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  submitButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(24),
+    borderRadius: moderateScale(14),
+    gap: scale(10),
+  },
+  submitButtonText: {
+    color: '#FFFFFF',
+    fontSize: moderateScale(16),
   },
 });
 

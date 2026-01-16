@@ -1,15 +1,24 @@
 /**
- * 🎵 MusicPlayerSheet - Music Playback & Management
+ * 🎵 MusicPlayerSheet - Music Playback & Management (ANIMA Emotional Design)
  * 
  * Features:
  * - Music playback (play/pause)
- * - Simple pulse animation (no tempo sync)
+ * - Heartbeat-like pulse animation
  * - Attach to message
  * - Delete (user music only)
  * - Share
  * - Real-time state sync with parent
  * 
+ * ✨ ANIMA Philosophy:
+ * - Warm Pink/Purple Gradient (ANIMA Signature)
+ * - Large Music Icon with Gradient Background
+ * - Strong Pulse Animation (Heartbeat)
+ * - Gradient Play/Pause Button
+ * - Gradient Action Buttons (Share, Delete)
+ * - Emotional Feedback
+ * 
  * @author JK & Hero Nexus AI
+ * @date 2026-01-16 (ANIMA Emotional Design Revolution)
  */
 
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
@@ -27,9 +36,11 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
 import Slider from '@react-native-community/slider';
+import LinearGradient from 'react-native-linear-gradient'; // ⭐ NEW: ANIMA Gradient
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
@@ -75,26 +86,44 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
   }));
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Pulse animation for play button
+  // ✨ ANIMA: Heartbeat-like Pulse Animation (STRONG!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const pulseScale = useSharedValue(1);
+  const glowOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (isPlaying && !isLoading) {
+      // ⭐ STRONG Heartbeat Pulse (ANIMA Style)
       pulseScale.value = withRepeat(
         withSequence(
-          withTiming(1.1, { duration: 500 }),
-          withTiming(1.0, { duration: 500 })
+          withTiming(1.15, { duration: 400, easing: Easing.out(Easing.ease) }),
+          withTiming(1.05, { duration: 200, easing: Easing.in(Easing.ease) }),
+          withTiming(1.12, { duration: 300, easing: Easing.out(Easing.ease) }),
+          withTiming(1.0, { duration: 400, easing: Easing.in(Easing.ease) })
+        ),
+        -1
+      );
+      
+      // ⭐ Glow effect (pulsing with heartbeat)
+      glowOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 600 }),
+          withTiming(0.2, { duration: 600 })
         ),
         -1
       );
     } else {
       pulseScale.value = withTiming(1, { duration: 300 });
+      glowOpacity.value = withTiming(0, { duration: 300 });
     }
   }, [isPlaying, isLoading]);
 
   const animatedIconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],
+  }));
+
+  const animatedGlowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
   }));
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -288,21 +317,29 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
           />
         )}
 
-        {/* Music Info */}
+        {/* ✨ ANIMA: Music Info with Gradient Icon */}
         <View style={styles.infoSection}>
-          {/* Music Icon with Pulse */}
-          <Animated.View style={[styles.musicIconContainer, animatedIconStyle]}>
-            <View style={[
-              styles.musicIcon,
-              { backgroundColor: 'rgba(59, 130, 246, 0.15)' }
-            ]}>
-              <Icon
-                name={music.music_type === 'vocal' ? 'mic-sharp' : 'musical-notes-sharp'}
-                size={scale(30)}
-                color={currentTheme.mainColor}
-              />
-            </View>
-          </Animated.View>
+          {/* ✨ Music Icon with Gradient Background & Glow */}
+          <View style={styles.musicIconWrapper}>
+            {/* Glow Layer */}
+            <Animated.View style={[styles.glowLayer, animatedGlowStyle]} />
+            
+            {/* Icon with Pulse & Gradient */}
+            <Animated.View style={[styles.musicIconContainer, animatedIconStyle]}>
+              <LinearGradient
+                colors={['#FF6B9D', '#FF1493', '#A78BFA', '#8B7BFA']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.musicIconGradient}
+              >
+                <Icon
+                  name={music.music_type === 'vocal' ? 'mic-sharp' : 'musical-notes-sharp'}
+                  size={scale(40)}
+                  color="#FFFFFF"
+                />
+              </LinearGradient>
+            </Animated.View>
+          </View>
 
           <View style={{marginLeft: scale(10)}}>
 
@@ -367,17 +404,24 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
         <View>
 
         <View style={{flex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', gap: scale(10), marginTop: verticalScale(-20)}}>
-        {/* Play/Pause Button */}
+        {/* ✨ ANIMA: Gradient Play/Pause Button */}
         <TouchableOpacity
-          style={[styles.playButton, { backgroundColor: currentTheme.mainColor }]}
+          style={styles.playButtonWrapper}
           onPress={handlePlayPause}
           activeOpacity={0.8}
         >
-          <Icon
-            name={isPlaying ? "pause" : "play"}
-            size={scale(20)}
-            color="#FFFFFF"
-          />
+          <LinearGradient
+            colors={['#FF6B9D', '#FF1493', '#A78BFA']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.playButtonGradient}
+          >
+            <Icon
+              name={isPlaying ? "pause" : "play"}
+              size={scale(20)}
+              color="#FFFFFF"
+            />
+          </LinearGradient>
         </TouchableOpacity>
 
         {/* Progress Bar */}
@@ -425,31 +469,56 @@ const MusicPlayerSheet = forwardRef(({ music, onMusicUpdate }, ref) => {
         <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
 
 
-        {/* Action Buttons */}
+        {/* ✨ ANIMA: Gradient Action Buttons */}
         <View style={styles.actionButtons}>
-          {/* Share */}
-          <CustomButton
-            title={t('music.player.share')}
+          {/* Share Button (Blue-Cyan Gradient) */}
+          <TouchableOpacity
+            style={styles.actionButtonWrapper}
             onPress={handleShare}
-            leftIcon={<Icon name="share-social-outline" size={scale(20)} color="#FFFFFF" />}
-            style={[styles.actionButton, { backgroundColor: 'rgba(59, 130, 246, 0.8)' }]}
-          />
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#3B82F6', '#06B6D4', '#14B8A6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.actionButtonGradient}
+            >
+              <Icon name="share-social-outline" size={scale(22)} color="#FFFFFF" />
+              <CustomText type="middle" bold style={styles.actionButtonText}>
+                {t('music.player.share')}
+              </CustomText>
+            </LinearGradient>
+          </TouchableOpacity>
 
-          {/* Delete */}
-          <CustomButton
-            title={t('music.player.delete')}
-            onPress={handleDelete}
-            leftIcon={<Icon name="trash-outline" size={scale(20)} color="#FFFFFF" />}
-            style={[
-              styles.actionButton,
-              { 
-                backgroundColor: music.is_default === 'Y' 
-                  ? 'rgba(156, 163, 175, 0.5)' 
-                  : 'rgba(239, 68, 68, 0.8)' 
-              }
-            ]}
-            disabled={music.is_default === 'Y'}
-          />
+          {/* Delete Button (Red-Orange Gradient or Gray if system) */}
+          {music.is_default === 'Y' ? (
+            <View style={[styles.actionButtonWrapper, styles.actionButtonDisabled]}>
+              <View style={styles.actionButtonDisabledInner}>
+                <Icon name="trash-outline" size={scale(22)} color="rgba(156, 163, 175, 0.5)" />
+                <CustomText type="middle" style={[styles.actionButtonText, { color: 'rgba(156, 163, 175, 0.5)' }]}>
+                  {t('music.player.delete')}
+                </CustomText>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.actionButtonWrapper}
+              onPress={handleDelete}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#EF4444', '#F97316', '#FB923C']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.actionButtonGradient}
+              >
+                <Icon name="trash-outline" size={scale(22)} color="#FFFFFF" />
+                <CustomText type="middle" bold style={styles.actionButtonText}>
+                  {t('music.player.delete')}
+                </CustomText>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
 
           {/* System Music Notice */}
           {music.is_default === 'Y' && (
@@ -489,22 +558,49 @@ const styles = StyleSheet.create({
     height: 0,
   },
 
-  // Music Info
+  // ✨ ANIMA: Music Info with Gradient Icon
   infoSection: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: verticalScale(12),
   },
-  musicIconContainer: {
+  musicIconWrapper: {
+    position: 'relative',
     marginBottom: verticalScale(8),
   },
-  musicIcon: {
-    width: scale(80),
-    height: scale(80),
+  glowLayer: {
+    position: 'absolute',
+    width: scale(140),
+    height: scale(140),
+    borderRadius: scale(70),
+    backgroundColor: '#FF6B9D',
+    top: -scale(10),
+    left: -scale(10),
+    zIndex: 0,
+  },
+  musicIconContainer: {
+    width: scale(120),
+    height: scale(120),
+    zIndex: 1,
+  },
+  musicIconGradient: {
+    width: scale(120),
+    height: scale(120),
     borderRadius: scale(60),
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FF6B9D',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 12,
+      },
+    }),
   },
   musicTitle: {
     textAlign: 'left',
@@ -535,22 +631,24 @@ const styles = StyleSheet.create({
     padding: scale(8),
   },
 
-  // Play/Pause Button
-  playButton: {
-    width: scale(30),
-    height: scale(30),
-    borderRadius: scale(15),
+  // ✨ ANIMA: Gradient Play/Pause Button
+  playButtonWrapper: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FF6B9D',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+      },
+      android: { elevation: 10 },
+    }),
+  },
+  playButtonGradient: {
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(22),
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
-    // Shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    ...Platform.select({
-      android: { elevation: 8 },
-    }),
   },
 
   // Progress Section
@@ -589,13 +687,51 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
-  // Action Buttons
+  // ✨ ANIMA: Gradient Action Buttons
   actionButtons: {
-    gap: verticalScale(12),
+    gap: verticalScale(14),
     marginTop: verticalScale(20),
   },
-  actionButton: {
-    paddingVertical: verticalScale(14),
+  actionButtonWrapper: {
+    borderRadius: moderateScale(14),
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+      },
+      android: { elevation: 8 },
+    }),
+  },
+  actionButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(20),
+    borderRadius: moderateScale(14),
+    gap: scale(10),
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: moderateScale(15),
+  },
+  actionButtonDisabled: {
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  actionButtonDisabledInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(20),
+    borderRadius: moderateScale(14),
+    gap: scale(10),
+    backgroundColor: 'rgba(156, 163, 175, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(156, 163, 175, 0.2)',
   },
 
   // System Music Notice
