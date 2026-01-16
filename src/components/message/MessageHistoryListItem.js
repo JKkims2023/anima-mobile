@@ -63,7 +63,7 @@ const MessageHistoryListItem = ({ message, onPress }) => {
     <TouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: currentTheme.backgroundColor }
+        { backgroundColor: 'black' }
       ]}
       onPress={onPress}
       activeOpacity={0.7}
@@ -167,6 +167,8 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+
+
   },
   
   // Thumbnail

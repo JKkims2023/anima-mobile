@@ -5,10 +5,14 @@
  * - confetti: Falling from top (traditional celebration) 🎉
  * - fireworks: Exploding from bottom (dynamic fireworks) 🎆
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -97,13 +101,16 @@ const ConfettiPiece = ({ delay = 0, color, startX }) => {
 
 // Main Confetti component
 const Confetti = () => {
-  // Generate 30 confetti pieces
-  const confettiPieces = Array.from({ length: 30 }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 2000,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    startX: Math.random() * SCREEN_WIDTH,
-  }));
+  // ⚡ Performance: Generate confetti ONCE on mount (stable across re-renders)
+  const confettiPieces = useMemo(() => {
+    console.log('🎉 [Confetti Native] Generating particles (useMemo - only once!)');
+    return Array.from({ length: 30 }, (_, i) => ({
+      key: i,
+      delay: Math.random() * 2000,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      startX: Math.random() * SCREEN_WIDTH,
+    }));
+  }, []); // ⭐ Empty deps: generate only once
 
   return (
     <View style={styles.container}>

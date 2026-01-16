@@ -119,6 +119,10 @@ import WordInputOverlay from './WordInputOverlay'; // 🎨 P1: Custom words inpu
 import MusicCategorySheet from './MusicCategorySheet'; // 🎵 P0: Music System - Step 1
 import UserMusicListModal from './UserMusicListModal'; // 🎵 P0: Music System - Step 2
 import FloatingMusicPlayer from './FloatingMusicPlayer'; // 🎵 P0: Music System - Player
+import CustomBottomSheet from '../CustomBottomSheet'; // 🎵 P0: Music System - Player
+import { useTheme } from '../../contexts/ThemeContext';
+import Video from 'react-native-video';
+import Image from 'react-native-fast-image';
 
 const MessageCreationBack = ({
   persona,
@@ -128,7 +132,10 @@ const MessageCreationBack = ({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { setMessageCreateHandler, showAlert, setHasNewMessage, setCreatedMessageUrl, setIsMessageCreationActive } = useAnima(); // ⭐ NEW: Context integration
-  const { user } = useUser(); // ⭐ NEW: User data
+  const { user } = useUser(); // ⭐ NEW: User 
+  const { theme,currentTheme } = useTheme();
+  const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
+ 
   
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('[MessageCreationBack] 🎬 Component Render:');
@@ -177,6 +184,9 @@ const MessageCreationBack = ({
   // 🎵 P0: Music System - 2-Step Selection States
   const [isMusicCategorySheetVisible, setIsMusicCategorySheetVisible] = useState(false); // Step 1: Category selection
   const [isUserMusicListVisible, setIsUserMusicListVisible] = useState(false); // Step 2: Custom music list
+  
+  // ⭐ Validation Feedback State (for CustomBottomSheet)
+  const [validationFeedback, setValidationFeedback] = useState(null); // {feedback, persona}
 
   // ⭐ VideoKey: Force video remount when persona changes (same as MessageCreationOverlay)
   const videoKey = useMemo(() => {
@@ -795,9 +805,8 @@ const MessageCreationBack = ({
         setProcessingMessage('');
         HapticService.warning();
         
-        // ⭐ Use LLM-generated feedback (or fallback)
-        const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
-        
+
+        /*
         showAlert({
           title: feedbackMessage.title,
           emoji: feedbackMessage.emoji || '💙',
@@ -817,6 +826,22 @@ const MessageCreationBack = ({
             }
           ]
         });
+        */
+
+        // ⭐ Use LLM-generated feedback (or fallback)
+        const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
+    
+        // ⭐ Store validation feedback for CustomBottomSheet
+        setValidationFeedback({
+            feedback: feedbackMessage,
+            persona: validation.persona // ⭐ Persona info (name, image_url, video_url)
+        });
+        
+        // ⭐ Open CustomBottomSheet with persona voice feedback
+        setTimeout(() => {
+            validationFeedbackSheetRef.current?.present();
+        }, 100);
+    
         
         return;
       }
@@ -1398,6 +1423,93 @@ const MessageCreationBack = ({
         visible={bgMusic !== 'none' && !!bgMusicUrl}
         onClose={handleMusicPlayerClose}
       />
+
+            {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* 💙 Validation Feedback (Persona Voice with Image/Video) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <CustomBottomSheet
+        ref={validationFeedbackSheetRef}
+        snapPoints={['60%']}
+        title={'From. ' + persona?.persona_name}
+        buttons={[
+          {
+            title: t('common.rewrite'),
+            type: 'primary',
+            onPress: () => {
+              validationFeedbackSheetRef.current?.dismiss();
+              HapticService.light();
+              // Focus on content input for rewrite
+              setTimeout(() => {
+                contentInputRef.current?.present();
+              }, 300);
+            }
+          }
+        ]}
+      >
+        {validationFeedback && (
+          <View style={{
+            flex: 1,
+            paddingHorizontal: scale(20),
+            paddingTop: verticalScale(20),
+            paddingBottom: verticalScale(20),
+          }}>
+            {/* Title */}
+            <CustomText style={{
+              fontSize: scale(18),
+              fontWeight: '700',
+              color: 'white',
+              marginBottom: verticalScale(20),
+              textAlign: 'center',
+            }}>
+              {validationFeedback.feedback.title || '💙'}
+            </CustomText>
+
+            {/* Content: Persona Image/Video (Left) + Message (Right) */}
+            <View style={{
+              flexDirection: 'row',
+              gap: scale(16),
+              marginBottom: verticalScale(24),
+            }}>
+              {/* Left: Persona Image/Video */}
+              {persona?.persona_key && (
+                <View style={{
+                  width: scale(100),
+                  height: scale(100),
+                  borderRadius: scale(12),
+                  overflow: 'hidden',
+                  backgroundColor: currentTheme.border,
+                }}>
+                <Image
+                    source={{ uri: persona?.selected_dress_image_url }}
+                    style={{ width: '100%', height: '100%', backgroundColor:'blue' }}
+                    resizeMode="cover"
+                />
+                </View>
+              )}
+
+              {/* Right: Feedback Message */}
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                <CustomText style={{
+                  fontSize: scale(15),
+                  lineHeight: scale(22),
+                  color: currentTheme.textSecondary,
+                }}>
+                  {validationFeedback.feedback.message}
+                </CustomText>
+              </View>
+            </View>
+
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <CustomText type='middle' bold style={{
+               
+              }}>
+                {t('common.rejected_message_description')}
+              </CustomText>
+            </View>
+
+          </View>
+        )}
+      </CustomBottomSheet>
 
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* ⭐ Processing Loading Overlay (Validation & Creation) */}

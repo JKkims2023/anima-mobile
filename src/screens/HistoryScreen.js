@@ -868,7 +868,7 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
     <SafeScreen
-      backgroundColor={'rgba(30, 30, 32, 1)'} // ✨ ANIMA: Brighter background (26→30) to match CustomBottomSheet
+      backgroundColor={currentTheme.backgroundColor || COLORS.BACKGROUND}
       statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
@@ -1106,6 +1106,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingBottom: verticalScale(12),
     gap: scale(12),
+    backgroundColor:'black',
+    paddingTop: verticalScale(15),
   },
   tabButton: {
     flex: 1,
@@ -1114,9 +1116,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(12),
-    backgroundColor: 'rgba(255, 107, 157, 0.12)', // ✨ ANIMA: Brighter pink tint (0.08→0.12) for harmony
+    backgroundColor: 'rgba(255, 107, 157, 0.08)', // ✨ ANIMA: Pink tint (was rgba(255, 255, 255, 0.05))
     borderWidth: 1,
-    borderColor: 'rgba(255, 107, 157, 0.2)', // ✨ ANIMA: Brighter pink border (0.15→0.2)
+    borderColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink border
     gap: scale(8),
   },
   tabButtonActive: {
@@ -1165,7 +1167,8 @@ const styles = StyleSheet.create({
   // ✨ ANIMA: List Container (Brighter background for harmony with bottom sheets)
   listContainer: {
     flex: 1,
-    backgroundColor: 'rgba(42, 42, 44, 1)', // ✨ ANIMA: Significantly brighter (26→42) for harmony with CustomBottomSheet
+    backgroundColor: 'rgba(35, 35, 37, 1)', // ✨ ANIMA: Slightly brighter than main bg (26,26,26 → 35,35,37)
+    backgroundColor:'black'
   },
 
   // Empty

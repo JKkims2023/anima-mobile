@@ -7,10 +7,14 @@
  * - fireworks: Explosive colorful bursts 🎆
  * - fireflies: Soft glowing lights ✨🕯️
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -122,22 +126,26 @@ const Sparkle = ({ delay = 0, x, y, color, size, icon, duration }) => {
 const Sparkles = ({ variant = 'sparkles' }) => {
   const config = VARIANTS[variant] || VARIANTS.sparkles;
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('✨ [Sparkles] Rendering with variant:', variant);
-  console.log('  - icon:', config.icon);
-  console.log('  - duration:', config.duration);
-  console.log('  - count:', config.count);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  // ⚡ Performance: Generate particles ONCE on mount (stable across re-renders)
+  const particles = useMemo(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✨ [Sparkles Native] Generating particles (useMemo - only once!)');
+    console.log('  - variant:', variant);
+    console.log('  - icon:', config.icon);
+    console.log('  - duration:', config.duration);
+    console.log('  - count:', config.count);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  // Generate particles based on variant count
-  const particles = Array.from({ length: config.count }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 3000,
-    x: Math.random() * SCREEN_WIDTH,
-    y: Math.random() * SCREEN_HEIGHT,
-    color: config.colors[Math.floor(Math.random() * config.colors.length)],
-    size: 15 + Math.random() * 10,
-  }));
+    // Generate particles based on variant count
+    return Array.from({ length: config.count }, (_, i) => ({
+      key: i,
+      delay: Math.random() * 3000,
+      x: Math.random() * SCREEN_WIDTH,
+      y: Math.random() * SCREEN_HEIGHT,
+      color: config.colors[Math.floor(Math.random() * config.colors.length)],
+      size: 15 + Math.random() * 10,
+    }));
+  }, [variant, config]); // ⭐ Re-generate if variant changes
 
   return (
     <View style={styles.container}>

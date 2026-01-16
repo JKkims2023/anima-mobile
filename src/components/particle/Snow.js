@@ -8,10 +8,14 @@
  * - leaves: Orange/brown autumn leaves 🍂
  * - beer_bottles: Beer bottles & drinks 🍺🍻🍾🍷 (emoji)
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions, Text } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -130,33 +134,37 @@ const Snowflake = ({ delay = 0, startX, size, icon, color, emoji, useEmoji = fal
 const Snow = ({ variant = 'snow' }) => {
   const config = VARIANTS[variant] || VARIANTS.snow;
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('❄️ [Snow] Rendering with variant:', variant);
-  console.log('  - useEmoji:', config.useEmoji);
-  if (config.useEmoji) {
-    console.log('  - emojis:', config.emojis);
-  } else {
-    console.log('  - icon:', config.icon);
-    console.log('  - color:', config.color);
-  }
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  // ⚡ Performance: Generate particles ONCE on mount (stable across re-renders)
+  const particles = useMemo(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('❄️ [Snow Native] Generating particles (useMemo - only once!)');
+    console.log('  - variant:', variant);
+    console.log('  - useEmoji:', config.useEmoji);
+    if (config.useEmoji) {
+      console.log('  - emojis:', config.emojis);
+    } else {
+      console.log('  - icon:', config.icon);
+      console.log('  - color:', config.color);
+    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  // Generate 25 particles (or 30 for beer bottles for more festive effect)
-  const particleCount = config.useEmoji ? 30 : 25;
-  const particles = Array.from({ length: particleCount }, (_, i) => {
-    // For emoji variants, randomly select an emoji for each particle
-    const emoji = config.useEmoji 
-      ? config.emojis[Math.floor(Math.random() * config.emojis.length)]
-      : null;
-    
-    return {
-      key: i,
-      delay: Math.random() * 4000,
-      startX: Math.random() * SCREEN_WIDTH,
-      size: config.useEmoji ? (25 + Math.random() * 15) : (15 + Math.random() * 10), // Larger for emojis
-      emoji,
-    };
-  });
+    // Generate 25 particles (or 30 for beer bottles for more festive effect)
+    const particleCount = config.useEmoji ? 30 : 25;
+    return Array.from({ length: particleCount }, (_, i) => {
+      // For emoji variants, randomly select an emoji for each particle
+      const emoji = config.useEmoji 
+        ? config.emojis[Math.floor(Math.random() * config.emojis.length)]
+        : null;
+      
+      return {
+        key: i,
+        delay: Math.random() * 4000,
+        startX: Math.random() * SCREEN_WIDTH,
+        size: config.useEmoji ? (25 + Math.random() * 15) : (15 + Math.random() * 10), // Larger for emojis
+        emoji,
+      };
+    });
+  }, [variant, config]); // ⭐ Re-generate if variant changes
 
   return (
     <View style={styles.container}>

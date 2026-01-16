@@ -4,10 +4,15 @@
  * Warm, gentle light particles floating slowly
  * Perfect for comfort and consolation messages
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation (no re-renders)
+ * - Pre-calculated color & drift values
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -24,7 +29,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLORS = ['#FFE5B4', '#FFDAB9', '#FFEFD5', '#FFF8DC', '#FFEBCD'];
 
 // Single light particle
-const LightParticle = ({ delay = 0, startX, startY, size }) => {
+const LightParticle = ({ delay = 0, startX, startY, size, color, driftAmount }) => {
   const translateY = useSharedValue(0);
   const translateX = useSharedValue(0);
   const scale = useSharedValue(0.5);
@@ -44,11 +49,11 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
       )
     );
 
-    // Drift slowly
+    // Drift slowly (⚡ use pre-calculated driftAmount)
     translateX.value = withDelay(
       delay,
       withRepeat(
-        withTiming(Math.random() * 30 - 15, {
+        withTiming(driftAmount, {
           duration: 3000,
           easing: Easing.inOut(Easing.ease),
         }),
@@ -82,7 +87,7 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
         true
       )
     );
-  }, []);
+  }, [delay, driftAmount]); // ⚡ Add deps for stability
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -103,7 +108,7 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
           top: startY,
           width: size,
           height: size,
-          backgroundColor: COLORS[Math.floor(Math.random() * COLORS.length)],
+          backgroundColor: color, // ⚡ Use stable color from props
         },
       ]}
     />
@@ -112,14 +117,19 @@ const LightParticle = ({ delay = 0, startX, startY, size }) => {
 
 // Main ComfortLight component
 const ComfortLight = () => {
-  // Generate 15 light particles
-  const lights = Array.from({ length: 15 }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 3000,
-    startX: Math.random() * SCREEN_WIDTH,
-    startY: SCREEN_HEIGHT * 0.3 + Math.random() * (SCREEN_HEIGHT * 0.7),
-    size: 40 + Math.random() * 60,
-  }));
+  // ⚡ Performance: Generate particles ONCE on mount (stable across re-renders)
+  const lights = useMemo(() => {
+    console.log('🕯️ [ComfortLight Native] Generating particles (useMemo - only once!)');
+    return Array.from({ length: 15 }, (_, i) => ({
+      key: i,
+      delay: Math.random() * 3000,
+      startX: Math.random() * SCREEN_WIDTH,
+      startY: SCREEN_HEIGHT * 0.3 + Math.random() * (SCREEN_HEIGHT * 0.7),
+      size: 40 + Math.random() * 60,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)], // ⚡ Pre-calculate color
+      driftAmount: Math.random() * 30 - 15, // ⚡ Pre-calculate drift
+    }));
+  }, []); // ⭐ Empty deps: generate only once
 
   return (
     <View style={styles.container}>
@@ -130,6 +140,8 @@ const ComfortLight = () => {
           startX={light.startX}
           startY={light.startY}
           size={light.size}
+          color={light.color}
+          driftAmount={light.driftAmount}
         />
       ))}
     </View>

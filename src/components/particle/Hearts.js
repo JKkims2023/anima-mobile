@@ -4,10 +4,14 @@
  * Floating hearts rising from bottom
  * Perfect for love and appreciation messages
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -119,20 +123,23 @@ const Hearts = ({ variant = 'normal' }) => {
   const isNeon = variant === 'neon';
   const colorPalette = COLORS[variant] || COLORS.normal;
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('💕 [Hearts] Rendering with variant:', variant);
-  console.log('  - isNeon:', isNeon);
-  console.log('  - colorPalette:', colorPalette);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-  // Generate 20 hearts
-  const hearts = Array.from({ length: 20 }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 3000,
-    color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
-    startX: Math.random() * SCREEN_WIDTH,
-    size: 20 + Math.random() * 15,
-  }));
+  // ⚡ Performance: Generate hearts ONCE on mount (stable across re-renders)
+  const hearts = useMemo(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💕 [Hearts Native] Generating particles (useMemo - only once!)');
+    console.log('  - variant:', variant);
+    console.log('  - isNeon:', isNeon);
+    console.log('  - colorPalette:', colorPalette);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    return Array.from({ length: 20 }, (_, i) => ({
+      key: i,
+      delay: Math.random() * 3000,
+      color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+      startX: Math.random() * SCREEN_WIDTH,
+      size: 20 + Math.random() * 15,
+    }));
+  }, [variant, colorPalette, isNeon]); // ⭐ Re-generate if variant changes
 
   return (
     <View style={styles.container}>

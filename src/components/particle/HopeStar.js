@@ -4,10 +4,14 @@
  * Stars rising from bottom, symbolizing hope and dreams
  * Perfect for encouragement and hope messages
  * 
+ * ⚡ Performance Optimized:
+ * - useMemo for stable particle generation
+ * - Consistent with Web version
+ * 
  * @author JK & Hero Nexus AI
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -126,14 +130,17 @@ const Star = ({ delay = 0, startX, size, color }) => {
 
 // Main HopeStar component
 const HopeStar = () => {
-  // Generate 15 stars
-  const stars = Array.from({ length: 15 }, (_, i) => ({
-    key: i,
-    delay: Math.random() * 4000,
-    startX: Math.random() * SCREEN_WIDTH,
-    size: 20 + Math.random() * 15,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-  }));
+  // ⚡ Performance: Generate stars ONCE on mount (stable across re-renders)
+  const stars = useMemo(() => {
+    console.log('⭐ [HopeStar Native] Generating particles (useMemo - only once!)');
+    return Array.from({ length: 15 }, (_, i) => ({
+      key: i,
+      delay: Math.random() * 4000,
+      startX: Math.random() * SCREEN_WIDTH,
+      size: 20 + Math.random() * 15,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    }));
+  }, []); // ⭐ Empty deps: generate only once
 
   return (
     <View style={styles.container}>

@@ -68,7 +68,7 @@ const MusicListItem = ({ music, onPress }) => {
     <TouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: currentTheme.backgroundColor }
+        { backgroundColor: 'black' }
       ]}
       onPress={onPress}
       activeOpacity={0.7}
