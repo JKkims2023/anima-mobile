@@ -116,6 +116,9 @@ import BackgroundEffectCategorySheet from './BackgroundEffectCategorySheet'; // 
 import BackgroundEffectDetailModal from './BackgroundEffectDetailModal'; // 🌌 Background Effect: Step 2
 import { getCategoryByEffectId as getBackgroundCategoryById } from '../../constants/background-effect-categories'; // 🌌 Background Effect: Helper
 import WordInputOverlay from './WordInputOverlay'; // 🎨 P1: Custom words input
+import MusicCategorySheet from './MusicCategorySheet'; // 🎵 P0: Music System - Step 1
+import UserMusicListModal from './UserMusicListModal'; // 🎵 P0: Music System - Step 2
+import FloatingMusicPlayer from './FloatingMusicPlayer'; // 🎵 P0: Music System - Player
 
 const MessageCreationBack = ({
   persona,
@@ -158,6 +161,7 @@ const MessageCreationBack = ({
   const [customWords, setCustomWords] = useState([]); // Custom words
   const [bgMusic, setBgMusic] = useState('none');
   const [bgMusicUrl, setBgMusicUrl] = useState('');
+  const [bgMusicTitle, setBgMusicTitle] = useState(''); // 🎵 P0: Music title
   
   // 🎨 P1: 2-Step Selection States (Active Effect)
   const [isCategorySheetVisible, setIsCategorySheetVisible] = useState(false); // Step 1: Category selection
@@ -169,6 +173,10 @@ const MessageCreationBack = ({
   const [isBackgroundCategorySheetVisible, setIsBackgroundCategorySheetVisible] = useState(false); // Step 1
   const [isBackgroundDetailModalVisible, setIsBackgroundDetailModalVisible] = useState(false); // Step 2
   const [selectedBackgroundCategory, setSelectedBackgroundCategory] = useState(null); // Selected category
+  
+  // 🎵 P0: Music System - 2-Step Selection States
+  const [isMusicCategorySheetVisible, setIsMusicCategorySheetVisible] = useState(false); // Step 1: Category selection
+  const [isUserMusicListVisible, setIsUserMusicListVisible] = useState(false); // Step 2: Custom music list
 
   // ⭐ VideoKey: Force video remount when persona changes (same as MessageCreationOverlay)
   const videoKey = useMemo(() => {
@@ -568,6 +576,68 @@ const MessageCreationBack = ({
     setSelectedBackgroundCategory(null);
     // 부모 바텀시트는 열린 상태 유지
   }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎵 P0: Music System Handlers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Step 1: Open Music Category Sheet
+  const handleOpenMusicCategorySheet = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎵 [MessageCreationBack] Opening Music Category Sheet!');
+    console.log('   Current music:', bgMusic);
+    console.log('   Current music URL:', bgMusicUrl);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    HapticService.light();
+    setIsMusicCategorySheetVisible(true);
+  }, [bgMusic, bgMusicUrl]);
+
+  // Step 2: Handle music selection (from category or custom list)
+  const handleSelectMusic = useCallback((music_key, music_url, music_title) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎵 [MessageCreationBack] Music selected!');
+    console.log('   music_key:', music_key);
+    console.log('   music_url:', music_url);
+    console.log('   music_title:', music_title);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    setBgMusic(music_key);
+    setBgMusicUrl(music_url || '');
+    setBgMusicTitle(music_title || '');
+    
+    HapticService.success();
+  }, []);
+
+  // Step 2: Open User Music List Modal (커스텀 선택)
+  const handleOpenUserMusicList = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎵 [MessageCreationBack] Opening User Music List Modal!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    setIsUserMusicListVisible(true);
+  }, []);
+
+  // Close handlers
+  const handleCloseMusicCategorySheet = useCallback(() => {
+    console.log('🎵 [MessageCreationBack] Closing Music Category Sheet');
+    setIsMusicCategorySheetVisible(false);
+  }, []);
+
+  const handleCloseUserMusicList = useCallback(() => {
+    console.log('🎵 [MessageCreationBack] Closing User Music List Modal');
+    setIsUserMusicListVisible(false);
+  }, []);
+
+  // Handle music player close (pause, not reset)
+  const handleMusicPlayerClose = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎵 [MessageCreationBack] Music player close pressed (pause)');
+    console.log('   Music will remain paused, not reset');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    // ⭐ No state change - just pause (handled by FloatingMusicPlayer internally)
+    // Music stays "active" (bgMusic !== 'none'), just paused
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════════
 
   // 🎨 P1: Custom words save handler
   const handleWordsSave = useCallback((words) => {
@@ -1197,14 +1267,14 @@ const MessageCreationBack = ({
         {/* Chip 3: Background Music */}
         <Animated.View style={chip3AnimatedStyle}>
           <TouchableOpacity
-            style={styles.quickChip}
-            onPress={() => {
-              console.log('[MessageCreationBack] Chip 3 clicked (Music)');
-              HapticService.light();
-            }}
+            style={[
+              styles.quickChip,
+              bgMusic !== 'none' && { backgroundColor: 'rgba(255, 105, 180, 0.25)' }
+            ]}
+            onPress={handleOpenMusicCategorySheet}
             activeOpacity={0.7}
           >
-            <Icon name="music-note" size={scale(20)} color="red" />
+            <Icon name="music-note" size={scale(20)} color="#FF69B4" />
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -1296,6 +1366,37 @@ const MessageCreationBack = ({
         maxWords={5}
         initialWords={customWords}
         onSave={handleWordsSave}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 🎵 P0: Music System - Step 1: Category Selection */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <MusicCategorySheet
+        visible={isMusicCategorySheetVisible}
+        onClose={handleCloseMusicCategorySheet}
+        onSelectMusic={handleSelectMusic}
+        onOpenCustomModal={handleOpenUserMusicList}
+        currentMusicKey={bgMusic}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 🎵 P0: Music System - Step 2: User Music List */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <UserMusicListModal
+        visible={isUserMusicListVisible}
+        onClose={handleCloseUserMusicList}
+        onSelectMusic={handleSelectMusic}
+        currentMusicKey={bgMusic}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 🎵 P0: Music System - Floating Player (ANIMA 로고 하단) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <FloatingMusicPlayer
+        music_url={bgMusicUrl}
+        music_title={bgMusicTitle}
+        visible={bgMusic !== 'none' && !!bgMusicUrl}
+        onClose={handleMusicPlayerClose}
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}

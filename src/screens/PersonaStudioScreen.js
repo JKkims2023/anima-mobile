@@ -2131,7 +2131,7 @@ const PersonaStudioScreen = () => {
           
           {/* ⭐ NEW: Hamburger Menu Button */}
           <TouchableOpacity
-            style={styles.menuButton}
+            style={[styles.menuButton, {display: isBackViewVisible ? 'none' : 'flex'}]}
             onPress={() => {
               HapticService.light();
               setIsSlideMenuOpen(true);

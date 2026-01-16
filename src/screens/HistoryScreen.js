@@ -24,20 +24,33 @@ import {
   TextInput,
   RefreshControl,
   Platform,
+  DeviceEventEmitter,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
 import MessageHistoryListItem from '../components/message/MessageHistoryListItem';
-import MessageDetailOverlay from '../components/message/MessageDetailOverlay'; // ⭐ NEW: Overlay instead of Stack Navigation
+import MusicListItem from '../components/music/MusicListItem'; // ⭐ NEW: Unified music list item
+import MessageDetailOverlay from '../components/message/MessageDetailOverlay';
+import MusicCreatorSheet from '../components/music/MusicCreatorSheet'; // ⭐ NEW: Music creation
+import MusicPlayerSheet from '../components/music/MusicPlayerSheet'; // ⭐ NEW: Music player
+import ProcessingLoadingOverlay from '../components/persona/ProcessingLoadingOverlay'; // ⭐ NEW: Music generation loading
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import messageService from '../services/api/messageService';
+import musicService from '../services/api/musicService'; // ⭐ NEW: Music service
 import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
@@ -48,10 +61,17 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 /**
  * Filter types
  */
-const FILTERS = {
+const MESSAGE_FILTERS = {
   ALL: 'all',
   FAVORITE: 'favorite',
   REPLIES: 'replies',
+};
+
+const MUSIC_FILTERS = {
+  ALL: 'all',
+  SYSTEM: 'system',
+  USER: 'user',
+  FAVORITE: 'favorite',
 };
 
 /**
@@ -61,12 +81,17 @@ const HistoryScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { user, isAuthenticated } = useUser();
-  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl } = useAnima(); // ⭐ For badge clearing
+  const { showAlert, showToast, setHasNewMessage, setCreatedMessageUrl, clearMusicBadge } = useAnima(); // ⭐ Badge clearing
   const insets = useSafeAreaInsets();
 
-  // ✅ FlashList ref
+  // ✅ Refs
   const flashListRef = useRef(null);
   const helpSheetRef = useRef(null);
+  const creatorSheetRef = useRef(null); // ⭐ NEW: Music creator
+  const playerSheetRef = useRef(null); // ⭐ NEW: Music player
+  
+  // ✅ Tab state
+  const [activeTab, setActiveTab] = useState('message'); // 'message' | 'music'
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ✅ Messages state
   const [messages, setMessages] = useState([]);
@@ -81,20 +106,35 @@ const HistoryScreen = ({ navigation }) => {
 
   // ✅ Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState(FILTERS.ALL);
+  const [activeFilter, setActiveFilter] = useState(MESSAGE_FILTERS.ALL);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+  // ⭐ NEW: Music state
+  const [musicList, setMusicList] = useState([]);
+  const [filteredMusicList, setFilteredMusicList] = useState([]);
+  const [musicSearchQuery, setMusicSearchQuery] = useState('');
+  const [musicFilter, setMusicFilter] = useState(MUSIC_FILTERS.ALL);
+  const [musicPage, setMusicPage] = useState(1);
+  const [hasMusicMore, setHasMusicMore] = useState(true);
+  const [isMusicLoading, setIsMusicLoading] = useState(false);
+  const [isMusicRefreshing, setIsMusicRefreshing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [creatingMusicKey, setCreatingMusicKey] = useState(null);
+  const [selectedMusic, setSelectedMusic] = useState(null);
+  const [isProcessingMusic, setIsProcessingMusic] = useState(false);
 
   // ⭐ Message Detail Overlay state
   const [isMessageDetailVisible, setIsMessageDetailVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  // ⭐ Clear new message badge on screen focus
+  // ⭐ Clear badges on screen focus
   useFocusEffect(
     useCallback(() => {
-      console.log('✅ [HistoryScreen] Screen focused - Clearing new message badge');
+      console.log('✅ [HistoryScreen] Screen focused - Clearing badges');
       setHasNewMessage(false);
       setCreatedMessageUrl('');
-    }, [setHasNewMessage, setCreatedMessageUrl])
+      clearMusicBadge(); // ⭐ NEW: Clear music badge too
+    }, [setHasNewMessage, setCreatedMessageUrl, clearMusicBadge])
   );
 
   // ⭐ NEW: Close MessageDetailOverlay when navigating away (Tab bar)
@@ -117,8 +157,9 @@ const HistoryScreen = ({ navigation }) => {
   useEffect(() => {
     if (isAuthenticated && user?.user_key) {
       loadMessages(true); // true = reset
+      loadMusicList(true); // ⭐ NEW: Also load music
     }
-  }, [isAuthenticated, user?.user_key]);
+  }, [isAuthenticated, user?.user_key, loadMusicList]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Apply filters when search or filter changes
@@ -126,6 +167,54 @@ const HistoryScreen = ({ navigation }) => {
   useEffect(() => {
     applyFilters();
   }, [messages, searchQuery, activeFilter]);
+
+  // ⭐ NEW: Apply music filters
+  useEffect(() => {
+    applyMusicFilters();
+  }, [applyMusicFilters]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Push Notification Event Listener (Music)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    console.log('[HistoryScreen] 🔔 Registering push event listener...');
+    
+    const subscription = DeviceEventEmitter.addListener('ANIMA_PUSH_RECEIVED', async (data) => {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[HistoryScreen] 🔔 Push received!');
+      console.log('   order_type:', data.order_type);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const { order_type } = data;
+      
+      if (order_type === 'create_music') {
+        console.log('[HistoryScreen] 🎵 create_music: Reloading music list');
+        
+        // Reload music list
+        await loadMusicList(true);
+        
+        // Switch to music tab & scroll to top
+        setActiveTab('music');
+        if (flashListRef.current) {
+          requestAnimationFrame(() => {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          });
+        }
+        
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: '🎵',
+          message: t('music.created'),
+        });
+      }
+    });
+    
+    return () => {
+      console.log('[HistoryScreen] 🔔 Removing push event listener...');
+      subscription.remove();
+    };
+  }, [loadMusicList, showToast, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
@@ -182,19 +271,65 @@ const HistoryScreen = ({ navigation }) => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Load music list from API
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const loadMusicList = useCallback(async (reset = false) => {
+    if (!isAuthenticated || !user?.user_key) return;
+    
+    if (reset) {
+      setIsMusicLoading(true);
+      setMusicPage(1);
+      setHasMusicMore(true);
+    }
+
+    try {
+      const result = await musicService.listMusic(user.user_key, {
+        music_type: 'all',
+        sort_by: 'created_desc',
+      });
+
+      if (result.success && result.data?.music_list) {
+        const newList = result.data.music_list;
+        
+        if (reset) {
+          setMusicList(newList);
+        } else {
+          setMusicList(prev => [...prev, ...newList]);
+        }
+
+        setHasMusicMore(newList.length >= 20);
+        
+        // Check if any music is still creating
+        const creatingMusic = newList.find(m => m.status === 'creating');
+        if (creatingMusic) {
+          setIsCreating(true);
+          setCreatingMusicKey(creatingMusic.music_key);
+        } else {
+          setIsCreating(false);
+          setCreatingMusicKey(null);
+        }
+      }
+    } catch (error) {
+      console.error('[HistoryScreen] Load music error:', error);
+    } finally {
+      setIsMusicLoading(false);
+      setIsMusicRefreshing(false);
+    }
+  }, [isAuthenticated, user]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Apply filters (search + filter chips)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const applyFilters = () => {
+    // Message filters
     let filtered = [...messages];
 
-    // 1. Apply filter chips
-    if (activeFilter === FILTERS.FAVORITE) {
+    if (activeFilter === MESSAGE_FILTERS.FAVORITE) {
       filtered = filtered.filter(msg => msg.favorite_yn === 'Y');
-    } else if (activeFilter === FILTERS.REPLIES) {
+    } else if (activeFilter === MESSAGE_FILTERS.REPLIES) {
       filtered = filtered.filter(msg => msg.reply_count > 0);
     }
 
-    // 2. Apply search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(msg => 
@@ -207,12 +342,61 @@ const HistoryScreen = ({ navigation }) => {
     setFilteredMessages(filtered);
   };
 
+  // ⭐ NEW: Apply music filters
+  const applyMusicFilters = useCallback(() => {
+    let filtered = [...musicList];
+
+    // Filter by type
+    if (musicFilter === MUSIC_FILTERS.SYSTEM) {
+      filtered = filtered.filter(m => m.is_default === 'Y');
+    } else if (musicFilter === MUSIC_FILTERS.USER) {
+      filtered = filtered.filter(m => m.is_default !== 'Y');
+    } else if (musicFilter === MUSIC_FILTERS.FAVORITE) {
+      filtered = filtered.filter(m => m.favorite_yn === 'Y');
+    }
+
+    // Filter by search query
+    if (musicSearchQuery.trim()) {
+      const query = musicSearchQuery.toLowerCase();
+      filtered = filtered.filter(m =>
+        m.music_title?.toLowerCase().includes(query) ||
+        m.tag?.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredMusicList(filtered);
+  }, [musicList, musicFilter, musicSearchQuery]);
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle filter chip press
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleFilterPress = (filter) => {
     HapticService.light();
     setActiveFilter(filter);
+  };
+
+  // ⭐ NEW: Handle music filter chip press
+  const handleMusicFilterPress = (filter) => {
+    HapticService.light();
+    setMusicFilter(filter);
+  };
+
+  // ⭐ NEW: Handle tab change
+  const handleTabChange = (tab) => {
+    HapticService.light();
+    setActiveTab(tab);
+    
+    // Reset search when switching tabs
+    if (tab === 'message') {
+      setMusicSearchQuery('');
+    } else {
+      setSearchQuery('');
+    }
+    
+    // Scroll to top
+    if (flashListRef.current) {
+      flashListRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -259,6 +443,90 @@ const HistoryScreen = ({ navigation }) => {
     setIsMessageDetailVisible(true);
   };
 
+  // ⭐ NEW: Handle music item press
+  const handleMusicPress = async (music) => {
+    HapticService.light();
+    
+    // If creating, check status
+    if (music.status === 'creating' || music.status === 'pending' || music.status === 'processing') {
+      await handleCheckMusicStatus(music);
+      return;
+    }
+    
+    // Open player
+    setSelectedMusic(music);
+    playerSheetRef.current?.present();
+  };
+
+  // ⭐ NEW: Check music creation status
+  const handleCheckMusicStatus = async (music) => {
+    if (!music?.music_key) return;
+
+    try {
+      setIsProcessingMusic(true);
+      const result = await musicService.checkMusicStatus(music.music_key);
+      
+      if (result.success && result.data) {
+        const { status, estimated_time } = result.data;
+        
+        if (status === 'completed') {
+          HapticService.success();
+          showToast({
+            type: 'success',
+            emoji: '🎵',
+            message: t('music.created'),
+          });
+          await loadMusicList(true);
+        } else {
+          showToast({
+            type: 'info',
+            emoji: '⏳',
+            message: t('music.still_creating', { time: estimated_time || 30 }),
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[HistoryScreen] Check music status error:', error);
+      showAlert({
+        title: t('common.error'),
+        message: t('music.status_check_failed'),
+        buttons: [{ text: t('common.ok') }],
+      });
+    } finally {
+      setIsProcessingMusic(false);
+    }
+  };
+
+  // ⭐ NEW: Handle music update from player (favorite/delete)
+  const handleMusicUpdate = useCallback((updatedMusic, action) => {
+    if (action === 'delete') {
+      setMusicList(prev => prev.filter(m => m.music_key !== updatedMusic.music_key));
+      playerSheetRef.current?.dismiss();
+    } else if (action === 'favorite') {
+      setMusicList(prev => prev.map(m =>
+        m.music_key === updatedMusic.music_key
+          ? { ...m, favorite_yn: updatedMusic.favorite_yn }
+          : m
+      ));
+    }
+  }, []);
+
+  // ⭐ NEW: Handle floating button press (create music)
+  const handleFloatingButtonPress = () => {
+    if (isCreating) {
+      HapticService.warning();
+      showAlert({
+        title: t('music.already_creating_title'),
+        message: t('music.already_creating_message'),
+        buttons: [{ text: t('common.ok') }],
+      });
+      return;
+    }
+    
+    HapticService.light();
+    creatorSheetRef.current?.present();
+  };
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle refresh
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -282,6 +550,39 @@ const HistoryScreen = ({ navigation }) => {
   const handleHelpPress = () => {
     HapticService.light();
 
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render tab button (NEW!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderTabButton = (tab, label, icon) => {
+    const isActive = activeTab === tab;
+    
+    return (
+      <TouchableOpacity
+        key={tab}
+        style={[
+          styles.tabButton,
+          isActive && styles.tabButtonActive,
+        ]}
+        onPress={() => handleTabChange(tab)}
+        activeOpacity={0.7}
+      >
+        <Icon 
+          name={icon} 
+          size={scale(20)} 
+          color={isActive ? '#FFFFFF' : currentTheme.textSecondary} 
+        />
+        <CustomText
+          style={[
+            styles.tabButtonText,
+            { color: isActive ? '#FFFFFF' : currentTheme.textSecondary }
+          ]}
+        >
+          {label}
+        </CustomText>
+      </TouchableOpacity>
+    );
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -317,37 +618,93 @@ const HistoryScreen = ({ navigation }) => {
     );
   };
 
+  // ⭐ NEW: Render music filter chip
+  const renderMusicFilterChip = (filter, label, icon) => {
+    const isActive = musicFilter === filter;
+    return (
+      <TouchableOpacity
+        key={filter}
+        style={[
+          styles.filterChip,
+          isActive && styles.filterChipActive,
+          { backgroundColor: isActive ? COLORS.neonBlue : currentTheme.cardBackground }
+        ]}
+        onPress={() => handleMusicFilterPress(filter)}
+        activeOpacity={0.7}
+      >
+        <Icon 
+          name={icon} 
+          size={scale(16)} 
+          color={isActive ? '#FFFFFF' : currentTheme.textSecondary} 
+        />
+        <CustomText
+          style={[
+            styles.filterChipText,
+            { color: isActive ? '#FFFFFF' : currentTheme.textSecondary }
+          ]}
+        >
+          {label}
+        </CustomText>
+      </TouchableOpacity>
+    );
+  };
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Render list item
+  // Render list item (Dynamic!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const renderItem = ({ item }) => (
+  const renderMessageItem = ({ item }) => (
     <MessageHistoryListItem
       message={item}
       onPress={() => handleMessagePress(item)}
     />
   );
 
+  const renderMusicItem = ({ item }) => (
+    <MusicListItem
+      music={item}
+      onPress={() => handleMusicPress(item)}
+    />
+  );
+
+  const renderItem = activeTab === 'message' ? renderMessageItem : renderMusicItem;
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Render empty state
+  // Render empty state (Dynamic!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderEmpty = () => {
-    if (isLoading) return null;
+    if ((activeTab === 'message' && isLoading) || (activeTab === 'music' && isMusicLoading)) {
+      return null;
+    }
 
-    return (
-      <View style={styles.emptyContainer}>
-        <Icon name="chatbubbles-outline" size={scale(64)} color={currentTheme.textSecondary} />
-        <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
-          {searchQuery || activeFilter !== FILTERS.ALL
-            ? t('history.no_results')
-            : t('history.no_messages')}
-        </CustomText>
-        <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
-          {searchQuery || activeFilter !== FILTERS.ALL
-            ? t('history.try_different_filter')
-            : t('history.create_first_message')}
-        </CustomText>
-      </View>
-    );
+    if (activeTab === 'message') {
+      return (
+        <View style={styles.emptyContainer}>
+          <Icon name="chatbubbles-outline" size={scale(64)} color={currentTheme.textSecondary} />
+          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+            {searchQuery || activeFilter !== MESSAGE_FILTERS.ALL
+              ? t('history.no_results')
+              : t('history.no_messages')}
+          </CustomText>
+          <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
+            {searchQuery || activeFilter !== MESSAGE_FILTERS.ALL
+              ? t('history.try_different_filter')
+              : t('history.create_first_message')}
+          </CustomText>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.emptyContainer}>
+          <Icon name="musical-notes-outline" size={scale(64)} color={currentTheme.textSecondary} />
+          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+            {musicSearchQuery ? t('music.no_results') : t('music.empty_title')}
+          </CustomText>
+          <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
+            {musicSearchQuery ? t('music.try_different_search') : t('music.empty_subtitle')}
+          </CustomText>
+        </View>
+      );
+    }
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -399,49 +756,64 @@ const HistoryScreen = ({ navigation }) => {
       </View>
 
       {/* Search Bar */}
-      {true && (
-        <View style={[styles.searchContainer, { backgroundColor: currentTheme.cardBackground }]}>
-          <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} style={styles.searchIcon} />
-          <TextInput
-            style={[styles.searchInput, { color: currentTheme.textPrimary }]}
-            placeholder={t('history.search_placeholder')}
-            placeholderTextColor={currentTheme.textSecondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            
-            returnKeyType="search"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
-              <Icon name="close-circle" size={scale(20)} color={currentTheme.textSecondary} />
-            </TouchableOpacity>
-          )}
+      <View style={[styles.searchContainer, { backgroundColor: currentTheme.cardBackground }]}>
+        <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} style={styles.searchIcon} />
+        <TextInput
+          style={[styles.searchInput, { color: currentTheme.textPrimary }]}
+          placeholder={activeTab === 'message' ? t('history.search_placeholder') : t('music.search_placeholder')}
+          placeholderTextColor={currentTheme.textSecondary}
+          value={activeTab === 'message' ? searchQuery : musicSearchQuery}
+          onChangeText={activeTab === 'message' ? setSearchQuery : setMusicSearchQuery}
+          returnKeyType="search"
+        />
+        {((activeTab === 'message' && searchQuery.length > 0) || (activeTab === 'music' && musicSearchQuery.length > 0)) && (
+          <TouchableOpacity 
+            onPress={() => activeTab === 'message' ? setSearchQuery('') : setMusicSearchQuery('')} 
+            style={styles.clearButton}
+          >
+            <Icon name="close-circle" size={scale(20)} color={currentTheme.textSecondary} />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* ⭐ NEW: Tab Buttons */}
+      <View style={styles.tabContainer}>
+        {renderTabButton('message', t('navigation.title.history'), 'chatbubbles')}
+        {renderTabButton('music', t('navigation.title.studio'), 'musical-notes')}
+      </View>
+
+      {/* Filter Chips (Dynamic!) */}
+      {activeTab === 'message' ? (
+        <View style={styles.filterContainer}>
+          {renderFilterChip(MESSAGE_FILTERS.ALL, t('history.filter_all'), 'apps-outline')}
+          {renderFilterChip(MESSAGE_FILTERS.FAVORITE, t('history.filter_favorite'), 'star')}
+          {renderFilterChip(MESSAGE_FILTERS.REPLIES, t('history.filter_replies'), 'chatbubble')}
+        </View>
+      ) : (
+        <View style={styles.filterContainer}>
+          {renderMusicFilterChip(MUSIC_FILTERS.ALL, t('music.filter_all'), 'apps-outline')}
+          {renderMusicFilterChip(MUSIC_FILTERS.SYSTEM, t('music.filter_system'), 'shield-checkmark')}
+          {renderMusicFilterChip(MUSIC_FILTERS.USER, t('music.filter_user'), 'person')}
+          {renderMusicFilterChip(MUSIC_FILTERS.FAVORITE, t('music.filter_favorite'), 'star')}
         </View>
       )}
 
-      {/* Filter Chips */}
-      <View style={styles.filterContainer}>
-        {renderFilterChip(FILTERS.ALL, t('history.filter_all'), 'apps-outline')}
-        {renderFilterChip(FILTERS.FAVORITE, t('history.filter_favorite'), 'star')}
-        {renderFilterChip(FILTERS.REPLIES, t('history.filter_replies'), 'chatbubble')}
-      </View>
-
-      {/* List */}
-      {isLoading ? (
+      {/* List (Dynamic!) */}
+      {((activeTab === 'message' && isLoading) || (activeTab === 'music' && isMusicLoading)) ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.neonBlue} />
           <CustomText style={[styles.loadingText, { color: currentTheme.textSecondary }]}>
-            {t('history.loading')}
+            {activeTab === 'message' ? t('history.loading') : t('music.loading')}
           </CustomText>
         </View>
       ) : (
         <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
           <FlashList
             ref={flashListRef}
-            data={filteredMessages}
+            data={activeTab === 'message' ? filteredMessages : filteredMusicList}
             renderItem={renderItem}
-            estimatedItemSize={94} // height of MessageHistoryListItem
-            keyExtractor={(item) => item.message_key}
+            estimatedItemSize={94}
+            keyExtractor={(item) => activeTab === 'message' ? item.message_key : item.music_key}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListEmptyComponent={renderEmpty}
@@ -449,7 +821,7 @@ const HistoryScreen = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
-                refreshing={false}
+                refreshing={activeTab === 'message' ? false : isMusicRefreshing}
                 onRefresh={handleRefresh}
                 tintColor={COLORS.neonBlue}
                 {...(Platform.OS === 'android' && {
@@ -463,6 +835,21 @@ const HistoryScreen = ({ navigation }) => {
             }}
           />
         </View>
+      )}
+
+      {/* ⭐ NEW: Floating Create Button (Music Tab Only) */}
+      {activeTab === 'music' && (
+        <TouchableOpacity
+          style={[styles.floatingButton, { backgroundColor: COLORS.neonBlue }]}
+          onPress={handleFloatingButtonPress}
+          activeOpacity={0.8}
+        >
+          {isCreating ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Icon name="add" size={scale(30)} color="#FFFFFF" />
+          )}
+        </TouchableOpacity>
       )}
 
       {/* ⭐ Message Detail Overlay (z-index: 9999, covers tab bar) */}
@@ -486,9 +873,35 @@ const HistoryScreen = ({ navigation }) => {
           ref={helpSheetRef}
           isOpen={isHelpOpen}
           onClose={() => setIsHelpOpen(false)}
-
         />
       </View>
+
+      {/* ⭐ NEW: Music Creator Sheet */}
+      <MusicCreatorSheet
+        ref={creatorSheetRef}
+        onMusicCreated={async (musicKey) => {
+          setIsCreating(true);
+          setCreatingMusicKey(musicKey);
+          await loadMusicList(true);
+        }}
+      />
+
+      {/* ⭐ NEW: Music Player Sheet */}
+      {selectedMusic && (
+        <MusicPlayerSheet
+          ref={playerSheetRef}
+          music={selectedMusic}
+          onMusicUpdate={handleMusicUpdate}
+        />
+      )}
+
+      {/* ⭐ NEW: Processing Loading Overlay (Music Generation) */}
+      {isProcessingMusic && (
+        <ProcessingLoadingOverlay
+          visible={isProcessingMusic}
+          message={t('music.checking_status')}
+        />
+      )}
 
     </SafeScreen>
   );
@@ -542,6 +955,31 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: scale(4),
+  },
+
+  // ⭐ NEW: Tab Buttons
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(16),
+    paddingBottom: verticalScale(12),
+    gap: scale(12),
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    gap: scale(8),
+  },
+  tabButtonActive: {
+    backgroundColor: COLORS.neonBlue,
+  },
+  tabButtonText: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
   },
 
   // Filter Chips
@@ -601,6 +1039,34 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: verticalScale(20),
     alignItems: 'center',
+  },
+
+  // ⭐ NEW: Floating Button
+  floatingButton: {
+    position: 'absolute',
+    right: scale(20),
+    bottom: scale(80),
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+
+  // Sheet Container
+  sheetContainer: {
+    flex: 0,
   },
 });
 

@@ -21,6 +21,7 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ScrollView,
   Dimensions,
   BackHandler,
@@ -115,17 +116,16 @@ const BackgroundEffectCategorySheet = ({
       onRequestClose={onClose}
     >
       {/* Backdrop */}
-      <TouchableOpacity 
-        style={styles.backdrop} 
-        activeOpacity={1} 
-        onPress={onClose}
-      >
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="dark"
-          blurAmount={10}
-        />
-      </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.backdrop} pointerEvents="box-none">
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={10}
+            pointerEvents="none"
+          />
+        </View>
+      </TouchableWithoutFeedback>
 
       {/* Bottom Sheet */}
       <Animated.View 

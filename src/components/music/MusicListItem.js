@@ -1,172 +1,282 @@
 /**
- * 🎵 MusicListItem Component
+ * 🎵 MusicListItem - Music History List Card
  * 
- * Individual music item in the list
- * Click to select and play in MusicPlayerCard
+ * Features:
+ * - Unified card design with MessageHistoryListItem
+ * - Music icon with consistent 70x70 thumbnail
+ * - Type badge, date, status
+ * - Favorite indicator
+ * - Creating status support
+ * - Press animation
+ * 
+ * Design: Clean, scannable, efficient, CONSISTENT! 💙
  * 
  * @author JK & Hero Nexus AI
+ * @date 2026-01-16
  */
 
-import React, { memo } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import CustomText from '../CustomText';
 import { useTheme } from '../../contexts/ThemeContext';
-import { scale } from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
-import HapticService from '../../utils/HapticService';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 /**
  * MusicListItem Component
  */
-const MusicListItem = memo(({ music, isSelected = false, onPress }) => {
+const MusicListItem = ({ music, onPress }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
 
-  const handlePress = () => {
-    HapticService.light();
-    onPress?.(music);
-  };
+  // Extract data
+  const {
+    music_title = '',
+    music_type = 'instrumental',
+    is_default = 'N',
+    favorite_yn = 'N',
+    status = 'completed',
+    estimated_time = 0,
+    created_at = '',
+  } = music || {};
+
+  // Status checks
+  const isCreating = status === 'creating' || status === 'pending' || status === 'processing';
+  const isFavorite = favorite_yn === 'Y';
+  const isSystem = is_default === 'Y';
 
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
   };
-
-  const isDefault = music?.is_default === 'Y';
 
   return (
     <TouchableOpacity
       style={[
         styles.container,
-        isSelected && {
-          backgroundColor: `${currentTheme.mainColor || COLORS.MAIN_COLOR}15`,
-          borderColor: currentTheme.mainColor || COLORS.MAIN_COLOR,
-        },
+        { backgroundColor: currentTheme.backgroundColor }
       ]}
-      onPress={handlePress}
+      onPress={onPress}
       activeOpacity={0.7}
     >
-      {/* Left: Icon */}
-      <View style={styles.iconContainer}>
-        <Icon
-          name={music?.music_type === 'vocal' ? 'microphone' : 'music'}
-          size={scale(24)}
-          color={isSelected ? currentTheme.mainColor || COLORS.MAIN_COLOR : COLORS.TEXT_SECONDARY}
-        />
+      {/* Music Icon (70x70 - same as MessageHistoryListItem) */}
+      <View style={styles.thumbnailContainer}>
+        <View style={[
+          styles.thumbnail,
+          { backgroundColor: isCreating ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)' }
+        ]}>
+          <Icon
+            name={
+              isCreating 
+                ? "hourglass-outline" 
+                : music_type === 'vocal' 
+                  ? "mic-sharp" 
+                  : "musical-notes-sharp"
+            }
+            size={scale(32)}
+            color={isCreating ? '#FB923C' : currentTheme.mainColor}
+          />
+        </View>
+        
+        {/* Favorite Indicator (same position as MessageHistoryListItem) */}
+        {isFavorite && (
+          <View style={styles.favoriteIndicator}>
+            <Icon name="star" size={scale(14)} color={COLORS.gold} />
+          </View>
+        )}
       </View>
 
-      {/* Center: Info */}
-      <View style={styles.infoContainer}>
+      {/* Content */}
+      <View style={styles.content}>
+        {/* Title Row */}
         <View style={styles.titleRow}>
           <CustomText
-            type="normal"
-            bold
-            style={[
-              styles.title,
-              isSelected && { color: currentTheme.mainColor || COLORS.MAIN_COLOR },
-            ]}
+            style={[styles.title, { color: currentTheme.textPrimary }]}
             numberOfLines={1}
+            ellipsizeMode="tail"
           >
-            {music?.music_title || 'Untitled'}
+            {music_title || t('music.untitled')}
           </CustomText>
-          {isDefault && (
-            <View style={styles.defaultBadge}>
-              <CustomText type="small" style={styles.defaultText}>
-                Default
+        </View>
+
+        {/* Type (similar to persona name in MessageHistoryListItem) */}
+        <CustomText
+          style={[styles.typeText, { color: currentTheme.textSecondary }]}
+          numberOfLines={1}
+        >
+          {music_type === 'vocal' ? '🎤 Vocal' : '🎹 Instrumental'}
+        </CustomText>
+
+        {/* Stats Row (same layout as MessageHistoryListItem) */}
+        <View style={styles.statsRow}>
+          {/* Date */}
+          <View style={styles.stat}>
+            <Icon name="calendar-outline" size={scale(14)} color={currentTheme.textSecondary} />
+            <CustomText style={[styles.statText, { color: currentTheme.textSecondary }]}>
+              {formatDate(created_at)}
+            </CustomText>
+          </View>
+
+          {/* System Badge */}
+          {isSystem && (
+            <View style={styles.systemBadge}>
+              <Icon name="shield-checkmark" size={scale(12)} color="#A855F7" />
+              <CustomText style={styles.systemText}>System</CustomText>
+            </View>
+          )}
+
+          {/* Creating Status Badge */}
+          {isCreating && (
+            <View style={styles.creatingBadge}>
+              <Icon name="hourglass" size={scale(12)} color="#FFFFFF" />
+              <CustomText style={styles.creatingText}>
+                {estimated_time}s
               </CustomText>
             </View>
           )}
         </View>
-        <View style={styles.metaRow}>
-          <CustomText type="small" style={styles.metaText}>
-            {t(`music.types.${music?.music_type || 'instrumental'}`)}
-          </CustomText>
-          <CustomText type="small" style={styles.metaText}>
-            •
-          </CustomText>
-          <CustomText type="small" style={styles.metaText}>
-            {formatDate(music?.created_at)}
-          </CustomText>
-        </View>
+
+        {/* Favorite Badge (similar to MessageHistoryListItem) */}
+        {isFavorite && (
+          <View style={[styles.stat, { marginTop: verticalScale(4) }]}>
+            <Icon name="star" size={scale(14)} color={COLORS.gold} />
+            <CustomText style={[styles.statText, { color: COLORS.gold }]}>
+              {t('music.favorite')}
+            </CustomText>
+          </View>
+        )}
       </View>
 
-      {/* Right: Selected Indicator */}
-      {isSelected && (
-        <Icon
-          name="check-circle"
-          size={scale(24)}
-          color={currentTheme.mainColor || COLORS.MAIN_COLOR}
-        />
-      )}
+      {/* Arrow */}
+      <Icon
+        name="chevron-forward"
+        size={scale(20)}
+        color={currentTheme.textSecondary}
+        style={styles.arrow}
+      />
     </TouchableOpacity>
   );
-});
-
-MusicListItem.displayName = 'MusicListItem';
+};
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
-    paddingVertical: scale(14),
-    marginHorizontal: scale(16),
-    marginBottom: scale(10),
-    borderRadius: scale(12),
-    backgroundColor: 'rgba(30, 30, 46, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(62, 80, 180, 0.2)',
+    paddingVertical: verticalScale(12),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
-  iconContainer: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: 'rgba(62, 80, 180, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  
+  // Thumbnail (70x70 - UNIFIED!)
+  thumbnailContainer: {
+    position: 'relative',
     marginRight: scale(12),
   },
-  infoContainer: {
+  thumbnail: {
+    width: scale(70),
+    height: scale(70),
+    borderRadius: moderateScale(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteIndicator: {
+    position: 'absolute',
+    top: scale(-4),
+    right: scale(-4),
+    width: scale(20),
+    height: scale(20),
+    borderRadius: scale(10),
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.gold,
+  },
+
+  // Content
+  content: {
     flex: 1,
+    justifyContent: 'center',
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: scale(4),
-    gap: scale(8),
+    marginBottom: verticalScale(4),
   },
   title: {
-    color: COLORS.TEXT_PRIMARY,
     flex: 1,
+    fontSize: moderateScale(16),
+    fontWeight: '600',
+    marginRight: scale(8),
   },
-  defaultBadge: {
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(2),
-    borderRadius: scale(4),
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+  typeText: {
+    fontSize: moderateScale(13),
+    marginBottom: verticalScale(6),
   },
-  defaultText: {
-    color: COLORS.MAIN_COLOR,
-    fontSize: scale(10),
-  },
-  metaRow: {
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(8),
+    gap: scale(12),
   },
-  metaText: {
-    color: COLORS.TEXT_SECONDARY,
-    fontSize: scale(11),
+  stat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
+  },
+  statText: {
+    fontSize: moderateScale(12),
+  },
+
+  // Badges
+  systemBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
+    borderRadius: moderateScale(12),
+    gap: scale(4),
+  },
+  systemText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+    color: '#A855F7',
+  },
+  creatingBadge: {
+    minWidth: verticalScale(40),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FB923C',
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
+    borderRadius: moderateScale(12),
+    gap: scale(4),
+  },
+  creatingText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+
+  // Arrow
+  arrow: {
+    marginLeft: scale(8),
   },
 });
 
-export default MusicListItem;
-
+export default React.memo(MusicListItem);
