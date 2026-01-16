@@ -868,7 +868,7 @@ const HistoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
     <SafeScreen
-      backgroundColor={currentTheme.backgroundColor || COLORS.BACKGROUND}
+      backgroundColor={'rgba(30, 30, 32, 1)'} // ✨ ANIMA: Brighter background (26→30) to match CustomBottomSheet
       statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
       edges={{ top: true, bottom: false }}
       keyboardAware={false}
@@ -954,7 +954,7 @@ const HistoryScreen = () => {
           </CustomText>
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
+        <View style={styles.listContainer}>
           <FlashList
             ref={flashListRef}
             data={activeTab === 'message' ? filteredMessages : filteredMusicList}
@@ -1100,7 +1100,7 @@ const styles = StyleSheet.create({
     padding: scale(4),
   },
 
-  // ⭐ NEW: Tab Buttons
+  // ⭐ NEW: Tab Buttons (✨ ANIMA: Glassmorphic with pink tint)
   tabContainer: {
     flexDirection: 'row',
     paddingHorizontal: scale(16),
@@ -1114,11 +1114,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(12),
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 107, 157, 0.12)', // ✨ ANIMA: Brighter pink tint (0.08→0.12) for harmony
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 157, 0.2)', // ✨ ANIMA: Brighter pink border (0.15→0.2)
     gap: scale(8),
   },
   tabButtonActive: {
     backgroundColor: COLORS.neonBlue,
+    borderColor: COLORS.neonBlue,
   },
   tabButtonText: {
     fontSize: moderateScale(14),
@@ -1157,6 +1160,12 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: moderateScale(14),
+  },
+
+  // ✨ ANIMA: List Container (Brighter background for harmony with bottom sheets)
+  listContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(42, 42, 44, 1)', // ✨ ANIMA: Significantly brighter (26→42) for harmony with CustomBottomSheet
   },
 
   // Empty
