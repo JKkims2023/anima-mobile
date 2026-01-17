@@ -477,11 +477,19 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       // 2. Verify with backend
       // 3. Finish transaction
       // 4. Show success message
+      // 5. Reset loading states
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      // ⚠️ DO NOT reset states here! Let listener handle everything.
 
     } catch (error) {
       console.error('[CompactPointPurchaseTab] ❌ Purchase error:', error);
       HapticService.error();
+      
+      // Reset states only on error
+      setLoading(false);
+      setPurchasingPackage(null);
+      setIsProcessingPurchase(false);
       
       // 에러 메시지 파싱
       let errorMessage = t('points.purchase_error', '충전에 실패했습니다');
@@ -507,10 +515,6 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
           },
         ],
       });
-    } finally {
-      setLoading(false);
-      setPurchasingPackage(null);
-      setIsProcessingPurchase(false); // 🔥 중복 처리 방지 해제
     }
   };
 
