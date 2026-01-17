@@ -64,7 +64,7 @@ const PersonaFullViewOverlay = ({
   // ✨ ANIMA 감성: Fade In/Out 애니메이션을 위한 상태
   const [isRendered, setIsRendered] = useState(false); // 컴포넌트 렌더링 여부
   const overlayOpacity = useSharedValue(0); // 오버레이 투명도
-  const contentScale = useSharedValue(0.9); // 콘텐츠 스케일 (약간 작게 시작)
+  const contentScale = useSharedValue(0.95); // ⭐ 0.9 → 0.95 (5% 축소, 더 자연스러움!)
   
   // ⭐ Zoom + Pan State (핀치줌 + 상하좌우 이동)
   const zoomScale = useSharedValue(1); // ⭐ RENAMED: 'scale' conflicts with responsive-utils function
@@ -90,12 +90,12 @@ const PersonaFullViewOverlay = ({
       // 약간의 지연 후 애니메이션 시작 (렌더링 완료 대기)
       setTimeout(() => {
         overlayOpacity.value = withTiming(1, {
-          duration: 300,
-          easing: Easing.out(Easing.ease),
+          duration: 350, // ⭐ 약간 증가 (더 부드러운 Fade In)
+          easing: Easing.out(Easing.cubic), // ⭐ cubic easing으로 더 자연스럽게
         });
         contentScale.value = withTiming(1, {
-          duration: 300,
-          easing: Easing.out(Easing.ease),
+          duration: 350, // ⭐ 약간 증가
+          easing: Easing.out(Easing.cubic), // ⭐ cubic easing - 스프링 효과 제거!
         });
       }, 10);
     } else {
@@ -107,8 +107,8 @@ const PersonaFullViewOverlay = ({
       }
       
       overlayOpacity.value = withTiming(0, {
-        duration: 250,
-        easing: Easing.in(Easing.ease),
+        duration: 500, // ⭐ 250ms → 500ms (2배 증가!)
+        easing: Easing.in(Easing.cubic), // ⭐ cubic easing으로 더 부드럽게
       }, (finished) => {
         if (finished) {
           // 애니메이션 완료 후 컴포넌트 언마운트
@@ -119,9 +119,9 @@ const PersonaFullViewOverlay = ({
           }
         }
       });
-      contentScale.value = withTiming(0.9, {
-        duration: 250,
-        easing: Easing.in(Easing.ease),
+      contentScale.value = withTiming(0.95, {
+        duration: 500, // ⭐ 250ms → 500ms (2배 증가!)
+        easing: Easing.in(Easing.cubic), // ⭐ cubic easing으로 더 부드럽게
       });
     }
   }, [visible]);
