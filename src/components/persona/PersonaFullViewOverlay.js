@@ -30,7 +30,10 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle,
   useAnimatedGestureHandler,
-  withSpring 
+  withSpring,
+  withTiming,
+  Easing,
+  runOnJS
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
@@ -58,6 +61,11 @@ const PersonaFullViewOverlay = ({
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
   
+  // ✨ ANIMA 감성: Fade In/Out 애니메이션을 위한 상태
+  const [isRendered, setIsRendered] = useState(false); // 컴포넌트 렌더링 여부
+  const overlayOpacity = useSharedValue(0); // 오버레이 투명도
+  const contentScale = useSharedValue(0.9); // 콘텐츠 스케일 (약간 작게 시작)
+  
   // ⭐ Zoom + Pan State (핀치줌 + 상하좌우 이동)
   const zoomScale = useSharedValue(1); // ⭐ RENAMED: 'scale' conflicts with responsive-utils function
   const translateX = useSharedValue(0);
@@ -67,9 +75,60 @@ const PersonaFullViewOverlay = ({
   const contextX = useSharedValue(0);
   const contextY = useSharedValue(0);
   
+  // ✨ ANIMA 감성: Fade In/Out 애니메이션 제어
+  useEffect(() => {
+    if (visible) {
+      // ⭐ Fade In: visible이 true가 되면 컴포넌트를 먼저 렌더링하고, 애니메이션 시작
+      setIsRendered(true);
+      
+      if (__DEV__) {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✨ [PersonaFullViewOverlay] Fade In 시작');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      
+      // 약간의 지연 후 애니메이션 시작 (렌더링 완료 대기)
+      setTimeout(() => {
+        overlayOpacity.value = withTiming(1, {
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+        });
+        contentScale.value = withTiming(1, {
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+        });
+      }, 10);
+    } else {
+      // ⭐ Fade Out: visible이 false가 되면 애니메이션 시작하고, 완료 후 언마운트
+      if (__DEV__) {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✨ [PersonaFullViewOverlay] Fade Out 시작');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      
+      overlayOpacity.value = withTiming(0, {
+        duration: 250,
+        easing: Easing.in(Easing.ease),
+      }, (finished) => {
+        if (finished) {
+          // 애니메이션 완료 후 컴포넌트 언마운트
+          runOnJS(setIsRendered)(false);
+          
+          if (__DEV__) {
+            console.log('✅ [PersonaFullViewOverlay] Fade Out 완료, 언마운트');
+          }
+        }
+      });
+      contentScale.value = withTiming(0.9, {
+        duration: 250,
+        easing: Easing.in(Easing.ease),
+      });
+    }
+  }, [visible]);
+  
   // ⭐ Android Back Button Handler (전체창 닫기)
   useEffect(() => {
-    if (!visible) return;
+    if (!isRendered) return;
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       if (__DEV__) {
@@ -81,7 +140,7 @@ const PersonaFullViewOverlay = ({
     });
     
     return () => backHandler.remove();
-  }, [visible, onClose]);
+  }, [isRendered, onClose]);
   
   // ⭐ Pan Gesture Handler (상하좌우 이동)
   const panGestureHandler = useAnimatedGestureHandler({
@@ -98,16 +157,22 @@ const PersonaFullViewOverlay = ({
     },
   });
   
-  // Animated Style for Zoom + Pan
-  const animatedStyle = useAnimatedStyle(() => ({
+  // ✨ ANIMA 감성: Overlay Fade In/Out 애니메이션 스타일
+  const overlayAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }));
+  
+  // ✨ ANIMA 감성: Content Scale + Zoom + Pan 애니메이션 스타일
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: translateX.value },
       { translateY: translateY.value },
-      { scale: zoomScale.value },
-    ]
+      { scale: zoomScale.value * contentScale.value }, // ⭐ zoom과 entrance scale 결합
+    ],
   }));
   
-  if (!visible || !persona) return null;
+  // ⭐ 렌더링 조건: isRendered가 false면 완전히 언마운트
+  if (!isRendered || !persona) return null;
   
   // Determine content type (video or image)
   const hasVideo = persona.selected_dress_video_url && 
@@ -126,7 +191,7 @@ const PersonaFullViewOverlay = ({
   }
   
   return (
-    <View style={styles.overlay}>
+    <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Close Button */}
         <View style={styles.header}>
@@ -172,7 +237,7 @@ const PersonaFullViewOverlay = ({
                   }
                 }}
               >
-                <Animated.View style={[styles.content, animatedStyle]}>
+                <Animated.View style={[styles.content, contentAnimatedStyle]}>
                   {hasVideo ? (
                     <Video
                       source={{ uri: contentUrl }}
@@ -219,7 +284,7 @@ const PersonaFullViewOverlay = ({
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </View>
+    </Animated.View>
   );
 };
 
