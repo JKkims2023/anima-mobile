@@ -55,6 +55,7 @@ import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 import HistoryHelpSheet from '../components/persona/HistoryHelpSheet';
+import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -876,14 +877,35 @@ const HistoryScreen = () => {
       {/* Header with Search Icon */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+          <CustomText type="big" bold style={[styles.headerTitle, { display: 'none', color: currentTheme.textPrimary }]}>
             {t('navigation.title.history')}
           </CustomText>
+
           <CustomText type="small" style={[styles.headerSubtitle, { color: currentTheme.textSecondary }]}>
             {filteredMessages.length > 0 
               ? `${filteredMessages.length}${t('history.messages_count')}` 
               : t('navigation.subtitle.history_message')}
           </CustomText>
+
+          <Svg height={scale(30)} width={scale(200)}>
+          <Defs>
+            <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+            </LinearGradient>
+          </Defs>
+          <SvgText
+            fill="url(#animaGradient)"
+            fontSize={scale(24)}
+            fontWeight="bold"
+            x="0"
+            y={scale(22)}
+            letterSpacing="0.5"
+          >
+            {t('navigation.title.history')}
+          </SvgText>
+        </Svg>
+
         </View>
         <TouchableOpacity
           style={styles.searchButton}

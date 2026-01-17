@@ -52,6 +52,7 @@ import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 import { useNavigation } from '@react-navigation/native';
+import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -489,9 +490,28 @@ const MemoryScreen = () => {
     <View style={[styles.header, { paddingTop: insets.top + verticalScale(15) }]}>
       {/* Title */}
       <View style={styles.headerTitleRow}>
-        <CustomText type="big" bold style={[styles.headerTitle, { color: currentTheme.textPrimary }]}>
+        <CustomText type="big" bold style={[styles.headerTitle, { display: 'none', color: currentTheme.textPrimary }]}>
           {t('navigation.title.memory')}
         </CustomText>
+
+        <Svg height={scale(30)} width={scale(200)}>
+          <Defs>
+            <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+            </LinearGradient>
+          </Defs>
+          <SvgText
+            fill="url(#animaGradient)"
+            fontSize={scale(24)}
+            fontWeight="bold"
+            x="0"
+            y={scale(22)}
+            letterSpacing="0.5"
+          >
+            {t('navigation.title.memory')}
+          </SvgText>
+        </Svg>
         
         {/* Search Icon */}
         <TouchableOpacity
