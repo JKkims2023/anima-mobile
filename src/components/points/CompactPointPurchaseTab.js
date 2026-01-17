@@ -138,7 +138,26 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
     if (totalAmount === 0) return;
     
     HapticService.medium();
-    executePurchase();
+
+    showAlert({
+      title: t('points.purchase_confirm_title', '포인트 충전'),
+      message: t('points.purchase_confirm_message', {amount: totalAmount.toLocaleString()}),
+      emoji: '💰',
+      buttons: [
+        {
+          text: t('common.cancel', '취소'),
+          style: 'cancel',
+        },
+        {
+          text: t('points.purchase', '충전하기'),
+          style: 'primary',
+          onPress: () => {
+            executePurchase();
+          },
+        },
+      ],
+    });
+
   };
 
   return (

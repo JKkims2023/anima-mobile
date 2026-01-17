@@ -58,6 +58,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
 
   // ✅ Handle Close
   const handleClose = () => {
+    setActiveTab('purchase');
     bottomSheetRef.current?.dismiss();
   };
 
