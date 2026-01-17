@@ -6,22 +6,7 @@
     android:orientation="vertical"
     android:gravity="center">
     
-    <!-- Lottie Animation will be here -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ANIMA"
-        android:textSize="48sp"
-        android:textColor="#FFFFFF"
-        android:fontFamily="sans-serif-medium" />
-        
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Loading..."
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:alpha="0.8" />
+    <!-- ✨ Clean launch screen - Only background color, no content -->
+    <!-- AnimatedSplashScreen will handle all animations -->
         
 </LinearLayout>
