@@ -249,15 +249,15 @@ const PersonaStudioScreen = () => {
     Animated.parallel([
       Animated.timing(soulConnectionTranslateX, {
         toValue: 0,
-        duration: 1200,
-        delay: 300,
+        duration: 800,//1200,
+        delay: 300,//300,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(soulConnectionOpacity, {
         toValue: 1,
-        duration: 1200,
-        delay: 300,
+        duration: 800,//1200,
+        delay: 300,//300,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
@@ -2146,7 +2146,7 @@ const PersonaStudioScreen = () => {
         <View style={styles.searchRow}>
           {/* Search Bar */}
           <View style={[styles.searchBar, {display: isBackViewVisible ? 'none' : 'flex', backgroundColor: currentTheme.cardBackground }]}>
-            <IconSearch name="search" size={scale(18)} color={currentTheme.textSecondary} />
+          <IconSearch name="search" size={scale(20)} color={currentTheme.textSecondary} />
             <TextInput
               ref={searchInputRef}
               style={[styles.searchInput, { color: currentTheme.textPrimary }]}
@@ -2617,8 +2617,9 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: scale(14),
+    fontSize: scale(15),
     paddingVertical: 0,
+    marginLeft: scale(-5),
   },
   
   // ⭐ NEW: Emotion Category Dropdown Button

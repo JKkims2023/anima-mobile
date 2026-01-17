@@ -364,7 +364,7 @@ const MessageDetailOverlay = ({ visible, message, onClose, onMessageUpdate }) =>
         {/* WebView */}
         <WebView
           ref={webViewRef}
-          source={{ uri: share_url }}
+          source={{ uri: share_url?.replace('/m/', '/m_owner/') }}
           style={styles.webView}
           onLoadEnd={handleWebViewLoadEnd}
           onError={(syntheticEvent) => {

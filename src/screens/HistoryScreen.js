@@ -899,7 +899,7 @@ const HistoryScreen = () => {
       </View>
 
       {/* Search Bar */}
-      <View style={[styles.searchContainer, { backgroundColor: currentTheme.cardBackground }]}>
+      <View style={[styles.searchContainer, {  }]}>
         <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={[styles.searchInput, { color: currentTheme.textPrimary }]}
@@ -1059,9 +1059,11 @@ const styles = StyleSheet.create({
     paddingTop: platformPadding(20),
     paddingBottom: platformPadding(0),
     paddingHorizontal: platformPadding(20),
+    backgroundColor:'#0F172A'
   },
   headerContent: {
     flex: 1,
+    backgroundColor:'#0F172A'
   },
   headerTitle: {
     marginBottom: scale(4),
@@ -1080,12 +1082,14 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: scale(16),
-    marginBottom: verticalScale(12),
+    marginBottom: verticalScale(5),
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(10),
-    borderRadius: moderateScale(12),
-    marginLeft: scale(5),
+    paddingLeft: scale(20),
+    paddingTop: verticalScale(5),
+    paddingBottom: verticalScale(10),
+
+    backgroundColor:'#0F172A'
   },
   searchIcon: {
     marginRight: scale(8),
@@ -1159,6 +1163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: verticalScale(12),
+    backgroundColor:'black'
   },
   loadingText: {
     fontSize: moderateScale(14),

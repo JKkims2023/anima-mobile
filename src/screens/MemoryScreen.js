@@ -531,7 +531,7 @@ const MemoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
     <SafeScreen
-      backgroundColor={currentTheme.backgroundColor}
+      backgroundColor='black'
       statusBarStyle={currentTheme.statusBarStyle || 'light-content'}
       edges={{ top: false, bottom: false }}
     >
@@ -544,7 +544,7 @@ const MemoryScreen = () => {
           <ActivityIndicator size="large" color={COLORS.neonBlue} />
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor, height: '100%' }}>
+        <View style={{ flex: 1, marginTop: verticalScale(5), backgroundColor: 'black', height: '100%' }}>
           <FlashList
             ref={flashListRef}
             data={filteredGiftList}
@@ -590,19 +590,25 @@ const styles = StyleSheet.create({
   // Header
   header: {
     paddingHorizontal: scale(20),
-    paddingBottom: verticalScale(16),
+    paddingBottom: verticalScale(5),
     gap: verticalScale(12),
+    backgroundColor:'#0F172A',
+
   },
   headerTitleRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+
     alignItems: 'center',
   },
   headerTitle: {
     // color set dynamically
   },
   searchIconButton: {
+    
     padding: scale(8),
+    marginLeft: 'auto',
+    paddingRight: scale(7),
+    paddingTop: verticalScale(5),
 
   },
 
@@ -611,16 +617,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(12),
-    paddingVertical: verticalScale(10),
+    paddingVertical: verticalScale(15),
+    paddingBottom: verticalScale(10),
     borderRadius: moderateScale(12),
-    marginTop: verticalScale(-20),
+    marginTop: verticalScale(-22),
     marginLeft: scale(-13),
     gap: scale(8),
+
   },
   searchInput: {
     flex: 1,
     fontSize: moderateScale(15),
     paddingVertical: 0,
+    marginLeft: scale(-5),
+
   },
 
   // Filter Chips
@@ -639,24 +649,28 @@ const styles = StyleSheet.create({
   musicCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: scale(20),
+    marginHorizontal: scale(0),
     marginBottom: verticalScale(12),
     padding: scale(14),
     borderRadius: moderateScale(16),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     gap: scale(12),
+
+
   },
   musicCardCreating: {
     borderColor: 'rgba(251, 146, 60, 0.3)',
     borderWidth: 1.5,
+
   },
   musicIconContainer: {
     position: 'relative',
+    
   },
   musicIcon: {
-    width: scale(56),
-    height: scale(56),
+    width: scale(70),
+    height: scale(70),
     borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'center',
