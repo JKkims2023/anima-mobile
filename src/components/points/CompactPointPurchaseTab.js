@@ -30,7 +30,6 @@ import HapticService from '../../utils/HapticService';
 import { useAnima } from '../../contexts/AnimaContext';
 import * as IAPService from '../../services/IAPService';
 import { IAP_ENDPOINTS } from '../../config/api.config';
-import * as PendingPurchaseStorage from '../../services/PendingPurchaseStorage';
 
 // 🎯 Point Packages (최소/중간/최대)
 const POINT_PACKAGES = [
@@ -74,47 +73,13 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
   const [loadingPrices, setLoadingPrices] = useState(true); // Price loading state
   const [priceLoadError, setPriceLoadError] = useState(null); // Price load error
 
-  // 🔄 Load Product Prices on Mount + Retry Pending Purchases
+  // 🔄 Load Product Prices on Mount + Clear Unfinished Purchases
   useEffect(() => {
     const initialize = async () => {
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🔄 CRITICAL: Retry pending purchases first
+      // 🧹 Clear unfinished purchases (simple cleanup)
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      const pendingCount = await PendingPurchaseStorage.getPendingPurchaseCount();
-      if (pendingCount > 0) {
-        console.log('[CompactPointPurchaseTab] 🔄 Found', pendingCount, 'pending purchases, retrying...');
-        
-        // Retry verification
-        try {
-          const result = await IAPService.retryPendingPurchases(verifyPurchaseWithBackend);
-          
-          if (result.success > 0) {
-            console.log('[CompactPointPurchaseTab] ✅ Resolved', result.success, 'pending purchases');
-            
-            // Refresh user data to show updated points
-            await refreshUser();
-            
-            // Show success notification
-            showAlert({
-              emoji: '🎉',
-              title: '이전 구매 완료',
-              message: `${result.success}개의 미완료 구매가 처리되었습니다.\n포인트가 정상적으로 지급되었습니다.`,
-              buttons: [
-                {
-                  text: t('common.confirm', '확인'),
-                  style: 'primary',
-                },
-              ],
-            });
-          }
-        } catch (error) {
-          console.error('[CompactPointPurchaseTab] ❌ Failed to retry pending purchases:', error);
-        }
-      }
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🧹 Clear unfinished purchases
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('[CompactPointPurchaseTab] 🧹 Clearing unfinished purchases...');
       await IAPService.clearUnfinishedPurchases();
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -123,7 +88,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       await loadPrices();
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🎧 Setup listeners
+      // 🎧 Setup listeners (disabled)
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       setupIAPListeners();
     };
@@ -136,100 +101,18 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
     };
   }, []);
 
-  // 🎧 Setup IAP Purchase Listeners (Auto-verification for interrupted purchases)
+  // 🎧 Setup IAP Purchase Listeners
+  // ⚠️ DISABLED: To prevent duplicate verification calls
+  // All purchases are now handled directly in executePurchase
   const setupIAPListeners = () => {
-    console.log('[CompactPointPurchaseTab] Setting up IAP listeners...');
+    console.log('[CompactPointPurchaseTab] ⚠️ IAP listeners DISABLED to prevent duplicate calls');
+    console.log('[CompactPointPurchaseTab] All purchases handled in executePurchase');
     
-    IAPService.setupPurchaseListeners(
-      // onPurchaseUpdate - Auto-verify interrupted purchases
-      async (purchaseUpdate) => {
-        console.log('[CompactPointPurchaseTab] 🎧 Purchase update received:', purchaseUpdate);
-        
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 🔥 Skip if currently processing in executePurchase
-        // (executePurchase handles direct purchases, listener handles background ones)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        if (isProcessingPurchase) {
-          console.log('[CompactPointPurchaseTab] ⏭️ Skipping - already processing in executePurchase');
-          return;
-        }
-        
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 🔄 Auto-verify for background purchases
-        // (e.g., app was killed during purchase, pending purchases)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        
-        if (!user?.user_key) {
-          console.warn('[CompactPointPurchaseTab] ⚠️ No user logged in, skipping verification');
-          return;
-        }
-        
-        // Extract purchase (handle array)
-        const purchase = Array.isArray(purchaseUpdate) ? purchaseUpdate[0] : purchaseUpdate;
-        
-        if (!purchase) {
-          console.warn('[CompactPointPurchaseTab] ⚠️ Empty purchase update');
-          return;
-        }
-        
-        // Check if already acknowledged
-        if (purchase.isAcknowledgedAndroid === true) {
-          console.log('[CompactPointPurchaseTab] ✅ Purchase already acknowledged, skipping');
-          return;
-        }
-        
-        console.log('[CompactPointPurchaseTab] 🔄 Auto-verifying background purchase...');
-        
-        try {
-          // Extract purchase data
-          const purchaseData = IAPService.extractPurchaseData(purchase);
-          
-          if (!purchaseData.purchaseToken) {
-            console.error('[CompactPointPurchaseTab] ❌ No purchase token, cannot verify');
-            return;
-          }
-          
-          // Attempt verification
-          const verifyResult = await verifyPurchaseWithBackend(purchaseData, user.user_key);
-          
-          if (verifyResult.success) {
-            console.log('[CompactPointPurchaseTab] ✅ Background verification successful');
-            
-            // Finish transaction
-            try {
-              await IAPService.finishTransactionIAP(purchase);
-              console.log('[CompactPointPurchaseTab] ✅ Transaction finished');
-            } catch (finishError) {
-              console.error('[CompactPointPurchaseTab] ⚠️ Failed to finish transaction:', finishError);
-            }
-            
-            // Refresh user
-            await refreshUser();
-            
-            console.log('[CompactPointPurchaseTab] ✅ Background purchase completed');
-          } else {
-            console.error('[CompactPointPurchaseTab] ❌ Verification failed, saving for retry');
-            
-            // Save for retry
-            await PendingPurchaseStorage.savePendingPurchase(
-              purchase,
-              purchaseData,
-              user.user_key
-            );
-          }
-        } catch (error) {
-          console.error('[CompactPointPurchaseTab] ❌ Background verification error:', error);
-        }
-      },
-      // onPurchaseError
-      (error) => {
-        console.error('[CompactPointPurchaseTab] 🎧 Purchase error received:', error);
-        
-        // 에러는 executePurchase의 try-catch에서 처리됨
-      }
-    );
-    
-    console.log('[CompactPointPurchaseTab] ✅ IAP listeners setup complete');
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Listeners are disabled to prevent race conditions
+    // - executePurchase handles all direct purchases
+    // - clearUnfinishedPurchases cleans up on app start
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   };
 
   // 💰 Load Prices from Store
