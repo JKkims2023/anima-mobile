@@ -146,7 +146,17 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
         console.log('[CompactPointPurchaseTab] 🎧 Purchase update received:', purchaseUpdate);
         
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 🔥 SINGLE SOURCE OF TRUTH: All verification happens here
+        // 🔥 Skip if currently processing in executePurchase
+        // (executePurchase handles direct purchases, listener handles background ones)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        if (isProcessingPurchase) {
+          console.log('[CompactPointPurchaseTab] ⏭️ Skipping - already processing in executePurchase');
+          return;
+        }
+        
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 🔄 Auto-verify for background purchases
+        // (e.g., app was killed during purchase, pending purchases)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         
         if (!user?.user_key) {
@@ -168,12 +178,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
           return;
         }
         
-        console.log('[CompactPointPurchaseTab] 🔄 Verifying purchase...');
-        
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // Track if this purchase was initiated from executePurchase
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        const isUserInitiated = isProcessingPurchase;
+        console.log('[CompactPointPurchaseTab] 🔄 Auto-verifying background purchase...');
         
         try {
           // Extract purchase data
@@ -181,30 +186,14 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
           
           if (!purchaseData.purchaseToken) {
             console.error('[CompactPointPurchaseTab] ❌ No purchase token, cannot verify');
-            
-            if (isUserInitiated) {
-              setLoading(false);
-              setPurchasingPackage(null);
-              setIsProcessingPurchase(false);
-              
-              showAlert({
-                emoji: '❌',
-                title: '오류',
-                message: '구매 정보를 확인할 수 없습니다.',
-                buttons: [{ text: '확인', style: 'cancel' }],
-              });
-            }
             return;
           }
-          
-          // Get product info for display
-          const product = getProductByAmount(IAPService.getPointAmountFromProductId(purchaseData.productId));
           
           // Attempt verification
           const verifyResult = await verifyPurchaseWithBackend(purchaseData, user.user_key);
           
           if (verifyResult.success) {
-            console.log('[CompactPointPurchaseTab] ✅ Verification successful');
+            console.log('[CompactPointPurchaseTab] ✅ Background verification successful');
             
             // Finish transaction
             try {
@@ -217,29 +206,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
             // Refresh user
             await refreshUser();
             
-            console.log('[CompactPointPurchaseTab] ✅ Purchase completed');
-            
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // Show success UI only for user-initiated purchases
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            if (isUserInitiated) {
-              HapticService.success();
-              
-              showAlert({
-                emoji: '🎉',
-                title: t('points.purchase_success_title', '포인트 충전 성공'),
-                message: `${verifyResult.data.points_added.toLocaleString()} P가 충전되었습니다!${product ? `\n\n💰 ${product.localizedPrice} 결제 완료` : ''}`,
-                buttons: [
-                  {
-                    text: t('common.confirm', '확인'),
-                    style: 'primary',
-                    onPress: () => {
-                      onCancel();
-                    },
-                  },
-                ],
-              });
-            }
+            console.log('[CompactPointPurchaseTab] ✅ Background purchase completed');
           } else {
             console.error('[CompactPointPurchaseTab] ❌ Verification failed, saving for retry');
             
@@ -249,49 +216,9 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
               purchaseData,
               user.user_key
             );
-            
-            if (isUserInitiated) {
-              showAlert({
-                emoji: '⚠️',
-                title: '서버 확인 중 오류',
-                message: '결제는 완료되었지만 서버 확인 중 문제가 발생했습니다.\n포인트는 다음 앱 실행 시 자동으로 지급됩니다.\n\n잠시 후 앱을 재시작해주세요.',
-                buttons: [
-                  {
-                    text: '확인',
-                    style: 'cancel',
-                    onPress: () => {
-                      onCancel();
-                    },
-                  },
-                ],
-              });
-            }
           }
         } catch (error) {
-          console.error('[CompactPointPurchaseTab] ❌ Verification error:', error);
-          
-          if (isUserInitiated) {
-            HapticService.error();
-            
-            showAlert({
-              emoji: '❌',
-              title: '오류',
-              message: '결제 확인 중 오류가 발생했습니다.\n네트워크를 확인 후 다시 시도해주세요.',
-              buttons: [
-                {
-                  text: '확인',
-                  style: 'cancel',
-                },
-              ],
-            });
-          }
-        } finally {
-          // Reset loading states
-          if (isUserInitiated) {
-            setLoading(false);
-            setPurchasingPackage(null);
-            setIsProcessingPurchase(false);
-          }
+          console.error('[CompactPointPurchaseTab] ❌ Background verification error:', error);
         }
       },
       // onPurchaseError
@@ -462,34 +389,75 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       console.log('[CompactPointPurchaseTab] Product:', product);
 
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🔥 SINGLE SOURCE OF TRUTH: Only request purchase
-      // ALL verification happens in purchaseUpdatedListener
+      // Step 1: Request Purchase from Store
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       console.log('[CompactPointPurchaseTab] Requesting purchase from store...');
       const purchase = await IAPService.requestPurchaseIAP(product.productId);
       
-      console.log('[CompactPointPurchaseTab] ✅ Purchase request completed');
-      console.log('[CompactPointPurchaseTab] ⏳ Waiting for purchaseUpdatedListener to verify...');
+      console.log('[CompactPointPurchaseTab] ✅ Purchase successful');
+      console.log('[CompactPointPurchaseTab] Purchase object received:', purchase);
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🎯 purchaseUpdatedListener will handle:
-      // 1. Extract purchase data
-      // 2. Verify with backend
-      // 3. Finish transaction
-      // 4. Show success message
-      // 5. Reset loading states
+      // Step 2: Extract Purchase Data
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const purchaseData = IAPService.extractPurchaseData(purchase, product.productId);
       
-      // ⚠️ DO NOT reset states here! Let listener handle everything.
+      if (!purchaseData.productId || !purchaseData.purchaseToken) {
+        throw new Error('구매 정보를 확인할 수 없습니다.');
+      }
+      
+      console.log('[CompactPointPurchaseTab] ✅ Purchase data extracted');
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 3: Verify with Backend
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const verifyResult = await verifyPurchaseWithBackend(purchaseData, user.user_key);
+      
+      if (!verifyResult.success) {
+        throw new Error(verifyResult.message || '영수증 검증에 실패했습니다');
+      }
+      
+      console.log('[CompactPointPurchaseTab] ✅ Verification successful');
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 4: Finish Transaction
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      try {
+        await IAPService.finishTransactionIAP(purchase);
+        console.log('[CompactPointPurchaseTab] ✅ Transaction finished');
+      } catch (finishError) {
+        console.error('[CompactPointPurchaseTab] ⚠️ Failed to finish transaction:', finishError);
+        // Continue anyway - user already got points
+      }
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 5: Refresh User Data
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      await refreshUser();
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 6: Success UI
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      HapticService.success();
+      
+      showAlert({
+        emoji: '🎉',
+        title: t('points.purchase_success_title', '포인트 충전 성공'),
+        message: `${verifyResult.data.points_added.toLocaleString()} P가 충전되었습니다!\n\n💰 ${product.localizedPrice} 결제 완료`,
+        buttons: [
+          {
+            text: t('common.confirm', '확인'),
+            style: 'primary',
+            onPress: () => {
+              onCancel();
+            },
+          },
+        ],
+      });
 
     } catch (error) {
       console.error('[CompactPointPurchaseTab] ❌ Purchase error:', error);
       HapticService.error();
-      
-      // Reset states only on error
-      setLoading(false);
-      setPurchasingPackage(null);
-      setIsProcessingPurchase(false);
       
       // 에러 메시지 파싱
       let errorMessage = t('points.purchase_error', '충전에 실패했습니다');
@@ -515,6 +483,13 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
           },
         ],
       });
+    } finally {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Always reset states
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      setLoading(false);
+      setPurchasingPackage(null);
+      setIsProcessingPurchase(false);
     }
   };
 
