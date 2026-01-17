@@ -32,6 +32,7 @@ import AuthSection from '../components/auth/AuthSection';
 import HapticService from '../utils/HapticService';
 import { scale, moderateScale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
+import PointsBottomSheet from '../components/points/PointsBottomSheet';
 
 /**
  * ⚙️ SettingsScreen Component
@@ -49,6 +50,9 @@ const SettingsScreen = ({ navigation }) => {
   
   // ⭐ useRef to prevent duplicate refresh calls
   const isRefreshingRef = useRef(false);
+  
+  // ⭐ NEW: PointsBottomSheet ref
+  const pointsBottomSheetRef = useRef(null);
 
   // ✅ Load settings from AsyncStorage on mount
   React.useEffect(() => {
@@ -251,10 +255,10 @@ const SettingsScreen = ({ navigation }) => {
     navigation.navigate('WebView', { type: 'app_info' });
   };
   
-  // ⭐ NEW: Handle Point Purchase press
+  // ⭐ NEW: Handle Point Purchase press (Open BottomSheet)
   const handlePointPurchasePress = () => {
     HapticService.light();
-    navigation.navigate('Points');
+    pointsBottomSheetRef.current?.present();
   };
 
   // ✅ If NOT authenticated, show FULL-SCREEN login
@@ -487,6 +491,11 @@ const SettingsScreen = ({ navigation }) => {
           </>
         )}
       </ScrollView>
+      
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ⭐ NEW: Points Bottom Sheet */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <PointsBottomSheet ref={pointsBottomSheetRef} />
     </SafeScreen>
   );
 };

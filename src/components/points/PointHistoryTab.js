@@ -9,10 +9,9 @@
  * @author JK & Hero Nexus
  */
 
-import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useFocusEffect } from '@react-navigation/native';
 import CustomText from '../CustomText';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
@@ -66,26 +65,24 @@ const PointHistoryTab = () => {
   const isLoadingRef = useRef(false);
   const hasLoadedOnceRef = useRef(false);
 
-  // ✅ Load History on Focus (React Navigation)
-  useFocusEffect(
-    useCallback(() => {
-      console.log('[PointHistoryTab] Tab focused');
-      
-      // ⭐ 첫 로딩만 자동으로, 이후는 Pull-to-Refresh만
-      if (!hasLoadedOnceRef.current && user?.user_key) {
-        console.log('[PointHistoryTab] First load - auto loading');
-        hasLoadedOnceRef.current = true;
-        loadHistory();
-      } else {
-        console.log('[PointHistoryTab] Already loaded - use Pull-to-Refresh');
-      }
+  // ✅ Load History on Mount (BottomSheet compatible)
+  useEffect(() => {
+    console.log('[PointHistoryTab] Component mounted');
+    
+    // ⭐ 첫 로딩만 자동으로, 이후는 Pull-to-Refresh만
+    if (!hasLoadedOnceRef.current && user?.user_key) {
+      console.log('[PointHistoryTab] First load - auto loading');
+      hasLoadedOnceRef.current = true;
+      loadHistory();
+    } else {
+      console.log('[PointHistoryTab] Already loaded - use Pull-to-Refresh');
+    }
 
-      // Cleanup on unfocus
-      return () => {
-        console.log('[PointHistoryTab] Tab unfocused');
-      };
-    }, []) // ⭐ 빈 배열! user 의존성 제거
-  );
+    // Cleanup on unmount
+    return () => {
+      console.log('[PointHistoryTab] Component unmounted');
+    };
+  }, []); // ⭐ 빈 배열! 첫 마운트 시에만 실행
 
   // ✅ Load History
   const loadHistory = async (pageNum = 1, isRefresh = false, filterType = null, sortOrder = null) => {
@@ -303,13 +300,13 @@ const PointHistoryTab = () => {
           }}
           activeOpacity={0.7}
         >
-          <CustomText type="tiny" style={styles.filterButtonEmoji}>
+          <CustomText type="normal" style={styles.filterButtonEmoji}>
             {FILTER_OPTIONS.find(f => f.value === selectedFilter)?.emoji || '📊'}
           </CustomText>
-          <CustomText type="small" style={styles.filterButtonText}>
+          <CustomText type="normal" style={styles.filterButtonText}>
             {t(FILTER_OPTIONS.find(f => f.value === selectedFilter)?.label || 'points.filter.all')}
           </CustomText>
-          <CustomText type="tiny" style={styles.filterButtonIcon}>
+          <CustomText type="normal" style={styles.filterButtonIcon}>
             {showFilterDropdown ? '▲' : '▼'}
           </CustomText>
         </TouchableOpacity>
@@ -324,13 +321,13 @@ const PointHistoryTab = () => {
           }}
           activeOpacity={0.7}
         >
-          <CustomText type="tiny" style={styles.filterButtonEmoji}>
+          <CustomText type="normal" style={styles.filterButtonEmoji}>
             {SORT_OPTIONS.find(s => s.value === selectedSort)?.emoji || '⬇️'}
           </CustomText>
-          <CustomText type="small" style={styles.filterButtonText}>
+          <CustomText type="normal" style={styles.filterButtonText}>
             {t(SORT_OPTIONS.find(s => s.value === selectedSort)?.label || 'points.sort.newest')}
           </CustomText>
-          <CustomText type="tiny" style={styles.filterButtonIcon}>
+          <CustomText type="normal" style={styles.filterButtonIcon}>
             {showSortDropdown ? '▲' : '▼'}
           </CustomText>
         </TouchableOpacity>
@@ -421,25 +418,36 @@ const PointHistoryTab = () => {
           </CustomText>
         </View>
       ) : (
-        <FlatList
-          data={history}
-          renderItem={renderHistoryItem}
-          keyExtractor={(item) => item.point_key}
-          ListEmptyComponent={renderEmpty}
-          ListFooterComponent={renderFooter}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={COLORS.DEEP_BLUE}
-              colors={[COLORS.DEEP_BLUE]}
-            />
-          }
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={styles.listContent}>
+          {/* Empty State */}
+          {history.length === 0 && renderEmpty()}
+          
+          {/* History Items */}
+          {history.map((item) => (
+            <View key={item.point_key}>
+              {renderHistoryItem({ item })}
+            </View>
+          ))}
+          
+          {/* Loading More Indicator */}
+          {loading && page > 1 && renderFooter()}
+          
+          {/* Load More Button (if hasMore) */}
+          {!loading && hasMore && history.length > 0 && (
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={() => {
+                HapticService.light();
+                handleLoadMore();
+              }}
+              activeOpacity={0.7}
+            >
+              <CustomText type="small" style={styles.loadMoreText}>
+                {t('common.load_more', '더 보기')}
+              </CustomText>
+            </TouchableOpacity>
+          )}
+        </View>
       )}
     </View>
   );
@@ -450,7 +458,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(0),
     paddingBottom: platformPadding(40),
   },
 
@@ -459,7 +467,7 @@ const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   filterBar: {
     flexDirection: 'row',
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(0),
     paddingVertical: platformPadding(12),
     gap: scale(12),
   },
@@ -474,6 +482,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     borderWidth: 1,
     borderColor: 'rgba(96, 165, 250, 0.3)',
+    marginBottom: platformPadding(12),
+    marginTop: platformPadding(-10),
   },
   filterButtonEmoji: {
     fontSize: moderateScale(18),
@@ -612,6 +622,26 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: platformPadding(20),
     alignItems: 'center',
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Load More Button ⭐ NEW
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  loadMoreButton: {
+    marginTop: platformPadding(16),
+    marginBottom: platformPadding(8),
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(20),
+    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+    borderRadius: moderateScale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(96, 165, 250, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadMoreText: {
+    color: COLORS.DEEP_BLUE,
+    fontWeight: '600',
   },
 });
 
