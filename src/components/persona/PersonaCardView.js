@@ -121,10 +121,9 @@ const PersonaCardView = forwardRef(({
   const insets = useSafeAreaInsets();
   const timerIntervalRef = useRef(null); // ⭐ NEW: Ref to store interval ID for cleanup
   
-  const HEADER_HEIGHT = verticalScale(80); // 헤더 높이 (타이틀 + 서브타이틀 + 패딩)
-  const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
-  
-  const availableHeight_local = SCREEN_HEIGHT  - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
+  // ⭐ REMOVED: 로컬 높이 계산 제거 (prop으로 받은 availableHeight 사용!)
+  // 이전에는 PersonaStudioScreen과 다르게 계산해서 10px 차이 발생
+  // 이제 일관성 있게 prop으로 받은 availableHeight만 사용합니다!
   
   // ✅ Listen to modeOpacity changes to pause video when mode is switching
   useEffect(() => {
@@ -440,12 +439,12 @@ const PersonaCardView = forwardRef(({
         }
       }}
     >
-      <View style={[styles.flipContainer, { height: availableHeight_local }]}>
+      <View style={[styles.flipContainer, { height: availableHeight }]}>
         {/* ⭐ FRONT VIEW - Original Persona Card */}
         <Animated.View 
           style={[
             styles.container, 
-            { height: availableHeight_local },
+            { height: availableHeight },
             frontAnimatedStyle
           ]}
           pointerEvents={isFlipped ? 'none' : 'box-none'}
@@ -469,7 +468,7 @@ const PersonaCardView = forwardRef(({
           style={[
             styles.videoContainer, 
             { 
-              height: availableHeight_local,
+              height: availableHeight,
               opacity: Animated.multiply(containerOpacity, videoOpacity)
             }
           ]} 
@@ -599,7 +598,7 @@ const PersonaCardView = forwardRef(({
         <Animated.View 
           style={[
             styles.backContainer,
-            { height: availableHeight_local },
+            { height: availableHeight },
             backAnimatedStyle
           ]}
           pointerEvents={isFlipped ? 'box-none' : 'none'}
@@ -619,7 +618,7 @@ const PersonaCardView = forwardRef(({
         <Animated.View 
           style={[
             styles.backContainer,
-            { height: availableHeight_local },
+            { height: availableHeight },
             backAnimatedStyle
           ]}
           pointerEvents={isFlipped ? 'box-none' : 'none'}

@@ -105,17 +105,20 @@ const PersonaStudioScreen = () => {
   // SCREEN DIMENSIONS & AVAILABLE HEIGHT CALCULATION
   // ═══════════════════════════════════════════════════════════════════════
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+  const HEADER_HEIGHT = verticalScale(120); // ⭐ 헤더 높이 (검색바 + 타이틀 + 패딩)
   const TAB_BAR_HEIGHT = verticalScale(60); // 탭바 높이
   
-  const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom - TAB_BAR_HEIGHT - TAB_BAR_HEIGHT;
+  // ⭐ FIX: 올바른 높이 계산 (HEADER_HEIGHT와 TAB_BAR_HEIGHT를 각각 1번씩만!)
+  const availableHeight = SCREEN_HEIGHT - HEADER_HEIGHT - insets.bottom - TAB_BAR_HEIGHT;
   
   if (__DEV__) {
     console.log('[PersonaStudioScreen] Height calculation:', {
       SCREEN_HEIGHT,
-      'insets.top': insets.top,
+      HEADER_HEIGHT,
       'insets.bottom': insets.bottom,
       TAB_BAR_HEIGHT,
       availableHeight,
+      calculation: `${SCREEN_HEIGHT} - ${HEADER_HEIGHT} - ${insets.bottom} - ${TAB_BAR_HEIGHT} = ${availableHeight}`,
     });
   }
 
