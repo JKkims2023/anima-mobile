@@ -5,6 +5,9 @@
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         
+        <!-- ✨ ANIMA Background Color - Same as Splash Screen -->
+        <item name="android:windowBackground">@color/splash_background</item>
+        
         <!-- Edge-to-Edge Support for Android 14/15 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
