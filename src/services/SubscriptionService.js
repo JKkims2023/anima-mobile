@@ -405,8 +405,31 @@ export function extractSubscriptionData(purchase) {
     purchaseData = purchase[0];
   }
   
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Extract Product ID (Platform-specific!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⚠️ CRITICAL:
+  // - Android: productIds (array!) → use productIds[0]
+  // - iOS: productId (string)
+  let productId;
+  if (Platform.OS === 'android') {
+    // Android: productIds is an array!
+    if (purchaseData.productIds && purchaseData.productIds.length > 0) {
+      productId = purchaseData.productIds[0];
+      console.log('[Subscription] ✅ Android productIds[0]:', productId);
+    } else {
+      // Fallback to productId (might not exist)
+      productId = purchaseData.productId;
+      console.log('[Subscription] ⚠️ Android fallback productId:', productId);
+    }
+  } else {
+    // iOS: productId (string)
+    productId = purchaseData.productId;
+    console.log('[Subscription] ✅ iOS productId:', productId);
+  }
+  
   const data = {
-    productId: purchaseData.productId,
+    productId,
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Purchase Token (Platform-specific)
