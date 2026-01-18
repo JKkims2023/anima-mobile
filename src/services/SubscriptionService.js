@@ -256,6 +256,7 @@ export async function requestSubscription(sku, offerToken = null) {
     const purchase = await RNIapRequestSubscription(requestParams);
     
     console.log('[Subscription] ✅ Purchase successful');
+    console.log('[Subscription] Full purchase object:', JSON.stringify(purchase, null, 2));
     console.log('[Subscription] Purchase ID:', purchase?.productId);
     console.log('[Subscription] Transaction ID:', purchase?.transactionId);
     
@@ -392,26 +393,37 @@ export async function getActiveSubscriptions() {
 export function extractSubscriptionData(purchase) {
   console.log('[Subscription] 🔄 Extracting subscription data...');
   console.log('[Subscription] Platform:', Platform.OS);
+  console.log('[Subscription] Purchase object keys:', Object.keys(purchase || {}));
+  console.log('[Subscription] Full purchase for extraction:', JSON.stringify(purchase, null, 2));
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Array Response (Android can return array)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  let purchaseData = purchase;
+  if (Array.isArray(purchase)) {
+    console.log('[Subscription] ⚠️ Purchase is array, extracting first element');
+    purchaseData = purchase[0];
+  }
   
   const data = {
-    productId: purchase.productId,
+    productId: purchaseData.productId,
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Purchase Token (Platform-specific)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     purchaseToken: Platform.OS === 'ios'
-      ? purchase.transactionReceipt  // iOS: receipt data
-      : purchase.purchaseToken,       // Android: purchase token
+      ? purchaseData.transactionReceipt  // iOS: receipt data
+      : purchaseData.purchaseToken,       // Android: purchase token
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Order ID
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    orderId: purchase.transactionId,
+    orderId: purchaseData.transactionId,
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Purchase Time
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    purchaseTime: purchase.transactionDate,
+    purchaseTime: purchaseData.transactionDate,
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Platform
@@ -422,6 +434,7 @@ export function extractSubscriptionData(purchase) {
   console.log('[Subscription] ✅ Extracted data:', {
     productId: data.productId,
     hasToken: !!data.purchaseToken,
+    tokenLength: data.purchaseToken?.length || 0,
     orderId: data.orderId,
     platform: data.platform,
   });
