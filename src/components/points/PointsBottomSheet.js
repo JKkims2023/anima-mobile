@@ -69,7 +69,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
       snapPoints={['80%', '95%']}
       showCloseButton={true}
       onClose={handleClose}
-      enablePanDownToClose={true}
+
       buttons={[
         {
           title: t('common.close', '닫기'),
@@ -78,6 +78,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
         },
       ]}
     >
+
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* Points Display Card (Sticky Header) */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -149,6 +150,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
       </View>
       </View>
 
+      <View style={styles.contentContainer}>
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* Tab Content */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -157,6 +159,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
+      
       {activeTab === 'purchase' && (
         <CompactPointPurchaseTab onCancel={handleClose} />
       )}
@@ -164,6 +167,7 @@ const PointsBottomSheet = forwardRef((props, ref) => {
         <PointHistoryTab />
       )}
       </ScrollView>
+      </View>
     </CustomBottomSheet>
   );
 });
@@ -246,6 +250,10 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: scale(0),
     paddingBottom: scale(40),
+  },
+  contentContainer: {
+    flex: 1,
+    maxHeight: verticalScale(300),
   },
 });
 

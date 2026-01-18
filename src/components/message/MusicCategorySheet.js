@@ -203,6 +203,13 @@ const MusicCategorySheet = ({
       return;
     }
 
+    if (category.id === 'none') {
+      console.log('   Direct type (없음) - applying immediately');
+      onSelectMusic('none', null, null);
+      onClose();
+      return;
+    }
+    
     // ═══════════════════════════════════════════════════════════════
     // 3. 기본 음원 선택 시 → DB에서 URL 조회 + 재생
     // ═══════════════════════════════════════════════════════════════

@@ -229,6 +229,21 @@ export const MUSIC_ENDPOINTS = {
   FAVORITE: API_BASE_URL + '/api/music/favorite',
 };
 
+/**
+ * Point Endpoints
+ */
+export const POINT_ENDPOINTS = {
+  PURCHASE: API_BASE_URL + '/api/points/purchase', // ⚠️ Virtual purchase (dev/test)
+  HISTORY: API_BASE_URL + '/api/points/history',
+};
+
+/**
+ * IAP (In-App Purchase) Endpoints
+ */
+export const IAP_ENDPOINTS = {
+  VERIFY: API_BASE_URL + '/api/iap/verify', // ✅ Real IAP receipt verification
+};
+
 
 /**
  * FCM (Firebase Cloud Messaging) Endpoints
@@ -290,6 +305,8 @@ export default {
   MESSAGE_ENDPOINTS,
   MUSIC_ENDPOINTS,
   FCM_ENDPOINTS, // ⭐ NEW: FCM endpoints
+  POINT_ENDPOINTS, // ⭐ NEW: Point endpoints
+  IAP_ENDPOINTS, // ⭐ NEW: IAP endpoints
   HEALTH_ENDPOINT,
   AMOUNT_ENDPOINTS,
 };

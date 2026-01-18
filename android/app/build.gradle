@@ -57,7 +57,7 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -82,8 +82,11 @@ android {
         applicationId "ai.anima.soulconnect"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 12
+        versionName "1.0.11"
+        
+        // ⭐ react-native-iap: Use Google Play (not Amazon)
+        missingDimensionStrategy 'store', 'play'
     }
     signingConfigs {
         debug {
@@ -92,15 +95,22 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('ANIMA_RELEASE_STORE_FILE')) {
+                storeFile file(ANIMA_RELEASE_STORE_FILE)
+                storePassword ANIMA_RELEASE_STORE_PASSWORD
+                keyAlias ANIMA_RELEASE_KEY_ALIAS
+                keyPassword ANIMA_RELEASE_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // ⭐ ANIMA Release Build Configuration
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -116,6 +126,12 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
+    // ⭐ Kotlin stdlib (for react-native-iap v12.10.7)
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
+    
+    // ⭐ Google Play Billing Library (for In-App Purchases)
+    implementation 'com.android.billingclient:billing:6.1.0'
 }
 
 // React Native Vector Icons

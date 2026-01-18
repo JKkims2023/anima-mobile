@@ -578,6 +578,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: scale(4),
+    display: 'none',
   },
   // ⭐ NEW: Controls Container (Volume & Progress)
   controlsContainer: {

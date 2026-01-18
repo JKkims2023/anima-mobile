@@ -31,31 +31,6 @@ import { useAnima } from '../../contexts/AnimaContext';
 import * as IAPService from '../../services/IAPService';
 import { IAP_ENDPOINTS } from '../../config/api.config';
 
-// 🎯 Point Packages (최소/중간/최대)
-const POINT_PACKAGES = [
-  {
-    amount: 1000,
-    emoji: '🌱',
-    label: '스타터',
-    color: '#10B981', // Green
-    description: '부담없이 시작',
-  },
-  {
-    amount: 5000,
-    emoji: '⭐',
-    label: '스탠다드',
-    color: '#3B82F6', // Blue
-    description: '가장 합리적',
-    popular: true, // 인기 뱃지
-  },
-  {
-    amount: 10000,
-    emoji: '💎',
-    label: '프리미엄',
-    color: '#8B5CF6', // Purple
-    description: '충분히 넉넉',
-  },
-];
 
 /**
  * 💰 CompactPointPurchaseTab Component
@@ -72,6 +47,37 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
   const [products, setProducts] = useState([]); // Store products with prices
   const [loadingPrices, setLoadingPrices] = useState(true); // Price loading state
   const [priceLoadError, setPriceLoadError] = useState(null); // Price load error
+
+  // 🎯 Point Packages (최소/중간/최대)
+  const POINT_PACKAGES = [
+    {
+      amount: 1000,
+      emoji: '🌱',
+      label: '스타터',
+      color: '#10B981', // Green
+      description: t('points.purchase_pop_description_starter'),
+    },
+    {
+      amount: 5000,
+      emoji: '⭐',
+      label: '스탠다드',
+      color: '#3B82F6', // Blue
+      description: t('points.purchase_pop_description_standard'),
+      popular: true, // 인기 뱃지
+    },
+  ];
+
+  const POINT_PACKAGES_FULL = [
+    {
+      amount: 10000,
+      emoji: '💎',
+      label: '프리미엄',
+      color: '#8B5CF6', // Purple
+      description: t('points.purchase_pop_description_premium'),
+    },
+  ];
+
+
 
   // 🔄 Load Product Prices on Mount + Clear Unfinished Purchases
   useEffect(() => {
@@ -128,24 +134,23 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       console.log('[CompactPointPurchaseTab] ✅ Prices loaded:', storeProducts);
       
     } catch (error) {
-      console.error('[CompactPointPurchaseTab] ❌ Failed to load prices:', error);
+      console.log('[CompactPointPurchaseTab] ❌ Failed to load prices:', error);
       setPriceLoadError(error.message);
       
       // Show error alert
       showAlert({
         emoji: '⚠️',
-        title: '가격 로딩 실패',
-        message: '스토어 연결에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        title: t('points.purchase_pop_price_load_error', '스토어 연결에 실패했습니다. 잠시 후 다시 시도해주세요.'),
         buttons: [
           {
-            text: '다시 시도',
+            text: t('points.retry_button', '다시 시도'),
             style: 'primary',
             onPress: () => {
               loadPrices();
             },
           },
           {
-            text: '닫기',
+            text: t('common.close', '닫기'),
             style: 'cancel',
             onPress: () => {
               onCancel();
@@ -172,11 +177,11 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
     if (!product) {
       showAlert({
         emoji: '❌',
-        title: '오류',
-        message: '상품 정보를 찾을 수 없습니다.',
+        title: t('common.error', '오류'),
+        message: t('points.purchase_pop_item_not_found', '상품 정보를 찾을 수 없습니다.'),
         buttons: [
           {
-            text: '확인',
+            text: t('common.confirm', '확인'),
             style: 'cancel',
           },
         ],
@@ -188,9 +193,9 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
     
     // 구매 확인 다이얼로그 (가격 포함)
     showAlert({
-      emoji: pkg.emoji,
-      title: `${pkg.label} 패키지`,
-      message: `${pkg.amount.toLocaleString()} P를 구매하시겠습니까?\n\n${pkg.description}\n\n💰 가격: ${product.localizedPrice}`,
+      emoji: '💰',
+      title: t('points.purchase_pop_title', { amount: pkg.amount.toLocaleString() }),
+      message: `${t('points.purchase_pop_price')} : ${product.localizedPrice}`,
       buttons: [
         {
           text: t('common.cancel', '취소'),
@@ -200,7 +205,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
           },
         },
         {
-          text: `${product.localizedPrice} 구매`,
+          text: t('points.purchase_pop_button'),
           style: 'primary',
           onPress: () => {
             executePurchase(pkg, product);
@@ -309,7 +314,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
         await IAPService.finishTransactionIAP(purchase);
         console.log('[CompactPointPurchaseTab] ✅ Transaction finished');
       } catch (finishError) {
-        console.error('[CompactPointPurchaseTab] ⚠️ Failed to finish transaction:', finishError);
+        console.log('[CompactPointPurchaseTab] ⚠️ Failed to finish transaction:', finishError);
         // Continue anyway - user already got points
       }
       
@@ -325,8 +330,8 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       
       showAlert({
         emoji: '🎉',
-        title: t('points.purchase_success_title', '포인트 충전 성공'),
-        message: `${verifyResult.data.points_added.toLocaleString()} P가 충전되었습니다!\n\n💰 ${product.localizedPrice} 결제 완료`,
+        title: t('points.purchase_success_title'),
+        message: t('points.purchase_success_message', { amount: verifyResult.data.points_added.toLocaleString() }),
         buttons: [
           {
             text: t('common.confirm', '확인'),
@@ -339,18 +344,18 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
       });
 
     } catch (error) {
-      console.error('[CompactPointPurchaseTab] ❌ Purchase error:', error);
+      console.log('[CompactPointPurchaseTab] ❌ Purchase error:', error);
       HapticService.error();
       
       // 에러 메시지 파싱
       let errorMessage = t('points.purchase_error', '충전에 실패했습니다');
       
       if (error.message.includes('User cancelled')) {
-        errorMessage = '결제가 취소되었습니다';
+        errorMessage = t('points.purchase_error_cancelled', '결제가 취소되었습니다');
       } else if (error.message.includes('Network')) {
-        errorMessage = '네트워크 연결을 확인해주세요';
+        errorMessage = t('points.purchase_error_network', '네트워크 연결을 확인해주세요');
       } else if (error.message.includes('already owned')) {
-        errorMessage = '이미 소유한 상품입니다. 앱을 재시작해주세요';
+        errorMessage = t('points.purchase_error_already_owned', '이미 소유한 상품입니다. 앱을 재시작해주세요');
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -378,12 +383,14 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
 
   return (
     <View style={styles.container}>
+     {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Info */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* Title */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <CustomText type="title" style={styles.title}>
-        {t('points.select_amount', '충전할 금액을 선택하세요')}
-      </CustomText>
+      <View style={styles.infoCard}>
+        <CustomText type="tiny" style={styles.infoText}>
+          💡 {t('points.info')}
+        </CustomText>
+      </View>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* Package Grid (3 Columns) - 클릭 즉시 구매 */}
@@ -453,7 +460,7 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
                 </CustomText>
               ) : (
                 <CustomText type="tiny" style={styles.packagePriceError}>
-                  가격 로딩 실패
+                  {t('points.purchase_pop_price_load_error')}
                 </CustomText>
               )}
 
@@ -470,14 +477,78 @@ const CompactPointPurchaseTab = ({ onCancel }) => {
         })}
       </View>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* Info */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <View style={styles.infoCard}>
-        <CustomText type="tiny" style={styles.infoText}>
-          💡 {t('points.info', '포인트는 페르소나 생성, 음원 제작 등에 사용됩니다')}
+      <TouchableOpacity
+        style={[
+          styles.packageCard,
+          { borderColor: POINT_PACKAGES_FULL[0].color },
+          loading && purchasingPackage === POINT_PACKAGES_FULL[0].amount && styles.packageCardLoading,
+          loading || loadingPrices || !getProductByAmount(POINT_PACKAGES_FULL[0].amount) && styles.packageCardDisabled,
+        ]}
+        onPress={() => handlePackagePress(POINT_PACKAGES_FULL[0])}
+        activeOpacity={0.7}
+        disabled={loading || loadingPrices || !getProductByAmount(POINT_PACKAGES_FULL[0].amount)}
+      >
+        {/* 인기 뱃지 */}
+        {POINT_PACKAGES_FULL[0].popular && (
+          <View style={styles.popularBadge}>
+            <CustomText type="tiny" bold style={styles.popularBadgeText}>
+              인기
+            </CustomText>
+          </View>
+        )}
+
+        {/* Emoji */}
+        <CustomText type="huge" style={styles.packageEmoji}>
+          {POINT_PACKAGES_FULL[0].emoji}
         </CustomText>
-      </View>
+        
+        {/* Label */}
+        <CustomText type="small" bold style={styles.packageLabel}>
+          {POINT_PACKAGES_FULL[0].label}
+        </CustomText>
+        
+        {/* Amount */}
+        <CustomText
+          type="big"
+          bold
+          style={[styles.packageAmount, { color: POINT_PACKAGES_FULL[0].color }]}
+        >
+          {POINT_PACKAGES_FULL[0].amount.toLocaleString()}P
+        </CustomText>
+
+        {/* Description */}
+        <CustomText type="tiny" style={styles.packageDescription}>
+          {POINT_PACKAGES_FULL[0].description}
+        </CustomText>
+
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        {/* Price Display */}
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        {loadingPrices ? (
+          <View style={styles.priceLoading}>
+            <ActivityIndicator size="small" color={POINT_PACKAGES_FULL[0].color} />
+          </View>
+        ) : getProductByAmount(POINT_PACKAGES_FULL[0].amount) ? (
+          <CustomText type="small" bold style={styles.packagePrice}>
+            {getProductByAmount(POINT_PACKAGES_FULL[0].amount).localizedPrice}
+          </CustomText>
+        ) : (
+          <CustomText type="tiny" style={styles.packagePriceError}>
+            {t('points.purchase_pop_price_load_error')}
+          </CustomText>
+        )}
+
+        {/* Loading Indicator (구매 중) */}
+        {loading && purchasingPackage === POINT_PACKAGES_FULL[0].amount && (
+          <ActivityIndicator
+            size="small"
+            color={POINT_PACKAGES_FULL[0].color}
+            style={styles.packageLoading}
+          />
+        )}
+      </TouchableOpacity>
+
+ 
     </View>
   );
 };
@@ -513,7 +584,7 @@ const styles = StyleSheet.create({
     padding: platformPadding(16),
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: verticalScale(180), // Increased for price display
+    minHeight: 'auto',//verticalScale(180), // Increased for price display
     position: 'relative',
   },
   packageCardLoading: {
@@ -526,7 +597,7 @@ const styles = StyleSheet.create({
   // 인기 뱃지
   popularBadge: {
     position: 'absolute',
-    top: platformPadding(8),
+    top: platformPadding(-15),
     right: platformPadding(8),
     backgroundColor: '#FF6B9D',
     borderRadius: moderateScale(8),
@@ -541,10 +612,12 @@ const styles = StyleSheet.create({
   // Package 요소들
   packageEmoji: {
     marginBottom: verticalScale(8),
+    display: 'none',
   },
   packageLabel: {
     color: COLORS.TEXT_SECONDARY,
-    marginBottom: verticalScale(4),
+    marginBottom: verticalScale(0),
+    display: 'none',
   },
   packageAmount: {
     marginBottom: verticalScale(4),
@@ -553,7 +626,7 @@ const styles = StyleSheet.create({
   packageDescription: {
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: verticalScale(8),
+    marginBottom: verticalScale(0),
   },
   
   // Price display
@@ -582,6 +655,7 @@ const styles = StyleSheet.create({
     padding: platformPadding(12),
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.05)',
+    marginBottom: platformPadding(20),
   },
   infoText: {
     color: COLORS.TEXT_SECONDARY,

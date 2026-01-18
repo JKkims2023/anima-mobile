@@ -24,12 +24,12 @@ import HapticService from '../../utils/HapticService';
 // ⭐ Filter Options
 const FILTER_OPTIONS = [
   { value: 'all', label: 'points.filter.all', emoji: '📊' },
+  { value: 'point_purchase', label: 'points.filter.point_purchase', emoji: '💰' },
   { value: 'persona_create', label: 'points.filter.persona_create', emoji: '🎭' },
   { value: 'video_convert', label: 'points.filter.video_convert', emoji: '🎬' },
   { value: 'music_create', label: 'points.filter.music_create', emoji: '🎵' },
-  { value: 'premium_join', label: 'points.filter.premium', emoji: '👑' },
-  { value: 'point_gift', label: 'points.filter.gift_sent', emoji: '🎁' },
-  { value: 'point_received', label: 'points.filter.gift_received', emoji: '💝' },
+
+
 ];
 
 // ⭐ Sort Options
@@ -244,10 +244,10 @@ const PointHistoryTab = () => {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return '방금 전';
-    if (minutes < 60) return `${minutes}분 전`;
-    if (hours < 24) return `${hours}시간 전`;
-    if (days < 7) return `${days}일 전`;
+    if (minutes < 1) return t('points.history_just_now');
+    if (minutes < 60) return t('points.history_minutes_ago', { minutes });
+    if (hours < 24) return t('points.history_hours_ago', { hours });
+    if (days < 7) return t('points.history_days_ago', { days });
 
     const month = date.getMonth() + 1;
     const day = date.getDate();

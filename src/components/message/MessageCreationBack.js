@@ -610,7 +610,15 @@ const MessageCreationBack = ({
     console.log('   music_url:', music_url);
     console.log('   music_title:', music_title);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+    if (music_key === 'none') {
+      console.log('   None selected - applying immediately');
+      setBgMusic('none');
+      setBgMusicUrl('');
+      setBgMusicTitle('');
+      handleMusicPlayerClose();
+      HapticService.success();
+      return;
+    }
     setBgMusic(music_key);
     setBgMusicUrl(music_url || '');
     setBgMusicTitle(music_title || '');
@@ -1420,7 +1428,7 @@ const MessageCreationBack = ({
       <FloatingMusicPlayer
         music_url={bgMusicUrl}
         music_title={bgMusicTitle}
-        visible={bgMusic !== 'none' && !!bgMusicUrl}
+        visible={bgMusic !== 'none' && bgMusicUrl !== ''}
         onClose={handleMusicPlayerClose}
       />
 

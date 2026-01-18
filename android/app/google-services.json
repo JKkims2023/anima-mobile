@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "477268616388-2r4peu41svqt20tdt5827vr0r1hitn2n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ai.anima.soulconnect",
+            "certificate_hash": "20032634d1b4117293a2859f871726d9670b02f8"
+          }
+        },
+        {
+          "client_id": "477268616388-oav42jrvmc4fjh19gumsctspbijj1pbd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ai.anima.soulconnect",
+            "certificate_hash": "218a88889a267092ab0114056aac0a0bbe3d6adb"
+          }
+        },
+        {
           "client_id": "477268616388-sjbp785tik0eeg23vhp8r9n26tfp3qu7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
