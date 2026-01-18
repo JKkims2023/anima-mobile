@@ -30,6 +30,7 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,8 +41,10 @@ import { scale, verticalScale, moderateScale ,platformPadding} from '../../utils
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
-import { CHAT_ENDPOINTS } from '../../config/api.config';
+import { CHAT_ENDPOINTS, SUBSCRIPTION_ENDPOINTS } from '../../config/api.config';
 import { useAnima } from '../../contexts/AnimaContext';
+import * as SubscriptionService from '../../services/SubscriptionService';
+import apiClient from '../../services/api/apiClient';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 🎖️ TIER CONFIGURATION
@@ -191,44 +194,73 @@ const TierUpgradeSheet = ({
       HapticService.medium();
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 💳 TODO: Payment Integration (Google Pay / Apple Pay)
+      // 🎖️ Subscription IAP Integration
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      /*
-      const paymentResult = await processPayment({
+      
+      console.log('[TierUpgrade] 🎖️ Starting subscription purchase...');
+      console.log('[TierUpgrade] Selected tier:', selectedTier);
+      
+      // Map tier to product_id (monthly for now, TODO: add yearly option)
+      let productId;
+      if (selectedTier === 'premium') {
+        productId = 'premium_monthly';
+      } else if (selectedTier === 'ultimate') {
+        productId = 'ultimate_monthly';
+      } else {
+        throw new Error('Invalid tier selected');
+      }
+      
+      console.log('[TierUpgrade] Product ID:', productId);
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 1: Request Subscription Purchase
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('[TierUpgrade] 🛒 Requesting subscription...');
+      
+      const purchase = await SubscriptionService.requestSubscription(productId);
+      
+      if (!purchase) {
+        throw new Error('Purchase failed');
+      }
+      
+      console.log('[TierUpgrade] ✅ Purchase successful');
+      console.log('[TierUpgrade] Product:', purchase.productId);
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 2: Extract Purchase Data
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const purchaseData = SubscriptionService.extractSubscriptionData(purchase);
+      
+      console.log('[TierUpgrade] 📊 Purchase data extracted');
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 3: Verify with Server
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('[TierUpgrade] 🔐 Verifying with server...');
+      
+      const verifyResponse = await apiClient.post(SUBSCRIPTION_ENDPOINTS.VERIFY, {
         user_key: userKey,
-        tier: selectedTier,
-        amount: getPaymentAmount(selectedTier),
-        platform: Platform.OS === 'ios' ? 'apple' : 'google',
+        product_id: purchaseData.productId,
+        purchase_token: purchaseData.purchaseToken,
+        platform: purchaseData.platform,
       });
       
-      if (!paymentResult.success) {
-        throw new Error(paymentResult.error || 'Payment failed');
+      if (!verifyResponse.data.success) {
+        throw new Error(verifyResponse.data.error || 'Verification failed');
       }
-      */
       
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🔄 API Call: Update user tier
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('[TierUpgrade] ✅ Server verification successful');
+      console.log('[TierUpgrade] Tier:', verifyResponse.data.data.tier_level);
+      console.log('[TierUpgrade] Expiry:', verifyResponse.data.data.expiry_date);
       
-      const response = await fetch(
-        'https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/api/user/upgrade-tier',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_key: userKey,
-            new_tier: selectedTier,
-          }),
-        }
-      );
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Step 4: Acknowledge Purchase
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('[TierUpgrade] ✅ Acknowledging purchase...');
       
-      const data = await response.json();
+      await SubscriptionService.acknowledgeSubscription(purchase);
       
-      if (!data.success) {
-        throw new Error(data.error || 'Upgrade failed');
-      }
+      console.log('[TierUpgrade] ✅ Purchase acknowledged');
       
       // ✅ Success!
       HapticService.success();
@@ -258,10 +290,25 @@ const TierUpgradeSheet = ({
       console.error('❌ [TierUpgrade] Error:', error);
       HapticService.error();
       
+      // User-friendly error messages
+      let errorMessage = t('tier.upgrade_error_message');
+      
+      if (error.message === 'User cancelled') {
+        // User cancelled the purchase - no need to show error
+        console.log('[TierUpgrade] User cancelled purchase');
+        return;
+      } else if (error.message === 'Already subscribed') {
+        errorMessage = '이미 구독 중입니다. 설정에서 구독 관리를 확인해주세요.';
+      } else if (error.message === 'Network error') {
+        errorMessage = '네트워크 오류가 발생했습니다. 연결을 확인해주세요.';
+      } else if (error.message === 'Product not available') {
+        errorMessage = '상품을 사용할 수 없습니다. 나중에 다시 시도해주세요.';
+      }
+      
       showAlert({
         emoji: '❌',
         title: t('tier.upgrade_error_title'),
-        message: error.message || t('tier.upgrade_error_message'),
+        message: errorMessage,
         buttons: [{ text: t('common.confirm'), style: 'primary', onPress: () => {} }],
       });
     } finally {
