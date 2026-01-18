@@ -153,18 +153,38 @@ const TierUpgradeSheet = ({
           params: { user_key: userKey },
         });
 
-        if (statusResponse.data && statusResponse.data.success && statusResponse.data.data.subscription) {
+        console.log('[TierUpgrade] Status response:', statusResponse);
+        console.log('[TierUpgrade] Status response.data:', statusResponse.data);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Check if subscription exists (with safe navigation)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        if (
+          statusResponse &&
+          statusResponse.data &&
+          statusResponse.data.success &&
+          statusResponse.data.data &&
+          statusResponse.data.data.subscription
+        ) {
           const { subscription } = statusResponse.data.data;
           setSubscriptionData(subscription);
           setSubscriptionStatus(subscription.status);
           setActiveTab(subscription.tier_level); // Auto-navigate to current tier tab
-          console.log('[TierUpgrade] Subscription status loaded:', subscription.status);
+          console.log('[TierUpgrade] ✅ Subscription status loaded:', subscription.status);
+          console.log('[TierUpgrade] ✅ Tier:', subscription.tier_level);
         } else {
-          // No active subscription
+          // No active subscription (user is Basic tier)
+          console.log('[TierUpgrade] ⚠️ No active subscription found (user is Basic tier)');
           setSubscriptionData(null);
           setSubscriptionStatus(null);
           setActiveTab('basic');
         }
+      } else {
+        // No user key
+        console.log('[TierUpgrade] ⚠️ No userKey provided');
+        setSubscriptionData(null);
+        setSubscriptionStatus(null);
+        setActiveTab('basic');
       }
     } catch (error) {
       console.error('[TierUpgrade] Failed to load data:', error);
@@ -183,10 +203,13 @@ const TierUpgradeSheet = ({
   // Get Product Price
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const getProductPrice = useCallback((tierKey) => {
-    const productId = `${tierKey}_monthly`;
+    // ⚠️ Note: Product IDs are now 'premium', 'ultimate' (not 'premium_monthly')
+    const productId = tierKey; // 'premium' or 'ultimate'
     const product = products.find(p => p.productId === productId);
 
-    if (product) {
+    console.log('[TierUpgrade] getProductPrice:', tierKey, '→', product?.localizedPrice);
+
+    if (product && product.localizedPrice) {
       return product.localizedPrice; // ✅ Real store price!
     }
 
@@ -202,7 +225,8 @@ const TierUpgradeSheet = ({
       setIsProcessing(true);
       HapticService.medium();
 
-      const productId = `${tierKey}_monthly`;
+      // ⚠️ Note: Product IDs are now 'premium', 'ultimate' (not 'premium_monthly')
+      const productId = tierKey; // 'premium' or 'ultimate'
       console.log('[TierUpgrade] 🛒 Starting subscription:', productId);
 
       // 1. Request Subscription

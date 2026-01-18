@@ -52,12 +52,12 @@ import {
  */
 export const SUBSCRIPTION_SKUS = Platform.select({
   ios: [
-    'premium_monthly',
-    'ultimate_monthly',
+    'premium',
+    'ultimate',
   ],
   android: [
-    'premium_monthly',
-    'ultimate_monthly',
+    'premium',
+    'ultimate',
   ],
   default: [],
 });
@@ -105,31 +105,86 @@ export async function disconnectSubscription() {
 /**
  * 구독 상품 목록 로드
  * - Google Play / App Store에서 가격 정보 가져오기
+ * - Android와 iOS의 다른 구조 처리
  * 
- * @returns {Promise<Array>} 구독 상품 목록
+ * @returns {Promise<Array>} 구독 상품 목록 (normalized)
  * 
  * @example
  * const subscriptions = await loadSubscriptions();
  * // [
- * //   { productId: 'premium_monthly', localizedPrice: '₩9,900', ... },
- * //   { productId: 'ultimate_monthly', localizedPrice: '₩19,900', ... }
+ * //   { productId: 'premium', localizedPrice: '₩9,900', ... },
+ * //   { productId: 'ultimate', localizedPrice: '₩19,900', ... }
  * // ]
  */
 export async function loadSubscriptions() {
   try {
     console.log('[Subscription] Loading subscription products...');
     console.log('[Subscription] SKUs:', SUBSCRIPTION_SKUS);
+    console.log('[Subscription] Platform:', Platform.OS);
     
     const subscriptions = await getSubscriptions({ skus: SUBSCRIPTION_SKUS });
+
+    console.log('[Subscription] Raw subscriptions:', subscriptions);
     
-    console.log('[Subscription] ✅ Products loaded:', subscriptions.length);
-    console.log('[Subscription] Products:', subscriptions.map(s => ({
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Normalize: Extract localizedPrice from different structures
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const normalizedSubscriptions = subscriptions.map(sub => {
+      let localizedPrice = null;
+      
+      if (Platform.OS === 'android') {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Android: New structure (react-native-iap v12+)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Path: subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0].formattedPrice
+        try {
+          if (sub.subscriptionOfferDetails && sub.subscriptionOfferDetails.length > 0) {
+            const offerDetails = sub.subscriptionOfferDetails[0];
+            if (offerDetails.pricingPhases && offerDetails.pricingPhases.pricingPhaseList) {
+              const pricingPhase = offerDetails.pricingPhases.pricingPhaseList[0];
+              if (pricingPhase && pricingPhase.formattedPrice) {
+                localizedPrice = pricingPhase.formattedPrice;
+                console.log(`[Subscription] ✅ Android price for ${sub.productId}:`, localizedPrice);
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`[Subscription] ❌ Failed to extract Android price for ${sub.productId}:`, error);
+        }
+      } else if (Platform.OS === 'ios') {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // iOS: Legacy structure
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Path: localizedPrice
+        localizedPrice = sub.localizedPrice;
+        console.log(`[Subscription] ✅ iOS price for ${sub.productId}:`, localizedPrice);
+      }
+      
+      // Fallback: Check if localizedPrice is already present
+      if (!localizedPrice && sub.localizedPrice) {
+        localizedPrice = sub.localizedPrice;
+        console.log(`[Subscription] ✅ Fallback price for ${sub.productId}:`, localizedPrice);
+      }
+      
+      if (!localizedPrice) {
+        console.warn(`[Subscription] ⚠️ No price found for ${sub.productId}`);
+        localizedPrice = '가격 로딩 실패';
+      }
+      
+      return {
+        ...sub,
+        localizedPrice, // ✅ Normalized field!
+      };
+    });
+    
+    console.log('[Subscription] ✅ Products loaded:', normalizedSubscriptions.length);
+    console.log('[Subscription] Normalized products:', normalizedSubscriptions.map(s => ({
       id: s.productId,
       price: s.localizedPrice,
       title: s.title,
     })));
     
-    return subscriptions;
+    return normalizedSubscriptions;
   } catch (error) {
     console.error('[Subscription] ❌ Failed to load products:', error);
     return [];
