@@ -244,6 +244,17 @@ export const IAP_ENDPOINTS = {
   VERIFY: API_BASE_URL + '/api/iap/verify', // ✅ Real IAP receipt verification
 };
 
+/**
+ * Subscription (구독형 IAP) Endpoints
+ */
+export const SUBSCRIPTION_ENDPOINTS = {
+  VERIFY: API_BASE_URL + '/api/subscription/verify', // ✅ 구독 구매 검증
+  STATUS: API_BASE_URL + '/api/subscription/status', // ✅ 구독 상태 확인
+  CANCEL: API_BASE_URL + '/api/subscription/cancel', // ✅ 구독 취소 (클라이언트 요청)
+  WEBHOOK_ANDROID: API_BASE_URL + '/api/subscription/webhook/android', // 🔔 Google Play Webhook
+  WEBHOOK_IOS: API_BASE_URL + '/api/subscription/webhook/ios', // 🔔 App Store Webhook
+};
+
 
 /**
  * FCM (Firebase Cloud Messaging) Endpoints
@@ -307,6 +318,7 @@ export default {
   FCM_ENDPOINTS, // ⭐ NEW: FCM endpoints
   POINT_ENDPOINTS, // ⭐ NEW: Point endpoints
   IAP_ENDPOINTS, // ⭐ NEW: IAP endpoints
+  SUBSCRIPTION_ENDPOINTS, // 🎖️ NEW: Subscription endpoints
   HEALTH_ENDPOINT,
   AMOUNT_ENDPOINTS,
 };
