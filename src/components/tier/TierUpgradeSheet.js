@@ -132,6 +132,18 @@ const TierUpgradeSheet = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Effective Current Tier (서버 데이터 우선!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const effectiveCurrentTier = useMemo(() => {
+    // If we have subscription data from server, use that!
+    if (subscriptionData && subscriptionData.tier_level) {
+      return subscriptionData.tier_level;
+    }
+    // Otherwise, use prop
+    return currentTier;
+  }, [subscriptionData, currentTier]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load Data
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
@@ -166,14 +178,17 @@ const TierUpgradeSheet = ({
           statusResponse.data &&
           statusResponse.data.success &&
           statusResponse.data.data &&
-          statusResponse.data.data.subscription
+          statusResponse.data.data.has_active_subscription
         ) {
-          const { subscription } = statusResponse.data.data;
-          setSubscriptionData(subscription);
-          setSubscriptionStatus(subscription.status);
-          setActiveTab(subscription.tier_level); // Auto-navigate to current tier tab
-          console.log('[TierUpgrade] ✅ Subscription status loaded:', subscription.status);
-          console.log('[TierUpgrade] ✅ Tier:', subscription.tier_level);
+          // ✅ FIXED: data.data is the subscription object itself!
+          const subscriptionInfo = statusResponse.data.data;
+          setSubscriptionData(subscriptionInfo);
+          setSubscriptionStatus(subscriptionInfo.status);
+          setActiveTab(subscriptionInfo.tier_level); // Auto-navigate to current tier tab
+          console.log('[TierUpgrade] ✅ Subscription status loaded:', subscriptionInfo.status);
+          console.log('[TierUpgrade] ✅ Tier:', subscriptionInfo.tier_level);
+          console.log('[TierUpgrade] ✅ Auto-renew:', subscriptionInfo.auto_renew);
+          console.log('[TierUpgrade] ✅ Days remaining:', subscriptionInfo.days_remaining);
         } else {
           // No active subscription (user is Basic tier)
           console.log('[TierUpgrade] ⚠️ No active subscription found (user is Basic tier)');
@@ -429,7 +444,7 @@ const TierUpgradeSheet = ({
     // Basic Tab
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if (activeTab === 'basic') {
-      if (currentTier === 'basic') {
+      if (effectiveCurrentTier === 'basic') {
         return (
           <View style={styles.infoBox}>
             <Icon name="information" size={moderateScale(20)} color={COLORS.TEXT_SECONDARY} />
@@ -455,7 +470,7 @@ const TierUpgradeSheet = ({
     // Premium Tab
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if (activeTab === 'premium') {
-      if (currentTier === 'basic') {
+      if (effectiveCurrentTier === 'basic') {
         // Basic → Premium (Subscribe)
         return (
           <TouchableOpacity
@@ -476,7 +491,7 @@ const TierUpgradeSheet = ({
             )}
           </TouchableOpacity>
         );
-      } else if (currentTier === 'premium') {
+      } else if (effectiveCurrentTier === 'premium') {
         // Premium (Current)
         if (subscriptionStatus === 'active') {
           // Active → Cancel
@@ -512,7 +527,7 @@ const TierUpgradeSheet = ({
             </View>
           );
         }
-      } else if (currentTier === 'ultimate') {
+      } else if (effectiveCurrentTier === 'ultimate') {
         // Ultimate → Premium (Downgrade Not Allowed)
         if (subscriptionStatus === 'cancelled') {
           // Ultimate 취소 상태 → Premium 구독 불가!
@@ -544,7 +559,7 @@ const TierUpgradeSheet = ({
     // Ultimate Tab
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if (activeTab === 'ultimate') {
-      if (currentTier === 'basic') {
+      if (effectiveCurrentTier === 'basic') {
         // Basic → Ultimate (Subscribe)
         return (
           <TouchableOpacity
@@ -565,7 +580,7 @@ const TierUpgradeSheet = ({
             )}
           </TouchableOpacity>
         );
-      } else if (currentTier === 'premium') {
+      } else if (effectiveCurrentTier === 'premium') {
         // Premium → Ultimate (Upgrade)
         return (
           <TouchableOpacity
@@ -586,7 +601,7 @@ const TierUpgradeSheet = ({
             )}
           </TouchableOpacity>
         );
-      } else if (currentTier === 'ultimate') {
+      } else if (effectiveCurrentTier === 'ultimate') {
         // Ultimate (Current)
         if (subscriptionStatus === 'active') {
           // Active → Cancel
@@ -675,7 +690,7 @@ const TierUpgradeSheet = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (!isOpen) return null;
 
-  const currentTierConfig = TIER_CONFIG[currentTier];
+  const currentTierConfig = TIER_CONFIG[effectiveCurrentTier];
   const activeTierConfig = TIER_CONFIG[activeTab];
 
   return (
