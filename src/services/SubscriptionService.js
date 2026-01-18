@@ -302,18 +302,41 @@ export async function requestSubscription(sku, offerToken = null) {
 export async function acknowledgeSubscription(purchase) {
   try {
     console.log('[Subscription] ✅ Acknowledging purchase...');
+    console.log('[Subscription] Purchase object keys:', Object.keys(purchase || {}));
+    console.log('[Subscription] Full purchase:', JSON.stringify(purchase, null, 2));
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Handle Array Response (Android can return array)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    let purchaseData = purchase;
+    if (Array.isArray(purchase)) {
+      console.log('[Subscription] ⚠️ Purchase is array, extracting first element');
+      purchaseData = purchase[0];
+    }
     
     if (Platform.OS === 'android') {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // Android: acknowledge (인정)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const token = purchaseData.purchaseToken;
+      
+      console.log('[Subscription] Android purchaseToken:', token ? token.substring(0, 20) + '...' : 'null');
+      
+      if (!token) {
+        throw new Error('Purchase token is null or undefined');
+      }
+      
       await acknowledgePurchaseAndroid({
-        token: purchase.purchaseToken,
-        developerPayload: purchase.developerPayloadAndroid,
+        token,
+        developerPayload: purchaseData.developerPayloadAndroid,
       });
       console.log('[Subscription] ✅ Android: Purchase acknowledged');
     } else {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // iOS: finishTransaction (구독에서는 인정의 의미)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       await finishTransaction({
-        purchase,
+        purchase: purchaseData,
         isConsumable: false, // ⚠️ 중요: false!
       });
       console.log('[Subscription] ✅ iOS: Transaction finished');
