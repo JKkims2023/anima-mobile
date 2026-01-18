@@ -1,32 +1,33 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🗣️ SpeakingPatternSheet Component (Modal-based with Tabs)
+ * 🎖️ TierUpgradeSheet Component (Tab-based, Subscription IAP)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * Purpose: Allow users to define persona's speaking patterns
- * 
- * Design: Tab-based UI (3 tabs)
- * ✅ Tab 1: 문장 (greeting + closing phrases)
- * ✅ Tab 2: 자주 쓰는 말 (frequent words)
- * ✅ Tab 3: 나만의 명언 (signature phrases)
+ * Purpose: 구독 티어 업그레이드/취소/관리
+ * Design: 탭 기반 UI (Basic | Premium | Ultimate)
  * 
  * Features:
- * ✅ Modal-based (correct z-index)
- * ✅ Tab navigation
- * ✅ Tag/Chip UI
- * ✅ Text truncation (20+ chars → ...)
- * ✅ Space-efficient layout
+ * ✅ 현재 티어 강조 카드
+ * ✅ 탭 기반 티어 선택
+ * ✅ 실제 스토어 가격 로딩
+ * ✅ 구독/취소/업그레이드 버튼
+ * ✅ 비즈니스 로직 (다운그레이드 방지)
  * 
- * @author JK & Hero Nexus AI
- * @date 2025-12-30
+ * Business Rules:
+ * 1. Basic → Premium/Ultimate: 자유롭게 구독
+ * 2. Premium → Ultimate: 즉시 업그레이드 (start_date = NOW())
+ * 3. Ultimate 취소 후: Premium 구독 불가 (다운그레이드 방지)
+ * 
+ * @author JK & Hero NEXUS AI
+ * @date 2026-01-18
  */
 
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
   ActivityIndicator,
   Modal,
   Animated,
@@ -35,13 +36,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomText from '../CustomText';
-import CustomButton from '../CustomButton';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, verticalScale, moderateScale ,platformPadding} from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
-import MessageInputOverlay from '../message/MessageInputOverlay';
-import { CHAT_ENDPOINTS, SUBSCRIPTION_ENDPOINTS } from '../../config/api.config';
+import { SUBSCRIPTION_ENDPOINTS } from '../../config/api.config';
 import { useAnima } from '../../contexts/AnimaContext';
 import * as SubscriptionService from '../../services/SubscriptionService';
 import apiClient from '../../services/api/apiClient';
@@ -103,6 +102,9 @@ const TIER_CONFIG = {
 
 const TIER_ORDER = ['basic', 'premium', 'ultimate'];
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🎯 MAIN COMPONENT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const TierUpgradeSheet = ({
   isOpen,
@@ -116,185 +118,159 @@ const TierUpgradeSheet = ({
   const slideAnim = useRef(new Animated.Value(1000)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const { showAlert } = useAnima();
-  // Modal Refs
-  const greetingInputRef = useRef(null);
-  const closingInputRef = useRef(null);
-  const nicknameInputRef = useRef(null);
-  const frequentInputRef = useRef(null);
-  const signatureInputRef = useRef(null);
-  
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // States
-  const [activeTab, setActiveTab] = useState('phrase');
-  const [greetingPhrases, setGreetingPhrases] = useState([]);
-  const [closingPhrases, setClosingPhrases] = useState([]);
-  const [myNicknames, setMyNicknames] = useState([]);
-  const [frequentWords, setFrequentWords] = useState([]);
-  const [signaturePhrases, setSignaturePhrases] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const [activeTab, setActiveTab] = useState(currentTier);
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null); // 'active', 'cancelled', 'expired'
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-
-  //==== real data ====//
-
-  const [selectedTier, setSelectedTier] = useState(currentTier);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
-  
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🎯 Current & Selected Tier Info
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
-  const currentTierConfig = useMemo(() => TIER_CONFIG[currentTier] || TIER_CONFIG.basic, [currentTier]);
-  const selectedTierConfig = useMemo(() => TIER_CONFIG[selectedTier] || TIER_CONFIG.basic, [selectedTier]);
-  
-  // Check if upgrade is possible (selected tier is higher than current)
-  const canUpgrade = useMemo(() => {
-    const currentIndex = TIER_ORDER.indexOf(currentTier);
-    const selectedIndex = TIER_ORDER.indexOf(selectedTier);
-    return selectedIndex > currentIndex;
-  }, [currentTier, selectedTier]);
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🎯 Handlers
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
-  const handleTierSelect = useCallback((tier) => {
-    HapticService.light();
-    setSelectedTier(tier);
-    setIsDropdownOpen(false);
-  }, []);
-  
-  const handleUpgrade = useCallback(async () => {
-    if (!canUpgrade) {
-      
-      HapticService.warning();
-      showAlert({
-        emoji: '⚠️',
-        title: t('tier.already_at_tier_title'),
-        message: t('tier.already_at_tier_message', { tier: selectedTierConfig.name }),
-        buttons: [{ text: t('common.confirm'), style: 'primary', onPress: () => {} }],
-      });
-      return;
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Load Data
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
     }
-    
-    if (!userKey) {
-      HapticService.warning();
-      showAlert({
-        emoji: '⚠️',
-        title: t('common.login_guide.title'),
-        message: t('common.login_guide.description'),
-        buttons: [{ text: t('common.confirm'), style: 'primary', onPress: () => {} }],
-      });
-      return;
-    }
-    
+  }, [isOpen, userKey]);
+
+  const loadData = async () => {
     try {
-      setIsUpgrading(true);
+      setLoadingProducts(true);
+
+      // 1. Load Store Products
+      const storeProducts = await SubscriptionService.loadSubscriptions();
+      console.log('[TierUpgrade] Products loaded:', storeProducts);
+      setProducts(storeProducts);
+
+      // 2. Load User Subscription Status
+      if (userKey) {
+        const statusResponse = await apiClient.get(SUBSCRIPTION_ENDPOINTS.STATUS, {
+          params: { user_key: userKey },
+        });
+
+        if (statusResponse.data && statusResponse.data.success && statusResponse.data.data.subscription) {
+          const { subscription } = statusResponse.data.data;
+          setSubscriptionData(subscription);
+          setSubscriptionStatus(subscription.status);
+          setActiveTab(subscription.tier_level); // Auto-navigate to current tier tab
+          console.log('[TierUpgrade] Subscription status loaded:', subscription.status);
+        } else {
+          // No active subscription
+          setSubscriptionData(null);
+          setSubscriptionStatus(null);
+          setActiveTab('basic');
+        }
+      }
+    } catch (error) {
+      console.error('[TierUpgrade] Failed to load data:', error);
+      showAlert({
+        emoji: '⚠️',
+        title: '데이터 로딩 실패',
+        message: '구독 정보를 불러올 수 없습니다.',
+        buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
+      });
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Get Product Price
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const getProductPrice = useCallback((tierKey) => {
+    const productId = `${tierKey}_monthly`;
+    const product = products.find(p => p.productId === productId);
+
+    if (product) {
+      return product.localizedPrice; // ✅ Real store price!
+    }
+
+    // Fallback
+    return TIER_CONFIG[tierKey]?.price || '로딩 중...';
+  }, [products]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Subscribe
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleSubscribe = useCallback(async (tierKey) => {
+    try {
+      setIsProcessing(true);
       HapticService.medium();
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🎖️ Subscription IAP Integration
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      
-      console.log('[TierUpgrade] 🎖️ Starting subscription purchase...');
-      console.log('[TierUpgrade] Selected tier:', selectedTier);
-      
-      // Map tier to product_id (monthly for now, TODO: add yearly option)
-      let productId;
-      if (selectedTier === 'premium') {
-        productId = 'premium_monthly';
-      } else if (selectedTier === 'ultimate') {
-        productId = 'ultimate_monthly';
-      } else {
-        throw new Error('Invalid tier selected');
-      }
-      
-      console.log('[TierUpgrade] Product ID:', productId);
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // Step 1: Request Subscription Purchase
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      console.log('[TierUpgrade] 🛒 Requesting subscription...');
-      
+
+      const productId = `${tierKey}_monthly`;
+      console.log('[TierUpgrade] 🛒 Starting subscription:', productId);
+
+      // 1. Request Subscription
       const purchase = await SubscriptionService.requestSubscription(productId);
-      
+
       if (!purchase) {
-        throw new Error('Purchase failed');
+        throw new Error('Purchase cancelled');
       }
-      
+
       console.log('[TierUpgrade] ✅ Purchase successful');
-      console.log('[TierUpgrade] Product:', purchase.productId);
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // Step 2: Extract Purchase Data
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      // 2. Extract Data
       const purchaseData = SubscriptionService.extractSubscriptionData(purchase);
-      
-      console.log('[TierUpgrade] 📊 Purchase data extracted');
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // Step 3: Verify with Server
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      // 3. Verify with Server
       console.log('[TierUpgrade] 🔐 Verifying with server...');
-      
+
       const verifyResponse = await apiClient.post(SUBSCRIPTION_ENDPOINTS.VERIFY, {
         user_key: userKey,
         product_id: purchaseData.productId,
         purchase_token: purchaseData.purchaseToken,
         platform: purchaseData.platform,
       });
-      
-      if (!verifyResponse.data.success) {
-        throw new Error(verifyResponse.data.error || 'Verification failed');
+
+      if (!verifyResponse.data || !verifyResponse.data.success) {
+        throw new Error('Verification failed');
       }
-      
+
       console.log('[TierUpgrade] ✅ Server verification successful');
-      console.log('[TierUpgrade] Tier:', verifyResponse.data.data.tier_level);
-      console.log('[TierUpgrade] Expiry:', verifyResponse.data.data.expiry_date);
-      
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // Step 4: Acknowledge Purchase
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      // 4. Acknowledge
       console.log('[TierUpgrade] ✅ Acknowledging purchase...');
-      
       await SubscriptionService.acknowledgeSubscription(purchase);
-      
-      console.log('[TierUpgrade] ✅ Purchase acknowledged');
-      
-      // ✅ Success!
+
+      // 5. Success!
       HapticService.success();
-      
+
       showAlert({
         emoji: '🎉',
-        title: t('tier.upgrade_success_title'),
-        message: t('tier.upgrade_success_message', { tier: selectedTierConfig.name }),
+        title: '구독 완료!',
+        message: `${TIER_CONFIG[tierKey].name} 티어로 업그레이드되었습니다!`,
         buttons: [
           {
-            text: t('common.confirm'),
+            text: '확인',
             style: 'primary',
             onPress: () => {
-              // Notify parent component
+              // Reload data
+              loadData();
+
+              // Callback
               if (onUpgradeSuccess) {
-                onUpgradeSuccess(selectedTier);
+                onUpgradeSuccess(tierKey);
               }
-              
+
               // Close sheet
               onClose();
             },
           },
         ],
       });
-      
     } catch (error) {
-      console.error('❌ [TierUpgrade] Error:', error);
+      console.error('❌ [TierUpgrade] Subscribe failed:', error);
       HapticService.error();
-      
-      // User-friendly error messages
-      let errorMessage = t('tier.upgrade_error_message');
-      
-      if (error.message === 'User cancelled') {
-        // User cancelled the purchase - no need to show error
+
+      let errorMessage = '구독에 실패했습니다';
+
+      if (error.message === 'Purchase cancelled' || error.message === 'User cancelled') {
+        // User cancelled - no need to show error
         console.log('[TierUpgrade] User cancelled purchase');
         return;
       } else if (error.message === 'Already subscribed') {
@@ -304,23 +280,302 @@ const TierUpgradeSheet = ({
       } else if (error.message === 'Product not available') {
         errorMessage = '상품을 사용할 수 없습니다. 나중에 다시 시도해주세요.';
       }
-      
+
       showAlert({
         emoji: '❌',
-        title: t('tier.upgrade_error_title'),
+        title: '구독 실패',
         message: errorMessage,
-        buttons: [{ text: t('common.confirm'), style: 'primary', onPress: () => {} }],
+        buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
       });
     } finally {
-      setIsUpgrading(false);
+      setIsProcessing(false);
     }
-  }, [canUpgrade, userKey, selectedTier, selectedTierConfig, showAlert, t, onUpgradeSuccess, onClose]);
-  
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // ANIMATION EFFECTS
-  // ═══════════════════════════════════════════════════════════════════════
-  
+  }, [userKey, showAlert, onUpgradeSuccess, onClose, loadData]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Cancel Subscription
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleCancelSubscription = useCallback(async () => {
+    if (!subscriptionData) {
+      return;
+    }
+
+    const expiryDate = new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR');
+
+    showAlert({
+      emoji: '⚠️',
+      title: '구독을 취소하시겠습니까?',
+      message: `만료일(${expiryDate})까지 현재 티어를 사용할 수 있습니다.\n\n취소 후에는 더 낮은 티어로 변경할 수 없습니다.`,
+      buttons: [
+        {
+          text: '아니오',
+          style: 'cancel',
+          onPress: () => {},
+        },
+        {
+          text: '예, 취소합니다',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsProcessing(true);
+
+              const cancelResponse = await apiClient.post(SUBSCRIPTION_ENDPOINTS.CANCEL, {
+                user_key: userKey,
+                reason: 'User requested',
+              });
+
+              if (!cancelResponse.data || !cancelResponse.data.success) {
+                throw new Error('Cancellation failed');
+              }
+
+              HapticService.success();
+
+              showAlert({
+                emoji: '✅',
+                title: '구독 취소 완료',
+                message: `만료일(${expiryDate})까지 현재 티어를 사용할 수 있습니다.`,
+                buttons: [
+                  {
+                    text: '확인',
+                    style: 'primary',
+                    onPress: () => {
+                      // Reload data
+                      loadData();
+                    },
+                  },
+                ],
+              });
+            } catch (error) {
+              console.error('❌ [TierUpgrade] Cancel failed:', error);
+              HapticService.error();
+
+              showAlert({
+                emoji: '❌',
+                title: '취소 실패',
+                message: error.message || '구독 취소에 실패했습니다.',
+                buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
+              });
+            } finally {
+              setIsProcessing(false);
+            }
+          },
+        },
+      ],
+    });
+  }, [subscriptionData, userKey, showAlert, loadData]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render Action Button (Tab-specific)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderActionButton = () => {
+    const tierConfig = TIER_CONFIG[activeTab];
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Basic Tab
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (activeTab === 'basic') {
+      if (currentTier === 'basic') {
+        return (
+          <View style={styles.infoBox}>
+            <Icon name="information" size={moderateScale(20)} color={COLORS.TEXT_SECONDARY} />
+            <CustomText type="small" color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8), flex: 1 }}>
+              무료 티어입니다. Premium 또는 Ultimate로 업그레이드하세요!
+            </CustomText>
+          </View>
+        );
+      } else {
+        return (
+          <View style={styles.warningBox}>
+            <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
+            <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
+              ⚠️ Basic으로 다운그레이드할 수 없습니다.{'\n'}
+              구독을 취소하면 만료일 이후 자동으로 Basic으로 변경됩니다.
+            </CustomText>
+          </View>
+        );
+      }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Premium Tab
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (activeTab === 'premium') {
+      if (currentTier === 'basic') {
+        // Basic → Premium (Subscribe)
+        return (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: tierConfig.color }]}
+            onPress={() => handleSubscribe('premium')}
+            disabled={isProcessing || loadingProducts}
+            activeOpacity={0.7}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
+                <CustomText type="medium" bold style={styles.actionButtonText}>
+                  구독하기 ({getProductPrice('premium')}/월)
+                </CustomText>
+              </>
+            )}
+          </TouchableOpacity>
+        );
+      } else if (currentTier === 'premium') {
+        // Premium (Current)
+        if (subscriptionStatus === 'active') {
+          // Active → Cancel
+          return (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.cancelButton]}
+              onPress={handleCancelSubscription}
+              disabled={isProcessing}
+              activeOpacity={0.7}
+            >
+              {isProcessing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Icon name="close-circle" size={moderateScale(20)} color="#FFFFFF" />
+                  <CustomText type="medium" bold style={styles.actionButtonText}>
+                    구독 취소
+                  </CustomText>
+                </>
+              )}
+            </TouchableOpacity>
+          );
+        } else if (subscriptionStatus === 'cancelled') {
+          // Cancelled
+          const expiryDate = new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR');
+          return (
+            <View style={styles.warningBox}>
+              <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
+              <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
+                ⚠️ 구독이 취소되었습니다.{'\n'}
+                {expiryDate}까지 사용 가능합니다.
+              </CustomText>
+            </View>
+          );
+        }
+      } else if (currentTier === 'ultimate') {
+        // Ultimate → Premium (Downgrade Not Allowed)
+        if (subscriptionStatus === 'cancelled') {
+          // Ultimate 취소 상태 → Premium 구독 불가!
+          const expiryDate = new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR');
+          return (
+            <View style={styles.errorBox}>
+              <Icon name="cancel" size={moderateScale(20)} color="#EF4444" />
+              <CustomText type="small" color="#EF4444" style={{ marginLeft: scale(8), flex: 1 }}>
+                ❌ 취소된 구독이 만료되기 전까지는 다운그레이드할 수 없습니다.{'\n'}
+                만료일: {expiryDate} 이후 Basic으로 변경됩니다.
+              </CustomText>
+            </View>
+          );
+        } else {
+          return (
+            <View style={styles.warningBox}>
+              <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
+              <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
+                ⚠️ Premium으로 다운그레이드할 수 없습니다.{'\n'}
+                구독을 취소하면 만료일 이후 자동으로 Basic으로 변경됩니다.
+              </CustomText>
+            </View>
+          );
+        }
+      }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Ultimate Tab
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (activeTab === 'ultimate') {
+      if (currentTier === 'basic') {
+        // Basic → Ultimate (Subscribe)
+        return (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: tierConfig.color }]}
+            onPress={() => handleSubscribe('ultimate')}
+            disabled={isProcessing || loadingProducts}
+            activeOpacity={0.7}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
+                <CustomText type="medium" bold style={styles.actionButtonText}>
+                  구독하기 ({getProductPrice('ultimate')}/월)
+                </CustomText>
+              </>
+            )}
+          </TouchableOpacity>
+        );
+      } else if (currentTier === 'premium') {
+        // Premium → Ultimate (Upgrade)
+        return (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: tierConfig.color }]}
+            onPress={() => handleSubscribe('ultimate')}
+            disabled={isProcessing || loadingProducts}
+            activeOpacity={0.7}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
+                <CustomText type="medium" bold style={styles.actionButtonText}>
+                  Ultimate로 업그레이드 ({getProductPrice('ultimate')}/월)
+                </CustomText>
+              </>
+            )}
+          </TouchableOpacity>
+        );
+      } else if (currentTier === 'ultimate') {
+        // Ultimate (Current)
+        if (subscriptionStatus === 'active') {
+          // Active → Cancel
+          return (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.cancelButton]}
+              onPress={handleCancelSubscription}
+              disabled={isProcessing}
+              activeOpacity={0.7}
+            >
+              {isProcessing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Icon name="close-circle" size={moderateScale(20)} color="#FFFFFF" />
+                  <CustomText type="medium" bold style={styles.actionButtonText}>
+                    구독 취소
+                  </CustomText>
+                </>
+              )}
+            </TouchableOpacity>
+          );
+        } else if (subscriptionStatus === 'cancelled') {
+          // Cancelled
+          const expiryDate = new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR');
+          return (
+            <View style={styles.warningBox}>
+              <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
+              <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
+                ⚠️ 구독이 취소되었습니다.{'\n'}
+                {expiryDate}까지 사용 가능합니다.
+              </CustomText>
+            </View>
+          );
+        }
+      }
+    }
+
+    return null;
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Animation
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
     if (isOpen) {
       Animated.parallel([
@@ -336,8 +591,6 @@ const TierUpgradeSheet = ({
           useNativeDriver: true,
         }),
       ]).start();
-
-
     } else {
       Animated.parallel([
         Animated.timing(slideAnim, {
@@ -350,441 +603,211 @@ const TierUpgradeSheet = ({
           duration: 250,
           useNativeDriver: true,
         }),
-
-        setIsDropdownOpen(false),
-        setSelectedTier(currentTier),
       ]).start();
     }
-  }, [isOpen]);
-      
-  // ═══════════════════════════════════════════════════════════════════════
-  // TEXT TRUNCATE HELPER
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  const truncateText = (text, maxLength = 20) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-    
-  // ═══════════════════════════════════════════════════════════════════════
-  // RENDER TAG SECTION
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  const renderTagSection = (title, subtitle, phrases, type, inputRef, maxCount, shouldTruncate = false) => {
-    return (
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <CustomText type="middle" bold color={COLORS.TEXT_PRIMARY}>
-            {title}
-          </CustomText>
-          <CustomText size="xs" color={COLORS.TEXT_TERTIARY} style={{ marginTop: verticalScale(2) }}>
-            {subtitle} (최대 {maxCount}개)
-          </CustomText>
-        </View>
-        
-        <View style={styles.tagsContainer}>
-          {phrases.map((phrase, index) => (
-            <View key={index} style={styles.tag}>
-              <CustomText size="sm" color={COLORS.TEXT_PRIMARY}>
-                {shouldTruncate ? truncateText(phrase, 20) : phrase}
-              </CustomText>
-              <TouchableOpacity
-                onPress={() => handleRemovePhrase(type, index)}
-                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
-              >
-                <Icon name="close-circle" size={moderateScale(16)} color={COLORS.TEXT_SECONDARY} />
-              </TouchableOpacity>
-            </View>
-          ))}
-          
-          {phrases.length < maxCount && (
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => {
-                HapticService.light();
-                inputRef.current?.present();
-              }}
-            >
-              <Icon name="plus-circle" size={moderateScale(20)} color={COLORS.DEEP_BLUE} />
-              <CustomText size="sm" color={COLORS.DEEP_BLUE} style={{ marginLeft: scale(4) }}>
-                추가
-              </CustomText>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    );
-  };
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // RENDER TAB CONTENT
-  // ═══════════════════════════════════════════════════════════════════════
-  
-  const renderTabContent = () => {
-    const currentTab = TABS.find(tab => tab.id === activeTab);
-    
-    return (
-      <View style={styles.tabContent}>
-        {/* Tab Description */}
-        <View style={styles.tabDescription}>
-          <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ display: 'none' }}>
-            {currentTab?.description}
-          </CustomText>
-        </View>
+  }, [isOpen, slideAnim, backdropOpacity]);
 
-        <View style={styles.divider}></View>
-        
-        {/* Tab-specific Content */}
-        {activeTab === 'phrase' && (
-          <>
-            {renderTagSection(
-              t('speaking_pattern_sheet.phrases.description'),
-              '',
-              greetingPhrases,
-              'greeting',
-              greetingInputRef,
-              5,
-              false
-            )}
-            {renderTagSection(
-              t('speaking_pattern_sheet.closing_phrases.description'),
-              '',
-              closingPhrases,
-              'closing',
-              closingInputRef,
-              5,
-              false
-            )}
-          </>
-        )}
-        
-        {activeTab === 'nickname' && (
-          <>
-            <View style={styles.nicknameWarning}>
-              <CustomText size="xs" color="#FF9500" style={{ marginLeft: scale(6), flex: 1 }}>
-                {t('speaking_pattern_sheet.nickname.warning', { name: personaName })}
-              </CustomText>
-            </View>
-
-            {renderTagSection(
-              t('speaking_pattern_sheet.nickname.description'),
-              '',
-              myNicknames,
-              'nickname',
-              nicknameInputRef,
-              5,
-              false
-            )}
-          </>
-        )}
-        
-        {activeTab === 'frequent' && (
-          <>
-            {renderTagSection(
-              '💬 자주 쓰는 말',
-              '평소 자주 쓰는 말투나 표현',
-              frequentWords,
-              'frequent',
-              frequentInputRef,
-              10,
-              true  // ✅ 20자 이상 ... 처리
-            )}
-          </>
-        )}
-        
-        {activeTab === 'signature' && (
-          <>
-            {renderTagSection(
-              '✨ 나만의 명언',
-              '특별한 상황에서 사용하는 시그니처 문구',
-              signaturePhrases,
-              'signature',
-              signatureInputRef,
-              3,
-              true  // ✅ 20자 이상 ... 처리
-            )}
-          </>
-        )}
-      </View>
-    );
-  };
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // HANDLERS
-  // ═══════════════════════════════════════════════════════════════════════
-  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Handle Close
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleClose = useCallback(() => {
     HapticService.light();
-    setIsDropdownOpen(false);
-    setSelectedTier(currentTier);
     onClose();
-  }, [onClose, currentTier]);
-  
-  // ═══════════════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════════════
-  
+  }, [onClose]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Render
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (!isOpen) return null;
-  
+
+  const currentTierConfig = TIER_CONFIG[currentTier];
+  const activeTierConfig = TIER_CONFIG[activeTab];
+
   return (
-    <>
-      <Modal
-        visible={isOpen}
-        transparent={true}
-        animationType="none"
-        statusBarTranslucent
-        onRequestClose={handleClose}
-      >
-        {/* Backdrop */}
-        <TouchableOpacity 
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={handleClose}
-        >
-          <Animated.View 
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                backgroundColor: 'rgba(0,0,0,0.7)',
-                opacity: backdropOpacity,
-              }
-            ]} 
-          />
-        </TouchableOpacity>
-        
-        {/* Modal Container */}
-        <Animated.View 
+    <Modal visible={isOpen} transparent animationType="none" statusBarTranslucent onRequestClose={handleClose}>
+      {/* Backdrop */}
+      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose}>
+        <Animated.View
           style={[
-            styles.modalContainer,
+            StyleSheet.absoluteFill,
             {
-              paddingBottom: insets.bottom + verticalScale(20),
-              transform: [{ translateY: slideAnim }],
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              opacity: backdropOpacity,
             },
           ]}
-          onStartShouldSetResponder={() => true}
-          onTouchEnd={(e) => e.stopPropagation()}
-        >
-          {/* Handle */}
-          <View style={styles.handleContainer}>
-            <View style={styles.handle} />
+        />
+      </TouchableOpacity>
+
+      {/* Modal Container */}
+      <Animated.View
+        style={[
+          styles.modalContainer,
+          {
+            paddingBottom: insets.bottom + verticalScale(20),
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+        onStartShouldSetResponder={() => true}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <View style={styles.handleContainer}>
+          <View style={styles.handle} />
+        </View>
+
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <CustomText type="title" bold color={COLORS.TEXT_PRIMARY}>
+              🎖️ 티어 업그레이드
+            </CustomText>
           </View>
-          
-          {/* Header */}
-          <View style={styles.header}>
-            <View>
-              <CustomText type="title" bold color={COLORS.TEXT_PRIMARY}>
-              🎖️ {t('tier.upgrade_title')}
+
+          <TouchableOpacity onPress={handleClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Icon name="close" size={scale(24)} color={COLORS.TEXT_SECONDARY} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Content */}
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {loadingProducts ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
+              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(12) }}>
+                불러오는 중...
               </CustomText>
             </View>
-            
-            <TouchableOpacity
-              onPress={handleClose}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Icon name="close" size={scale(24)} color={COLORS.TEXT_SECONDARY} />
-            </TouchableOpacity>
-          </View>
-          
-          
-          {/* Content */}
-          <ScrollView 
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
-                <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(12) }}>
-                  불러오는 중...
-                </CustomText>
-              </View>
-            ) : (
-              <View>
-                <CustomText type="title" style={styles.headerSubtitle}>
-                  {t('tier.current_tier', '현재 티어')}: {currentTierConfig.emoji} {currentTierConfig.name}
-                </CustomText>
-
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* Tier Selection Dropdown */}
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            
-                <View style={styles.section}>
-                  <CustomText type="medium" bold style={styles.sectionTitle}>
-                    {t('tier.select_tier', '티어 선택')}
+          ) : (
+            <>
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              {/* Current Tier Card */}
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              <View style={[styles.currentTierCard, { borderColor: currentTierConfig.color }]}>
+                <View style={styles.currentTierHeader}>
+                  <CustomText type="huge" style={styles.currentTierEmoji}>
+                    {currentTierConfig.emoji}
                   </CustomText>
-                  
-                  <TouchableOpacity
-                    style={[
-                      styles.dropdown,
-                      { borderColor: selectedTierConfig.color },
-                      isDropdownOpen && styles.dropdownOpen,
-                    ]}
-                    onPress={() => {
-                      HapticService.light();
-                      setIsDropdownOpen(!isDropdownOpen);
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.dropdownSelected}>
-                      <CustomText type="huge" style={styles.dropdownEmoji}>
-                        {selectedTierConfig.emoji}
+                  <View style={{ flex: 1 }}>
+                    <CustomText type="medium" bold color={COLORS.TEXT_PRIMARY}>
+                      현재 티어: {currentTierConfig.name}
+                    </CustomText>
+                    {subscriptionData && (
+                      <>
+                        <CustomText type="small" color={subscriptionStatus === 'active' ? '#22C55E' : COLORS.WARNING} style={{ marginTop: verticalScale(4) }}>
+                          {subscriptionStatus === 'active' ? '✅ 구독 활성화' : '⚠️ 구독 취소됨'}
+                        </CustomText>
+                        <CustomText type="small" color={COLORS.TEXT_SECONDARY}>
+                          만료일: {new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR')} ({subscriptionData.days_remaining}일 남음)
+                        </CustomText>
+                        <CustomText type="small" color={COLORS.TEXT_SECONDARY}>
+                          자동 갱신: {subscriptionData.auto_renew ? '활성화 ✅' : '비활성화 ❌'}
+                        </CustomText>
+                      </>
+                    )}
+                    {!subscriptionData && (
+                      <CustomText type="small" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
+                        무료 티어입니다. 프리미엄 구독으로 더 많은 기능을 이용하세요!
                       </CustomText>
-                      <View style={styles.dropdownTextContainer}>
-                        <CustomText type="medium" bold style={styles.dropdownText}>
-                          {selectedTierConfig.name}
-                        </CustomText>
-                        <CustomText type="small" style={styles.dropdownPrice}>
-                          {selectedTierConfig.price}
-                        </CustomText>
-                      </View>
-                    </View>
-                    
-                    <Icon
-                      name={isDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                      size={moderateScale(20)}
-                      color={COLORS.TEXT_PRIMARY}
-                    />
-                  </TouchableOpacity>
-
-                  {/* Dropdown Options */}
-                  {isDropdownOpen && (
-                   <View style={styles.dropdownOptions}>
-
-                    {TIER_ORDER.map((tierKey) => {
-                    const tierConfig = TIER_CONFIG[tierKey];
-                    const isSelected = tierKey === selectedTier;
-                    const isCurrent = tierKey === currentTier;
-                    
-                    return (
-                      <TouchableOpacity
-                        key={tierKey}
-                        style={[
-                          styles.dropdownOption,
-                          isSelected && styles.dropdownOptionSelected,
-                          { borderLeftColor: tierConfig.color },
-                        ]}
-                        onPress={() => handleTierSelect(tierKey)}
-                        activeOpacity={0.7}
-                      >
-                        <View style={styles.dropdownOptionContent}>
-                          <CustomText type="huge" style={styles.dropdownOptionEmoji}>
-                            {tierConfig.emoji}
-                          </CustomText>
-                          <View style={styles.dropdownOptionTextContainer}>
-                            <View style={styles.dropdownOptionHeader}>
-                              <CustomText type="medium" bold style={styles.dropdownOptionText}>
-                                {tierConfig.name}
-                              </CustomText>
-                              {isCurrent && (
-                                <View style={styles.currentBadge}>
-                                  <CustomText type="tiny" bold style={styles.currentBadgeText}>
-                                    {t('tier.current', '현재')}
-                                  </CustomText>
-                                </View>
-                              )}
-                            </View>
-                            <CustomText type="small" style={styles.dropdownOptionPrice}>
-                              {tierConfig.price}
-                            </CustomText>
-                          </View>
-                        </View>
-                        
-                        {isSelected && (
-                          <Icon name="checkmark-circle" size={moderateScale(24)} color={tierConfig.color} />
-                        )}
-                      </TouchableOpacity>
-                    );
-                    })}
-
+                    )}
                   </View>
-                  )}
-
-                </View>
-
-                <View style={styles.section}>
-                <CustomText type="medium" bold style={styles.sectionTitle}>
-                  {t('tier.features', '포함된 기능')}
-                </CustomText>
-                
-                <View style={[styles.tierCard, { borderColor: selectedTierConfig.color }]}>
-                  {selectedTierConfig.features.map((feature, index) => (
-                    <View key={index} style={styles.featureRow}>
-                      <CustomText type="medium" style={styles.featureIcon}>
-                        {feature.icon}
-                      </CustomText>
-                      <CustomText type="medium" style={styles.featureText}>
-                        {feature.text}
-                      </CustomText>
-                    </View>
-                  ))}
                 </View>
               </View>
-            </View>
 
-            )}
-            
-          </ScrollView>
-          
-          {/* Footer Buttons */}
-          <View style={styles.footer}>
-            {/* Cancel Button */}
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleClose}
-              activeOpacity={0.7}
-              disabled={isUpgrading}
-            >
-              <CustomText type="medium" bold style={styles.cancelButtonText}>
-                {t('common.cancel', '취소')}
-              </CustomText>
-            </TouchableOpacity>
-            
-            {/* Upgrade Button */}
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.saveButton,
-                { backgroundColor: canUpgrade ? selectedTierConfig.color : '#4B5563' },
-                !canUpgrade && styles.upgradeButtonDisabled,
-              ]}
-              onPress={handleUpgrade}
-              activeOpacity={0.7}
-              disabled={!canUpgrade || isUpgrading}
-            >
-              {isUpgrading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <>
-                  <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
-                  <CustomText type="medium" bold style={styles.upgradeButtonText}>
-                    {canUpgrade
-                      ? t('tier.upgrade_button', '업그레이드')
-                      : t('tier.already_selected', '선택된 티어')}
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              {/* Tabs */}
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              <View style={styles.tabContainer}>
+                {TIER_ORDER.map((tierKey) => {
+                  const tierConfig = TIER_CONFIG[tierKey];
+                  const isActive = tierKey === activeTab;
+                  const isCurrent = tierKey === currentTier;
+
+                  return (
+                    <TouchableOpacity
+                      key={tierKey}
+                      style={[
+                        styles.tab,
+                        isActive && styles.tabActive,
+                        isActive && { borderBottomColor: tierConfig.color },
+                      ]}
+                      onPress={() => {
+                        HapticService.light();
+                        setActiveTab(tierKey);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <CustomText type="medium" style={styles.tabEmoji}>
+                        {tierConfig.emoji}
+                      </CustomText>
+                      <CustomText
+                        type="medium"
+                        bold={isActive}
+                        color={isActive ? COLORS.TEXT_PRIMARY : COLORS.TEXT_SECONDARY}
+                        style={styles.tabText}
+                      >
+                        {tierConfig.name}
+                      </CustomText>
+                      {isCurrent && (
+                        <View style={styles.currentBadge}>
+                          <CustomText type="tiny" bold style={styles.currentBadgeText}>
+                            현재
+                          </CustomText>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              {/* Tab Content */}
+              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+              <View style={[styles.tierCard, { borderColor: activeTierConfig.color }]}>
+                {/* Tier Header */}
+                <View style={styles.tierCardHeader}>
+                  <CustomText type="huge" style={styles.tierCardEmoji}>
+                    {activeTierConfig.emoji}
                   </CustomText>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-          
-          {saving && (
-            <View style={styles.savingOverlay}>
-              <ActivityIndicator size="small" color={COLORS.DEEP_BLUE} />
-              <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8) }}>
-                저장 중...
-              </CustomText>
-            </View>
+                  <View style={{ flex: 1 }}>
+                    <CustomText type="large" bold color={COLORS.TEXT_PRIMARY}>
+                      {activeTierConfig.name}
+                    </CustomText>
+                    <CustomText type="medium" color={COLORS.TEXT_SECONDARY}>
+                      {activeTierConfig.key === 'basic' ? '무료' : getProductPrice(activeTierConfig.key) + '/월'}
+                    </CustomText>
+                  </View>
+                </View>
+
+                {/* Features */}
+                <View style={styles.divider} />
+                <CustomText type="medium" bold color={COLORS.TEXT_PRIMARY} style={{ marginBottom: verticalScale(12) }}>
+                  포함된 기능:
+                </CustomText>
+                {activeTierConfig.features.map((feature, index) => (
+                  <View key={index} style={styles.featureRow}>
+                    <CustomText type="medium" style={styles.featureIcon}>
+                      {feature.icon}
+                    </CustomText>
+                    <CustomText type="medium" color={COLORS.TEXT_PRIMARY} style={styles.featureText}>
+                      {feature.text}
+                    </CustomText>
+                  </View>
+                ))}
+
+                {/* Action Button */}
+                <View style={{ marginTop: verticalScale(20) }}>{renderActionButton()}</View>
+              </View>
+            </>
           )}
-        </Animated.View>
-      </Modal>
-      
-    </>
+        </ScrollView>
+      </Animated.View>
+    </Modal>
   );
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STYLES
-// ═══════════════════════════════════════════════════════════════════════════
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -798,7 +821,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
     borderTopLeftRadius: moderateScale(24),
     borderTopRightRadius: moderateScale(24),
-    maxHeight: '85%',
+    maxHeight: '90%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.3,
@@ -825,131 +848,70 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(59, 130, 246, 0.2)',
   },
-  headerEmoji: {
-    fontSize: moderateScale(32),
-  },
-  headerTitle: {
-    color: COLORS.TEXT_PRIMARY,
-  },
-  headerSubtitle: {
-
-    marginTop: verticalScale(2),
-    marginBottom: verticalScale(20),
-  },
-  
-  
   scrollView: {
     flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: scale(20),
-    paddingTop: verticalScale(16),
-    paddingBottom: verticalScale(100),
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: verticalScale(40),
   },
   scrollContent: {
     paddingHorizontal: platformPadding(20),
     paddingTop: platformPadding(20),
     paddingBottom: platformPadding(20),
   },
-  
-  section: {
-    marginBottom: verticalScale(24),
-  },
-  sectionTitle: {
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: verticalScale(12),
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(40),
   },
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Dropdown
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Current Tier Card
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  currentTierCard: {
     backgroundColor: 'rgba(17, 24, 39, 0.8)',
-    paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(14),
     borderRadius: moderateScale(12),
+    padding: platformPadding(16),
     borderWidth: 2,
+    marginBottom: verticalScale(20),
   },
-  dropdownOpen: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  dropdownSelected: {
+  currentTierHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(12),
   },
-  dropdownEmoji: {
+  currentTierEmoji: {
     fontSize: moderateScale(32),
   },
-  dropdownTextContainer: {
-    gap: verticalScale(2),
-  },
-  dropdownText: {
-    color: COLORS.TEXT_PRIMARY,
-  },
-  dropdownPrice: {
-    color: COLORS.TEXT_SECONDARY,
-  },
-  
-  dropdownOptions: {
-    backgroundColor: 'rgba(17, 24, 39, 0.95)',
-    borderBottomLeftRadius: moderateScale(12),
-    borderBottomRightRadius: moderateScale(12),
-    borderWidth: 2,
-    borderTopWidth: 0,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-    overflow: 'hidden',
-  },
-  dropdownOption: {
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Tabs
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tabContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(14),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderLeftWidth: 3,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: verticalScale(20),
   },
-  dropdownOptionSelected: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-  },
-  dropdownOptionContent: {
+  tab: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(12),
-    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    gap: scale(6),
   },
-  dropdownOptionEmoji: {
-    fontSize: moderateScale(28),
+  tabActive: {
+    borderBottomWidth: 2,
   },
-  dropdownOptionTextContainer: {
-    flex: 1,
-    gap: verticalScale(2),
+  tabEmoji: {
+    fontSize: moderateScale(18),
   },
-  dropdownOptionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(8),
-  },
-  dropdownOptionText: {
-    color: COLORS.TEXT_PRIMARY,
-  },
-  dropdownOptionPrice: {
-    color: COLORS.TEXT_SECONDARY,
+  tabText: {
+    fontSize: moderateScale(14),
   },
   currentBadge: {
     backgroundColor: 'rgba(34, 197, 94, 0.2)',
-    paddingHorizontal: scale(8),
+    paddingHorizontal: scale(6),
     paddingVertical: verticalScale(2),
     borderRadius: moderateScale(6),
   },
@@ -958,139 +920,95 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(10),
   },
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Tier Card
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   tierCard: {
     backgroundColor: 'rgba(17, 24, 39, 0.8)',
     borderRadius: moderateScale(12),
     padding: platformPadding(16),
     borderWidth: 2,
-    gap: verticalScale(12),
+  },
+  tierCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(12),
+    marginBottom: verticalScale(16),
+  },
+  tierCardEmoji: {
+    fontSize: moderateScale(40),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: verticalScale(16),
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(12),
+    marginBottom: verticalScale(10),
   },
   featureIcon: {
     fontSize: moderateScale(20),
   },
   featureText: {
-    color: COLORS.TEXT_PRIMARY,
     flex: 1,
   },
 
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: scale(8),
-  },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: verticalScale(8),
-    paddingHorizontal: scale(12),
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: moderateScale(20),
-    borderWidth: 1,
-    borderColor: COLORS.DIVIDER,
-    gap: scale(6),
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: verticalScale(8),
-    paddingHorizontal: scale(12),
-    backgroundColor: 'transparent',
-    borderRadius: moderateScale(20),
-    borderWidth: 1,
-    borderColor: COLORS.DEEP_BLUE,
-    borderStyle: 'dashed',
-  },
-  footer: {
-    flexDirection: 'row',
-    paddingHorizontal: scale(20),
-    paddingTop: verticalScale(16),
-    borderTopWidth: 1,
-    borderTopColor: COLORS.DIVIDER,
-    gap: scale(12),
-  },
-  resetButton: {
-    flex: 1,
-  },
-  saveButton: {
-    flex: 2,
-  },
-  footer: {
-    flexDirection: 'row',
-    gap: scale(12),
-    paddingHorizontal: platformPadding(20),
-    paddingTop: platformPadding(16),
-    paddingBottom: platformPadding(16),
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  button: {
-    flex: 1,
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Action Button
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: verticalScale(14),
     borderRadius: moderateScale(12),
     gap: scale(8),
-  },
-  cancelButton: {
-    backgroundColor: 'rgba(107, 114, 128, 0.3)',
-    borderWidth: 1,
-    borderColor: 'rgba(156, 163, 175, 0.3)',
-  },
-  cancelButtonText: {
-    color: COLORS.TEXT_PRIMARY,
-  },
-  upgradeButton: {
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
-  upgradeButtonDisabled: {
-    opacity: 0.5,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  upgradeButtonText: {
+  actionButtonText: {
     color: '#FFFFFF',
   },
-  savingOverlay: {
-    position: 'absolute',
-    bottom: verticalScale(100),
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: verticalScale(12),
-    backgroundColor: COLORS.BACKGROUND,
+  cancelButton: {
+    backgroundColor: '#EF4444',
+    shadowColor: '#EF4444',
   },
-  nicknameWarning: {
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Info/Warning/Error Boxes
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  infoBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(12),
-    backgroundColor: '#FF9500' + '15',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderRadius: moderateScale(12),
+    padding: platformPadding(12),
     borderWidth: 1,
-    borderColor: '#FF9500' + '30',
-    marginBottom: verticalScale(12),
+    borderColor: 'rgba(59, 130, 246, 0.3)',
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#1E293B',
-    marginTop: verticalScale(-10),
-    marginBottom: verticalScale(22),
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    borderRadius: moderateScale(12),
+    padding: platformPadding(12),
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: moderateScale(12),
+    padding: platformPadding(12),
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
 });
 

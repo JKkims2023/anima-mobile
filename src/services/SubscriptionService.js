@@ -42,19 +42,22 @@ import {
 /**
  * 구독 상품 ID 목록
  * - Google Play Console & App Store Connect에 등록된 ID와 정확히 일치해야 함!
+ * 
+ * ⚠️ 2026-01-18 업데이트:
+ * - 연간 구독 제거 (복잡도 감소)
+ * - 월간 구독만 지원
+ * 
+ * Before: 4개 (monthly + yearly)
+ * After:  2개 (monthly only)
  */
 export const SUBSCRIPTION_SKUS = Platform.select({
   ios: [
     'premium_monthly',
-    'premium_yearly',
     'ultimate_monthly',
-    'ultimate_yearly',
   ],
   android: [
     'premium_monthly',
-    'premium_yearly',
     'ultimate_monthly',
-    'ultimate_yearly',
   ],
   default: [],
 });
