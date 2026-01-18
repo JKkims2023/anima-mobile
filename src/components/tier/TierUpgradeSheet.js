@@ -42,6 +42,7 @@ import { COLORS } from '../../styles/commonstyles';
 import HapticService from '../../utils/HapticService';
 import { SUBSCRIPTION_ENDPOINTS } from '../../config/api.config';
 import { useAnima } from '../../contexts/AnimaContext';
+import { useUser } from '../../contexts/UserContext';
 import * as SubscriptionService from '../../services/SubscriptionService';
 import apiClient from '../../services/api/apiClient';
 
@@ -118,6 +119,7 @@ const TierUpgradeSheet = ({
   const slideAnim = useRef(new Animated.Value(1000)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const { showAlert } = useAnima();
+  const { refreshUser } = useUser(); // ⚡ NEW: User info refresh
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // States
@@ -270,7 +272,18 @@ const TierUpgradeSheet = ({
       console.log('[TierUpgrade] ✅ Acknowledging purchase...');
       await SubscriptionService.acknowledgeSubscription(purchase);
 
-      // 5. Success!
+      console.log('[TierUpgrade] ✅ Purchase acknowledged!');
+
+      // 5. Refresh User Info
+      console.log('[TierUpgrade] 🔄 Refreshing user info...');
+      try {
+        await refreshUser();
+        console.log('[TierUpgrade] ✅ User info refreshed!');
+      } catch (refreshError) {
+        console.error('[TierUpgrade] ⚠️ User info refresh failed (non-critical):', refreshError);
+      }
+
+      // 6. Success!
       HapticService.success();
 
       showAlert({
@@ -361,6 +374,15 @@ const TierUpgradeSheet = ({
                 throw new Error('Cancellation failed');
               }
 
+              // ⚡ Refresh User Info
+              console.log('[TierUpgrade] 🔄 Refreshing user info after cancellation...');
+              try {
+                await refreshUser();
+                console.log('[TierUpgrade] ✅ User info refreshed!');
+              } catch (refreshError) {
+                console.error('[TierUpgrade] ⚠️ User info refresh failed (non-critical):', refreshError);
+              }
+
               HapticService.success();
 
               showAlert({
@@ -395,7 +417,7 @@ const TierUpgradeSheet = ({
         },
       ],
     });
-  }, [subscriptionData, userKey, showAlert, loadData]);
+  }, [subscriptionData, userKey, showAlert, loadData, refreshUser]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render Action Button (Tab-specific)
