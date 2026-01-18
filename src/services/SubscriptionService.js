@@ -127,19 +127,29 @@ export async function loadSubscriptions() {
     console.log('[Subscription] Raw subscriptions:', subscriptions);
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // Normalize: Extract localizedPrice from different structures
+    // Normalize: Extract localizedPrice & offerToken from different structures
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     const normalizedSubscriptions = subscriptions.map(sub => {
       let localizedPrice = null;
+      let offerToken = null; // ✅ NEW: For Android subscriptionOffers
       
       if (Platform.OS === 'android') {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // Android: New structure (react-native-iap v12+)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // Path: subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0].formattedPrice
+        // Path: subscriptionOfferDetails[0].offerToken ← ✅ IMPORTANT!
         try {
           if (sub.subscriptionOfferDetails && sub.subscriptionOfferDetails.length > 0) {
             const offerDetails = sub.subscriptionOfferDetails[0];
+            
+            // Extract offerToken ✅
+            if (offerDetails.offerToken) {
+              offerToken = offerDetails.offerToken;
+              console.log(`[Subscription] ✅ Android offerToken for ${sub.productId}:`, offerToken.substring(0, 20) + '...');
+            }
+            
+            // Extract price
             if (offerDetails.pricingPhases && offerDetails.pricingPhases.pricingPhaseList) {
               const pricingPhase = offerDetails.pricingPhases.pricingPhaseList[0];
               if (pricingPhase && pricingPhase.formattedPrice) {
@@ -149,13 +159,14 @@ export async function loadSubscriptions() {
             }
           }
         } catch (error) {
-          console.error(`[Subscription] ❌ Failed to extract Android price for ${sub.productId}:`, error);
+          console.error(`[Subscription] ❌ Failed to extract Android data for ${sub.productId}:`, error);
         }
       } else if (Platform.OS === 'ios') {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // iOS: Legacy structure
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // Path: localizedPrice
+        // Note: iOS doesn't need offerToken for requestSubscription
         localizedPrice = sub.localizedPrice;
         console.log(`[Subscription] ✅ iOS price for ${sub.productId}:`, localizedPrice);
       }
@@ -174,6 +185,7 @@ export async function loadSubscriptions() {
       return {
         ...sub,
         localizedPrice, // ✅ Normalized field!
+        offerToken,     // ✅ NEW: For Android subscriptionOffers
       };
     });
     
@@ -200,7 +212,8 @@ export async function loadSubscriptions() {
  * 
  * ⚠️ CRITICAL: requestSubscription (NOT requestPurchase!)
  * 
- * @param {string} sku - 구독 상품 ID (e.g. 'premium_monthly')
+ * @param {string} sku - 구독 상품 ID (e.g. 'premium')
+ * @param {string} offerToken - Android용 offerToken (선택)
  * @returns {Promise<Object>} 구매 정보
  * 
  * @throws {Error} 구매 실패 시
@@ -210,19 +223,37 @@ export async function loadSubscriptions() {
  * - Already subscribed
  * 
  * @example
- * const purchase = await requestSubscription('premium_monthly');
+ * // Android
+ * const purchase = await requestSubscription('premium', offerToken);
+ * 
+ * // iOS
+ * const purchase = await requestSubscription('premium');
  */
-export async function requestSubscription(sku) {
+export async function requestSubscription(sku, offerToken = null) {
   try {
     console.log('[Subscription] 🛒 Requesting subscription:', sku);
     console.log('[Subscription] Platform:', Platform.OS);
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Build request parameters
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const requestParams = { sku };
+    
+    // ✅ Android: subscriptionOffers required!
+    if (Platform.OS === 'android' && offerToken) {
+      requestParams.subscriptionOffers = [
+        {
+          sku,
+          offerToken,
+        },
+      ];
+      console.log('[Subscription] ✅ Android subscriptionOffers:', requestParams.subscriptionOffers);
+    }
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // ⚠️ NOTE: requestSubscription (NOT requestPurchase!)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const purchase = await RNIapRequestSubscription({
-      sku,
-    });
+    const purchase = await RNIapRequestSubscription(requestParams);
     
     console.log('[Subscription] ✅ Purchase successful');
     console.log('[Subscription] Purchase ID:', purchase?.productId);

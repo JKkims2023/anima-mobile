@@ -229,8 +229,17 @@ const TierUpgradeSheet = ({
       const productId = tierKey; // 'premium' or 'ultimate'
       console.log('[TierUpgrade] 🛒 Starting subscription:', productId);
 
-      // 1. Request Subscription
-      const purchase = await SubscriptionService.requestSubscription(productId);
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // Find product and extract offerToken (Android)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const product = products.find(p => p.productId === productId);
+      const offerToken = product?.offerToken || null;
+
+      console.log('[TierUpgrade] Product:', product?.productId);
+      console.log('[TierUpgrade] OfferToken:', offerToken ? offerToken.substring(0, 20) + '...' : 'null');
+
+      // 1. Request Subscription (with offerToken for Android)
+      const purchase = await SubscriptionService.requestSubscription(productId, offerToken);
 
       if (!purchase) {
         throw new Error('Purchase cancelled');
