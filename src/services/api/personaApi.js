@@ -337,6 +337,7 @@ export const updatePersonaDress = async (personaKey, dressData) => {
       selected_dress_image_url: dressData.media_url,
       selected_dress_video_url: dressData.video_url,
       history_key: dressData.memory_key,
+      user_key: dressData.user_key,
     });
 
 

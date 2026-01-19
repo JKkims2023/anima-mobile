@@ -28,7 +28,8 @@ import { useAnima } from '../../contexts/AnimaContext';
 import { useTheme } from '../../contexts/ThemeContext'; // ⭐ NEW: For progress bar color
 import PersonaIdentitySheet from './PersonaIdentitySheet'; // ⭐ NEW: Identity sheet
 import RelationshipChipsContainer from './RelationshipChipsContainer'; // ⭐ NEW: Relationship chips
-import ChipDetailSheet from './ChipDetailSheet'; // ⭐ NEW: Chip detail sheet
+import ChipDetailSheet from './ChipDetailSheet'; // ⭐ OLD: Chip detail sheet (deprecated for emotion)
+import EmotionDetailSheet from './chipSheets/EmotionDetailSheet'; // 😊 NEW (2026-01-19): Emotion detail sheet
 import EmotionFloatingEffect from './EmotionFloatingEffect'; // ⭐ NEW: Floating effect at card level
 /**
  * PersonaInfoCard Component (⚡ OPTIMIZED: Relationship data from persona!)
@@ -56,6 +57,9 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   
   // ⭐ NEW: Selected chip for detail sheet (lifted state)
   const [selectedChip, setSelectedChip] = useState(null);
+  
+  // 😊 NEW (2026-01-19): Emotion detail sheet state
+  const [showEmotionDetail, setShowEmotionDetail] = useState(false);
   
   // ⭐ NEW: Screen focus state (for emotion animation)
   const [isFocused, setIsFocused] = useState(true);
@@ -190,6 +194,14 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
     }
 
+    // 😊 NEW (2026-01-19): Emotion chip → Open EmotionDetailSheet
+    if (chipKey === 'emotion') {
+      console.log('😊 [PersonaInfoCard] Opening EmotionDetailSheet');
+      setShowEmotionDetail(true);
+      return;
+    }
+
+    // OLD: lastInteraction special handling
     if(chipKey === 'lastInteraction') {
 
       if(!chipData){
@@ -252,7 +264,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
               paddingTop: insets.top + verticalScale(10), // ⭐ iOS Safe Area (original, correct!)
             }
           ]}
-          onPress={handleSettingsPress}
+
           activeOpacity={showScrollToTop ? 0.7 : 1} // Only show press effect when clickable
           disabled={!showScrollToTop}
         >
@@ -290,7 +302,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
           </View>
         </Pressable>
       )}
-      <Pressable onPress={handleSettingsPress}>
+      <Pressable >
         <View style={styles.content}>
           {/* Left: Info */}
           <View style={styles.infoSection}>
@@ -299,7 +311,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
               <CustomText type="big" style={styles.name} numberOfLines={1}>
                 {persona.persona_name}
               </CustomText>
-              <CustomText type="middle" style={[ { fontStyle: 'italic', marginLeft: scale(-15)}]} numberOfLines={1}>
+              <CustomText type="title" style={[ { fontStyle: 'italic', marginLeft: scale(-15)}]} numberOfLines={1}>
               {persona?.persona_key === '573db390-a505-4c9e-809f-cc511c235cbb' ? 
               t('persona_info.sage.title') : 
               persona?.persona_key === 'af444146-e796-468c-8e2c-0daf4f9b9248' ? 
@@ -307,12 +319,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
               t('persona_info.custom.title')}
               </CustomText>
               {/* Settings Icon (Only for user-created personas) */}
-              <Icon 
-                name="settings" 
-                size={scale(20)} 
-                color="#FFFFFF" 
-                style={{ marginLeft: scale(-10)}} 
-              />
+              
             </View>
             {/* ⭐ NEW: Relationship Chips (Living Emotions!) - ⚡ OPTIMIZED: No API calls! */}
             {true && (
@@ -391,9 +398,9 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       onSave={handleIdentitySave}
     />
 
-    {/* ⭐ NEW: Chip Detail Bottom Sheet (Living Emotions!) */}
+    {/* ⭐ OLD: Chip Detail Bottom Sheet (deprecated for emotion) */}
     <ChipDetailSheet
-      isOpen={!!selectedChip}
+      isOpen={!!selectedChip && selectedChip?.key !== 'emotion'}
       onClose={() => {
         console.log('❌ [PersonaInfoCard] Closing chip detail sheet');
         setSelectedChip(null);
@@ -401,6 +408,17 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       chipKey={selectedChip?.key}
       chipData={selectedChip?.data}
       persona={persona}
+    />
+    
+    {/* 😊 NEW (2026-01-19): Emotion Detail Bottom Sheet */}
+    <EmotionDetailSheet
+      isOpen={showEmotionDetail}
+      onClose={() => {
+        console.log('❌ [PersonaInfoCard] Closing emotion detail sheet');
+        setShowEmotionDetail(false);
+      }}
+      persona={persona}
+      user_key={user?.user_key}
     />
     </>
   );

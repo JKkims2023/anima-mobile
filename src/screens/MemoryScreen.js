@@ -53,6 +53,7 @@ import { scale, verticalScale, moderateScale, platformPadding } from '../utils/r
 import { COLORS } from '../styles/commonstyles';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
+import Video from 'react-native-video';
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -472,7 +473,22 @@ const MemoryScreen = () => {
 
     return (
       <View style={styles.emptyContainer}>
-        <Icon name="gift-outline" size={scale(64)} color={currentTheme.textSecondary} />
+        <Icon name="gift-outline" size={scale(64)} color={currentTheme.textSecondary} style={{ display: 'none' }} />
+        <View style={{ flex: 1, width: '100%', alignItems: 'center'}}>
+          <View style={{ width: scale(160), height: scale(160), borderRadius: scale(320), overflow: 'hidden', alignSelf:'center' }}>
+          <Video
+            source={{ uri: 'https://babi-cdn.logbrix.ai/babi/real/babi/56216927-7bb8-42f1-8d72-d22d5107e37f_00001_.mp4' }}
+            style={{ width: 
+              '100%',
+              height: '100%',
+
+             }}
+            resizeMode="cover"
+            repeat={true}
+
+          />
+          </View>
+        </View>
         <CustomText type="middle" bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
           {searchQuery ? t('gift.title_no_results') : t('gift.title_empty')}
         </CustomText>
@@ -577,7 +593,7 @@ const MemoryScreen = () => {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
-                refreshing={isRefreshing}
+                refreshing={isRefreshing && isLoading}
                 onRefresh={handleRefresh}
                 tintColor={COLORS.neonBlue}
                 colors={[COLORS.neonBlue]}
@@ -800,9 +816,11 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(100),
     height: '100%',
 
+
   },
   emptyTitle: {
     textAlign: 'center',
+    marginTop: verticalScale(20),
   },
   emptySubtitle: {
     textAlign: 'center',

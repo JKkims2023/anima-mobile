@@ -958,4 +958,3 @@ const arePropsEqual = (prevProps, nextProps) => {
 };
 
 export default memo(PersonaCardView, arePropsEqual);
-

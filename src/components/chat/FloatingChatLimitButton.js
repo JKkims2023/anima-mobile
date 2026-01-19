@@ -231,6 +231,7 @@ const FloatingChatLimitButton = ({
     },
     tooltipContent: {
       backgroundColor: 'rgba(0, 0, 0, 0.92)',
+      backgroundColor:'red',
       borderRadius: scale(12),
       borderWidth: 1.5,
       paddingHorizontal: scale(14),

@@ -89,6 +89,7 @@ export const PERSONA_ENDPOINTS = {
   RELATIONSHIP_STATUS: API_BASE_URL + '/api/anima/persona/relationship-status',
   UPDATE_COMMENT_CHECKED: API_BASE_URL + '/api/persona/mark-comment-read',
   HEART_DISPLAY: API_BASE_URL + '/api/persona/heart-display', // 💖 Real-time heart display data
+  EMOTION_STATS: API_BASE_URL + '/api/persona/emotion-stats', // 😊 Emotion statistics (2026-01-19)
 };
 
 /**

@@ -241,6 +241,7 @@ const RelationshipChipsContainer = React.memo(({
       label: `${getRelationshipPercentage(chips.relationship?.level)}%`,
       emoji: '🔥',
     },
+    /*
     {
       key: 'trust',
       data: chips.trust,
@@ -253,6 +254,7 @@ const RelationshipChipsContainer = React.memo(({
       label: chips.lastInteraction ? formatTimeAgo(chips.lastInteraction.timestamp) : 'N/A',
       emoji: '⏱️',
     },
+    */
   ];
     
   return (

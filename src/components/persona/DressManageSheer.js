@@ -411,12 +411,14 @@ const DressManageSheer = ({
               console.log('  selected_dress_image_url:', dress.media_url);
               console.log('  selected_dress_video_url:', dress.video_url);
               console.log('  history_key:', dress.memory_key);
+              console.log('  user_key:', user?.user_key);
               
               // ⭐ API call to update persona_persona_main
               const result = await updatePersonaDress(personaKey, {
                 media_url: dress.media_url,
                 video_url: dress.video_url,
                 memory_key: dress.memory_key,
+                user_key: user?.user_key,
               });
               
               if (result.success) {
@@ -499,9 +501,13 @@ const DressManageSheer = ({
   const renderDress = useCallback(({ item, index }) => {
     console.log('[DressManageSheer] 🎨 Rendering dress:', item.memory_key, item.media_url, 'done_yn:', item.done_yn);
     
+    /*
     // Check if this dress is currently equipped
     const isEquipped = currentPersona?.selected_dress_image_url === item.media_url ||
                        currentPersona?.history_key === item.memory_key;
+    */
+
+    const isEquipped = currentPersona?.history_key === item.memory_key;
     
     // Check if this dress is still being created
     const isCreating = item.done_yn === 'N';
