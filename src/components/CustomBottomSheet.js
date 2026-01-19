@@ -416,14 +416,12 @@ const CustomBottomSheet = forwardRef((props, ref) => {
         contentContainerStyle={[
           styles.contentContainer,
           contentContainerStyle,
-          { paddingBottom: insets.bottom + footerHeight, marginBottom: 1000  }
-
+          { paddingBottom: footerHeight + platformPadding(20) } // ✅ 버튼 위까지만 스크롤!
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {children}
- 
       </BottomSheetScrollView>
     </BottomSheetModal>
   );
