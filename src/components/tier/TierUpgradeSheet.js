@@ -46,60 +46,12 @@ import { useUser } from '../../contexts/UserContext';
 import * as SubscriptionService from '../../services/SubscriptionService';
 import apiClient from '../../services/api/apiClient';
 
+
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 🎖️ TIER CONFIGURATION
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const TIER_CONFIG = {
-  basic: {
-    key: 'basic',
-    name: 'Basic',
-    emoji: '🌟',
-    color: '#9CA3AF', // Gray
-    gradient: ['#6B7280', '#9CA3AF'],
-    price: '무료',
-    features: [
-      { icon: '💬', text: '일일 채팅 20회' },
-      { icon: '🎭', text: '페르소나 생성 1개' },
-      { icon: '👗', text: '드레스 생성 제한' },
-      { icon: '🎵', text: '음악 생성 제한' },
-      { icon: '📱', text: '기본 기능 사용' },
-    ],
-  },
-  premium: {
-    key: 'premium',
-    name: 'Premium',
-    emoji: '💎',
-    color: '#3B82F6', // Blue
-    gradient: ['#2563EB', '#3B82F6'],
-    price: '₩9,900/월',
-    features: [
-      { icon: '💬', text: '일일 채팅 100회' },
-      { icon: '🎭', text: '페르소나 생성 5개' },
-      { icon: '👗', text: '드레스 무제한 생성' },
-      { icon: '🎵', text: '음악 생성 월 10회' },
-      { icon: '🎬', text: '비디오 변환 할인' },
-      { icon: '✨', text: '프리미엄 기능 우선 체험' },
-    ],
-  },
-  ultimate: {
-    key: 'ultimate',
-    name: 'Ultimate',
-    emoji: '👑',
-    color: '#8B5CF6', // Purple
-    gradient: ['#7C3AED', '#8B5CF6'],
-    price: '₩19,900/월',
-    features: [
-      { icon: '💬', text: '일일 채팅 무제한' },
-      { icon: '🎭', text: '페르소나 생성 10개' },
-      { icon: '👗', text: '드레스 무제한 생성' },
-      { icon: '🎵', text: '음악 생성 무제한' },
-      { icon: '🎬', text: '비디오 변환 무료' },
-      { icon: '🚀', text: '최신 AI 모델 우선 적용' },
-      { icon: '💝', text: '특별 이벤트 초대' },
-    ],
-  },
-};
 
 const TIER_ORDER = ['basic', 'premium', 'ultimate'];
 
@@ -130,6 +82,53 @@ const TierUpgradeSheet = ({
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [serviceData, setServiceData] = useState(null);
+
+
+  const TIER_CONFIG = {
+    basic: {
+      key: 'basic',
+      name: 'Basic',
+      emoji: '🌟',
+      color: '#9CA3AF', // Gray
+      gradient: ['#6B7280', '#9CA3AF'],
+      price: '무료',
+      features: [
+        { icon: '💬', text: t('tier_sheet.daily_chat_limit', { count: serviceData?.daily_chat_limit_basic }) },
+        { icon: '🎭', text: t('tier_sheet.persona_limit', { count: serviceData?.limit_persona_count_basic }) },
+        { icon: '🖌️', text: t('tier_sheet.persona_create_limit', { count: serviceData?.limit_persona_create_count_basic }) },
+        { icon: '✉️', text: t('tier_sheet.message_limit', { count: serviceData?.daily_create_message_limit_basic }) },
+      ],
+    },
+    premium: {
+      key: 'premium',
+      name: 'Premium',
+      emoji: '💎',
+      color: '#3B82F6', // Blue
+      gradient: ['#2563EB', '#3B82F6'],
+      price: '₩9,900/월',
+      features: [
+        { icon: '💬', text: t('tier_sheet.daily_chat_limit', { count: serviceData?.daily_chat_limit_premium }) },
+        { icon: '🎭', text: t('tier_sheet.persona_limit', { count: serviceData?.limit_persona_count_premium }) },
+        { icon: '🖌️', text: t('tier_sheet.persona_create_limit', { count: serviceData?.limit_persona_create_count_premium }) },
+        { icon: '✉️', text: t('tier_sheet.message_limit', { count: serviceData?.daily_create_message_limit_premium }) },
+      ],
+    },
+    ultimate: {
+      key: 'ultimate',
+      name: 'Ultimate',
+      emoji: '👑',
+      color: '#8B5CF6', // Purple
+      gradient: ['#7C3AED', '#8B5CF6'],
+      price: '₩19,900/월',
+      features: [
+        { icon: '💬', text: t('tier_sheet.daily_chat_limit', { count: serviceData?.daily_chat_limit_ultimate }) },
+        { icon: '🎭', text: t('tier_sheet.persona_limit', { count: serviceData?.limit_persona_count_ultimate }) },
+        { icon: '🖌️', text: t('tier_sheet.persona_create_limit', { count: serviceData?.limit_persona_create_count_ultimate }) },
+        { icon: '✉️', text: t('tier_sheet.message_limit', { count: serviceData?.daily_create_message_limit_ultimate }) },
+      ],
+    },
+  };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Effective Current Tier (서버 데이터 우선!)
@@ -196,6 +195,8 @@ const TierUpgradeSheet = ({
           setSubscriptionStatus(null);
           setActiveTab('basic');
         }
+        setServiceData(statusResponse?.data?.data?.service);
+
       } else {
         // No user key
         console.log('[TierUpgrade] ⚠️ No userKey provided');
@@ -203,13 +204,14 @@ const TierUpgradeSheet = ({
         setSubscriptionStatus(null);
         setActiveTab('basic');
       }
+
     } catch (error) {
-      console.error('[TierUpgrade] Failed to load data:', error);
+      console.log('[TierUpgrade] Failed to load data:', error);
       showAlert({
         emoji: '⚠️',
-        title: '데이터 로딩 실패',
-        message: '구독 정보를 불러올 수 없습니다.',
-        buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
+        title: (t('tier_sheet.loading_failed_title')),
+        message: (t('tier_sheet.loading_failed_message')),
+        buttons: [{ text: (t('common.confirm')), style: 'primary', onPress: () => {} }],
       });
     } finally {
       setLoadingProducts(false);
@@ -231,8 +233,8 @@ const TierUpgradeSheet = ({
     }
 
     // Fallback
-    return TIER_CONFIG[tierKey]?.price || '로딩 중...';
-  }, [products]);
+    return TIER_CONFIG[tierKey]?.price || (t('tier_sheet.loading'));
+  }, [products, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle Subscribe
@@ -303,11 +305,11 @@ const TierUpgradeSheet = ({
 
       showAlert({
         emoji: '🎉',
-        title: '구독 완료!',
-        message: `${TIER_CONFIG[tierKey].name} 티어로 업그레이드되었습니다!`,
+        title: (t('tier_sheet.subscription_completed_title')),
+        message: (t('tier_sheet.subscription_completed_message', { tier: TIER_CONFIG[tierKey].name })),
         buttons: [
           {
-            text: '확인',
+            text: (t('common.confirm')),
             style: 'primary',
             onPress: () => {
               // Reload data
@@ -325,28 +327,28 @@ const TierUpgradeSheet = ({
         ],
       });
     } catch (error) {
-      console.error('❌ [TierUpgrade] Subscribe failed:', error);
+      console.log('❌ [TierUpgrade] Subscribe failed:', error);
       HapticService.error();
 
-      let errorMessage = '구독에 실패했습니다';
+      let errorMessage = (t('tier_sheet.subscription_failed_message'));
 
       if (error.message === 'Purchase cancelled' || error.message === 'User cancelled') {
         // User cancelled - no need to show error
         console.log('[TierUpgrade] User cancelled purchase');
         return;
       } else if (error.message === 'Already subscribed') {
-        errorMessage = '이미 구독 중입니다. 설정에서 구독 관리를 확인해주세요.';
+        errorMessage = (t('tier_sheet.subscription_already_subscribed_message'));
       } else if (error.message === 'Network error') {
-        errorMessage = '네트워크 오류가 발생했습니다. 연결을 확인해주세요.';
+        errorMessage = (t('tier_sheet.subscription_network_error_message'));
       } else if (error.message === 'Product not available') {
-        errorMessage = '상품을 사용할 수 없습니다. 나중에 다시 시도해주세요.';
+        errorMessage = (t('tier_sheet.subscription_product_not_available_message'));
       }
 
       showAlert({
         emoji: '❌',
-        title: '구독 실패',
+        title: (t('tier_sheet.subscription_failed_title')),
         message: errorMessage,
-        buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
+        buttons: [{ text: (t('common.confirm')), style: 'primary', onPress: () => {} }],
       });
     } finally {
       setIsProcessing(false);
@@ -365,16 +367,16 @@ const TierUpgradeSheet = ({
 
     showAlert({
       emoji: '⚠️',
-      title: '구독을 취소하시겠습니까?',
-      message: `만료일(${expiryDate})까지 현재 티어를 사용할 수 있습니다.\n\n취소 후에는 더 낮은 티어로 변경할 수 없습니다.`,
+      title: (t('tier_sheet.subscription_cancel_title')),
+      message: t('tier_sheet.subscription_cancel_message', { expiryDate: expiryDate }),
       buttons: [
         {
-          text: '아니오',
+          text: (t('common.cancel')),
           style: 'cancel',
           onPress: () => {},
         },
         {
-          text: '예, 취소합니다',
+          text: (t('common.confirm')),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -402,11 +404,11 @@ const TierUpgradeSheet = ({
 
               showAlert({
                 emoji: '✅',
-                title: '구독 취소 완료',
-                message: `만료일(${expiryDate})까지 현재 티어를 사용할 수 있습니다.`,
+                title: (t('tier_sheet.subscription_cancel_completed_title')),
+                message: (t('tier_sheet.subscription_cancel_completed_message', { expiryDate: expiryDate })),
                 buttons: [
                   {
-                    text: '확인',
+                    text: (t('common.confirm')),
                     style: 'primary',
                     onPress: () => {
                       // Reload data
@@ -421,9 +423,9 @@ const TierUpgradeSheet = ({
 
               showAlert({
                 emoji: '❌',
-                title: '취소 실패',
-                message: error.message || '구독 취소에 실패했습니다.',
-                buttons: [{ text: '확인', style: 'primary', onPress: () => {} }],
+                title: (t('tier_sheet.subscription_cancel_failed_title')),
+                message: error.message || (t('tier_sheet.subscription_cancel_failed_message')),
+                buttons: [{ text: (t('common.confirm')), style: 'primary', onPress: () => {} }],
               });
             } finally {
               setIsProcessing(false);
@@ -449,7 +451,7 @@ const TierUpgradeSheet = ({
           <View style={styles.infoBox}>
             <Icon name="information" size={moderateScale(20)} color={COLORS.TEXT_SECONDARY} />
             <CustomText type="small" color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8), flex: 1 }}>
-              무료 티어입니다. Premium 또는 Ultimate로 업그레이드하세요!
+              {t('tier_sheet.basic_description')}
             </CustomText>
           </View>
         );
@@ -458,8 +460,7 @@ const TierUpgradeSheet = ({
           <View style={styles.warningBox}>
             <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
             <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
-              ⚠️ Basic으로 다운그레이드할 수 없습니다.{'\n'}
-              구독을 취소하면 만료일 이후 자동으로 Basic으로 변경됩니다.
+              {t('tier_sheet.basic_downgrade_not_allowed_message')}
             </CustomText>
           </View>
         );
@@ -485,7 +486,7 @@ const TierUpgradeSheet = ({
               <>
                 <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
                 <CustomText type="medium" bold style={styles.actionButtonText}>
-                  구독하기 ({getProductPrice('premium')}/월)
+                  {t('tier_sheet.subscribe_button', { price: getProductPrice('premium') })}
                 </CustomText>
               </>
             )}
@@ -508,7 +509,7 @@ const TierUpgradeSheet = ({
                 <>
                   <Icon name="close-circle" size={moderateScale(20)} color="#FFFFFF" />
                   <CustomText type="medium" bold style={styles.actionButtonText}>
-                    구독 취소
+                    {t('tier_sheet.subscription_cancel_button')}
                   </CustomText>
                 </>
               )}
@@ -521,8 +522,7 @@ const TierUpgradeSheet = ({
             <View style={styles.warningBox}>
               <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
               <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
-                ⚠️ 구독이 취소되었습니다.{'\n'}
-                {expiryDate}까지 사용 가능합니다.
+                {t('tier_sheet.subscription_cancelled_message', { expiryDate: expiryDate })}
               </CustomText>
             </View>
           );
@@ -536,8 +536,7 @@ const TierUpgradeSheet = ({
             <View style={styles.errorBox}>
               <Icon name="cancel" size={moderateScale(20)} color="#EF4444" />
               <CustomText type="small" color="#EF4444" style={{ marginLeft: scale(8), flex: 1 }}>
-                ❌ 취소된 구독이 만료되기 전까지는 다운그레이드할 수 없습니다.{'\n'}
-                만료일: {expiryDate} 이후 Basic으로 변경됩니다.
+                {t('tier_sheet.subscription_cancelled_not_allowed_message')}
               </CustomText>
             </View>
           );
@@ -546,8 +545,7 @@ const TierUpgradeSheet = ({
             <View style={styles.warningBox}>
               <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
               <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
-                ⚠️ Premium으로 다운그레이드할 수 없습니다.{'\n'}
-                구독을 취소하면 만료일 이후 자동으로 Basic으로 변경됩니다.
+                {t('tier_sheet.premium_downgrade_not_allowed_message')}
               </CustomText>
             </View>
           );
@@ -574,7 +572,7 @@ const TierUpgradeSheet = ({
               <>
                 <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
                 <CustomText type="medium" bold style={styles.actionButtonText}>
-                  구독하기 ({getProductPrice('ultimate')}/월)
+                  {t('tier_sheet.subscribe_button', { price: getProductPrice('ultimate') })}
                 </CustomText>
               </>
             )}
@@ -595,7 +593,7 @@ const TierUpgradeSheet = ({
               <>
                 <Icon name="arrow-up-circle" size={moderateScale(20)} color="#FFFFFF" />
                 <CustomText type="medium" bold style={styles.actionButtonText}>
-                  Ultimate로 업그레이드 ({getProductPrice('ultimate')}/월)
+                  {t('tier_sheet.upgrade_ulimate_button', { price: getProductPrice('ultimate') })}
                 </CustomText>
               </>
             )}
@@ -618,7 +616,7 @@ const TierUpgradeSheet = ({
                 <>
                   <Icon name="close-circle" size={moderateScale(20)} color="#FFFFFF" />
                   <CustomText type="medium" bold style={styles.actionButtonText}>
-                    구독 취소
+                    {t('tier_sheet.subscription_cancel_button')}
                   </CustomText>
                 </>
               )}
@@ -631,8 +629,7 @@ const TierUpgradeSheet = ({
             <View style={styles.warningBox}>
               <Icon name="alert-circle" size={moderateScale(20)} color={COLORS.WARNING} />
               <CustomText type="small" color={COLORS.WARNING} style={{ marginLeft: scale(8), flex: 1 }}>
-                ⚠️ 구독이 취소되었습니다.{'\n'}
-                {expiryDate}까지 사용 가능합니다.
+                {t('tier_sheet.subscription_cancelled_message', { expiryDate: expiryDate })}
               </CustomText>
             </View>
           );
@@ -729,7 +726,7 @@ const TierUpgradeSheet = ({
         <View style={styles.header}>
           <View>
             <CustomText type="title" bold color={COLORS.TEXT_PRIMARY}>
-              🎖️ 티어 업그레이드
+              {t('tier_sheet.title')}
             </CustomText>
           </View>
 
@@ -744,7 +741,7 @@ const TierUpgradeSheet = ({
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={COLORS.DEEP_BLUE} />
               <CustomText size="sm" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(12) }}>
-                불러오는 중...
+                {t('tier_sheet.loading')}
               </CustomText>
             </View>
           ) : (
@@ -759,24 +756,24 @@ const TierUpgradeSheet = ({
                   </CustomText>
                   <View style={{ flex: 1 }}>
                     <CustomText type="medium" bold color={COLORS.TEXT_PRIMARY}>
-                      현재 티어: {currentTierConfig.name}
+                      {t('tier_sheet.now_tier', { name: currentTierConfig.name })}
                     </CustomText>
                     {subscriptionData && (
                       <>
                         <CustomText type="small" color={subscriptionStatus === 'active' ? '#22C55E' : COLORS.WARNING} style={{ marginTop: verticalScale(4) }}>
-                          {subscriptionStatus === 'active' ? '✅ 구독 활성화' : '⚠️ 구독 취소됨'}
+                          {subscriptionStatus === 'active' ? t('tier_sheet.subscription_active') : t('tier_sheet.subscription_cancelled')}
                         </CustomText>
                         <CustomText type="small" color={COLORS.TEXT_SECONDARY}>
-                          만료일: {new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR')} ({subscriptionData.days_remaining}일 남음)
+                          {t('tier_sheet.expiry_date')}: {new Date(subscriptionData.expiry_date).toLocaleDateString('ko-KR')} ({t('tier_sheet.days_remaining', { days: subscriptionData.days_remaining })})
                         </CustomText>
                         <CustomText type="small" color={COLORS.TEXT_SECONDARY}>
-                          자동 갱신: {subscriptionData.auto_renew ? '활성화 ✅' : '비활성화 ❌'}
+                          {t('tier_sheet.auto_renew')}: {subscriptionData.auto_renew ? t('tier_sheet.subscription_active') : t('tier_sheet.subscription_cancelled')}
                         </CustomText>
                       </>
                     )}
                     {!subscriptionData && (
                       <CustomText type="small" color={COLORS.TEXT_SECONDARY} style={{ marginTop: verticalScale(4) }}>
-                        무료 티어입니다. 프리미엄 구독으로 더 많은 기능을 이용하세요!
+                        {t('tier_sheet.basic_description')}
                       </CustomText>
                     )}
                   </View>
@@ -806,21 +803,21 @@ const TierUpgradeSheet = ({
                       }}
                       activeOpacity={0.7}
                     >
-                      <CustomText type="medium" style={styles.tabEmoji}>
+                      <CustomText type="medium" style={[styles.tabEmoji, {display: 'none'}]}>
                         {tierConfig.emoji}
                       </CustomText>
                       <CustomText
-                        type="medium"
+                        type="title"
                         bold={isActive}
                         color={isActive ? COLORS.TEXT_PRIMARY : COLORS.TEXT_SECONDARY}
                         style={styles.tabText}
                       >
                         {tierConfig.name}
                       </CustomText>
-                      {isCurrent && (
+                      {false && (
                         <View style={styles.currentBadge}>
                           <CustomText type="tiny" bold style={styles.currentBadgeText}>
-                            현재
+                            {t('tier_sheet.now')}
                           </CustomText>
                         </View>
                       )}
@@ -838,12 +835,12 @@ const TierUpgradeSheet = ({
                   <CustomText type="huge" style={styles.tierCardEmoji}>
                     {activeTierConfig.emoji}
                   </CustomText>
-                  <View style={{ flex: 1 }}>
-                    <CustomText type="large" bold color={COLORS.TEXT_PRIMARY}>
+                  <View style={{ flex: 1, flexDirection:'row' }}>
+                    <CustomText type="title" bold color={COLORS.TEXT_PRIMARY}>
                       {activeTierConfig.name}
                     </CustomText>
-                    <CustomText type="medium" color={COLORS.TEXT_SECONDARY}>
-                      {activeTierConfig.key === 'basic' ? '무료' : getProductPrice(activeTierConfig.key) + '/월'}
+                    <CustomText type="title" bold color={COLORS.TEXT_SECONDARY} style={{ marginLeft: scale(8) }}>
+                      ({activeTierConfig.key === 'basic' ? '무료' : getProductPrice(activeTierConfig.key) + '/월'})
                     </CustomText>
                   </View>
                 </View>
@@ -851,7 +848,7 @@ const TierUpgradeSheet = ({
                 {/* Features */}
                 <View style={styles.divider} />
                 <CustomText type="medium" bold color={COLORS.TEXT_PRIMARY} style={{ marginBottom: verticalScale(12) }}>
-                  포함된 기능:
+                  {t('tier_sheet.included_features')}
                 </CustomText>
                 {activeTierConfig.features.map((feature, index) => (
                   <View key={index} style={styles.featureRow}>
@@ -959,6 +956,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: verticalScale(20),
+    marginTop: verticalScale(-16),
   },
   tab: {
     flex: 1,
@@ -977,7 +975,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(18),
   },
   tabText: {
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(16),
   },
   currentBadge: {
     backgroundColor: 'rgba(34, 197, 94, 0.2)',
@@ -1006,7 +1004,8 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(16),
   },
   tierCardEmoji: {
-    fontSize: moderateScale(40),
+    fontSize: moderateScale(32),
+    display: 'none',
   },
   divider: {
     height: 1,

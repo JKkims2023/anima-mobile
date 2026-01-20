@@ -13,7 +13,7 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, Animated } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Animated, ScrollView } from 'react-native';
 import CustomBottomSheet from '../../CustomBottomSheet';
 import { useTheme } from '../../../contexts/ThemeContext';
 import CustomText from '../../CustomText';
@@ -72,6 +72,7 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
       const response = await getEmotionStats(user_key, persona.persona_key);
       
       if (response.success) {
+        console.log('✅ [EmotionDetailSheet] Emotion data:', response.data);
         setEmotionData(response.data);
         console.log('✅ [EmotionDetailSheet] Emotion data loaded');
       } else {
@@ -105,13 +106,15 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
     
     if (emotionData.has_conversations) {
       return (
-        <>
+        <View style={{ width: '100%', height: verticalScale(400), }}>
+            <ScrollView  style={{ width: '100%', height: '100%' }} showsVerticalScrollIndicator={false}>
           <PrimaryEmotionCard emotion={emotionData.primary_emotion} currentTheme={currentTheme} />
           <View style={styles.divider} />
           <EmotionDistributionSection emotions={emotionData.emotion_distribution} currentTheme={currentTheme} />
           <View style={styles.divider} />
           <TipsSection currentTheme={currentTheme} t={t} />
-        </>
+          </ScrollView>
+        </View>
       );
     } else {
       return <EmptyStateCard currentTheme={currentTheme} t={t} />;
@@ -121,7 +124,7 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
   return (
     <CustomBottomSheet
       ref={bottomSheetRef}
-      title={`😊 감정`}
+      title={t('persona.emotion', { name: persona?.persona_name })}
       subtitle={null}
       snapPoints={['75%']}
       enablePanDownToClose={true}
@@ -134,7 +137,9 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
         },
       ]}
     >
+
       {renderContent()}
+
     </CustomBottomSheet>
   );
 };
@@ -172,7 +177,7 @@ const ErrorState = ({ error, currentTheme }) => (
  */
 const PrimaryEmotionCard = ({ emotion, currentTheme }) => (
   <View style={styles.primaryCard}>
-    <CustomText type="big" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+    <CustomText type="big" bold style={[styles.sectionTitle, { display: 'none', color: currentTheme.textPrimary }]}>
       🎯 현재 주요 감정
     </CustomText>
     
@@ -398,8 +403,10 @@ const styles = StyleSheet.create({
   primaryEmoji: {
     fontSize: scale(64),
     marginBottom: verticalScale(12),
+    display: 'none',
   },
   primaryLabel: {
+    marginTop: verticalScale(16),
     fontSize: scale(24),
     marginBottom: verticalScale(8),
   },
@@ -419,6 +426,7 @@ const styles = StyleSheet.create({
     lineHeight: scale(18),
   },
   statsRow: {
+    display: 'none',
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
@@ -459,6 +467,7 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
   },
   progressBarBackground: {
+    marginTop: verticalScale(8),
     height: verticalScale(8),
     borderRadius: scale(4),
     overflow: 'hidden',

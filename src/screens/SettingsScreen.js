@@ -33,6 +33,7 @@ import HapticService from '../utils/HapticService';
 import { scale, moderateScale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 import PointsBottomSheet from '../components/points/PointsBottomSheet';
+import WebViewBottomSheet from '../components/WebViewBottomSheet';
 
 /**
  * ⚙️ SettingsScreen Component
@@ -47,6 +48,8 @@ const SettingsScreen = ({ navigation }) => {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
+  const [isWebViewBottomSheetOpen, setIsWebViewBottomSheetOpen] = useState(false);
+  const [webViewBottomSheetType, setWebViewBottomSheetType] = useState('terms');
   
   // ⭐ useRef to prevent duplicate refresh calls
   const isRefreshingRef = useRef(false);
@@ -234,25 +237,26 @@ const SettingsScreen = ({ navigation }) => {
   // ✅ Handle Terms press
   const handleTermsPress = () => {
     HapticService.light();
-    navigation.navigate('WebView', { type: 'terms' });
+//    navigation.navigate('WebView', { type: 'terms' });
+    setWebViewBottomSheetType('terms');
+    setIsWebViewBottomSheetOpen(true);
+
   };
 
   // ✅ Handle Privacy Policy press
   const handlePrivacyPress = () => {
     HapticService.light();
-    navigation.navigate('WebView', { type: 'privacy' });
-  };
-  
-  // ⭐ NEW: Handle Service Introduction press
-  const handleServiceIntroPress = () => {
-    HapticService.light();
-    navigation.navigate('WebView', { type: 'service_intro' });
+//    navigation.navigate('WebView', { type: 'privacy' });
+    setWebViewBottomSheetType('privacy');
+    setIsWebViewBottomSheetOpen(true);
   };
   
   // ⭐ NEW: Handle App Info press
   const handleAppInfoPress = () => {
     HapticService.light();
-    navigation.navigate('WebView', { type: 'app_info' });
+//    navigation.navigate('WebView', { type: 'app_info' });
+    setWebViewBottomSheetType('app_info');
+    setIsWebViewBottomSheetOpen(true);
   };
   
   // ⭐ NEW: Handle Point Purchase press (Open BottomSheet)
@@ -421,13 +425,7 @@ const SettingsScreen = ({ navigation }) => {
             {/* 4️⃣ About ANIMA */}
             {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
             <SettingsCard title={t('settings.about.title')}>
-              <SettingsItem
-                icon="💙"
-                title={t('settings.about.service_intro')}
-                description={t('settings.about.service_intro_description')}
-                onPress={handleServiceIntroPress}
-                showBorder={true}
-              />
+             
               <SettingsItem
                 icon="ℹ️"
                 title={t('settings.about.app_info')}
@@ -496,6 +494,14 @@ const SettingsScreen = ({ navigation }) => {
       {/* ⭐ NEW: Points Bottom Sheet */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <PointsBottomSheet ref={pointsBottomSheetRef} />
+
+      {isWebViewBottomSheetOpen && (
+        <WebViewBottomSheet
+          isOpen={isWebViewBottomSheetOpen}
+          onClose={() => setIsWebViewBottomSheetOpen(false)}
+          type={webViewBottomSheetType}
+        />
+      )}
     </SafeScreen>
   );
 };

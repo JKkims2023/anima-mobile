@@ -1207,18 +1207,20 @@ const MessageCreationBack = ({
         <Animated.View style={animaLogoAnimatedStyle}>
           <Svg height={scale(30)} width={scale(105)}>
             <Defs>
+              {/* ✨ 2. Next.js와 동일한 그라디언트 색상으로 변경합니다. */}
               <SvgLinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
-                <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+                <Stop offset="0%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+                <Stop offset="100%" stopColor="#06B6D4" stopOpacity="1" />
               </SvgLinearGradient>
             </Defs>
             <SvgText
               fill="url(#animaGradient)"
-              fontSize={scale(30)}
-              fontWeight="bold"
+              // ✨ 3. Next.js와 동일한 폰트 사이즈와 속성으로 변경합니다.
+              fontSize={scale(30)} // '22px'에 해당하는 scale 값
+              fontWeight="bold"  // '700'
               x="0"
-              y={scale(25)}
-              letterSpacing="0.5"
+              y={scale(25)}      // 폰트 사이즈에 맞춰 y 위치 조절
+              letterSpacing="0.5"// '0.3px'
             >
               Create
             </SvgText>
@@ -1247,7 +1249,7 @@ const MessageCreationBack = ({
         >
           <Animated.View style={[
             styles.contentContainer, 
-            { paddingBottom: insets.bottom + platformPadding(60) },
+            { paddingBottom: Platform.OS === 'ios' ? insets.bottom + platformPadding(60) : verticalScale(70) },
             contentAnimatedStyle
           ]}>
             <TouchableOpacity onPress={() => {
@@ -1255,7 +1257,7 @@ const MessageCreationBack = ({
               HapticService.light();
               contentInputRef.current?.present();
             }}>
-              <CustomText type="title" style={styles.content}>
+              <CustomText type="title" italic style={styles.content}>
                 {messageContent || t('message.creation.empty')}
               </CustomText>
             </TouchableOpacity>
@@ -1432,7 +1434,7 @@ const MessageCreationBack = ({
         onClose={handleMusicPlayerClose}
       />
 
-            {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
       {/* 💙 Validation Feedback (Persona Voice with Image/Video) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       <CustomBottomSheet
@@ -1587,13 +1589,16 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: scale(20),
-    paddingBottom: verticalScale(40),
+    paddingBottom: verticalScale(-20),
+
   },
   content: {
-    fontSize: scale(18),
+    fontSize: scale(16),
     textAlign: 'left',
     color: '#FFFFFF',
     lineHeight: scale(24),
+    marginTop:'auto',
+    fontStyle: 'italic',
   },
   // ⭐ Quick Chips Container (Right Side)
   quickChipsContainer: {

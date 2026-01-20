@@ -33,6 +33,7 @@ export const PersonaProvider = ({ children }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedPersona, setSelectedPersona] = useState(null); // ⭐ NEW: Direct persona storage
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); // ✅ NEW (2026-01-19): Error state for retry UI
   const [mode, setMode] = useState('sage'); // 'sage' | 'persona'
   const { user, loading: userLoading } = useUser(); // 🔥 CRITICAL: Get loading state from UserContext
   
@@ -97,13 +98,15 @@ export const PersonaProvider = ({ children }) => {
         */
         setPersonas(allPersonas);
         setIsLoading(false);
+        setError(null); // ✅ Clear error on success
         
         // ✅ FIX: Return latest personas for immediate access!
         return allPersonas;
       } catch (apiError) {
         console.error('❌ [PersonaContext] API error:', apiError);
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        // Fallback: Empty array
+        // ✅ NEW (2026-01-19): Set error state for retry UI
+        setError(apiError?.message || 'Failed to load personas');
         setPersonas([]);
         setIsLoading(false);
         return [];
@@ -242,10 +245,11 @@ export const PersonaProvider = ({ children }) => {
     selectedPersonaRef, // 🔥 NEW: Expose ref for immediate access
     setSelectedPersona: wrappedSetSelectedPersona, // 🔥 CHANGED: Use wrapped version
     isLoading,
+    error, // ✅ NEW (2026-01-19): Expose error state for retry UI
     mode,
     switchMode,
     initializePersonas, // ⭐ NEW: Expose initializePersonas for manual refresh
-  }), [personas, selectedIndex, effectivePersona, isLoading, mode, switchMode, setPersonas, setSelectedIndex, wrappedSetSelectedPersona, initializePersonas]);
+  }), [personas, selectedIndex, effectivePersona, isLoading, error, mode, switchMode, setPersonas, setSelectedIndex, wrappedSetSelectedPersona, initializePersonas]);
 
   return (
     <PersonaContext.Provider value={value}>

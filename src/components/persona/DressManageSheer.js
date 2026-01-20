@@ -634,6 +634,19 @@ const DressManageSheer = ({
               return;
             }
 
+            if (currentPersona?.default_yn === 'Y') {
+              HapticService.warning();
+              showAlert({
+                title: t('persona.default_persona_core_confirm_title'),
+                message: t('persona.default_persona_core_confirm_message'),
+                buttons: [
+                  { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {} },
+
+                ],
+              });
+              return;
+            }
+
             HapticService.light();
             descriptionInputRef.current?.present();
 

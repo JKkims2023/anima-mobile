@@ -78,7 +78,7 @@ const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const { personas, setPersonas, selectedPersona: contextSelectedPersona, setSelectedIndex, setSelectedPersona, initializePersonas } = usePersona();
+  const { personas, setPersonas, selectedPersona: contextSelectedPersona, setSelectedIndex, setSelectedPersona, initializePersonas, error: personasError, isLoading: personasLoading } = usePersona();
   const { user } = useUser();
   const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas, clearHomeBadge } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
@@ -1602,10 +1602,14 @@ const PersonaStudioScreen = () => {
     }
   }, [fullViewPersona, showToast, t]);
 
-  const handleDeleteClick  = () => {
+  const handleDeleteClick  = (persona) => {
+    // ⚡ FIX: Accept persona as argument (from callback, not state!)
+    const targetPersona = persona || currentPersona; // Fallback to currentPersona if not provided
+    
     console.log('handleDeleteClick');
+    console.log('targetPersona: ', targetPersona);
 
-    if(currentPersona?.default_yn === 'Y') {
+    if(targetPersona?.default_yn === 'Y') {
       showAlert({
         title: t('persona.default_persona_delete_confirm_title'),
         message: t('persona.default_persona_delete_confirm_message'),
@@ -1619,11 +1623,11 @@ const PersonaStudioScreen = () => {
 
     showAlert({
       title: t('persona.settings.delete_confirm_title'),
-      message: t('persona.settings.delete_confirm_message',{name: currentPersona?.persona_name}),
+      message: t('persona.settings.delete_confirm_message',{name: targetPersona?.persona_name}),
       emoji: '🗑️',
       buttons: [
         { text: t('common.cancel'), style: 'cancel' },
-        { text: t('common.confirm'), style: 'primary', onPress: () => { handlePersonaDelete() } },
+        { text: t('common.confirm'), style: 'primary', onPress: () => { handlePersonaDelete(targetPersona) } },
       ],
     });
   };
@@ -1893,17 +1897,17 @@ const PersonaStudioScreen = () => {
     handlePersonaVideoConvertInternal(persona);
   }, [handlePersonaVideoConvertInternal]);
   
-  const handlePersonaDelete = async () => {
+  const handlePersonaDelete = async (targetPersona) => {
+    // ⚡ FIX: Accept persona as argument (from callback!)
+    const personaToDelete = targetPersona || currentPersona; // Fallback to currentPersona if not provided
     
     console.log('handlePersonaDelete');
+    console.log('personaToDelete: ', personaToDelete);
 
     console.log('user: ', user);
     if (!user?.user_key) return;
 
-    console.log('currentPersona: ', currentPersona);
-    console.log('please');
-
-    if(currentPersona?.default_yn === 'Y') {
+    if(personaToDelete?.default_yn === 'Y') {
       showAlert({
         title: t('persona.default_persona_delete_confirm_title'),
         message: t('persona.default_persona_delete_confirm_message'),
@@ -1916,18 +1920,18 @@ const PersonaStudioScreen = () => {
       return;
     }
 
-    console.log('currentPersona?.default_yn: ', currentPersona?.default_yn);
+    console.log('personaToDelete?.default_yn: ', personaToDelete?.default_yn);
     
     if (__DEV__) {
       console.log('[PersonaStudioScreen] 🗑️ Delete requested for:', {
-        persona_name: currentPersona?.persona_name,
-        persona_key: currentPersona?.persona_key,
+        persona_name: personaToDelete?.persona_name,
+        persona_key: personaToDelete?.persona_key,
       });
     }
     
     try {
       const result = await deletePersona(
-        currentPersona?.persona_key,
+        personaToDelete?.persona_key,
         user.user_key
       );
 
@@ -1936,7 +1940,7 @@ const PersonaStudioScreen = () => {
         setIsPersonaSettingsOpen(false);
         
         // ✅ FIX: Reload personas from DB (same as push notification logic)
-        const deletedPersonaKey = currentPersona?.persona_key;
+        const deletedPersonaKey = personaToDelete?.persona_key;
         const currentIndex = currentPersonaIndex;
         
         // Get latest personas from DB
@@ -2013,14 +2017,7 @@ const PersonaStudioScreen = () => {
     // ⭐ FIX: Allow favorite toggle for ALL personas (including default personas)
     if (!user?.user_key || !persona) return;
     
-    if (__DEV__) {
-      console.log('[PersonaStudioScreen] ⭐ Favorite toggle requested for:', {
-        persona_name: persona.persona_name,
-        persona_key: persona.persona_key,
-        current_favorite: persona.favorite_yn,
-        is_default: persona.default_yn,
-      });
-    }
+
     
     try {
       const result = await togglePersonaFavorite(
@@ -2208,7 +2205,7 @@ const PersonaStudioScreen = () => {
             onIndexChange={handlePersonaChange}
             modeOpacity={1} // ⭐ CRITICAL FIX: Set to 1 to make images visible!
             onChatWithPersona={handleChatWithPersona}
-            onFavoriteToggle={handlePersonaFavoriteToggle}
+            onFavoriteToggle={handleDeleteClick}
             onCheckStatus={handleCheckPersonaStatus}
             enabled={true}
             isMessageMode={false}
@@ -2221,6 +2218,8 @@ const PersonaStudioScreen = () => {
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
             onMarkAsRead={handleMarkAsRead} // ⭐ NEW: Callback for comment marked as read (badge removal!)
             onOpenFullView={handleOpenFullView} // ⭐ NEW: Callback for full view (전체창)
+            error={personasError} // ✅ NEW (2026-01-19): Error state for retry UI
+            isLoading={personasLoading} // ✅ NEW (2026-01-19): Loading state
             // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
           />
         </View>

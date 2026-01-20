@@ -82,40 +82,109 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   }, []);
   
   // ⭐ NEW: Get emotion emoji from state (Main chip display)
+  // ✨ UPDATED (2026-01-19): 12 emotions (aligned with ANIMA emotion system)
   const getEmotionEmoji = (emotionalState) => {
+    // 🔍 DEBUG: Log actual emotional_state value
+    if (__DEV__) {
+      console.log('🔍 [PersonaInfoCard] getEmotionEmoji called with:', emotionalState);
+    }
+    
     const emotionEmojis = {
+      // Positive emotions
       happy: '😊',
-      normal: '😐',
-      tired: '😴',
-      hurt: '😢',
+      excited: '🤩',
+      grateful: '🙏',
+      hopeful: '🌟',
+      affectionate: '💕',
+      calm: '😌',
+      
+      // Neutral emotions
+      neutral: '😐',
+      confused: '😕',
+      curious: '🤔',
+      
+      // Negative emotions
+      sad: '😢',
+      anxious: '😰',
       angry: '😠',
-      worried: '😰',
+      
+      // Legacy emotions (for backward compatibility)
+      normal: '😐', // → neutral
+      tired: '😴', // → calm
+      hurt: '😢', // → sad
+      worried: '😰', // → anxious
     };
-    return emotionEmojis[emotionalState] || '😐';
+    
+    const emoji = emotionEmojis[emotionalState] || '😐';
+    
+    // 🔍 DEBUG: Log mapped emoji
+    if (__DEV__) {
+      console.log('🔍 [PersonaInfoCard] Mapped emoji:', emoji);
+    }
+    
+    return emoji;
   };
   
   // ⭐ NEW: Get floating emojis based on EMOTIONAL STATE (Simple & Intuitive!)
+  // ✨ UPDATED (2026-01-19): 12 emotions (aligned with ANIMA emotion system)
   const getFloatingEmojis = (personaData) => {
     const emotionalState = personaData?.emotional_state || 'normal';
     
+    // 🔍 DEBUG: Log actual emotional_state value
+    if (__DEV__) {
+      console.log('🔍 [PersonaInfoCard] getFloatingEmojis called with:', emotionalState);
+    }
+    
     // ⭐ Strategy: Fixed emojis per emotion state (User can understand immediately!)
     switch (emotionalState) {
+      // Positive emotions
       case 'happy':
-        return ['❤️', '❤️', '❤️']; // Red hearts → "Persona likes me!"
+        return ['❤️', '❤️', '❤️']; // Red hearts → "Persona is happy!"
+      
+      case 'excited':
+        return ['🎉', '✨', '🎊']; // Party → "Persona is excited!"
+      
+      case 'grateful':
+        return ['🙏', '💖', '🌟']; // Gratitude → "Persona is thankful!"
+      
+      case 'hopeful':
+        return ['✨', '🌟', '💫']; // Sparkles → "Persona is hopeful!"
+      
+      case 'affectionate':
+        return ['💕', '💖', '💗']; // Hearts → "Persona loves you!"
+      
+      case 'calm':
+        return ['🌸', '☁️', '🍃']; // Peaceful → "Persona is calm"
+      
+      // Neutral emotions
+      case 'neutral':
+      case 'normal':
+        return ['❔', '💭', '❔']; // Thinking → "Persona is neutral"
+      
+      case 'confused':
+        return ['❓', '🤔', '❓']; // Question marks → "Persona is confused"
+      
+      case 'curious':
+        return ['💡', '🔍', '💡']; // Light bulb → "Persona is curious!"
+      
+      // Negative emotions
+      case 'sad':
+      case 'hurt':
+        return ['💔', '😢', '💔']; // Broken hearts → "Persona is sad..."
+      
+      case 'anxious':
+      case 'worried':
+        return ['😰', '💦', '😰']; // Worried → "Persona is anxious..."
       
       case 'angry':
-      case 'hurt':
-        return ['💔', '💔', '💔']; // Broken hearts → "I did something wrong..."
+        return ['💢', '😠', '💢']; // Anger symbols → "Persona is angry!"
       
-      case 'worried':
-        return ['😰', '😰', '😰']; // Worried face → "Persona is concerned"
-      
+      // Legacy emotions
       case 'tired':
-        return ['💤', '💤', '💤']; // Sleepy → "Persona is tired"
+        return ['💤', '😴', '💤']; // Sleepy → "Persona is tired"
       
-      case 'normal':
       default:
-        return ['❔', '❔', '❔']; // Thought bubble → "Thinking/pondering..." (메인 칩 😐와 다름!)
+        return ['❔', '💭', '❔']; // Default: Neutral
     }
   };
 
@@ -189,9 +258,23 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   };
 
   // ⚡ OPTIMIZED: Memoized chip press handler
+  // ✅ FIX (2026-01-19): Added persona and onFavoriteToggle to dependencies to fix closure bug
   const handleChipPress = useCallback((chipKey, chipData) => {
     if (__DEV__) {
       console.log('📢 [PersonaInfoCard] Chip pressed:', chipKey);
+      console.log('📢 [PersonaInfoCard] Current persona:', persona?.persona_name);
+    }
+
+    if(chipKey === 'intimacy') {
+      handleChatPress();
+      return;
+    }
+    if(chipKey === 'relationship') {
+     
+      if (onFavoriteToggle) {
+        onFavoriteToggle(persona); // ← Now uses current persona, not stale closure!
+      }
+      return;
     }
 
     // 😊 NEW (2026-01-19): Emotion chip → Open EmotionDetailSheet
@@ -221,7 +304,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       }
     }
     setSelectedChip({ key: chipKey, data: chipData });
-  }, []); // No dependencies - stable function!
+  }, [persona, onFavoriteToggle, handleChatPress, showAlert, t]); // ✅ FIX: Added dependencies!
 
   if (!persona) {
     return null;

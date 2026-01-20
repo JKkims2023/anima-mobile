@@ -17,7 +17,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import RelationshipChip from './RelationshipChip';
-
+import { useTranslation } from 'react-i18next';
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Helper Functions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -93,7 +93,7 @@ const RelationshipChipsContainer = React.memo(({
   onEmotionChipLayout, // ⭐ NEW: Callback for emotion chip layout
 }) => {
   const [isLoading] = useState(false); // No loading needed (data is instant!)
-  
+  const { t } = useTranslation();
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⚡ Transform Relationship Data (Memoized!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -137,13 +137,31 @@ const RelationshipChipsContainer = React.memo(({
     }
     
     // ⭐ Transform backend data to chip format
+    // ✨ NEW: 12 emotions (aligned with ANIMA emotion system)
     const emotionEmojis = {
+      // Positive emotions
       happy: '😊',
-      normal: '😐',
-      tired: '😴',
-      hurt: '😢',
+      excited: '🤩',
+      grateful: '🙏',
+      hopeful: '🌟',
+      affectionate: '💕',
+      calm: '😌',
+      
+      // Neutral emotions
+      neutral: '😐',
+      confused: '😕',
+      curious: '🤔',
+      
+      // Negative emotions
+      sad: '😢',
+      anxious: '😰',
       angry: '😠',
-      worried: '😰',
+      
+      // Legacy emotions (for backward compatibility)
+      normal: '😐', // → neutral
+      tired: '😴', // → calm
+      hurt: '😢', // → sad
+      worried: '😰', // → anxious
     };
     
     const relationshipEmojis = {
@@ -153,6 +171,12 @@ const RelationshipChipsContainer = React.memo(({
       close_friend: '💙',
       partner: '💕',
     };
+    
+    // 🔍 DEBUG: Log actual emotional_state value from DB
+    if (__DEV__) {
+      console.log('🔍 [RelationshipChips] DB emotional_state:', data.emotional_state);
+      console.log('🔍 [RelationshipChips] Mapped emoji:', emotionEmojis[data.emotional_state]);
+    }
     
     return {
       intimacy: {
@@ -232,14 +256,16 @@ const RelationshipChipsContainer = React.memo(({
     {
       key: 'intimacy',
       data: chips.intimacy,
-      label: `${chips.intimacy?.value || 0}%`,
-      emoji: '💙',
+      label: t('persona.diary'),//`${chips.intimacy?.value || 0}%`,
+      emoji: '📝',
+      color:'#E8EAED',
     },
     {
       key: 'relationship',
       data: chips.relationship,
-      label: `${getRelationshipPercentage(chips.relationship?.level)}%`,
-      emoji: '🔥',
+      label: t('persona.remove_relationship'),//`${getRelationshipPercentage(chips.relationship?.level)}%`,
+      emoji: '❌',
+      color:'#E8EAED',
     },
     /*
     {

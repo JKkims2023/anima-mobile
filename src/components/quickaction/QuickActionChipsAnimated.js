@@ -99,7 +99,7 @@ const QuickActionChipsAnimated = ({
   };
 
   const actions = [
-    { id: 'delete', icon: 'delete-forever-outline', label: '삭제', onClick: onDeleteClick, color: chipColors.delete },
+//    { id: 'delete', icon: 'delete-forever-outline', label: '삭제', onClick: onDeleteClick, color: chipColors.delete },
     { id: 'video', icon: 'heart-multiple-outline', label: '영상', onClick: onVideoClick, color: chipColors.video },
 //    { id: 'settings', icon: 'cog', label: '설정', onClick: onSettingsClick },
 //    { id: 'share', icon: 'share-variant-outline', label: t('common.share'), onClick: onShareClick, color: chipColors.share },

@@ -80,6 +80,8 @@ const PersonaSwipeViewer = forwardRef(({
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
   onMarkAsRead, // ⭐ NEW: Callback when comment is marked as read
   onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
+  error: errorProp, // ✅ NEW (2026-01-19): Error state from parent
+  isLoading: isLoadingProp, // ✅ NEW (2026-01-19): Loading state from parent
   // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
 }, ref) => {
   const { currentTheme } = useTheme();
@@ -244,27 +246,50 @@ const PersonaSwipeViewer = forwardRef(({
   // This prevents FlashList from reusing components with stale BlurView state
   const keyExtractor = useCallback((item) => `${item.persona_key}-${item.done_yn}`, []);
 
-  const handleCreatePersona = useCallback(() => {
-    
-    onCreatePersona();
 
-  }, []);
-
-  // Empty state (no personas)
+  // ✅ NEW (2026-01-19): ANIMA Empty State (2 scenarios only!)
+  // 🔥 CRITICAL: ANIMA always has SAGE & NEXUS, so empty list = ERROR!
   if (!personas || personas.length === 0) {
+    // ⭐ Scenario 1: Loading
+    if (isLoadingProp) {
+      return (
+        <View style={[styles.container, styles.centered]}>
+          <ActivityIndicator size="large" color={currentTheme.mainColor} />
+          <CustomText type="title" style={{ color: currentTheme.mainColor, textAlign: 'center', marginTop: verticalScale(16), marginBottom: verticalScale(100) }}>
+            {t('common.loading_detail')}
+          </CustomText>
+        </View>
+      );
+    }
+    
+    // ⭐ Scenario 2: Error (ALWAYS show retry button!)
+    // Empty list in ANIMA = ERROR (SAGE & NEXUS should always exist)
     return (
-      <>
-
       <View style={[styles.container, styles.centered]}>
-        
-        <ActivityIndicator size="large" color={currentTheme.mainColor} />
-
-        <CustomText type="title" style={{ color: currentTheme.mainColor,  textAlign: 'center', marginTop: verticalScale(16), marginBottom: verticalScale(100) }}>
-          {t('common.loading_detail')}
+        <CustomText type="title" style={{ color: '#FF6B6B', textAlign: 'center', marginBottom: verticalScale(16) }}>
+          ⚠️ {t('errors.load_failed')}
         </CustomText>
-
-    </View>
-   </>
+        <CustomText type="middle" style={{ color: currentTheme.textSecondary, textAlign: 'center', marginBottom: verticalScale(24), paddingHorizontal: scale(40) }}>
+          {errorProp || t('errors.network')}
+        </CustomText>
+        <TouchableOpacity
+          style={{
+            backgroundColor: currentTheme.mainColor,
+            paddingHorizontal: scale(32),
+            paddingVertical: verticalScale(12),
+            borderRadius: scale(24),
+          }}
+          onPress={() => {
+            HapticService.medium();
+            onRefresh();
+          }}
+          activeOpacity={0.7}
+        >
+          <CustomText type="middle" bold style={{ color: '#FFFFFF' }}>
+            🔄 {t('common.retry')}
+          </CustomText>
+        </TouchableOpacity>
+      </View>
     );
   }
 

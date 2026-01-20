@@ -80,7 +80,7 @@ export async function initializeSubscription() {
     console.log('[Subscription] ✅ IAP connection initialized:', connected);
     return connected;
   } catch (error) {
-    console.error('[Subscription] ❌ Failed to initialize:', error);
+    console.log('[Subscription] ❌ Failed to initialize:', error);
     return false;
   }
 }
@@ -94,7 +94,7 @@ export async function disconnectSubscription() {
     await endConnection();
     console.log('[Subscription] ✅ IAP connection closed');
   } catch (error) {
-    console.error('[Subscription] ❌ Failed to disconnect:', error);
+    console.log('[Subscription] ❌ Failed to disconnect:', error);
   }
 }
 
@@ -159,7 +159,7 @@ export async function loadSubscriptions() {
             }
           }
         } catch (error) {
-          console.error(`[Subscription] ❌ Failed to extract Android data for ${sub.productId}:`, error);
+          console.log(`[Subscription] ❌ Failed to extract Android data for ${sub.productId}:`, error);
         }
       } else if (Platform.OS === 'ios') {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -198,7 +198,7 @@ export async function loadSubscriptions() {
     
     return normalizedSubscriptions;
   } catch (error) {
-    console.error('[Subscription] ❌ Failed to load products:', error);
+    console.log('[Subscription] ❌ Failed to load products:', error);
     return [];
   }
 }
@@ -262,7 +262,7 @@ export async function requestSubscription(sku, offerToken = null) {
     
     return purchase;
   } catch (error) {
-    console.error('[Subscription] ❌ Purchase failed:', error);
+    console.log('[Subscription] ❌ Purchase failed:', error);
     
     // User-friendly error messages
     if (error.code === 'E_USER_CANCELLED') {
@@ -342,7 +342,7 @@ export async function acknowledgeSubscription(purchase) {
       console.log('[Subscription] ✅ iOS: Transaction finished');
     }
   } catch (error) {
-    console.error('[Subscription] ❌ Failed to acknowledge:', error);
+    console.log('[Subscription] ❌ Failed to acknowledge:', error);
     throw error;
   }
 }
@@ -387,7 +387,7 @@ export async function getActiveSubscriptions() {
     
     return subscriptions;
   } catch (error) {
-    console.error('[Subscription] ❌ Failed to get active subscriptions:', error);
+    console.log('[Subscription] ❌ Failed to get active subscriptions:', error);
     return [];
   }
 }
@@ -517,7 +517,7 @@ export function setupSubscriptionListeners(onPurchaseUpdate, onPurchaseError) {
   
   // Purchase Error Listener
   const purchaseErrorSubscription = purchaseErrorListener((error) => {
-    console.error('[Subscription] 🎧 Purchase error received:', error);
+    console.log('[Subscription] 🎧 Purchase error received:', error);
     
     if (onPurchaseError) {
       onPurchaseError(error);

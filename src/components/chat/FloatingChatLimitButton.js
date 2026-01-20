@@ -231,7 +231,6 @@ const FloatingChatLimitButton = ({
     },
     tooltipContent: {
       backgroundColor: 'rgba(0, 0, 0, 0.92)',
-      backgroundColor:'red',
       borderRadius: scale(12),
       borderWidth: 1.5,
       paddingHorizontal: scale(14),
@@ -251,11 +250,11 @@ const FloatingChatLimitButton = ({
     },
     tooltipLabel: {
       color: 'rgba(255, 255, 255, 0.6)',
-      fontSize: moderateScale(12),
+      fontSize: moderateScale(14),
     },
     tooltipValue: {
       color: '#FFFFFF',
-      fontSize: moderateScale(13),
+      fontSize: moderateScale(16),
       marginRight: scale(4),
     },
     tierBadge: {
@@ -272,7 +271,7 @@ const FloatingChatLimitButton = ({
       fontSize: moderateScale(12),
     },
     tierText: {
-      fontSize: moderateScale(12),
+      fontSize: moderateScale(14),
     },
     onboardingInfo: {
       marginTop: verticalScale(4),
@@ -306,7 +305,7 @@ const FloatingChatLimitButton = ({
     },
     upgradeButtonText: {
       color: '#FFFFFF',
-      fontSize: moderateScale(12),
+      fontSize: moderateScale(14),
     },
     tooltipArrow: {
       position: 'absolute',
@@ -434,11 +433,13 @@ const FloatingChatLimitButton = ({
               style={[styles.upgradeButton, { backgroundColor: tierConfig.color }]}
               onPress={() => {
                 HapticService.medium();
+
                 onUpgradePress();
+                closeTooltip();
               }}
               activeOpacity={0.8}
             >
-              <CustomText type="small" bold style={styles.upgradeButtonText}>
+              <CustomText type="title" bold style={styles.upgradeButtonText}>
                 ⬆️ {t('floating_chat_limit_button.tooltip.upgrade')}
               </CustomText>
             </TouchableOpacity>
@@ -451,6 +452,7 @@ const FloatingChatLimitButton = ({
               onPress={() => {
                 HapticService.medium();
                 onBuyPointPress();
+                closeTooltip();
               }}
               activeOpacity={0.8}
             >
