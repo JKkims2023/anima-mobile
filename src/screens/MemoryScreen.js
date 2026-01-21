@@ -503,7 +503,7 @@ const MemoryScreen = () => {
   // Render header
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderHeader = () => (
-    <View style={[styles.header, { paddingTop: insets.top + verticalScale(15) }]}>
+    <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? insets.top + verticalScale(0) : insets.top + verticalScale(15) }]}>
       {/* Title */}
       <View style={styles.headerTitleRow}>
         <CustomText type="big" bold style={[styles.headerTitle, { display: 'none', color: currentTheme.textPrimary }]}>
@@ -552,7 +552,7 @@ const MemoryScreen = () => {
 
       {/* Search Bar */}
       <View style={[styles.searchBar, { backgroundColor: currentTheme.cardBackground }]}>
-        <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} />
+        <Icon name="search" size={scale(20)} color={currentTheme.textSecondary}  />
         <TextInput
           ref={searchInputRef}
           style={[styles.searchInput, { color: currentTheme.textPrimary }]}
@@ -667,8 +667,8 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(15),
     paddingBottom: verticalScale(10),
     borderRadius: moderateScale(12),
-    marginTop: verticalScale(-22),
-    marginLeft: scale(-13),
+    marginTop: verticalScale(-25),
+    marginLeft: scale(-12),
     gap: scale(8),
 
   },
@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: moderateScale(15),
     paddingVertical: 0,
-    marginLeft: scale(-5),
+    marginLeft: scale(0),
 
   },
 

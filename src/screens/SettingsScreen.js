@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: platformPadding(20),
-    paddingTop: platformPadding(20),
+    paddingTop: Platform.OS === 'ios' ? platformPadding(0) : platformPadding(20),
     paddingBottom: scale(16),
     backgroundColor: COLORS.BACKGROUND || '#000', // ⭐ Fixed background
   },

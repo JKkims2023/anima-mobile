@@ -79,7 +79,7 @@ const BackgroundListItem = ({ background, onPress }) => {
                 {background.location_tag}
               </CustomText>
             </View>
-          )}
+          )}   
         </View>
 
         {/* Date */}

@@ -1292,10 +1292,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: platformPadding(20),
     paddingBottom: platformPadding(0),
     paddingHorizontal: platformPadding(20),
-    backgroundColor:'#0F172A'
+    backgroundColor:'#0F172A',
+    paddingTop: Platform.OS === 'ios' ? platformPadding(0) : platformPadding(20),
   },
   headerContent: {
     backgroundColor:'#0F172A',
@@ -1322,7 +1322,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(10),
     paddingLeft: scale(20),
-    paddingTop: verticalScale(5),
+    paddingTop: verticalScale(3),
     paddingBottom: verticalScale(10),
 
     backgroundColor:'#0F172A'

@@ -2031,6 +2031,7 @@
   "persona": {
     "create": "생성",
     "favorite": "즐겨찾기", 
+    "emotion_titile" : "감정",
     "emotion": "♥️ {{name}}의 감정",
     "diary": "일기",
     "remove_relationship": "헤어지기",

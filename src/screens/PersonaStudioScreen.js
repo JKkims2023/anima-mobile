@@ -2615,13 +2615,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(0),
     paddingVertical: verticalScale(0),
+    paddingTop: verticalScale(-4),
     gap: scale(8),
   },
   searchInput: {
     flex: 1,
     fontSize: scale(15),
     paddingVertical: 0,
-    marginLeft: scale(-5),
+    marginLeft: scale(0),
   },
   
   // ⭐ NEW: Emotion Category Dropdown Button

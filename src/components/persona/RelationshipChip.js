@@ -243,7 +243,8 @@ const RelationshipChip = ({
 const styles = StyleSheet.create({
   chipContainer: {
     // Container for animation
-    flex:1
+    width: scale(65),
+    marginRight: scale(10),
   },
   gradient: {
     // ⭐ NEW: Vertical layout (icon on top, value below)
@@ -252,9 +253,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: scale(12),
     paddingVertical: verticalScale(12), // ⭐ Increased from 8 to 12 for better emoji visibility
-    borderRadius: scale(14),
+    borderRadius: Platform.OS === 'ios' ? scale(10) : scale(14),
     overflow: 'hidden',
-    minWidth: scale(57), // Ensure consistent width
+    width: scale(65), // Ensure consistent width
     // Shadow
     backgroundColor: 'rgba(5, 16, 83, 0.8)',
 
@@ -272,13 +273,15 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: scale(20), // ⭐ Larger icon
     lineHeight: scale(24),
-    marginBottom: verticalScale(4),
+    marginBottom: verticalScale(7),
   },
   emotionEmoji: {
     // ⭐ NEW: Emotion chip emoji (1.5x larger!)
-    fontSize: scale(32), // 20 * 1.6 = 32
-    lineHeight: scale(46),
-    marginBottom: 0, // No label below, so no margin
+//    fontSize: scale(32), // 20 * 1.6 = 32
+//    lineHeight: scale(46),
+    fontSize: scale(27), // ⭐ Larger icon
+    lineHeight: scale(28),
+    marginBottom: verticalScale(4), // No label below, so no margin
   },
   label: {
     fontSize: scale(11), // ⭐ Slightly smaller for numbers

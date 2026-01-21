@@ -249,7 +249,7 @@ const RelationshipChipsContainer = React.memo(({
     {
       key: 'emotion',
       data: chips.emotion,
-      label: null, // ⚠️ No percentage! Dynamic emoji only
+      label: t('persona.emotion_titile'),//`${chips.intimacy?.value || 0}%`,
       emoji: chips.emotion?.emoji || '😐',
       isEmotionChip: true, // ⭐ Special flag for dynamic animation
     },
@@ -320,9 +320,10 @@ const RelationshipChipsContainer = React.memo(({
 
 const styles = StyleSheet.create({
   container: {
+    width: 'auto',
     flexDirection: 'row',
     flexWrap: 'wrap', // Allow wrapping if needed
-    gap: scale(8),
+
     marginTop: verticalScale(8),
     marginBottom: Platform.OS === 'ios' ? verticalScale(-20) : verticalScale(0),
 
