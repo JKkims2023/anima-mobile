@@ -44,6 +44,7 @@ import MessageHistoryListItem from '../components/message/MessageHistoryListItem
 import MusicListItem from '../components/music/MusicListItem'; // ⭐ NEW: Unified music list item
 import BackgroundListItem from '../components/memory/BackgroundListItem'; // 🖼️ NEW: Background list item
 import MessageDetailOverlay from '../components/message/MessageDetailOverlay';
+import BackgroundViewerOverlay from '../components/memory/BackgroundViewerOverlay'; // 🖼️ NEW: Background viewer
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet'; // ⭐ NEW: Music creation
 import MusicPlayerSheet from '../components/music/MusicPlayerSheet'; // ⭐ NEW: Music player
 import ProcessingLoadingOverlay from '../components/persona/ProcessingLoadingOverlay'; // ⭐ NEW: Music generation loading
@@ -137,6 +138,10 @@ const HistoryScreen = () => {
   // ⭐ Message Detail Overlay state
   const [isMessageDetailVisible, setIsMessageDetailVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // 🖼️ NEW: Background Viewer Overlay state
+  const [isBackgroundViewerVisible, setIsBackgroundViewerVisible] = useState(false);
+  const [selectedBackground, setSelectedBackground] = useState(null);
 
   // ⭐ Clear badges on screen focus
   useFocusEffect(
@@ -631,13 +636,18 @@ const HistoryScreen = () => {
   const handleBackgroundPress = (background) => {
     HapticService.light();
     console.log('🖼️ [HistoryScreen] Background pressed:', background.memory_key);
-    // ⭐ TODO: Open BackgroundViewerSheet (나중에 구현)
-    showToast({
-      type: 'info',
-      message: '배경 상세 뷰어는 곧 구현될 예정입니다! 🚀',
-      emoji: '🖼️',
-    });
+    setSelectedBackground(background);
+    setIsBackgroundViewerVisible(true);
   };
+
+  // 🖼️ NEW: Handle background update (delete)
+  const handleBackgroundUpdate = useCallback((updatedBackground, action) => {
+    if (action === 'delete') {
+      setBackgroundList(prev => prev.filter(b => b.memory_key !== updatedBackground.memory_key));
+      setIsBackgroundViewerVisible(false);
+      setSelectedBackground(null);
+    }
+  }, []);
 
   // ⭐ NEW: Handle floating button press (create music or background)
   const handleFloatingButtonPress = () => {
@@ -1257,6 +1267,19 @@ const HistoryScreen = () => {
         <ProcessingLoadingOverlay
           visible={isProcessingMusic}
           message={t('music.checking_status')}
+        />
+      )}
+
+      {/* 🖼️ NEW: Background Viewer Overlay (Full-Screen) */}
+      {isBackgroundViewerVisible && selectedBackground && (
+        <BackgroundViewerOverlay
+          visible={isBackgroundViewerVisible}
+          background={selectedBackground}
+          onClose={() => {
+            setIsBackgroundViewerVisible(false);
+            setSelectedBackground(null);
+          }}
+          onBackgroundUpdate={handleBackgroundUpdate}
         />
       )}
 
