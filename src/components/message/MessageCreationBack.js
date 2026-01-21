@@ -1091,7 +1091,10 @@ const MessageCreationBack = ({
       const response = await messageService.createMessage({
         user_key: user?.user_key,
         persona_key: persona?.persona_key,
-        memory_key: persona?.history_key,
+        // ⭐ CRITICAL: Use custom background's memory_key if selected
+        memory_key: customBackground 
+          ? customBackground.memory_key 
+          : persona?.history_key,
         message_title: autoTitle,
         message_content: currentContent,
         text_animation: 'slide_cross', // ⭐ Fixed: 슬라이드 효과
