@@ -260,6 +260,7 @@ const MessageCreationBack = ({
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Phase 2~5: Sequential Animation (ANIMA Logo + Effects + Gradient + Content + Chips)
+  // ⭐ CRITICAL: Reset customBackground on close (cleanup)
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (isVisible) {
@@ -389,7 +390,7 @@ const MessageCreationBack = ({
 
       
     } else {
-      // Reset on close (smooth fade-out)
+      // Reset on close (smooth fade-out + cleanup)
       console.log('🌙 [MessageCreationBack] Closing with fade-out');
       animaLogoOpacity.value = withTiming(0, { duration: 400 });
       soulConnectionOpacity.value = withTiming(0, { duration: 400 });
@@ -398,6 +399,10 @@ const MessageCreationBack = ({
       contentOpacity.value = withTiming(0, { duration: 400 });
       chipsOpacity.value = withTiming(0, { duration: 400 });
       closeButtonOpacity.value = withTiming(0, { duration: 400 });
+      
+      // ⭐ CRITICAL: Reset custom background on close
+      console.log('🔄 [MessageCreationBack] Resetting customBackground to null');
+      setCustomBackground(null);
     }
   }, [isVisible]);
 
@@ -1095,8 +1100,13 @@ const MessageCreationBack = ({
         bg_music_url: bgMusicUrl,
         effect_config: effectConfig, // ⭐ 2-Layer System
         persona_name: persona?.persona_name,
-        persona_image_url: persona?.selected_dress_image_url,
-        persona_video_url: persona?.selected_dress_video_url,
+        // ⭐ CRITICAL: Apply custom background if selected, otherwise use original persona
+        persona_image_url: customBackground 
+          ? customBackground.media_url 
+          : persona?.selected_dress_image_url,
+        persona_video_url: customBackground 
+          ? customBackground.video_url 
+          : persona?.selected_dress_video_url,
         has_password: 'N',
         public_yn: 'Y',
       });
@@ -1153,6 +1163,7 @@ const MessageCreationBack = ({
     customWords,
     user,
     persona,
+    customBackground, // ⭐ ADDED: For custom background branch decision
     backgroundEffect,
     activeEffect,
     bgMusic,
@@ -1460,7 +1471,7 @@ const MessageCreationBack = ({
         >
           <Animated.View style={[
             styles.contentContainer, 
-            { paddingBottom: Platform.OS === 'ios' ? insets.bottom + platformPadding(60) : verticalScale(70) },
+            { paddingBottom: Platform.OS === 'ios' ? insets.bottom + platformPadding(40) : verticalScale(60) },
             contentAnimatedStyle
           ]}>
             <TouchableOpacity onPress={() => {
@@ -1848,6 +1859,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 99999 },
     }),
+    maxHeight: '40%',
   },
   gradient: {
     justifyContent: 'flex-end',
@@ -1866,6 +1878,7 @@ const styles = StyleSheet.create({
     lineHeight: scale(24),
     marginTop:'auto',
     fontStyle: 'italic',
+
   },
   // ⭐ Quick Chips Container (Right Side)
   quickChipsContainer: {
