@@ -77,7 +77,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Platform, BackHandler } from 'react-native';
+import { View, StyleSheet, Platform, BackHandler, ScrollView } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -785,6 +785,7 @@ const MessageCreationBack = ({
     setIsMessageHistorySheetVisible(false);
     
     HapticService.success();
+    /*
     showAlert({
       title: t('message.history.applied_title') || '설정 적용 완료!',
       emoji: '✅',
@@ -802,6 +803,7 @@ const MessageCreationBack = ({
         }
       ]
     });
+    */
   }, [t, showAlert]);
   
   // Close message history sheet
@@ -1087,6 +1089,9 @@ const MessageCreationBack = ({
         active_effect: activeEffect !== 'none' ? activeEffect : null,
         custom_words: customWords.length > 0 ? customWords : null,
       };
+
+      console.log('customBackground', customBackground);
+
 
       const response = await messageService.createMessage({
         user_key: user?.user_key,
@@ -1474,9 +1479,10 @@ const MessageCreationBack = ({
         >
           <Animated.View style={[
             styles.contentContainer, 
-            { paddingBottom: Platform.OS === 'ios' ? insets.bottom + platformPadding(40) : verticalScale(60) },
+            { paddingBottom: Platform.OS === 'ios' ? insets.bottom + platformPadding(25) : verticalScale(50) },
             contentAnimatedStyle
           ]}>
+            <ScrollView style={{ maxHeight: verticalScale(150)}} showsVerticalScrollIndicator={false}>
             <TouchableOpacity onPress={() => {
               console.log('[MessageCreationBack] 💬 Content area clicked, opening MessageInputOverlay');
               HapticService.light();
@@ -1486,6 +1492,7 @@ const MessageCreationBack = ({
                 {messageContent || t('message.creation.empty')}
               </CustomText>
             </TouchableOpacity>
+            </ScrollView>
           </Animated.View>
         </LinearGradient>
       </Animated.View>
@@ -1559,7 +1566,7 @@ const MessageCreationBack = ({
             onPress={handleOpenMessageHistorySheet}
             activeOpacity={0.7}
           >
-            <Icon name="time-outline" size={scale(20)} color="#9D4EDD" />
+            <Icon name="clock-time-ten-outline" size={scale(20)} color="#9D4EDD" />
           </TouchableOpacity>
         </Animated.View>
         
@@ -1580,7 +1587,7 @@ const MessageCreationBack = ({
       {/* ═══════════════════════════════════════════════════════════════ */}
       <Animated.View style={[
         styles.closeButtonContainer,
-        { top: insets.top + verticalScale(0) },
+        { top: insets.top +  Platform.OS === 'ios' ? verticalScale(-20) : verticalScale(20) },
         closeButtonAnimatedStyle
       ]}>
         <TouchableOpacity
@@ -1862,7 +1869,6 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 99999 },
     }),
-    maxHeight: '40%',
   },
   gradient: {
     justifyContent: 'flex-end',

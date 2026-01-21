@@ -157,8 +157,8 @@ const IdentitySettingsSheet = ({
     <Modal
       visible={isOpen}
       transparent={true}
-      animationType="none"
-      statusBarTranslucent
+      animationType="slide"
+      presentationStyle="formSheet"
       onRequestClose={handleClose}
     >
       {/* Backdrop */}

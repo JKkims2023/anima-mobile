@@ -26,8 +26,8 @@ import {
   ScrollView,
   Dimensions,
   BackHandler,
-  Modal,
   Animated,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
@@ -104,11 +104,9 @@ const BackgroundEffectDetailModal = ({
   if (!visible || !category) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
+    <View 
+      style={styles.absoluteOverlay}
+      pointerEvents={visible ? 'auto' : 'none'}
     >
       {/* Backdrop */}
       <Animated.View
@@ -124,7 +122,7 @@ const BackgroundEffectDetailModal = ({
       {/* Centered Modal Container */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.centeredContainer}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+          <TouchableWithoutFeedback>
             <Animated.View
               style={[
                 styles.modalContainer,
@@ -181,6 +179,7 @@ const BackgroundEffectDetailModal = ({
                           ]}
                           onPress={() => handleEffectPress(effect)}
                           activeOpacity={0.7}
+                          delayPressIn={0}
                         >
                           <LinearGradient
                             colors={
@@ -191,6 +190,7 @@ const BackgroundEffectDetailModal = ({
                             style={styles.effectGradient}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
+                            pointerEvents="none"
                           >
                             {/* Emoji */}
                             <CustomText style={styles.effectEmoji}>
@@ -227,7 +227,7 @@ const BackgroundEffectDetailModal = ({
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
-    </Modal>
+    </View>
   );
 };
 
@@ -236,12 +236,20 @@ const BackgroundEffectDetailModal = ({
 // ═══════════════════════════════════════════════════════════════════════════
 
 const styles = StyleSheet.create({
-  centeredContainer: {
+  // ✅ iOS FIX: AbsoluteView overlay (not Modal, works with closed parent Modal)
+  absoluteOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 999999, // ✅ Maximum zIndex
+    elevation: 999, // ✅ Android elevation
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centeredContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -319,8 +327,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   effectEmoji: {
-    fontSize: scale(32),
+    fontSize: scale(22),
     marginBottom: verticalScale(8),
+
   },
   effectLabel: {
     fontSize: scale(14),

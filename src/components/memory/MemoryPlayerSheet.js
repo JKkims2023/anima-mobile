@@ -805,10 +805,11 @@ const styles = StyleSheet.create({
   
   // AI Message
   giftMessage: {
-    fontSize: moderateScale(17),
+    fontSize: moderateScale(16),
     lineHeight: moderateScale(26),
     color: '#FFFFFF',
     fontWeight: '500',
+    fontStyle: 'italic',
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
@@ -993,6 +994,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     gap: verticalScale(10),
+    marginTop: verticalScale(10),
+    marginBottom: verticalScale(10),
   },
   personaNameContainer: {
     width: '100%',

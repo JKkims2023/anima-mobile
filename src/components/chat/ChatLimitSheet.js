@@ -180,6 +180,7 @@ const ChatLimitSheet = ({
       visible={isOpen}
       transparent={true}
       animationType="none"
+      presentationStyle="overFullScreen"
       statusBarTranslucent
       onRequestClose={handleClose}
     >

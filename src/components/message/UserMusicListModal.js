@@ -31,7 +31,7 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 import musicService from '../../services/api/musicService';
 import { useUser } from '../../contexts/UserContext';
 import HapticService from '../../utils/HapticService';
-
+import { useTranslation } from 'react-i18next';
 const { width, height } = Dimensions.get('window');
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -39,6 +39,7 @@ const { width, height } = Dimensions.get('window');
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MusicItem = React.memo(({ music, isSelected, onSelect }) => {
+
   const handlePress = useCallback(() => {
     HapticService.light();
     onSelect(music);
@@ -94,6 +95,7 @@ const UserMusicListModal = ({
   currentMusicKey,
 }) => {
   const { user } = useUser();
+  const { t } = useTranslation();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // State
@@ -250,11 +252,11 @@ const UserMusicListModal = ({
               end={{ x: 1, y: 1 }}
               style={styles.header}
             >
-              <CustomText style={styles.headerTitle} weight="bold">
-                🎼 커스텀 음악
+              <CustomText style={styles.headerTitle} >
+                {t('message.creation.music_category.custom_modal.title')}
               </CustomText>
               <CustomText style={styles.headerSubtitle} weight="light">
-                직접 생성한 음악을 선택하세요
+                {t('message.creation.music_category.custom_modal.subtitle')}
               </CustomText>
 
               {/* Close Button */}
@@ -273,17 +275,17 @@ const UserMusicListModal = ({
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="large" color="#a8edea" />
                   <CustomText style={styles.loadingText} weight="light">
-                    음악 불러오는 중...
+                    {t('message.creation.music_category.custom_modal.loading')}
                   </CustomText>
                 </View>
               ) : musicList.length === 0 ? (
                 <View style={styles.emptyContainer}>
                   <Icon name="music-note-off" size={scale(48)} color="rgba(255, 255, 255, 0.3)" />
                   <CustomText style={styles.emptyText} weight="light">
-                    생성된 음악이 없습니다
+                    {t('message.creation.music_category.custom_modal.empty')}
                   </CustomText>
                   <CustomText style={styles.emptySubtext} weight="light">
-                    Music 탭에서 음악을 생성해보세요
+                    {t('message.creation.music_category.custom_modal.subempty')}
                   </CustomText>
                 </View>
               ) : (
@@ -334,25 +336,24 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   header: {
-    paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(16),
-    paddingHorizontal: scale(20),
-    position: 'relative',
+
   },
   headerTitle: {
-    fontSize: scale(20),
+    fontSize: scale(16),
     color: '#000000',
     textAlign: 'center',
-    marginBottom: verticalScale(4),
+    marginTop: verticalScale(17),
+    marginBottom: verticalScale(17),
   },
   headerSubtitle: {
     fontSize: scale(13),
     color: 'rgba(0, 0, 0, 0.7)',
     textAlign: 'center',
+    display: 'none',
   },
   closeIconButton: {
     position: 'absolute',
-    top: verticalScale(12),
+    top: verticalScale(6),
     right: scale(12),
     padding: scale(8),
   },

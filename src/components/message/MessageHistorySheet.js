@@ -27,6 +27,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -155,7 +156,7 @@ const MessageHistorySheet = ({
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={currentTheme.mainColor} />
           <CustomText style={[styles.emptyText, { color: currentTheme.textSecondary }]}>
-            {t('message.history.loading') || '메시지 불러오는 중...'}
+            {t('message.history.loading')}
           </CustomText>
         </View>
       );
@@ -198,7 +199,7 @@ const MessageHistorySheet = ({
 
     // ⭐ Render messages directly with map (no FlatList needed!)
     return (
-      <View style={styles.listContainer}>
+      <ScrollView style={{ height: verticalScale(400)}}>
         {messages.map((message) => (
           <MessageHistoryListItem
             key={message.message_key}
@@ -206,7 +207,7 @@ const MessageHistorySheet = ({
             onPress={() => handleMessagePress(message)}
           />
         ))}
-      </View>
+      </ScrollView>
     );
   };
 
@@ -217,13 +218,23 @@ const MessageHistorySheet = ({
     <CustomBottomSheet
       ref={sheetRef}
       snapPoints={['80%']}
-      title={t('message.history.title') || '이전 메시지 불러오기'}
-      subtitle={t('message.history.subtitle') || '메시지를 선택하면 설정이 자동으로 적용됩니다'}
+      title={t('message.history.title')}
+//      subtitle={t('message.history.subtitle')}
       onClose={onClose}
       enablePanDownToClose={true}
+      buttons={[
+        {
+          title: t('common.close'),
+          type: 'primary',
+          onPress: onClose,
+        },
+      ]}
+      
     >
       {/* ⭐ FIX: Render content directly (no FlatList, just map!) */}
-      {renderContent()}
+
+        {renderContent()}
+
     </CustomBottomSheet>
   );
 };
@@ -234,6 +245,7 @@ const MessageHistorySheet = ({
 const styles = StyleSheet.create({
   listContainer: {
     // ⭐ Simple container for mapped items
+    height: verticalScale(200),
   },
   emptyContainer: {
     minHeight: verticalScale(400), // ⭐ Minimum height for centering

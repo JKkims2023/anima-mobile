@@ -510,7 +510,7 @@ const MemoryScreen = () => {
           {t('navigation.title.memory')}
         </CustomText>
 
-        <Svg height={scale(30)} width={scale(200)}>
+        <Svg height={scale(30)} width={scale(70)}>
           <Defs>
             <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
@@ -528,7 +528,18 @@ const MemoryScreen = () => {
             {t('navigation.title.memory')}
           </SvgText>
         </Svg>
-        
+
+        {/* ✨ Soul Connection - Subtitle with delayed slide-in animation */}
+        <View 
+          style={{ 
+          
+          }}
+        >
+          <CustomText style={styles.soulConnection}>
+            {t('navigation.title.memory_subtitle')}
+          </CustomText>
+        </View>
+  
         {/* Search Icon */}
         <TouchableOpacity
           style={styles.searchIconButton}
@@ -848,6 +859,14 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 8 },
     }),
+  },
+  soulConnection: {
+    fontSize: scale(16),
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '500',
+    marginTop: scale(2), // ✅ 위로 약간 올림 (정확한 정렬)
+    letterSpacing: 0.3,
+
   },
 });
 

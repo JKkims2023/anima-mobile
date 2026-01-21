@@ -200,7 +200,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     { key: 'AI', icon: null, label: '' }, // Center AI button
     {
       key: 'History',
-      icon: 'paper-plane',
+      icon: 'logo-dropbox',
       label: t('navigation.history') || '히스토리',
       route: 'History', // Navigate to History screen
     },

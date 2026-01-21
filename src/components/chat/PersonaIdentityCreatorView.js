@@ -554,6 +554,7 @@ const SPEAKING_STYLES = [
         visible={visible}
         transparent={true}
         animationType="none"
+        presentationStyle="overFullScreen"
         statusBarTranslucent
         onRequestClose={handleCancel}
       >

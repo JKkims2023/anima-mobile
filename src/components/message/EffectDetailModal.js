@@ -22,16 +22,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Modal,
   Animated,
   Vibration,
   ScrollView,
   BackHandler,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { scale, verticalScale } from '../../utils/responsive-utils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -69,7 +70,7 @@ const EffectItem = React.memo(({ effect, isSelected, onSelect }) => {
         <Text style={styles.effectEmoji}>{effect.emoji}</Text>
 
         {/* Name */}
-        <CustomText style={styles.effectName} weight="medium">
+        <CustomText style={styles.effectName} type='normal'>
           {effect.name}
         </CustomText>
 
@@ -198,16 +199,23 @@ const EffectDetailModal = ({
   // Render
   // ═══════════════════════════════════════════════════════════════════════════
 
+  // 🔍 DEBUG: Log render state
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🎨 [EffectDetailModal] Render check (AbsoluteView)');
+  console.log('   visible:', visible);
+  console.log('   category:', category?.name || 'null');
+  console.log('   Will render:', !(!visible || !category));
+  console.log('   Platform:', Platform.OS);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
   if (!visible || !category) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
+    <View 
+      style={styles.absoluteOverlay}
+      pointerEvents={visible ? 'auto' : 'none'}
     >
-      {/* 🔧 FIX: Backdrop */}
+      {/* Backdrop */}
       <Animated.View
         style={[
           StyleSheet.absoluteFill,
@@ -218,10 +226,10 @@ const EffectDetailModal = ({
         ]}
       />
 
-      {/* 🔧 FIX: Centered Container with backdrop touch */}
+      {/* Centered Container with backdrop touch */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.centeredContainer}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+          <TouchableWithoutFeedback>
             <Animated.View
               style={[
                 styles.modalContainer,
@@ -238,7 +246,7 @@ const EffectDetailModal = ({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <Text style={styles.modalHeaderEmoji}>{category.emoji}</Text>
+          <View style={styles.modalHeaderContent}>
           <CustomText style={styles.modalHeaderTitle} weight="bold">
             {category.name}
           </CustomText>
@@ -254,6 +262,7 @@ const EffectDetailModal = ({
           >
             <Icon name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
+          </View>
         </LinearGradient>
 
         {/* Effects List */}
@@ -273,11 +282,11 @@ const EffectDetailModal = ({
             ))}
           </ScrollView>
         </View>
-      </Animated.View>
+            </Animated.View>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
-    </Modal>
+    </View>
   );
 };
 
@@ -286,13 +295,20 @@ const EffectDetailModal = ({
 // ═══════════════════════════════════════════════════════════════════════════
 
 const styles = StyleSheet.create({
-  // 🔧 FIX: Centered container for modal
-  centeredContainer: {
+  // ✅ iOS FIX: AbsoluteView overlay (not Modal, works with closed parent Modal)
+  absoluteOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 999999, // ✅ Maximum zIndex
+    elevation: 999, // ✅ Android elevation
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centeredContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -305,38 +321,45 @@ const styles = StyleSheet.create({
     flexDirection: 'column', // 🔧 FIX: Explicit column layout
   },
   modalHeader: {
-    paddingTop: 24,
-    paddingBottom: 20,
-    paddingHorizontal: 24,
+    
     alignItems: 'center',
+    
   },
   modalHeaderEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
+    fontSize: scale(22),
+    marginBottom: verticalScale(12),
     display: 'none',
   },
   modalHeaderTitle: {
-    fontSize: 20,
+    fontSize: scale(16),
     color: '#FFFFFF',
-    marginBottom: 6,
+
     textAlign: 'center',
   },
   modalHeaderSubtitle: {
-    fontSize: 14,
+    fontSize: scale(14),
     color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
     display: 'none',
   },
+  modalHeaderContent: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Platform.OS === 'ios' ? verticalScale(20) : verticalScale(15),
+    paddingHorizontal: scale(24),
+  },
   modalCloseButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 'auto',
   },
   // 🔧 FIX: ScrollView container with explicit height
   effectsListContainer: {
@@ -350,6 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+
   },
   effectItem: {
     width: (width * 0.85 - 48) / 2, // 2-column grid
@@ -362,23 +386,24 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   effectItemGradient: {
-    padding: 16,
+
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 140,
+    minHeight: verticalScale(95),
+    borderRadius: scale(16),
   },
   effectEmoji: {
-    fontSize: 36,
-    marginBottom: 8,
+    fontSize: scale(22),
+    marginBottom: verticalScale(8),
   },
   effectName: {
-    fontSize: 15,
+    fontSize: scale(14),
     color: '#FFFFFF',
     marginBottom: 4,
     textAlign: 'center',
   },
   effectDescription: {
-    fontSize: 11,
+    fontSize: scale(11),
     color: 'rgba(255, 255, 255, 0.75)',
     textAlign: 'center',
     display: 'none',

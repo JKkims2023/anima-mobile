@@ -27,11 +27,14 @@ import {
   Animated,
   Vibration,
   BackHandler,
+  Platform
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import { EFFECT_CATEGORIES } from '../../constants/effect-categories';
+import { useTranslation } from 'react-i18next';
+import { scale, verticalScale, platformPadding } from '../../utils/responsive-utils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -40,6 +43,8 @@ const { width, height } = Dimensions.get('window');
 // ═══════════════════════════════════════════════════════════════════════════
 
 const CategoryItem = React.memo(({ category, onSelect }) => {
+  
+  const { t } = useTranslation();
   const handlePress = useCallback(() => {
     // Haptic feedback
     Vibration.vibrate(10);
@@ -51,19 +56,27 @@ const CategoryItem = React.memo(({ category, onSelect }) => {
       style={styles.categoryItem}
       onPress={handlePress}
       activeOpacity={0.7}
+      delayPressIn={0}
     >
       <LinearGradient
         colors={category.colorScheme.gradient}
         style={styles.categoryGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        pointerEvents="none"
       >
         {/* Emoji */}
         <Text style={styles.categoryEmoji}>{category.emoji}</Text>
 
         {/* Name */}
         <CustomText style={styles.categoryName} weight="medium">
-          {category.name}
+          {category.id 
+           === 'falling' ? t('message.creation.effect_category.falling_title') : 
+           category.id === 'sparkle' ? t('message.creation.effect_category.sparkle_title') : 
+           category.id === 'text' ? t('message.creation.effect_category.text_title') : 
+           category.id === 'none' ? t('message.creation.effect_category.none_title') : 
+           category.name
+          }
         </CustomText>
 
         {/* Description */}
@@ -95,6 +108,8 @@ const EffectCategorySheet = ({
   onClose,
   onSelectCategory,
 }) => {
+
+  const { t } = useTranslation();
   // ═══════════════════════════════════════════════════════════════════════════
   // State
   // ═══════════════════════════════════════════════════════════════════════════
@@ -166,19 +181,19 @@ const EffectCategorySheet = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      {/* Backdrop */}
+      {/* Backdrop with BlurView */}
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop} pointerEvents="box-none">
+        <View style={styles.backdrop}>
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="dark"
             blurAmount={10}
-            pointerEvents="none"
+            reducedTransparencyFallbackColor="black"
           />
         </View>
       </TouchableWithoutFeedback>
 
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet (separate from backdrop) */}
       <Animated.View
         style={[
           styles.sheetContainer,
@@ -191,12 +206,8 @@ const EffectCategorySheet = ({
         <View style={styles.header}>
           <View style={styles.handleBar} />
 
-          <CustomText style={styles.title} weight="bold">
-            ✨ 효과 선택
-          </CustomText>
-
-          <CustomText style={styles.subtitle} weight="light">
-            카테고리를 선택하세요
+          <CustomText type="title" style={styles.title} bold>
+            {t('message.creation.effect_category.title')}
           </CustomText>
         </View>
 
@@ -218,7 +229,7 @@ const EffectCategorySheet = ({
           activeOpacity={0.7}
         >
           <CustomText style={styles.closeButtonText} weight="medium">
-            닫기
+            {t('common.close', '닫기')}
           </CustomText>
         </TouchableOpacity>
       </Animated.View>
@@ -233,23 +244,28 @@ const EffectCategorySheet = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'transparent', // ✅ Transparent to allow BlurView to show
   },
   sheetContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#1A1A1A',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink tint border
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingBottom: 40,
     maxHeight: height * 0.7,
+    backgroundColor: Platform.OS === 'ios' 
+    ? 'rgba(26, 26, 26, 0.65)' // ✨ iOS: Semi-transparent for BlurView
+    : 'rgba(26, 26, 26, 0.55)', // ✨ Android: Slightly more opaque
+  elevation: 50, // ✅ Android elevation (그림자 + z-order)
   },
   header: {
-    paddingTop: 20,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingTop: verticalScale(15),
+    paddingHorizontal: scale(24),
+    paddingBottom: verticalScale(14),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
@@ -260,9 +276,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
+    display: 'none',
   },
   title: {
-    fontSize: 24,
+
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
@@ -283,27 +300,31 @@ const styles = StyleSheet.create({
   categoryItem: {
     width: (width - 48) / 2, // 2-column grid
     marginBottom: 12,
-    borderRadius: 20,
+    borderRadius: Platform.OS === 'ios' ? platformPadding(300) : platformPadding(20),
     overflow: 'hidden',
   },
   categoryGradient: {
-    padding: 20,
+    padding: platformPadding(20),
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 160,
+    minHeight: platformPadding(160),
+    borderRadius: Platform.OS === 'ios' ? platformPadding(20) : platformPadding(20),
   },
   categoryEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
+    fontSize: scale(28),
+    marginBottom: platformPadding(12),
+    marginRight: Platform.OS === 'ios' ? platformPadding(40) : platformPadding(0),
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: scale(16),
     color: '#FFFFFF',
-    marginBottom: 6,
+    marginBottom: Platform.OS === 'ios' ? platformPadding(36) : platformPadding(6),
+    marginRight: Platform.OS === 'ios' ? platformPadding(40) : platformPadding(0),
+    
     textAlign: 'center',
   },
   categoryDescription: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
     display: 'none',

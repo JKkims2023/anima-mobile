@@ -29,9 +29,10 @@ import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale, verticalScale } from '../../utils/responsive-utils';
 import musicService from '../../services/api/musicService';
 import { useUser } from '../../contexts/UserContext';
+import { useTranslation } from 'react-i18next';
+import { platformPadding, scale, verticalScale } from '../../utils/responsive-utils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,62 +40,16 @@ const { width, height } = Dimensions.get('window');
 // 🎵 Music Category Definitions
 // ═══════════════════════════════════════════════════════════════════════════
 
-const MUSIC_CATEGORIES = [
-  {
-    id: 'love',
-    emoji: '💕',
-    name: '사랑',
-    description: '설레는 감정',
-    music_key: 'default_music_love_inst',
-    colorScheme: ['#FF6B9D', '#FFC3A0'],
-  },
-  {
-    id: 'sorrow',
-    emoji: '💙',
-    name: '슬픔',
-    description: '잔잔한 위로',
-    music_key: 'default_music_sorrow_inst',
-    colorScheme: ['#667eea', '#764ba2'],
-  },
-  {
-    id: 'comfort',
-    emoji: '🤗',
-    name: '위로',
-    description: '따뜻한 포옹',
-    music_key: 'default_music_help_inst',
-    colorScheme: ['#f093fb', '#f5576c'],
-  },
-  {
-    id: 'celebration',
-    emoji: '🎉',
-    name: '축하',
-    description: '기쁨을 함께',
-    music_key: 'default_music_congrats_inst',
-    colorScheme: ['#4facfe', '#00f2fe'],
-  },
-  {
-    id: 'custom',
-    emoji: '🎼',
-    name: '커스텀',
-    description: '나만의 음악',
-    colorScheme: ['#a8edea', '#fed6e3'],
-    type: 'modal', // ⭐ Opens UserMusicListModal
-  },
-  {
-    id: 'none',
-    emoji: '🔇',
-    name: '없음',
-    description: '음악 없이',
-    colorScheme: ['#e0e0e0', '#c0c0c0'],
-    type: 'direct', // ⭐ Direct selection (no music)
-  },
-];
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 🎨 Category Item Component (Memoized)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const CategoryItem = React.memo(({ category, onSelect, isLoading, isSelected }) => {
+  
+
+  
   const handlePress = useCallback(() => {
     if (isLoading) return; // ⭐ Prevent double-click while loading
     
@@ -163,6 +118,7 @@ const MusicCategorySheet = ({
   onOpenCustomModal, // () => void (open UserMusicListModal)
   currentMusicKey, // 현재 선택된 음악
 }) => {
+  const { t } = useTranslation();
   const { user } = useUser();
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -171,6 +127,58 @@ const MusicCategorySheet = ({
   const [slideAnim] = useState(new Animated.Value(height));
   const [loadingCategory, setLoadingCategory] = useState(null); // 로딩 중인 카테고리 ID
   const [musicCache, setMusicCache] = useState({}); // music_key -> { url, title } 캐시
+
+
+  const MUSIC_CATEGORIES = [
+    {
+      id: 'love',
+      emoji: '💕',
+      name: t('message.creation.music_category.love_title'),
+      description: '설레는 감정',
+      music_key: 'default_music_love_inst',
+      colorScheme: ['#FF6B9D', '#FFC3A0'],
+    },
+    {
+      id: 'sorrow',
+      emoji: '💙',
+      name: t('message.creation.music_category.sorrow_title'),
+      description: '잔잔한 위로',
+      music_key: 'default_music_sorrow_inst',
+      colorScheme: ['#667eea', '#764ba2'],
+    },
+    {
+      id: 'comfort',
+      emoji: '🤗',
+      name: t('message.creation.music_category.comfort_title'),
+      description: '따뜻한 포옹',
+      music_key: 'default_music_help_inst',
+      colorScheme: ['#f093fb', '#f5576c'],
+    },
+    {
+      id: 'celebration',
+      emoji: '🎉',
+      name: t('message.creation.music_category.celebration_title'),
+      description: '기쁨을 함께',
+      music_key: 'default_music_congrats_inst',
+      colorScheme: ['#4facfe', '#00f2fe'],
+    },
+    {
+      id: 'custom',
+      emoji: '🎼',
+      name: t('message.creation.music_category.custom_title'),
+      description: '나만의 음악',
+      colorScheme: ['#a8edea', '#fed6e3'],
+      type: 'modal', // ⭐ Opens UserMusicListModal
+    },
+    {
+      id: 'none',
+      emoji: '🔇',
+      name: t('message.creation.music_category.none_title'),
+      description: '음악 없이',
+      colorScheme: ['#e0e0e0', '#c0c0c0'],
+      type: 'direct', // ⭐ Direct selection (no music)
+    },
+  ];
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Callbacks
@@ -346,13 +354,10 @@ const MusicCategorySheet = ({
         <View style={styles.header}>
           <View style={styles.handleBar} />
 
-          <CustomText style={styles.title} weight="bold">
-            🎵 음악 선택
+          <CustomText type="title" style={styles.title} bold>
+          {t('message.creation.music_category.title')}
           </CustomText>
 
-          <CustomText style={styles.subtitle} weight="light">
-            메시지에 어울리는 음악을 선택하세요
-          </CustomText>
         </View>
 
         {/* Categories Grid (2x3) */}
@@ -397,16 +402,21 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#1A1A1A',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink tint border
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingBottom: 40,
-    maxHeight: height * 0.75,
+    maxHeight: height * 0.7,
+    backgroundColor: Platform.OS === 'ios' 
+    ? 'rgba(26, 26, 26, 0.65)' // ✨ iOS: Semi-transparent for BlurView
+    : 'rgba(26, 26, 26, 0.55)', // ✨ Android: Slightly more opaque
+  elevation: 50, // ✅ Android elevation (그림자 + z-order)
   },
   header: {
-    paddingTop: 20,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingTop: verticalScale(15),
+    paddingHorizontal: scale(24),
+    paddingBottom: verticalScale(14),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
@@ -417,9 +427,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
+    display: 'none',
   },
   title: {
-    fontSize: 24,
+
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
@@ -428,41 +439,47 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
+    display: 'none',
   },
   categoriesContainer: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(16),
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   categoryItem: {
-    width: (width - 48) / 2, // 2-column grid
-    marginBottom: 12,
-    borderRadius: 20,
+    width: (Platform.OS === 'ios' ? width - 38 : width  - 48) / 2, // 2-column grid
+    marginBottom: Platform.OS === 'ios' ? verticalScale(-30) : verticalScale(12),
+    borderRadius: Platform.OS === 'ios' ? platformPadding(300) : platformPadding(20),
     overflow: 'hidden',
+
   },
   categoryGradient: {
-    padding: 20,
+    padding: platformPadding(20),
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 140,
-    position: 'relative',
+    minHeight: platformPadding(140),
+    borderRadius: Platform.OS === 'ios' ? platformPadding(20) : platformPadding(20),
   },
   categoryEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
+    fontSize: scale(28),
+    marginBottom: platformPadding(12),
+    marginRight: Platform.OS === 'ios' ? platformPadding(40) : platformPadding(0),
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: scale(16),
     color: '#FFFFFF',
-    marginBottom: 6,
+    marginBottom: Platform.OS === 'ios' ? platformPadding(36) : platformPadding(6),
+    marginRight: Platform.OS === 'ios' ? platformPadding(40) : platformPadding(0),
+    
     textAlign: 'center',
   },
   categoryDescription: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
+    display: 'none',
   },
   loadingBadge: {
     position: 'absolute',
@@ -487,7 +504,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   closeButton: {
-    marginTop: 16,
+    marginTop: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(16),
     marginHorizontal: 24,
     padding: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',

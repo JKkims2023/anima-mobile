@@ -252,7 +252,7 @@ export const EFFECT_CATEGORIES = [
   {
     id: 'falling',
     name: '떨어짐 효과',
-    emoji: '🎪',
+    emoji: '↕️',
     description: '위에서 아래로 떨어지는 효과',
     colorScheme: {
       primary: '#FF6B9D',

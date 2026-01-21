@@ -115,19 +115,19 @@ const BackgroundEffectCategorySheet = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      {/* Backdrop */}
+      {/* Backdrop with BlurView */}
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop} pointerEvents="box-none">
+        <View style={styles.backdrop}>
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="dark"
             blurAmount={10}
-            pointerEvents="none"
+            reducedTransparencyFallbackColor="black"
           />
         </View>
       </TouchableWithoutFeedback>
 
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet (separate from backdrop) */}
       <Animated.View 
         style={[
           styles.sheetContainer,
@@ -165,12 +165,14 @@ const BackgroundEffectCategorySheet = ({
                   style={styles.categoryCard}
                   onPress={() => handleCategoryPress(category)}
                   activeOpacity={0.7}
+                  delayPressIn={0}
                 >
                   <LinearGradient
                     colors={category.colorScheme.gradient}
                     style={styles.categoryGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
+                    pointerEvents="none"
                   >
                     {/* Emoji */}
                     <Text style={styles.categoryEmoji}>{category.emoji}</Text>
@@ -229,7 +231,7 @@ const BackgroundEffectCategorySheet = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'transparent', // ✅ Transparent to allow BlurView to show
   },
   sheetContainer: {
     position: 'absolute',

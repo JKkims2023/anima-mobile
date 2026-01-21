@@ -270,7 +270,7 @@ const GiftActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) 
   };
 
   return (
-    <View style={[styles.container, { paddingTop: Platform.OS === 'ios' ? verticalScale(210) : 0 }]} pointerEvents="none">
+    <View style={[styles.container, { paddingTop: Platform.OS === 'ios' ? 0 : 0 }]} pointerEvents="none">
       {renderParticleEffect()}
     </View>
   );

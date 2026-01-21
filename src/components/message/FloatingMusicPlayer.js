@@ -328,8 +328,26 @@ const FloatingMusicPlayer = ({
   useEffect(() => {
     if (visible && music_url) {
       loadAndPlayMusic();
+    } else if (!visible) {
+      // ✅ FIX: Stop and cleanup when visibility changes to false
+      console.log('🔇 [FloatingMusicPlayer] Visibility false - stopping music');
+      
+      if (soundRef.current) {
+        if (isPlaying) {
+          soundRef.current.pause();
+          setIsPlaying(false);
+        }
+        stopProgressTracking();
+        soundRef.current.release();
+        soundRef.current = null;
+      }
+      
+      // Reset state
+      setCurrentTime(0);
+      setDuration(0);
+      setShowControls(false);
     }
-  }, [visible, music_url, loadAndPlayMusic]);
+  }, [visible, music_url, loadAndPlayMusic, isPlaying, stopProgressTracking]);
 
   // ⭐ Fade in/out animation
   useEffect(() => {
@@ -442,7 +460,7 @@ const FloatingMusicPlayer = ({
             <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
               <Icon
                 name={isPlaying ? 'pause-circle' : 'play-circle'}
-                size={scale(36)}
+                size={scale(26)}
                 color="#FFFFFF"
               />
             </Animated.View>
@@ -450,10 +468,12 @@ const FloatingMusicPlayer = ({
 
           {/* Title (Marquee) */}
           <View style={styles.titleContainer}>
-            <MarqueeText
-              text={music_title || 'Unknown'}
+            <CustomText
               style={styles.titleText}
-            />
+              type="title"
+            >
+              {music_title || 'Unknown'}
+            </CustomText>
           </View>
 
           {/* Expand/Collapse Button */}
@@ -569,10 +589,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleText: {
-    fontSize: scale(14),
+
     color: '#FFFFFF',
     fontWeight: '600',
-  },
+    margiTop: verticalScale(25),
+
+   },
   expandButton: {
     padding: scale(4),
   },

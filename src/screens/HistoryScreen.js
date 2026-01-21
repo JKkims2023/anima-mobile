@@ -42,6 +42,7 @@ import CustomText from '../components/CustomText';
 import SafeScreen from '../components/SafeScreen';
 import MessageHistoryListItem from '../components/message/MessageHistoryListItem';
 import MusicListItem from '../components/music/MusicListItem'; // ⭐ NEW: Unified music list item
+import BackgroundListItem from '../components/memory/BackgroundListItem'; // 🖼️ NEW: Background list item
 import MessageDetailOverlay from '../components/message/MessageDetailOverlay';
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet'; // ⭐ NEW: Music creation
 import MusicPlayerSheet from '../components/music/MusicPlayerSheet'; // ⭐ NEW: Music player
@@ -51,6 +52,7 @@ import { useUser } from '../contexts/UserContext';
 import { useAnima } from '../contexts/AnimaContext';
 import messageService from '../services/api/messageService';
 import musicService from '../services/api/musicService'; // ⭐ NEW: Music service
+import memoryService from '../services/api/memoryService'; // 🖼️ NEW: Memory service (for backgrounds)
 import HapticService from '../utils/HapticService';
 import { scale, verticalScale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
@@ -93,7 +95,7 @@ const HistoryScreen = () => {
   const playerSheetRef = useRef(null); // ⭐ NEW: Music player
   
   // ✅ Tab state
-  const [activeTab, setActiveTab] = useState('message'); // 'message' | 'music'
+  const [activeTab, setActiveTab] = useState('message'); // 'message' | 'music' | 'background' 🖼️ NEW
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ✅ Messages state
   const [messages, setMessages] = useState([]);
@@ -124,6 +126,13 @@ const HistoryScreen = () => {
   const [creatingMusicKey, setCreatingMusicKey] = useState(null);
   const [selectedMusic, setSelectedMusic] = useState(null);
   const [isProcessingMusic, setIsProcessingMusic] = useState(false);
+
+  // 🖼️ NEW: Background state
+  const [backgroundList, setBackgroundList] = useState([]);
+  const [filteredBackgroundList, setFilteredBackgroundList] = useState([]);
+  const [backgroundSearchQuery, setBackgroundSearchQuery] = useState('');
+  const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
+  const [isBackgroundRefreshing, setIsBackgroundRefreshing] = useState(false);
 
   // ⭐ Message Detail Overlay state
   const [isMessageDetailVisible, setIsMessageDetailVisible] = useState(false);
@@ -159,9 +168,10 @@ const HistoryScreen = () => {
   useEffect(() => {
     console.log('📊 [HistoryScreen] Mount useEffect triggered, isAuthenticated:', isAuthenticated, 'user_key:', user?.user_key);
     if (isAuthenticated && user?.user_key) {
-      console.log('📊 [HistoryScreen] Loading messages and music...');
+      console.log('📊 [HistoryScreen] Loading messages, music, and backgrounds...');
       loadMessages(true); // true = reset
-      loadMusicList(true); // ⭐ NEW: Also load music
+      loadMusicList(true); // ⭐ Load music
+      loadBackgroundList(true); // 🖼️ NEW: Load backgrounds
     }
   }, [isAuthenticated, user?.user_key]);
 
@@ -177,6 +187,12 @@ const HistoryScreen = () => {
     console.log('🎵 [HistoryScreen] Music filter useEffect triggered');
     applyMusicFilters();
   }, [musicList, musicFilter, musicSearchQuery]);
+
+  // 🖼️ NEW: Apply background filters
+  useEffect(() => {
+    console.log('🖼️ [HistoryScreen] Background filter useEffect triggered');
+    applyBackgroundFilters();
+  }, [backgroundList, backgroundSearchQuery]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ⭐ NEW: Push Notification Event Listener (Music)
@@ -272,6 +288,53 @@ const HistoryScreen = () => {
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🖼️ NEW: Load background list from API
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const loadBackgroundList = async (reset = false) => {
+    if (!user?.user_key) {
+      console.log('❌ [HistoryScreen] loadBackgroundList: No user_key');
+      return;
+    }
+    
+    console.log('🖼️ [HistoryScreen] loadBackgroundList called, reset:', reset);
+    
+    if (reset) {
+      setIsBackgroundLoading(true);
+    }
+
+    try {
+      console.log('🖼️ [HistoryScreen] Calling memoryService.listUserBackgrounds for user:', user.user_key);
+      const result = await memoryService.listUserBackgrounds(user.user_key);
+
+      console.log('🖼️ [HistoryScreen] Background API response:', result);
+
+      if (result.success && result.data) {
+        const newList = result.data;
+        console.log('🖼️ [HistoryScreen] Background list loaded:', newList.length, 'items');
+        
+        if (reset) {
+          setBackgroundList(newList);
+        } else {
+          setBackgroundList(prev => [...prev, ...newList]);
+        }
+      } else {
+        console.log('❌ [HistoryScreen] Background API failed or no data:', result);
+        if (reset) {
+          setBackgroundList([]);
+        }
+      }
+    } catch (error) {
+      console.error('❌ [HistoryScreen] Load background error:', error);
+      if (reset) {
+        setBackgroundList([]);
+      }
+    } finally {
+      setIsBackgroundLoading(false);
+      setIsBackgroundRefreshing(false);
     }
   };
 
@@ -396,6 +459,25 @@ const HistoryScreen = () => {
     setFilteredMusicList(filtered);
   };
 
+  // 🖼️ NEW: Apply background filters
+  const applyBackgroundFilters = () => {
+    console.log('🖼️ [HistoryScreen] applyBackgroundFilters called, backgroundList length:', backgroundList.length);
+    let filtered = [...backgroundList];
+
+    // Filter by search query
+    if (backgroundSearchQuery.trim()) {
+      const query = backgroundSearchQuery.toLowerCase();
+      filtered = filtered.filter(b =>
+        b.emotion_tag?.toLowerCase().includes(query) ||
+        b.location_tag?.toLowerCase().includes(query)
+      );
+      console.log('🖼️ [HistoryScreen] Search query:', backgroundSearchQuery, ', filtered length:', filtered.length);
+    }
+
+    console.log('🖼️ [HistoryScreen] Final filtered background list length:', filtered.length);
+    setFilteredBackgroundList(filtered);
+  };
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle filter chip press
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -418,8 +500,13 @@ const HistoryScreen = () => {
     // Reset search when switching tabs
     if (tab === 'message') {
       setMusicSearchQuery('');
-    } else {
+      setBackgroundSearchQuery('');
+    } else if (tab === 'music') {
       setSearchQuery('');
+      setBackgroundSearchQuery('');
+    } else if (tab === 'background') {
+      setSearchQuery('');
+      setMusicSearchQuery('');
     }
     
     // Scroll to top
@@ -540,20 +627,45 @@ const HistoryScreen = () => {
     }
   }, []);
 
-  // ⭐ NEW: Handle floating button press (create music)
-  const handleFloatingButtonPress = () => {
-    if (isCreating) {
-      HapticService.warning();
-      showAlert({
-        title: t('music.already_creating_title'),
-        message: t('music.already_creating_message'),
-        buttons: [{ text: t('common.ok') }],
-      });
-      return;
-    }
-    
+  // 🖼️ NEW: Handle background item press
+  const handleBackgroundPress = (background) => {
     HapticService.light();
-    creatorSheetRef.current?.present();
+    console.log('🖼️ [HistoryScreen] Background pressed:', background.memory_key);
+    // ⭐ TODO: Open BackgroundViewerSheet (나중에 구현)
+    showToast({
+      type: 'info',
+      message: '배경 상세 뷰어는 곧 구현될 예정입니다! 🚀',
+      emoji: '🖼️',
+    });
+  };
+
+  // ⭐ NEW: Handle floating button press (create music or background)
+  const handleFloatingButtonPress = () => {
+    HapticService.light();
+    
+    if (activeTab === 'music') {
+      // Music: Check if already creating
+      if (isCreating) {
+        HapticService.warning();
+        showAlert({
+          title: t('music.already_creating_title'),
+          message: t('music.already_creating_message'),
+          buttons: [{ text: t('common.ok') }],
+        });
+        return;
+      }
+      
+      // Open music creator
+      creatorSheetRef.current?.present();
+    } else if (activeTab === 'background') {
+      // Background: Open background creator (나중에 구현)
+      console.log('🖼️ [HistoryScreen] Background creation button pressed');
+      showToast({
+        type: 'info',
+        message: '배경 생성 기능은 곧 구현될 예정입니다! 🚀',
+        emoji: '🎨',
+      });
+    }
   };
 
   // ⭐ NEW: Handle music creation submit (from MusicCreatorSheet)
@@ -664,9 +776,12 @@ const HistoryScreen = () => {
     console.log('🔄 [HistoryScreen] Refresh triggered for tab:', activeTab);
     if (activeTab === 'message') {
       loadMessages(true);
-    } else {
+    } else if (activeTab === 'music') {
       setIsMusicRefreshing(true);
       loadMusicList(true);
+    } else if (activeTab === 'background') {
+      setIsBackgroundRefreshing(true);
+      loadBackgroundList(true);
     }
   };
 
@@ -810,13 +925,26 @@ const HistoryScreen = () => {
     />
   );
 
-  const renderItem = activeTab === 'message' ? renderMessageItem : renderMusicItem;
+  const renderBackgroundItem = ({ item }) => (
+    <BackgroundListItem
+      background={item}
+      onPress={() => handleBackgroundPress(item)}
+    />
+  );
+
+  const renderItem = activeTab === 'message' 
+    ? renderMessageItem 
+    : activeTab === 'music' 
+    ? renderMusicItem 
+    : renderBackgroundItem;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render empty state (Dynamic!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const renderEmpty = () => {
-    if ((activeTab === 'message' && isLoading) || (activeTab === 'music' && isMusicLoading)) {
+    if ((activeTab === 'message' && isLoading) || 
+        (activeTab === 'music' && isMusicLoading) ||
+        (activeTab === 'background' && isBackgroundLoading)) {
       return null;
     }
 
@@ -836,7 +964,7 @@ const HistoryScreen = () => {
           </CustomText>
         </View>
       );
-    } else {
+    } else if (activeTab === 'music') {
       return (
         <View style={styles.emptyContainer}>
           <Icon name="musical-notes-outline" size={scale(64)} color={currentTheme.textSecondary} />
@@ -845,6 +973,19 @@ const HistoryScreen = () => {
           </CustomText>
           <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
             {musicSearchQuery ? t('music.try_different_search') : t('music.empty_subtitle')}
+          </CustomText>
+        </View>
+      );
+    } else {
+      // Background
+      return (
+        <View style={styles.emptyContainer}>
+          <Icon name="image-outline" size={scale(64)} color={currentTheme.textSecondary} />
+          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+            {backgroundSearchQuery ? '검색 결과가 없습니다' : '생성된 배경이 없습니다'}
+          </CustomText>
+          <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
+            {backgroundSearchQuery ? '다른 검색어를 시도해보세요' : '페르소나 스튜디오에서 배경을 생성해보세요! 🎨'}
           </CustomText>
         </View>
       );
@@ -877,17 +1018,8 @@ const HistoryScreen = () => {
       {/* Header with Search Icon */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <CustomText type="big" bold style={[styles.headerTitle, { display: 'none', color: currentTheme.textPrimary }]}>
-            {t('navigation.title.history')}
-          </CustomText>
-
-          <CustomText type="small" style={[styles.headerSubtitle, { color: currentTheme.textSecondary }]}>
-            {filteredMessages.length > 0 
-              ? `${filteredMessages.length}${t('history.messages_count')}` 
-              : t('navigation.subtitle.history_message')}
-          </CustomText>
-
-          <Svg height={scale(30)} width={scale(200)}>
+      
+          <Svg height={scale(30)} width={scale(70)}>
           <Defs>
             <LinearGradient id="animaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
@@ -905,10 +1037,21 @@ const HistoryScreen = () => {
             {t('navigation.title.history')}
           </SvgText>
         </Svg>
-
+      
         </View>
+
+        {/* ✨ Soul Connection - Subtitle with delayed slide-in animation */}
+        <View 
+          style={{ 
+          }}
+        >
+          <CustomText style={styles.soulConnection}>
+            {t('navigation.title.history_subtitle')}
+          </CustomText>
+        </View>
+
         <TouchableOpacity
-          style={styles.searchButton}
+          style={[styles.searchButton, { marginLeft: 'auto' }]}
           onPress={() => setIsHelpOpen(true)}
           activeOpacity={0.7}
         >
@@ -925,15 +1068,39 @@ const HistoryScreen = () => {
         <Icon name="search" size={scale(20)} color={currentTheme.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={[styles.searchInput, { color: currentTheme.textPrimary }]}
-          placeholder={activeTab === 'message' ? t('history.search_placeholder') : t('music.search_placeholder')}
+          placeholder={
+            activeTab === 'message' 
+              ? t('history.search_placeholder') 
+              : activeTab === 'music' 
+              ? t('music.search_placeholder')
+              : '태그로 검색 (예: 행복, 서울)'
+          }
           placeholderTextColor={currentTheme.textSecondary}
-          value={activeTab === 'message' ? searchQuery : musicSearchQuery}
-          onChangeText={activeTab === 'message' ? setSearchQuery : setMusicSearchQuery}
+          value={
+            activeTab === 'message' 
+              ? searchQuery 
+              : activeTab === 'music' 
+              ? musicSearchQuery 
+              : backgroundSearchQuery
+          }
+          onChangeText={
+            activeTab === 'message' 
+              ? setSearchQuery 
+              : activeTab === 'music' 
+              ? setMusicSearchQuery 
+              : setBackgroundSearchQuery
+          }
           returnKeyType="search"
         />
-        {((activeTab === 'message' && searchQuery.length > 0) || (activeTab === 'music' && musicSearchQuery.length > 0)) && (
+        {((activeTab === 'message' && searchQuery.length > 0) || 
+          (activeTab === 'music' && musicSearchQuery.length > 0) ||
+          (activeTab === 'background' && backgroundSearchQuery.length > 0)) && (
           <TouchableOpacity 
-            onPress={() => activeTab === 'message' ? setSearchQuery('') : setMusicSearchQuery('')} 
+            onPress={() => {
+              if (activeTab === 'message') setSearchQuery('');
+              else if (activeTab === 'music') setMusicSearchQuery('');
+              else setBackgroundSearchQuery('');
+            }} 
             style={styles.clearButton}
           >
             <Icon name="close-circle" size={scale(20)} color={currentTheme.textSecondary} />
@@ -941,10 +1108,11 @@ const HistoryScreen = () => {
         )}
       </View>
 
-      {/* ⭐ NEW: Tab Buttons */}
+      {/* ⭐ NEW: Tab Buttons (3개로 확장) */}
       <View style={styles.tabContainer}>
         {renderTabButton('message', t('navigation.title.history_message'), 'chatbubbles')}
         {renderTabButton('music', t('navigation.title.history_music'), 'musical-notes')}
+        {renderTabButton('background', '배경', 'image')}
       </View>
 
       {false && (
@@ -968,21 +1136,39 @@ const HistoryScreen = () => {
       )}
 
       {/* List (Dynamic!) */}
-      {((activeTab === 'message' && isLoading) || (activeTab === 'music' && isMusicLoading)) ? (
+      {((activeTab === 'message' && isLoading) || 
+        (activeTab === 'music' && isMusicLoading) ||
+        (activeTab === 'background' && isBackgroundLoading)) ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.neonBlue} />
           <CustomText style={[styles.loadingText, { color: currentTheme.textSecondary }]}>
-            {activeTab === 'message' ? t('history.loading') : t('music.loading')}
+            {activeTab === 'message' 
+              ? t('history.loading') 
+              : activeTab === 'music' 
+              ? t('music.loading')
+              : '배경 불러오는 중...'}
           </CustomText>
         </View>
       ) : (
         <View style={styles.listContainer}>
           <FlashList
             ref={flashListRef}
-            data={activeTab === 'message' ? filteredMessages : filteredMusicList}
+            data={
+              activeTab === 'message' 
+                ? filteredMessages 
+                : activeTab === 'music' 
+                ? filteredMusicList 
+                : filteredBackgroundList
+            }
             renderItem={renderItem}
             estimatedItemSize={94}
-            keyExtractor={(item) => activeTab === 'message' ? item.message_key : item.music_key}
+            keyExtractor={(item) => 
+              activeTab === 'message' 
+                ? item.message_key 
+                : activeTab === 'music' 
+                ? item.music_key 
+                : item.memory_key
+            }
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListEmptyComponent={renderEmpty}
@@ -990,7 +1176,13 @@ const HistoryScreen = () => {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
-                refreshing={activeTab === 'message' ? false : isMusicRefreshing}
+                refreshing={
+                  activeTab === 'message' 
+                    ? false 
+                    : activeTab === 'music' 
+                    ? isMusicRefreshing 
+                    : isBackgroundRefreshing
+                }
                 onRefresh={handleRefresh}
                 tintColor={COLORS.neonBlue}
                 {...(Platform.OS === 'android' && {
@@ -1006,8 +1198,8 @@ const HistoryScreen = () => {
         </View>
       )}
 
-      {/* ⭐ NEW: Floating Create Button (Music Tab Only) */}
-      {activeTab === 'music' && (
+      {/* ⭐ NEW: Floating Create Button (Music & Background Tabs) */}
+      {(activeTab === 'music' || activeTab === 'background') && (
         <TouchableOpacity
           style={[styles.floatingButton, { backgroundColor: COLORS.neonBlue }]}
           onPress={handleFloatingButtonPress}
@@ -1077,15 +1269,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingTop: platformPadding(20),
     paddingBottom: platformPadding(0),
     paddingHorizontal: platformPadding(20),
     backgroundColor:'#0F172A'
   },
   headerContent: {
-    flex: 1,
-    backgroundColor:'#0F172A'
+    backgroundColor:'#0F172A',
+
   },
   headerTitle: {
     marginBottom: scale(4),
@@ -1249,6 +1440,13 @@ const styles = StyleSheet.create({
   // Sheet Container
   sheetContainer: {
     flex: 0,
+  },
+  soulConnection: {
+    fontSize: scale(16),
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '500',
+    marginTop: scale(2), // ✅ 위로 약간 올림 (정확한 정렬)
+    letterSpacing: 0.3,
   },
 });
 

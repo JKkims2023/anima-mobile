@@ -306,7 +306,7 @@ const BackgroundSelectionSheet = ({
   return (
     <CustomBottomSheet
       ref={sheetRef}
-      snapPoints={['50%']}
+      snapPoints={['60%']}
       title={t('message.background_selection.title') || '배경 선택'}
       subtitle={t('message.background_selection.subtitle') || '드레스를 선택하여 배경을 변경하세요'}
       onClose={onClose}
@@ -319,7 +319,7 @@ const BackgroundSelectionSheet = ({
         },
         {
           title: t('message.background_selection.reset_button') || '원래 배경',
-          type: 'secondary',
+          type: 'primary',
           icon: 'refresh',
           onPress: handleReset,
         },

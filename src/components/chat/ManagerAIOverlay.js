@@ -847,9 +847,9 @@ const ManagerAIOverlay = ({
               
               const notificationMessage = {
                 id: `notification-${Date.now()}-${index}`,
-                role: 'assistant',
+        role: 'assistant',
                 text: bubble.text,
-                timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
               };
               
               setMessages(prev => [...prev, notificationMessage]);
@@ -961,7 +961,7 @@ const ManagerAIOverlay = ({
             text: '✨ 자아 입력 시작',
             timestamp: new Date().toISOString(),
             onPress: () => {
-              HapticService.medium();
+    HapticService.medium();
               setShowIdentityCreator(true);
             },
           };
@@ -994,9 +994,9 @@ const ManagerAIOverlay = ({
                   id: `greeting-${Date.now()}-${index}`,
                   role: 'assistant',
                   text: bubble.text,
-                  timestamp: new Date().toISOString(),
-                };
-                
+      timestamp: new Date().toISOString(),
+    };
+    
                 setMessages(prev => [...prev, greetingMessage]);
                 setMessageVersion(v => v + 1);
               }, 50);
@@ -1044,7 +1044,7 @@ const ManagerAIOverlay = ({
         
         setTimeout(() => {
           if (bubble.delay > 0 && index > 0) {
-            setIsLoading(true);
+    setIsLoading(true);
             setTimeout(() => {
               setIsLoading(false);
               
@@ -1094,7 +1094,7 @@ const ManagerAIOverlay = ({
     
     setTimeout(async () => {
       try {
-        const response = await chatApi.sendManagerAIMessage({
+      const response = await chatApi.sendManagerAIMessage({
           user_key: userKey,
           question: '[AUTO_START]', // Special marker for AI to start conversation
           persona_key: persona?.persona_key || null,
@@ -1120,27 +1120,27 @@ const ManagerAIOverlay = ({
                 setIsLoading(true);
                 setTimeout(() => {
                   setIsLoading(false);
-                  
-                  const aiMessage = {
+            
+            const aiMessage = {
                     id: `ai-start-${Date.now()}-${index}`,
-                    role: 'assistant',
+              role: 'assistant',
                     text: bubble.text,
-                    timestamp: new Date().toISOString(),
+              timestamp: new Date().toISOString(),
                     // ⭐ Rich media content (only on first bubble to avoid duplication)
                     images: index === 0 ? richContent.images : [],
                     videos: index === 0 ? richContent.videos : [],
                     links: index === 0 ? richContent.links : [],
-                  };
-                  
-                  setMessages(prev => [...prev, aiMessage]);
+            };
+            
+            setMessages(prev => [...prev, aiMessage]);
                   setMessageVersion(v => v + 1);
                 }, 50);
-              } else {
+      } else {
                 const aiMessage = {
                   id: `ai-start-${Date.now()}-${index}`,
-                  role: 'assistant',
+          role: 'assistant',
                   text: bubble.text,
-                  timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
                   // ⭐ Rich media content (only on first bubble to avoid duplication)
                   images: index === 0 ? richContent.images : [],
                   videos: index === 0 ? richContent.videos : [],
@@ -1671,7 +1671,7 @@ const ManagerAIOverlay = ({
       if (limitTooltipRef.current?.closeTooltip) {
         limitTooltipRef.current.closeTooltip();
       }
-      HapticService.light();
+    HapticService.light();
       isClosingRef.current = false; // 🔓 Unlock
       return; // ⭐ Don't close chat!
     }
@@ -1823,15 +1823,15 @@ const ManagerAIOverlay = ({
               
               // Close overlay with haptic feedback
               HapticService.medium();
-              Keyboard.dismiss();
-              
+    Keyboard.dismiss();
+    
               // 🧹 Unified cleanup in setTimeout
-              setTimeout(() => {
+    setTimeout(() => {
                 console.log(`🧹 [handleClose] Cleanup complete, unlocking (ID: ${closeCallId})`);
                 // Reset all chat states
-                setMessages([]);
+      setMessages([]);
                 setCurrentTypingText('');
-                setIsTyping(false);
+      setIsTyping(false);
                 setIsLoading(false);
                 setIsAIContinuing(false);
                 aiContinueCountRef.current = 0;
@@ -1850,10 +1850,10 @@ const ManagerAIOverlay = ({
                 setShowIdentityCreator(false);
                 setIsHelpOpen(false);
                 setFloatingContent(null);
-                
-                if (onClose) {
-                  onClose();
-                }
+    
+    if (onClose) {
+      onClose();
+    }
                 
                 // 🔓 Unlock after close
                 isClosingRef.current = false;
@@ -1989,7 +1989,7 @@ const ManagerAIOverlay = ({
                     {t('persona.identity.as', '자아')}: {persona.identity_name}
                   </CustomText>
                 )}
-              </View>
+            </View>
               {/* Help Icon */}
               <TouchableOpacity
                 style={styles.helpButton}

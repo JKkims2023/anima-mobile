@@ -691,7 +691,7 @@ const TierUpgradeSheet = ({
   const activeTierConfig = TIER_CONFIG[activeTab];
 
   return (
-    <Modal visible={isOpen} transparent animationType="none" statusBarTranslucent onRequestClose={handleClose}>
+    <Modal visible={isOpen} transparent animationType="none" presentationStyle="overFullScreen" statusBarTranslucent onRequestClose={handleClose}>
       {/* Backdrop */}
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose}>
         <Animated.View
