@@ -1749,11 +1749,16 @@
       "content_required_description": "감성적인 메세지를 작성 후, 메신저에 공유가능합니다!"
     },
     "history": {
-      "title": "최근 메시지",
-      "loading": "메세지 불러오는 중...",
-      "empty": "생성한 메시지가 없습니다",
+      "title": "이전 메시지 불러오기",
+      "subtitle": "메시지를 선택하면 설정이 자동으로 적용됩니다",
+      "loading": "메시지 불러오는 중...",
+      "empty": "작성한 메시지가 없습니다",
+      "empty_hint": "첫 메시지를 작성해보세요!",
       "empty_title": "아직 생성한 메시지가 없습니다",
       "empty_subtitle": "홈 화면에서 첫 메시지를 만들어보세요! 💌",
+      "error": "메시지를 불러오는데 실패했습니다",
+      "applied_title": "설정 적용 완료!",
+      "applied_message": "이전 메시지의 설정이 적용되었습니다.\n내용을 수정하여 새로운 메시지를 만들어보세요!",
       "all_swiped_title": "모두 확인하셨습니다!",
       "all_swiped_subtitle": "새로운 메시지를 기다리거나, 다시 시작해보세요.",
       "reset_button": "처음부터 다시 보기",
@@ -1787,6 +1792,29 @@
       "rewrite_button": "다시 작성하기"
     },
     "creation": {
+      "effect_category": {
+        "title": "✨  효과 선택",
+        "falling_title": "업다운 효과",
+        "sparkle_title": "반짝임 효과",
+        "text_title": "텍스트 효과",
+        "none_title": "없음"
+      },
+      "music_category": {
+        "title": "🎵  음악 선택",
+        "none_title": "없음",
+        "love_title": "사랑",
+        "sorrow_title": "슬픔",
+        "comfort_title": "위로",
+        "celebration_title": "축하",
+        "custom_title": "커스텀",
+        "custom_modal" : {
+          "title": "커스텀 음악",
+          "subtitle": "직접 생성한 음악을 선택하세요",
+          "loading": "음악 불러오는 중...",
+          "empty": "생성된 음악이 없습니다",
+          "subempty": "Music 탭에서 음악을 생성해보세요"
+        }
+      },
       "creating": "메시지 생성 중...",
       "empty": "오직 당신만을 위해 제공되는, ANIMA의 유니크한 메시지를 만들고 메신저에 공유하세요! 💌\n\n클릭하여 메시지를 입력해주세요."
     },
@@ -1811,6 +1839,22 @@
     "create_done_alert": {
       "title": "메시지 생성 완료!",
       "description": "메시지가 성공적으로 생성되었습니다.\n메세지 메뉴에서 생성된 메시지를 확인, 공유할 수 있습니다."
+    },
+    "background": {
+      "coming_soon_title": "곧 출시 예정!",
+      "coming_soon_message": "사용자 제작 배경 기능이 곧 추가됩니다.\n조금만 기다려주세요!"
+    },
+    "background_selection": {
+      "title": "배경 선택",
+      "subtitle": "드레스를 선택하여 배경을 변경하세요",
+      "reset_button": "원래 배경",
+      "selected": "선택됨",
+      "loading": "배경 불러오는 중...",
+      "empty_title": "보유한 드레스가 없습니다",
+      "empty_subtitle": "페르소나 스튜디오에서 드레스를 생성해보세요! 🎨",
+      "changed_message": "배경이 변경되었습니다!",
+      "reset_message": "원래 배경으로 복귀했습니다!",
+      "error": "배경을 불러오는데 실패했습니다"
     }
   },
   "message_creator": {

@@ -120,6 +120,8 @@ import MusicCategorySheet from './MusicCategorySheet'; // 🎵 P0: Music System 
 import UserMusicListModal from './UserMusicListModal'; // 🎵 P0: Music System - Step 2
 import FloatingMusicPlayer from './FloatingMusicPlayer'; // 🎵 P0: Music System - Player
 import CustomBottomSheet from '../CustomBottomSheet'; // 🎵 P0: Music System - Player
+import MessageHistorySheet from './MessageHistorySheet'; // 📜 NEW: Message history selection
+import BackgroundSelectionSheet from './BackgroundSelectionSheet'; // 🖼️ NEW: Background selection
 import { useTheme } from '../../contexts/ThemeContext';
 import Video from 'react-native-video';
 import Image from 'react-native-fast-image';
@@ -145,6 +147,10 @@ const MessageCreationBack = ({
   console.log('   has_video:', !!persona?.selected_dress_video_url);
   console.log('   has_image:', !!persona?.selected_dress_image_url);
   console.log('   setMessageCreateHandler exists:', !!setMessageCreateHandler);
+  console.log('   🔍 Modal States:');
+  console.log('      isDetailModalVisible:', isDetailModalVisible);
+  console.log('      selectedCategory:', selectedCategory?.name || 'null');
+  console.log('      isCategorySheetVisible:', isCategorySheetVisible);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -185,13 +191,41 @@ const MessageCreationBack = ({
   const [isMusicCategorySheetVisible, setIsMusicCategorySheetVisible] = useState(false); // Step 1: Category selection
   const [isUserMusicListVisible, setIsUserMusicListVisible] = useState(false); // Step 2: Custom music list
   
+  // 📜 NEW: Message History Selection State
+  const [isMessageHistorySheetVisible, setIsMessageHistorySheetVisible] = useState(false); // Message history list
+  
+  // 🖼️ NEW: User Background Selection State
+  const [isUserBackgroundSheetVisible, setIsUserBackgroundSheetVisible] = useState(false); // User background list
+  const [customBackground, setCustomBackground] = useState(null); // Selected custom background (memory object)
+  
   // ⭐ Validation Feedback State (for CustomBottomSheet)
   const [validationFeedback, setValidationFeedback] = useState(null); // {feedback, persona}
 
-  // ⭐ VideoKey: Force video remount when persona changes (same as MessageCreationOverlay)
-  const videoKey = useMemo(() => {
-    return persona?.persona_key || 'default';
-  }, [persona?.persona_key]);
+  // ⭐ VideoKey: Force video remount when background changes
+  // Changed from useMemo to useState for manual control when background changes
+  const [videoKey, setVideoKey] = useState(() => 
+    `${persona?.persona_key || 'default'}-${Date.now()}`
+  );
+
+  // ⭐ tempPersona: Apply custom background to persona (without modifying original)
+  const tempPersona = useMemo(() => {
+    if (customBackground) {
+      console.log('[MessageCreationBack] 🖼️ Applying custom background:', {
+        memory_key: customBackground.memory_key,
+        media_url: customBackground.media_url,
+        video_url: customBackground.video_url,
+        convert_done_yn: customBackground.convert_done_yn,
+      });
+      
+      return {
+        ...persona,
+        selected_dress_image_url: customBackground.media_url,
+        selected_dress_video_url: customBackground.video_url,
+        selected_dress_video_convert_done: customBackground.convert_done_yn,
+      };
+    }
+    return persona; // Return original persona if no custom background
+  }, [persona, customBackground]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Phase 2+3+4+5: Animation Values
@@ -217,6 +251,8 @@ const MessageCreationBack = ({
   const chip1TranslateY = useSharedValue(100);
   const chip2TranslateY = useSharedValue(100);
   const chip3TranslateY = useSharedValue(100);
+  const chip4TranslateY = useSharedValue(100); // ⭐ NEW: Message history chip
+  const chip5TranslateY = useSharedValue(100); // ⭐ NEW: User background chip
   
   // ⭐ Close Button Animation (상단 우측, Glassmorphic)
   const closeButtonOpacity = useSharedValue(0);
@@ -251,6 +287,8 @@ const MessageCreationBack = ({
       chip1TranslateY.value = 100;
       chip2TranslateY.value = 100;
       chip3TranslateY.value = 100;
+      chip4TranslateY.value = 100; // ⭐ NEW
+      chip5TranslateY.value = 100; // ⭐ NEW
       closeButtonOpacity.value = 0;
       closeButtonScale.value = 0.8;
       
@@ -327,6 +365,18 @@ const MessageCreationBack = ({
         withSpring(0, { damping: 8, stiffness: 150 })
       );
       
+      // ⭐ NEW: Chip 4 (Message history)
+      chip4TranslateY.value = withDelay(
+        chipDelay + chipInterval * 3,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
+      // ⭐ NEW: Chip 5 (User background)
+      chip5TranslateY.value = withDelay(
+        chipDelay + chipInterval * 4,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      
       // Step 6: Close Button (Glassmorphic, 1400ms 딜레이, 마지막 등장)
       closeButtonOpacity.value = withDelay(
         1400,
@@ -336,6 +386,7 @@ const MessageCreationBack = ({
         1400,
         withSpring(1, { damping: 12 })
       );
+
       
     } else {
       // Reset on close (smooth fade-out)
@@ -392,6 +443,15 @@ const MessageCreationBack = ({
 
   const chip3AnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: chip3TranslateY.value }],
+  }));
+  
+  // ⭐ NEW: Animated Styles for Chip 4 & 5
+  const chip4AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip4TranslateY.value }],
+  }));
+  
+  const chip5AnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: chip5TranslateY.value }],
   }));
 
   // ⭐ Animated Style for Close Button
@@ -450,27 +510,33 @@ const MessageCreationBack = ({
       return;
     }
     
-    // ⭐ Type: 'modal' → 상세 모달 열기 (부모 시트는 유지!)
-    console.log('   Modal type - opening detail modal (keeping parent sheet)');
-    setSelectedCategory(category);
-    // 🔧 FIX: 부모 바텀시트 유지 (자동으로 닫지 않음)
-    // setIsCategorySheetVisible(false); ← 제거!
+    // ⭐ Type: 'modal' → 상세 모달 열기
+    console.log('   Modal type - opening detail modal');
+    console.log('   Platform:', Platform.OS);
     
-    // 100ms 딜레이로 부드러운 전환
+    setSelectedCategory(category);
+    
+    // ✅ iOS FIX: Close parent modal first (iOS doesn't support modal nesting well)
+    // Android: Works fine with nested modals, but we'll keep consistent behavior
+    console.log('   Closing parent category sheet for smooth transition');
+    setIsCategorySheetVisible(false);
+    
+    // 250ms 딜레이로 부모 모달이 완전히 닫힌 후 자식 모달 열기
     setTimeout(() => {
+      console.log('   Opening EffectDetailModal (after parent closed)');
       setIsDetailModalVisible(true);
-    }, 100);
+    }, 250);
   }, []);
 
   // Step 2: Close detail modal
   const handleCloseDetailModal = useCallback(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎨 [MessageCreationBack] Closing Detail Modal');
-    console.log('   Parent sheet remains open');
+    console.log('🎨 [MessageCreationBack] Closing Detail Modal (AbsoluteView)');
+    console.log('   Parent category sheet stays closed (as requested)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setIsDetailModalVisible(false);
     setSelectedCategory(null);
-    // 부모 바텀시트는 열린 상태 유지
+    // ✅ Parent modal stays closed (JK님 요청사항)
   }, []);
 
   // Step 2: Handle effect selection
@@ -533,6 +599,7 @@ const MessageCreationBack = ({
     console.log('🌌 [MessageCreationBack] Background Category selected!');
     console.log('   Category:', category.name, category.emoji);
     console.log('   ID:', category.id);
+    console.log('   Platform:', Platform.OS);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     // ⭐ Special: '없음' 선택 시 즉시 적용
@@ -544,14 +611,19 @@ const MessageCreationBack = ({
       return;
     }
     
-    // ⭐ 일반 카테고리 → 방향 선택 모달 열기 (부모 시트는 유지!)
-    console.log('   Category selected - opening direction modal (keeping parent sheet)');
+    // ⭐ 일반 카테고리 → 방향 선택 모달 열기
+    console.log('   Category selected - opening detail modal');
     setSelectedBackgroundCategory(category);
     
-    // 100ms 딜레이로 부드러운 전환
+    // ✅ iOS FIX: Close parent modal first (same as EffectCategorySheet)
+    console.log('   Closing parent category sheet for smooth transition');
+    setIsBackgroundCategorySheetVisible(false);
+    
+    // 250ms 딜레이로 부모 모달이 완전히 닫힌 후 자식 모달 열기
     setTimeout(() => {
+      console.log('   Opening BackgroundEffectDetailModal (AbsoluteView)');
       setIsBackgroundDetailModalVisible(true);
-    }, 100);
+    }, 250);
   }, []);
 
   // Step 2: Handle background effect selection (direction)
@@ -579,12 +651,12 @@ const MessageCreationBack = ({
 
   const handleCloseBackgroundDetailModal = useCallback(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🌌 [MessageCreationBack] Closing Background Detail Modal');
-    console.log('   Parent sheet remains open');
+    console.log('🌌 [MessageCreationBack] Closing Background Detail Modal (AbsoluteView)');
+    console.log('   Parent category sheet stays closed (as requested)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setIsBackgroundDetailModalVisible(false);
     setSelectedBackgroundCategory(null);
-    // 부모 바텀시트는 열린 상태 유지
+    // ✅ Parent modal stays closed (same as EffectCategorySheet)
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -644,6 +716,145 @@ const MessageCreationBack = ({
     console.log('🎵 [MessageCreationBack] Closing User Music List Modal');
     setIsUserMusicListVisible(false);
   }, []);
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📜 NEW: Message History Selection Handlers
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Open message history sheet
+  const handleOpenMessageHistorySheet = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📜 [MessageCreationBack] Opening Message History Sheet!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    HapticService.light();
+    setIsMessageHistorySheetVisible(true);
+  }, []);
+  
+  // Handle message selection from history
+  const handleSelectMessageFromHistory = useCallback((message) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📜 [MessageCreationBack] Message selected from history!');
+    console.log('   message_title:', message.message_title);
+    console.log('   message_content:', message.message_content);
+    console.log('   effect_config:', message.effect_config);
+    console.log('   bg_music:', message.bg_music);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // ⭐ Apply message settings to current state
+    setMessageContent(message.message_content || '');
+    messageContentRef.current = message.message_content || '';
+    
+    // ⭐ Parse effect_config (JSON or already parsed object)
+    let effectConfig = {};
+    try {
+      // ⭐ Check if effect_config is already an object or a string
+      if (typeof message.effect_config === 'string') {
+        effectConfig = JSON.parse(message.effect_config);
+      } else if (typeof message.effect_config === 'object' && message.effect_config !== null) {
+        effectConfig = message.effect_config; // Already parsed!
+      } else {
+        effectConfig = {};
+      }
+      
+      console.log('✅ [MessageCreationBack] Parsed effect_config:', effectConfig);
+    } catch (error) {
+      console.error('[MessageCreationBack] Failed to parse effect_config:', error);
+      effectConfig = {};
+    }
+    
+    // ⭐ Apply background effect (Layer 1)
+    setBackgroundEffect(effectConfig.background_effect || 'none');
+    
+    // ⭐ Apply active effect (Layer 2)
+    setActiveEffect(effectConfig.active_effect || message.particle_effect || 'none');
+    
+    // ⭐ Apply custom words (for text effects)
+    setCustomWords(effectConfig.custom_words || []);
+    
+    // ⭐ Apply background music
+    setBgMusic(message.bg_music || 'none');
+    setBgMusicUrl(message.bg_music_url || '');
+    setBgMusicTitle(message.ai_music_key ? 'AI Generated Music' : ''); // ⭐ TODO: Get actual title
+    
+    // ⭐ Close sheet
+    setIsMessageHistorySheetVisible(false);
+    
+    HapticService.success();
+    showAlert({
+      title: t('message.history.applied_title') || '설정 적용 완료!',
+      emoji: '✅',
+      message: t('message.history.applied_message') || '이전 메시지의 설정이 적용되었습니다.\n내용을 수정하여 새로운 메시지를 만들어보세요!',
+      buttons: [
+        {
+          text: t('common.confirm') || '확인',
+          style: 'primary',
+          onPress: () => {
+            // ⭐ Focus on content input for editing
+            setTimeout(() => {
+              contentInputRef.current?.present();
+            }, 300);
+          }
+        }
+      ]
+    });
+  }, [t, showAlert]);
+  
+  // Close message history sheet
+  const handleCloseMessageHistorySheet = useCallback(() => {
+    console.log('📜 [MessageCreationBack] Closing Message History Sheet');
+    setIsMessageHistorySheetVisible(false);
+  }, []);
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🖼️ NEW: User Background Selection Handlers (일단 칩만, 기능은 추후)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Open user background sheet
+  const handleOpenUserBackgroundSheet = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🖼️ [MessageCreationBack] Opening user background sheet');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    HapticService.light();
+    setIsUserBackgroundSheetVisible(true);
+  }, []);
+
+  // Handle background selection
+  const handleSelectBackground = useCallback((memory) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🖼️ [MessageCreationBack] Background selected!');
+    console.log('   memory_key:', memory.memory_key);
+    console.log('   media_url:', memory.media_url);
+    console.log('   video_url:', memory.video_url);
+    console.log('   convert_done_yn:', memory.convert_done_yn);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Apply custom background
+    setCustomBackground(memory);
+    
+    // ⭐ Force video remount by updating videoKey
+    const newVideoKey = `${persona?.persona_key}-${memory.memory_key}-${Date.now()}`;
+    console.log('[MessageCreationBack] 🔄 Updating videoKey:', newVideoKey);
+    setVideoKey(newVideoKey);
+    
+    HapticService.success();
+  }, [persona?.persona_key]);
+
+  // Handle reset to original persona background
+  const handleResetBackground = useCallback(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔄 [MessageCreationBack] Reset to original background');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Clear custom background
+    setCustomBackground(null);
+    
+    // ⭐ Force video remount by updating videoKey
+    const newVideoKey = `${persona?.persona_key || 'default'}-${Date.now()}`;
+    console.log('[MessageCreationBack] 🔄 Updating videoKey:', newVideoKey);
+    setVideoKey(newVideoKey);
+    
+    HapticService.light();
+  }, [persona?.persona_key]);
 
   // Handle music player close (pause, not reset)
   const handleMusicPlayerClose = useCallback(() => {
@@ -1165,10 +1376,10 @@ const MessageCreationBack = ({
       {/* 🎬 Phase 1: Background (Image/Video) */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <PersonaBackgroundView
-        persona={persona}
+        persona={tempPersona} // ⭐ Use tempPersona (applies custom background if selected)
         isScreenFocused={isVisible} // ⭐ Control video playback based on visibility
         opacity={1} // ⭐ Full opacity (no fade)
-        videoKey={videoKey} // ⭐ Force remount when persona changes
+        videoKey={videoKey} // ⭐ Force remount when background changes
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
@@ -1230,7 +1441,7 @@ const MessageCreationBack = ({
         {/* Soul Connection - Subtitle */}
         <Animated.View style={soulConnectionAnimatedStyle}>
           <CustomText style={styles.animaLogoSubtitle}>
-            - Soul Connection
+            - Soul Message
           </CustomText>
         </Animated.View>
       </View>
@@ -1274,8 +1485,8 @@ const MessageCreationBack = ({
         chipsContainerAnimatedStyle
       ]}>
         {/* Chip 1: Placeholder (예: 이모션 프리셋) */}
-        {/* Chip 1: Background Effect 🌌 */}
-        <Animated.View style={chip1AnimatedStyle}>
+        {/* Chip 1: Background Effect 🌌 - ⚠️ DISABLED (당분간 제공 안함) */}
+        <Animated.View style={[chip1AnimatedStyle, { display: 'none' }]}>
           <TouchableOpacity
             style={[
               styles.quickChip,
@@ -1296,6 +1507,13 @@ const MessageCreationBack = ({
             activeOpacity={0.7}
           >
             <Icon name="shimmer" size={scale(20)} color="gold" />
+            
+            {/* ⭐ NEW: Badge when effect is selected */}
+            {activeEffect !== 'none' && (
+              <View style={styles.chipBadge}>
+                <Icon name="check-circle" size={scale(14)} color="#4CAF50" />
+              </View>
+            )}
           </TouchableOpacity>
         </Animated.View>
 
@@ -1310,6 +1528,35 @@ const MessageCreationBack = ({
             activeOpacity={0.7}
           >
             <Icon name="music-note" size={scale(20)} color="#FF69B4" />
+            
+            {/* ⭐ NEW: Badge when music is selected */}
+            {bgMusic !== 'none' && (
+              <View style={styles.chipBadge}>
+                <Icon name="check-circle" size={scale(14)} color="#4CAF50" />
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
+        
+        {/* ⭐ NEW: Chip 4: Message History */}
+        <Animated.View style={chip4AnimatedStyle}>
+          <TouchableOpacity
+            style={styles.quickChip}
+            onPress={handleOpenMessageHistorySheet}
+            activeOpacity={0.7}
+          >
+            <Icon name="time-outline" size={scale(20)} color="#9D4EDD" />
+          </TouchableOpacity>
+        </Animated.View>
+        
+        {/* ⭐ NEW: Chip 5: User Background (Coming Soon) */}
+        <Animated.View style={chip5AnimatedStyle}>
+          <TouchableOpacity
+            style={styles.quickChip}
+            onPress={handleOpenUserBackgroundSheet}
+            activeOpacity={0.7}
+          >
+            <Icon name="image-outline" size={scale(20)} color="#06B6D4" />
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -1432,6 +1679,26 @@ const MessageCreationBack = ({
         music_title={bgMusicTitle}
         visible={bgMusic !== 'none' && bgMusicUrl !== ''}
         onClose={handleMusicPlayerClose}
+      />
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* 📜 NEW: Message History Sheet (Previous Messages) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <MessageHistorySheet
+        visible={isMessageHistorySheetVisible}
+        onClose={handleCloseMessageHistorySheet}
+        onSelectMessage={handleSelectMessageFromHistory}
+      />
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* 🖼️ NEW: Background Selection Sheet (User-Created Backgrounds) */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      <BackgroundSelectionSheet
+        isOpen={isUserBackgroundSheetVisible}
+        onClose={() => setIsUserBackgroundSheetVisible(false)}
+        onSelectBackground={handleSelectBackground}
+        onResetBackground={handleResetBackground}
+        currentBackground={customBackground}
       />
 
       {/* ═════════════════════════════════════════════════════════════════ */}
@@ -1623,6 +1890,27 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     ...Platform.select({
       android: { elevation: 8 },
+    }),
+  },
+  // ⭐ NEW: Badge indicator (top-right overlay)
+  chipBadge: {
+    position: 'absolute',
+    top: scale(-2),
+    right: scale(-2),
+    width: scale(18),
+    height: scale(18),
+    borderRadius: scale(9),
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#4CAF50',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    ...Platform.select({
+      android: { elevation: 6 },
     }),
   },
   // ⭐ Close Button (Glassmorphic Floating)
