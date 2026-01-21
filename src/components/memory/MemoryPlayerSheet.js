@@ -126,7 +126,8 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7); // ⭐ NEW: Volume control
+  const [volume, setVolume] = useState(0.7); // ⭐ Volume control
+  const [showControls, setShowControls] = useState(false); // ⭐ NEW: Expand/Collapse state (default: collapsed)
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animation values (Enhanced for emotional presentation)
@@ -390,6 +391,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     // Reset music state
     setCurrentTime(0);
     setDuration(0);
+    setShowControls(false); // ⭐ Reset to collapsed
     currentUrlRef.current = null;
     
     onClose?.();
@@ -510,66 +512,97 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
                 style={StyleSheet.absoluteFill}
               />
               
-              {/* Music Player Content */}
-              <View style={styles.musicPlayerContent}>
-                {/* Play/Pause Button */}
-                <TouchableOpacity
-                  onPress={togglePlayPause}
-                  style={styles.musicPlayButton}
-                  activeOpacity={0.8}
-                >
-                  <Icon
-                    name={isPlaying ? 'pause-circle' : 'play-circle'}
-                    size={scale(40)}
-                    color="rgba(255, 255, 255, 0.95)"
-                  />
-                </TouchableOpacity>
-                
-                {/* Progress & Time */}
-                <View style={styles.musicProgressContainer}>
-                  <View style={styles.musicTitleRow}>
-                    <Icon name="musical-notes" size={scale(14)} color="rgba(255, 255, 255, 0.8)" />
-                    <CustomText style={styles.musicTitleText} numberOfLines={1}>
+              {/* ⭐ Music Player Content */}
+              <View style={styles.musicPlayerWrapper}>
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    🎵 Fixed Header (항상 고정 - 변화 없음)
+                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                <View style={styles.musicPlayerHeader}>
+                  {/* Play/Pause Button */}
+                  <TouchableOpacity
+                    onPress={togglePlayPause}
+                    style={styles.musicPlayButtonSmall}
+                    activeOpacity={0.8}
+                  >
+                    <Icon
+                      name={isPlaying ? 'pause-circle' : 'play-circle'}
+                      size={scale(28)}
+                      color="rgba(255, 255, 255, 0.95)"
+                    />
+                  </TouchableOpacity>
+                  
+                  {/* Title */}
+                  <View style={styles.musicTitleCollapsed}>
+                    <CustomText style={styles.musicTitleTextCollapsed} numberOfLines={1}>
                       {memory?.music_title || '음악'}
                     </CustomText>
                   </View>
                   
-                  <View style={styles.progressRow}>
-                    <CustomText style={styles.musicTimeText}>{formatTime(currentTime)}</CustomText>
-                    <Slider
-                      style={styles.musicProgressBar}
-                      value={currentTime}
-                      minimumValue={0}
-                      maximumValue={duration || 1}
-                      onValueChange={setCurrentTime}
-                      onSlidingComplete={handleSeek}
-                      minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
-                      maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
-                      thumbTintColor="rgba(255, 255, 255, 0.95)"
+                  {/* Expand/Collapse Button */}
+                  <TouchableOpacity
+                    onPress={() => {
+                      HapticService.light();
+                      setShowControls(!showControls);
+                    }}
+                    style={styles.expandButton}
+                    activeOpacity={0.8}
+                  >
+                    <Icon
+                      name={showControls ? 'chevron-up-outline' : 'chevron-down-outline'}
+                      size={scale(20)}
+                      color="rgba(255, 255, 255, 0.8)"
                     />
-                    <CustomText style={styles.musicTimeText}>{formatTime(duration)}</CustomText>
-                  </View>
+                  </TouchableOpacity>
                 </View>
                 
-                {/* Volume Control */}
-                <View style={styles.musicVolumeContainer}>
-                  <Icon 
-                    name={volume === 0 ? 'volume-mute' : volume < 0.5 ? 'volume-low' : 'volume-high'} 
-                    size={scale(20)} 
-                    color="rgba(255, 255, 255, 0.8)" 
-                  />
-                  <Slider
-                    style={styles.musicVolumeSlider}
-                    value={volume}
-                    minimumValue={0}
-                    maximumValue={1}
-                    onValueChange={handleVolumeChange}
-                    minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
-                    maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
-                    thumbTintColor="rgba(255, 255, 255, 0.95)"
-                  />
-                  <CustomText style={styles.musicVolumeText}>{Math.round(volume * 100)}%</CustomText>
-                </View>
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    🎵 Expandable Controls (확대 시 나타남)
+                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {showControls && (
+                  <View style={styles.musicPlayerExpandedControls}>
+                    {/* Divider */}
+                    <View style={styles.controlsDivider} />
+                    
+                    {/* Progress & Time */}
+                    <View style={styles.musicProgressContainer}>
+                      <View style={styles.progressRow}>
+                        <CustomText style={styles.musicTimeText}>{formatTime(currentTime)}</CustomText>
+                        <Slider
+                          style={styles.musicProgressBar}
+                          value={currentTime}
+                          minimumValue={0}
+                          maximumValue={duration || 1}
+                          onValueChange={setCurrentTime}
+                          onSlidingComplete={handleSeek}
+                          minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
+                          maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                          thumbTintColor="rgba(255, 255, 255, 0.95)"
+                        />
+                        <CustomText style={styles.musicTimeText}>{formatTime(duration)}</CustomText>
+                      </View>
+                    </View>
+                    
+                    {/* Volume Control */}
+                    <View style={styles.musicVolumeContainer}>
+                      <Icon 
+                        name={volume === 0 ? 'volume-mute' : volume < 0.5 ? 'volume-low' : 'volume-high'} 
+                        size={scale(20)} 
+                        color="rgba(255, 255, 255, 0.8)" 
+                      />
+                      <Slider
+                        style={styles.musicVolumeSlider}
+                        value={volume}
+                        minimumValue={0}
+                        maximumValue={1}
+                        onValueChange={handleVolumeChange}
+                        minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
+                        maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                        thumbTintColor="rgba(255, 255, 255, 0.95)"
+                      />
+                      <CustomText style={styles.musicVolumeText}>{Math.round(volume * 100)}%</CustomText>
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           </View>
@@ -821,30 +854,59 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   
-  musicPlayerContent: {
-    padding: scale(16),
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎵 Music Player Wrapper (Container)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  musicPlayerWrapper: {
+    // No extra styles needed (just a container)
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎵 Fixed Header (항상 고정 - 변화 없음)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  musicPlayerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(10),
+    gap: scale(10),
+  },
+  
+  musicPlayButtonSmall: {
+    // No extra styles needed
+  },
+  
+  musicTitleCollapsed: {
+    flex: 1,
+  },
+  
+  musicTitleTextCollapsed: {
+    fontSize: moderateScale(14),
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontWeight: '600',
+  },
+  
+  expandButton: {
+    padding: scale(4),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎵 Expandable Controls (확대 시 나타남)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  musicPlayerExpandedControls: {
+    paddingHorizontal: scale(12),
+    paddingBottom: verticalScale(12),
     gap: verticalScale(12),
   },
   
-  musicPlayButton: {
-    alignSelf: 'center',
+  controlsDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: scale(4),
   },
   
   musicProgressContainer: {
     gap: verticalScale(8),
-  },
-  
-  musicTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(6),
-  },
-  
-  musicTitleText: {
-    flex: 1,
-    fontSize: moderateScale(13),
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '600',
   },
   
   progressRow: {
