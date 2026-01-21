@@ -29,7 +29,7 @@
  * @author JK & Hero Nexus AI
  */
 
-import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -50,8 +50,9 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import Video from 'react-native-video'; // ⭐ NEW: For music playback
-import Slider from '@react-native-community/slider'; // ⭐ NEW: For progress bar
+import { BlurView } from '@react-native-community/blur'; // ⭐ NEW: For glassmorphic design
+import Sound from 'react-native-sound'; // ⭐ CHANGED: From react-native-video to react-native-sound
+import Slider from '@react-native-community/slider'; // ⭐ For progress bar
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
@@ -63,7 +64,20 @@ import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 
+// ⚙️ Sound 설정 (백그라운드 재생 허용)
+Sound.setCategory('Playback', true);
+
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+/**
+ * Format seconds to MM:SS
+ */
+const formatTime = (seconds) => {
+  if (isNaN(seconds) || seconds < 0) return '00:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
 /**
  * Emotion emoji mapping
@@ -101,17 +115,18 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   
   // Refs
   const bottomSheetRef = useRef(null);
-  const videoRef = useRef(null); // ⭐ NEW: For music playback
+  const soundRef = useRef(null); // ⭐ CHANGED: From videoRef to soundRef (react-native-sound)
+  const progressIntervalRef = useRef(null); // ⭐ NEW: For progress tracking
+  const currentUrlRef = useRef(null); // ⭐ NEW: Track current music URL
   
   // State
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  // ⭐ NEW: Music playback state
+  // ⭐ Music playback state
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
-  const [musicLoading, setMusicLoading] = useState(false);
+  const [volume, setVolume] = useState(0.7); // ⭐ NEW: Volume control
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animation values (Enhanced for emotional presentation)
@@ -228,26 +243,125 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   };
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🎵 Music playback handlers
+  // 🎵 Music playback handlers (react-native-sound)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const togglePlayPause = () => {
-    HapticService.light();
-    setIsPlaying(!isPlaying);
-  };
   
-  const handleSeek = (value) => {
-    if (videoRef.current) {
-      videoRef.current.seek(value);
+  // ⭐ Progress tracking
+  const startProgressTracking = useCallback(() => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    
+    progressIntervalRef.current = setInterval(() => {
+      if (soundRef.current && soundRef.current.isPlaying()) {
+        soundRef.current.getCurrentTime((seconds) => {
+          setCurrentTime(seconds);
+        });
+      }
+    }, 500);
+  }, []);
+  
+  const stopProgressTracking = useCallback(() => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  }, []);
+  
+  // ⭐ Load and play music
+  const loadAndPlayMusic = useCallback((musicUrl) => {
+    if (!musicUrl) return;
+    
+    console.log('🎵 [MemoryPlayerSheet] Loading music:', musicUrl);
+    
+    // If same URL, just resume
+    if (currentUrlRef.current === musicUrl && soundRef.current) {
+      console.log('   ✅ Resuming existing sound...');
+      soundRef.current.play((success) => {
+        if (!success) {
+          console.error('   ❌ Playback failed (resume)');
+        }
+      });
+      setIsPlaying(true);
+      startProgressTracking();
+      return;
+    }
+    
+    // Release previous sound
+    if (soundRef.current) {
+      console.log('   🔄 Releasing previous sound...');
+      soundRef.current.release();
+      soundRef.current = null;
+    }
+    
+    // Load new sound
+    currentUrlRef.current = musicUrl;
+    
+    const sound = new Sound(musicUrl, '', (error) => {
+      if (error) {
+        console.error('   ❌ Failed to load sound:', error);
+        return;
+      }
+      
+      console.log('   ✅ Sound loaded successfully!');
+      const totalDuration = sound.getDuration();
+      console.log('   Duration:', totalDuration, 'seconds');
+      
+      soundRef.current = sound;
+      setDuration(totalDuration);
+      setCurrentTime(0);
+      sound.setVolume(volume);
+      sound.setNumberOfLoops(-1); // Loop
+      
+      // ⭐ Auto-play
+      sound.play((success) => {
+        if (!success) {
+          console.error('   ❌ Playback failed');
+        }
+      });
+      
+      setIsPlaying(true);
+      startProgressTracking();
+      HapticService.success();
+    });
+  }, [volume, startProgressTracking]);
+  
+  // ⭐ Play/Pause toggle
+  const togglePlayPause = useCallback(() => {
+    HapticService.light();
+    
+    if (!soundRef.current) return;
+    
+    if (isPlaying) {
+      soundRef.current.pause();
+      setIsPlaying(false);
+      stopProgressTracking();
+    } else {
+      soundRef.current.play((success) => {
+        if (!success) {
+          console.error('   ❌ Resume failed');
+        }
+      });
+      setIsPlaying(true);
+      startProgressTracking();
+    }
+  }, [isPlaying, startProgressTracking, stopProgressTracking]);
+  
+  // ⭐ Seek handler
+  const handleSeek = useCallback((value) => {
+    if (soundRef.current) {
+      soundRef.current.setCurrentTime(value);
       setCurrentTime(value);
     }
-  };
+  }, []);
   
-  const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  // ⭐ Volume handler
+  const handleVolumeChange = useCallback((newVolume) => {
+    setVolume(newVolume);
+    if (soundRef.current) {
+      soundRef.current.setVolume(newVolume);
+    }
+  }, []);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle close
@@ -256,9 +370,14 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     HapticService.light();
     
     // Stop music if playing
-    if (isPlaying) {
-      setIsPlaying(false);
+    if (soundRef.current) {
+      soundRef.current.stop();
+      soundRef.current.release();
+      soundRef.current = null;
     }
+    
+    stopProgressTracking();
+    setIsPlaying(false);
     
     bottomSheetRef.current?.dismiss();
     
@@ -271,9 +390,34 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     // Reset music state
     setCurrentTime(0);
     setDuration(0);
+    currentUrlRef.current = null;
     
     onClose?.();
   };
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Effects
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  // ⭐ Auto-play music when sheet opens and music is available
+  useEffect(() => {
+    const isMusicGift = memory?.gift_type === 'music';
+    const hasMusicUrl = !!memory?.music_url;
+    
+    if (isMusicGift && hasMusicUrl && imageLoaded) {
+      console.log('🎵 [MemoryPlayerSheet] Auto-playing music...');
+      loadAndPlayMusic(memory.music_url);
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.release();
+        soundRef.current = null;
+      }
+      stopProgressTracking();
+    };
+  }, [memory?.gift_type, memory?.music_url, imageLoaded, loadAndPlayMusic, stopProgressTracking]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render
@@ -343,30 +487,92 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           }}
         />
         
-        {/* ⭐ NEW: Hidden audio player for music gifts */}
-        {isMusicGift && memory?.music_url && (
-          <Video
-            ref={videoRef}
-            source={{ uri: memory?.music_url }}
-            audioOnly={true}
-            paused={!isPlaying}
-            onLoad={(data) => {
-              setDuration(data.duration);
-              setMusicLoading(false);
-              setImageLoaded(true); // Trigger animation
-              HapticService.light();
-            }}
-            onProgress={(data) => {
-              if (!isSeeking) {
-                setCurrentTime(data.currentTime);
-              }
-            }}
-            onEnd={() => {
-              setIsPlaying(false);
-              setCurrentTime(0);
-            }}
-            style={{ height: 0, width: 0 }} // Hidden
-          />
+        {/* ⭐ NEW: Top Music Player (Glassmorphic) - Only for music gifts */}
+        {isMusicGift && memory?.music_url && imageLoaded && (
+          <View style={styles.topMusicPlayer}>
+            {/* Glassmorphic Background */}
+            <View style={styles.musicPlayerGlass}>
+              {Platform.OS === 'ios' ? (
+                <BlurView
+                  style={StyleSheet.absoluteFill}
+                  blurType="dark"
+                  blurAmount={15}
+                />
+              ) : (
+                <View style={[StyleSheet.absoluteFill, styles.androidBlur]} />
+              )}
+              
+              {/* Gradient Overlay */}
+              <LinearGradient
+                colors={['rgba(168, 237, 234, 0.15)', 'rgba(254, 214, 227, 0.15)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              
+              {/* Music Player Content */}
+              <View style={styles.musicPlayerContent}>
+                {/* Play/Pause Button */}
+                <TouchableOpacity
+                  onPress={togglePlayPause}
+                  style={styles.musicPlayButton}
+                  activeOpacity={0.8}
+                >
+                  <Icon
+                    name={isPlaying ? 'pause-circle' : 'play-circle'}
+                    size={scale(40)}
+                    color="rgba(255, 255, 255, 0.95)"
+                  />
+                </TouchableOpacity>
+                
+                {/* Progress & Time */}
+                <View style={styles.musicProgressContainer}>
+                  <View style={styles.musicTitleRow}>
+                    <Icon name="musical-notes" size={scale(14)} color="rgba(255, 255, 255, 0.8)" />
+                    <CustomText style={styles.musicTitleText} numberOfLines={1}>
+                      {memory?.music_title || '음악'}
+                    </CustomText>
+                  </View>
+                  
+                  <View style={styles.progressRow}>
+                    <CustomText style={styles.musicTimeText}>{formatTime(currentTime)}</CustomText>
+                    <Slider
+                      style={styles.musicProgressBar}
+                      value={currentTime}
+                      minimumValue={0}
+                      maximumValue={duration || 1}
+                      onValueChange={setCurrentTime}
+                      onSlidingComplete={handleSeek}
+                      minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
+                      maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                      thumbTintColor="rgba(255, 255, 255, 0.95)"
+                    />
+                    <CustomText style={styles.musicTimeText}>{formatTime(duration)}</CustomText>
+                  </View>
+                </View>
+                
+                {/* Volume Control */}
+                <View style={styles.musicVolumeContainer}>
+                  <Icon 
+                    name={volume === 0 ? 'volume-mute' : volume < 0.5 ? 'volume-low' : 'volume-high'} 
+                    size={scale(20)} 
+                    color="rgba(255, 255, 255, 0.8)" 
+                  />
+                  <Slider
+                    style={styles.musicVolumeSlider}
+                    value={volume}
+                    minimumValue={0}
+                    maximumValue={1}
+                    onValueChange={handleVolumeChange}
+                    minimumTrackTintColor="rgba(168, 237, 234, 0.9)"
+                    maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                    thumbTintColor="rgba(255, 255, 255, 0.95)"
+                  />
+                  <CustomText style={styles.musicVolumeText}>{Math.round(volume * 100)}%</CustomText>
+                </View>
+              </View>
+            </View>
+          </View>
         )}
         
         {/* 🎨 NEW: Background Effect Layer (z-index: 10) */}
@@ -432,47 +638,6 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
               {isMusicGift ? (memory?.music_title || '음악') : emotionLabel}
             </CustomText>
           </View>
-          
-          {/* ⭐ NEW: Music Player Controls (only for music gifts) */}
-          {isMusicGift && memory?.music_url && (
-            <View style={styles.musicControls}>
-              {/* Play/Pause Button */}
-              <TouchableOpacity
-                onPress={togglePlayPause}
-                style={styles.playButton}
-                activeOpacity={0.8}
-              >
-                <Icon
-                  name={isPlaying ? 'pause-circle' : 'play-circle'}
-                  size={scale(56)}
-                  color="rgba(255, 255, 255, 0.95)"
-                />
-              </TouchableOpacity>
-              
-              {/* Progress Bar & Time */}
-              <View style={styles.progressContainer}>
-                <CustomText style={styles.timeText}>{formatTime(currentTime)}</CustomText>
-                <Slider
-                  style={styles.progressBar}
-                  value={currentTime}
-                  minimumValue={0}
-                  maximumValue={duration || 0}
-                  onValueChange={(value) => {
-                    setIsSeeking(true);
-                    setCurrentTime(value);
-                  }}
-                  onSlidingComplete={(value) => {
-                    setIsSeeking(false);
-                    handleSeek(value);
-                  }}
-                  minimumTrackTintColor="rgba(255, 255, 255, 0.9)"
-                  maximumTrackTintColor="rgba(255, 255, 255, 0.3)"
-                  thumbTintColor="rgba(255, 255, 255, 0.95)"
-                />
-                <CustomText style={styles.timeText}>{formatTime(duration)}</CustomText>
-              </View>
-            </View>
-          )}
           
           {/* AI Message */}
           <CustomText style={styles.giftMessage}>
@@ -634,40 +799,90 @@ const styles = StyleSheet.create({
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🎵 NEW: Music Player Controls
+  // 🎵 NEW: Top Music Player (Glassmorphic)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  musicControls: {
-    width: '100%',
-    alignItems: 'center',
+  topMusicPlayer: {
+    position: 'absolute',
+    top: verticalScale(16),
+    left: scale(16),
+    right: scale(16),
+    zIndex: 50, // Above all other elements
+  },
+  
+  musicPlayerGlass: {
+    borderRadius: moderateScale(16),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Fallback
+  },
+  
+  androidBlur: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  
+  musicPlayerContent: {
+    padding: scale(16),
     gap: verticalScale(12),
-    marginVertical: verticalScale(12),
   },
   
-  playButton: {
-    width: scale(64),
-    height: scale(64),
+  musicPlayButton: {
+    alignSelf: 'center',
+  },
+  
+  musicProgressContainer: {
+    gap: verticalScale(8),
+  },
+  
+  musicTitleRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: scale(6),
   },
   
-  progressContainer: {
-    width: '100%',
+  musicTitleText: {
+    flex: 1,
+    fontSize: moderateScale(13),
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '600',
+  },
+  
+  progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(8),
   },
   
-  progressBar: {
+  musicProgressBar: {
     flex: 1,
-    height: scale(40),
+    height: scale(30),
   },
   
-  timeText: {
-    fontSize: moderateScale(12),
-    color: 'rgba(255, 255, 255, 0.8)',
+  musicTimeText: {
+    fontSize: moderateScale(11),
+    color: 'rgba(255, 255, 255, 0.7)',
     fontWeight: '500',
     minWidth: scale(40),
     textAlign: 'center',
+  },
+  
+  musicVolumeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+  },
+  
+  musicVolumeSlider: {
+    flex: 1,
+    height: scale(30),
+  },
+  
+  musicVolumeText: {
+    fontSize: moderateScale(11),
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '500',
+    minWidth: scale(40),
+    textAlign: 'right',
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
