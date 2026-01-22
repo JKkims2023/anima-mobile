@@ -133,8 +133,40 @@ export async function listUserBackgrounds(user_key) {
   }
 }
 
+/**
+ * 🖼️ Create Background (신규 함수 - BackgroundCreatorSheet에서 사용)
+ * 
+ * 사용자 배경 생성 (S3 업로드 + DB 저장)
+ * 
+ * @param {FormData} formData - FormData with user_key, tag_name, photo
+ * @returns {Promise<{success: boolean, data?: Object, error_code?: string, error?: string}>}
+ */
+export async function createBackground(formData) {
+  console.log('🖼️ [memoryService] Creating background...');
+  
+  try {
+    const response = await apiClient.post('/api/memory/create-background', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    console.log('🖼️ [memoryService] Create background result:', response);
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ [memoryService] createBackground error:', error);
+    return {
+      success: false,
+      error_code: 'NETWORK_ERROR',
+      error: error.message,
+    };
+  }
+}
+
 export default {
   listMemory,          // ⭐ 기존 함수 (MemoryScreen)
   deleteMemory,        // ⭐ 기존 함수 (MemoryScreen)
   listUserBackgrounds, // ⭐ 신규 함수 (MessageCreationBack)
+  createBackground,    // ⭐ 신규 함수 (BackgroundCreatorSheet)
 };

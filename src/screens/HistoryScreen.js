@@ -43,6 +43,7 @@ import SafeScreen from '../components/SafeScreen';
 import MessageHistoryListItem from '../components/message/MessageHistoryListItem';
 import MusicListItem from '../components/music/MusicListItem'; // ⭐ NEW: Unified music list item
 import BackgroundListItem from '../components/memory/BackgroundListItem'; // 🖼️ NEW: Background list item
+import BackgroundCreatorSheet from '../components/memory/BackgroundCreatorSheet'; // 🖼️ NEW: Background creator
 import MessageDetailOverlay from '../components/message/MessageDetailOverlay';
 import BackgroundViewerOverlay from '../components/memory/BackgroundViewerOverlay'; // 🖼️ NEW: Background viewer
 import MusicCreatorSheet from '../components/music/MusicCreatorSheet'; // ⭐ NEW: Music creation
@@ -147,6 +148,7 @@ const HistoryScreen = () => {
   // 🖼️ NEW: Background Viewer Overlay state
   const [isBackgroundViewerVisible, setIsBackgroundViewerVisible] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState(null);
+  const [isBackgroundCreatorOpen, setIsBackgroundCreatorOpen] = useState(false); // 🖼️ NEW: Background creator sheet
 
   // ⭐ History Message Help Sheet state
   const [isHistoryHelpOpen, setIsHistoryHelpOpen] = useState(false);
@@ -659,6 +661,21 @@ const HistoryScreen = () => {
     }
   }, []);
 
+  // 🖼️ NEW: Handle background creation success (reload list)
+  const handleBackgroundCreateSuccess = useCallback(() => {
+    console.log('🖼️ [HistoryScreen] Background created successfully! Reloading list...');
+    HapticService.success();
+    
+    // Reload background list
+    loadBackgroundList(true);
+    
+    showToast({
+      type: 'success',
+      message: t('history.background.create_success', '배경이 생성되었습니다!'),
+      emoji: '🎨',
+    });
+  }, [loadBackgroundList, showToast, t]);
+
   // ⭐ NEW: Handle floating button press (create music or background)
   const handleFloatingButtonPress = () => {
     HapticService.light();
@@ -678,13 +695,9 @@ const HistoryScreen = () => {
       // Open music creator
       creatorSheetRef.current?.present();
     } else if (activeTab === 'background') {
-      // Background: Open background creator (나중에 구현)
+      // Background: Open background creator
       console.log('🖼️ [HistoryScreen] Background creation button pressed');
-      showToast({
-        type: 'info',
-        message: '배경 생성 기능은 곧 구현될 예정입니다! 🚀',
-        emoji: '🎨',
-      });
+      setIsBackgroundCreatorOpen(true);
     }
   };
 
@@ -1326,6 +1339,13 @@ const HistoryScreen = () => {
           onBackgroundUpdate={handleBackgroundUpdate}
         />
       )}
+
+      {/* 🖼️ NEW: Background Creator Sheet */}
+      <BackgroundCreatorSheet
+        isOpen={isBackgroundCreatorOpen}
+        onClose={() => setIsBackgroundCreatorOpen(false)}
+        onCreateSuccess={handleBackgroundCreateSuccess}
+      />
 
     </SafeScreen>
   );

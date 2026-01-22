@@ -119,7 +119,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(12),
-    marginHorizontal: scale(16),
     marginBottom: verticalScale(12),
     borderRadius: moderateScale(12),
     ...Platform.select({
@@ -133,12 +132,14 @@ const styles = StyleSheet.create({
         elevation: 2,
       },
     }),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   
   // Thumbnail
   thumbnailContainer: {
-    width: scale(80),
-    height: scale(80),
+    width: scale(70),
+    height: scale(70),
     borderRadius: moderateScale(8),
     overflow: 'hidden',
     marginRight: scale(12),
