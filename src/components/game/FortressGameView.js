@@ -213,9 +213,9 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     console.log(`   Start: (${startX.toFixed(1)}, ${startY.toFixed(1)})`);
     console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s`);
     
-    // ⭐ 물리 상수
+    // ⭐ 물리 상수 (게임 밸런스 조정)
     const GRAVITY = 980; // 픽셀 기준 중력 가속도 (cm/s² → px/s²)
-    const MAX_VELOCITY = 500; // 최대 초속도 (px/s)
+    const MAX_VELOCITY = 1000; // ⭐ 최대 초속도 (px/s) - 500→1000으로 증가하여 도달 거리 확보
     const TIME_STEP = 0.02; // 20ms per frame (50 FPS)
     const MAX_TIME = 5; // 최대 5초 시뮬레이션
     
