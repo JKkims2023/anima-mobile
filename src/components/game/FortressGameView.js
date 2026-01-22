@@ -160,10 +160,14 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
   // ⭐ Explosion (폭발) state & animations
   const [explosion, setExplosion] = useState(null); // { x, y, radius, opacity } or null
   
-  // 🎮 NEW: AI Taunt Message (도발 메시지)
-  const [tauntMessage, setTauntMessage] = useState(null); // string or null
+  // 🎮 NEW: AI Taunt Messages (도발 메시지 - 3가지)
+  const [tauntMessages, setTauntMessages] = useState(null); // { before_shot, on_hit, on_miss }
+  const [currentTaunt, setCurrentTaunt] = useState(null); // 현재 표시 중인 멘트
   const [isLoadingStrategy, setIsLoadingStrategy] = useState(false); // LLM 호출 중
   const tauntOpacity = useSharedValue(0);
+  
+  // 🎯 NEW: 사용자의 마지막 사격 정보 (LLM 학습용)
+  const [lastUserShot, setLastUserShot] = useState(null); // { angle, power, target, actual, error, result }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialize Game (게임 초기화)
@@ -579,7 +583,6 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
     async function proceedToAIFire(currentAiTank) {
       // 🎮 NEW: LLM 호출 (AI 전략 + 도발 메시지)
       let aiMove = null;
-      let taunt = null;
       
       // 🐛 DEBUG: Check persona and user info
       console.log('🐛 [DEBUG] Persona:', {
@@ -670,6 +673,18 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
             shots_fired: shotsFired,
             shots_hit: shotsHit,
             accuracy: shotsFired > 0 ? ((shotsHit / shotsFired) * 100).toFixed(1) : 0,
+            
+            // 🎯 NEW: 사용자의 마지막 사격 정보 (LLM 학습용)
+            last_user_shot: lastUserShot ? {
+              angle: lastUserShot.angle,
+              power: lastUserShot.power,
+              target_x: lastUserShot.target_x,
+              target_y: lastUserShot.target_y,
+              actual_hit_x: lastUserShot.actual_hit_x,
+              actual_hit_y: lastUserShot.actual_hit_y,
+              distance_error: lastUserShot.distance_error,
+              result: lastUserShot.result // 'hit' | 'miss'
+            } : null,
           };
           
           const response = await gameApi.getFortressStrategy({
@@ -684,9 +699,24 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
               angle: response.strategy.angle,
               power: response.strategy.power,
             };
-            taunt = response.taunt_message;
-            console.log(`🤖 [LLM] Strategy: angle=${aiMove.angle}°, power=${aiMove.power}%`);
-            console.log(`🤖 [LLM] Taunt: "${taunt}"`);
+            
+            // 🎯 NEW: 세 가지 멘트 저장
+            if (response.taunts) {
+              setTauntMessages(response.taunts);
+              // before_shot 멘트 바로 표시
+              if (response.taunts.before_shot) {
+                setCurrentTaunt(response.taunts.before_shot);
+                tauntOpacity.value = 0;
+                tauntOpacity.value = withTiming(1, { duration: 300 });
+              }
+              console.log(`🤖 [LLM] Strategy: angle=${aiMove.angle}°, power=${aiMove.power}%`);
+              console.log(`🤖 [LLM] Taunts:`, response.taunts);
+            } else if (response.taunt_message) {
+              // Fallback: 기존 단일 멘트 (하위 호환)
+              setCurrentTaunt(response.taunt_message);
+              tauntOpacity.value = withTiming(1, { duration: 300 });
+              console.log(`🤖 [LLM] Taunt: "${response.taunt_message}"`);
+            }
           } else {
             throw new Error('LLM response invalid');
           }
@@ -708,25 +738,12 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
         console.log(`🤖 [AI] Rule-based: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
       }
       
-      // 도발 메시지 표시 (있으면)
-      if (taunt) {
-        setTauntMessage(taunt);
-        tauntOpacity.value = 0;
-        tauntOpacity.value = withTiming(1, { duration: 300 });
-        
-        // 3초 후 메시지 사라짐
-        setTimeout(() => {
-          tauntOpacity.value = withTiming(0, { duration: 300 });
-          setTimeout(() => setTauntMessage(null), 300);
-        }, 3000);
-      }
-      
       // 1.5초 후 AI 발사
       setTimeout(() => {
         fireProjectile(currentAiTank, aiMove.angle, aiMove.power, 'ai');
       }, 1500);
     }
-  }, [aiTank, userTank, terrain, wind, gameWidth, getTerrainY, calculateAIMove, fireProjectile, persona, user, shotsFired, shotsHit, tauntOpacity]);
+  }, [aiTank, userTank, terrain, wind, gameWidth, getTerrainY, calculateAIMove, fireProjectile, persona, user, shotsFired, shotsHit, lastUserShot, tauntOpacity]);
 
   /**
    * AI 각도/파워 계산 (Rule-based)
@@ -826,7 +843,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
       currentIndex++;
       
       if (currentIndex >= trajectory.length) {
-        // 궤적 종료
+        // 궤적 종료 (빗나감)
         clearInterval(animationInterval);
         projectileOpacity.value = withTiming(0, { duration: 200 });
         
@@ -834,7 +851,30 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
           setProjectile(null);
           setIsAnimating(false);
           
-          // 턴 전환 (빗나감)
+          // 🎯 빗나감 처리
+          if (shooter === 'user') {
+            // 사용자 빗나감 기록
+            const lastPoint = trajectory[trajectory.length - 1];
+            const targetTank = aiTank;
+            setLastUserShot({
+              angle: angle,
+              power: power,
+              target_x: targetTank.x,
+              target_y: targetTank.y,
+              actual_hit_x: lastPoint.x,
+              actual_hit_y: lastPoint.y,
+              distance_error: Math.abs(lastPoint.x - targetTank.x),
+              result: 'miss'
+            });
+          } else if (shooter === 'ai') {
+            // AI 빗나감 → on_miss 멘트
+            if (tauntMessages?.on_miss) {
+              setCurrentTaunt(tauntMessages.on_miss);
+              tauntOpacity.value = withTiming(1, { duration: 300 });
+            }
+          }
+          
+          // 턴 전환
           if (shooter === 'ai') {
             setTimeout(() => {
               setCurrentTurn('user');
@@ -867,8 +907,26 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
           // ⭐ 통계: 명중 + 데미지
           setShotsHit(prev => prev + 1);
           setTotalDamageDealt(prev => prev + damage);
+          
+          // 🎯 NEW: 사용자 사격 정보 기록 (LLM 학습용)
+          setLastUserShot({
+            angle: angle,
+            power: power,
+            target_x: targetTank.x,
+            target_y: targetTank.y,
+            actual_hit_x: point.x,
+            actual_hit_y: point.y,
+            distance_error: Math.abs(point.x - targetTank.x),
+            result: 'hit'
+          });
         } else {
           setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+          
+          // 🎯 AI 발사 결과 처리 (멘트 표시)
+          if (tauntMessages?.on_hit) {
+            setCurrentTaunt(tauntMessages.on_hit);
+            tauntOpacity.value = withTiming(1, { duration: 300 });
+          }
         }
         
         triggerExplosion(point.x, point.y, true);
@@ -958,7 +1016,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
         return;
       }
     }, 20);
-  }, [aiTank, userTank, terrain, wind, calculateTrajectory, checkTankCollision, checkTerrainCollision, calculateDamage, triggerExplosion, projectileX, projectileY, projectileOpacity, handleAITurn]);
+  }, [aiTank, userTank, terrain, wind, calculateTrajectory, checkTankCollision, checkTerrainCollision, calculateDamage, triggerExplosion, projectileX, projectileY, projectileOpacity, handleAITurn, tauntMessages, tauntOpacity]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Animated Styles
@@ -1171,8 +1229,8 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                 </View>
                 <CustomText style={styles.hpText}>{aiTank?.hp || 100} HP</CustomText>
                 
-                {/* 🎮 NEW: AI 도발 메시지 (말풍선) */}
-                {tauntMessage && (
+                {/* 🎮 NEW: AI 도발 메시지 (말풍선 - 3가지 상황별) */}
+                {currentTaunt && (
                   <Animated.View 
                     style={[
                       styles.tauntBubble,
@@ -1181,7 +1239,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                       }
                     ]}
                   >
-                    <CustomText style={styles.tauntText}>{tauntMessage}</CustomText>
+                    <CustomText style={styles.tauntText}>{currentTaunt}</CustomText>
                     <View style={styles.tauntTriangle} />
                   </Animated.View>
                 )}
