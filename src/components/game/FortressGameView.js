@@ -86,6 +86,12 @@ const generateTerrain = (width, height) => {
 // Get Y position on terrain (지형 위의 Y좌표 계산)
 // ═══════════════════════════════════════════════════════════════════════════
 const getTerrainY = (x, points) => {
+  // ⭐ 안전 체크
+  if (!points || points.length === 0) {
+    console.error('❌ [getTerrainY] Invalid points:', points);
+    return 200; // 기본값
+  }
+  
   // 선형 보간으로 지형의 Y좌표 계산
   for (let i = 0; i < points.length - 1; i++) {
     const p1 = points[i];
@@ -98,7 +104,9 @@ const getTerrainY = (x, points) => {
     }
   }
   
-  return points[points.length - 1].y;
+  // ⭐ 마지막 포인트 안전 체크
+  const lastPoint = points[points.length - 1];
+  return lastPoint ? lastPoint.y : 200;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -160,7 +168,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       avatarOpacity.value = withTiming(0, { duration: 200 });
       chipOpacity.value = withTiming(0, { duration: 200 });
     }
-  }, [visible]);
+  }, [visible, initializeGame, fadeAnim, avatarOpacity, chipOpacity]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Physics Engine (물리 엔진)
@@ -321,12 +329,17 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     }
   }, []);
 
-  const initializeGame = () => {
-    // 가로 화면 기준 크기
-    const gameWidth = SCREEN_HEIGHT - 100;
-    const gameHeight = 300;
+  // ⭐ 게임 영역 크기 계산 (렌더링과 동일하게)
+  const gameWidth = useMemo(() => {
+    return SCREEN_HEIGHT - (insets.top + insets.bottom) - scale(20);
+  }, [insets.top, insets.bottom]);
+  
+  const gameHeight = useMemo(() => {
+    return SCREEN_WIDTH - (insets.left + insets.right) - verticalScale(40);
+  }, [insets.left, insets.right]);
 
-    // 지형 생성
+  const initializeGame = useCallback(() => {
+    // 지형 생성 (계산된 gameWidth/gameHeight 사용)
     const terrainData = generateTerrain(gameWidth, gameHeight);
     setTerrain(terrainData);
 
@@ -336,8 +349,8 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     const userY = getTerrainY(userX, terrainData.points);
     const aiY = getTerrainY(aiX, terrainData.points);
 
-    setUserTank({ x: userX, y: userY - 10, hp: 100 });
-    setAiTank({ x: aiX, y: aiY - 10, hp: 100 });
+    setUserTank({ x: userX, y: userY - 10, hp: 100, initialX: userX });
+    setAiTank({ x: aiX, y: aiY - 10, hp: 100, initialX: aiX });
 
     // 바람 (랜덤)
     setWind(Math.floor(Math.random() * 21) - 10); // -10 ~ 10
@@ -348,11 +361,63 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     setWinner(null);
     
     console.log('🎮 [Game] Initialized - First turn: USER');
-  };
+  }, [gameWidth, gameHeight]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers
   // ═══════════════════════════════════════════════════════════════════════════
+  
+  /**
+   * 탱크 좌우 이동
+   * @param {string} direction - 'left' or 'right'
+   */
+  const handleMove = useCallback((direction) => {
+    if (isAnimating || currentTurn !== 'user' || gameOver) {
+      console.log('🚫 [Move] Cannot move now');
+      return;
+    }
+    
+    if (!userTank || !terrain) {
+      console.error('❌ [Move] Tank or terrain not initialized');
+      return;
+    }
+    
+    const MOVE_DISTANCE = 15; // 한 번 클릭당 이동 거리
+    const MAX_MOVE_RANGE = 80; // 최대 이동 범위 (±80px)
+    
+    // 새로운 X 좌표 계산
+    const deltaX = direction === 'left' ? -MOVE_DISTANCE : MOVE_DISTANCE;
+    const newX = userTank.x + deltaX;
+    
+    // 이동 범위 제한 체크
+    const distanceFromInitial = Math.abs(newX - userTank.initialX);
+    if (distanceFromInitial > MAX_MOVE_RANGE) {
+      console.log('🚫 [Move] Out of range');
+      HapticService.error();
+      return;
+    }
+    
+    // 경계 체크 (게임 영역 내부)
+    if (newX < scale(30) || newX > gameWidth - scale(30)) {
+      console.log('🚫 [Move] Out of bounds');
+      HapticService.error();
+      return;
+    }
+    
+    // 새로운 Y 좌표 (지형 높이에 맞춤)
+    const newY = getTerrainY(newX, terrain.points) - 10;
+    
+    // 이동 실행
+    HapticService.light();
+    setUserTank(prev => ({
+      ...prev,
+      x: newX,
+      y: newY,
+    }));
+    
+    console.log(`🚶 [Move] USER moved ${direction}: ${userTank.x.toFixed(1)} → ${newX.toFixed(1)}`);
+  }, [isAnimating, currentTurn, gameOver, userTank, terrain, gameWidth, getTerrainY]);
+  
   const handleFire = useCallback(() => {
     if (isAnimating) {
       console.log('🚫 [Fire] Already animating, ignored');
@@ -393,23 +458,85 @@ const FortressGameView = ({ visible, onClose, persona }) => {
    * AI 턴 실행
    */
   const handleAITurn = useCallback(() => {
-    if (!aiTank || !userTank) {
-      console.error('❌ [AI] Tanks not initialized');
+    if (!aiTank || !userTank || !terrain) {
+      console.error('❌ [AI] Tanks/terrain not initialized');
       return;
     }
     
-    console.log('🤖 [AI] Calculating move...');
+    console.log('🤖 [AI] Calculating strategy...');
     
-    // AI 각도/파워 계산
-    const aiMove = calculateAIMove(aiTank, userTank, wind);
+    // ⭐ AI 이동 결정 (50% 확률)
+    const shouldMove = Math.random() < 0.5;
     
-    console.log(`🤖 [AI] Decision: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+    if (shouldMove) {
+      const distance = Math.abs(userTank.x - aiTank.x);
+      const MAX_MOVE_RANGE = 80;
+      const MOVE_DISTANCE = 20; // AI는 한 번에 더 멀리 이동
+      
+      // 전략: 거리가 너무 멀거나 가까우면 조정
+      let moveDirection = null;
+      
+      if (distance < 350) {
+        // 너무 가까우면 멀어지기 (좌측으로)
+        moveDirection = 'left';
+      } else if (distance > 650) {
+        // 너무 멀면 가까워지기 (우측으로)
+        moveDirection = 'right';
+      } else {
+        // 적절한 거리면 랜덤 이동 (25% 확률)
+        if (Math.random() < 0.25) {
+          moveDirection = Math.random() < 0.5 ? 'left' : 'right';
+        }
+      }
+      
+      if (moveDirection) {
+        const deltaX = moveDirection === 'left' ? -MOVE_DISTANCE : MOVE_DISTANCE;
+        const newX = aiTank.x + deltaX;
+        const distanceFromInitial = Math.abs(newX - aiTank.initialX);
+        
+        // 범위 체크
+        if (
+          distanceFromInitial <= MAX_MOVE_RANGE &&
+          newX >= scale(30) &&
+          newX <= gameWidth - scale(30)
+        ) {
+          const newY = getTerrainY(newX, terrain.points) - 10;
+          
+          // ⭐ 새로운 탱크 객체 생성
+          const newAiTank = {
+            ...aiTank,
+            x: newX,
+            y: newY,
+          };
+          
+          setAiTank(newAiTank);
+          
+          console.log(`🤖 [Move] AI moved ${moveDirection}: ${aiTank.x.toFixed(1)} → ${newX.toFixed(1)}`);
+          
+          // 이동 후 0.8초 대기 → 새 위치로 발사
+          setTimeout(() => {
+            proceedToAIFire(newAiTank);
+          }, 800);
+          return;
+        }
+      }
+    }
     
-    // 1.5초 후 AI 발사
-    setTimeout(() => {
-      fireProjectile(aiTank, aiMove.angle, aiMove.power, 'ai');
-    }, 1500);
-  }, [aiTank, userTank, wind]);
+    // 이동하지 않으면 바로 발사
+    proceedToAIFire(aiTank);
+    
+    function proceedToAIFire(currentAiTank) {
+      // AI 각도/파워 계산 (현재 AI 탱크 위치 사용)
+      const aiMove = calculateAIMove(currentAiTank, userTank, wind);
+      
+      console.log(`🤖 [AI] Decision: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+      
+      // 1.5초 후 AI 발사
+      setTimeout(() => {
+        fireProjectile(currentAiTank, aiMove.angle, aiMove.power, 'ai');
+      }, 1500);
+    }
+  }, [aiTank, userTank, terrain, wind, gameWidth, getTerrainY, calculateAIMove, fireProjectile]);
 
   /**
    * AI 각도/파워 계산 (Rule-based)
@@ -652,15 +779,6 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   if (!visible || !terrain) return null;
 
-  // ⭐ Calculate safe game dimensions (accounting for SafeArea in landscape)
-  // 90도 회전: 회전된 left/right = 실제 top/bottom, 회전된 top/bottom = 실제 left/right
-  
-  // 회전된 가로(width) = 실제 세로(height) → top/bottom 여백 제거
-  const gameWidth = SCREEN_HEIGHT - (insets.top + insets.bottom) - scale(20);
-  
-  // 회전된 세로(height) = 실제 가로(width) → left/right 여백 제거
-  const gameHeight = SCREEN_WIDTH - (insets.left + insets.right) - verticalScale(40); // 헤더 공간
-
   return (
     <Modal
       visible={visible}
@@ -835,6 +953,24 @@ const FortressGameView = ({ visible, onClose, persona }) => {
 
             {/* ⭐ 하단 중앙: 컨트롤 칩셋 (오버레이) */}
             <Animated.View style={[styles.controlChipsContainer, chipAnimatedStyle]}>
+              {/* ⭐ NEW: 이동 칩 */}
+              <View style={[styles.moveChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
+                <TouchableOpacity
+                  style={styles.moveButton}
+                  onPress={() => handleMove('left')}
+                  disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                >
+                  <Icon name="chevron-back" size={moderateScale(20)} color="#FFF" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.moveButton}
+                  onPress={() => handleMove('right')}
+                  disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                >
+                  <Icon name="chevron-forward" size={moderateScale(20)} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              
               {/* 각도 칩 (항상 활성화) */}
               <View style={[styles.controlChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
                 <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
@@ -1076,6 +1212,29 @@ const styles = StyleSheet.create({
   },
   controlChipDisabled: {
     opacity: 0.4,
+  },
+  // ⭐ NEW: 이동 칩
+  moveChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    borderRadius: moderateScale(24),
+    height: scale(48),
+    paddingHorizontal: scale(8),
+    gap: scale(2),
+    borderWidth: 1.5,
+    borderColor: 'rgba(76, 201, 240, 0.5)', // 청록색
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    ...Platform.select({
+      android: { elevation: 5 },
+    }),
+  },
+  moveButton: {
+    padding: scale(6),
   },
   chipContent: {
     flexDirection: 'row',
