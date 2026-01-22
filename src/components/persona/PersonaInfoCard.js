@@ -328,7 +328,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
   return (
     <>
     <GradientOverlay
-      height={170} // ⭐ Increase height to fit pagination + content! (200 → 400)
+      height={Platform.OS === 'ios' ? verticalScale(210) : verticalScale(150)} // ⭐ Increase height to fit pagination + content! (200 → 400)
       style={styles.gradientStyle} // ⭐ LinearGradient styles (position, zIndex, etc.)
       containerStyle={[
         styles.gradientContainerStyle, // ⭐ Inner View styles (padding, etc.)
@@ -344,7 +344,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
           style={[
             styles.paginationContainer,
             { 
-              paddingTop: insets.top + verticalScale(10), // ⭐ iOS Safe Area (original, correct!)
+              paddingTop: insets.top + (Platform.OS === 'ios' ? verticalScale(10) : verticalScale(-20)), // ⭐ iOS Safe Area (original, correct!)
             }
           ]}
 
@@ -358,16 +358,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
                 <CustomText type="title" bold style={styles.paginationText}>
                   {currentIndex + 1} / {totalCount}
                 </CustomText>
-                {/* ⭐ Scroll to Top Icon (Visible only when index >= 3) */}
-                {false && (
-                  <View style={styles.scrollToTopIcon}>
-                    <Icon 
-                      name="arrow-up-circle" 
-                      size={scale(30)} 
-                      color={theme.mainColor} 
-                    />
-                  </View>
-                )}
+
               </View>
               {/* Progress Bar */}
               <View style={styles.progressBarContainer}>
@@ -537,6 +528,7 @@ const styles = StyleSheet.create({
   
   // ⭐ GradientOverlay - Container styles (inner View)
   gradientContainerStyle: {
+  
     paddingTop: verticalScale(0),  // check ios
     paddingHorizontal: scale(20),
 
@@ -544,10 +536,12 @@ const styles = StyleSheet.create({
   
   // ⭐ Pagination Container (Clickable for scroll to top)
   paginationContainer: {
+
     width: '100%',
     paddingHorizontal: scale(0),
     paddingBottom: verticalScale(10), // Bottom padding for spacing
     marginBottom: verticalScale(2),
+
 
 
     // ⭐ NO border, NO background - Pure integration with gradient
@@ -569,7 +563,7 @@ const styles = StyleSheet.create({
   
   paginationText: {
     color: '#FFFFFF',
-    fontSize: scale(22),
+    fontSize: scale(20),
     letterSpacing: 0.5,
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 0, height: 1 },

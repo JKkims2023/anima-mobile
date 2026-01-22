@@ -323,23 +323,13 @@ const TipsSection = ({ currentTheme, t }) => (
 const EmptyStateCard = ({ currentTheme, t }) => (
   <View style={styles.emptyStateContainer}>
     <CustomText type="big" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
-      🎯 아직 이야기를 나누지 않았어요
+      🎯 대화를 시작하면 감정이 쌓여요!
     </CustomText>
     
     <View style={[styles.emptyCard, { backgroundColor: currentTheme.surfaceSecondary }]}>
-      <CustomText style={styles.emptyEmoji}>😐</CustomText>
-      <CustomText type="big" bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
-        대화를 시작하면
-      </CustomText>
-      <CustomText type="big" bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
-        감정이 쌓여요!
-      </CustomText>
-      
-      <View style={styles.emptyCTA}>
-        <CustomText type="middle" style={[styles.emptyCTAText, { color: currentTheme.mainColor }]}>
-          💬 채팅을 시작해보세요
-        </CustomText>
-      </View>
+
+        <CustomText type="big"  style={styles.emptyEmoji}>😐</CustomText>
+       
     </View>
     
     <View style={styles.divider} />
@@ -497,16 +487,24 @@ const styles = StyleSheet.create({
   // Empty State
   emptyStateContainer: {
     padding: scale(0),
+
   },
   emptyCard: {
-    padding: scale(32),
+    padding: scale(10),
     borderRadius: scale(16),
     alignItems: 'center',
-    marginBottom: verticalScale(16),
+
   },
   emptyEmoji: {
-    fontSize: scale(64),
-    marginBottom: verticalScale(16),
+    marginTop: Platform.OS === 'ios' ? verticalScale(46) : verticalScale(0),
+    fontSize: scale(40),
+    width: scale(80),
+    height: scale(80),
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+
   },
   emptyTitle: {
     fontSize: scale(20),

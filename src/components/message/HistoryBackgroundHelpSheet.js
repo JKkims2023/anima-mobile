@@ -41,7 +41,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
 
-const MainHelpSheet = ({
+const HistoryBackgroundHelpSheet = ({
   isOpen,
   onClose,
   onCreateStart, // (data) => { file, name, gender }
@@ -332,11 +332,11 @@ const MainHelpSheet = ({
       ref={bottomSheetRef}
       onClose={onClose}
       snapPoints={['85%']}
-      title={t('help.main_help.title', '메세지 배경을 설정하세요')}
+      title={t('help.history_background_help.title')}
       showCloseButton={true}
       buttons={[
         {
-          title: t('common.close', '닫기'),
+          title: t('common.close'),
           type: 'primary',
           onPress: onClose,
         }
@@ -353,75 +353,35 @@ const MainHelpSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={[styles.section, {  marginTop: verticalScale(-10) }]}>
           
-          <CustomText type="title" style={[styles.sectionTitle, { display: 'none', color: currentTheme.textSecondary, marginTop: verticalScale(10), marginBottom: verticalScale(20) }]}>
-            {t('help.main_help.description')}
+          <CustomText type="middle" style={[styles.sectionTitle, {  color: currentTheme.textSecondary, marginTop: verticalScale(10), marginBottom: verticalScale(20) }]}>
+            {t('help.history_background_help.description')}
           </CustomText>
           
           <View style={styles.sectionHeader}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="mailbox-outline" 
-                size={scale(24)} 
-                color="#FFD93D"
-              />
-            <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.default_persona', '배경 페르소나')}
-            </CustomText>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>  
+              <CustomText type="title" bold style={styles.sectionTitle}>
+                {t('help.history_background_help.section_title_one')}
+              </CustomText>
+              </View>
             </View>
+            <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
+              {t('help.history_background_help.section_title_one_desc')}
+            </CustomText>
+
+            <View style={[styles.sectionHeader, { marginTop: verticalScale(15) }]}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>  
+              <CustomText type="title" bold style={styles.sectionTitle}>
+                {t('help.history_background_help.section_title_two')}
+              </CustomText>
+              </View>
+            </View>
+            <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
+              {t('help.history_background_help.section_title_two_desc')}
+            </CustomText>
+            
           </View>
 
-          <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.default_persona_desc')}
-          </CustomText>
-
-        </View>
-
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 3: Description Input (클릭 시 Modal)                       */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
-          <View style={styles.sectionHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="tshirt-crew-outline" 
-                size={scale(24)} 
-                color="#A78BFA"
-              />
-            <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.user_persona')}
-            </CustomText>
-            </View>
-          </View>
-
-          <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.user_persona_desc')}
-          </CustomText>
-
-        </View>
-
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 3: Description Input (클릭 시 Modal)                       */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
-          <View style={styles.sectionHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="message-text" 
-                size={scale(24)} 
-                color="#6BB6FF"
-              />
-            <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.soul_message')}
-            </CustomText>
-            </View>
-          </View>
-
-          <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.soul_message_desc')}
-          </CustomText>
-
-        </View>
-
+          
 
         {/* Divider */}
         <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
@@ -432,19 +392,15 @@ const MainHelpSheet = ({
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
           <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="heart-multiple-outline" 
-                size={scale(24)} 
-                color="#FF7FA3"
-              />
+            
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.section_title_two')}
+              {t('help.history_message_help.section_title_two')}
             </CustomText>
             </View>
           </View>
 
           <CustomText type="normal" style={[styles.sectionDescription, {  color: currentTheme.textSecondary }]}>
-            {t('help.main_help.convert_video')}
+            {t('help.history_background_help.section_title_footer_info')}
           </CustomText>
 
         </View>
@@ -740,5 +696,5 @@ const styles = StyleSheet.create({
   
 });
 
-export default MainHelpSheet;
+export default HistoryBackgroundHelpSheet;
 

@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12), // ⭐ Increased from 8 to 12 for better emoji visibility
     borderRadius: Platform.OS === 'ios' ? scale(10) : scale(14),
     overflow: 'hidden',
-    width: scale(65), // Ensure consistent width
+    width: Platform.OS === 'ios' ? scale(65) : scale(70), // Ensure consistent width
     // Shadow
     backgroundColor: 'rgba(5, 16, 83, 0.8)',
 

@@ -34,14 +34,14 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import MessageInputOverlay from '../message/MessageInputOverlay';
 
-const MainHelpSheet = ({
+const MainHelpMessageSheet = ({
   isOpen,
   onClose,
   onCreateStart, // (data) => { file, name, gender }
@@ -332,7 +332,7 @@ const MainHelpSheet = ({
       ref={bottomSheetRef}
       onClose={onClose}
       snapPoints={['85%']}
-      title={t('help.main_help.title', '메세지 배경을 설정하세요')}
+      title={t('help.message_creation_help.title', '메세지 작성 도움말')}
       showCloseButton={true}
       buttons={[
         {
@@ -351,27 +351,23 @@ const MainHelpSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 2: Name Input (클릭 시 Modal)                              */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, {  marginTop: verticalScale(-10) }]}>
+        <View style={[styles.section, { marginTop: verticalScale(-10) }]}>
           
-          <CustomText type="title" style={[styles.sectionTitle, { display: 'none', color: currentTheme.textSecondary, marginTop: verticalScale(10), marginBottom: verticalScale(20) }]}>
-            {t('help.main_help.description')}
+          <CustomText type="title" style={[styles.sectionTitle, { color: currentTheme.textSecondary, marginTop: verticalScale(10), marginBottom: verticalScale(20) }]}>
+            {t('help.message_creation_help.description')}
           </CustomText>
           
           <View style={styles.sectionHeader}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="mailbox-outline" 
-                size={scale(24)} 
-                color="#FFD93D"
-              />
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.default_persona', '배경 페르소나')}
+            1.
             </CustomText>
-            </View>
+            <CustomText type="title" bold style={styles.sectionTitle}>
+              {t('help.message_creation_help.section_title_one', '메세지는 대신 작성해주지 않아요!')}
+            </CustomText>
           </View>
 
           <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.default_persona_desc')}
+            {t('help.message_creation_help.section_title_one_desc', '카톡, 인스타를 이용한 단순한 문장이 아닌, 배경에 어울리는 메세지를 작성해주세요!')}
           </CustomText>
 
         </View>
@@ -381,20 +377,16 @@ const MainHelpSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={[styles.section, { marginTop: verticalScale(10) }]}>
           <View style={styles.sectionHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="tshirt-crew-outline" 
-                size={scale(24)} 
-                color="#A78BFA"
-              />
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.user_persona')}
+            2.
             </CustomText>
-            </View>
+            <CustomText type="title" bold style={styles.sectionTitle}>
+              {t('help.message_creation_help.section_title_two', '메세지 작성 도움말')}
+            </CustomText>
           </View>
 
           <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.user_persona_desc')}
+            {t('help.message_creation_help.section_title_two_desc')}
           </CustomText>
 
         </View>
@@ -404,51 +396,32 @@ const MainHelpSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={[styles.section, { marginTop: verticalScale(10) }]}>
           <View style={styles.sectionHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="message-text" 
-                size={scale(24)} 
-                color="#6BB6FF"
-              />
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.soul_message')}
+            3.
             </CustomText>
-            </View>
+            <CustomText type="title" bold style={styles.sectionTitle}>
+              {t('help.message_creation_help.section_title_three', '🎵 음악으로 감성을 더하세요!')}
+            </CustomText>
           </View>
 
           <CustomText type="normal" style={[styles.sectionDescription, { color: currentTheme.textSecondary }]}>
-            {t('help.main_help.soul_message_desc')}
+            {t('help.message_creation_help.section_title_three_desc')}
           </CustomText>
 
         </View>
-
 
         {/* Divider */}
         <View style={[styles.divider, { backgroundColor: currentTheme.borderSubtle }]} />
 
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        {/* SECTION 1: Photo Upload                                            */}
-        {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={styles.section}>
+
+        <View style={[styles.section, { marginTop: verticalScale(0) }]}>
           <View style={styles.sectionHeader}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: scale(8)}}>
-            <Icon 
-                name="heart-multiple-outline" 
-                size={scale(24)} 
-                color="#FF7FA3"
-              />
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('help.main_help.section_title_two')}
+              {t('help.message_creation_help.section_title_footer_info')}
             </CustomText>
-            </View>
           </View>
 
-          <CustomText type="normal" style={[styles.sectionDescription, {  color: currentTheme.textSecondary }]}>
-            {t('help.main_help.convert_video')}
-          </CustomText>
-
         </View>
-
 
       </ScrollView>
 
@@ -740,5 +713,5 @@ const styles = StyleSheet.create({
   
 });
 
-export default MainHelpSheet;
+export default MainHelpMessageSheet;
 

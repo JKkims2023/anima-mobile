@@ -46,6 +46,8 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { scale, verticalScale, platformPadding } from '../utils/responsive-utils';
 import HapticService from '../utils/HapticService';
 import MainHelpSheet from '../components/persona/MainHelpSheet';
+import MainHelpMessageSheet from '../components/persona/MainHelpMessageSheet';
+import MainHelpFeedbackSheet from '../components/persona/MainHelpFeedbackSheet';
 import DressManageSheer from '../components/persona/DressManageSheer';
 import PersonaShareSheet from '../components/persona/PersonaShareSheet';
 import SlideMenu from '../components/SlideMenu'; // ⭐ NEW: Slide menu
@@ -92,6 +94,9 @@ const PersonaStudioScreen = () => {
   const animaLogoOpacity = useRef(new Animated.Value(0)).current;
   const soulConnectionTranslateX = useRef(new Animated.Value(-100)).current;
   const soulConnectionOpacity = useRef(new Animated.Value(0)).current;
+  const helpFeedbackSheetRef = useRef(null);
+  const helpMessageSheetRef = useRef(null);
+  const helpSheetRef = useRef(null);
   
   // 🔥 PERFORMANCE DEBUG: Render counter
   const renderCountRef = useRef(0);
@@ -166,7 +171,8 @@ const PersonaStudioScreen = () => {
   const [isConvertingVideo, setIsConvertingVideo] = useState(false); // ⭐ NEW: Loading overlay for video conversion
   const [processingMessage, setProcessingMessage] = useState(''); // ⭐ NEW: Dynamic message for processing overlay
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const helpSheetRef = useRef(null);
+  const [isHelpMessageOpen, setIsHelpMessageOpen] = useState(false);
+  const [isHelpFeedbackOpen, setIsHelpFeedbackOpen] = useState(false);
   const confettiRef = useRef(null); // ⭐ NEW: Confetti ref for completion celebration
   const [isRefreshing, setIsRefreshing] = useState(false); // ⭐ NEW: Pull-to-refresh state
   const [isDressManagementOpen, setIsDressManagementOpen] = useState(false);
@@ -2123,7 +2129,20 @@ const PersonaStudioScreen = () => {
           {/* Help Icon */}
           <TouchableOpacity
             style={styles.helpButton}
-            onPress={() => setIsHelpOpen(true)}
+            onPress={() => {
+              
+              if(isBackViewVisible) {
+
+                if(refFiipType.current === 'message') {
+                  setIsHelpMessageOpen(true);
+                } else {
+                  setIsHelpFeedbackOpen(true);
+                }
+
+              } else {
+                setIsHelpOpen(true);
+              }
+            }}
             activeOpacity={0.7}
           >
             <IconSearch name="help-circle-outline" size={scale(30)} color={currentTheme.mainColor} />
@@ -2305,6 +2324,32 @@ const PersonaStudioScreen = () => {
             isOpen={isHelpOpen}
             onClose={() => setIsHelpOpen(false)}
             onCreateStart={handlePersonaCreationStartWithPermission}
+          />
+        </View>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Help Message Sheet */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {isHelpMessageOpen && (
+        <View style={styles.sheetContainer}>
+          <MainHelpMessageSheet
+            ref={helpMessageSheetRef}
+            isOpen={isHelpMessageOpen}
+            onClose={() => setIsHelpMessageOpen(false)}
+          />
+        </View>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* Help Feedback Sheet */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {isHelpFeedbackOpen && (
+        <View style={styles.sheetContainer}>
+          <MainHelpFeedbackSheet
+            ref={helpFeedbackSheetRef}
+            isOpen={isHelpFeedbackOpen}
+            onClose={() => setIsHelpFeedbackOpen(false)}
           />
         </View>
       )}

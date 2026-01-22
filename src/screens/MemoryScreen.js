@@ -54,6 +54,7 @@ import { COLORS } from '../styles/commonstyles';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
 import Video from 'react-native-video';
+import MemoryHelpSheet from '../components/memory/MemoryHelpSheet';
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -86,7 +87,7 @@ const MemoryScreen = () => {
   const creatorSheetRef = useRef(null);
   const playerSheetRef = useRef(null);
   const searchInputRef = useRef(null);
-
+  const helpSheetRef = useRef(null);
   // State
   const [giftList, setGiftList] = useState([]);
   const [filteredGiftList, setFilteredGiftList] = useState([]);
@@ -106,7 +107,7 @@ const MemoryScreen = () => {
 
   // Selected music for player
   const [selectedMemory, setSelectedMemory] = useState(null);
-
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load music list from API
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -462,7 +463,7 @@ const MemoryScreen = () => {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleHelpPress = () => {
     HapticService.light();
-
+    setIsHelpOpen(true);
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -629,6 +630,15 @@ const MemoryScreen = () => {
         visible={isProcessingMusic}
         message={t('music.creating_message')}
       />
+
+      {/* Memory Help Sheet */}
+      {isHelpOpen && (
+      <MemoryHelpSheet
+          ref={helpSheetRef}
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+        />
+      )}
     </SafeScreen>
   );
 };

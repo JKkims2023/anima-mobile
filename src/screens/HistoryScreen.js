@@ -59,6 +59,9 @@ import { scale, verticalScale, moderateScale, platformPadding } from '../utils/r
 import { COLORS } from '../styles/commonstyles';
 import HistoryHelpSheet from '../components/persona/HistoryHelpSheet';
 import Svg, { Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg'; // ⭐ NEW: For gradient title
+import HistoryMessageHelpSheet from '../components/message/HistoryMessageHelpSheet';
+import HistoryMusicHelpSheet from '../components/message/HistoryMusicHelpSheet';
+import HistoryBackgroundHelpSheet from '../components/message/HistoryBackgroundHelpSheet';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -91,7 +94,9 @@ const HistoryScreen = () => {
 
   // ✅ Refs
   const flashListRef = useRef(null);
-  const helpSheetRef = useRef(null);
+  const historyHelpSheetRef = useRef(null);
+  const musicHelpSheetRef = useRef(null);
+  const backgroundHelpSheetRef = useRef(null);
   const creatorSheetRef = useRef(null); // ⭐ NEW: Music creator
   const playerSheetRef = useRef(null); // ⭐ NEW: Music player
   
@@ -142,6 +147,11 @@ const HistoryScreen = () => {
   // 🖼️ NEW: Background Viewer Overlay state
   const [isBackgroundViewerVisible, setIsBackgroundViewerVisible] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState(null);
+
+  // ⭐ History Message Help Sheet state
+  const [isHistoryHelpOpen, setIsHistoryHelpOpen] = useState(false);
+  const [isMusicHelpOpen, setIsMusicHelpOpen] = useState(false);
+  const [isBackgroundHelpOpen, setIsBackgroundHelpOpen] = useState(false);
 
   // ⭐ Clear badges on screen focus
   useFocusEffect(
@@ -1062,7 +1072,24 @@ const HistoryScreen = () => {
 
         <TouchableOpacity
           style={[styles.searchButton, { marginLeft: 'auto' }]}
-          onPress={() => setIsHelpOpen(true)}
+          onPress={() => {
+
+            switch (activeTab) {
+              case 'message':
+                setIsHistoryHelpOpen(true);  
+                break;
+              case 'music':
+                setIsMusicHelpOpen(true);
+                break;
+              case 'background':
+                setIsBackgroundHelpOpen(true);
+                break;
+              
+              default:
+                break;
+            }
+
+          }}
           activeOpacity={0.7}
         >
           <Icon 
@@ -1236,17 +1263,34 @@ const HistoryScreen = () => {
         />
       )}
 
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* Help Sheet */}
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      <View style={styles.sheetContainer}>
-        <HistoryHelpSheet
-          ref={helpSheetRef}
-          isOpen={isHelpOpen}
-          onClose={() => setIsHelpOpen(false)}
-        />
-      </View>
 
+
+      {/* History Message Help Sheet */}
+      {isHistoryHelpOpen && (
+        <HistoryMessageHelpSheet
+          ref={historyHelpSheetRef}
+          isOpen={isHistoryHelpOpen}
+          onClose={() => setIsHistoryHelpOpen(false)}
+        />
+      )}
+
+      {/* History Music Help Sheet */}
+      {isMusicHelpOpen && (
+        <HistoryMusicHelpSheet
+          ref={musicHelpSheetRef}
+          isOpen={isMusicHelpOpen}
+          onClose={() => setIsMusicHelpOpen(false)}
+        />
+      )}
+
+      {/* History Background Help Sheet */}
+      {isBackgroundHelpOpen && (
+        <HistoryBackgroundHelpSheet
+          ref={backgroundHelpSheetRef}
+          isOpen={isBackgroundHelpOpen}
+          onClose={() => setIsBackgroundHelpOpen(false)}
+        />
+      )}
       {/* ⭐ NEW: Music Creator Sheet */}
       <MusicCreatorSheet
         ref={creatorSheetRef}
