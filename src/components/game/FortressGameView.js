@@ -130,6 +130,13 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   
   // ⭐ Avatar animations
   const avatarOpacity = useSharedValue(0);
+  
+  // ⭐ Projectile (발사체) state & animations
+  const [projectile, setProjectile] = useState(null); // { x, y } or null
+  const [isAnimating, setIsAnimating] = useState(false);
+  const projectileX = useSharedValue(0);
+  const projectileY = useSharedValue(0);
+  const projectileOpacity = useSharedValue(0);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialize Game (게임 초기화)
@@ -198,6 +205,63 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     }
   }, [powerChipExpanded, angleChipExpanded, powerChipWidth, angleChipWidth]);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Physics Engine (물리 엔진)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const calculateTrajectory = useCallback((startX, startY, angle, power, wind) => {
+    console.log('🎯 [Physics] Calculating trajectory...');
+    console.log(`   Start: (${startX.toFixed(1)}, ${startY.toFixed(1)})`);
+    console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s`);
+    
+    // ⭐ 물리 상수
+    const GRAVITY = 980; // 픽셀 기준 중력 가속도 (cm/s² → px/s²)
+    const MAX_VELOCITY = 500; // 최대 초속도 (px/s)
+    const TIME_STEP = 0.02; // 20ms per frame (50 FPS)
+    const MAX_TIME = 5; // 최대 5초 시뮬레이션
+    
+    // ⭐ 초속도 계산 (power: 0~100 → velocity: 0~MAX_VELOCITY)
+    const initialVelocity = (power / 100) * MAX_VELOCITY;
+    
+    // ⭐ 각도를 라디안으로 변환
+    const angleRad = (angle * Math.PI) / 180;
+    
+    // ⭐ 초속도 분해 (x, y 성분)
+    let vx = initialVelocity * Math.cos(angleRad); // 수평 속도
+    let vy = -initialVelocity * Math.sin(angleRad); // 수직 속도 (위쪽이 -)
+    
+    // ⭐ 바람 영향 (수평 속도에 추가)
+    const windEffect = wind * 8; // wind: -10~+10 → -80~+80 px/s
+    vx += windEffect;
+    
+    // ⭐ 궤적 포인트 배열
+    const trajectory = [];
+    let x = startX;
+    let y = startY;
+    let t = 0;
+    
+    // ⭐ 시뮬레이션 (충돌 또는 시간 초과까지)
+    while (t < MAX_TIME) {
+      trajectory.push({ x, y, t });
+      
+      // 다음 프레임 위치 계산
+      x += vx * TIME_STEP;
+      y += vy * TIME_STEP;
+      
+      // 중력 적용 (수직 속도 증가)
+      vy += GRAVITY * TIME_STEP;
+      
+      // 화면 밖으로 나가면 중단 (회전된 화면 기준)
+      if (y > SCREEN_WIDTH || x < 0 || x > SCREEN_HEIGHT) {
+        break;
+      }
+      
+      t += TIME_STEP;
+    }
+    
+    console.log(`🎯 [Physics] Trajectory calculated: ${trajectory.length} points, duration: ${t.toFixed(2)}s`);
+    return trajectory;
+  }, []);
+
   const initializeGame = () => {
     // 가로 화면 기준 크기
     const gameWidth = SCREEN_HEIGHT - 100;
@@ -223,16 +287,76 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers
   // ═══════════════════════════════════════════════════════════════════════════
-  const handleFire = () => {
+  const handleFire = useCallback(() => {
+    if (isAnimating) {
+      console.log('🚫 [Fire] Already animating, ignored');
+      return;
+    }
+    
+    if (!userTank) {
+      console.error('❌ [Fire] User tank not initialized');
+      return;
+    }
+    
     HapticService.medium();
-    console.log('🚀 Fire! Angle:', angle, 'Power:', power, 'Wind:', wind);
-    // TODO: 발사 애니메이션, 충돌 감지, LLM AI 턴
-  };
+    console.log('🔥 [Fire] Firing!');
+    console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s`);
+    
+    // ⭐ 1. 궤적 계산
+    const trajectory = calculateTrajectory(
+      userTank.x,
+      userTank.y,
+      angle,
+      power,
+      wind
+    );
+    
+    if (trajectory.length === 0) {
+      console.error('❌ [Fire] Trajectory calculation failed');
+      return;
+    }
+    
+    // ⭐ 2. 애니메이션 준비
+    setIsAnimating(true);
+    setProjectile({ x: trajectory[0].x, y: trajectory[0].y });
+    
+    projectileX.value = trajectory[0].x;
+    projectileY.value = trajectory[0].y;
+    projectileOpacity.value = 0;
+    projectileOpacity.value = withTiming(1, { duration: 100 });
+    
+    // ⭐ 3. 궤적을 따라 이동 (순차 애니메이션)
+    let currentIndex = 0;
+    const animationInterval = setInterval(() => {
+      currentIndex++;
+      
+      if (currentIndex >= trajectory.length) {
+        // 궤적 종료
+        clearInterval(animationInterval);
+        projectileOpacity.value = withTiming(0, { duration: 200 });
+        
+        setTimeout(() => {
+          setProjectile(null);
+          setIsAnimating(false);
+          console.log('✅ [Fire] Animation complete');
+          HapticService.light();
+          // TODO: Step 3에서 충돌 감지 & 데미지 처리 추가
+        }, 200);
+        return;
+      }
+      
+      const point = trajectory[currentIndex];
+      projectileX.value = point.x;
+      projectileY.value = point.y;
+      setProjectile({ x: point.x, y: point.y });
+    }, 20); // 50 FPS (20ms per frame)
+    
+  }, [isAnimating, angle, power, wind, userTank, calculateTrajectory, projectileX, projectileY, projectileOpacity]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     HapticService.light();
     onClose?.();
-  };
+  }, [onClose]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Animated Styles
@@ -355,6 +479,19 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                     strokeWidth="1.5"
                   />
                 )}
+
+                {/* ⭐ 발사체 (Projectile) */}
+                {projectile && (
+                  <Circle
+                    cx={projectile.x}
+                    cy={projectile.y}
+                    r="6"
+                    fill="#FF6B9D" // 사용자 색상
+                    stroke="#FFF"
+                    strokeWidth="2"
+                    opacity={isAnimating ? 1 : 0}
+                  />
+                )}
               </Svg>
             </View>
 
@@ -390,6 +527,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                 style={styles.chipTouchArea}
                 onPress={toggleAngleChip}
                 activeOpacity={0.8}
+                disabled={isAnimating}
               >
                 <Animated.View style={[styles.controlChip, angleChipAnimatedStyle]}>
                   <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
@@ -423,7 +561,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
               </TouchableOpacity>
 
               {/* 발사 버튼 (중앙) */}
-              <TouchableOpacity style={styles.fireChip} onPress={handleFire}>
+              <TouchableOpacity 
+                style={[styles.fireChip, isAnimating && styles.fireChipDisabled]} 
+                onPress={handleFire}
+                disabled={isAnimating}
+              >
                 <Icon name="rocket" size={moderateScale(26)} color="#FFF" />
               </TouchableOpacity>
 
@@ -432,6 +574,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                 style={styles.chipTouchArea}
                 onPress={togglePowerChip}
                 activeOpacity={0.8}
+                disabled={isAnimating}
               >
                 <Animated.View style={[styles.controlChip, powerChipAnimatedStyle]}>
                   <MaterialIcon name="flash" size={moderateScale(20)} color="#FFA500" />
@@ -656,6 +799,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 8 },
     }),
+  },
+  fireChipDisabled: {
+    backgroundColor: 'rgba(255, 107, 157, 0.4)', // 비활성화 시 투명도
+    opacity: 0.5,
   },
 });
 
