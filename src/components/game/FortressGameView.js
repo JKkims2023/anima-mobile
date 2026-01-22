@@ -137,6 +137,9 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const projectileX = useSharedValue(0);
   const projectileY = useSharedValue(0);
   const projectileOpacity = useSharedValue(0);
+  
+  // ⭐ Explosion (폭발) state & animations
+  const [explosion, setExplosion] = useState(null); // { x, y, radius, opacity } or null
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialize Game (게임 초기화)
@@ -262,6 +265,108 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     return trajectory;
   }, []);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Collision Detection (충돌 감지)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /**
+   * 지형 충돌 감지
+   * @param {number} x - 포탄 x 좌표
+   * @param {number} y - 포탄 y 좌표
+   * @param {object} terrain - 지형 데이터
+   * @returns {boolean} 충돌 여부
+   */
+  const checkTerrainCollision = useCallback((x, y, terrain) => {
+    if (!terrain || !terrain.points) return false;
+    
+    // 포탄의 x 좌표에 해당하는 지형 y 좌표 찾기
+    const terrainY = getTerrainY(x, terrain.points);
+    
+    // 포탄의 y가 지형보다 아래면 충돌
+    return y >= terrainY;
+  }, []);
+
+  /**
+   * 탱크 충돌 감지
+   * @param {number} x - 포탄 x 좌표
+   * @param {number} y - 포탄 y 좌표
+   * @param {object} tank - 탱크 객체
+   * @returns {boolean} 충돌 여부
+   */
+  const checkTankCollision = useCallback((x, y, tank) => {
+    if (!tank) return false;
+    
+    // 포탄과 탱크 중심 사이의 거리 계산
+    const distance = Math.sqrt(
+      Math.pow(x - tank.x, 2) + Math.pow(y - tank.y, 2)
+    );
+    
+    // 충돌 반경 (탱크 크기 + 포탄 반경 + 약간의 여유)
+    const HIT_RADIUS = 15;
+    
+    return distance < HIT_RADIUS;
+  }, []);
+
+  /**
+   * 데미지 계산
+   * @param {number} distance - 탱크와의 거리
+   * @param {boolean} directHit - 직격 여부
+   * @returns {number} 데미지 값
+   */
+  const calculateDamage = useCallback((distance, directHit) => {
+    if (directHit) {
+      // 직격: 30 HP
+      return 30;
+    } else {
+      // 스플래시 데미지: 거리에 비례 (10~20 HP)
+      const SPLASH_RADIUS = 40;
+      if (distance > SPLASH_RADIUS) return 0;
+      
+      const damageRatio = 1 - (distance / SPLASH_RADIUS);
+      return Math.max(10, Math.floor(20 * damageRatio));
+    }
+  }, []);
+
+  /**
+   * 폭발 애니메이션 실행
+   * @param {number} x - 폭발 x 좌표
+   * @param {number} y - 폭발 y 좌표
+   * @param {boolean} hit - 명중 여부
+   */
+  const triggerExplosion = useCallback((x, y, hit) => {
+    console.log(`💥 [Explosion] Triggered at (${x.toFixed(1)}, ${y.toFixed(1)}), hit: ${hit}`);
+    
+    const maxRadius = hit ? 40 : 30;
+    const duration = 300; // ms
+    const steps = 15; // 15 frames
+    const stepTime = duration / steps;
+    
+    let currentStep = 0;
+    
+    const explosionInterval = setInterval(() => {
+      currentStep++;
+      
+      if (currentStep > steps) {
+        clearInterval(explosionInterval);
+        setExplosion(null);
+        return;
+      }
+      
+      const progress = currentStep / steps;
+      const radius = maxRadius * progress;
+      const opacity = 1 - progress;
+      
+      setExplosion({ x, y, radius, opacity });
+    }, stepTime);
+    
+    // Haptic feedback
+    if (hit) {
+      HapticService.success(); // 명중!
+    } else {
+      HapticService.light(); // 빗나감
+    }
+  }, []);
+
   const initializeGame = () => {
     // 가로 화면 기준 크기
     const gameWidth = SCREEN_HEIGHT - 100;
@@ -325,22 +430,20 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     projectileOpacity.value = 0;
     projectileOpacity.value = withTiming(1, { duration: 100 });
     
-    // ⭐ 3. 궤적을 따라 이동 (순차 애니메이션)
+    // ⭐ 3. 궤적을 따라 이동 & 충돌 감지 (순차 애니메이션)
     let currentIndex = 0;
     const animationInterval = setInterval(() => {
       currentIndex++;
       
       if (currentIndex >= trajectory.length) {
-        // 궤적 종료
+        // 궤적 종료 (충돌 없이)
         clearInterval(animationInterval);
         projectileOpacity.value = withTiming(0, { duration: 200 });
         
         setTimeout(() => {
           setProjectile(null);
           setIsAnimating(false);
-          console.log('✅ [Fire] Animation complete');
-          HapticService.light();
-          // TODO: Step 3에서 충돌 감지 & 데미지 처리 추가
+          console.log('✅ [Fire] Miss - trajectory ended');
         }, 200);
         return;
       }
@@ -349,6 +452,81 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       projectileX.value = point.x;
       projectileY.value = point.y;
       setProjectile({ x: point.x, y: point.y });
+      
+      // ⭐ 충돌 감지
+      // 1. AI 탱크 충돌 체크 (우선순위 높음)
+      if (aiTank && checkTankCollision(point.x, point.y, aiTank)) {
+        clearInterval(animationInterval);
+        projectileOpacity.value = withTiming(0, { duration: 100 });
+        
+        console.log('🎯 [Collision] Direct hit on AI tank!');
+        
+        // 데미지 계산 및 적용
+        const damage = calculateDamage(0, true); // 직격
+        console.log(`💥 [Damage] AI tank: -${damage} HP`);
+        
+        setAiTank(prev => ({
+          ...prev,
+          hp: Math.max(0, prev.hp - damage),
+        }));
+        
+        // 폭발 애니메이션
+        triggerExplosion(point.x, point.y, true);
+        
+        setTimeout(() => {
+          setProjectile(null);
+          setIsAnimating(false);
+          
+          // 승리 체크
+          if (aiTank.hp - damage <= 0) {
+            console.log('🎉 [Game] You Win!');
+            HapticService.success();
+            // TODO: 승리 화면 표시
+          }
+        }, 100);
+        return;
+      }
+      
+      // 2. 지형 충돌 체크
+      if (terrain && checkTerrainCollision(point.x, point.y, terrain)) {
+        clearInterval(animationInterval);
+        projectileOpacity.value = withTiming(0, { duration: 100 });
+        
+        console.log('💥 [Collision] Hit terrain');
+        
+        // 스플래시 데미지 계산 (AI 탱크와의 거리)
+        if (aiTank) {
+          const distance = Math.sqrt(
+            Math.pow(point.x - aiTank.x, 2) + Math.pow(point.y - aiTank.y, 2)
+          );
+          
+          const damage = calculateDamage(distance, false);
+          
+          if (damage > 0) {
+            console.log(`💥 [Damage] AI tank (splash): -${damage} HP`);
+            setAiTank(prev => ({
+              ...prev,
+              hp: Math.max(0, prev.hp - damage),
+            }));
+            
+            // 승리 체크
+            if (aiTank.hp - damage <= 0) {
+              console.log('🎉 [Game] You Win!');
+              HapticService.success();
+              // TODO: 승리 화면 표시
+            }
+          }
+        }
+        
+        // 폭발 애니메이션
+        triggerExplosion(point.x, point.y, false);
+        
+        setTimeout(() => {
+          setProjectile(null);
+          setIsAnimating(false);
+        }, 100);
+        return;
+      }
     }, 20); // 50 FPS (20ms per frame)
     
   }, [isAnimating, angle, power, wind, userTank, calculateTrajectory, projectileX, projectileY, projectileOpacity]);
@@ -491,6 +669,36 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                     strokeWidth="2"
                     opacity={isAnimating ? 1 : 0}
                   />
+                )}
+
+                {/* ⭐ 폭발 효과 (Explosion) */}
+                {explosion && (
+                  <>
+                    {/* 외부 원 (주황색) */}
+                    <Circle
+                      cx={explosion.x}
+                      cy={explosion.y}
+                      r={explosion.radius * 1.2}
+                      fill="#FFA500"
+                      opacity={explosion.opacity * 0.4}
+                    />
+                    {/* 중간 원 (핑크) */}
+                    <Circle
+                      cx={explosion.x}
+                      cy={explosion.y}
+                      r={explosion.radius}
+                      fill="#FF6B9D"
+                      opacity={explosion.opacity * 0.6}
+                    />
+                    {/* 내부 원 (흰색 중심) */}
+                    <Circle
+                      cx={explosion.x}
+                      cy={explosion.y}
+                      r={explosion.radius * 0.5}
+                      fill="#FFFFFF"
+                      opacity={explosion.opacity * 0.9}
+                    />
+                  </>
                 )}
               </Svg>
             </View>
