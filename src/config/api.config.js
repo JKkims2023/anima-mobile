@@ -231,6 +231,13 @@ export const MUSIC_ENDPOINTS = {
 };
 
 /**
+ * 🎮 Game Endpoints
+ */
+export const GAME_ENDPOINTS = {
+  FORTRESS_STRATEGY: API_BASE_URL + '/api/game/fortress-strategy', // 🏰 Fortress game AI strategy
+};
+
+/**
  * Point Endpoints
  */
 export const POINT_ENDPOINTS = {

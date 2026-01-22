@@ -13,6 +13,7 @@
 import apiClient from './apiClient';
 import * as chatApi from './chatApi';
 import * as errorHandler from './errorHandler';
+import gameApi from './gameApi'; // 🎮 NEW: Game API
 
 /**
  * Export all API services
@@ -21,6 +22,7 @@ export {
   apiClient,
   chatApi,
   errorHandler,
+  gameApi, // 🎮 NEW: Game API
 };
 
 /**
@@ -30,5 +32,6 @@ export default {
   apiClient,
   chatApi,
   errorHandler,
+  gameApi, // 🎮 NEW: Game API
 };
 
