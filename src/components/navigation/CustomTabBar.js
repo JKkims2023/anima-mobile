@@ -185,6 +185,15 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // 🎮 NEW: Game Selection Handler (from ManagerAIOverlay)
   const handleGameSelect = (gameName) => {
     console.log(`🎮 [CustomTabBar] Game selected: ${gameName}`);
+    console.log(`🐛 [DEBUG] User:`, {
+      exists: !!user,
+      user_key: user?.user_key,
+    });
+    console.log(`🐛 [DEBUG] Persona:`, {
+      exists: !!selectedPersonaRef.current,
+      persona_key: selectedPersonaRef.current?.persona_key,
+      persona_name: selectedPersonaRef.current?.persona_name,
+    });
     
     // 1. ManagerAIOverlay 닫기
     setIsManagerOverlayVisible(false);

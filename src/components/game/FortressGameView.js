@@ -581,6 +581,17 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
       let aiMove = null;
       let taunt = null;
       
+      // 🐛 DEBUG: Check persona and user info
+      console.log('🐛 [DEBUG] Persona:', {
+        exists: !!persona,
+        persona_key: persona?.persona_key,
+        persona_name: persona?.persona_name,
+      });
+      console.log('🐛 [DEBUG] User:', {
+        exists: !!user,
+        user_key: user?.user_key,
+      });
+      
       // LLM 호출 시도 (persona와 user 정보 필요)
       if (persona?.persona_key && user?.user_key) {
         try {
@@ -689,6 +700,10 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
         }
       } else {
         // persona/user 정보 없음 → rule-based AI
+        console.warn('⚠️ [AI] LLM skipped - Missing:', {
+          persona_key: !persona?.persona_key,
+          user_key: !user?.user_key,
+        });
         aiMove = calculateAIMove(currentAiTank, userTank, wind);
         console.log(`🤖 [AI] Rule-based: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
       }
