@@ -127,6 +127,9 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const chipOpacity = useSharedValue(0);
   const angleChipWidth = useSharedValue(scale(48)); // 초기: 아이콘만
   const powerChipWidth = useSharedValue(scale(48)); // 초기: 아이콘만
+  
+  // ⭐ Avatar animations
+  const avatarOpacity = useSharedValue(0);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialize Game (게임 초기화)
@@ -135,6 +138,10 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     if (visible) {
       initializeGame();
       fadeAnim.value = withTiming(1, { duration: 400 });
+      
+      // ⭐ Avatars fade-in
+      avatarOpacity.value = 0;
+      avatarOpacity.value = withTiming(1, { duration: 400, delay: 100 });
       
       // ⭐ Chips fade-in with delay
       chipOpacity.value = 0;
@@ -147,6 +154,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       powerChipWidth.value = scale(48);
     } else {
       fadeAnim.value = withTiming(0, { duration: 300 });
+      avatarOpacity.value = withTiming(0, { duration: 200 });
       chipOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [visible]);
@@ -231,6 +239,10 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: fadeAnim.value,
+  }));
+  
+  const avatarAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: avatarOpacity.value,
   }));
   
   const chipAnimatedStyle = useAnimatedStyle(() => ({
@@ -326,71 +338,50 @@ const FortressGameView = ({ visible, onClose, persona }) => {
 
                 {/* 유저 탱크 (삼각형) */}
                 {userTank && (
-                  <>
-                    <Polygon
-                      points={`${userTank.x},${userTank.y} ${userTank.x - 8},${userTank.y + 12} ${userTank.x + 8},${userTank.y + 12}`}
-                      fill="#FF6B9D" // ANIMA 핑크
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                    />
-                    {/* 체력바 */}
-                    <Line
-                      x1={userTank.x - 15}
-                      y1={userTank.y - 10}
-                      x2={userTank.x - 15 + (userTank.hp / 100) * 30}
-                      y2={userTank.y - 10}
-                      stroke="#FF6B9D"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                  </>
+                  <Polygon
+                    points={`${userTank.x},${userTank.y} ${userTank.x - 8},${userTank.y + 12} ${userTank.x + 8},${userTank.y + 12}`}
+                    fill="#FF6B9D" // ANIMA 핑크
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                  />
                 )}
 
                 {/* AI 탱크 (삼각형) */}
                 {aiTank && (
-                  <>
-                    <Polygon
-                      points={`${aiTank.x},${aiTank.y} ${aiTank.x - 8},${aiTank.y + 12} ${aiTank.x + 8},${aiTank.y + 12}`}
-                      fill="#A78BFA" // ANIMA 퍼플
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                    />
-                    {/* 체력바 */}
-                    <Line
-                      x1={aiTank.x - 15}
-                      y1={aiTank.y - 10}
-                      x2={aiTank.x - 15 + (aiTank.hp / 100) * 30}
-                      y2={aiTank.y - 10}
-                      stroke="#A78BFA"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                  </>
+                  <Polygon
+                    points={`${aiTank.x},${aiTank.y} ${aiTank.x - 8},${aiTank.y + 12} ${aiTank.x + 8},${aiTank.y + 12}`}
+                    fill="#A78BFA" // ANIMA 퍼플
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                  />
                 )}
-
-                {/* 라벨 */}
-                <SvgText
-                  x={userTank?.x || 0}
-                  y={(userTank?.y || 0) - 20}
-                  fill="#FFF"
-                  fontSize="12"
-                  fontWeight="bold"
-                  textAnchor="middle"
-                >
-                  YOU
-                </SvgText>
-                <SvgText
-                  x={aiTank?.x || 0}
-                  y={(aiTank?.y || 0) - 20}
-                  fill="#FFF"
-                  fontSize="12"
-                  fontWeight="bold"
-                  textAnchor="middle"
-                >
-                  {persona?.persona_name || 'AI'}
-                </SvgText>
               </Svg>
             </View>
+
+            {/* ⭐ 상단: 아바타 오버레이 */}
+            <Animated.View style={[styles.avatarContainer, avatarAnimatedStyle]}>
+              {/* 좌측: 사용자 아바타 */}
+              <View style={styles.avatarWrapper}>
+                <View style={[styles.avatar, styles.userAvatar]}>
+                  <CustomText style={styles.avatarEmoji}>👤</CustomText>
+                </View>
+                <View style={styles.hpBarContainer}>
+                  <View style={[styles.hpBarFill, { width: `${userTank?.hp || 100}%`, backgroundColor: '#FF6B9D' }]} />
+                </View>
+                <CustomText style={styles.hpText}>{userTank?.hp || 100} HP</CustomText>
+              </View>
+
+              {/* 우측: 페르소나 아바타 */}
+              <View style={styles.avatarWrapper}>
+                <View style={[styles.avatar, styles.aiAvatar]}>
+                  <CustomText style={styles.avatarEmoji}>🤖</CustomText>
+                </View>
+                <View style={styles.hpBarContainer}>
+                  <View style={[styles.hpBarFill, { width: `${aiTank?.hp || 100}%`, backgroundColor: '#A78BFA' }]} />
+                </View>
+                <CustomText style={styles.hpText}>{aiTank?.hp || 100} HP</CustomText>
+              </View>
+            </Animated.View>
 
             {/* ⭐ 하단 중앙: 컨트롤 칩셋 (오버레이) */}
             <Animated.View style={[styles.controlChipsContainer, chipAnimatedStyle]}>
@@ -535,6 +526,62 @@ const styles = StyleSheet.create({
   },
   svg: {
     backgroundColor: '#0a0a15',
+  },
+  
+  // ⭐ NEW: Avatar Overlay (상단 좌우 오버레이)
+  avatarContainer: {
+    position: 'absolute',
+    top: verticalScale(40), // 헤더 아래
+    left: scale(15),
+    right: scale(15),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  avatarWrapper: {
+    alignItems: 'center',
+    gap: verticalScale(4),
+  },
+  avatar: {
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderWidth: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    ...Platform.select({
+      android: { elevation: 5 },
+    }),
+  },
+  userAvatar: {
+    borderColor: '#FF6B9D', // 사용자: 핑크
+  },
+  aiAvatar: {
+    borderColor: '#A78BFA', // 페르소나: 퍼플
+  },
+  avatarEmoji: {
+    fontSize: moderateScale(28),
+  },
+  hpBarContainer: {
+    width: scale(56),
+    height: verticalScale(6),
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: verticalScale(3),
+    overflow: 'hidden',
+  },
+  hpBarFill: {
+    height: '100%',
+    borderRadius: verticalScale(3),
+  },
+  hpText: {
+    fontSize: moderateScale(11),
+    fontWeight: 'bold',
+    color: '#FFF',
   },
   
   // ⭐ NEW: Control Chips (하단 중앙 오버레이)
