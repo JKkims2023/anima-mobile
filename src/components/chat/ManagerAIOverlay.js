@@ -2272,7 +2272,7 @@ const ManagerAIOverlay = ({
             )}
           </View>
         </KeyboardAvoidingView>
-      </View>
+      </Animated.View>
       
       {/* 🎵 NEW: Floating YouTube Music Player (Overlay, does NOT push chat) */}
       {floatingContent?.contentType === 'music' && 
