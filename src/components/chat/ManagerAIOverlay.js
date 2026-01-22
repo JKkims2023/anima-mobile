@@ -152,6 +152,7 @@ const ManagerAIOverlay = ({
   context = 'home',
   onCreateMessage,
   persona = null, // ⭐ NEW: Selected persona (from PersonaContext)
+  onGameSelect, // 🎮 NEW: Callback for game selection
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -160,12 +161,34 @@ const ManagerAIOverlay = ({
   const { currentTheme } = useTheme();
   const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
   
+  // 🎮 NEW: Fade animation for absolute positioning
+  const overlayFadeAnim = useRef(new Animated.Value(0)).current;
+  
   // 🔥 PERFORMANCE DEBUG: Render counter
   const renderCountRef = useRef(0);
   renderCountRef.current++;
   if (__DEV__) {
     console.log(`🔥 [ManagerAIOverlay] Render #${renderCountRef.current}, visible: ${visible}`);
   }
+  
+  // 🎮 NEW: Fade animation trigger
+  useEffect(() => {
+    if (visible) {
+      overlayFadeAnim.setValue(0);
+      Animated.timing(overlayFadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(overlayFadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible, overlayFadeAnim]);
+  
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
   const [messageVersion, setMessageVersion] = useState(0); // 🎯 NEW: Trigger FlashList updates for Smart Bubble system
@@ -1941,17 +1964,22 @@ const ManagerAIOverlay = ({
     return null;
   }
   
+  // ⭐ Don't render if not visible (performance)
+  if (!visible) return null;
+  
   return (
     <>
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={handleBackPress} // ⭐ FIX: Use unified back press handler!
+    {/* 🎮 NEW: Absolute View instead of Modal (iOS compatibility!) */}
+    <Animated.View 
+      style={[
+        styles.absoluteContainer,
+        {
+          opacity: overlayFadeAnim,
+        }
+      ]}
     >
       {/* ✅ Simple Dark Background (No BlurView!) */}
-      <View style={styles.container}>
-        <View style={styles.backdrop} />
+      <View style={styles.backdrop} />
         
         {/* ✅ KeyboardAvoidingView (Stable & Simple) */}
         <KeyboardAvoidingView
@@ -2144,6 +2172,58 @@ const ManagerAIOverlay = ({
                       </CustomText>
                     </TouchableOpacity>
                   )}
+
+                  {/* 🎮 NEW: Games Section */}
+                  {persona && onGameSelect && (
+                    <>
+                      {/* 구분선 */}
+                      <View style={styles.menuDivider} />
+
+                      {/* 🎮 Games Title */}
+                      <CustomText type='middle' bold style={styles.settingsMenuTitle}>
+                        🎮 Games
+                      </CustomText>
+
+                      {/* 🏰 Fortress */}
+                      <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => {
+                          onGameSelect('fortress');
+                          setIsSettingsMenuOpen(false);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <CustomText type='middle' style={styles.menuIcon}>🏰</CustomText>
+                        <CustomText type='middle' style={styles.menuText}>
+                          Fortress
+                        </CustomText>
+                      </TouchableOpacity>
+
+                      {/* ⚡ Tattoo (Coming Soon) */}
+                      <TouchableOpacity
+                        style={[styles.menuItem, styles.menuItemDisabled]}
+                        disabled
+                        activeOpacity={0.7}
+                      >
+                        <CustomText type='middle' style={[styles.menuIcon, styles.menuIconDisabled]}>⚡</CustomText>
+                        <CustomText type='middle' style={[styles.menuText, styles.menuTextDisabled]}>
+                          Tattoo (Coming Soon)
+                        </CustomText>
+                      </TouchableOpacity>
+
+                      {/* 🔮 Nostradamus (Coming Soon) */}
+                      <TouchableOpacity
+                        style={[styles.menuItem, styles.menuItemDisabled]}
+                        disabled
+                        activeOpacity={0.7}
+                      >
+                        <CustomText type='middle' style={[styles.menuIcon, styles.menuIconDisabled]}>🔮</CustomText>
+                        <CustomText type='middle' style={[styles.menuText, styles.menuTextDisabled]}>
+                          Nostradamus (Coming Soon)
+                        </CustomText>
+                      </TouchableOpacity>
+                    </>
+                  )}
                 </View>
               </View>
             )}
@@ -2239,7 +2319,7 @@ const ManagerAIOverlay = ({
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
       
-    </Modal>
+    </Animated.View>
     
     {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
     {user && (
@@ -2345,8 +2425,14 @@ const ManagerAIOverlay = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  // 🎮 NEW: Absolute container (instead of Modal)
+  absoluteContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // ⭐ Above everything except Modals
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -2527,6 +2613,16 @@ const styles = StyleSheet.create({
   menuText: {
     color: '#FFF',
     fontSize: moderateScale(15),
+  },
+  // 🎮 NEW: Disabled menu item styles
+  menuItemDisabled: {
+    opacity: 0.4,
+  },
+  menuIconDisabled: {
+    opacity: 0.5,
+  },
+  menuTextDisabled: {
+    color: '#888',
   },
   menuDivider: {
     height: 1,

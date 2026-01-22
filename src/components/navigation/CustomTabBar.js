@@ -52,7 +52,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { t } = useTranslation();
   const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
-  const [isFortressGameVisible, setIsFortressGameVisible] = useState(false); // 🎮 NEW: Fortress Game state
+  const [activeGame, setActiveGame] = useState(null); // 🎮 NEW: 'fortress' | 'tattoo' | 'nostradamus'
   const insets = useSafeAreaInsets();
   
   // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
@@ -178,7 +178,28 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // ✅ Handle Overlay Close
   const handleOverlayClose = () => {
     setIsManagerOverlayVisible(false);
-  }; 
+  };
+  
+  // 🎮 NEW: Game Selection Handler (from ManagerAIOverlay)
+  const handleGameSelect = (gameName) => {
+    console.log(`🎮 [CustomTabBar] Game selected: ${gameName}`);
+    
+    // 1. ManagerAIOverlay 닫기
+    setIsManagerOverlayVisible(false);
+    
+    // 2. 게임 열기 (iOS Modal 안정성을 위한 지연)
+    setTimeout(() => {
+      setActiveGame(gameName);
+    }, 300);
+    
+    HapticService.medium();
+  };
+  
+  // 🎮 NEW: Game Close Handler
+  const handleGameClose = () => {
+    setActiveGame(null);
+  };
+  
   // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
   const tabs = [
     { 
@@ -409,23 +430,30 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         onClose={() => actionSheetRef.current?.dismiss()}
       /> */}
       
-      {/* ✅ ManagerAIOverlay - Universal AI Chat - COMMENTED OUT FOR TESTING */}
+      {/* ✅ ManagerAIOverlay - Universal AI Chat (Absolute View!) */}
       {/* 🔥 PERFORMANCE FIX: Only mount when visible (prevents unnecessary renders!) */}
-      {/* {isManagerOverlayVisible && (
+      {isManagerOverlayVisible && (
         <ManagerAIOverlay
           visible={isManagerOverlayVisible}
           onClose={handleOverlayClose}
           context={getCurrentContext()}
           persona={selectedPersonaRef.current} // 🔥 FIXED: Use ref for latest data
+          onGameSelect={handleGameSelect} // 🎮 NEW: Game selection callback
         />
-      )} */}
+      )}
       
-      {/* 🎮 TEMPORARY: FortressGameView for Testing */}
-      <FortressGameView
-        visible={isFortressGameVisible}
-        onClose={() => setIsFortressGameVisible(false)}
-        persona={selectedPersonaRef.current}
-      />
+      {/* 🎮 Game Views (CustomTabBar level - iOS Modal compatibility!) */}
+      {activeGame === 'fortress' && (
+        <FortressGameView
+          visible={true}
+          onClose={handleGameClose}
+          persona={selectedPersonaRef.current}
+        />
+      )}
+      
+      {/* 향후 추가 게임들 */}
+      {/* {activeGame === 'tattoo' && <TattooGameView ... />} */}
+      {/* {activeGame === 'nostradamus' && <NostradamusGameView ... />} */}
     </View>
   );
 };
