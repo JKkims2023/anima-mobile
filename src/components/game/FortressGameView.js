@@ -587,19 +587,82 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
           setIsLoadingStrategy(true);
           console.log('🤖 [AI] Requesting LLM strategy...');
           
-          // 게임 상태 정보
+          // 🎯 지형 분석 (최고점, 최저점, 장애물)
+          const terrainAnalysis = terrain.points.reduce((acc, point, idx) => {
+            if (idx === 0 || point.y < acc.highestPoint.y) {
+              acc.highestPoint = { x: point.x, y: point.y, index: idx };
+            }
+            if (idx === 0 || point.y > acc.lowestPoint.y) {
+              acc.lowestPoint = { x: point.x, y: point.y, index: idx };
+            }
+            // 장애물: AI와 User 사이의 높은 지형
+            if (point.x > Math.min(currentAiTank.x, userTank.x) && 
+                point.x < Math.max(currentAiTank.x, userTank.x)) {
+              if (!acc.obstacles.length || point.y < acc.obstacles[0].y) {
+                acc.obstacles = [{ x: point.x, y: point.y }];
+              }
+            }
+            return acc;
+          }, {
+            highestPoint: { x: 0, y: Infinity, index: 0 },
+            lowestPoint: { x: 0, y: -Infinity, index: 0 },
+            obstacles: []
+          });
+          
+          // 🎯 상세한 게임 상태 정보
+          const distance = Math.abs(userTank.x - currentAiTank.x);
+          const heightDiff = userTank.y - currentAiTank.y;
+          
           const gameState = {
-            userHP: userTank.hp,
-            aiHP: currentAiTank.hp,
-            distance: Math.abs(userTank.x - currentAiTank.x).toFixed(1),
-            heightDiff: (userTank.y - currentAiTank.y).toFixed(1),
-            wind: wind,
-            shotsFired: shotsFired,
-            shotsHit: shotsHit,
+            // 탱크 정보
+            user_tank: {
+              x: parseFloat(userTank.x.toFixed(1)),
+              y: parseFloat(userTank.y.toFixed(1)),
+              hp: userTank.hp,
+              initial_x: parseFloat(userTank.initialX.toFixed(1)),
+              move_distance: parseFloat((userTank.x - userTank.initialX).toFixed(1)),
+              max_move_range: 80,
+            },
+            ai_tank: {
+              x: parseFloat(currentAiTank.x.toFixed(1)),
+              y: parseFloat(currentAiTank.y.toFixed(1)),
+              hp: currentAiTank.hp,
+              initial_x: parseFloat(currentAiTank.initialX.toFixed(1)),
+              move_distance: parseFloat((currentAiTank.x - currentAiTank.initialX).toFixed(1)),
+              max_move_range: 80,
+            },
+            
+            // 거리/높이 정보
+            distance: parseFloat(distance.toFixed(1)),
+            height_diff: parseFloat(heightDiff.toFixed(1)), // 양수: user가 아래, 음수: user가 위
+            
+            // 지형 정보
+            terrain: {
+              highest_point: terrainAnalysis.highestPoint,
+              lowest_point: terrainAnalysis.lowestPoint,
+              obstacles: terrainAnalysis.obstacles,
+              total_points: terrain.points.length,
+            },
+            
+            // 환경 정보
+            wind: wind, // -10 ~ 10
+            
+            // 게임 물리 상수
+            physics: {
+              gravity: 980, // px/s²
+              max_velocity: 1000, // px/s
+              max_angle: 90, // degrees
+              max_power: 100, // percentage
+            },
+            
+            // 통계
+            shots_fired: shotsFired,
+            shots_hit: shotsHit,
+            accuracy: shotsFired > 0 ? ((shotsHit / shotsFired) * 100).toFixed(1) : 0,
           };
           
           const response = await gameApi.getFortressStrategy({
-            message_content: `게임 상황: 거리 ${gameState.distance}px, 바람 ${wind}, 내 HP ${gameState.aiHP}, 상대 HP ${gameState.userHP}`,
+            message_content: `Fortress Battle: Distance ${distance.toFixed(0)}px, Wind ${wind}, My HP ${currentAiTank.hp}, Enemy HP ${userTank.hp}`,
             persona_key: persona.persona_key,
             user_key: user.user_key,
             game_state: gameState,
