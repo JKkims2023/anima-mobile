@@ -919,6 +919,27 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
             distance_error: Math.abs(point.x - targetTank.x),
             result: 'hit'
           });
+          
+          // 🎭 NEW: 페르소나가 피해 입었을 때 멘트 (0.5초 딜레이)
+          if (tauntMessages?.on_damaged) {
+            setTimeout(() => {
+              let damageLevel;
+              if (damage >= 30) {
+                damageLevel = 'heavy'; // 직격탄 (30 HP)
+              } else if (damage >= 20) {
+                damageLevel = 'medium'; // 20-25 HP
+              } else {
+                damageLevel = 'light'; // 10-15 HP
+              }
+              
+              const damagedTaunt = tauntMessages.on_damaged[damageLevel];
+              if (damagedTaunt) {
+                setCurrentTaunt(damagedTaunt);
+                tauntOpacity.value = withTiming(1, { duration: 300 });
+                console.log(`💬 [Persona] Damaged (${damageLevel}): "${damagedTaunt}"`);
+              }
+            }, 500); // 0.5초 딜레이
+          }
         } else {
           setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
           
@@ -980,6 +1001,25 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
             // ⭐ 통계: 스플래시 명중 + 데미지
             setShotsHit(prev => prev + 1);
             setTotalDamageDealt(prev => prev + damage);
+            
+            // 🎭 NEW: 페르소나가 피해 입었을 때 멘트 (0.5초 딜레이)
+            if (tauntMessages?.on_damaged) {
+              setTimeout(() => {
+                let damageLevel;
+                if (damage >= 20) {
+                  damageLevel = 'medium'; // 20-25 HP (스플래시 최대)
+                } else {
+                  damageLevel = 'light'; // 10-15 HP (스플래시 최소)
+                }
+                
+                const damagedTaunt = tauntMessages.on_damaged[damageLevel];
+                if (damagedTaunt) {
+                  setCurrentTaunt(damagedTaunt);
+                  tauntOpacity.value = withTiming(1, { duration: 300 });
+                  console.log(`💬 [Persona] Damaged (${damageLevel}, splash): "${damagedTaunt}"`);
+                }
+              }, 500); // 0.5초 딜레이
+            }
           } else {
             setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
           }
