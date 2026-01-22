@@ -116,17 +116,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const [power, setPower] = useState(75);
   const [wind, setWind] = useState(0);
 
-  // ⭐ Chip expansion state (툴팁 형태 활성화)
-  const [angleChipExpanded, setAngleChipExpanded] = useState(false);
-  const [powerChipExpanded, setPowerChipExpanded] = useState(false);
-
   // Animation
   const fadeAnim = useSharedValue(0);
   
   // ⭐ Chip animations (for control chips)
   const chipOpacity = useSharedValue(0);
-  const angleChipWidth = useSharedValue(scale(48)); // 초기: 아이콘만
-  const powerChipWidth = useSharedValue(scale(48)); // 초기: 아이콘만
   
   // ⭐ Avatar animations
   const avatarOpacity = useSharedValue(0);
@@ -156,57 +150,12 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       // ⭐ Chips fade-in with delay
       chipOpacity.value = 0;
       chipOpacity.value = withTiming(1, { duration: 300, delay: 200 });
-      
-      // ⭐ Reset chip state
-      setAngleChipExpanded(false);
-      setPowerChipExpanded(false);
-      angleChipWidth.value = scale(48);
-      powerChipWidth.value = scale(48);
     } else {
       fadeAnim.value = withTiming(0, { duration: 300 });
       avatarOpacity.value = withTiming(0, { duration: 200 });
       chipOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [visible]);
-
-  // ⭐ Chip expansion handlers
-  const toggleAngleChip = useCallback(() => {
-    HapticService.light();
-    const newState = !angleChipExpanded;
-    setAngleChipExpanded(newState);
-    
-    if (newState) {
-      // 확장: 아이콘 + 컨트롤 버튼
-      angleChipWidth.value = withSpring(scale(160), { damping: 15, stiffness: 200 });
-      // 다른 칩 닫기
-      if (powerChipExpanded) {
-        setPowerChipExpanded(false);
-        powerChipWidth.value = withSpring(scale(48), { damping: 15, stiffness: 200 });
-      }
-    } else {
-      // 축소: 아이콘만
-      angleChipWidth.value = withSpring(scale(48), { damping: 15, stiffness: 200 });
-    }
-  }, [angleChipExpanded, powerChipExpanded, angleChipWidth, powerChipWidth]);
-
-  const togglePowerChip = useCallback(() => {
-    HapticService.light();
-    const newState = !powerChipExpanded;
-    setPowerChipExpanded(newState);
-    
-    if (newState) {
-      // 확장: 아이콘 + 컨트롤 버튼
-      powerChipWidth.value = withSpring(scale(160), { damping: 15, stiffness: 200 });
-      // 다른 칩 닫기
-      if (angleChipExpanded) {
-        setAngleChipExpanded(false);
-        angleChipWidth.value = withSpring(scale(48), { damping: 15, stiffness: 200 });
-      }
-    } else {
-      // 축소: 아이콘만
-      powerChipWidth.value = withSpring(scale(48), { damping: 15, stiffness: 200 });
-    }
-  }, [powerChipExpanded, angleChipExpanded, powerChipWidth, angleChipWidth]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Physics Engine (물리 엔진)
@@ -550,14 +499,6 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const chipAnimatedStyle = useAnimatedStyle(() => ({
     opacity: chipOpacity.value,
   }));
-  
-  const angleChipAnimatedStyle = useAnimatedStyle(() => ({
-    width: angleChipWidth.value,
-  }));
-  
-  const powerChipAnimatedStyle = useAnimatedStyle(() => ({
-    width: powerChipWidth.value,
-  }));
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Render
@@ -730,43 +671,33 @@ const FortressGameView = ({ visible, onClose, persona }) => {
 
             {/* ⭐ 하단 중앙: 컨트롤 칩셋 (오버레이) */}
             <Animated.View style={[styles.controlChipsContainer, chipAnimatedStyle]}>
-              {/* 각도 칩 (툴팁 형태) */}
-              <TouchableOpacity
-                style={styles.chipTouchArea}
-                onPress={toggleAngleChip}
-                activeOpacity={0.8}
-                disabled={isAnimating}
-              >
-                <Animated.View style={[styles.controlChip, angleChipAnimatedStyle]}>
-                  <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
-                  
-                  {angleChipExpanded && (
-                    <View style={styles.chipContent}>
-                      <TouchableOpacity
-                        style={styles.chipButton}
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          HapticService.light();
-                          setAngle(Math.max(0, angle - 5));
-                        }}
-                      >
-                        <Icon name="remove" size={moderateScale(16)} color="#FFF" />
-                      </TouchableOpacity>
-                      <CustomText style={styles.chipValue}>{angle}°</CustomText>
-                      <TouchableOpacity
-                        style={styles.chipButton}
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          HapticService.light();
-                          setAngle(Math.min(90, angle + 5));
-                        }}
-                      >
-                        <Icon name="add" size={moderateScale(16)} color="#FFF" />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </Animated.View>
-              </TouchableOpacity>
+              {/* 각도 칩 (항상 활성화) */}
+              <View style={styles.controlChip}>
+                <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
+                <View style={styles.chipContent}>
+                  <TouchableOpacity
+                    style={styles.chipButton}
+                    onPress={() => {
+                      HapticService.light();
+                      setAngle(Math.max(0, angle - 5));
+                    }}
+                    disabled={isAnimating}
+                  >
+                    <Icon name="remove" size={moderateScale(16)} color="#FFF" />
+                  </TouchableOpacity>
+                  <CustomText style={styles.chipValue}>{angle}°</CustomText>
+                  <TouchableOpacity
+                    style={styles.chipButton}
+                    onPress={() => {
+                      HapticService.light();
+                      setAngle(Math.min(90, angle + 5));
+                    }}
+                    disabled={isAnimating}
+                  >
+                    <Icon name="add" size={moderateScale(16)} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
 
               {/* 발사 버튼 (중앙) */}
               <TouchableOpacity 
@@ -777,43 +708,33 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                 <Icon name="rocket" size={moderateScale(26)} color="#FFF" />
               </TouchableOpacity>
 
-              {/* 파워 칩 (툴팁 형태) */}
-              <TouchableOpacity
-                style={styles.chipTouchArea}
-                onPress={togglePowerChip}
-                activeOpacity={0.8}
-                disabled={isAnimating}
-              >
-                <Animated.View style={[styles.controlChip, powerChipAnimatedStyle]}>
-                  <MaterialIcon name="flash" size={moderateScale(20)} color="#FFA500" />
-                  
-                  {powerChipExpanded && (
-                    <View style={styles.chipContent}>
-                      <TouchableOpacity
-                        style={styles.chipButton}
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          HapticService.light();
-                          setPower(Math.max(0, power - 5));
-                        }}
-                      >
-                        <Icon name="remove" size={moderateScale(16)} color="#FFF" />
-                      </TouchableOpacity>
-                      <CustomText style={styles.chipValue}>{power}%</CustomText>
-                      <TouchableOpacity
-                        style={styles.chipButton}
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          HapticService.light();
-                          setPower(Math.min(100, power + 5));
-                        }}
-                      >
-                        <Icon name="add" size={moderateScale(16)} color="#FFF" />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </Animated.View>
-              </TouchableOpacity>
+              {/* 파워 칩 (항상 활성화) */}
+              <View style={styles.controlChip}>
+                <MaterialIcon name="flash" size={moderateScale(20)} color="#FFA500" />
+                <View style={styles.chipContent}>
+                  <TouchableOpacity
+                    style={styles.chipButton}
+                    onPress={() => {
+                      HapticService.light();
+                      setPower(Math.max(0, power - 5));
+                    }}
+                    disabled={isAnimating}
+                  >
+                    <Icon name="remove" size={moderateScale(16)} color="#FFF" />
+                  </TouchableOpacity>
+                  <CustomText style={styles.chipValue}>{power}%</CustomText>
+                  <TouchableOpacity
+                    style={styles.chipButton}
+                    onPress={() => {
+                      HapticService.light();
+                      setPower(Math.min(100, power + 5));
+                    }}
+                    disabled={isAnimating}
+                  >
+                    <Icon name="add" size={moderateScale(16)} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </Animated.View>
           </View>
         </View>
@@ -946,26 +867,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(12), // 칩 간격
   },
-  chipTouchArea: {
-    // 터치 영역 확장을 위한 컨테이너
-  },
   controlChip: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     borderRadius: moderateScale(24),
     height: scale(48), // ⭐ 고정 높이
     paddingVertical: verticalScale(6),
     paddingHorizontal: scale(12),
     gap: scale(6),
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 6,
-    overflow: 'hidden', // ⭐ 애니메이션 부드럽게
     ...Platform.select({
       android: { elevation: 5 },
     }),
