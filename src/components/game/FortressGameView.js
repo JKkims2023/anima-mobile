@@ -115,6 +115,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const [angle, setAngle] = useState(45);
   const [power, setPower] = useState(75);
   const [wind, setWind] = useState(0);
+  
+  // ⭐ Turn system
+  const [currentTurn, setCurrentTurn] = useState('user'); // 'user' | 'ai'
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(null); // 'user' | 'ai' | null
 
   // Animation
   const fadeAnim = useSharedValue(0);
@@ -336,6 +341,13 @@ const FortressGameView = ({ visible, onClose, persona }) => {
 
     // 바람 (랜덤)
     setWind(Math.floor(Math.random() * 21) - 10); // -10 ~ 10
+    
+    // ⭐ 턴 초기화
+    setCurrentTurn('user');
+    setGameOver(false);
+    setWinner(null);
+    
+    console.log('🎮 [Game] Initialized - First turn: USER');
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -347,19 +359,122 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       return;
     }
     
+    if (currentTurn !== 'user') {
+      console.log('🚫 [Fire] Not user turn, ignored');
+      return;
+    }
+    
+    if (gameOver) {
+      console.log('🚫 [Fire] Game over, ignored');
+      return;
+    }
+    
     if (!userTank) {
       console.error('❌ [Fire] User tank not initialized');
       return;
     }
     
     HapticService.medium();
-    console.log('🔥 [Fire] Firing!');
-    console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s`);
     
-    // ⭐ 1. 궤적 계산
+    // ⭐ 발사 실행 (공통 함수 사용)
+    fireProjectile(userTank, angle, power, 'user');
+  }, [isAnimating, currentTurn, gameOver, userTank, angle, power, wind, fireProjectile]);
+
+  const handleClose = useCallback(() => {
+    HapticService.light();
+    onClose?.();
+  }, [onClose]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AI Turn System
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /**
+   * AI 턴 실행
+   */
+  const handleAITurn = useCallback(() => {
+    if (!aiTank || !userTank) {
+      console.error('❌ [AI] Tanks not initialized');
+      return;
+    }
+    
+    console.log('🤖 [AI] Calculating move...');
+    
+    // AI 각도/파워 계산
+    const aiMove = calculateAIMove(aiTank, userTank, wind);
+    
+    console.log(`🤖 [AI] Decision: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+    
+    // 1.5초 후 AI 발사
+    setTimeout(() => {
+      fireProjectile(aiTank, aiMove.angle, aiMove.power, 'ai');
+    }, 1500);
+  }, [aiTank, userTank, wind]);
+
+  /**
+   * AI 각도/파워 계산 (Rule-based)
+   */
+  const calculateAIMove = useCallback((aiTank, userTank, wind) => {
+    // 거리 계산
+    const distance = Math.abs(userTank.x - aiTank.x);
+    const heightDiff = userTank.y - aiTank.y; // 양수: user가 아래, 음수: user가 위
+    
+    console.log(`🤖 [AI] Distance: ${distance.toFixed(1)}px, Height diff: ${heightDiff.toFixed(1)}px`);
+    
+    // 기본 각도 (거리에 따라 조정)
+    let baseAngle = 45;
+    
+    if (distance < 300) {
+      baseAngle = 60; // 가까우면 높게
+    } else if (distance > 600) {
+      baseAngle = 35; // 멀면 낮게
+    }
+    
+    // 높이 차이 보정
+    if (heightDiff > 0) {
+      baseAngle += 5; // user가 아래면 각도 증가
+    } else if (heightDiff < -20) {
+      baseAngle -= 5; // user가 위면 각도 감소
+    }
+    
+    // 기본 파워 계산 (거리 기반)
+    // 최대 거리 ≈ 1020px @ 100% power, 45도
+    // R = v² / g ≈ power² (비례)
+    const maxDistance = 1020;
+    const powerRatio = Math.sqrt(distance / maxDistance);
+    let basePower = Math.min(100, Math.max(50, powerRatio * 100));
+    
+    // 바람 보정 (바람 반대로 파워 조정)
+    if (wind > 0) {
+      // 우측 바람: 좌측(user) 향해 발사 시 파워 감소
+      basePower -= wind * 2;
+    } else if (wind < 0) {
+      // 좌측 바람: 파워 증가
+      basePower += Math.abs(wind) * 2;
+    }
+    
+    // 랜덤 오차 추가 (난이도: Easy)
+    const angleError = (Math.random() * 10) - 5; // ±5도
+    const powerError = (Math.random() * 10) - 5; // ±5%
+    
+    const finalAngle = Math.max(10, Math.min(80, baseAngle + angleError));
+    const finalPower = Math.max(40, Math.min(100, basePower + powerError));
+    
+    return {
+      angle: finalAngle,
+      power: finalPower,
+    };
+  }, []);
+
+  /**
+   * 발사체 발사 (사용자/AI 공통)
+   */
+  const fireProjectile = useCallback((tank, angle, power, shooter) => {
+    console.log(`🚀 [Fire] ${shooter.toUpperCase()} fires: angle=${angle.toFixed(1)}°, power=${power.toFixed(1)}%`);
+    
     const trajectory = calculateTrajectory(
-      userTank.x,
-      userTank.y,
+      tank.x,
+      tank.y,
       angle,
       power,
       wind
@@ -370,7 +485,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       return;
     }
     
-    // ⭐ 2. 애니메이션 준비
+    // 애니메이션 시작
     setIsAnimating(true);
     setProjectile({ x: trajectory[0].x, y: trajectory[0].y });
     
@@ -379,20 +494,27 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     projectileOpacity.value = 0;
     projectileOpacity.value = withTiming(1, { duration: 100 });
     
-    // ⭐ 3. 궤적을 따라 이동 & 충돌 감지 (순차 애니메이션)
+    // 궤적 추적
     let currentIndex = 0;
     const animationInterval = setInterval(() => {
       currentIndex++;
       
       if (currentIndex >= trajectory.length) {
-        // 궤적 종료 (충돌 없이)
+        // 궤적 종료
         clearInterval(animationInterval);
         projectileOpacity.value = withTiming(0, { duration: 200 });
         
         setTimeout(() => {
           setProjectile(null);
           setIsAnimating(false);
-          console.log('✅ [Fire] Miss - trajectory ended');
+          
+          // 턴 전환 (빗나감)
+          if (shooter === 'ai') {
+            setTimeout(() => {
+              setCurrentTurn('user');
+              console.log('🔄 [Turn] Back to USER');
+            }, 1000);
+          }
         }, 200);
         return;
       }
@@ -402,88 +524,109 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       projectileY.value = point.y;
       setProjectile({ x: point.x, y: point.y });
       
-      // ⭐ 충돌 감지
-      // 1. AI 탱크 충돌 체크 (우선순위 높음)
-      if (aiTank && checkTankCollision(point.x, point.y, aiTank)) {
+      // 충돌 감지
+      const targetTank = shooter === 'user' ? aiTank : userTank;
+      
+      if (targetTank && checkTankCollision(point.x, point.y, targetTank)) {
         clearInterval(animationInterval);
         projectileOpacity.value = withTiming(0, { duration: 100 });
         
-        console.log('🎯 [Collision] Direct hit on AI tank!');
+        console.log(`🎯 [Collision] ${shooter.toUpperCase()} hit ${shooter === 'user' ? 'AI' : 'USER'} tank!`);
         
-        // 데미지 계산 및 적용
-        const damage = calculateDamage(0, true); // 직격
-        console.log(`💥 [Damage] AI tank: -${damage} HP`);
+        const damage = calculateDamage(0, true);
+        console.log(`💥 [Damage] -${damage} HP`);
         
-        setAiTank(prev => ({
-          ...prev,
-          hp: Math.max(0, prev.hp - damage),
-        }));
+        if (shooter === 'user') {
+          setAiTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+        } else {
+          setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+        }
         
-        // 폭발 애니메이션
         triggerExplosion(point.x, point.y, true);
         
         setTimeout(() => {
           setProjectile(null);
           setIsAnimating(false);
           
-          // 승리 체크
-          if (aiTank.hp - damage <= 0) {
-            console.log('🎉 [Game] You Win!');
+          const newHp = shooter === 'user' ? Math.max(0, aiTank.hp - damage) : Math.max(0, userTank.hp - damage);
+          
+          if (newHp <= 0) {
+            console.log(`🎉 [Game] ${shooter.toUpperCase()} WINS!`);
             HapticService.success();
-            // TODO: 승리 화면 표시
+            setGameOver(true);
+            setWinner(shooter);
+          } else {
+            // 턴 전환
+            setTimeout(() => {
+              if (shooter === 'user') {
+                setCurrentTurn('ai');
+                handleAITurn();
+              } else {
+                setCurrentTurn('user');
+                console.log('🔄 [Turn] Back to USER');
+              }
+            }, 1500);
           }
         }, 100);
         return;
       }
       
-      // 2. 지형 충돌 체크
+      // 지형 충돌
       if (terrain && checkTerrainCollision(point.x, point.y, terrain)) {
         clearInterval(animationInterval);
         projectileOpacity.value = withTiming(0, { duration: 100 });
         
-        console.log('💥 [Collision] Hit terrain');
+        console.log(`💥 [Collision] ${shooter.toUpperCase()} hit terrain`);
         
-        // 스플래시 데미지 계산 (AI 탱크와의 거리)
-        if (aiTank) {
-          const distance = Math.sqrt(
-            Math.pow(point.x - aiTank.x, 2) + Math.pow(point.y - aiTank.y, 2)
-          );
+        // 스플래시 데미지
+        const distance = Math.sqrt(
+          Math.pow(point.x - targetTank.x, 2) + Math.pow(point.y - targetTank.y, 2)
+        );
+        
+        const damage = calculateDamage(distance, false);
+        
+        if (damage > 0) {
+          console.log(`💥 [Damage] Splash: -${damage} HP`);
           
-          const damage = calculateDamage(distance, false);
-          
-          if (damage > 0) {
-            console.log(`💥 [Damage] AI tank (splash): -${damage} HP`);
-            setAiTank(prev => ({
-              ...prev,
-              hp: Math.max(0, prev.hp - damage),
-            }));
-            
-            // 승리 체크
-            if (aiTank.hp - damage <= 0) {
-              console.log('🎉 [Game] You Win!');
-              HapticService.success();
-              // TODO: 승리 화면 표시
-            }
+          if (shooter === 'user') {
+            setAiTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+          } else {
+            setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
           }
         }
         
-        // 폭발 애니메이션
         triggerExplosion(point.x, point.y, false);
         
         setTimeout(() => {
           setProjectile(null);
           setIsAnimating(false);
+          
+          const newHp = damage > 0 
+            ? (shooter === 'user' ? Math.max(0, aiTank.hp - damage) : Math.max(0, userTank.hp - damage))
+            : (shooter === 'user' ? aiTank.hp : userTank.hp);
+          
+          if (newHp <= 0) {
+            console.log(`🎉 [Game] ${shooter.toUpperCase()} WINS!`);
+            HapticService.success();
+            setGameOver(true);
+            setWinner(shooter);
+          } else {
+            // 턴 전환
+            setTimeout(() => {
+              if (shooter === 'user') {
+                setCurrentTurn('ai');
+                handleAITurn();
+              } else {
+                setCurrentTurn('user');
+                console.log('🔄 [Turn] Back to USER');
+              }
+            }, 1500);
+          }
         }, 100);
         return;
       }
-    }, 20); // 50 FPS (20ms per frame)
-    
-  }, [isAnimating, angle, power, wind, userTank, calculateTrajectory, projectileX, projectileY, projectileOpacity]);
-
-  const handleClose = useCallback(() => {
-    HapticService.light();
-    onClose?.();
-  }, [onClose]);
+    }, 20);
+  }, [aiTank, userTank, terrain, wind, calculateTrajectory, checkTankCollision, checkTerrainCollision, calculateDamage, triggerExplosion, projectileX, projectileY, projectileOpacity, handleAITurn]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Animated Styles
@@ -542,6 +685,23 @@ const FortressGameView = ({ visible, onClose, persona }) => {
             {/* 상단: 간소화된 헤더 */}
             <View style={styles.gameHeader}>
               <CustomText style={styles.gameTitle}>🎮 FORTRESS</CustomText>
+              
+              {/* ⭐ 턴 표시 (중앙) */}
+              <View style={styles.turnIndicator}>
+                {gameOver ? (
+                  <CustomText style={[styles.turnText, styles.turnTextWinner]}>
+                    {winner === 'user' ? '🎉 YOU WIN!' : '💀 AI WINS!'}
+                  </CustomText>
+                ) : (
+                  <CustomText style={[
+                    styles.turnText,
+                    currentTurn === 'user' ? styles.turnTextUser : styles.turnTextAI
+                  ]}>
+                    {currentTurn === 'user' ? '🎯 YOUR TURN' : '🤖 AI TURN'}
+                  </CustomText>
+                )}
+              </View>
+              
               <CustomText style={styles.windText}>
                 💨 {wind > 0 ? `→${wind}` : wind < 0 ? `←${Math.abs(wind)}` : '0'}m/s
               </CustomText>
@@ -672,7 +832,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
             {/* ⭐ 하단 중앙: 컨트롤 칩셋 (오버레이) */}
             <Animated.View style={[styles.controlChipsContainer, chipAnimatedStyle]}>
               {/* 각도 칩 (항상 활성화) */}
-              <View style={styles.controlChip}>
+              <View style={[styles.controlChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
                 <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
                 <View style={styles.chipContent}>
                   <TouchableOpacity
@@ -681,7 +841,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                       HapticService.light();
                       setAngle(Math.max(0, angle - 5));
                     }}
-                    disabled={isAnimating}
+                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="remove" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -692,7 +852,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                       HapticService.light();
                       setAngle(Math.min(90, angle + 5));
                     }}
-                    disabled={isAnimating}
+                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="add" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -701,15 +861,15 @@ const FortressGameView = ({ visible, onClose, persona }) => {
 
               {/* 발사 버튼 (중앙) */}
               <TouchableOpacity 
-                style={[styles.fireChip, isAnimating && styles.fireChipDisabled]} 
+                style={[styles.fireChip, (isAnimating || currentTurn !== 'user' || gameOver) && styles.fireChipDisabled]} 
                 onPress={handleFire}
-                disabled={isAnimating}
+                disabled={isAnimating || currentTurn !== 'user' || gameOver}
               >
                 <Icon name="rocket" size={moderateScale(26)} color="#FFF" />
               </TouchableOpacity>
 
               {/* 파워 칩 (항상 활성화) */}
-              <View style={styles.controlChip}>
+              <View style={[styles.controlChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
                 <MaterialIcon name="flash" size={moderateScale(20)} color="#FFA500" />
                 <View style={styles.chipContent}>
                   <TouchableOpacity
@@ -718,7 +878,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                       HapticService.light();
                       setPower(Math.max(0, power - 5));
                     }}
-                    disabled={isAnimating}
+                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="remove" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -729,7 +889,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                       HapticService.light();
                       setPower(Math.min(100, power + 5));
                     }}
-                    disabled={isAnimating}
+                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="add" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -777,12 +937,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FF6B9D',
   },
+  // ⭐ NEW: 턴 표시 UI
+  turnIndicator: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  turnText: {
+    fontSize: moderateScale(14),
+    fontWeight: 'bold',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(12),
+  },
+  turnTextUser: {
+    color: '#FF6B9D',
+    backgroundColor: 'rgba(255, 107, 157, 0.2)',
+  },
+  turnTextAI: {
+    color: '#A78BFA',
+    backgroundColor: 'rgba(167, 139, 250, 0.2)',
+  },
+  turnTextWinner: {
+    color: '#FFD700',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+  },
   windText: {
     fontSize: moderateScale(12), // ⭐ 크기 축소
     color: '#60A5FA',
     fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
   },
   closeButton: {
     padding: scale(4), // ⭐ 패딩 축소
@@ -886,6 +1069,9 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 5 },
     }),
+  },
+  controlChipDisabled: {
+    opacity: 0.4,
   },
   chipContent: {
     flexDirection: 'row',
