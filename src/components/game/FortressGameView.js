@@ -20,6 +20,7 @@ import {
   Modal,
   StatusBar,
   Platform,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Polygon, Line, Text as SvgText } from 'react-native-svg';
@@ -30,6 +31,7 @@ import Animated, {
   withSpring,
   Easing,
 } from 'react-native-reanimated';
+import Video from 'react-native-video'; // ⭐ NEW: For persona video
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomText from '../CustomText';
@@ -996,7 +998,28 @@ const FortressGameView = ({ visible, onClose, persona }) => {
               {/* 우측: 페르소나 아바타 */}
               <View style={styles.avatarWrapper}>
                 <View style={[styles.avatar, styles.aiAvatar]}>
-                  <CustomText style={styles.avatarEmoji}>🤖</CustomText>
+                  {/* ⭐ 페르소나 비디오/이미지 표시 */}
+                  {persona?.selected_dress_video_url && persona?.selected_dress_video_convert_done === 'Y' ? (
+                    // 비디오 (변환 완료된 경우)
+                    <Video
+                      source={{ uri: persona.selected_dress_video_url }}
+                      style={styles.avatarMedia}
+                      resizeMode="cover"
+                      repeat
+                      muted
+                      paused={false}
+                    />
+                  ) : persona?.persona_image_url ? (
+                    // 이미지 (비디오가 없거나 변환 미완료인 경우)
+                    <Image
+                      source={{ uri: persona.persona_image_url }}
+                      style={styles.avatarMedia}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    // Fallback: 이모지 (persona 정보 없음)
+                    <CustomText style={styles.avatarEmoji}>🤖</CustomText>
+                  )}
                 </View>
                 <View style={styles.hpBarContainer}>
                   <View style={[styles.hpBarFill, { width: `${aiTank?.hp || 100}%`, backgroundColor: '#A78BFA' }]} />
@@ -1295,6 +1318,12 @@ const styles = StyleSheet.create({
   },
   avatarEmoji: {
     fontSize: moderateScale(28),
+  },
+  avatarMedia: {
+    width: '100%',
+    height: '100%',
+    borderRadius: scale(28), // 원형 마스크
+    overflow: 'hidden',
   },
   hpBarContainer: {
     width: scale(56),
