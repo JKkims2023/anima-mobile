@@ -212,7 +212,7 @@ const HistoryScreen = () => {
   }, [backgroundList, backgroundSearchQuery]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ⭐ NEW: Push Notification Event Listener (Music)
+  // ⭐ NEW: Push Notification Event Listener (Music & Background)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
     console.log('[HistoryScreen] 🔔 Registering push event listener...');
@@ -245,6 +245,27 @@ const HistoryScreen = () => {
           emoji: '🎵',
           message: t('music.created'),
         });
+      } else if (order_type === 'convert_background_done') {
+        // ⭐ NEW: Background video conversion completed
+        console.log('[HistoryScreen] 🎬 convert_background_done: Reloading background list');
+        
+        // Reload background list
+        await loadBackgroundList(true);
+        
+        // Switch to background tab & scroll to top
+        setActiveTab('background');
+        if (flashListRef.current) {
+          requestAnimationFrame(() => {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          });
+        }
+        
+        HapticService.success();
+        showToast({
+          type: 'success',
+          emoji: '🎬',
+          message: '배경 영상 변환이 완료되었습니다!',
+        });
       }
     });
     
@@ -252,7 +273,7 @@ const HistoryScreen = () => {
       console.log('[HistoryScreen] 🔔 Removing push event listener...');
       subscription.remove();
     };
-  }, [showToast, t]);
+  }, [showToast, t, loadMusicList, loadBackgroundList]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
@@ -652,12 +673,27 @@ const HistoryScreen = () => {
     setIsBackgroundViewerVisible(true);
   };
 
-  // 🖼️ NEW: Handle background update (delete)
+  // 🖼️ NEW: Handle background update (delete, video_converting)
   const handleBackgroundUpdate = useCallback((updatedBackground, action) => {
     if (action === 'delete') {
       setBackgroundList(prev => prev.filter(b => b.memory_key !== updatedBackground.memory_key));
       setIsBackgroundViewerVisible(false);
       setSelectedBackground(null);
+    } else if (action === 'video_converting') {
+      // ⭐ Update background in list (mark as converting)
+      setBackgroundList(prev => prev.map(b =>
+        b.memory_key === updatedBackground.memory_key
+          ? { ...b, video_url: updatedBackground.video_url, convert_done_yn: 'N', bric_convert_key: updatedBackground.bric_convert_key }
+          : b
+      ));
+      
+      // ⭐ Update selectedBackground (for viewer overlay)
+      setSelectedBackground(prev => ({
+        ...prev,
+        video_url: updatedBackground.video_url,
+        convert_done_yn: 'N',
+        bric_convert_key: updatedBackground.bric_convert_key,
+      }));
     }
   }, []);
 

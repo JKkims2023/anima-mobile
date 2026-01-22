@@ -36,6 +36,7 @@ import {
   Share,
   Modal,
   StatusBar,
+  Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -43,20 +44,25 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  withRepeat,
   Easing,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'; // ⭐ NEW: For chip icons
 import CustomText from '../CustomText';
-import PersonaBackgroundView from '../message/PersonaBackgroundView';
+import HistoryBackgroundView from '../message/HistoryBackgroundView';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAnima } from '../../contexts/AnimaContext';
 import { useUser } from '../../contexts/UserContext';
 import memoryService from '../../services/api/memoryService';
+import amountService from '../../services/api/amountService'; // ⭐ NEW: For video conversion cost
 import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import { useTranslation } from 'react-i18next';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Format date helper
@@ -79,10 +85,26 @@ const BackgroundViewerOverlay = ({
   const { user } = useUser();
   const insets = useSafeAreaInsets();
 
+  // ⭐ NEW: Video converting state
+  const [isVideoConverting, setIsVideoConverting] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
   // Animation values
   const fadeAnim = useSharedValue(0);
   const slideAnim = useSharedValue(50);
   const closeButtonScale = useSharedValue(0.8);
+  
+  // ⭐ NEW: Chip animations (fade-in sequence)
+  const chipOpacity0 = useSharedValue(0); // Video chip
+  const chipOpacity1 = useSharedValue(0); // Share chip
+  const chipOpacity2 = useSharedValue(0); // Delete chip
+  
+  // ⭐ NEW: Video chip rotation (when converting)
+  const videoRotation = useSharedValue(0);
+  
+  // ⭐ NEW: Tooltip animation
+  const tooltipOpacity = useSharedValue(0);
+  const tooltipTranslateX = useSharedValue(10);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Animation Effect
@@ -93,13 +115,69 @@ const BackgroundViewerOverlay = ({
       fadeAnim.value = withTiming(1, { duration: 400, easing: Easing.out(Easing.ease) });
       slideAnim.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) });
       closeButtonScale.value = withSpring(1, { damping: 12 });
+      
+      // ⭐ NEW: Chips fade-in sequence
+      chipOpacity0.value = 0;
+      chipOpacity1.value = 0;
+      chipOpacity2.value = 0;
+      
+      chipOpacity0.value = withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) });
+      chipOpacity1.value = withTiming(1, { duration: 300, delay: 100, easing: Easing.out(Easing.ease) });
+      chipOpacity2.value = withTiming(1, { duration: 300, delay: 200, easing: Easing.out(Easing.ease) });
     } else {
       // Fade out
       fadeAnim.value = withTiming(0, { duration: 300 });
       slideAnim.value = withTiming(50, { duration: 300 });
       closeButtonScale.value = withTiming(0.8, { duration: 300 });
+      
+      // ⭐ NEW: Chips fade-out
+      chipOpacity0.value = withTiming(0, { duration: 200 });
+      chipOpacity1.value = withTiming(0, { duration: 200 });
+      chipOpacity2.value = withTiming(0, { duration: 200 });
     }
   }, [visible]);
+  
+  // ⭐ NEW: Video rotation animation (when converting)
+  useEffect(() => {
+    if (isVideoConverting) {
+      videoRotation.value = withRepeat(
+        withTiming(360, {
+          duration: 2000,
+          easing: Easing.linear,
+        }),
+        -1,
+        false
+      );
+    } else {
+      videoRotation.value = withTiming(0, { duration: 300 });
+    }
+  }, [isVideoConverting]);
+  
+  // ⭐ NEW: Tooltip auto-hide
+  useEffect(() => {
+    if (showTooltip) {
+      tooltipOpacity.value = withTiming(1, { duration: 200 });
+      tooltipTranslateX.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.ease) });
+      
+      const timer = setTimeout(() => {
+        tooltipOpacity.value = withTiming(0, { duration: 200 });
+        tooltipTranslateX.value = withTiming(10, { duration: 200 });
+        setTimeout(() => setShowTooltip(false), 200);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showTooltip]);
+  
+  // ⭐ NEW: Check if background is converting (update state from prop)
+  useEffect(() => {
+    if (background) {
+      const isConverting = 
+        background.video_url !== null && 
+        background.convert_done_yn === 'N';
+      setIsVideoConverting(isConverting);
+    }
+  }, [background]);
 
   // Animated styles
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -114,6 +192,30 @@ const BackgroundViewerOverlay = ({
   const closeButtonAnimatedStyle = useAnimatedStyle(() => ({
     opacity: fadeAnim.value,
     transform: [{ scale: closeButtonScale.value }],
+  }));
+  
+  // ⭐ NEW: Chip animated styles
+  const chip0AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: chipOpacity0.value,
+  }));
+  
+  const chip1AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: chipOpacity1.value,
+  }));
+  
+  const chip2AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: chipOpacity2.value,
+  }));
+  
+  // ⭐ NEW: Video icon rotation
+  const videoIconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${videoRotation.value}deg` }],
+  }));
+  
+  // ⭐ NEW: Tooltip animated style
+  const tooltipAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: tooltipOpacity.value,
+    transform: [{ translateX: tooltipTranslateX.value }],
   }));
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -215,13 +317,137 @@ const BackgroundViewerOverlay = ({
                 title: '삭제 실패',
                 emoji: '❌',
                 message: error.message || '배경 삭제에 실패했습니다',
-                buttons: [{ text: t('common.ok') || '확인' }],
+                buttons: [{ text: t('common.confirm')}],
               });
             }
           },
         },
       ],
     });
+  };
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Video Conversion Handler
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleVideoConvert = async () => {
+    HapticService.light();
+    
+    // ⭐ Check if already converting
+    if (isVideoConverting) {
+      setShowTooltip(true);
+      return;
+    }
+    
+    // ⭐ Check if already has video
+    if (background.video_url !== null && background.convert_done_yn === 'Y') {
+      showAlert({
+        title: '이미 변환 완료',
+        message: '이 배경은 이미 영상으로 변환되었습니다.',
+        emoji: '✅',
+        buttons: [{ text: t('common.confirm')}],
+      });
+      return;
+    }
+    
+    try {
+      // ⭐ Get video conversion cost
+      const serviceData = await amountService.getServiceData({
+        user_key: user?.user_key,
+      });
+
+      if (!serviceData.success) {
+        HapticService.warning();
+        console.log('[BackgroundViewerOverlay] Service data fetch failed');
+        return;
+      }
+      
+      const video_amount = serviceData.data.video_amount;
+      
+      // ⭐ Confirm with user
+      showAlert({
+        title: '영상 변환 확인',
+        message: `이 배경을 영상으로 변환하시겠습니까?\n${video_amount.toLocaleString()} 포인트가 차감됩니다.`,
+        emoji: '🎬',
+        buttons: [
+          {
+            text: t('common.cancel') || '취소',
+            style: 'cancel',
+          },
+          {
+            text: t('common.confirm') || '확인',
+            style: 'primary',
+            onPress: async () => {
+              try {
+                console.log('🎬 [BackgroundViewerOverlay] Starting video conversion...');
+                
+                // ⭐ Call API (will be created)
+                const result = await memoryService.convertBackgroundVideo(
+                  background.memory_key,
+                  user.user_key,
+                  background.media_url
+                );
+
+                if (result.success) {
+                  // ⭐ Update local state
+                  setIsVideoConverting(true);
+                  
+                  HapticService.success();
+                  showToast({
+                    type: 'success',
+                    message: '영상 변환이 시작되었습니다.\n완료되면 알림을 보내드립니다.',
+                    emoji: '🎬',
+                  });
+                  
+                  // ⭐ Update parent (HistoryScreen)
+                  onBackgroundUpdate?.(
+                    { 
+                      ...background, 
+                      video_url: result.data.video_url,
+                      convert_done_yn: 'N',
+                      bric_convert_key: result.data.request_key,
+                    }, 
+                    'video_converting'
+                  );
+                  
+                  console.log('✅ [BackgroundViewerOverlay] Video conversion started:', result.data.request_key);
+                } else {
+                  // ⭐ Handle errors
+                  switch(result.errorCode) {
+                    case 'INSUFFICIENT_POINT':
+                      showAlert({
+                        title: t('common.not_enough_point_title') || '포인트 부족',
+                        message: t('common.not_enough_point') || '포인트가 부족합니다.',
+                        buttons: [{ text: t('common.confirm') || '확인' }],
+                      });
+                      break;
+                    default:
+                      throw new Error(result.message || '영상 변환에 실패했습니다');
+                  }
+                }
+              } catch (error) {
+                console.error('❌ [BackgroundViewerOverlay] Video convert error:', error);
+                HapticService.warning();
+                showAlert({
+                  title: '변환 실패',
+                  emoji: '❌',
+                  message: error.message || '영상 변환에 실패했습니다',
+                  buttons: [{ text: t('common.confirm')}],
+                });
+              }
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error('[BackgroundViewerOverlay] Video convert error:', error);
+      HapticService.warning();
+      showAlert({
+        title: '오류',
+        emoji: '❌',
+        message: error.message || '오류가 발생했습니다',
+        buttons: [{ text: t('common.confirm')}],
+      });
+    }
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -244,6 +470,7 @@ const BackgroundViewerOverlay = ({
       animationType="none"
       statusBarTranslucent
       onRequestClose={onClose}
+      style={{backgroundColor: 'black'}}
     >
       <StatusBar
         barStyle="light-content"
@@ -253,7 +480,7 @@ const BackgroundViewerOverlay = ({
       
       <Animated.View style={[styles.container, overlayAnimatedStyle]}>
         {/* Background */}
-        <PersonaBackgroundView
+        <HistoryBackgroundView
           persona={tempPersona}
           isScreenFocused={visible}
           opacity={1}
@@ -277,7 +504,7 @@ const BackgroundViewerOverlay = ({
         {/* Close Button */}
         <Animated.View style={[
           styles.closeButtonContainer,
-          { top: insets.top + verticalScale(10) },
+          { top: insets.top + verticalScale(50) },
           closeButtonAnimatedStyle
         ]}>
           <TouchableOpacity
@@ -291,6 +518,55 @@ const BackgroundViewerOverlay = ({
             <Icon name="close-circle" size={scale(32)} color="rgba(255, 255, 255, 0.95)" />
           </TouchableOpacity>
         </Animated.View>
+        
+        {/* ⭐ NEW: Quick Action Chips (Right Side) */}
+        <View style={[styles.chipsContainer, { top: insets.top + verticalScale(170) }]}>
+          {/* ⭐ Tooltip (Left side of video chip) */}
+          {showTooltip && (
+            <Animated.View style={[styles.tooltip, tooltipAnimatedStyle]}>
+              <CustomText style={styles.tooltipText}>
+                영상 변환 중입니다...
+              </CustomText>
+              <View style={styles.tooltipArrow} />
+            </Animated.View>
+          )}
+          
+          {/* Video Chip (Conditional: only show if no video OR converting) */}
+          {(background.video_url === null || isVideoConverting) && (
+            <AnimatedPressable
+              style={[
+                styles.chip,
+                chip0AnimatedStyle,
+                isVideoConverting && styles.chipConverting,
+              ]}
+              onPress={handleVideoConvert}
+            >
+              <Animated.View style={videoIconAnimatedStyle}>
+                <MaterialIcon 
+                  name={isVideoConverting ? "timer-sand" : "heart-multiple-outline"} 
+                  size={scale(24)} 
+                  color={isVideoConverting ? "#FFB84D" : "#FF7FA3"} 
+                />
+              </Animated.View>
+            </AnimatedPressable>
+          )}
+          
+          {/* Share Chip */}
+          <AnimatedPressable
+            style={[styles.chip, chip1AnimatedStyle]}
+            onPress={handleShare}
+          >
+            <MaterialIcon name="share-variant-outline" size={scale(24)} color="#6BB6FF" />
+          </AnimatedPressable>
+          
+          {/* Delete Chip */}
+          <AnimatedPressable
+            style={[styles.chip, chip2AnimatedStyle]}
+            onPress={handleDelete}
+          >
+            <MaterialIcon name="delete-forever-outline" size={scale(24)} color="#FF0000" />
+          </AnimatedPressable>
+        </View>
 
         {/* Info Section (Bottom) */}
         <Animated.View style={[
@@ -334,33 +610,6 @@ const BackgroundViewerOverlay = ({
             <CustomText style={styles.typeText}>
               {background.video_url && background.convert_done_yn === 'Y' ? 'Video Background' : 'Image Background'}
             </CustomText>
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionButtons}>
-            {/* Share Button */}
-            <TouchableOpacity
-              style={[styles.actionButton, styles.shareButton]}
-              onPress={handleShare}
-              activeOpacity={0.8}
-            >
-              <Icon name="share-social" size={scale(20)} color="#FFFFFF" />
-              <CustomText style={styles.actionButtonText}>
-                {t('common.share') || '공유'}
-              </CustomText>
-            </TouchableOpacity>
-
-            {/* Delete Button */}
-            <TouchableOpacity
-              style={[styles.actionButton, styles.deleteButton]}
-              onPress={handleDelete}
-              activeOpacity={0.8}
-            >
-              <Icon name="trash" size={scale(20)} color="#FFFFFF" />
-              <CustomText style={styles.actionButtonText}>
-                {t('common.delete') || '삭제'}
-              </CustomText>
-            </TouchableOpacity>
           </View>
         </Animated.View>
       </Animated.View>
@@ -472,42 +721,75 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   
-  // Action Buttons
-  actionButtons: {
-    flexDirection: 'row',
-    gap: scale(12),
-    marginTop: verticalScale(8),
+  // ⭐ NEW: Quick Action Chips (Right Side)
+  chipsContainer: {
+    position: 'absolute',
+    right: scale(20),
+    gap: verticalScale(12),
+    zIndex: 100,
   },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
+  chip: {
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(26),
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: verticalScale(14),
-    borderRadius: moderateScale(12),
-    gap: scale(8),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
     ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 4,
-      },
+      android: { elevation: 8 },
     }),
   },
-  shareButton: {
-    backgroundColor: COLORS.neonBlue,
+  chipConverting: {
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+    borderColor: 'rgba(255, 165, 0, 0.6)',
+    borderWidth: 1.5,
   },
-  deleteButton: {
-    backgroundColor: 'rgba(239, 68, 68, 0.9)', // Red
+  
+  // ⭐ NEW: Tooltip (Left side of chips)
+  tooltip: {
+    position: 'absolute',
+    left: scale(-210),
+    top: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    borderRadius: scale(10),
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 165, 0, 0.6)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    minWidth: scale(180),
+    maxWidth: scale(220),
   },
-  actionButtonText: {
-    fontSize: moderateScale(14),
-    color: '#FFFFFF',
+  tooltipText: {
+    fontSize: scale(13),
+    color: '#FFA500',
     fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: scale(18),
+  },
+  tooltipArrow: {
+    position: 'absolute',
+    right: scale(-8),
+    top: '50%',
+    marginTop: scale(-8),
+    width: 0,
+    height: 0,
+    borderTopWidth: 8,
+    borderTopColor: 'transparent',
+    borderBottomWidth: 8,
+    borderBottomColor: 'transparent',
+    borderLeftWidth: 8,
+    borderLeftColor: 'rgba(0, 0, 0, 0.9)',
   },
 });
 

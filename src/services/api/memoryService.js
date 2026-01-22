@@ -164,9 +164,59 @@ export async function createBackground(formData) {
   }
 }
 
+/**
+ * 🎬 Convert Background to Video (신규 함수 - BackgroundViewerOverlay에서 사용)
+ * 
+ * 이미지 배경을 영상으로 변환
+ * 
+ * @param {string} memory_key - 배경 키
+ * @param {string} user_key - 사용자 키
+ * @param {string} image_url - 이미지 URL
+ * @returns {Promise<{success: boolean, data?: Object, errorCode?: string, message?: string}>}
+ */
+export async function convertBackgroundVideo(memory_key, user_key, image_url) {
+  console.log('🎬 [memoryService] Converting background to video...');
+  console.log('   memory_key:', memory_key);
+  console.log('   user_key:', user_key);
+  console.log('   image_url:', image_url);
+  console.log('JK');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  try {
+    const response = await apiClient.post('/api/memory/convert-background-video', {
+      memory_key,
+      user_key,
+      image_url,
+    });
+
+    console.log('🎬 [memoryService] Convert video result:', response);
+
+    if (response.data.success) {
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: response.data.error_code || 'VIDEO_CONVERT_ERROR',
+        message: response.data.message || 'Failed to convert background to video',
+      };
+    }
+  } catch (error) {
+    console.error('❌ [memoryService] convertBackgroundVideo error:', error);
+    return {
+      success: false,
+      errorCode: 'NETWORK_ERROR',
+      message: error.message,
+    };
+  }
+}
+
 export default {
   listMemory,          // ⭐ 기존 함수 (MemoryScreen)
   deleteMemory,        // ⭐ 기존 함수 (MemoryScreen)
   listUserBackgrounds, // ⭐ 신규 함수 (MessageCreationBack)
   createBackground,    // ⭐ 신규 함수 (BackgroundCreatorSheet)
+  convertBackgroundVideo, // ⭐ 신규 함수 (BackgroundViewerOverlay) 🎬
 };

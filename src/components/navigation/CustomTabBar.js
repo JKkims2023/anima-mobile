@@ -33,6 +33,7 @@ import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
 import CenterAIActionSheet from '../CenterAIActionSheet';
 import ManagerAIOverlay from '../chat/ManagerAIOverlay'; // ⭐ Manager AI Overlay
+import FortressGameView from '../game/FortressGameView'; // 🎮 NEW: Fortress Game
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
 
@@ -51,6 +52,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { t } = useTranslation();
   const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
+  const [isFortressGameVisible, setIsFortressGameVisible] = useState(false); // 🎮 NEW: Fortress Game state
   const insets = useSafeAreaInsets();
   
   // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
@@ -156,7 +158,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
     console.log('   identity_key:', latestPersona?.identity_key);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // ✅ Open Manager AI Overlay (Universal Chat)
+    // 🎮 TEMPORARY: Open Fortress Game (TEST)
+    // ✅ Open Manager AI Overlay (Universal Chat) - COMMENTED OUT FOR TESTING
     if(latestPersona?.done_yn === 'N') {
       showAlert({
         emoji: '⌛',
@@ -167,7 +170,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         ],
       });
     } else {
-      setIsManagerOverlayVisible(true);
+      // setIsManagerOverlayVisible(true); // ⭐ COMMENTED OUT FOR TESTING
+      setIsFortressGameVisible(true); // 🎮 TESTING: Open Fortress Game
     }
   };
   
@@ -405,16 +409,23 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         onClose={() => actionSheetRef.current?.dismiss()}
       /> */}
       
-      {/* ✅ ManagerAIOverlay - Universal AI Chat */}
+      {/* ✅ ManagerAIOverlay - Universal AI Chat - COMMENTED OUT FOR TESTING */}
       {/* 🔥 PERFORMANCE FIX: Only mount when visible (prevents unnecessary renders!) */}
-      {isManagerOverlayVisible && (
+      {/* {isManagerOverlayVisible && (
         <ManagerAIOverlay
           visible={isManagerOverlayVisible}
           onClose={handleOverlayClose}
           context={getCurrentContext()}
           persona={selectedPersonaRef.current} // 🔥 FIXED: Use ref for latest data
         />
-      )}
+      )} */}
+      
+      {/* 🎮 TEMPORARY: FortressGameView for Testing */}
+      <FortressGameView
+        visible={isFortressGameVisible}
+        onClose={() => setIsFortressGameVisible(false)}
+        persona={selectedPersonaRef.current}
+      />
     </View>
   );
 };

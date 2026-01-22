@@ -559,6 +559,7 @@ const styles = StyleSheet.create({
         elevation: 8,
       },
     }),
+    display: 'none',
   },
   submitButtonGradient: {
     flexDirection: 'row',

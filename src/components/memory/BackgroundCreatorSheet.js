@@ -328,7 +328,7 @@ const BackgroundCreatorSheet = ({
     <CustomBottomSheet
       ref={bottomSheetRef}
       onClose={onClose}
-      snapPoints={['70%']}
+      snapPoints={['75%']}
       title={t('background.creation.title', '배경 생성')}
       showCloseButton={true}
       buttons={[
@@ -427,7 +427,7 @@ const BackgroundCreatorSheet = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         {/* SECTION 2: Photo Upload                                            */}
         {/* ═════════════════════════════════════════════════════════════════ */}
-        <View style={[styles.section, { marginTop: verticalScale(10) }]}>
+        <View style={[styles.section, { marginTop: verticalScale(0) }]}>
           <View style={styles.sectionHeader}>
             <Icon name="image" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" style={styles.sectionTitle}>
@@ -435,7 +435,7 @@ const BackgroundCreatorSheet = ({
             </CustomText>
           </View>
 
-          <CustomText type="normal" style={[styles.sectionHint, { color: currentTheme.textSecondary }]}>
+          <CustomText type="normal" style={[styles.sectionHint, { display: 'none', color: currentTheme.textSecondary }]}>
             {t('background.creation.photo_hint', '배경으로 사용할 이미지를 선택해주세요')}
           </CustomText>
 
