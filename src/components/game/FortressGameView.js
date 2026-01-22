@@ -165,10 +165,10 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Physics Engine (물리 엔진)
   // ═══════════════════════════════════════════════════════════════════════════
-  const calculateTrajectory = useCallback((startX, startY, angle, power, wind) => {
+  const calculateTrajectory = useCallback((startX, startY, angle, power, wind, direction = 1) => {
     console.log('🎯 [Physics] Calculating trajectory...');
     console.log(`   Start: (${startX.toFixed(1)}, ${startY.toFixed(1)})`);
-    console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s`);
+    console.log(`   Angle: ${angle}°, Power: ${power}%, Wind: ${wind}m/s, Direction: ${direction > 0 ? '→' : '←'}`);
     
     // ⭐ 물리 상수 (게임 밸런스 조정)
     const GRAVITY = 980; // 픽셀 기준 중력 가속도 (cm/s² → px/s²)
@@ -183,7 +183,7 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     const angleRad = (angle * Math.PI) / 180;
     
     // ⭐ 초속도 분해 (x, y 성분)
-    let vx = initialVelocity * Math.cos(angleRad); // 수평 속도
+    let vx = initialVelocity * Math.cos(angleRad) * direction; // 수평 속도 (direction: 1=우측, -1=좌측)
     let vy = -initialVelocity * Math.sin(angleRad); // 수직 속도 (위쪽이 -)
     
     // ⭐ 바람 영향 (수평 속도에 추가)
@@ -444,13 +444,13 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     const powerRatio = Math.sqrt(distance / maxDistance);
     let basePower = Math.min(100, Math.max(50, powerRatio * 100));
     
-    // 바람 보정 (바람 반대로 파워 조정)
+    // 바람 보정 (AI는 좌측으로 발사)
     if (wind > 0) {
-      // 우측 바람: 좌측(user) 향해 발사 시 파워 감소
-      basePower -= wind * 2;
+      // 우측 바람: AI가 좌측으로 발사하므로 역풍 → 파워 증가
+      basePower += wind * 2;
     } else if (wind < 0) {
-      // 좌측 바람: 파워 증가
-      basePower += Math.abs(wind) * 2;
+      // 좌측 바람: AI가 좌측으로 발사하므로 순풍 → 파워 감소
+      basePower -= Math.abs(wind) * 2;
     }
     
     // 랜덤 오차 추가 (난이도: Easy)
@@ -472,12 +472,16 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const fireProjectile = useCallback((tank, angle, power, shooter) => {
     console.log(`🚀 [Fire] ${shooter.toUpperCase()} fires: angle=${angle.toFixed(1)}°, power=${power.toFixed(1)}%`);
     
+    // ⭐ 방향 결정: user는 우측(→), ai는 좌측(←)
+    const direction = shooter === 'user' ? 1 : -1;
+    
     const trajectory = calculateTrajectory(
       tank.x,
       tank.y,
       angle,
       power,
-      wind
+      wind,
+      direction
     );
     
     if (trajectory.length === 0) {
