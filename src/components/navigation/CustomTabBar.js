@@ -27,6 +27,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useQuickAction } from '../../contexts/QuickActionContext';
 import { useAnima } from '../../contexts/AnimaContext'; // ⭐ For new message badge
+import { useUser } from '../../contexts/UserContext'; // 🎮 NEW: For game API
 import { TAB_BAR } from '../../constants/layout';
 import { scale, verticalScale } from '../../utils/responsive-utils';
 import CustomText from '../CustomText';
@@ -47,6 +48,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const { setSelectedIndex, selectedPersona, selectedPersonaRef, selectedIndex, mode, switchMode } = usePersona(); // 🔥 NEW: Add selectedPersonaRef
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const { hasNewMessage, isMessageCreationActive, messageCreateHandler, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state, message creation state, and handler from Context
+  const { user } = useUser(); // 🎮 NEW: Get user info for game API
 
 
   const { t } = useTranslation();
@@ -448,6 +450,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           visible={true}
           onClose={handleGameClose}
           persona={selectedPersonaRef.current}
+          user={user} // 🎮 NEW: User info for LLM API
         />
       )}
       

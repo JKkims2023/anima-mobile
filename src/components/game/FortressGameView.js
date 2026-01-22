@@ -39,6 +39,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
+import { gameApi } from '../../services/api'; // 🎮 NEW: Game API for LLM
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -114,7 +115,7 @@ const getTerrainY = (x, points) => {
 // ═══════════════════════════════════════════════════════════════════════════
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
-const FortressGameView = ({ visible, onClose, persona }) => {
+const FortressGameView = ({ visible, onClose, persona, user }) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets(); // ⭐ SafeArea for system bars
 
@@ -158,6 +159,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   
   // ⭐ Explosion (폭발) state & animations
   const [explosion, setExplosion] = useState(null); // { x, y, radius, opacity } or null
+  
+  // 🎮 NEW: AI Taunt Message (도발 메시지)
+  const [tauntMessage, setTauntMessage] = useState(null); // string or null
+  const [isLoadingStrategy, setIsLoadingStrategy] = useState(false); // LLM 호출 중
+  const tauntOpacity = useSharedValue(0);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialize Game (게임 초기화)
@@ -570,18 +576,79 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     // 이동하지 않으면 바로 발사
     proceedToAIFire(aiTank);
     
-    function proceedToAIFire(currentAiTank) {
-      // AI 각도/파워 계산 (현재 AI 탱크 위치 사용)
-      const aiMove = calculateAIMove(currentAiTank, userTank, wind);
+    async function proceedToAIFire(currentAiTank) {
+      // 🎮 NEW: LLM 호출 (AI 전략 + 도발 메시지)
+      let aiMove = null;
+      let taunt = null;
       
-      console.log(`🤖 [AI] Decision: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+      // LLM 호출 시도 (persona와 user 정보 필요)
+      if (persona?.persona_key && user?.user_key) {
+        try {
+          setIsLoadingStrategy(true);
+          console.log('🤖 [AI] Requesting LLM strategy...');
+          
+          // 게임 상태 정보
+          const gameState = {
+            userHP: userTank.hp,
+            aiHP: currentAiTank.hp,
+            distance: Math.abs(userTank.x - currentAiTank.x).toFixed(1),
+            heightDiff: (userTank.y - currentAiTank.y).toFixed(1),
+            wind: wind,
+            shotsFired: shotsFired,
+            shotsHit: shotsHit,
+          };
+          
+          const response = await gameApi.getFortressStrategy({
+            message_content: `게임 상황: 거리 ${gameState.distance}px, 바람 ${wind}, 내 HP ${gameState.aiHP}, 상대 HP ${gameState.userHP}`,
+            persona_key: persona.persona_key,
+            user_key: user.user_key,
+            game_state: gameState,
+          });
+          
+          if (response.success && response.strategy) {
+            aiMove = {
+              angle: response.strategy.angle,
+              power: response.strategy.power,
+            };
+            taunt = response.taunt_message;
+            console.log(`🤖 [LLM] Strategy: angle=${aiMove.angle}°, power=${aiMove.power}%`);
+            console.log(`🤖 [LLM] Taunt: "${taunt}"`);
+          } else {
+            throw new Error('LLM response invalid');
+          }
+        } catch (error) {
+          console.error('❌ [LLM] Failed:', error);
+          // Fallback to rule-based AI
+          aiMove = calculateAIMove(currentAiTank, userTank, wind);
+          console.log(`🤖 [AI] Fallback to rule-based: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+        } finally {
+          setIsLoadingStrategy(false);
+        }
+      } else {
+        // persona/user 정보 없음 → rule-based AI
+        aiMove = calculateAIMove(currentAiTank, userTank, wind);
+        console.log(`🤖 [AI] Rule-based: angle=${aiMove.angle.toFixed(1)}°, power=${aiMove.power.toFixed(1)}%`);
+      }
+      
+      // 도발 메시지 표시 (있으면)
+      if (taunt) {
+        setTauntMessage(taunt);
+        tauntOpacity.value = 0;
+        tauntOpacity.value = withTiming(1, { duration: 300 });
+        
+        // 3초 후 메시지 사라짐
+        setTimeout(() => {
+          tauntOpacity.value = withTiming(0, { duration: 300 });
+          setTimeout(() => setTauntMessage(null), 300);
+        }, 3000);
+      }
       
       // 1.5초 후 AI 발사
       setTimeout(() => {
         fireProjectile(currentAiTank, aiMove.angle, aiMove.power, 'ai');
       }, 1500);
     }
-  }, [aiTank, userTank, terrain, wind, gameWidth, getTerrainY, calculateAIMove, fireProjectile]);
+  }, [aiTank, userTank, terrain, wind, gameWidth, getTerrainY, calculateAIMove, fireProjectile, persona, user, shotsFired, shotsHit, tauntOpacity]);
 
   /**
    * AI 각도/파워 계산 (Rule-based)
@@ -1025,6 +1092,21 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                   <View style={[styles.hpBarFill, { width: `${aiTank?.hp || 100}%`, backgroundColor: '#A78BFA' }]} />
                 </View>
                 <CustomText style={styles.hpText}>{aiTank?.hp || 100} HP</CustomText>
+                
+                {/* 🎮 NEW: AI 도발 메시지 (말풍선) */}
+                {tauntMessage && (
+                  <Animated.View 
+                    style={[
+                      styles.tauntBubble,
+                      {
+                        opacity: tauntOpacity,
+                      }
+                    ]}
+                  >
+                    <CustomText style={styles.tauntText}>{tauntMessage}</CustomText>
+                    <View style={styles.tauntTriangle} />
+                  </Animated.View>
+                )}
               </View>
             </Animated.View>
 
@@ -1340,6 +1422,44 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(11),
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  
+  // 🎮 NEW: AI Taunt Message Bubble (도발 메시지 말풍선)
+  tauntBubble: {
+    position: 'absolute',
+    top: scale(70), // 아바타 아래
+    right: 0,
+    minWidth: scale(120),
+    maxWidth: scale(200),
+    backgroundColor: 'rgba(167, 139, 250, 0.95)', // 퍼플 (AI 색상)
+    borderRadius: scale(12),
+    padding: scale(10),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    ...Platform.select({
+      android: { elevation: 5 },
+    }),
+  },
+  tauntText: {
+    fontSize: moderateScale(11),
+    fontWeight: '600',
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  tauntTriangle: {
+    position: 'absolute',
+    top: scale(-8),
+    right: scale(20),
+    width: 0,
+    height: 0,
+    borderLeftWidth: scale(8),
+    borderRightWidth: scale(8),
+    borderBottomWidth: scale(8),
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'rgba(167, 139, 250, 0.95)',
   },
   
   // ⭐ NEW: Control Chips (하단 중앙 오버레이)
