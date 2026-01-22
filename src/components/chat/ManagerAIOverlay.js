@@ -161,33 +161,12 @@ const ManagerAIOverlay = ({
   const { currentTheme } = useTheme();
   const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
   
-  // 🎮 NEW: Fade animation for absolute positioning
-  const overlayFadeAnim = useRef(new Animated.Value(0)).current;
-  
   // 🔥 PERFORMANCE DEBUG: Render counter
   const renderCountRef = useRef(0);
   renderCountRef.current++;
   if (__DEV__) {
     console.log(`🔥 [ManagerAIOverlay] Render #${renderCountRef.current}, visible: ${visible}`);
   }
-  
-  // 🎮 NEW: Fade animation trigger
-  useEffect(() => {
-    if (visible) {
-      overlayFadeAnim.setValue(0);
-      Animated.timing(overlayFadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(overlayFadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [visible, overlayFadeAnim]);
   
   // ✅ Chat state (⚡ OPTIMIZED: No more setTypingMessage spam!)
   const [messages, setMessages] = useState([]);
@@ -1964,22 +1943,17 @@ const ManagerAIOverlay = ({
     return null;
   }
   
-  // ⭐ Don't render if not visible (performance)
-  if (!visible) return null;
-  
   return (
     <>
-    {/* 🎮 NEW: Absolute View instead of Modal (iOS compatibility!) */}
-    <Animated.View 
-      style={[
-        styles.absoluteContainer,
-        {
-          opacity: overlayFadeAnim,
-        }
-      ]}
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={handleBackPress} // ⭐ FIX: Use unified back press handler!
     >
       {/* ✅ Simple Dark Background (No BlurView!) */}
-      <View style={styles.backdrop} />
+      <View style={styles.container}>
+        <View style={styles.backdrop} />
         
         {/* ✅ KeyboardAvoidingView (Stable & Simple) */}
         <KeyboardAvoidingView
@@ -2272,7 +2246,6 @@ const ManagerAIOverlay = ({
             )}
           </View>
         </KeyboardAvoidingView>
-      </Animated.View>
       
       {/* 🎵 NEW: Floating YouTube Music Player (Overlay, does NOT push chat) */}
       {floatingContent?.contentType === 'music' && 
@@ -2319,7 +2292,8 @@ const ManagerAIOverlay = ({
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
       
-    </Animated.View>
+      </View>
+    </Modal>
     
     {/* 🎭 Identity Settings Sheet (Independent Modal - Outside ManagerAIOverlay Modal) */}
     {user && (
@@ -2425,14 +2399,8 @@ const ManagerAIOverlay = ({
 };
 
 const styles = StyleSheet.create({
-  // 🎮 NEW: Absolute container (instead of Modal)
-  absoluteContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 9999, // ⭐ Above everything except Modals
+  container: {
+    flex: 1,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,

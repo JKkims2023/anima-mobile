@@ -170,8 +170,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         ],
       });
     } else {
-      // setIsManagerOverlayVisible(true); // ⭐ COMMENTED OUT FOR TESTING
-      setIsFortressGameVisible(true); // 🎮 TESTING: Open Fortress Game
+      // ✅ Open ManagerAIOverlay (with game menu!)
+      setIsManagerOverlayVisible(true);
     }
   };
   
@@ -430,7 +430,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         onClose={() => actionSheetRef.current?.dismiss()}
       /> */}
       
-      {/* ✅ ManagerAIOverlay - Universal AI Chat (Absolute View!) */}
+      {/* ✅ ManagerAIOverlay - Universal AI Chat (Modal) */}
       {/* 🔥 PERFORMANCE FIX: Only mount when visible (prevents unnecessary renders!) */}
       {isManagerOverlayVisible && (
         <ManagerAIOverlay
