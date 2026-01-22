@@ -128,12 +128,21 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const [currentTurn, setCurrentTurn] = useState('user'); // 'user' | 'ai'
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null); // 'user' | 'ai' | null
+  
+  // ⭐ 게임 통계
+  const [shotsFired, setShotsFired] = useState(0);
+  const [shotsHit, setShotsHit] = useState(0);
+  const [totalDamageDealt, setTotalDamageDealt] = useState(0);
 
   // Animation
   const fadeAnim = useSharedValue(0);
   
   // ⭐ Chip animations (for control chips)
   const chipOpacity = useSharedValue(0);
+  
+  // ⭐ Game Over Modal animations
+  const gameOverOpacity = useSharedValue(0);
+  const gameOverScale = useSharedValue(0.5);
   
   // ⭐ Avatar animations
   const avatarOpacity = useSharedValue(0);
@@ -169,6 +178,23 @@ const FortressGameView = ({ visible, onClose, persona }) => {
       chipOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [visible, initializeGame, fadeAnim, avatarOpacity, chipOpacity]);
+
+  // ⭐ 게임 오버 애니메이션 트리거
+  useEffect(() => {
+    if (gameOver) {
+      // 0.5초 지연 후 모달 표시
+      setTimeout(() => {
+        gameOverOpacity.value = withTiming(1, { duration: 400 });
+        gameOverScale.value = withSpring(1, {
+          damping: 15,
+          stiffness: 150,
+        });
+      }, 500);
+    } else {
+      gameOverOpacity.value = 0;
+      gameOverScale.value = 0.5;
+    }
+  }, [gameOver, gameOverOpacity, gameOverScale]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Physics Engine (물리 엔진)
@@ -360,6 +386,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     setGameOver(false);
     setWinner(null);
     
+    // ⭐ 게임 통계 초기화
+    setShotsFired(0);
+    setShotsHit(0);
+    setTotalDamageDealt(0);
+    
     console.log('🎮 [Game] Initialized - First turn: USER');
   }, [gameWidth, gameHeight]);
 
@@ -449,6 +480,18 @@ const FortressGameView = ({ visible, onClose, persona }) => {
     HapticService.light();
     onClose?.();
   }, [onClose]);
+
+  const handlePlayAgain = useCallback(() => {
+    HapticService.medium();
+    // 게임 오버 모달 페이드 아웃
+    gameOverOpacity.value = withTiming(0, { duration: 200 });
+    gameOverScale.value = withTiming(0.5, { duration: 200 });
+    
+    // 0.3초 후 게임 재시작
+    setTimeout(() => {
+      initializeGame();
+    }, 300);
+  }, [gameOverOpacity, gameOverScale, initializeGame]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI Turn System
@@ -599,6 +642,11 @@ const FortressGameView = ({ visible, onClose, persona }) => {
   const fireProjectile = useCallback((tank, angle, power, shooter) => {
     console.log(`🚀 [Fire] ${shooter.toUpperCase()} fires: angle=${angle.toFixed(1)}°, power=${power.toFixed(1)}%`);
     
+    // ⭐ 통계: 발사 횟수 증가 (USER만)
+    if (shooter === 'user') {
+      setShotsFired(prev => prev + 1);
+    }
+    
     // ⭐ 방향 결정: user는 우측(→), ai는 좌측(←)
     const direction = shooter === 'user' ? 1 : -1;
     
@@ -669,6 +717,9 @@ const FortressGameView = ({ visible, onClose, persona }) => {
         
         if (shooter === 'user') {
           setAiTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+          // ⭐ 통계: 명중 + 데미지
+          setShotsHit(prev => prev + 1);
+          setTotalDamageDealt(prev => prev + damage);
         } else {
           setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
         }
@@ -721,6 +772,9 @@ const FortressGameView = ({ visible, onClose, persona }) => {
           
           if (shooter === 'user') {
             setAiTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+            // ⭐ 통계: 스플래시 명중 + 데미지
+            setShotsHit(prev => prev + 1);
+            setTotalDamageDealt(prev => prev + damage);
           } else {
             setUserTank(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
           }
@@ -1036,6 +1090,86 @@ const FortressGameView = ({ visible, onClose, persona }) => {
                 </View>
               </View>
             </Animated.View>
+
+            {/* ⭐ 게임 오버 모달 */}
+            {gameOver && (
+              <Animated.View 
+                style={[
+                  styles.gameOverModal,
+                  {
+                    opacity: gameOverOpacity,
+                    transform: [{ scale: gameOverScale }],
+                  }
+                ]}
+              >
+                <View style={styles.gameOverContent}>
+                  {/* 제목 */}
+                  <CustomText style={[
+                    styles.gameOverTitle,
+                    winner === 'user' ? styles.gameOverTitleWin : styles.gameOverTitleLose
+                  ]}>
+                    {winner === 'user' ? '🎉 VICTORY!' : '💀 DEFEATED'}
+                  </CustomText>
+                  
+                  {/* 서브타이틀 */}
+                  <CustomText style={styles.gameOverSubtitle}>
+                    {winner === 'user' ? 'Perfect shot!' : 'Better luck next time!'}
+                  </CustomText>
+                  
+                  {/* 구분선 */}
+                  <View style={styles.gameOverDivider} />
+                  
+                  {/* 통계 제목 */}
+                  <CustomText style={styles.statsTitle}>📊 Battle Statistics</CustomText>
+                  
+                  {/* 통계 항목들 */}
+                  <View style={styles.statsContainer}>
+                    {/* 명중률 */}
+                    <View style={styles.statRow}>
+                      <CustomText style={styles.statLabel}>🎯 Accuracy</CustomText>
+                      <CustomText style={styles.statValue}>
+                        {shotsFired > 0 ? Math.round((shotsHit / shotsFired) * 100) : 0}%
+                      </CustomText>
+                    </View>
+                    
+                    {/* 발사/명중 */}
+                    <View style={styles.statRow}>
+                      <CustomText style={styles.statLabel}>💥 Shots</CustomText>
+                      <CustomText style={styles.statValue}>
+                        {shotsHit} / {shotsFired}
+                      </CustomText>
+                    </View>
+                    
+                    {/* 총 데미지 */}
+                    <View style={styles.statRow}>
+                      <CustomText style={styles.statLabel}>⚡ Total Damage</CustomText>
+                      <CustomText style={styles.statValue}>
+                        {totalDamageDealt} HP
+                      </CustomText>
+                    </View>
+                  </View>
+                  
+                  {/* 버튼들 */}
+                  <View style={styles.gameOverButtons}>
+                    <TouchableOpacity 
+                      style={[styles.gameOverButton, styles.playAgainButton]}
+                      onPress={handlePlayAgain}
+                    >
+                      <Icon name="refresh" size={moderateScale(24)} color="#FFF" />
+                      <CustomText style={styles.buttonText}>Play Again</CustomText>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={[styles.gameOverButton, styles.gameOverCloseButton]}
+                      onPress={handleClose}
+                    >
+                      <Icon name="close" size={moderateScale(24)} color="#FFF" />
+                      <CustomText style={styles.buttonText}>Close</CustomText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Animated.View>
+            )}
           </View>
         </View>
       </Animated.View>
@@ -1277,6 +1411,113 @@ const styles = StyleSheet.create({
   fireChipDisabled: {
     backgroundColor: 'rgba(255, 107, 157, 0.4)', // 비활성화 시 투명도
     opacity: 0.5,
+  },
+  // ⭐ 게임 오버 모달
+  gameOverModal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // 어두운 배경
+  },
+  gameOverContent: {
+    backgroundColor: 'rgba(26, 26, 46, 0.98)',
+    borderRadius: moderateScale(24),
+    padding: scale(30),
+    width: scale(320),
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    ...Platform.select({
+      android: { elevation: 15 },
+    }),
+  },
+  gameOverTitle: {
+    fontSize: moderateScale(32),
+    fontWeight: 'bold',
+    marginBottom: verticalScale(8),
+  },
+  gameOverTitleWin: {
+    color: '#FFD700', // 골드
+  },
+  gameOverTitleLose: {
+    color: '#888', // 그레이
+  },
+  gameOverSubtitle: {
+    fontSize: moderateScale(14),
+    color: '#AAA',
+    marginBottom: verticalScale(20),
+  },
+  gameOverDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: verticalScale(20),
+  },
+  statsTitle: {
+    fontSize: moderateScale(16),
+    fontWeight: 'bold',
+    color: '#60A5FA',
+    marginBottom: verticalScale(15),
+  },
+  statsContainer: {
+    width: '100%',
+    gap: verticalScale(12),
+    marginBottom: verticalScale(25),
+  },
+  statRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: scale(10),
+  },
+  statLabel: {
+    fontSize: moderateScale(14),
+    color: '#CCC',
+  },
+  statValue: {
+    fontSize: moderateScale(16),
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  gameOverButtons: {
+    flexDirection: 'row',
+    gap: scale(15),
+    width: '100%',
+  },
+  gameOverButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: scale(8),
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(16),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    ...Platform.select({
+      android: { elevation: 5 },
+    }),
+  },
+  playAgainButton: {
+    backgroundColor: '#4CAF50', // 그린
+  },
+  gameOverCloseButton: {
+    backgroundColor: '#FF6B9D', // ANIMA 핑크
+  },
+  buttonText: {
+    fontSize: moderateScale(14),
+    fontWeight: 'bold',
+    color: '#FFF',
   },
 });
 
