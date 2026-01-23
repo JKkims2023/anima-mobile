@@ -29,6 +29,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  withDelay,
   Easing,
 } from 'react-native-reanimated';
 import Video from 'react-native-video'; // ⭐ NEW: For persona video
@@ -136,19 +137,47 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
   const [shotsFired, setShotsFired] = useState(0);
   const [shotsHit, setShotsHit] = useState(0);
   const [totalDamageDealt, setTotalDamageDealt] = useState(0);
-
-  // Animation
-  const fadeAnim = useSharedValue(0);
   
-  // ⭐ Chip animations (for control chips)
-  const chipOpacity = useSharedValue(0);
+  // 🎮 NEW: 게임 시작 확인 모달
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameStats, setGameStats] = useState(null); // 전적 정보
+  const [isLoadingStats, setIsLoadingStats] = useState(false); // 전적 로딩 중
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Entrance Animations (진입 시 순차적 바운스 애니메이션)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Step 1: Background (Terrain) - 페이드 인
+  const terrainOpacity = useSharedValue(0);
+  
+  // Step 2: Avatar Overlays - 좌우 슬라이드 + 바운스
+  const leftAvatarTranslateX = useSharedValue(-100);
+  const leftAvatarOpacity = useSharedValue(0);
+  const rightAvatarTranslateX = useSharedValue(100);
+  const rightAvatarOpacity = useSharedValue(0);
+  
+  // Step 3: Control Chips - 하단에서 순차 바운스
+  const moveChipTranslateY = useSharedValue(100);
+  const moveChipOpacity = useSharedValue(0);
+  const angleChipTranslateY = useSharedValue(100);
+  const angleChipOpacity = useSharedValue(0);
+  const powerChipTranslateY = useSharedValue(100);
+  const powerChipOpacity = useSharedValue(0);
+  const fireButtonTranslateY = useSharedValue(100);
+  const fireButtonOpacity = useSharedValue(0);
+  
+  // Step 4: Taunt Bubble - 상단에서 바운스
+  const tauntBubbleTranslateY = useSharedValue(-50);
+  const tauntBubbleOpacity = useSharedValue(0);
   
   // ⭐ Game Over Modal animations
   const gameOverOpacity = useSharedValue(0);
   const gameOverScale = useSharedValue(0.5);
   
-  // ⭐ Avatar animations
-  const avatarOpacity = useSharedValue(0);
+  // 🎮 NEW: Game Start Modal animations
+  const startModalOpacity = useSharedValue(0);
+  const startModalScale = useSharedValue(0.5);
   
   // ⭐ Projectile (발사체) state & animations
   const [projectile, setProjectile] = useState(null); // { x, y } or null
@@ -170,30 +199,154 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
   const [lastUserShot, setLastUserShot] = useState(null); // { angle, power, target, actual, error, result }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Initialize Game (게임 초기화)
+  // Initialize Game (게임 초기화) + Sequential Entrance Animations
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (visible) {
       initializeGame();
-      fadeAnim.value = withTiming(1, { duration: 400 });
       
-      // ⭐ Avatars fade-in
-      avatarOpacity.value = 0;
-      avatarOpacity.value = withTiming(1, { duration: 400, delay: 100 });
+      // 🎨 Step 1: Background Terrain (0ms) - 페이드 인
+      terrainOpacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) });
       
-      // ⭐ Chips fade-in with delay
-      chipOpacity.value = 0;
-      chipOpacity.value = withTiming(1, { duration: 300, delay: 200 });
+      // 🎨 Step 2: Avatar Overlays (200ms) - 좌우 슬라이드 + 바운스
+      leftAvatarTranslateX.value = withDelay(
+        200,
+        withSpring(0, { damping: 12, stiffness: 100 })
+      );
+      leftAvatarOpacity.value = withDelay(
+        200,
+        withTiming(1, { duration: 400 })
+      );
+      
+      rightAvatarTranslateX.value = withDelay(
+        200,
+        withSpring(0, { damping: 12, stiffness: 100 })
+      );
+      rightAvatarOpacity.value = withDelay(
+        200,
+        withTiming(1, { duration: 400 })
+      );
+      
+      // 🎨 Step 3: Control Chips (500ms) - 순차 바운스 (100ms 간격)
+      // Move chip (500ms)
+      moveChipTranslateY.value = withDelay(
+        500,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      moveChipOpacity.value = withDelay(
+        500,
+        withTiming(1, { duration: 300 })
+      );
+      
+      // Angle chip (600ms)
+      angleChipTranslateY.value = withDelay(
+        600,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      angleChipOpacity.value = withDelay(
+        600,
+        withTiming(1, { duration: 300 })
+      );
+      
+      // 🚀 Fire button (700ms) - 중앙!
+      fireButtonTranslateY.value = withDelay(
+        700,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      fireButtonOpacity.value = withDelay(
+        700,
+        withTiming(1, { duration: 300 })
+      );
+      
+      // Power chip (800ms)
+      powerChipTranslateY.value = withDelay(
+        800,
+        withSpring(0, { damping: 8, stiffness: 150 })
+      );
+      powerChipOpacity.value = withDelay(
+        800,
+        withTiming(1, { duration: 300 })
+      );
+      
+      // 🎨 Step 4: Taunt Bubble (1000ms) - 상단에서 바운스
+      tauntBubbleTranslateY.value = withDelay(
+        1000,
+        withSpring(0, { damping: 10, stiffness: 120 })
+      );
+      tauntBubbleOpacity.value = withDelay(
+        1000,
+        withTiming(1, { duration: 400 })
+      );
+      
+      // 🎮 Step 5: Game Start Modal (2000ms) - 진입 애니메이션 완료 후 1초 대기
+      const startModalTimer = setTimeout(() => {
+        if (!gameStarted) {
+          setShowStartModal(true);
+        }
+      }, 2000); // 1000ms (taunt) + 1000ms (delay) = 2000ms
+      
+      return () => clearTimeout(startModalTimer);
+      
     } else {
-      fadeAnim.value = withTiming(0, { duration: 300 });
-      avatarOpacity.value = withTiming(0, { duration: 200 });
-      chipOpacity.value = withTiming(0, { duration: 200 });
+      // 종료 시 애니메이션 (빠르게 페이드 아웃)
+      terrainOpacity.value = withTiming(0, { duration: 200 });
+      leftAvatarOpacity.value = withTiming(0, { duration: 200 });
+      rightAvatarOpacity.value = withTiming(0, { duration: 200 });
+      moveChipOpacity.value = withTiming(0, { duration: 200 });
+      angleChipOpacity.value = withTiming(0, { duration: 200 });
+      powerChipOpacity.value = withTiming(0, { duration: 200 });
+      fireButtonOpacity.value = withTiming(0, { duration: 200 });
+      tauntBubbleOpacity.value = withTiming(0, { duration: 200 });
     }
-  }, [visible, initializeGame, fadeAnim, avatarOpacity, chipOpacity]);
+  }, [visible, initializeGame]);
 
-  // ⭐ 게임 오버 애니메이션 트리거
+  // 🎮 NEW: 게임 시작 모달 애니메이션 트리거
+  useEffect(() => {
+    if (showStartModal) {
+      startModalOpacity.value = withTiming(1, { duration: 600 });
+      startModalScale.value = withSpring(1, { damping: 15 });
+      
+      // 🎮 전적 가져오기
+      fetchGameStats();
+    } else {
+      startModalOpacity.value = 0;
+      startModalScale.value = 0.5;
+    }
+  }, [showStartModal, startModalOpacity, startModalScale]);
+  
+  // 🎮 NEW: 전적 가져오기
+  const fetchGameStats = useCallback(async () => {
+    if (!user?.user_key || !persona?.persona_key) {
+      console.warn('⚠️ [Fortress] Missing user_key or persona_key');
+      return;
+    }
+    
+    setIsLoadingStats(true);
+    
+    try {
+      const response = await gameApi.getGameStats({
+        user_key: user.user_key,
+        persona_key: persona.persona_key,
+        game_type: 'fortress',
+      });
+      
+      if (response.success) {
+        setGameStats(response.data);
+        console.log(`✅ [Fortress] Stats loaded: ${response.data.record_text}`);
+      }
+    } catch (error) {
+      console.error('❌ [Fortress] Failed to fetch stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  }, [user, persona]);
+
+  // ⭐ 게임 오버 애니메이션 트리거 + 결과 저장
   useEffect(() => {
     if (gameOver) {
+      // 🎮 게임 결과 저장
+      saveGameResult();
+      
       // 0.5초 지연 후 모달 표시
       setTimeout(() => {
         gameOverOpacity.value = withTiming(1, { duration: 400 });
@@ -207,6 +360,40 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
       gameOverScale.value = 0.5;
     }
   }, [gameOver, gameOverOpacity, gameOverScale]);
+  
+  // 🎮 NEW: 게임 결과 저장
+  const saveGameResult = useCallback(async () => {
+    if (!user?.user_key || !persona?.persona_key || !winner) {
+      console.warn('⚠️ [Fortress] Missing data for save:', { user: !!user, persona: !!persona, winner });
+      return;
+    }
+    
+    try {
+      const accuracy = shotsFired > 0 ? ((shotsHit / shotsFired) * 100).toFixed(1) : 0;
+      
+      const result = await gameApi.saveGameResult({
+        user_key: user.user_key,
+        persona_key: persona.persona_key,
+        game_type: 'fortress',
+        game_result: winner === 'user' ? 'win' : 'lose',
+        game_data: {
+          shots_fired: shotsFired,
+          shots_hit: shotsHit,
+          damage_dealt: totalDamageDealt,
+          damage_taken: 100 - (winner === 'user' ? aiTank?.hp : userTank?.hp),
+          accuracy: parseFloat(accuracy),
+        },
+      });
+      
+      if (result.success) {
+        console.log(`✅ [Fortress] Game result saved: ${result.data.record_id}`);
+      } else {
+        console.error('❌ [Fortress] Failed to save result:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ [Fortress] Error saving result:', error);
+    }
+  }, [user, persona, winner, shotsFired, shotsHit, totalDamageDealt, userTank, aiTank]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Physics Engine (물리 엔진)
@@ -492,6 +679,60 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
     HapticService.light();
     onClose?.();
   }, [onClose]);
+  
+  // 🎮 NEW: 게임 시작 확인 핸들러 (제한 체크 포함)
+  const handleStartGame = useCallback(async () => {
+    if (!user?.user_key) {
+      console.warn('⚠️ [Fortress] Missing user_key');
+      return;
+    }
+    
+    HapticService.medium();
+    
+    // 🎮 일일 제한 체크
+    try {
+      const limitCheck = await gameApi.checkGameLimit({
+        user_key: user.user_key,
+        game_type: 'fortress',
+      });
+      
+      if (!limitCheck.success || !limitCheck.data.can_play) {
+        HapticService.warning();
+        alert(limitCheck.data?.message || '오늘 게임 횟수를 모두 사용했습니다.');
+        console.warn(`⚠️ [Fortress] ${limitCheck.data?.message}`);
+        return;
+      }
+      
+      console.log(`✅ [Fortress] Can play! Remaining: ${limitCheck.data.remaining}`);
+    } catch (error) {
+      console.error('❌ [Fortress] Limit check failed:', error);
+      // 제한 체크 실패 시에도 게임 진행 허용 (UX 우선)
+    }
+    
+    // 시작 모달 페이드 아웃
+    startModalOpacity.value = withTiming(0, { duration: 300 });
+    startModalScale.value = withTiming(0.5, { duration: 300 });
+    
+    // 0.3초 후 게임 시작
+    setTimeout(() => {
+      setShowStartModal(false);
+      setGameStarted(true);
+    }, 300);
+  }, [startModalOpacity, startModalScale, user]);
+  
+  // 🎮 NEW: 게임 시작 취소 핸들러
+  const handleCancelStart = useCallback(() => {
+    HapticService.light();
+    // 시작 모달 페이드 아웃
+    startModalOpacity.value = withTiming(0, { duration: 300 });
+    startModalScale.value = withTiming(0.5, { duration: 300 });
+    
+    // 0.3초 후 게임 닫기
+    setTimeout(() => {
+      setShowStartModal(false);
+      onClose?.();
+    }, 300);
+  }, [startModalOpacity, startModalScale, onClose]);
 
   const handlePlayAgain = useCallback(() => {
     HapticService.medium();
@@ -696,7 +937,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                 
                 // 🎯 이동 후 0.5초 대기 → 발사
                 setTimeout(() => {
-                  fireProjectile('ai', aiMove.angle, aiMove.power, movedAiTank);
+                  fireProjectile(movedAiTank, aiMove.angle, aiMove.power, 'ai');
                 }, 500);
                 return; // ⚠️ 여기서 종료 (이동 후 발사)
               } else {
@@ -1047,16 +1288,61 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
   // ═══════════════════════════════════════════════════════════════════════════
   // Animated Styles
   // ═══════════════════════════════════════════════════════════════════════════
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: fadeAnim.value,
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Animated Styles (순차적 바운스 애니메이션)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Terrain (Background)
+  const terrainAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: terrainOpacity.value,
   }));
   
-  const avatarAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: avatarOpacity.value,
+  // Left Avatar (USER)
+  const leftAvatarAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: leftAvatarOpacity.value,
+    transform: [{ translateX: leftAvatarTranslateX.value }],
   }));
   
-  const chipAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: chipOpacity.value,
+  // Right Avatar (AI/Persona)
+  const rightAvatarAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: rightAvatarOpacity.value,
+    transform: [{ translateX: rightAvatarTranslateX.value }],
+  }));
+  
+  // Move Chip
+  const moveChipAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: moveChipOpacity.value,
+    transform: [{ translateY: moveChipTranslateY.value }],
+  }));
+  
+  // Angle Chip
+  const angleChipAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: angleChipOpacity.value,
+    transform: [{ translateY: angleChipTranslateY.value }],
+  }));
+  
+  // Power Chip
+  const powerChipAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: powerChipOpacity.value,
+    transform: [{ translateY: powerChipTranslateY.value }],
+  }));
+  
+  // Fire Button
+  const fireButtonAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: fireButtonOpacity.value,
+    transform: [{ translateY: fireButtonTranslateY.value }],
+  }));
+  
+  // Taunt Bubble
+  const tauntBubbleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: tauntBubbleOpacity.value,
+    transform: [{ translateY: tauntBubbleTranslateY.value }],
+  }));
+  
+  // 🎮 NEW: Start Modal
+  const startModalAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: startModalOpacity.value,
+    transform: [{ scale: startModalScale.value }],
   }));
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1074,7 +1360,8 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
     >
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      <Animated.View style={[styles.outerContainer, containerAnimatedStyle]}>
+      {/* 🎨 전체 컨테이너 - 배경 페이드 인 */}
+      <Animated.View style={[styles.outerContainer, terrainAnimatedStyle]}>
         {/* 회전된 게임 영역 (가상 가로 모드) */}
         <View style={[
           styles.rotatedContainer,
@@ -1211,10 +1498,10 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
               </Svg>
             </View>
 
-            {/* ⭐ 상단: 아바타 오버레이 */}
-            <Animated.View style={[styles.avatarContainer, avatarAnimatedStyle]}>
-              {/* 좌측: 사용자 아바타 */}
-              <View style={styles.avatarWrapper}>
+            {/* 🎨 상단: 아바타 오버레이 (좌우 개별 애니메이션) */}
+            <View style={styles.avatarContainer}>
+              {/* 좌측: 사용자 아바타 - 좌→우 슬라이드 */}
+              <Animated.View style={[styles.avatarWrapper, leftAvatarAnimatedStyle]}>
                 <View style={[styles.avatar, styles.userAvatar]}>
                   <CustomText style={styles.avatarEmoji}>👤</CustomText>
                 </View>
@@ -1222,29 +1509,56 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                   <View style={[styles.hpBarFill, { width: `${userTank?.hp || 100}%`, backgroundColor: '#FF6B9D' }]} />
                 </View>
                 <CustomText style={styles.hpText}>{userTank?.hp || 100} HP</CustomText>
-              </View>
+              </Animated.View>
 
-              {/* 우측: 페르소나 아바타 */}
-              <View style={styles.avatarWrapper}>
+              {/* 우측: 페르소나 아바타 - 우→좌 슬라이드 */}
+              <Animated.View style={[styles.avatarWrapper, rightAvatarAnimatedStyle]}>
                 <View style={[styles.avatar, styles.aiAvatar]}>
                   {/* ⭐ 페르소나 비디오/이미지 표시 */}
                   {persona?.selected_dress_video_url && persona?.selected_dress_video_convert_done === 'Y' ? (
                     // 비디오 (변환 완료된 경우)
-                    <Video
-                      source={{ uri: persona.selected_dress_video_url }}
-                      style={styles.avatarMedia}
-                      resizeMode="cover"
-                      repeat
-                      muted
-                      paused={false}
-                    />
+                    Platform.OS === 'android' ? (
+                      // Android: 추가 회전 컨테이너 필요
+                      <View style={styles.androidMediaContainer}>
+                        <Video
+                          source={{ uri: persona.selected_dress_video_url }}
+                          style={styles.avatarMedia}
+                          resizeMode="cover"
+                          repeat
+                          muted
+                          paused={false}
+                        />
+                      </View>
+                    ) : (
+                      // iOS: 직접 렌더링
+                      <Video
+                        source={{ uri: persona.selected_dress_video_url }}
+                        style={styles.avatarMedia}
+                        resizeMode="cover"
+                        repeat
+                        muted
+                        paused={false}
+                      />
+                    )
                   ) : persona?.persona_image_url ? (
                     // 이미지 (비디오가 없거나 변환 미완료인 경우)
-                    <Image
-                      source={{ uri: persona.persona_image_url }}
-                      style={styles.avatarMedia}
-                      resizeMode="cover"
-                    />
+                    Platform.OS === 'android' ? (
+                      // Android: 추가 회전 컨테이너 필요
+                      <View style={styles.androidMediaContainer}>
+                        <Image
+                          source={{ uri: persona.persona_image_url }}
+                          style={styles.avatarMedia}
+                          resizeMode="cover"
+                        />
+                      </View>
+                    ) : (
+                      // iOS: 직접 렌더링
+                      <Image
+                        source={{ uri: persona.persona_image_url }}
+                        style={styles.avatarMedia}
+                        resizeMode="cover"
+                      />
+                    )
                   ) : (
                     // Fallback: 이모지 (persona 정보 없음)
                     <CustomText style={styles.avatarEmoji}>🤖</CustomText>
@@ -1254,46 +1568,47 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                   <View style={[styles.hpBarFill, { width: `${aiTank?.hp || 100}%`, backgroundColor: '#A78BFA' }]} />
                 </View>
                 <CustomText style={styles.hpText}>{aiTank?.hp || 100} HP</CustomText>
-                
-                {/* 🎮 NEW: AI 도발 메시지 (말풍선 - 3가지 상황별) */}
-                {currentTaunt && (
-                  <Animated.View 
-                    style={[
-                      styles.tauntBubble,
-                      {
-                        opacity: tauntOpacity,
-                      }
-                    ]}
-                  >
-                    <CustomText style={styles.tauntText}>{currentTaunt}</CustomText>
-                    <View style={styles.tauntTriangle} />
-                  </Animated.View>
-                )}
-              </View>
-            </Animated.View>
+              </Animated.View>
+            </View>
+            
+            {/* 🎨 페르소나 도발 메시지 (상단에서 통통 튀는 애니메이션) */}
+            {currentTaunt && (
+              <Animated.View 
+                style={[
+                  styles.tauntBubble,
+                  tauntBubbleAnimatedStyle,
+                  {
+                    opacity: tauntOpacity,
+                  }
+                ]}
+              >
+                <CustomText style={styles.tauntText}>{currentTaunt}</CustomText>
+                <View style={styles.tauntTriangle} />
+              </Animated.View>
+            )}
 
-            {/* ⭐ 하단 중앙: 컨트롤 칩셋 (오버레이) */}
-            <Animated.View style={[styles.controlChipsContainer, chipAnimatedStyle]}>
-              {/* ⭐ NEW: 이동 칩 */}
-              <View style={[styles.moveChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
+            {/* 🎨 하단 중앙: 컨트롤 칩셋 (순차 바운스 애니메이션) */}
+            <View style={styles.controlChipsContainer}>
+              {/* 이동 칩 (500ms) - 통통 */}
+              <Animated.View style={[styles.moveChip, (!gameStarted || currentTurn !== 'user' || gameOver) && styles.controlChipDisabled, moveChipAnimatedStyle]}>
                 <TouchableOpacity
                   style={styles.moveButton}
                   onPress={() => handleMove('left')}
-                  disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                  disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                 >
                   <Icon name="chevron-back" size={moderateScale(20)} color="#FFF" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.moveButton}
                   onPress={() => handleMove('right')}
-                  disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                  disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                 >
                   <Icon name="chevron-forward" size={moderateScale(20)} color="#FFF" />
                 </TouchableOpacity>
-              </View>
+              </Animated.View>
               
-              {/* 각도 칩 (항상 활성화) */}
-              <View style={[styles.controlChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
+              {/* 각도 칩 (600ms) - 통통 */}
+              <Animated.View style={[styles.controlChip, (!gameStarted || currentTurn !== 'user' || gameOver) && styles.controlChipDisabled, angleChipAnimatedStyle, { marginLeft: scale(35) }]}>
                 <MaterialIcon name="angle-acute" size={moderateScale(20)} color="#60A5FA" />
                 <View style={styles.chipContent}>
                   <TouchableOpacity
@@ -1302,7 +1617,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                       HapticService.light();
                       setAngle(Math.max(0, angle - 5));
                     }}
-                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                    disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="remove" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -1313,24 +1628,26 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                       HapticService.light();
                       setAngle(Math.min(90, angle + 5));
                     }}
-                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                    disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="add" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
                 </View>
-              </View>
+              </Animated.View>
 
-              {/* 발사 버튼 (중앙) */}
-              <TouchableOpacity 
-                style={[styles.fireChip, (isAnimating || currentTurn !== 'user' || gameOver) && styles.fireChipDisabled]} 
-                onPress={handleFire}
-                disabled={isAnimating || currentTurn !== 'user' || gameOver}
-              >
-                <Icon name="rocket" size={moderateScale(26)} color="#FFF" />
-              </TouchableOpacity>
+              {/* 🚀 발사 버튼 (700ms) - 중앙! 통통! */}
+              <Animated.View style={fireButtonAnimatedStyle}>
+                <TouchableOpacity 
+                  style={[styles.fireChip, (!gameStarted || isAnimating || currentTurn !== 'user' || gameOver) && styles.fireChipDisabled]} 
+                  onPress={handleFire}
+                  disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
+                >
+                  <Icon name="rocket" size={moderateScale(26)} color="#FFF" />
+                </TouchableOpacity>
+              </Animated.View>
 
-              {/* 파워 칩 (항상 활성화) */}
-              <View style={[styles.controlChip, (currentTurn !== 'user' || gameOver) && styles.controlChipDisabled]}>
+              {/* 파워 칩 (800ms) - 통통 */}
+              <Animated.View style={[styles.controlChip, (!gameStarted || currentTurn !== 'user' || gameOver) && styles.controlChipDisabled, powerChipAnimatedStyle]}>
                 <MaterialIcon name="flash" size={moderateScale(20)} color="#FFA500" />
                 <View style={styles.chipContent}>
                   <TouchableOpacity
@@ -1339,7 +1656,7 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                       HapticService.light();
                       setPower(Math.max(0, power - 5));
                     }}
-                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                    disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="remove" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
@@ -1350,13 +1667,69 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                       HapticService.light();
                       setPower(Math.min(100, power + 5));
                     }}
-                    disabled={isAnimating || currentTurn !== 'user' || gameOver}
+                    disabled={!gameStarted || isAnimating || currentTurn !== 'user' || gameOver}
                   >
                     <Icon name="add" size={moderateScale(16)} color="#FFF" />
                   </TouchableOpacity>
                 </View>
-              </View>
-            </Animated.View>
+              </Animated.View>
+            </View>
+
+            {/* 🎮 NEW: 게임 시작 확인 모달 */}
+            {showStartModal && !gameStarted && (
+              <Animated.View 
+                style={[
+                  styles.gameOverModal,
+                  startModalAnimatedStyle,
+                ]}
+              >
+                <View style={styles.gameOverContent}>
+                  {/* 페르소나 이미지 */}
+                  <View style={styles.startModalImageContainer}>
+                    <Image
+                      source={{ 
+                        uri: persona?.selected_dress_image_url || persona?.persona_image_url || ''
+                      }}
+                      style={styles.startModalImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                  
+                  {/* 페르소나 이름 */}
+                  <CustomText style={[styles.gameStartTitle, { marginTop: verticalScale(15) }]}>
+                    {persona?.persona_name || 'AI 페르소나'}
+                  </CustomText>
+                  
+                  {/* 전적 (실제 데이터) */}
+                  <CustomText style={[styles.statsText, { marginTop: verticalScale(0), fontSize: moderateScale(16) }]}>
+                    {isLoadingStats ? (
+                      '🏆 전적 불러오는 중...'
+                    ) : gameStats ? (
+                      `🏆 전적: ${gameStats.record_text} (승률 ${gameStats.win_rate}%)`
+                    ) : (
+                      '🏆 전적: 첫 대전!'
+                    )}
+                  </CustomText>
+                  
+                  {/* 버튼들 */}
+                  <View style={styles.gameStartButtons}>
+                    <TouchableOpacity 
+                      style={[styles.gameOverButton, styles.playAgainButton]} 
+                      onPress={handleStartGame}
+                    >
+                      <CustomText style={styles.gameOverButtonText}>🎮 시작하기</CustomText>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={[styles.gameOverButton, styles.closeGameButton]} 
+                      onPress={handleCancelStart}
+                    >
+                      <CustomText style={styles.gameOverButtonText}>❌ 취소</CustomText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Animated.View>
+            )}
 
             {/* ⭐ 게임 오버 모달 */}
             {gameOver && (
@@ -1527,9 +1900,9 @@ const styles = StyleSheet.create({
   // ⭐ NEW: Avatar Overlay (상단 좌우 오버레이)
   avatarContainer: {
     position: 'absolute',
-    top: verticalScale(40), // 헤더 아래
-    left: scale(15),
-    right: scale(15),
+    top: verticalScale(60), // 헤더 아래
+    left: scale(25),
+    right: scale(25),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -1546,6 +1919,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderWidth: 3,
+    overflow: 'hidden', // ⭐ 원형 마스크 강제 적용
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
@@ -1561,13 +1935,25 @@ const styles = StyleSheet.create({
     borderColor: '#A78BFA', // 페르소나: 퍼플
   },
   avatarEmoji: {
-    fontSize: moderateScale(28),
+    fontSize: moderateScale(19),
+  },
+  // ⭐ Android 전용: Video/Image를 감싸는 회전 컨테이너
+  androidMediaContainer: {
+    width: '100%',
+    height: '100%',
+    transform: [{ rotate: '90deg' }],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarMedia: {
     width: '100%',
     height: '100%',
     borderRadius: scale(28), // 원형 마스크
     overflow: 'hidden',
+    // ⭐ Android에서 90도 회전 후 비율 유지
+    ...(Platform.OS === 'android' && {
+      aspectRatio: 1, // 정사각형 유지
+    }),
   },
   hpBarContainer: {
     width: scale(56),
@@ -1629,7 +2015,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: scale(10), // ⭐ 간격 최소화 (실제 디바이스 기준 Left)
+    bottom: scale(15), // ⭐ 간격 최소화 (실제 디바이스 기준 Left)
     flexDirection: 'row', // ⭐ 가로 배치
     justifyContent: 'center',
     alignItems: 'center',
@@ -1677,6 +2063,8 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 5 },
     }),
+    marginLeft: scale(-105),
+    
   },
   moveButton: {
     padding: scale(6),
@@ -1750,6 +2138,11 @@ const styles = StyleSheet.create({
       android: { elevation: 15 },
     }),
   },
+  gameStartTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: 'bold',
+    marginBottom: verticalScale(8),
+  },
   gameOverTitle: {
     fontSize: moderateScale(32),
     fontWeight: 'bold',
@@ -1798,6 +2191,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFF',
   },
+  gameStartButtons: {
+    marginTop: verticalScale(20),
+    flexDirection: 'row',
+    gap: scale(15),
+    width: '100%',
+  },
   gameOverButtons: {
     flexDirection: 'row',
     gap: scale(15),
@@ -1829,6 +2228,30 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  // 🎮 NEW: 게임 시작 모달 - 페르소나 이미지
+  startModalImageContainer: {
+    width: scale(130),
+    height: scale(130),
+    borderRadius: scale(75),
+    overflow: 'hidden',
+    borderWidth: 4,
+    borderColor: '#A78BFA', // 페르소나 퍼플
+    shadowColor: '#A78BFA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    ...Platform.select({
+      android: { elevation: 8 },
+    }),
+  },
+  startModalImage: {
+    width: '100%',
+    height: '100%',
+  },
+  // 🎮 NEW: 취소 버튼 (시작 모달용)
+  closeGameButton: {
+    backgroundColor: '#888', // 그레이
   },
 });
 

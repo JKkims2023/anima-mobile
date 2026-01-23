@@ -235,6 +235,9 @@ export const MUSIC_ENDPOINTS = {
  */
 export const GAME_ENDPOINTS = {
   FORTRESS_STRATEGY: API_BASE_URL + '/api/game/fortress-strategy', // 🏰 Fortress game AI strategy
+  CHECK_LIMIT: API_BASE_URL + '/api/game/check-limit', // 🎮 Check daily game limit
+  SAVE_RESULT: API_BASE_URL + '/api/game/save-result', // 💾 Save game result
+  STATS: API_BASE_URL + '/api/game/stats', // 📊 Get game statistics
 };
 
 /**
