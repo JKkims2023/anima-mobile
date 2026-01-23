@@ -520,64 +520,8 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
     
     console.log('🤖 [AI] Calculating strategy...');
     
-    // ⭐ AI 이동 결정 (50% 확률)
-    const shouldMove = Math.random() < 0.5;
-    
-    if (shouldMove) {
-      const distance = Math.abs(userTank.x - aiTank.x);
-      const MAX_MOVE_RANGE = 80;
-      const MOVE_DISTANCE = 20; // AI는 한 번에 더 멀리 이동
-      
-      // 전략: 거리가 너무 멀거나 가까우면 조정
-      let moveDirection = null;
-      
-      if (distance < 350) {
-        // 너무 가까우면 멀어지기 (좌측으로)
-        moveDirection = 'left';
-      } else if (distance > 650) {
-        // 너무 멀면 가까워지기 (우측으로)
-        moveDirection = 'right';
-      } else {
-        // 적절한 거리면 랜덤 이동 (25% 확률)
-        if (Math.random() < 0.25) {
-          moveDirection = Math.random() < 0.5 ? 'left' : 'right';
-        }
-      }
-      
-      if (moveDirection) {
-        const deltaX = moveDirection === 'left' ? -MOVE_DISTANCE : MOVE_DISTANCE;
-        const newX = aiTank.x + deltaX;
-        const distanceFromInitial = Math.abs(newX - aiTank.initialX);
-        
-        // 범위 체크
-        if (
-          distanceFromInitial <= MAX_MOVE_RANGE &&
-          newX >= scale(30) &&
-          newX <= gameWidth - scale(30)
-        ) {
-          const newY = getTerrainY(newX, terrain.points) - 10;
-          
-          // ⭐ 새로운 탱크 객체 생성
-          const newAiTank = {
-            ...aiTank,
-            x: newX,
-            y: newY,
-          };
-          
-          setAiTank(newAiTank);
-          
-          console.log(`🤖 [Move] AI moved ${moveDirection}: ${aiTank.x.toFixed(1)} → ${newX.toFixed(1)}`);
-          
-          // 이동 후 0.8초 대기 → 새 위치로 발사
-          setTimeout(() => {
-            proceedToAIFire(newAiTank);
-          }, 800);
-          return;
-        }
-      }
-    }
-    
-    // 이동하지 않으면 바로 발사
+    // 🎯 LLM이 이동 여부와 전략을 함께 결정하도록 변경
+    // (기존 rule-based 이동 로직 제거)
     proceedToAIFire(aiTank);
     
     async function proceedToAIFire(currentAiTank) {
@@ -700,6 +644,9 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
               power: response.strategy.power,
             };
             
+            // 🚶 NEW: 이동 정보 처리
+            const moveDecision = response.move || { should_move: false, direction: 'stay', distance: 0 };
+            
             // 🎯 NEW: 세 가지 멘트 저장
             if (response.taunts) {
               setTauntMessages(response.taunts);
@@ -710,12 +657,51 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
                 tauntOpacity.value = withTiming(1, { duration: 300 });
               }
               console.log(`🤖 [LLM] Strategy: angle=${aiMove.angle}°, power=${aiMove.power}%`);
+              console.log(`🤖 [LLM] Move:`, moveDecision);
               console.log(`🤖 [LLM] Taunts:`, response.taunts);
             } else if (response.taunt_message) {
               // Fallback: 기존 단일 멘트 (하위 호환)
               setCurrentTaunt(response.taunt_message);
               tauntOpacity.value = withTiming(1, { duration: 300 });
               console.log(`🤖 [LLM] Taunt: "${response.taunt_message}"`);
+            }
+            
+            // 🚶 이동 실행 (LLM이 결정한 경우)
+            if (moveDecision.should_move && moveDecision.direction !== 'stay') {
+              const MAX_MOVE_RANGE = 80;
+              const moveDistance = Math.min(Math.max(moveDecision.distance || 15, 5), 60); // 5-60px 제한
+              const deltaX = moveDecision.direction === 'left' ? -moveDistance : moveDistance;
+              const newX = currentAiTank.x + deltaX;
+              const distanceFromInitial = Math.abs(newX - currentAiTank.initialX);
+              
+              // 범위 체크
+              if (
+                distanceFromInitial <= MAX_MOVE_RANGE &&
+                newX >= scale(30) &&
+                newX <= gameWidth - scale(30)
+              ) {
+                const newY = getTerrainY(newX, terrain.points) - 10;
+                
+                // ⭐ 새로운 탱크 객체 생성
+                const movedAiTank = {
+                  ...currentAiTank,
+                  x: newX,
+                  y: newY,
+                };
+                
+                setAiTank(movedAiTank);
+                HapticService.light();
+                
+                console.log(`🤖 [Move] LLM decided to move ${moveDecision.direction}: ${currentAiTank.x.toFixed(1)} → ${newX.toFixed(1)} (${moveDistance}px)`);
+                
+                // 🎯 이동 후 0.5초 대기 → 발사
+                setTimeout(() => {
+                  fireProjectile('ai', aiMove.angle, aiMove.power, movedAiTank);
+                }, 500);
+                return; // ⚠️ 여기서 종료 (이동 후 발사)
+              } else {
+                console.warn(`⚠️ [Move] LLM move blocked: out of range (${distanceFromInitial.toFixed(0)}px from initial)`);
+              }
             }
           } else {
             throw new Error('LLM response invalid');
