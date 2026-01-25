@@ -872,24 +872,6 @@ const TarotGameView = ({
       
       console.log('💾 [Tarot] Reading saved');
       
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // 🎁 Generate Tarot Gift (Background - Non-blocking)
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      try {
-        console.log('🎁 [Tarot] Generating tarot gift...');
-        
-        await gameApi.generateTarotGift({
-          user_key: user?.user_key,
-          interpretation: response.interpretation,
-          conversation_summary: conversationSummary,
-        });
-        
-        console.log('✅ [Tarot] Tarot gift generated successfully!');
-      } catch (giftError) {
-        // ⚠️ Gift generation failed, but don't block main flow
-        console.warn('⚠️ [Tarot] Gift generation failed (non-critical):', giftError.message);
-      }
-      
     } catch (error) {
       console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.error('❌ [Tarot] generateInterpretation error:', error);
@@ -1056,6 +1038,28 @@ const TarotGameView = ({
       }]);
       HapticService.medium();
     }, currentDelay));
+    currentDelay += 1000;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // 6. 결론 (judgment.short_answer) 🆕
+    // ═══════════════════════════════════════════════════════════════════
+    if (interpretation.judgment && interpretation.judgment.short_answer) {
+      // 6-1) Show typing
+      delays.push(setTimeout(() => {
+        setIsShowingTyping(true);
+      }, currentDelay));
+      currentDelay += 2000; // ✅ 2초 대기
+      
+      // 6-2) Show message
+      delays.push(setTimeout(() => {
+        setIsShowingTyping(false);
+        setInterpretationMessages(prev => [...prev, {
+          type: 'judgment',
+          content: `✨ 결론\n\n${interpretation.judgment.short_answer}`,
+        }]);
+        HapticService.success(); // ✅ 마지막 메시지는 success 햅틱
+      }, currentDelay));
+    }
     
     // Cleanup
     return () => {
@@ -1111,6 +1115,30 @@ const TarotGameView = ({
     
     // Stop monologue
     stopMonologue();
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🎁 Generate Tarot Gift (if interpretation exists)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (interpretation) {
+      try {
+        console.log('🎁 [Tarot] User closing - Generating tarot gift...');
+        
+        // ⚠️ Don't await - let it run in background
+        gameApi.generateTarotGift({
+          user_key: user?.user_key,
+          interpretation: interpretation,
+          conversation_summary: conversationSummary,
+        }).then(() => {
+          console.log('✅ [Tarot] Tarot gift generated successfully (background)!');
+        }).catch((giftError) => {
+          console.warn('⚠️ [Tarot] Gift generation failed (non-critical):', giftError.message);
+        });
+        
+      } catch (giftError) {
+        // ⚠️ Don't block close on gift generation error
+        console.warn('⚠️ [Tarot] Gift generation error (non-critical):', giftError.message);
+      }
+    }
     
     // Reset state
     setGamePhase('monologue');
