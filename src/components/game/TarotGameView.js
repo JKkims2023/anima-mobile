@@ -64,6 +64,11 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { COLORS } from '../../styles/commonstyles';
 import gameApi from '../../services/api/gameApi';
 import { useTranslation } from 'react-i18next';
+import { useAnima } from '../../contexts/AnimaContext'; // 💰 For chat limit alerts
+import useChatLimit from '../../hooks/useChatLimit'; // 💰 Chat limit hook
+import FloatingChatLimitButton from '../chat/FloatingChatLimitButton'; // 💰 Floating chat limit button
+import ChatLimitSheet from '../chat/ChatLimitSheet'; // 💰 Limit reached sheet
+import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 💰 Tier upgrade sheet
 
 // 🎴 Data
 import TAROT_CARDS from '../../data/tarotCards.json';
@@ -202,6 +207,28 @@ const TarotGameView = ({
   const monologueTimerRef = useRef(null);
   const conversationStartTimeRef = useRef(null);
   const { t } = useTranslation();
+  const { showAlert } = useAnima(); // 💰 For chat limit alerts
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💰 Chat Limit (useChatLimit Hook - ManagerAI와 100% 동일!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const {
+    serviceConfig,
+    loadingServiceConfig,
+    showLimitSheet,
+    setShowLimitSheet,
+    limitReachedData,
+    checkLimit,
+    incrementChatCount,
+    showLimitReachedSheet,
+  } = useChatLimit(visible, user, showAlert);
+  
+  // 💰 FloatingChatLimitButton Tooltip State (Back button 우선순위!)
+  const [isLimitTooltipOpen, setIsLimitTooltipOpen] = useState(false);
+  const limitTooltipRef = useRef(null);
+  
+  // 💰 Tier Upgrade Sheet State
+  const [showTierUpgrade, setShowTierUpgrade] = useState(false);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase State
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -526,6 +553,27 @@ const TarotGameView = ({
       role: 'user',
       content: message,
     };
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 💰 CRITICAL: Check chat limit BEFORE sending (Phase 1 & 2만!)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (gamePhase === 'monologue' || gamePhase === 'conversation') {
+      const limitCheck = checkLimit('tarot-user-message');
+      
+      if (!limitCheck.allowed) {
+        if (limitCheck.reason === 'loading') {
+          // Already showed alert in checkLimit
+          return;
+        } else if (limitCheck.reason === 'limit_reached') {
+          // Show limit sheet
+          showLimitReachedSheet(limitCheck.limitData);
+          return; // ⚡ STOP! Don't send to server!
+        }
+      }
+      console.log('✅ [Tarot] Chat limit check passed');
+    }
+    
+    // Optimistic UI update
     setConversationHistory(prev => [...prev, userMessage]);
     setConversationTurns(prev => prev + 1);
     
@@ -538,7 +586,7 @@ const TarotGameView = ({
     }, 100);
     
     try {
-      // Call API
+      // Call API (서버 측에서도 차감!)
       const response = await gameApi.sendTarotChat({
         user_key: user?.user_key,
         persona_key: persona?.persona_key || '573db390-a505-4c9e-809f-cc511c235cbb', // SAGE
@@ -555,6 +603,14 @@ const TarotGameView = ({
         content: response.sage_response.replace(/\{\{TAROT_READY\}\}/g, '').trim(),
       };
       setConversationHistory(prev => [...prev, sageMessage]);
+      
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 💰 CRITICAL: Increment chat count after successful response (Phase 1 & 2만!)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      if (gamePhase === 'monologue' || gamePhase === 'conversation') {
+        incrementChatCount();
+        console.log('💰 [Tarot] Chat count incremented');
+      }
       
       // Check if ready
       if (response.is_ready) {
@@ -995,7 +1051,27 @@ const TarotGameView = ({
   // Handle Close
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleClose = useCallback(() => {
-    // 🛡️ CRITICAL: Prevent closing during interpretation generation
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🎯 PRIORITY ORDER (Top to Bottom) - ManagerAI와 동일!
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
+    if (isLimitTooltipOpen) {
+      if (limitTooltipRef.current?.closeTooltip) {
+        limitTooltipRef.current.closeTooltip();
+      }
+      HapticService.light();
+      return; // ⭐ Event handled!
+    }
+    
+    // 🎖️ PRIORITY 1: Tier Upgrade Sheet
+    if (showTierUpgrade) {
+      setShowTierUpgrade(false);
+      HapticService.light();
+      return; // ⭐ Event handled!
+    }
+    
+    // 🛡️ PRIORITY 2: Prevent closing during interpretation generation
     if (isLoadingInterpretation) {
       console.log('⚠️ [Tarot] Cannot close during interpretation!');
       HapticService.warning();
@@ -1020,7 +1096,7 @@ const TarotGameView = ({
     setInterpretation(null);
     
     onClose();
-  }, [onClose, stopMonologue, isLoadingInterpretation]);
+  }, [onClose, stopMonologue, isLoadingInterpretation, isLimitTooltipOpen, showTierUpgrade]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Background
@@ -1082,6 +1158,7 @@ const TarotGameView = ({
   // Render
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   return (
+    <>
     <Modal
       visible={visible}
       animationType="none"
@@ -1147,13 +1224,34 @@ const TarotGameView = ({
                 </Animated.View>
               </View>
               
-              {/* 🎨 Help Button (400ms) */}
+              {/* 🎨 Help Button (400ms) - Removed for FloatingChatLimitButton */}
+              {/* 
               <Animated.View style={helpButtonAnimatedStyle}>
                 <TouchableOpacity style={styles.helpButton} onPress={() => HapticService.light()}>
                   <Icon name="help-circle-outline" size={moderateScale(28)} color="#FFF" />
                 </TouchableOpacity>
               </Animated.View>
+              */}
             </View>
+            
+            {/* 💰 FloatingChatLimitButton (ManagerAI와 100% 동일!) */}
+            {serviceConfig && (
+              <FloatingChatLimitButton
+                currentCount={serviceConfig.dailyChatCount || 0}
+                dailyLimit={serviceConfig.dailyChatLimit || 0}
+                tier={user?.user_level || 'free'}
+                isOnboarding={serviceConfig.isOnboarding || false}
+                onUpgradePress={() => {
+                  HapticService.light();
+                  setShowTierUpgrade(true);
+                }}
+                onBuyPointPress={() => {
+                  console.log('💰 [Tarot] Buy point button pressed');
+                }}
+                onTooltipVisibilityChange={setIsLimitTooltipOpen}
+                tooltipVisibleRef={limitTooltipRef}
+              />
+            )}
             
             {/* Card Area (조건부 표시) */}
             {cardAreaVisible && (
@@ -1589,6 +1687,41 @@ const TarotGameView = ({
         </Animated.View>
       )}
     </Modal>
+    
+    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        💰 Chat Limit Sheet (ManagerAI와 100% 동일!)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+    {limitReachedData && (
+      <ChatLimitSheet
+        isOpen={showLimitSheet}
+        onClose={() => setShowLimitSheet(false)}
+        tier={limitReachedData.tier}
+        limit={limitReachedData.limit}
+        resetTime={limitReachedData.resetTime}
+        canUpgrade={limitReachedData.tier !== 'ultimate'}
+        onUpgrade={() => {
+          setShowLimitSheet(false);
+          setShowTierUpgrade(true);
+        }}
+        isOnboarding={limitReachedData.isOnboarding}
+      />
+    )}
+    
+    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        💰 Tier Upgrade Sheet (ManagerAI와 100% 동일!)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+    {user && (
+      <TierUpgradeSheet
+        isOpen={showTierUpgrade}
+        onClose={() => setShowTierUpgrade(false)}
+        currentTier={user.user_level || 'basic'}
+        userKey={user.user_key}
+        onUpgradeSuccess={(newTier) => {
+          console.log('✅ [Tarot] Tier upgraded to:', newTier);
+        }}
+      />
+    )}
+  </>
   );
 };
 
