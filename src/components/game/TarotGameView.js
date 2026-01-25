@@ -229,6 +229,16 @@ const TarotGameView = ({
   
   // 💰 Tier Upgrade Sheet State
   const [showTierUpgrade, setShowTierUpgrade] = useState(false);
+  
+  // 🔥 [HOOK LOG] useChatLimit state changes
+  useEffect(() => {
+    console.log(`🎣 [Tarot HOOK] useChatLimit changed:`, {
+      hasServiceConfig: !!serviceConfig,
+      loadingServiceConfig,
+      showLimitSheet,
+      hasLimitData: !!limitReachedData
+    });
+  }, [serviceConfig, loadingServiceConfig, showLimitSheet, limitReachedData]);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase State
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
