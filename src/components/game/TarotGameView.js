@@ -37,15 +37,20 @@ import {
   ScrollView,
   FlatList,
   Keyboard,
+  BackHandler, // ✅ For loading overlay back button blocking
   Animated as RNAnimated,
   Image, // ✅ For SAGE avatar
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur'; // ✅ For card detail overlay blur
+import LinearGradient from 'react-native-linear-gradient'; // ✅ For loading overlay
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withDelay,
+  withRepeat, // ⭐ For loading animation
+  withSequence, // ⭐ For loading animation
   Easing,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
@@ -230,7 +235,8 @@ const TarotGameView = ({
   // Phase 5: Interpretation
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const [interpretation, setInterpretation] = useState(null);
-  const [isLoadingInterpretation, setIsLoadingInterpretation] = useState(false);
+  const [isLoadingInterpretation, setIsLoadingInterpretation] = useState(false); // 🔮 API 호출 중 (Loading Overlay)
+  const [isShowingTyping, setIsShowingTyping] = useState(false); // 🔮 순차 해석 중 ... 효과
   const [interpretationMessages, setInterpretationMessages] = useState([]); // 🔮 순차 표시용
   const [activeCardIndex, setActiveCardIndex] = useState(-1); // 🔮 현재 활성 카드 (glow 효과)
   const [selectedCardForDetail, setSelectedCardForDetail] = useState(null); // 🔮 Overlay용 선택된 카드
@@ -658,9 +664,12 @@ const TarotGameView = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase 4: Card Reveal (Sequential Flip)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const revealStartedRef = useRef(false); // ✅ 중복 실행 방지
+  
   useEffect(() => {
-    if (gamePhase === 'reveal' && selectedCards.length === 3) {
+    if (gamePhase === 'reveal' && selectedCards.length === 3 && !revealStartedRef.current) {
       console.log('🔮 [Tarot] Starting card reveal...');
+      revealStartedRef.current = true; // ✅ Mark as started
       
       const flipCard = (index) => {
         setTimeout(() => {
@@ -682,16 +691,93 @@ const TarotGameView = ({
       flipCard(1);
       flipCard(2);
     }
-  }, [gamePhase, selectedCards]);
+    
+    // Reset ref when leaving reveal phase
+    if (gamePhase !== 'reveal') {
+      revealStartedRef.current = false;
+    }
+  }, [gamePhase, selectedCards, generateInterpretation]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase 5: Interpretation
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  // 🔮 Loading Overlay Animation
+  const loadingOverlayOpacity = useSharedValue(0);
+  const loadingCircleScale = useSharedValue(0.8);
+  const loadingCircleOpacity = useSharedValue(0.6);
+  const loadingGlowOpacity = useSharedValue(0.3);
+  const loadingRotation = useSharedValue(0); // ⭐ NEW: 회전 애니메이션
+  
+  // 🎨 Loading Animation Effect (분리하여 항상 작동하도록)
+  useEffect(() => {
+    if (isLoadingInterpretation) {
+      console.log('🎨 [Tarot] Starting loading animation...');
+      
+      // Fade in overlay
+      loadingOverlayOpacity.value = withTiming(1, { duration: 300 });
+      
+      // Breathing circle
+      loadingCircleScale.value = withRepeat(
+        withSequence(
+          withTiming(1.2, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+      
+      loadingCircleOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.8, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+      
+      // Glow pulse
+      loadingGlowOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.3, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+      
+      // ⭐ Rotation (slow continuous spin)
+      loadingRotation.value = withRepeat(
+        withTiming(360, { duration: 8000, easing: Easing.linear }),
+        -1,
+        false
+      );
+    } else {
+      console.log('🎨 [Tarot] Stopping loading animation...');
+      
+      // Fade out overlay
+      loadingOverlayOpacity.value = withTiming(0, { duration: 300 });
+      
+      // Reset values
+      loadingCircleScale.value = 0.8;
+      loadingCircleOpacity.value = 0.6;
+      loadingGlowOpacity.value = 0.3;
+      loadingRotation.value = 0;
+    }
+  }, [isLoadingInterpretation]);
+  
   const generateInterpretation = useCallback(async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔮 [Tarot] Generating interpretation...');
+    console.log('   user_key:', user?.user_key);
+    console.log('   persona_key:', persona?.persona_key);
+    console.log('   selected_cards:', selectedCards.length);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     setIsLoadingInterpretation(true);
     
     try {
+      console.log('📡 [Tarot] Calling API...');
       const response = await gameApi.interpretTarotCards({
         user_key: user?.user_key,
         persona_key: persona?.persona_key || '573db390-a505-4c9e-809f-cc511c235cbb',
@@ -700,9 +786,11 @@ const TarotGameView = ({
         user_question: conversationHistory.find(m => m.role === 'user')?.content || '',
       });
       
+      console.log('✅ [Tarot] API Response received');
+      
       console.log('✅ [Tarot] Interpretation received');
       setInterpretation(response.interpretation);
-      setIsLoadingInterpretation(false);
+      setIsLoadingInterpretation(false); // ⭐ Animation stops automatically via useEffect
       
       // Save reading
       const duration = Math.floor((Date.now() - conversationStartTimeRef.current) / 1000);
@@ -719,8 +807,12 @@ const TarotGameView = ({
       console.log('💾 [Tarot] Reading saved');
       
     } catch (error) {
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.error('❌ [Tarot] generateInterpretation error:', error);
-      setIsLoadingInterpretation(false);
+      console.error('   error.message:', error.message);
+      console.error('   error.response:', error.response?.data);
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      setIsLoadingInterpretation(false); // ⭐ Animation stops automatically via useEffect
       
       // Fallback
       setInterpretation({
@@ -736,6 +828,27 @@ const TarotGameView = ({
     }
   }, [user, persona, selectedCards, conversationSummary, conversationHistory, conversationTurns]);
   
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🛡️ Loading Overlay - Block Back Button (Android)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (!isLoadingInterpretation) return;
+    
+    console.log('🛡️ [Tarot] Loading overlay - Back button BLOCKED');
+    
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      console.log('⚠️ [Tarot] User tried to exit during interpretation!');
+      HapticService.warning();
+      // ⭐ Return true to prevent back navigation
+      return true;
+    });
+    
+    return () => {
+      console.log('✅ [Tarot] Loading overlay - Back button UNBLOCKED');
+      backHandler.remove();
+    };
+  }, [isLoadingInterpretation]);
+  
   // 🔮 순차적 해석 표시 (2초 ... 효과 포함)
   useEffect(() => {
     if (!interpretation || gamePhase !== 'interpretation') return;
@@ -743,7 +856,7 @@ const TarotGameView = ({
     console.log('🔮 [Tarot] Starting sequential interpretation display...');
     setInterpretationMessages([]);
     setActiveCardIndex(-1);
-    setIsLoadingInterpretation(false); // ✅ 초기화
+    setIsShowingTyping(false); // ✅ 초기화
     
     const delays = [];
     let currentDelay = 500; // 첫 메시지 딜레이
@@ -751,15 +864,15 @@ const TarotGameView = ({
     // ═══════════════════════════════════════════════════════════════════
     // 1. 첫 번째 카드 해석
     // ═══════════════════════════════════════════════════════════════════
-    // 1-1) Show loading (... 효과)
+    // 1-1) Show typing (... 효과)
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(true);
+      setIsShowingTyping(true);
     }, currentDelay));
     currentDelay += 2000; // ✅ 2초 대기
     
     // 1-2) Show message
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(false);
+      setIsShowingTyping(false);
       if (interpretation.card_meanings[0]) {
         setActiveCardIndex(0);
         setInterpretationMessages(prev => [...prev, {
@@ -775,15 +888,15 @@ const TarotGameView = ({
     // ═══════════════════════════════════════════════════════════════════
     // 2. 두 번째 카드 해석
     // ═══════════════════════════════════════════════════════════════════
-    // 2-1) Show loading
+    // 2-1) Show typing
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(true);
+      setIsShowingTyping(true);
     }, currentDelay));
     currentDelay += 2000; // ✅ 2초 대기
     
     // 2-2) Show message
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(false);
+      setIsShowingTyping(false);
       if (interpretation.card_meanings[1]) {
         setActiveCardIndex(1);
         setInterpretationMessages(prev => [...prev, {
@@ -799,15 +912,15 @@ const TarotGameView = ({
     // ═══════════════════════════════════════════════════════════════════
     // 3. 세 번째 카드 해석
     // ═══════════════════════════════════════════════════════════════════
-    // 3-1) Show loading
+    // 3-1) Show typing
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(true);
+      setIsShowingTyping(true);
     }, currentDelay));
     currentDelay += 2000; // ✅ 2초 대기
     
     // 3-2) Show message
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(false);
+      setIsShowingTyping(false);
       if (interpretation.card_meanings[2]) {
         setActiveCardIndex(2);
         setInterpretationMessages(prev => [...prev, {
@@ -823,36 +936,36 @@ const TarotGameView = ({
     // ═══════════════════════════════════════════════════════════════════
     // 4. 전체 해석
     // ═══════════════════════════════════════════════════════════════════
-    // 4-1) Show loading
+    // 4-1) Show typing
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(true);
+      setIsShowingTyping(true);
     }, currentDelay));
     currentDelay += 2000; // ✅ 2초 대기
     
     // 4-2) Show message
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(false);
+      setIsShowingTyping(false);
       setActiveCardIndex(-1);
       setInterpretationMessages(prev => [...prev, {
         type: 'overall',
         content: `🔮 전체 해석\n\n${interpretation.overall}`,
       }]);
-      HapticService.light();
+      HapticService.medium();
     }, currentDelay));
     currentDelay += 1000;
     
     // ═══════════════════════════════════════════════════════════════════
     // 5. 페르소나 조언
     // ═══════════════════════════════════════════════════════════════════
-    // 5-1) Show loading
+    // 5-1) Show typing
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(true);
+      setIsShowingTyping(true);
     }, currentDelay));
     currentDelay += 2000; // ✅ 2초 대기
     
     // 5-2) Show message
     delays.push(setTimeout(() => {
-      setIsLoadingInterpretation(false);
+      setIsShowingTyping(false);
       setInterpretationMessages(prev => [...prev, {
         type: 'advice',
         content: `💙 ${persona?.persona_name || 'SAGE'}의 조언\n\n${interpretation.advice}`,
@@ -882,6 +995,13 @@ const TarotGameView = ({
   // Handle Close
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleClose = useCallback(() => {
+    // 🛡️ CRITICAL: Prevent closing during interpretation generation
+    if (isLoadingInterpretation) {
+      console.log('⚠️ [Tarot] Cannot close during interpretation!');
+      HapticService.warning();
+      return; // ⭐ Block close!
+    }
+    
     console.log('🔮 [Tarot] Closing...');
     HapticService.light();
     
@@ -900,7 +1020,7 @@ const TarotGameView = ({
     setInterpretation(null);
     
     onClose();
-  }, [onClose, stopMonologue]);
+  }, [onClose, stopMonologue, isLoadingInterpretation]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Background
@@ -941,6 +1061,21 @@ const TarotGameView = ({
   const inputBarAnimatedStyle = useAnimatedStyle(() => ({
     opacity: inputBarOpacity.value,
     transform: [{ translateY: inputBarTranslateY.value }],
+  }));
+  
+  // 🔮 Loading Overlay Animated Styles
+  const loadingOverlayAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: loadingOverlayOpacity.value,
+  }));
+  
+  const loadingCircleAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: loadingCircleScale.value }],
+    opacity: loadingCircleOpacity.value,
+  }));
+  
+  const loadingGlowAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: loadingGlowOpacity.value,
+    transform: [{ rotate: `${loadingRotation.value}deg` }], // ⭐ Slow rotation
   }));
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1077,33 +1212,15 @@ const TarotGameView = ({
                   </View>
                 )}
                 
-                {/* Phase 4: Reveal */}
-                {gamePhase === 'reveal' && (
-                  <View style={styles.revealContainer}>
-                    <View style={styles.revealCardsContainer}>
-                      {selectedCards.map((card, index) => (
-                        <View key={card.id} style={styles.revealCardWrapper}>
-                          <TarotCard
-                            card={card}
-                            isFront={revealedCards.includes(card.id)}
-                            isSelected={false}
-                            disabled={true}
-                          />
-                          <CustomText style={styles.cardPositionLabel}>
-                            {index === 0 ? '과거' : index === 1 ? '현재' : '미래'}
-                          </CustomText>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-                
-                {/* Phase 5: Interpretation (Small cards with glow effect + clickable) */}
-                {gamePhase === 'interpretation' && (
+                {/* Phase 4 & 5: Reveal + Interpretation (통합하여 깜빡임 방지) */}
+                {(gamePhase === 'reveal' || gamePhase === 'interpretation') && (
                   <View style={styles.interpretationCardsContainer}>
                     {selectedCards.map((card, index) => {
                       const isActive = activeCardIndex === index;
                       const cardMeaning = interpretation?.card_meanings?.[index];
+                      const isRevealed = revealedCards.includes(card.id);
+                      const isClickable = gamePhase === 'interpretation';
+                      
                       return (
                         <TouchableOpacity
                           key={card.id} 
@@ -1112,18 +1229,21 @@ const TarotGameView = ({
                             isActive && styles.interpretationCardActive, // 🌟 Glow effect
                           ]}
                           onPress={() => {
-                            HapticService.light();
-                            setSelectedCardForDetail({ card, meaning: cardMeaning, position: index });
+                            if (isClickable) {
+                              HapticService.light();
+                              setSelectedCardForDetail({ card, meaning: cardMeaning, position: index });
+                            }
                           }}
-                          activeOpacity={0.8}
+                          activeOpacity={isClickable ? 0.8 : 1}
+                          disabled={!isClickable}
                         >
                           <TarotCard
                             card={card}
-                            isFront={true}
+                            isFront={isRevealed}
                             isSelected={false}
                             disabled={true}
                           />
-                          <CustomText style={[
+                          <CustomText bold style={[
                             styles.cardPositionLabelSmall,
                             isActive && styles.cardPositionLabelActive, // 🌟 Active label
                           ]}>
@@ -1186,26 +1306,35 @@ const TarotGameView = ({
                               {msg.content}
                             </CustomText>
                           </View>
+                          
                         );
                       }
                       
-                      // SAGE messages: Fade-in + Scale animation
+                      // SAGE messages: Fade-in + Scale animation + Avatar
                       return (
-                        <RNAnimated.View
-                          key={index}
-                          style={[
-                            styles.messageBubble,
-                            styles.sageMessageBubble,
-                            animation && {
-                              opacity: animation.opacity,
-                              transform: [{ scale: animation.scale }],
-                            },
-                          ]}
-                        >
-                          <CustomText style={styles.messageText}>
-                            {msg.content}
-                          </CustomText>
-                        </RNAnimated.View>
+                        <View key={index} style={styles.messageRow}>
+                          {/* SAGE Avatar */}
+                          <Image
+                            source={{ uri: 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png' }}
+                            style={styles.sageAvatar}
+                          />
+                          
+                          {/* SAGE Message Bubble */}
+                          <RNAnimated.View
+                            style={[
+                              styles.messageBubble,
+                              styles.sageMessageBubble,
+                              animation && {
+                                opacity: animation.opacity,
+                                transform: [{ scale: animation.scale }],
+                              },
+                            ]}
+                          >
+                            <CustomText style={styles.messageText}>
+                              {msg.content}
+                            </CustomText>
+                          </RNAnimated.View>
+                        </View>
                       );
                     })}
                     
@@ -1257,8 +1386,8 @@ const TarotGameView = ({
                       </View>
                     ))}
                     
-                    {/* 🎨 Typing Indicator (최하단 - 마지막 라인) */}
-                    {isLoadingInterpretation && (
+                    {/* 🎨 Typing Indicator (순차 해석 중 ... 효과) */}
+                    {isShowingTyping && (
                       <View style={styles.messageRow}>
                         {/* ✅ SAGE 아바타 */}
                         <Image
@@ -1306,69 +1435,158 @@ const TarotGameView = ({
         </KeyboardAvoidingView>
       </View>
       
-      {/* 🔮 Card Detail Overlay */}
+      {/* 🔮 Card Detail Overlay - iOS 호환 버전 */}
       {selectedCardForDetail && (
         <Modal
           visible={true}
           transparent={true}
           animationType="fade"
+          statusBarTranslucent={true}
           onRequestClose={() => setSelectedCardForDetail(null)}
         >
           <View style={styles.cardDetailOverlay}>
-            <TouchableOpacity 
-              style={styles.cardDetailBackdrop}
-              onPress={() => {
-                HapticService.light();
-                setSelectedCardForDetail(null);
-              }}
-              activeOpacity={1}
-            >
-              <View style={styles.cardDetailContainer}>
-                <View style={styles.cardDetailContent}>
-                  {/* Close Button */}
-                  <TouchableOpacity
-                    style={styles.cardDetailCloseButton}
-                    onPress={() => {
-                      HapticService.light();
-                      setSelectedCardForDetail(null);
-                    }}
-                  >
-                    <Icon name="close" size={moderateScale(24)} color="#FFF" />
-                  </TouchableOpacity>
-                  
-                  {/* Large Card */}
-                  <View style={styles.cardDetailCardContainer}>
-                    <TarotCard
-                      card={selectedCardForDetail.card}
-                      isFront={true}
-                      isSelected={false}
-                      disabled={true}
-                    />
-                  </View>
-                  
-                  {/* Card Info */}
-                  <View style={styles.cardDetailInfo}>
-                    <CustomText type="title" bold style={styles.cardDetailTitle}>
-                      {selectedCardForDetail.card.name_ko}
-                    </CustomText>
-                    <CustomText style={styles.cardDetailPosition}>
-                      {selectedCardForDetail.position === 0 ? '과거/원인' : 
-                       selectedCardForDetail.position === 1 ? '현재/상황' : '미래/결과'}
-                    </CustomText>
-                    
-                    {selectedCardForDetail.meaning && (
-                      <View style={styles.cardDetailMeaningContainer}>
-                        <CustomText style={styles.cardDetailMeaning}>
-                          {selectedCardForDetail.meaning.meaning}
-                        </CustomText>
-                      </View>
-                    )}
-                  </View>
+            {/* Blur Background (iOS만, Android는 반투명) */}
+            {Platform.OS === 'ios' ? (
+              <BlurView
+                style={StyleSheet.absoluteFill}
+                blurType="dark"
+                blurAmount={20}
+                reducedTransparencyFallbackColor="rgba(0,0,0,0.95)"
+              />
+            ) : (
+              <View style={styles.cardDetailAndroidBackground} />
+            )}
+            
+            {/* Content (Blur 위에 배치) */}
+            <View style={styles.cardDetailMainContainer}>
+              {/* Close Button */}
+              <TouchableOpacity
+                style={styles.cardDetailCloseBtn}
+                onPress={() => {
+                  HapticService.light();
+                  setSelectedCardForDetail(null);
+                }}
+              >
+                <Icon name="close-circle" size={moderateScale(32)} color="#FFF" />
+              </TouchableOpacity>
+
+              {/* Card Image */}
+              <View style={styles.cardDetailCardSection}>
+                <View style={styles.cardDetailCardBox}>
+                  <TarotCard
+                    card={selectedCardForDetail.card}
+                    isFront={true}
+                    isSelected={false}
+                    disabled={true}
+                  />
                 </View>
               </View>
-            </TouchableOpacity>
+
+              {/* Card Name */}
+              <View style={styles.cardDetailNameSection}>
+                <CustomText style={styles.cardDetailName}>
+                  {selectedCardForDetail.card.name_ko}
+                </CustomText>
+              </View>
+
+              {/* Card Meaning */}
+              <View style={styles.cardDetailMeaningSection}>
+                <CustomText style={styles.cardDetailSectionLabel}>📖 카드 의미</CustomText>
+                <CustomText style={styles.cardDetailMeaningText}>
+                  {selectedCardForDetail.card.upright_meaning}
+                </CustomText>
+              </View>
+
+              {/* Position */}
+              <View style={styles.cardDetailPositionSection}>
+                <CustomText style={styles.cardDetailSectionIcon}>🎴</CustomText>
+                <CustomText style={styles.cardDetailPositionText}>
+                  {selectedCardForDetail.position === 0 ? '과거/원인' : 
+                   selectedCardForDetail.position === 1 ? '현재/상황' : '미래/결과'}
+                </CustomText>
+              </View>
+
+              {/* SAGE Interpretation (Scrollable) */}
+              {selectedCardForDetail.meaning && (
+                <View style={styles.cardDetailInterpretationSection}>
+                  <CustomText style={styles.cardDetailSectionLabel}>🔮 SAGE의 해석</CustomText>
+                  <ScrollView 
+                    style={styles.cardDetailInterpretationScroll}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    <CustomText style={styles.cardDetailInterpretationText}>
+                      {selectedCardForDetail.meaning.meaning}
+                    </CustomText>
+                  </ScrollView>
+                </View>
+              )}
+            </View>
           </View>
         </Modal>
+      )}
+      
+      {/* 🔮 Loading Overlay (Interpretation 생성 중) */}
+      {isLoadingInterpretation && (
+        <Animated.View style={[styles.loadingOverlay, loadingOverlayAnimatedStyle]} pointerEvents="box-only">
+          {/* Center Content */}
+          <View style={styles.loadingCenterContent}>
+            {/* Glow Circle (Background) */}
+            <Animated.View style={[styles.loadingGlowCircle, loadingGlowAnimatedStyle]}>
+              <LinearGradient
+                colors={['rgba(96, 165, 250, 0.3)', 'rgba(147, 51, 234, 0.3)', 'rgba(236, 72, 153, 0.3)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.loadingGradientCircle}
+              />
+            </Animated.View>
+
+            {/* Breathing Circle */}
+            <Animated.View style={[styles.loadingBreathingCircle, loadingCircleAnimatedStyle]}>
+              <LinearGradient
+                colors={['rgba(96, 165, 250, 0.8)', 'rgba(147, 51, 234, 0.8)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.loadingGradientCircle}
+              />
+            </Animated.View>
+
+            {/* Center Icon */}
+            <View style={styles.loadingIconContainer}>
+              <CustomText style={styles.loadingIcon}>🔮</CustomText>
+            </View>
+            
+            {/* ⭐ Sparkles (작은 별 파티클) */}
+            <View style={styles.loadingSparklesContainer}>
+              {[...Array(8)].map((_, i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.loadingSpark,
+                    {
+                      opacity: loadingCircleOpacity, // 같은 opacity 애니메이션 사용
+                      transform: [
+                        { rotate: `${i * 45}deg` },
+                        { translateX: scale(80) },
+                      ],
+                    },
+                  ]}
+                >
+                  <CustomText style={styles.loadingSparkText}>✨</CustomText>
+                </Animated.View>
+              ))}
+            </View>
+          </View>
+
+          {/* Message */}
+          <View style={styles.loadingMessageContainer}>
+            <CustomText type="title" bold style={styles.loadingMainMessage}>
+              카드를 해석하고 있어요...
+            </CustomText>
+            <CustomText type="middle" style={styles.loadingSubMessage}>
+              잠시만 기다려주세요
+            </CustomText>
+          </View>
+        </Animated.View>
       )}
     </Modal>
   );
@@ -1576,7 +1794,7 @@ const styles = StyleSheet.create({
   
   cardPositionLabelSmall: {
     color: '#FFF',
-    fontSize: moderateScale(12),
+    fontSize: moderateScale(14),
     marginTop: verticalScale(5),
   },
   
@@ -1696,6 +1914,22 @@ const styles = StyleSheet.create({
     minWidth: scale(60), // ✅ 최소 너비 (작게)
   },
   
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: verticalScale(12),
+    paddingHorizontal: scale(12),
+  },
+  
+  sageAvatar: {
+    width: scale(46),
+    height: scale(46),
+    borderRadius: scale(24),
+    marginRight: scale(8),
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  
   messageBubble: {
     flex: 1, // ✅ 남은 공간 채우기
     maxWidth: '90%',
@@ -1717,8 +1951,8 @@ const styles = StyleSheet.create({
   
   messageText: {
     color: '#FFF',
-    fontSize: moderateScale(15),
-    lineHeight: platformLineHeight(moderateScale(16)), // ✅ Platform-aware lineHeight
+    fontSize: moderateScale(16),
+    lineHeight: platformLineHeight(moderateScale(18)), // ✅ Platform-aware lineHeight
   },
   
   // Interpretation
@@ -1785,85 +2019,253 @@ const styles = StyleSheet.create({
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🔮 Card Detail Overlay
+  // 🔮 Card Detail Overlay - 최종 개선 버전
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   cardDetailOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   
-  cardDetailBackdrop: {
+  // Android용 어두운 반투명 배경 (가독성 향상)
+  cardDetailAndroidBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)', // 거의 불투명 (가독성)
+  },
+  
+  cardDetailMainContainer: {
     flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 60 : (StatusBar.currentHeight || 0) + 20,
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(20),
   },
   
-  cardDetailContainer: {
-    width: '85%',
-    maxHeight: '80%',
-  },
-  
-  cardDetailContent: {
-    backgroundColor: 'rgba(123, 31, 162, 0.95)',
-    borderRadius: scale(20),
-    padding: scale(20),
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 215, 0, 0.5)',
-  },
-  
-  cardDetailCloseButton: {
+  // Close Button (우상단, 최소 여백)
+  cardDetailCloseBtn: {
     position: 'absolute',
-    top: scale(10),
-    right: scale(10),
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    top: Platform.OS === 'ios' ? 50 : (StatusBar.currentHeight || 0) + 10,
+    right: scale(16),
+    zIndex: 1000,
+    padding: scale(4),
+  },
+  
+  // Card Section
+  cardDetailCardSection: {
+    alignItems: 'center',
+    marginTop: verticalScale(42),
+    marginBottom: verticalScale(22),
+  },
+  
+  cardDetailCardBox: {
+    width: scale(150),
+    aspectRatio: 0.6,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  
+  // Card Name
+  cardDetailNameSection: {
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 더 어둡게 (가독성)
+    borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.5)',
+    marginBottom: verticalScale(8),
+  },
+  
+  cardDetailName: {
+    color: '#FFD700',
+    fontSize: Platform.OS === 'ios' ? moderateScale(17) : moderateScale(22),
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  
+  // Keywords (Row)
+  cardDetailKeywordsSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // 더 어둡게
+    borderRadius: scale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    marginBottom: verticalScale(8),
+  },
+  
+  cardDetailKeyword: {
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: moderateScale(14),
+    fontWeight: '500',
+  },
+  
+  // Position
+  cardDetailPositionSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // 더 어둡게
+    borderRadius: scale(10),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    marginBottom: verticalScale(8),
+  },
+  
+  cardDetailSectionIcon: {
+    fontSize: moderateScale(16),
+    marginRight: scale(8),
+  },
+  
+  cardDetailPositionText: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: moderateScale(15),
+    fontWeight: '500',
+  },
+  
+  // Card Meaning
+  cardDetailMeaningSection: {
+    padding: scale(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 더 어둡게
+    borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.4)',
+    marginBottom: verticalScale(8),
+  },
+  
+  cardDetailSectionLabel: {
+    color: '#FFD700',
+    fontSize: moderateScale(15),
+    fontWeight: '600',
+    marginBottom: verticalScale(8),
+  },
+  
+  cardDetailMeaningText: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: moderateScale(14),
+    lineHeight: platformLineHeight(22),
+  },
+  
+  // SAGE Interpretation (Scrollable)
+  cardDetailInterpretationSection: {
+    flex: 1,
+    padding: scale(16),
+    backgroundColor: 'rgba(138, 43, 226, 0.25)', // 더 불투명하게
+    borderRadius: scale(12),
+    borderWidth: 1.5,
+    borderColor: 'rgba(138, 43, 226, 0.6)', // 테두리도 더 진하게
+    maxHeight: verticalScale(200),
+  },
+  
+  cardDetailInterpretationScroll: {
+
+    flex:1,
+
+  },
+  
+  cardDetailInterpretationText: {
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: moderateScale(14),
+    lineHeight: platformLineHeight(24),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🔮 Loading Overlay (Interpretation 생성 중)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
+    zIndex: 9999,
+    elevation: 9999,
   },
   
-  cardDetailCardContainer: {
-    marginBottom: verticalScale(20),
-    transform: [{ scale: 1.2 }],
-  },
-  
-  cardDetailInfo: {
+  loadingCenterContent: {
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    width: scale(200),
+    height: scale(200),
   },
   
-  cardDetailTitle: {
-    color: '#FFD700',
-    fontSize: moderateScale(24),
+  loadingGlowCircle: {
+    position: 'absolute',
+    width: scale(180),
+    height: scale(180),
+    borderRadius: scale(90),
+    overflow: 'hidden',
+  },
+  
+  loadingBreathingCircle: {
+    position: 'absolute',
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
+    overflow: 'hidden',
+  },
+  
+  loadingGradientCircle: {
+    width: '100%',
+    height: '100%',
+  },
+  
+  loadingIconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: scale(100),
+    height: scale(100),
+  },
+  
+  loadingIcon: {
+    fontSize: scale(20),
+  },
+  
+  // ⭐ Sparkles Container
+  loadingSparklesContainer: {
+    position: 'absolute',
+    width: scale(200),
+    height: scale(200),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  loadingSpark: {
+    position: 'absolute',
+  },
+  
+  loadingSparkText: {
+    fontSize: scale(12),
+    opacity: 0.7,
+  },
+  
+  loadingMessageContainer: {
+    marginTop: verticalScale(40),
+    alignItems: 'center',
+    paddingHorizontal: scale(40),
+  },
+  
+  loadingMainMessage: {
+    fontSize: scale(20),
+    color: '#FFFFFF',
+    textAlign: 'center',
     marginBottom: verticalScale(8),
-    textAlign: 'center',
+    textShadowColor: 'rgba(96, 165, 250, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   
-  cardDetailPosition: {
-    color: '#FFF',
-    fontSize: moderateScale(16),
-    marginBottom: verticalScale(16),
-    opacity: 0.8,
-    textAlign: 'center',
-  },
-  
-  cardDetailMeaningContainer: {
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: scale(15),
-    padding: scale(15),
-  },
-  
-  cardDetailMeaning: {
-    color: '#FFF',
-    fontSize: moderateScale(15),
-    lineHeight: platformLineHeight(22),
+  loadingSubMessage: {
+    fontSize: scale(14),
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
 });

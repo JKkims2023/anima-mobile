@@ -58,37 +58,42 @@ const TarotInputBar = memo(({
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
   
-  // 🔮 Tarot Ready Animation (반짝이는 효과)
-  const tarotGlowAnim = useRef(new Animated.Value(0)).current;
+  // 🔮 Tarot Ready Animation (fade in/out)
+  const tarotFadeAnim = useRef(new Animated.Value(0)).current;
+  const [showTooltip, setShowTooltip] = useState(false);
   
   // 🎯 PERFORMANCE DEBUG: Render tracking
   if (__DEV__) {
     console.log('🔄 [ChatInputBar] Rendering (emotion:', currentEmotion, ')');
   }
   
-  // 🔮 Tarot Ready Glow Animation
+  // 🔮 Tarot Ready Fade Animation
   useEffect(() => {
     if (isTarotReady) {
-      // 반짝이는 무한 루프 애니메이션
+      // Show tooltip on first activation
+      setShowTooltip(true);
+      
+      // Fade in/out 무한 루프
       Animated.loop(
         Animated.sequence([
-          Animated.timing(tarotGlowAnim, {
+          Animated.timing(tarotFadeAnim, {
             toValue: 1,
-            duration: 800,
-            useNativeDriver: false,
+            duration: 1000,
+            useNativeDriver: true,
           }),
-          Animated.timing(tarotGlowAnim, {
-            toValue: 0,
-            duration: 800,
-            useNativeDriver: false,
+          Animated.timing(tarotFadeAnim, {
+            toValue: 0.3,
+            duration: 1000,
+            useNativeDriver: true,
           }),
         ])
       ).start();
     } else {
       // 리셋
-      tarotGlowAnim.setValue(0);
+      tarotFadeAnim.setValue(0);
+      setShowTooltip(false);
     }
-  }, [isTarotReady, tarotGlowAnim]);
+  }, [isTarotReady, tarotFadeAnim]);
   
 
   const handleSend = useCallback(() => {
@@ -229,11 +234,31 @@ const TarotInputBar = memo(({
 
   return (
     <View style={[styles.wrapper, { paddingBottom: insets.bottom }]}>
-      {/* 🎛️ REMOVED: Settings Menu (moved to parent ManagerAIOverlay!) */}
+      {/* 🔮 Tooltip (부모 영역에 표시) */}
+      {showTooltip && isTarotReady && (
+        <View style={styles.tooltipContainer}>
+          <TouchableOpacity
+            style={styles.tooltip}
+            onPress={() => {
+              HapticService.light();
+              setShowTooltip(false);
+              if (onTarotReadyPress) {
+                onTarotReadyPress();
+              }
+            }}
+            activeOpacity={0.9}
+          >
+            <CustomText style={styles.tooltipText}>
+              🔮 타로 카드 보기
+            </CustomText>
+            <View style={styles.tooltipArrow} />
+          </TouchableOpacity>
+        </View>
+      )}
       
       {/* Input Container */}
       <View style={[styles.container, { backgroundColor: 'rgba(255, 255, 255, 0.15)'}]}>
-        {/* 🔮 Tarot Button - Interactive with glow effect */}
+        {/* 🔮 Tarot Button - Fade in/out */}
         <TouchableOpacity
           style={[
             styles.emotionButton,
@@ -244,6 +269,7 @@ const TarotInputBar = memo(({
           onPress={() => {
             if (isTarotReady && onTarotReadyPress) {
               HapticService.medium();
+              setShowTooltip(false); // 클릭 시 툴팁 숨김
               onTarotReadyPress();
             }
           }}
@@ -252,31 +278,16 @@ const TarotInputBar = memo(({
         >
           <Animated.View
             style={{
-              opacity: isTarotReady
-                ? tarotGlowAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.6, 1],
-                  })
-                : 0.3,
-              transform: [
-                {
-                  scale: isTarotReady
-                    ? tarotGlowAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 1.15],
-                      })
-                    : 1,
-                },
-              ],
+              opacity: isTarotReady ? tarotFadeAnim : 0.3,
             }}
           >
             <CustomText
               style={{
-                fontSize: Platform.OS === 'ios' ? moderateScale(16) : moderateScale(20),
+                fontSize: moderateScale(24),
                 color: '#FFF',
               }}
             >
-              {isTarotReady ? '✨🔮✨' : '🔮'}
+              🔮
             </CustomText>
           </Animated.View>
         </TouchableOpacity>
@@ -390,7 +401,48 @@ TarotInputBar.displayName = 'TarotInputBar';
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-
+    position: 'relative', // 툴팁 위치 기준
+  },
+  // 🔮 Tooltip
+  tooltipContainer: {
+    position: 'absolute',
+    bottom: '100%',
+    left: moderateScale(15),
+    marginBottom: verticalScale(38),
+    zIndex: 1000,
+  },
+  tooltip: {
+    backgroundColor: 'rgba(138, 43, 226, 0.95)',
+    paddingHorizontal: moderateScale(16),
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.5)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  tooltipText: {
+    color: '#FFF',
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+  },
+  tooltipArrow: {
+    position: 'absolute',
+    bottom: -6,
+    left: moderateScale(12),
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: 'rgba(138, 43, 226, 0.95)',
   },
   // 🎛️ REMOVED: settingsMenu, menuItem, menuIcon, menuText, menuDivider (moved to parent!)
   container: {
