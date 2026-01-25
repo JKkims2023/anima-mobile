@@ -18,7 +18,7 @@
  * @date 2026-01-05
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getServiceConfig } from '../services/api/serviceApi';
 import HapticService from '../utils/HapticService';
 
@@ -36,6 +36,10 @@ const useChatLimit = (visible, user, showAlert) => {
   const [showLimitSheet, setShowLimitSheet] = useState(false);
   const [limitReachedData, setLimitReachedData] = useState(null);
   
+  // ⭐ Ref to always get latest loading state (fix closure issue!)
+  const loadingRef = useRef(true);
+  const configRef = useRef(null);
+  
   // ⭐ Load service config when overlay opens
   useEffect(() => {
     console.log(`🎣 [useChatLimit] useEffect triggered - visible: ${visible}, user_key: ${user?.user_key}, current loadingServiceConfig: ${loadingServiceConfig}`);
@@ -44,20 +48,24 @@ const useChatLimit = (visible, user, showAlert) => {
       if (!visible || !user?.user_key) {
         console.log(`⏭️  [useChatLimit] Skipping API (visible=${visible}, has_user=${!!user?.user_key})`);
         setLoadingServiceConfig(false);
+        loadingRef.current = false;
 
-        setServiceConfig({
+        const fallbackConfig = {
           userTier: 'free',
           dailyChatLimit: 0,
           dailyChatRemaining: 0,
           dailyChatCount: 0,
           isOnboarding: false,
           onboardingDaysRemaining: 0
-        });
+        };
+        setServiceConfig(fallbackConfig);
+        configRef.current = fallbackConfig;
 
         return;
       }
       
       setLoadingServiceConfig(true);
+      loadingRef.current = true;
       
       try {
         console.log('💰 [useChatLimit] Loading tier information...');
@@ -66,33 +74,39 @@ const useChatLimit = (visible, user, showAlert) => {
         console.log('response: ', response);
         if (response.data.success && response.data.data) {
           setServiceConfig(response.data.data);
+          configRef.current = response.data.data;
           console.log(`✅ [useChatLimit] Loaded: ${response.data.data.userTier} (${response.data.data.dailyChatRemaining}/${response.data.data.dailyChatLimit} chats remaining)`);
         } else {
           console.warn('⚠️  [useChatLimit] API failed, applying Free tier fallback');
           // Fallback: Free tier
-          setServiceConfig({
+          const fallbackConfig = {
             userTier: 'free',
             dailyChatLimit: 20,
             dailyChatRemaining: 20,
             dailyChatCount: 0,
             isOnboarding: false,
             onboardingDaysRemaining: 0
-          });
+          };
+          setServiceConfig(fallbackConfig);
+          configRef.current = fallbackConfig;
         }
       } catch (error) {
         console.error('❌ [useChatLimit] Network error, applying Free tier fallback:', error);
         // Fallback: Free tier
-        setServiceConfig({
+        const fallbackConfig = {
           userTier: 'free',
           dailyChatLimit: 20,
           dailyChatRemaining: 20,
           dailyChatCount: 0,
           isOnboarding: false,
           onboardingDaysRemaining: 0
-        });
+        };
+        setServiceConfig(fallbackConfig);
+        configRef.current = fallbackConfig;
       } finally {
         console.log('🏁 [useChatLimit] Finally: Setting loadingServiceConfig to false');
         setLoadingServiceConfig(false);
+        loadingRef.current = false;
       }
     };
     
@@ -106,10 +120,14 @@ const useChatLimit = (visible, user, showAlert) => {
    * @returns {object} { allowed: boolean, config: object }
    */
   const checkLimit = useCallback((userMessageId) => {
-    console.log(`🔍 [useChatLimit] checkLimit called - loadingServiceConfig: ${loadingServiceConfig}, hasConfig: ${!!serviceConfig}`);
+    // ⭐ Use ref for latest state (fix closure issue!)
+    const isLoading = loadingRef.current;
+    const config = configRef.current;
+    
+    console.log(`🔍 [useChatLimit] checkLimit called - loadingServiceConfig: ${isLoading}, hasConfig: ${!!config}`);
     
     // Still loading
-    if (loadingServiceConfig) {
+    if (isLoading) {
       console.warn('⏳ [useChatLimit] Service config still loading, please wait...');
       if (showAlert) {
         showAlert({
@@ -129,7 +147,7 @@ const useChatLimit = (visible, user, showAlert) => {
     }
     
     // Use fallback if config is null (safety!)
-    const config = serviceConfig || {
+    const effectiveConfig = config || {
       userTier: 'free',
       dailyChatLimit: 20,
       dailyChatRemaining: 0, // Strict: block if null
@@ -139,9 +157,9 @@ const useChatLimit = (visible, user, showAlert) => {
       dailyChatResetAt: new Date().toISOString()
     };
     
-    const remaining = config.dailyChatRemaining || 0;
-    const limit = config.dailyChatLimit || 20;
-    const currentCount = config.dailyChatCount || 0;
+    const remaining = effectiveConfig.dailyChatRemaining || 0;
+    const limit = effectiveConfig.dailyChatLimit || 20;
+    const currentCount = effectiveConfig.dailyChatCount || 0;
     
     console.log(`💰 [useChatLimit] Pre-send check: ${remaining} remaining (${currentCount}/${limit})`);
     
@@ -151,11 +169,11 @@ const useChatLimit = (visible, user, showAlert) => {
       
       // Prepare limit sheet data
       const limitData = {
-        tier: config.userTier || user?.user_level || 'free',
+        tier: effectiveConfig.userTier || user?.user_level || 'free',
         limit: limit,
-        resetTime: config.dailyChatResetAt || new Date().toISOString(),
-        isOnboarding: config.isOnboarding || false,
-        onboardingDaysLeft: config.onboardingDaysRemaining || 0,
+        resetTime: effectiveConfig.dailyChatResetAt || new Date().toISOString(),
+        isOnboarding: effectiveConfig.isOnboarding || false,
+        onboardingDaysLeft: effectiveConfig.onboardingDaysRemaining || 0,
         userMessageId: userMessageId // For revert
       };
       
@@ -170,22 +188,26 @@ const useChatLimit = (visible, user, showAlert) => {
     }
     
     // OK to send
-    return { allowed: true, config: config };
-  }, [loadingServiceConfig, serviceConfig, user, showAlert]);
+    return { allowed: true, config: effectiveConfig };
+  }, [user, showAlert]); // ⭐ Removed loadingServiceConfig, serviceConfig (use refs instead!)
   
   /**
    * Increment chat count (after successful send)
    */
   const incrementChatCount = useCallback(() => {
-    if (serviceConfig && user?.user_level !== 'ultimate') {
-      setServiceConfig(prev => ({
-        ...prev,
-        dailyChatCount: (prev.dailyChatCount || 0) + 1,
-        dailyChatRemaining: Math.max(0, (prev.dailyChatRemaining || 0) - 1)
-      }));
-      console.log(`💰 [useChatLimit] Count updated: ${(serviceConfig.dailyChatCount || 0) + 1}/${serviceConfig.dailyChatLimit || 20}`);
+    if (configRef.current && user?.user_level !== 'ultimate') {
+      const newConfig = {
+        ...configRef.current,
+        dailyChatCount: (configRef.current.dailyChatCount || 0) + 1,
+        dailyChatRemaining: Math.max(0, (configRef.current.dailyChatRemaining || 0) - 1)
+      };
+      
+      setServiceConfig(newConfig);
+      configRef.current = newConfig;
+      
+      console.log(`💰 [useChatLimit] Count updated: ${newConfig.dailyChatCount}/${newConfig.dailyChatLimit || 20}`);
     }
-  }, [serviceConfig, user]);
+  }, [user]);
   
   /**
    * Show limit reached sheet
