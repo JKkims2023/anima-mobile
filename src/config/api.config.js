@@ -242,6 +242,7 @@ export const GAME_ENDPOINTS = {
   TAROT_CHAT: API_BASE_URL + '/api/tarot/chat', // 💬 Tarot conversation (SAGE Q&A)
   TAROT_INTERPRET: API_BASE_URL + '/api/tarot/interpret', // 🎴 Tarot card interpretation
   TAROT_SAVE: API_BASE_URL + '/api/tarot/save-reading', // 💾 Save tarot reading
+  TAROT_GIFT: API_BASE_URL + '/api/tarot/gift', // 🎁 Generate tarot gift (emotional gift)
 };
 
 /**

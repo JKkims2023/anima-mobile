@@ -872,6 +872,24 @@ const TarotGameView = ({
       
       console.log('💾 [Tarot] Reading saved');
       
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 🎁 Generate Tarot Gift (Background - Non-blocking)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      try {
+        console.log('🎁 [Tarot] Generating tarot gift...');
+        
+        await gameApi.generateTarotGift({
+          user_key: user?.user_key,
+          interpretation: response.interpretation,
+          conversation_summary: conversationSummary,
+        });
+        
+        console.log('✅ [Tarot] Tarot gift generated successfully!');
+      } catch (giftError) {
+        // ⚠️ Gift generation failed, but don't block main flow
+        console.warn('⚠️ [Tarot] Gift generation failed (non-critical):', giftError.message);
+      }
+      
     } catch (error) {
       console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.error('❌ [Tarot] generateInterpretation error:', error);
@@ -2108,7 +2126,7 @@ const styles = StyleSheet.create({
   interpretationContent: {
     flexGrow: 1, 
     paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(20),
+    paddingVertical: verticalScale(0),
     paddingBottom: verticalScale(100), // ✅ 하단 여백 확보 (키보드 영역)
   },
   

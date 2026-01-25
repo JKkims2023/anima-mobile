@@ -383,6 +383,47 @@ export const saveTarotReading = async ({
 };
 
 /**
+ * Generate tarot gift (emotional gift after reading)
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {Object} params.interpretation - Full interpretation result with judgment
+ * @param {string} [params.conversation_summary] - Brief summary
+ * 
+ * @returns {Promise<Object>} Gift generation response
+ * @returns {boolean} response.success - Request success
+ * @returns {Object} response.gift - Gift object
+ * @returns {string} response.gift.gift_id - Unique gift ID
+ * @returns {string} response.gift.type - 'tarot_result'
+ * @returns {string} response.gift.message - Gift message from SAGE
+ * @returns {string} response.gift.image_url - SAGE's image URL
+ */
+export const generateTarotGift = async ({ user_key, interpretation, conversation_summary }) => {
+  try {
+    console.log('🎁 [gameApi] Generating tarot gift...');
+    console.log('   Judgment:', interpretation?.judgment?.outcome || 'none');
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.TAROT_GIFT, {
+      user_key,
+      interpretation,
+      conversation_summary,
+    });
+    
+    console.log('✅ [gameApi] Tarot gift generated');
+    console.log('   Gift ID:', response.data.gift.gift_id);
+    console.log('   Message:', response.data.gift.message?.substring(0, 50));
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] generateTarotGift error:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * Export gameApi object (for consistency with other API services)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -396,6 +437,7 @@ const gameApi = {
   sendTarotChat,
   interpretTarotCards,
   saveTarotReading,
+  generateTarotGift,  // 🆕 Added tarot gift generation
   // Future: getTattooStrategy, getNostradamusStrategy
 };
 
