@@ -705,9 +705,15 @@ const TarotGameView = ({
         return prev;
       }
       
-      // Add
-      console.log('   → Adding');
-      return [...prev, card];
+      // Add with reversed status (50% chance)
+      const isReversed = Math.random() < 0.5;
+      const cardWithReversed = {
+        ...card,
+        is_reversed: isReversed,  // 🔮 50% 확률로 역방향
+      };
+      
+      console.log('   → Adding', isReversed ? '(역방향)' : '(정방향)');
+      return [...prev, cardWithReversed];
     });
   }, []);
   

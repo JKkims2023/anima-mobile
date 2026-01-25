@@ -31,7 +31,7 @@ import TAROT_IMAGES from '../../assets/tarot';
 /**
  * TarotCard Component
  * 
- * @param {object} card - Card data { id, name_ko, keywords, ... }
+ * @param {object} card - Card data { id, name_ko, keywords, is_reversed, ... }
  * @param {boolean} isFront - Show front (true) or back (false)
  * @param {boolean} isSelected - Selection state
  * @param {function} onPress - Press callback
@@ -56,13 +56,37 @@ const TarotCard = ({
   // ✨ Selection Bounce Animation
   const selectionScale = useSharedValue(1);
   
+  // 🔮 Reversed Rotation (역방향 회전) - NEW!
+  const reversedRotation = useSharedValue(0);
+  
+  // 🔮 Reversed Glow (역방향 오라) - NEW!
+  const reversedGlow = useSharedValue(0);
+  
   // Update flip when isFront changes
   useEffect(() => {
     flipRotation.value = withTiming(isFront ? 1 : 0, {
       duration: 600,
       easing: Easing.inOut(Easing.ease),
     });
-  }, [isFront]);
+    
+    // 🔮 역방향 카드 애니메이션 (플립 완료 후)
+    if (isFront && card.is_reversed) {
+      // 플립 완료 후 300ms 대기
+      setTimeout(() => {
+        // 180도 회전 애니메이션
+        reversedRotation.value = withTiming(180, {
+          duration: 800,
+          easing: Easing.elastic(1),
+        });
+        
+        // 보라색 오라 효과
+        reversedGlow.value = withTiming(1, {
+          duration: 500,
+          easing: Easing.inOut(Easing.ease),
+        });
+      }, 900); // 600ms (플립) + 300ms (대기)
+    }
+  }, [isFront, card.is_reversed]);
   
   // Entrance animation on mount - 더 천천히, 부드럽게 ✨
   useEffect(() => {
@@ -118,6 +142,7 @@ const TarotCard = ({
       transform: [
         { perspective: 1000 },
         { rotateY: `${rotateY}deg` },
+        { rotateZ: `${reversedRotation.value}deg` }, // 🔮 역방향 회전 (레이아웃 영향 X)
         { scale: selectionScale.value * entranceScale.value },
       ],
       opacity: opacity * entranceOpacity.value,
@@ -194,7 +219,33 @@ const TarotCard = ({
               </CustomText>
             ))}
           </View>
+          
+          {/* 🔮 역방향 뱃지 (카드가 뒤집힐 때 나타남) */}
+          {card.is_reversed && isFront && (
+            <Animated.View 
+              style={[
+                styles.reversedBadge,
+                {
+                  opacity: reversedGlow.value,
+                }
+              ]}
+            >
+              <CustomText style={styles.reversedBadgeText}>역방향</CustomText>
+            </Animated.View>
+          )}
         </View>
+        
+        {/* 🔮 보라색 오라 효과 (역방향 카드) */}
+        {card.is_reversed && isFront && (
+          <Animated.View 
+            style={[
+              styles.reversedGlow,
+              {
+                opacity: reversedGlow.value * 0.6,
+              }
+            ]}
+          />
+        )}
       </Animated.View>
       
       {/* Selection Indicator */}
@@ -297,7 +348,47 @@ const styles = StyleSheet.create({
     right: scale(5),
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: moderateScale(12),
-    
+  },
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔮 Reversed Card (역방향 카드)
+  // ═══════════════════════════════════════════════════════════════════════════
+  reversedBadge: {
+    position: 'absolute',
+    top: scale(8),
+    left: scale(8),
+    backgroundColor: 'rgba(123, 31, 162, 0.95)', // 보라색
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(12),
+    shadowColor: '#7B1FA2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  
+  reversedBadgeText: {
+    fontSize: moderateScale(10),
+    color: '#FFFFFF',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  
+  reversedGlow: {
+    position: 'absolute',
+    top: -5,
+    left: -5,
+    right: -5,
+    bottom: -5,
+    borderRadius: moderateScale(15),
+    borderWidth: 3,
+    borderColor: '#9C27B0', // 보라색 오라
+    shadowColor: '#9C27B0',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
   },
 });
 
