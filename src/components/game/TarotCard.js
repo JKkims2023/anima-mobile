@@ -138,6 +138,10 @@ const TarotCard = ({
       [0, 0, 1]
     );
     
+    // 🔮 역방향 오라 효과 (shadow로 표현)
+    const glowOpacity = reversedGlow.value;
+    const glowRadius = 15 * glowOpacity;
+    
     return {
       transform: [
         { perspective: 1000 },
@@ -150,6 +154,12 @@ const TarotCard = ({
       position: 'absolute',
       width: '100%',
       height: '100%',
+      // 🔮 역방향 오라 (동적 shadow)
+      shadowColor: '#9C27B0', // 보라색
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: glowOpacity * 0.8,
+      shadowRadius: glowRadius,
+      elevation: glowOpacity * 10, // Android
     };
   });
   
@@ -219,33 +229,7 @@ const TarotCard = ({
               </CustomText>
             ))}
           </View>
-          
-          {/* 🔮 역방향 뱃지 (카드가 뒤집힐 때 나타남) */}
-          {card.is_reversed && isFront && (
-            <Animated.View 
-              style={[
-                styles.reversedBadge,
-                {
-                  opacity: reversedGlow.value,
-                }
-              ]}
-            >
-              <CustomText style={styles.reversedBadgeText}>역방향</CustomText>
-            </Animated.View>
-          )}
         </View>
-        
-        {/* 🔮 보라색 오라 효과 (역방향 카드) */}
-        {card.is_reversed && isFront && (
-          <Animated.View 
-            style={[
-              styles.reversedGlow,
-              {
-                opacity: reversedGlow.value * 0.6,
-              }
-            ]}
-          />
-        )}
       </Animated.View>
       
       {/* Selection Indicator */}
@@ -348,47 +332,6 @@ const styles = StyleSheet.create({
     right: scale(5),
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: moderateScale(12),
-  },
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🔮 Reversed Card (역방향 카드)
-  // ═══════════════════════════════════════════════════════════════════════════
-  reversedBadge: {
-    position: 'absolute',
-    top: scale(8),
-    left: scale(8),
-    backgroundColor: 'rgba(123, 31, 162, 0.95)', // 보라색
-    paddingHorizontal: scale(10),
-    paddingVertical: verticalScale(4),
-    borderRadius: moderateScale(12),
-    shadowColor: '#7B1FA2',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  
-  reversedBadgeText: {
-    fontSize: moderateScale(10),
-    color: '#FFFFFF',
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  
-  reversedGlow: {
-    position: 'absolute',
-    top: -5,
-    left: -5,
-    right: -5,
-    bottom: -5,
-    borderRadius: moderateScale(15),
-    borderWidth: 3,
-    borderColor: '#9C27B0', // 보라색 오라
-    shadowColor: '#9C27B0',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-    elevation: 10,
   },
 });
 
