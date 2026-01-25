@@ -950,6 +950,7 @@ const TarotGameView = ({
         setInterpretationMessages(prev => [...prev, {
           type: 'card',
           cardIndex: 0,
+          is_reversed: selectedCards[0]?.is_reversed || false, // 🔮 역방향 정보
           content: `🎴 ${interpretation.card_meanings[0].card_name} (${interpretation.card_meanings[0].position})\n\n${interpretation.card_meanings[0].meaning}`,
         }]);
         HapticService.light();
@@ -974,6 +975,7 @@ const TarotGameView = ({
         setInterpretationMessages(prev => [...prev, {
           type: 'card',
           cardIndex: 1,
+          is_reversed: selectedCards[1]?.is_reversed || false, // 🔮 역방향 정보
           content: `🎴 ${interpretation.card_meanings[1].card_name} (${interpretation.card_meanings[1].position})\n\n${interpretation.card_meanings[1].meaning}`,
         }]);
         HapticService.light();
@@ -998,6 +1000,7 @@ const TarotGameView = ({
         setInterpretationMessages(prev => [...prev, {
           type: 'card',
           cardIndex: 2,
+          is_reversed: selectedCards[2]?.is_reversed || false, // 🔮 역방향 정보
           content: `🎴 ${interpretation.card_meanings[2].card_name} (${interpretation.card_meanings[2].position})\n\n${interpretation.card_meanings[2].meaning}`,
         }]);
         HapticService.light();
@@ -1537,8 +1540,13 @@ const TarotGameView = ({
                           source={{ uri: 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png' }}
                           style={styles.sageAvatar}
                         />
-                        {/* Message Bubble */}
-                        <View style={[styles.messageBubble, styles.sageMessageBubble]}>
+                        {/* Message Bubble - 🔮 역방향 카드는 보라색! */}
+                        <View style={[
+                          styles.messageBubble,
+                          msg.is_reversed 
+                            ? styles.sageMessageBubbleReversed  // 💜 역방향 → 보라색
+                            : styles.sageMessageBubbleNormal    // ⚫ 정방향 → 다크
+                        ]}>
                           <CustomText style={styles.messageText}>
                             {msg.content}
                           </CustomText>
@@ -2139,8 +2147,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: scale(4),
   },
   
-  sageMessageBubble: {
-    backgroundColor: 'rgba(123, 31, 162, 0.85)',
+  sageMessageBubbleNormal: {
+    backgroundColor: 'rgba(0, 0, 0, 0.65)', // ⚫ 다크 반투명 (생각 버블 통일)
+    borderTopLeftRadius: scale(4),
+  },
+  
+  sageMessageBubbleReversed: {
+    backgroundColor: 'rgba(123, 31, 162, 0.85)', // 💜 보라색 (역방향 강조)
     borderTopLeftRadius: scale(4),
   },
   

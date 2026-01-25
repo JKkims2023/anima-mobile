@@ -233,6 +233,23 @@ const TarotCard = ({
               </CustomText>
             ))}
           </View>
+          
+          {/* 🔮 역방향 표시 (카드가 회전해도 항상 정방향 유지!) */}
+          {card.is_reversed && isFront && (
+            <Animated.View 
+              style={[
+                styles.reversedIndicator,
+                {
+                  opacity: reversedGlow.value,
+                  transform: [
+                    { rotateZ: '-180deg' }  // ✅ 카드 회전 상쇄!
+                  ]
+                }
+              ]}
+            >
+              <CustomText style={styles.reversedIndicatorText}>⚠️</CustomText>
+            </Animated.View>
+          )}
         </View>
       </Animated.View>
       
@@ -336,6 +353,30 @@ const styles = StyleSheet.create({
     right: scale(5),
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: moderateScale(12),
+  },
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔮 Reversed Indicator (역방향 표시)
+  // ═══════════════════════════════════════════════════════════════════════════
+  reversedIndicator: {
+    position: 'absolute',
+    top: scale(8),
+    left: scale(8),
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: 'rgba(255, 193, 7, 0.95)', // 노란색 배경 (경고)
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  
+  reversedIndicatorText: {
+    fontSize: scale(18),
   },
 });
 
