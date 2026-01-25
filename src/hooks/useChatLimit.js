@@ -38,8 +38,11 @@ const useChatLimit = (visible, user, showAlert) => {
   
   // ⭐ Load service config when overlay opens
   useEffect(() => {
+    console.log(`🎣 [useChatLimit] useEffect triggered - visible: ${visible}, user_key: ${user?.user_key}`);
+    
     const loadServiceConfig = async () => {
       if (!visible || !user?.user_key) {
+        console.log(`⏭️  [useChatLimit] Skipping API (visible=${visible}, has_user=${!!user?.user_key})`);
         setLoadingServiceConfig(false);
 
         setServiceConfig({
@@ -102,6 +105,8 @@ const useChatLimit = (visible, user, showAlert) => {
    * @returns {object} { allowed: boolean, config: object }
    */
   const checkLimit = useCallback((userMessageId) => {
+    console.log(`🔍 [useChatLimit] checkLimit called - loadingServiceConfig: ${loadingServiceConfig}, hasConfig: ${!!serviceConfig}`);
+    
     // Still loading
     if (loadingServiceConfig) {
       console.warn('⏳ [useChatLimit] Service config still loading, please wait...');
