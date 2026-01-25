@@ -1486,7 +1486,7 @@ const TarotGameView = ({
                           <RNAnimated.View
                             style={[
                               styles.messageBubble,
-                              styles.sageMessageBubble,
+                              styles.sageMessageBubbleNormal,  // ✅ 다크 버블
                               animation && {
                                 opacity: animation.opacity,
                                 transform: [{ scale: animation.scale }],
@@ -2111,7 +2111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(10),
     borderRadius: scale(20),
-    backgroundColor: 'rgba(123, 31, 162, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)', // ⚫ 다크 반투명 (통일!)
     borderTopLeftRadius: scale(4),
     alignSelf: 'flex-start',
     minWidth: scale(60), // ✅ 최소 너비 (작게)
