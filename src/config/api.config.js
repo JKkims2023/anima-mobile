@@ -238,6 +238,10 @@ export const GAME_ENDPOINTS = {
   CHECK_LIMIT: API_BASE_URL + '/api/game/check-limit', // 🎮 Check daily game limit
   SAVE_RESULT: API_BASE_URL + '/api/game/save-result', // 💾 Save game result
   STATS: API_BASE_URL + '/api/game/stats', // 📊 Get game statistics
+  // 🔮 Tarot Game Endpoints
+  TAROT_CHAT: API_BASE_URL + '/api/tarot/chat', // 💬 Tarot conversation (SAGE Q&A)
+  TAROT_INTERPRET: API_BASE_URL + '/api/tarot/interpret', // 🎴 Tarot card interpretation
+  TAROT_SAVE: API_BASE_URL + '/api/tarot/save-reading', // 💾 Save tarot reading
 };
 
 /**

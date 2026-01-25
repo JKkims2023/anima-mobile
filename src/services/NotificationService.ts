@@ -354,7 +354,7 @@ class NotificationService {
           if (orderType === 'gift_image' || orderType === 'gift_music') {
             await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
             console.log('[FCM] 🔔 Memory tab badge activated!');
-          } else if (orderType === 'create_music') {
+          } else if (orderType === 'create_music' || orderType === 'convert_background') {
             await AsyncStorage.setItem('@anima_music_tab_badge', 'true');
             console.log('[FCM] 🔔 Music tab badge activated!');
           }

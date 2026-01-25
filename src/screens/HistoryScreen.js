@@ -245,7 +245,7 @@ const HistoryScreen = () => {
           emoji: '🎵',
           message: t('music.created'),
         });
-      } else if (order_type === 'convert_background_done') {
+      } else if (order_type === 'convert_background') {
         // ⭐ NEW: Background video conversion completed
         console.log('[HistoryScreen] 🎬 convert_background_done: Reloading background list');
         
@@ -274,6 +274,22 @@ const HistoryScreen = () => {
       subscription.remove();
     };
   }, [showToast, t, loadMusicList, loadBackgroundList]);
+
+  useEffect(() => {
+    
+    if(!user){
+
+      setBackgroundList([]);
+      setFilteredBackgroundList([]);
+      setMusicList([]);
+      setFilteredMusicList([]);
+      setMessages([]);
+      setFilteredMessages([]);
+      setPage(1);
+
+    }
+
+  }, [user]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load messages from API
@@ -506,7 +522,7 @@ const HistoryScreen = () => {
     if (backgroundSearchQuery.trim()) {
       const query = backgroundSearchQuery.toLowerCase();
       filtered = filtered.filter(b =>
-        b.emotion_tag?.toLowerCase().includes(query) ||
+        b.prompt_text?.toLowerCase().includes(query) ||
         b.location_tag?.toLowerCase().includes(query)
       );
       console.log('🖼️ [HistoryScreen] Search query:', backgroundSearchQuery, ', filtered length:', filtered.length);
@@ -617,8 +633,11 @@ const HistoryScreen = () => {
     if (!music?.music_key) return;
 
     try {
+
       setIsProcessingMusic(true);
-      const result = await musicService.checkMusicStatus(music.music_key);
+
+      console.log(music)
+      const result = await musicService.checkMusicStatus(music.music_key, music.request_key);
       
       if (result.success && result.data) {
         const { status, estimated_time } = result.data;
@@ -1021,7 +1040,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.emptyContainer}>
           <Icon name="chatbubbles-outline" size={scale(64)} color={currentTheme.textSecondary} />
-          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+          <CustomText bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
             {searchQuery || activeFilter !== MESSAGE_FILTERS.ALL
               ? t('history.no_results')
               : t('history.no_messages')}
@@ -1037,7 +1056,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.emptyContainer}>
           <Icon name="musical-notes-outline" size={scale(64)} color={currentTheme.textSecondary} />
-          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+          <CustomText bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
             {musicSearchQuery ? t('music.no_results') : t('music.empty_title')}
           </CustomText>
           <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
@@ -1050,11 +1069,11 @@ const HistoryScreen = () => {
       return (
         <View style={styles.emptyContainer}>
           <Icon name="image-outline" size={scale(64)} color={currentTheme.textSecondary} />
-          <CustomText style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
-            {backgroundSearchQuery ? '검색 결과가 없습니다' : '생성된 배경이 없습니다'}
+          <CustomText bold style={[styles.emptyTitle, { color: currentTheme.textPrimary }]}>
+            {backgroundSearchQuery ? t('message.background.no_results') : t('message.background.empty_title')}
           </CustomText>
           <CustomText style={[styles.emptySubtitle, { color: currentTheme.textSecondary }]}>
-            {backgroundSearchQuery ? '다른 검색어를 시도해보세요' : '페르소나 스튜디오에서 배경을 생성해보세요! 🎨'}
+            {backgroundSearchQuery ? t('message.background.try_different_search') : t('message.background.empty_subtitle')}
           </CustomText>
         </View>
       );
@@ -1520,10 +1539,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(32),
     paddingVertical: verticalScale(64),
     gap: verticalScale(12),
+    marginTop: verticalScale(60),
   },
   emptyTitle: {
-    fontSize: moderateScale(18),
-    fontWeight: '600',
+    fontSize: moderateScale(16),
     textAlign: 'center',
   },
   emptySubtitle: {

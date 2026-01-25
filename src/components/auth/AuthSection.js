@@ -183,8 +183,28 @@ const AuthSection = () => {
 
       // 5. ID Token 확인
       if (!userInfo?.idToken) {
-        console.error('❌ [Google Login] Full signInResult:', JSON.stringify(signInResult, null, 2));
+        console.log('❌ [Google Login] Full signInResult:', JSON.stringify(signInResult, null, 2));
+
+        console.log('❌ [Google Login] signInResult.type:', signInResult.type);
+        if(signInResult.type === 'cancel' || signInResult.type === 'cancelled') {
+
+          console.log('❌ [Google Login] SOCIAL_LOGIN_CANCELLED');
+          showAlert({
+            title: t('auth.errors.SOCIAL_LOGIN_CANCELLED'),
+            message: t('auth.errors.SOCIAL_LOGIN_CANCELLED_MESSAGE'),
+            emoji: '❌',
+            buttons: [
+              {
+                style: 'primary',
+                text: t('common.confirm'),
+              },
+            ],
+          });
+          return;
+        } else {
+          console.log('❌ what?');
         throw new Error('Google Sign-In succeeded but no ID token received. This usually means webClientId is not configured correctly.');
+        }
       }
       
       // 6. Firebase용 자격 증명 생성
@@ -231,6 +251,7 @@ const AuthSection = () => {
             buttons: [
               {
                 text: t('common.confirm'),
+                style: 'primary',
                 onPress: () => {
                   console.log('✅ [Google Login] New user welcome confirmed');
                   // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
@@ -248,6 +269,7 @@ const AuthSection = () => {
             buttons: [
               {
                 text: t('common.confirm'),
+                style: 'primary',
                 onPress: () => {
                   console.log('✅ [Google Login] Welcome back confirmed');
                   // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
@@ -268,28 +290,77 @@ const AuthSection = () => {
           buttons: [
             {
               text: t('common.confirm'),
+              style: 'primary',
             },
           ],
         });
       }
 
     } catch (error) {
-      console.error('❌ [Google Login] Error:', error);
-      console.error('❌ [Google Login] Error Type:', typeof error);
-      console.error('❌ [Google Login] Error Code:', error?.code);
-      console.error('❌ [Google Login] Error Message:', error?.message);
-      
+ 
       // Handle specific errors
       if (error?.code === 'auth/account-exists-with-different-credential') {
-        Alert.alert('계정 오류', '이미 다른 로그인 방법으로 가입된 이메일입니다.');
+        showAlert({
+          title: t('auth.errors.ACCOUNT_EXISTS_DIFFERENT_CREDENTIAL'),
+          message: t('auth.errors.ACCOUNT_EXISTS_DIFFERENT_CREDENTIAL_MESSAGE'),
+          emoji: '❌',
+          buttons: [
+            {
+              style: 'primary',
+              text: t('common.confirm'),
+            },
+          ],
+        });
       } else if (error?.code === 'auth/invalid-credential') {
-        Alert.alert('인증 오류', 'Google 인증 정보가 유효하지 않습니다.');
+        showAlert({
+          title: t('auth.errors.INVALID_CREDENTIAL'),
+          message: t('auth.errors.INVALID_CREDENTIAL_MESSAGE'),
+          emoji: '❌',
+          buttons: [
+            {
+              style: 'primary',
+              text: t('common.confirm'),
+            },
+          ],
+        });
       } else if (error?.code === 'auth/network-request-failed') {
-        Alert.alert('네트워크 오류', '인터넷 연결을 확인해주세요.');
+        showAlert({
+          title: t('auth.errors.NETWORK_REQUEST_FAILED'),
+          message: t('auth.errors.NETWORK_REQUEST_FAILED_MESSAGE'),
+          emoji: '❌',
+          buttons: [
+            {
+              style: 'primary',
+              text: t('common.confirm'),
+            },
+          ],
+        });
       } else if (error?.code === 'SIGN_IN_CANCELLED' || error?.code === '-5') {
-        console.log('ℹ️ [Google Login] User cancelled');
+        showAlert({
+          title: t('auth.errors.SOCIAL_LOGIN_CANCELLED'),
+          message: t('auth.errors.SOCIAL_LOGIN_CANCELLED_MESSAGE'),
+          emoji: '❌',
+          buttons: [
+            {
+              style: 'primary',
+              text: t('common.confirm'),
+            },
+          ],
+        });
       } else {
-        Alert.alert('로그인 실패', `Google 로그인 중 오류가 발생했습니다.\n${error?.message || error?.toString()}`);
+
+
+        showAlert({
+          title: t('auth.errors.UNKNOWN_ERROR'),
+          message: t('auth.errors.UNKNOWN_ERROR_MESSAGE'),
+          emoji: '❌',
+          buttons: [
+            {
+              style: 'primary',
+              text: t('common.confirm'),
+            },
+          ],
+        });
       }
     }
 
@@ -316,7 +387,7 @@ const AuthSection = () => {
       const { identityToken, nonce } = appleAuthRequestResponse;
       
       if (!identityToken) {
-        console.error('❌ [Apple Login] No identity token received');
+        console.log('❌ [Apple Login] No identity token received');
         throw new Error('Apple Sign-In failed - no identity token');
       }
 
@@ -373,6 +444,7 @@ const AuthSection = () => {
             buttons: [
               {
                 text: t('common.confirm'),
+                style: 'primary',
                 onPress: () => {
                   console.log('✅ [Apple Login] New user welcome confirmed');
                   // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
@@ -382,7 +454,7 @@ const AuthSection = () => {
           });
         } else {
           showAlert({
-            title: t('auth.social_login.welcome_back'),
+            title: t('auth.social_login.welcome_new_user'),
             message: t('auth.social_login.welcome_back_message', { 
               name: response.user.user_name 
             }),
@@ -390,6 +462,7 @@ const AuthSection = () => {
             buttons: [
               {
                 text: t('common.confirm'),
+                style: 'primary',
                 onPress: () => {
                   console.log('✅ [Apple Login] Welcome back confirmed');
                   // UserContext가 업데이트되어 설정 화면이 자동 갱신됨!
@@ -416,11 +489,7 @@ const AuthSection = () => {
       }
       
     } catch (error) {
-      console.error('❌ [Apple Login] Error:', error);
-      console.error('❌ [Apple Login] Error Type:', typeof error);
-      console.error('❌ [Apple Login] Error Code:', error?.code);
-      console.error('❌ [Apple Login] Error Message:', error?.message);
-      
+       
       let errorMessage = t('errors.SOCIAL_LOGIN_FAILED'); // Default error
       
       // Apple Sign-In specific errors
@@ -448,6 +517,8 @@ const AuthSection = () => {
       } else {
         HapticService.error();
       }
+
+
       
       showAlert({
         title: t('error.title'),
@@ -509,7 +580,7 @@ const AuthSection = () => {
 
       }
     } catch (error) {
-      console.error('[Email Login] Error:', error);
+      console.log('[Email Login] Error:', error);
   //    HapticService.error();
       showAlert({
         title: t('error.title'),

@@ -226,6 +226,164 @@ export const getGameStats = async ({ user_key, persona_key, game_type }) => {
 
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 🔮 Tarot Game API (NEW)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ */
+
+/**
+ * Send tarot chat message (information gathering conversation)
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (SAGE)
+ * @param {Array} params.conversation_history - [{role: 'user'|'assistant', content: string}, ...]
+ * @param {string} params.user_message - Current user message
+ * 
+ * @returns {Promise<Object>} Chat response
+ * @returns {boolean} response.success - Request success
+ * @returns {string} response.sage_response - SAGE's response
+ * @returns {boolean} response.is_ready - Ready for card selection?
+ * @returns {string} [response.conversation_summary] - Summary if ready
+ * @returns {Object} [response.persona] - { name, image_url, video_url }
+ */
+export const sendTarotChat = async ({ user_key, persona_key, conversation_history, user_message }) => {
+  try {
+    console.log('🔮 [gameApi] Sending tarot chat message...');
+    console.log('   Message:', user_message.substring(0, 50));
+    console.log('   History length:', conversation_history?.length || 0);
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.TAROT_CHAT, {
+      user_key,
+      persona_key,
+      conversation_history,
+      user_message,
+    });
+    
+    console.log('✅ [gameApi] SAGE response received');
+    console.log('   Is ready:', response.data.is_ready);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] sendTarotChat error:', error);
+    return {
+      success: false,
+      sage_response: '음... 잠시 카드들이 조용하네. 다시 한번 말해줄래?',
+      is_ready: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Get tarot card interpretation
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (SAGE)
+ * @param {Array} params.selected_cards - [{id, name_ko, name_en, keywords, meaning_up}, ...]
+ * @param {string} params.conversation_summary - Summary of user's question
+ * @param {string} [params.user_question] - User's original question
+ * 
+ * @returns {Promise<Object>} Interpretation response
+ * @returns {boolean} response.success - Request success
+ * @returns {Object} response.interpretation - Interpretation object
+ * @returns {string} response.interpretation.overall - Overall reading
+ * @returns {Array} response.interpretation.card_meanings - [{card_name, position, meaning}, ...]
+ * @returns {string} response.interpretation.advice - SAGE's advice
+ * @returns {string} response.interpretation.summary - One-sentence summary
+ * @returns {Object} [response.persona] - { name, image_url, video_url }
+ */
+export const interpretTarotCards = async ({ user_key, persona_key, selected_cards, conversation_summary, user_question }) => {
+  try {
+    console.log('🔮 [gameApi] Requesting tarot interpretation...');
+    console.log('   Cards:', selected_cards.map(c => c.name_ko).join(', '));
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.TAROT_INTERPRET, {
+      user_key,
+      persona_key,
+      selected_cards,
+      conversation_summary,
+      user_question,
+    });
+    
+    console.log('✅ [gameApi] Interpretation received');
+    console.log('   Summary:', response.data.interpretation.summary);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] interpretTarotCards error:', error);
+    return {
+      success: false,
+      interpretation: {
+        overall: '카드들이 복잡한 이야기를 하고 있어. 조금 더 시간을 줘봐.',
+        card_meanings: selected_cards.map((card, i) => ({
+          card_name: card.name_ko,
+          position: i === 0 ? '과거/원인' : i === 1 ? '현재/상황' : '미래/결과',
+          meaning: card.meaning_up || '중요한 의미를 담고 있어.',
+        })),
+        advice: '지금은 내면의 목소리에 집중해봐.',
+        summary: '카드가 주는 메시지를 마음에 새겨봐',
+      },
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Save tarot reading result
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (SAGE)
+ * @param {Array} params.selected_cards - [{id, name_ko, name_en}, ...]
+ * @param {string} [params.conversation_summary] - Brief summary
+ * @param {string} [params.interpretation_summary] - Core message (max 1000 chars)
+ * @param {number} [params.conversation_turns] - Number of conversation turns
+ * @param {number} [params.duration_seconds] - Total duration
+ * 
+ * @returns {Promise<Object>} Save result response
+ * @returns {boolean} response.success - Request success
+ * @returns {string} response.reading_id - Unique reading ID
+ * @returns {string} response.message - Success message
+ */
+export const saveTarotReading = async ({ 
+  user_key, 
+  persona_key, 
+  selected_cards, 
+  conversation_summary, 
+  interpretation_summary,
+  conversation_turns,
+  duration_seconds
+}) => {
+  try {
+    console.log('🔮 [gameApi] Saving tarot reading...');
+    console.log('   Cards:', selected_cards.map(c => c.name_ko).join(', '));
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.TAROT_SAVE, {
+      user_key,
+      persona_key,
+      selected_cards,
+      conversation_summary,
+      interpretation_summary,
+      conversation_turns,
+      duration_seconds,
+    });
+    
+    console.log('✅ [gameApi] Tarot reading saved');
+    console.log('   Reading ID:', response.data.reading_id);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] saveTarotReading error:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * Export gameApi object (for consistency with other API services)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  */
@@ -234,6 +392,10 @@ const gameApi = {
   checkGameLimit,
   saveGameResult,
   getGameStats,
+  // 🔮 Tarot API
+  sendTarotChat,
+  interpretTarotCards,
+  saveTarotReading,
   // Future: getTattooStrategy, getNostradamusStrategy
 };
 

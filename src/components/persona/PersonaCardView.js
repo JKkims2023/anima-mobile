@@ -75,6 +75,7 @@ const PersonaCardView = forwardRef(({
   user, // ⭐ NEW: User object for PostcardBack
   onMarkAsRead, // ⭐ NEW: Callback for comment read
   onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
+  onUpgradeTier, // ⭐ NEW: Callback for tier upgrade
 }, ref) => {
   const { currentTheme } = useTheme();
   const { t } = useTranslation();
@@ -626,6 +627,7 @@ const PersonaCardView = forwardRef(({
           <MessageCreationBack
             persona={persona}
             onClose={flipToFront}
+            onUpgradeTier={onUpgradeTier} // ⭐ NEW: Pass callback for tier upgrade
             isVisible={currentBackView === 'message'} // ⭐ FIXED: Use currentBackView instead of isFlipped
             user={user} // ⭐ Pass user for API call
           />

@@ -22,7 +22,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Modal, Dimensions, Platform, BackHandler } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Modal, Dimensions, Platform, BackHandler, Image } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -41,7 +41,7 @@ const ALERT_WIDTH = Math.min(SCREEN_WIDTH - scale(64), scale(340));
 /**
  * AnimaAlert Component
  */
-const AnimaAlert = ({ visible, title, message, emoji, buttons = [], onClose }) => {
+const AnimaAlert = ({ visible, title, message, emoji, image, buttons = [], onClose }) => {
   // ✅ Animated values
   const backdropOpacity = useSharedValue(0);
   const scale = useSharedValue(0.8);
@@ -175,6 +175,13 @@ const AnimaAlert = ({ visible, title, message, emoji, buttons = [], onClose }) =
                 </CustomText>
               )}
 
+              {/* Image */}
+              {image && (
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: image }} style={styles.image} />
+                </View>
+              )}
+
               {/* Message */}
               {message && (
                 <CustomText type="normal" style={styles.message}>
@@ -287,12 +294,33 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     textAlign: 'center',
     marginBottom: scale(12),
+    fontSize: Platform.OS === 'ios' ? scale(16) : scale(16),
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginTop: scale(12),
+    marginBottom: scale(20),
+    borderWidth: 1,
+    alignSelf: 'center',
+    width: scale(100),
+    height: scale(100),
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    borderRadius: moderateScale(50),
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    overflow: 'hidden',
+  
   },
   message: {
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
     marginBottom: scale(24),
     lineHeight: scale(22),
+    fontSize: Platform.OS === 'ios' ? scale(14) : scale(14),
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

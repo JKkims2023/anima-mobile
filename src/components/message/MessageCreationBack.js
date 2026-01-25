@@ -129,6 +129,7 @@ import Image from 'react-native-fast-image';
 const MessageCreationBack = ({
   persona,
   onClose,
+  onUpgradeTier,
   isVisible = false,
 }) => {
   const { t } = useTranslation();
@@ -1020,132 +1021,182 @@ const MessageCreationBack = ({
       
       console.log('📊 [MessageCreationBack] Validation result:', validation);
       
-      if (!validation.safe) {
-        // ⚠️ Validation Failed
-        console.log('❌ [MessageCreationBack] Validation failed!');
-        console.log('   Category:', validation.category);
-        console.log('   Feedback:', validation.feedback);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      if(validation.success){
         
-        setIsCreating(false);
-        setProcessingMessage('');
-        HapticService.warning();
-        
+        if (!validation.safe) {
+          // ⚠️ Validation Failed
+          console.log('❌ [MessageCreationBack] Validation failed!');
+          console.log('   Category:', validation.category);
+          console.log('   Feedback:', validation.feedback);
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          
+          setIsCreating(false);
+          setProcessingMessage('');
+          HapticService.warning();
+          
 
-        /*
-        showAlert({
-          title: feedbackMessage.title,
-          emoji: feedbackMessage.emoji || '💙',
-          message: feedbackMessage.message,
-          buttons: [
-            {
-              text: t('message.validation.rewrite_button') || '다시 작성하기',
-              style: 'primary',
-              onPress: () => {
-                console.log('[MessageCreationBack] User will rewrite message');
-                HapticService.light();
-                // ⭐ Focus on content input for rewrite
-                setTimeout(() => {
-                  contentInputRef.current?.present();
-                }, 300);
+          /*
+          showAlert({
+            title: feedbackMessage.title,
+            emoji: feedbackMessage.emoji || '💙',
+            message: feedbackMessage.message,
+            buttons: [
+              {
+                text: t('message.validation.rewrite_button') || '다시 작성하기',
+                style: 'primary',
+                onPress: () => {
+                  console.log('[MessageCreationBack] User will rewrite message');
+                  HapticService.light();
+                  // ⭐ Focus on content input for rewrite
+                  setTimeout(() => {
+                    contentInputRef.current?.present();
+                  }, 300);
+                }
               }
-            }
-          ]
-        });
-        */
+            ]
+          });
+          */
 
-        // ⭐ Use LLM-generated feedback (or fallback)
-        const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
-    
-        // ⭐ Store validation feedback for CustomBottomSheet
-        setValidationFeedback({
-            feedback: feedbackMessage,
-            persona: validation.persona // ⭐ Persona info (name, image_url, video_url)
+          // ⭐ Use LLM-generated feedback (or fallback)
+          const feedbackMessage = validation.feedback || FALLBACK_VALIDATION_MESSAGE;
+      
+          // ⭐ Store validation feedback for CustomBottomSheet
+          setValidationFeedback({
+              feedback: feedbackMessage,
+              persona: validation.persona // ⭐ Persona info (name, image_url, video_url)
+          });
+          
+          // ⭐ Open CustomBottomSheet with persona voice feedback
+          setTimeout(() => {
+              validationFeedbackSheetRef.current?.present();
+          }, 100);
+      
+          
+          return;
+        }
+        // ═══════════════════════════════════════════════════════════════
+        // ✅ Validation Passed: Proceed with message creation
+        // ═══════════════════════════════════════════════════════════════
+        console.log('✅ [MessageCreationBack] Validation passed! Creating message...');
+        setProcessingMessage(t('message.creation.creating') || '메시지 생성 중...');
+
+        // ⭐ Generate title from first 30 chars of content
+        const autoTitle = currentContent.length > 30 
+          ? currentContent.substring(0, 30) + '...'
+          : currentContent;
+
+        // ⭐ Build effect_config with 2-Layer System
+        const effectConfig = {
+          background_effect: backgroundEffect !== 'none' ? backgroundEffect : null,
+          active_effect: activeEffect !== 'none' ? activeEffect : null,
+          custom_words: customWords.length > 0 ? customWords : null,
+        };
+
+        console.log('customBackground', customBackground);
+
+
+        const response = await messageService.createMessage({
+          user_key: user?.user_key,
+          persona_key: persona?.persona_key,
+          // ⭐ CRITICAL: Use custom background's memory_key if selected
+          memory_key: customBackground 
+            ? customBackground.memory_key 
+            : persona?.history_key,
+          message_title: autoTitle,
+          message_content: currentContent,
+          text_animation: 'slide_cross', // ⭐ Fixed: 슬라이드 효과
+          particle_effect: activeEffect, // ⭐ 2-Layer System: activeEffect (backward compatibility)
+          bg_music: bgMusic || 'none',
+          bg_music_url: bgMusicUrl,
+          effect_config: effectConfig, // ⭐ 2-Layer System
+          persona_name: persona?.persona_name,
+          // ⭐ CRITICAL: Apply custom background if selected, otherwise use original persona
+          persona_image_url: customBackground 
+            ? customBackground.media_url 
+            : persona?.selected_dress_image_url,
+          persona_video_url: customBackground 
+            ? customBackground.video_url 
+            : persona?.selected_dress_video_url,
+          has_password: 'N',
+          public_yn: 'Y',
         });
-        
-        // ⭐ Open CustomBottomSheet with persona voice feedback
-        setTimeout(() => {
-            validationFeedbackSheetRef.current?.present();
-        }, 100);
-    
-        
-        return;
+
+        if (response.data.success && response.data.data.short_code) {
+          console.log('✅ [MessageCreationBack] Message created successfully');
+          
+          const shareUrl = `https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/m/${persona?.persona_key}/${response.data.data.short_code}`;
+          
+          // ⭐ Update Context (Badge + URL)
+          setHasNewMessage(true);
+          setCreatedMessageUrl(shareUrl);
+          
+          // ⭐ Show AnimaAlert (with share option)
+          HapticService.success();
+          showAlert({
+            title: t('message.create_done_alert.title') || '메시지 생성 완료!',
+            emoji: '🎉',
+            message: t('message.create_done_alert.description') || '메시지가 성공적으로 생성되었습니다.\n지금 바로 공유하시겠습니까?',
+            buttons: [
+              {
+                text: t('common.confirm') || '확인',
+                style: 'primary',
+                onPress: () => {
+                  console.log('[MessageCreationBack] User acknowledged, closing...');
+                  onClose(); // ⭐ Close the back view
+                }
+              }
+            ]
+          });
+        }
+  
+      }else{
+
+        console.log('validation', validation);
+
+        if(validation.errorCode === 'MESSAGE_LIMIT_EXCEEDED'){
+          showAlert({
+            title: t('message.validation.limit_exceeded_title'),
+            emoji: '❌',
+            message: t('message.validation.limit_exceeded_message', { tier: user?.user_level, count: validation?.limit_count, time_until_reset: validation?.time_until_reset }),
+            buttons: [
+              {
+                text: t('common.cancel'),
+                style: 'cancel',
+                onPress: () => {
+                  
+                }
+              },
+              {
+                text: t('common.confirm'),
+                style: 'primary',
+                onPress: () => {
+                  onUpgradeTier();
+                  onClose();
+                }
+              }
+            ]
+          });
+          return;
+        }
+        else{
+          showAlert({
+            title: t('common.error_title'),
+            emoji: '❌',
+            message: t('common.error'),
+            buttons: [
+              {
+                text: t('common.confirm'),
+                style: 'primary',
+                onPress: () => {
+                  onClose();
+                }
+              }
+            ]
+          });
+          return;
+        }
       }
       
-      // ═══════════════════════════════════════════════════════════════
-      // ✅ Validation Passed: Proceed with message creation
-      // ═══════════════════════════════════════════════════════════════
-      console.log('✅ [MessageCreationBack] Validation passed! Creating message...');
-      setProcessingMessage(t('message.creation.creating') || '메시지 생성 중...');
-
-      // ⭐ Generate title from first 30 chars of content
-      const autoTitle = currentContent.length > 30 
-        ? currentContent.substring(0, 30) + '...'
-        : currentContent;
-
-      // ⭐ Build effect_config with 2-Layer System
-      const effectConfig = {
-        background_effect: backgroundEffect !== 'none' ? backgroundEffect : null,
-        active_effect: activeEffect !== 'none' ? activeEffect : null,
-        custom_words: customWords.length > 0 ? customWords : null,
-      };
-
-      console.log('customBackground', customBackground);
-
-
-      const response = await messageService.createMessage({
-        user_key: user?.user_key,
-        persona_key: persona?.persona_key,
-        // ⭐ CRITICAL: Use custom background's memory_key if selected
-        memory_key: customBackground 
-          ? customBackground.memory_key 
-          : persona?.history_key,
-        message_title: autoTitle,
-        message_content: currentContent,
-        text_animation: 'slide_cross', // ⭐ Fixed: 슬라이드 효과
-        particle_effect: activeEffect, // ⭐ 2-Layer System: activeEffect (backward compatibility)
-        bg_music: bgMusic || 'none',
-        bg_music_url: bgMusicUrl,
-        effect_config: effectConfig, // ⭐ 2-Layer System
-        persona_name: persona?.persona_name,
-        // ⭐ CRITICAL: Apply custom background if selected, otherwise use original persona
-        persona_image_url: customBackground 
-          ? customBackground.media_url 
-          : persona?.selected_dress_image_url,
-        persona_video_url: customBackground 
-          ? customBackground.video_url 
-          : persona?.selected_dress_video_url,
-        has_password: 'N',
-        public_yn: 'Y',
-      });
-
-      if (response.data.success && response.data.data.short_code) {
-        console.log('✅ [MessageCreationBack] Message created successfully');
-        
-        const shareUrl = `https://port-next-idol-companion-mh8fy4v6b1e8187d.sel3.cloudtype.app/m/${persona?.persona_key}/${response.data.data.short_code}`;
-        
-        // ⭐ Update Context (Badge + URL)
-        setHasNewMessage(true);
-        setCreatedMessageUrl(shareUrl);
-        
-        // ⭐ Show AnimaAlert (with share option)
-        HapticService.success();
-        showAlert({
-          title: t('message.create_done_alert.title') || '메시지 생성 완료!',
-          emoji: '🎉',
-          message: t('message.create_done_alert.description') || '메시지가 성공적으로 생성되었습니다.\n지금 바로 공유하시겠습니까?',
-          buttons: [
-            {
-              text: t('common.confirm') || '확인',
-              style: 'primary',
-              onPress: () => {
-                console.log('[MessageCreationBack] User acknowledged, closing...');
-                onClose(); // ⭐ Close the back view
-              }
-            }
-          ]
-        });
-      }
     } catch (error) {
       console.error('[MessageCreationBack] Create message error:', error);
       showAlert({
@@ -1182,6 +1233,7 @@ const MessageCreationBack = ({
     showAlert,
     t,
     onClose,
+    onUpgradeTier,
     FALLBACK_VALIDATION_MESSAGE
   ]);
 
@@ -1246,7 +1298,7 @@ const MessageCreationBack = ({
       showAlert({
         title: t('message.validation.confirm_title'),
         emoji: '📝',
-        message: `${t('message.validation.confirm_partial')}\n\n${statusMessage}`,
+        message: `${t('message.validation.confirm_partial')}`,
         buttons: [
           { 
             text: t('message.validation.button_cancel'), 
@@ -1283,7 +1335,7 @@ const MessageCreationBack = ({
     showAlert({
       title: t('message.validation.final_confirm_title'),
       emoji: '⚠️',
-      message: `${t('message.validation.final_confirm_message')}\n\n${detailedStatus}`,
+      message: `${t('message.validation.final_confirm_message')}`,
       buttons: [
         { 
           text: t('message.validation.button_recheck'), 
@@ -1384,7 +1436,7 @@ const MessageCreationBack = ({
     });
 
     return () => backHandler.remove();
-  }, [isVisible, onClose]);
+  }, [isVisible, onClose, onUpgradeTier]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Render: Phase 1~5 - Background + Effects + ANIMA Logo + Gradient + Content + Chips

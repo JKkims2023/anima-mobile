@@ -336,6 +336,7 @@ export const AnimaProvider = ({ children }) => {
    * @param {string} config.title - Alert title
    * @param {string} config.message - Alert message
    * @param {string} config.emoji - Optional emoji
+   * @param {string} config.image - Optional image
    * @param {Array} config.buttons - Buttons array
    *   [{ text: 'Cancel', style: 'cancel' }, { text: 'OK', style: 'primary', onPress: () => {} }]
    */
@@ -345,6 +346,7 @@ export const AnimaProvider = ({ children }) => {
       title: config.title || '',
       message: config.message || '',
       emoji: config.emoji || null,
+      image: config.image || null,
       buttons: config.buttons || [{ text: 'OK', style: 'primary' }],
     });
   }, []);
@@ -425,6 +427,7 @@ export const AnimaProvider = ({ children }) => {
       <AnimaAlert
         visible={alert.visible}
         title={alert.title}
+        image={alert.image}
         message={alert.message}
         emoji={alert.emoji}
         buttons={alert.buttons}

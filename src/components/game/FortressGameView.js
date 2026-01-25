@@ -41,6 +41,8 @@ import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import { gameApi } from '../../services/api'; // 🎮 NEW: Game API for LLM
+import { useTranslation } from 'react-i18next';
+import { useAnima } from '../../contexts/AnimaContext';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -116,10 +118,11 @@ const getTerrainY = (x, points) => {
 // ═══════════════════════════════════════════════════════════════════════════
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
-const FortressGameView = ({ visible, onClose, persona, user }) => {
+const FortressGameView = ({ visible, onClose, onLimitClose, persona, user }) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets(); // ⭐ SafeArea for system bars
-
+  const { showAlert } = useAnima();
+  const { t } = useTranslation();
   // Game state
   const [terrain, setTerrain] = useState(null);
   const [userTank, setUserTank] = useState(null);
@@ -679,7 +682,23 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
     HapticService.light();
     onClose?.();
   }, [onClose]);
-  
+
+  const handleLimitFailed = useCallback(() => {
+
+    HapticService.light();
+    // 시작 모달 페이드 아웃
+    startModalOpacity.value = withTiming(0, { duration: 300 });
+    startModalScale.value = withTiming(0.5, { duration: 300 });
+    
+    // 0.3초 후 게임 닫기
+    setTimeout(() => {
+        console.log('handleLimitFailed');
+        setShowStartModal(false);
+        onLimitClose?.();
+        onClose?.();
+    }, 300);
+    }, [onLimitClose, onClose]);
+
   // 🎮 NEW: 게임 시작 확인 핸들러 (제한 체크 포함)
   const handleStartGame = useCallback(async () => {
     if (!user?.user_key) {
@@ -696,13 +715,36 @@ const FortressGameView = ({ visible, onClose, persona, user }) => {
         game_type: 'fortress',
       });
       
-      if (!limitCheck.success || !limitCheck.data.can_play) {
-        HapticService.warning();
-        alert(limitCheck.data?.message || '오늘 게임 횟수를 모두 사용했습니다.');
-        console.warn(`⚠️ [Fortress] ${limitCheck.data?.message}`);
-        return;
+      console.log('limitCheck: ', limitCheck);
+      if (limitCheck.success && limitCheck.data.can_play) {
+
+        console.log('handleLimitSuccess Can play');
+
+      }else{
+        console.log('handleLimitFailed Can not play');
+
+        if(limitCheck.success){
+            console.log('handleLimitFailed JK');
+            HapticService.warning();
+            handleLimitFailed();
+            console.warn(`⚠️ [Fortress] ${limitCheck.data?.message}`);
+            return;
+
+        }else{
+          
+            showAlert({
+              title: t('common.error_title'),
+              emoji: '❌',
+              message: t('common.error'),
+              buttons: [
+                { text: t('common.confirm'), style: 'primary', onPress: () => {
+                  handleCancelStart();
+                } }
+              ]
+            });
+            return;
+        }
       }
-      
       console.log(`✅ [Fortress] Can play! Remaining: ${limitCheck.data.remaining}`);
     } catch (error) {
       console.error('❌ [Fortress] Limit check failed:', error);

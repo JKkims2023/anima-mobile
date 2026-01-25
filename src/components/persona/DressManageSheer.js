@@ -48,6 +48,7 @@ import { getPersonaDressList, updatePersonaDress } from '../../services/api/pers
 import { FlashList } from '@shopify/flash-list';
 
 
+
 const DressManageSheer = ({
   isOpen,
   personaKey,
@@ -181,7 +182,7 @@ const DressManageSheer = ({
     descriptionInputRef.current?.present();
   }, []);
 
-  const handleDescriptionSave = useCallback((value) => {
+  const handleDescriptionSave = useCallback(async (value) => {
     console.log('✅ [DressManageSheer] Description saved:', value);
     setDescription(value);
     
@@ -189,21 +190,40 @@ const DressManageSheer = ({
       HapticService.warning();
       return;
     }
+
+    const serviceData = await amountService.getServiceData({
+      user_key: user?.user_key,
+    });
+
+    let dressCost = 0;
+
+    console.log('[DressManageSheer] 🔍 Service data:', serviceData);
+
+    if (!serviceData.success) {
+      HapticService.warning();
+      console.log('[PersonaStudioScreen] Service data fetch failed');
+      return;
+
+    }else{
+      
+      dressCost = serviceData.data.dress_amount;
+    
+    }
     
     // Show confirmation for dress creation
     showAlert({
-      title: t('customization.dressing_room.create_dress_title', '드레스 생성'),
-      message: t('customization.dressing_room.create_dress_message', '이 드레스를 생성하시겠습니까?'),
+      title: t('persona.dressing_room.create_dress_title'),
+      message: t('persona.dressing_room.create_dress_message', { cost: dressCost.toLocaleString() }),
       buttons: [
         {
-          text: t('common.cancel', '취소'),
+          text: t('common.cancel'),
           style: 'cancel',
           onPress: () => {
             HapticService.light();
           }
         },
         {
-          text: t('common.confirm', '확인'),
+          text: t('common.confirm'),
           style: 'primary',
           onPress: () => {
             HapticService.success();
@@ -275,82 +295,6 @@ const DressManageSheer = ({
     onClose();
   }, [description, validateDescription, onCreateStart, onClose]);
 
-  const handleValidationSuccess = async () => {
-
-    try{
-
-      let memory_amount = 0;
-
-      if (!validateDescription(description)) {
-        HapticService.warning();
-        showToast({
-          type: 'error',
-          message: t('persona.creation.description_error', '설명을 입력해주세요'),
-        });
-        return;
-      }
-
-      if (!user || !user?.user_key) {
-
-        console.log('[ChoicePersonaSheet] User key not found');
-        HapticService.warning();
-        showAlert ({
-          title: t('persona.creation.user_key_error', '로그인 후 이 용해주세요'),
-          message: t('persona.creation.user_key_error', '로그인 후 이 용해주세요'),
-          buttons: [
-            { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
-            { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
-              navigation.navigate('Settings');
-            } },
-          ],
-        });
-
-        return;
-      }
-
-
-      const serviceData = await amountService.getServiceData({
-        user_key: user.user_key,
-      });
-
-      console.log('[ChoicePersonaSheet] Service data:', serviceData);
-
-      if (!serviceData.success) {
-        HapticService.warning();
-        console.log('[ChoicePersonaSheet] Service data fetch failed');
-        return;
-      
-      }else{
-
-        memory_amount = serviceData.data.memory_amount;
-
-      }
-
-      HapticService.success();
-
-      showAlert({
-        title: t('point.create_persona.title', '페르소나 생성'),
-        message: t('point.create_persona.message', '페르소나 생성이 완료되었습니다. 페르소나 생성 화면으로 이동합니다.', { cost: memory_amount }),
-        buttons: [
-          { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
-          { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
-            handleCreate();
-          } },
-
-        ],
-      });
-
-    } catch (error) {
-      console.error('[ChoicePersonaSheet] Validation error:', error);
-      HapticService.warning();
-      showToast({
-        type: 'error',
-        emoji: '⚠️',
-        message: error.message,
-      });
-    }
-  };
-
 
   // ═══════════════════════════════════════════════════════════════════════
   // ANIMATED STYLES
@@ -390,18 +334,18 @@ const DressManageSheer = ({
     
     // Show confirmation modal
     showAlert({
-      title: t('customization.dressing_room.change_dress_title', '드레스 변경'),
-      message: t('customization.dressing_room.change_dress_message', '이 복장으로 변경하시겠습니까?'),
+      title: t('persona.dressing_room.change_dress_title'),
+      message: t('persona.dressing_room.change_dress_message'),
       buttons: [
         {
-          text: t('common.cancel', '취소'),
+          text: t('common.cancel'),
           style: 'cancel',
           onPress: () => {
 
           }
         },
         {
-          text: t('common.confirm', '확인'),
+          text: t('common.confirm'),
           style: 'primary',
           onPress: async () => {
             try {
@@ -440,7 +384,7 @@ const DressManageSheer = ({
                 showToast({
                   type: 'success',
                   emoji: '👗',
-                  message: t('customization.dressing_room.change_success', '드레스가 변경되었습니다!'),
+                  message: t('persona.dressing_room.change_success'),
                 });
                 
                 // Reload dress list to reflect changes
@@ -456,7 +400,7 @@ const DressManageSheer = ({
               showToast({
                 type: 'error',
                 emoji: '❌',
-                message: t('customization.dressing_room.change_error', '드레스 변경에 실패했습니다.'),
+                message: t('persona.dressing_room.change_error'),
               });
             }
           }
@@ -521,7 +465,7 @@ const DressManageSheer = ({
             showToast({
               type: 'info',
               emoji: '⏳',
-              message: t('customization.dressing_room.creating_dress', '드레스 생성 중입니다...'),
+              message: t('persona.dressing_room.creating_dress'),
             });
           } else {
             handleDressSelect(item);
@@ -551,7 +495,7 @@ const DressManageSheer = ({
               
               {/* Creating Text */}
               <CustomText type="normal" bold style={styles.creatingText}>
-                {t('customization.dressing_room.creating', '생성 중')}
+                {t('persona.dressing_room.creating')}
               </CustomText>
               
               {/* Loading Dots */}
@@ -564,7 +508,7 @@ const DressManageSheer = ({
               {/* Estimated Time */}
               {item.estimate_time > 0 && (
                 <CustomText type="tiny" style={styles.creatingTimeText}>
-                  {t('customization.dressing_room.estimated_time', '약 {{time}}초', { time: item.estimate_time })}
+                  {t('persona.dressing_room.estimated_time', { time: item.estimate_time })}
                 </CustomText>
               )}
             </View>
@@ -576,7 +520,7 @@ const DressManageSheer = ({
           <View style={styles.equippedBadge}>
             <Icon name="check-circle" size={moderateScale(20)} color="#FFFFFF" />
             <CustomText type="tiny" style={styles.equippedBadgeText}>
-              {t('customization.dressing_room.equipped', '착용 중')}
+              {t('persona.dressing_room.equipped')}
             </CustomText>
           </View>
         )}
@@ -605,16 +549,16 @@ const DressManageSheer = ({
       ref={bottomSheetRef}
       onClose={onClose}
       snapPoints={['70%']}
-      title={t('customization.dressing_room.title', { name: currentPersona?.persona_name })}
+      title={t('persona.dressing_room.title', { name: currentPersona?.persona_name })}
       showCloseButton={true}
       buttons={[
         {
-          title:t('common.close', '닫기'),
+          title:t('common.close'),
           type: 'outline',
           onPress: onClose,
         },
         {
-          title: t('customization.dressing_room.create_new_dress', '선물하기'),
+          title: t('persona.dressing_room.create_new_dress'),
           type: 'primary',
           onPress: () => {
 
@@ -624,8 +568,8 @@ const DressManageSheer = ({
                 title: t('common.login_guide.title'),
                 message: t('common.login_guide.description'),
                 buttons: [
-                  { text: t('common.cancel', '취소'), style: 'cancel', onPress: () => {} },
-                  { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {
+                  { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+                  { text: t('common.confirm'), style: 'primary', onPress: () => {
                     navigation.navigate('Settings');
                     onClose();
                   } },
@@ -634,13 +578,13 @@ const DressManageSheer = ({
               return;
             }
 
-            if (currentPersona?.default_yn === 'Y') {
+            if (false){//currentPersona?.default_yn === 'Y') {
               HapticService.warning();
               showAlert({
                 title: t('persona.default_persona_core_confirm_title'),
                 message: t('persona.default_persona_core_confirm_message'),
                 buttons: [
-                  { text: t('common.confirm', '확인'), style: 'primary', onPress: () => {} },
+                  { text: t('common.confirm'), style: 'primary', onPress: () => {} },
 
                 ],
               });
@@ -661,15 +605,15 @@ const DressManageSheer = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.dressListSection}>
           <CustomText type="middle"  style={[styles.sectionHeader, { fontSize: moderateScale(14), marginTop: verticalScale(-10), marginBottom: verticalScale(10) }]}>
-            {t('customization.dressing_room.subtitle', { name: currentPersona?.persona_name })}
+            {t('persona.dressing_room.subtitle', { name: currentPersona?.persona_name })}
           </CustomText>
           <View style={styles.sectionHeader}>
             <Icon name="dresser" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />
             <CustomText type="title" bold style={styles.sectionTitle}>
-              {t('customization.dressing_room.dress_list', '보유 드레스')}
+              {t('persona.dressing_room.dress_list')}
             </CustomText>
             <CustomText type="small" style={styles.dressCount}>
-              ({dressList.length}개)
+              ({dressList.length})
             </CustomText>
           </View>
 
@@ -679,10 +623,10 @@ const DressManageSheer = ({
               <View style={styles.emptyDressContainer}>
                 <Icon name="hanger" size={moderateScale(48)} color={COLORS.TEXT_TERTIARY} />
                 <CustomText type="normal" style={styles.emptyDressText}>
-                  {t('customization.dressing_room.empty', '보유한 드레스가 없습니다')}
+                  {t('persona.dressing_room.empty')}
                 </CustomText>
                 <CustomText type="small" style={styles.emptyDressHint}>
-                  {t('customization.dressing_room.empty_hint', '아래 버튼으로 드레스를 생성해보세요')}
+                  {t('persona.dressing_room.empty_hint')}
                 </CustomText>
               </View>
             ) : (
@@ -708,8 +652,8 @@ const DressManageSheer = ({
 
       <MessageInputOverlay
         ref={descriptionInputRef}
-        title={t('persona.creation.description_title', '설명')}
-        placeholder={t('persona.creation.description_hint', '예: 산타 복장, 빨간 벤츠, 웃는 얼굴')}
+        title={t('persona.creation.description_title')}
+        placeholder={t('persona.creation.description_hint')}
         leftIcon="text-box"
         initialValue={description}
         maxLength={80}
@@ -748,7 +692,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(8),
   },
   dressCount: {
-    marginLeft: scale(8),
+    marginLeft: scale(0),
     color: COLORS.TEXT_SECONDARY,
   },
   

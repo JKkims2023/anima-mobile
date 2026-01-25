@@ -171,6 +171,7 @@ const MusicCreatorSheet = forwardRef(({ onSubmit }, ref) => {
           },
           {
             text: t('common.confirm'),
+            style: 'primary',
             onPress: () => {
               onSubmit?.({
                 music_type: musicType,

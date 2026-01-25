@@ -142,7 +142,7 @@ const LoginView = ({ onLoginSuccess, onSwitchToSignUp }) => {
       console.log(`✅ [LoginView] ${provider} login success`);
       onLoginSuccess?.();
     } catch (error) {
-      console.error(`❌ [LoginView] ${provider} login error:`, error);
+      console.log(`❌ [LoginView] ${provider} login error:`, error);
     } finally {
       setIsLoading(false);
     }

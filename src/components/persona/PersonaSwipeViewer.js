@@ -80,6 +80,7 @@ const PersonaSwipeViewer = forwardRef(({
   user: userProp, // ⭐ NEW: User from parent (PersonaStudioScreen)
   onMarkAsRead, // ⭐ NEW: Callback when comment is marked as read
   onOpenFullView, // ⭐ NEW: Callback for full view (전체창)
+  onUpgradeTier, // ⭐ NEW: Callback for tier upgrade
   error: errorProp, // ✅ NEW (2026-01-19): Error state from parent
   isLoading: isLoadingProp, // ✅ NEW (2026-01-19): Loading state from parent
   // ⚡ REMOVED: chipsRefreshKey (no longer needed!)
@@ -236,10 +237,11 @@ const PersonaSwipeViewer = forwardRef(({
           user={userProp} // ⭐ NEW: Pass user for PostcardBack/MessageCreationBack API call
           onMarkAsRead={onMarkAsRead} // ⭐ NEW: Pass callback for comment read
           onOpenFullView={onOpenFullView} // ⭐ NEW: Pass callback for full view (전체창)
+          onUpgradeTier={onUpgradeTier} // ⭐ NEW: Pass callback for tier upgrade
         />
       </View>
     );
-  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onBackViewChange, userProp, onMarkAsRead, personaCardRefs, onOpenFullView]);
+  }, [selectedIndex, isModeActive, isScreenFocused, isScreenActive, modeOpacity, availableHeight, onCheckStatus, onBackViewChange, userProp, onMarkAsRead, personaCardRefs, onOpenFullView, onUpgradeTier]);
 
   // ✅ Key extractor (optimized)
   // ⭐ CRITICAL FIX: Include done_yn in key to force re-render when status changes

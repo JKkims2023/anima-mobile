@@ -242,6 +242,17 @@ const MemoryScreen = () => {
     setFilteredGiftList(filtered);
   }, [giftList, selectedFilter, searchQuery]);
 
+  useEffect(() => {
+    if(!user){
+      setGiftList([]);
+      setFilteredGiftList([]);
+      setPage(1);
+      setHasMore(true);
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [user]);
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle music press (play/manage or check status)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

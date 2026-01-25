@@ -1050,9 +1050,9 @@ const PersonaStudioScreen = () => {
       // Call API to create persona
       const response = await createDress(user.user_key, {
         persona_key: currentPersona?.persona_key,
-        name: data.name,
+        name: currentPersona?.persona_name,
         description: data.description,
-        gender: data.gender,
+        gender: currentPersona?.persona_gender,
         selected_dress_image_url: currentPersona?.selected_dress_image_url,
       });
 
@@ -1078,6 +1078,25 @@ const PersonaStudioScreen = () => {
                   style: 'primary',
                   onPress: () => {
                     navigation.navigate('Settings');
+                  },
+                },
+              ],
+            });
+            break;
+          case 'PERSONA_DRESS_LIMIT_EXCEEDED':
+            showAlert ({
+              title: t('persona.creation.dress_limit_exceeded_title'),
+              message: t('persona.creation.dress_limit_exceeded_message', { tier: user?.user_level, count: response?.limit_count, time_until_reset: response?.time_until_reset }),
+              buttons: [
+                {
+                  text: t('common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('common.confirm'),
+                  style: 'primary',
+                  onPress: () => {
+                    setShowTierUpgrade(true);
                   },
                 },
               ],
@@ -1119,7 +1138,7 @@ const PersonaStudioScreen = () => {
       });
       
     } catch (error) {
-      console.error('[PersonaStudioScreen] ❌ Persona creation error:', error);
+      console.log('[PersonaStudioScreen] ❌ Persona creation error:', error);
       
       // ⭐ Hide loading overlay on error
       setIsCreatingPersona(false);
@@ -1520,6 +1539,10 @@ const PersonaStudioScreen = () => {
     setFullViewPersona(persona);
     setIsFullViewOpen(true);
   }, [showToast, t]);
+
+  const handleUpgradeTier = useCallback(() => {
+    setShowTierUpgrade(true);
+  }, [showTierUpgrade]);
 
   // ⭐ NEW: Handle close full view (전체창 닫기)
   const handleCloseFullView = useCallback(() => {
@@ -2237,6 +2260,7 @@ const PersonaStudioScreen = () => {
             user={user} // ⭐ CRITICAL FIX: Pass user from PersonaStudioScreen for chips!
             onMarkAsRead={handleMarkAsRead} // ⭐ NEW: Callback for comment marked as read (badge removal!)
             onOpenFullView={handleOpenFullView} // ⭐ NEW: Callback for full view (전체창)
+            onUpgradeTier={handleUpgradeTier} // ⭐ NEW: Callback for tier upgrade
             error={personasError} // ✅ NEW (2026-01-19): Error state for retry UI
             isLoading={personasLoading} // ✅ NEW (2026-01-19): Loading state
             // ⚡ REMOVED: chipsRefreshKey (no longer needed!)

@@ -66,6 +66,7 @@ import useIdentitySettings from '../../hooks/useIdentitySettings'; // 🎭 NEW: 
 import uuid from 'react-native-uuid';
 import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
+import { gameApi } from '../../services/api'; // 🎮 NEW: Game API for LLM
 // ⭐ NEW: Chat helpers and constants
 import { 
   AI_BEHAVIOR, 
@@ -153,6 +154,7 @@ const ManagerAIOverlay = ({
   onCreateMessage,
   persona = null, // ⭐ NEW: Selected persona (from PersonaContext)
   onGameSelect, // 🎮 NEW: Callback for game selection
+  onTierUpgrade // 🎖️ NEW: Callback for tier upgrade
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -1920,6 +1922,110 @@ const ManagerAIOverlay = ({
     }, 50); // ⚡ Minimal delay (50ms) - enough for background learning to start
   }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
+
+  const handleLimitFailed = useCallback((data) => {
+
+    try{
+
+      console.log(user);
+      setTimeout(() => {
+      showAlert({
+        title: t('game.limit_modal.title'),
+        emoji: '🔒',
+        message: t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }),
+        buttons: [
+          { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+          { text: t('common.confirm'), style: 'primary', onPress: () => {
+            onTierUpgrade();
+            onClose();
+          } }
+        ]
+      });
+    }, 100);
+
+    }catch(error){
+      console.log('❌ [ManagerAIOverlay] Limit failed:', error);
+    }
+  }, [t, user, showAlert, onTierUpgrade, onClose]);
+
+  const handleGameSelect = async (gameName) => {
+  
+    try{
+
+      let canPlay = false;
+      let status = '';
+
+      setIsSettingsMenuOpen(false);
+
+      const response = await gameApi.getGameStats({
+        user_key: user.user_key,
+        persona_key: persona.persona_key,
+        game_type: 'fortress',
+      });
+
+      console.log('🎮 [ManagerAIOverlay] Game stats:', response);
+
+      const limitCheck = await gameApi.checkGameLimit({
+        user_key: user.user_key,
+        game_type: gameName,
+      });
+      
+      console.log('limitCheck: ', limitCheck);
+
+      if (limitCheck.success && limitCheck.data.can_play) {
+
+        console.log('handleLimitSuccess Can play');
+        canPlay = true;
+
+      }
+
+      if (response.success) {
+
+        console.log(`✅ [Fortress] Stats loaded: ${response.data.record_text}`);
+      }
+
+      if(Platform.OS === 'ios'){
+
+        onGameSelect(gameName);
+        return;
+      }
+
+      showAlert({
+        title: t('game.game_title'),
+        image: 
+        gameName === 'fortress' ? 
+        persona?.selected_dress_image_url || persona?.original_url : 
+        gameName === 'tarot' ? 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png' : 'https://babi-cdn.logbrix.ai/babi/real/babi/f5e2ba44-5bdd-4b3d-8e22-c049f102ffe5_00001_.png',
+        message: gameName === 'fortress' ? t('game.width_persona', { persona_name: persona.persona_name, status: '준비중' }) : 
+        gameName === 'tarot' ? t('game.tarot_message') : t('game.confession_message'),
+        buttons: [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+            onPress: () => {
+              console.log('❌ [ManagerAIOverlay] Game select cancelled');
+            }
+          },
+          { 
+          text: t('common.confirm'), 
+          style: 'primary', 
+          onPress: () => {
+            if(canPlay){
+              onGameSelect(gameName);
+            }else{
+
+              console.log('limitCheck.data: ', limitCheck.data);
+              handleLimitFailed(limitCheck.data);
+            }
+
+          } }],
+      });
+
+    }catch(error){
+      console.log('❌ [ManagerAIOverlay] Game select failed:', error);
+    }
+  };
+
   // 🔥 [RENDER LOG] Conditional rendering evaluation
   if (__DEV__) {
     console.log(`🎭 [RENDER] Evaluating sheet/modal rendering:`);
@@ -2105,48 +2211,6 @@ const ManagerAIOverlay = ({
                     </TouchableOpacity>
                   )}
 
-                  {/* 구분선 */}
-                  <View style={styles.menuDivider} />
-
-                  {/* 🎨 Product Creation Section */}
-                  <CustomText type='middle' bold style={styles.settingsMenuTitle}>
-                    {t('ai_comment.product_create_title', { persona_name: persona.persona_name })}
-                  </CustomText>
-
-                  {/* 🎵 음악 생성 */}
-                  {persona && (
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => {
-                        handleCreateMusic();
-                        setIsSettingsMenuOpen(false);
-                      }}
-                      activeOpacity={0.7}
-                    >
-                      <CustomText type='middle' style={styles.menuIcon}>🎵</CustomText>
-                      <CustomText type='middle' style={styles.menuText}>
-                        {t('ai_comment.create_music_title')}
-                      </CustomText>
-                    </TouchableOpacity>
-                  )}
-
-                  {/* 💬 메시지 생성 */}
-                  {persona && (
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => {
-                        handleCreateMessage();
-                        setIsSettingsMenuOpen(false);
-                      }}
-                      activeOpacity={0.7}
-                    >
-                      <CustomText type='middle' style={styles.menuIcon}>💬</CustomText>
-                      <CustomText type='middle' style={styles.menuText}>
-                        {t('ai_comment.create_message_title')}
-                      </CustomText>
-                    </TouchableOpacity>
-                  )}
-
                   {/* 🎮 NEW: Games Section */}
                   {persona && onGameSelect && (
                     <>
@@ -2155,21 +2219,22 @@ const ManagerAIOverlay = ({
 
                       {/* 🎮 Games Title */}
                       <CustomText type='middle' bold style={styles.settingsMenuTitle}>
-                        🎮 Games
+                        {t('game.game_title')}
                       </CustomText>
 
                       {/* 🏰 Fortress */}
                       <TouchableOpacity
                         style={styles.menuItem}
                         onPress={() => {
-                          onGameSelect('fortress');
-                          setIsSettingsMenuOpen(false);
+
+                          handleGameSelect('fortress');
+//                          setIsSettingsMenuOpen(false);
                         }}
                         activeOpacity={0.7}
                       >
                         <CustomText type='middle' style={styles.menuIcon}>🏰</CustomText>
                         <CustomText type='middle' style={styles.menuText}>
-                          Fortress
+                          {t('game.fortress_title', { persona_name: persona.persona_name })}
                         </CustomText>
                       </TouchableOpacity>
 
@@ -2178,22 +2243,30 @@ const ManagerAIOverlay = ({
                         style={[styles.menuItem, styles.menuItemDisabled]}
                         disabled
                         activeOpacity={0.7}
+                        onPress={() => {
+                          handleGameSelect('confession');
+//                          setIsSettingsMenuOpen(false);
+                        }}
                       >
                         <CustomText type='middle' style={[styles.menuIcon, styles.menuIconDisabled]}>⚡</CustomText>
                         <CustomText type='middle' style={[styles.menuText, styles.menuTextDisabled]}>
-                          Tattoo (Coming Soon)
+                          {t('game.confession_title')}
                         </CustomText>
                       </TouchableOpacity>
 
-                      {/* 🔮 Nostradamus (Coming Soon) */}
+                      {/* 🔮 Tarot */}
                       <TouchableOpacity
-                        style={[styles.menuItem, styles.menuItemDisabled]}
-                        disabled
+                        style={styles.menuItem}
+                        onPress={() => {
+//                          onGameSelect('tarot');
+                          handleGameSelect('tarot');
+//                          setIsSettingsMenuOpen(false);
+                        }}
                         activeOpacity={0.7}
                       >
-                        <CustomText type='middle' style={[styles.menuIcon, styles.menuIconDisabled]}>🔮</CustomText>
-                        <CustomText type='middle' style={[styles.menuText, styles.menuTextDisabled]}>
-                          Nostradamus (Coming Soon)
+                        <CustomText type='middle' style={styles.menuIcon}>🔮</CustomText>
+                        <CustomText type='middle' style={styles.menuText}>
+                          {t('game.tarot_title')}
                         </CustomText>
                       </TouchableOpacity>
                     </>
@@ -2545,7 +2618,7 @@ const styles = StyleSheet.create({
     bottom: Platform.OS === 'ios' ? verticalScale(100) : verticalScale(70), // Above input bar!
     left: platformPadding(0),
     right: platformPadding(0),
-    paddingHorizontal: platformPadding(20),
+    paddingHorizontal: platformPadding(10),
     zIndex: 1000, // Float above everything!
   },
   settingsMenu: {
@@ -2565,6 +2638,7 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
     marginBottom: verticalScale(8),
     color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: moderateScale(18),
   },
   menuItem: {
     flexDirection: 'row',

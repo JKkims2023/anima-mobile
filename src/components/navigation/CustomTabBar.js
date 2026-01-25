@@ -34,9 +34,12 @@ import CustomText from '../CustomText';
 import CenterAIButton from './CenterAIButton';
 import CenterAIActionSheet from '../CenterAIActionSheet';
 import ManagerAIOverlay from '../chat/ManagerAIOverlay'; // ⭐ Manager AI Overlay
-import FortressGameView from '../game/FortressGameView'; // 🎮 NEW: Fortress Game
+import FortressGameView from '../game/FortressGameView'; // 🎮 Fortress Game
+import TarotGameView from '../game/TarotGameView'; // 🔮 NEW: Tarot Game
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
+import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎮 NEW: Tier Upgrade Overlay
+
 
 /**
  * CustomTabBar Component
@@ -45,18 +48,17 @@ import { useTranslation } from 'react-i18next';
 const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // ⭐ ALL HOOKS MUST BE AT THE TOP (React Rules of Hooks)
   const { currentTheme } = useTheme();
+  const { user } = useUser(); // 🎮 NEW: Get user info for game API
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const actionSheetRef = useRef(null);
   const { setSelectedIndex, selectedPersona, selectedPersonaRef, selectedIndex, mode, switchMode } = usePersona(); // 🔥 NEW: Add selectedPersonaRef
   const { isQuickMode, toggleQuickMode } = useQuickAction();
   const { hasNewMessage, isMessageCreationActive, messageCreateHandler, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state, message creation state, and handler from Context
-  const { user } = useUser(); // 🎮 NEW: Get user info for game API
-
-
-  const { t } = useTranslation();
-  const actionSheetRef = useRef(null);
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
   const [activeGame, setActiveGame] = useState(null); // 🎮 NEW: 'fortress' | 'tattoo' | 'nostradamus'
-  const insets = useSafeAreaInsets();
-  
+
+  const [isShowTierUpgrade, setIsShowTierUpgrade] = useState(false);
   // 🔥 PERFORMANCE DEBUG: Render counter with timestamp
   const renderCountRef = useRef(0);
   renderCountRef.current++;
@@ -209,6 +211,31 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   // 🎮 NEW: Game Close Handler
   const handleGameClose = () => {
     setActiveGame(null);
+  };
+
+  const handleTierUpgrade = () => {
+    setIsShowTierUpgrade(true);
+  };
+
+  // 🎮 NEW: Game Close Handler
+  const handleLimitClose = () => {
+    setActiveGame(null);
+
+    showAlert({
+      title: t('game.fortress.limit_modal.title'),
+      message: t('game.fortress.limit_modal.message'),
+      emoji: '❌',
+      buttons: [
+        { text: t('common.cancel'), style: 'cancel', onPress: () => {
+          
+        } },
+        { text: t('common.confirm'), style: 'primary', onPress: () => {
+          setIsShowTierUpgrade(true);
+
+        } }
+      ]
+    });
+//    setIsShowTierUpgrade(true);
   };
   
   // ✅ Tab configuration (Simplified - SAGE and Persona as separate tabs)
@@ -450,6 +477,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           context={getCurrentContext()}
           persona={selectedPersonaRef.current} // 🔥 FIXED: Use ref for latest data
           onGameSelect={handleGameSelect} // 🎮 NEW: Game selection callback
+          onTierUpgrade={handleTierUpgrade} // 🎖️ NEW: Tier upgrade callback
         />
       )}
       
@@ -458,14 +486,41 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
         <FortressGameView
           visible={true}
           onClose={handleGameClose}
+          onLimitClose={handleLimitClose}
           persona={selectedPersonaRef.current}
-          user={user} // 🎮 NEW: User info for LLM API
+          user={user} // 🎮 User info for LLM API
+        />
+      )}
+      
+      {/* 🔮 Tarot Game */}
+      {activeGame === 'tarot' && (
+        <TarotGameView
+          visible={true}
+          onClose={handleGameClose}
+          onLimitClose={handleLimitClose}
+          persona={selectedPersonaRef.current}
+          user={user} // 🔮 User info for LLM API
         />
       )}
       
       {/* 향후 추가 게임들 */}
       {/* {activeGame === 'tattoo' && <TattooGameView ... />} */}
       {/* {activeGame === 'nostradamus' && <NostradamusGameView ... />} */}
+
+      {isShowTierUpgrade && (
+         <TierUpgradeSheet
+         isOpen={isShowTierUpgrade}
+         onClose={() => {setIsShowTierUpgrade(false);}}
+         currentTier={user.user_level || 'basic'}
+         userKey={user.user_key}
+         onUpgradeSuccess={(newTier) => {
+           console.log('✅ [ManagerAIOverlay] Tier upgraded to:', newTier);
+           // ⭐ Reload service config to update chat limits
+           // (This will be handled by useChatLimit hook on next render)
+ 
+         }}
+       />
+      )}
     </View>
   );
 };
