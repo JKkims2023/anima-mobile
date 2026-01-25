@@ -35,7 +35,8 @@ import CenterAIButton from './CenterAIButton';
 import CenterAIActionSheet from '../CenterAIActionSheet';
 import ManagerAIOverlay from '../chat/ManagerAIOverlay'; // ⭐ Manager AI Overlay
 import FortressGameView from '../game/FortressGameView'; // 🎮 Fortress Game
-import TarotGameView from '../game/TarotGameView'; // 🔮 NEW: Tarot Game
+import TarotGameView from '../game/TarotGameView'; // 🔮 Tarot Game
+import ConfessionView from '../game/ConfessionView'; // 🙏 NEW: Confession System
 import HapticService from '../../utils/HapticService';
 import { useTranslation } from 'react-i18next';
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 🎮 NEW: Tier Upgrade Overlay
@@ -500,6 +501,17 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
           onLimitClose={handleLimitClose}
           persona={selectedPersonaRef.current}
           user={user} // 🔮 User info for LLM API
+        />
+      )}
+      
+      {/* 🙏 Confession System */}
+      {activeGame === 'confession' && (
+        <ConfessionView
+          visible={true}
+          onClose={handleGameClose}
+          onLimitClose={handleLimitClose}
+          persona={selectedPersonaRef.current} // Not used (NEXUS hardcoded)
+          user={user} // 🙏 User info for LLM API & Gift
         />
       )}
       

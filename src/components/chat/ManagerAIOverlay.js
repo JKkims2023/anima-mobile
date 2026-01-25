@@ -1990,14 +1990,24 @@ const ManagerAIOverlay = ({
         return;
       }
 
+      // 🎮 Game Images
+      const gameImages = {
+        fortress: persona?.selected_dress_image_url || persona?.original_url,
+        tarot: 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b3d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png', // SAGE
+        confession: 'https://babi-cdn.logbrix.ai/babi/real/babi/344c4082-0cbb-4271-bb85-c3762e1516b2_00001_.png', // NEXUS
+      };
+      
+      // 🎮 Game Messages
+      const gameMessages = {
+        fortress: t('game.width_persona', { persona_name: persona.persona_name, status: '준비중' }),
+        tarot: t('game.tarot_message'),
+        confession: t('game.confession_message'),
+      };
+      
       showAlert({
         title: t('game.game_title'),
-        image: 
-        gameName === 'fortress' ? 
-        persona?.selected_dress_image_url || persona?.original_url : 
-        gameName === 'tarot' ? 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png' : 'https://babi-cdn.logbrix.ai/babi/real/babi/f5e2ba44-5bdd-4b3d-8e22-c049f102ffe5_00001_.png',
-        message: gameName === 'fortress' ? t('game.width_persona', { persona_name: persona.persona_name, status: '준비중' }) : 
-        gameName === 'tarot' ? t('game.tarot_message') : t('game.confession_message'),
+        image: gameImages[gameName] || gameImages.fortress,
+        message: gameMessages[gameName] || gameMessages.fortress,
         buttons: [
           {
             text: t('common.cancel'),
@@ -2238,18 +2248,17 @@ const ManagerAIOverlay = ({
                         </CustomText>
                       </TouchableOpacity>
 
-                      {/* ⚡ Tattoo (Coming Soon) */}
+                      {/* 🙏 Confession */}
                       <TouchableOpacity
-                        style={[styles.menuItem, styles.menuItemDisabled]}
-                        disabled
+                        style={styles.menuItem}
                         activeOpacity={0.7}
                         onPress={() => {
                           handleGameSelect('confession');
 //                          setIsSettingsMenuOpen(false);
                         }}
                       >
-                        <CustomText type='middle' style={[styles.menuIcon, styles.menuIconDisabled]}>⚡</CustomText>
-                        <CustomText type='middle' style={[styles.menuText, styles.menuTextDisabled]}>
+                        <CustomText type='middle' style={styles.menuIcon}>🙏</CustomText>
+                        <CustomText type='middle' style={styles.menuText}>
                           {t('game.confession_title')}
                         </CustomText>
                       </TouchableOpacity>
