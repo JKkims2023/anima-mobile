@@ -124,7 +124,7 @@ const TarotCard = ({
     }
   }, [isSelected]);
   
-  // Front animated style
+  // Front animated style (동적 부분만)
   const frontAnimatedStyle = useAnimatedStyle(() => {
     const rotateY = interpolate(
       flipRotation.value,
@@ -150,18 +150,22 @@ const TarotCard = ({
         { scale: selectionScale.value * entranceScale.value },
       ],
       opacity: opacity * entranceOpacity.value,
-      backfaceVisibility: 'hidden',
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      // 🔮 역방향 오라 (동적 shadow)
+      // 🔮 역방향 오라 (동적 shadow - shadowOffset 제외)
       shadowColor: '#9C27B0', // 보라색
-      shadowOffset: { width: 0, height: 0 },
       shadowOpacity: glowOpacity * 0.8,
       shadowRadius: glowRadius,
       elevation: glowOpacity * 10, // Android
     };
   });
+  
+  // Front 정적 스타일 (shadowOffset 등)
+  const frontStaticStyle = {
+    backfaceVisibility: 'hidden',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    shadowOffset: { width: 0, height: 0 }, // 정적 값
+  };
   
   // Back animated style
   const backAnimatedStyle = useAnimatedStyle(() => {
@@ -211,7 +215,7 @@ const TarotCard = ({
       </Animated.View>
       
       {/* Card Front (앞면) - 이미지 중심 디자인 ✨ */}
-      <Animated.View style={[frontAnimatedStyle]}>
+      <Animated.View style={[frontStaticStyle, frontAnimatedStyle]}>
         <View style={styles.cardFront}>
           {/* Card Image (메인) */}
           <Image
