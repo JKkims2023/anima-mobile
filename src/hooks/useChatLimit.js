@@ -38,7 +38,7 @@ const useChatLimit = (visible, user, showAlert) => {
   
   // ⭐ Load service config when overlay opens
   useEffect(() => {
-    console.log(`🎣 [useChatLimit] useEffect triggered - visible: ${visible}, user_key: ${user?.user_key}`);
+    console.log(`🎣 [useChatLimit] useEffect triggered - visible: ${visible}, user_key: ${user?.user_key}, current loadingServiceConfig: ${loadingServiceConfig}`);
     
     const loadServiceConfig = async () => {
       if (!visible || !user?.user_key) {
@@ -91,6 +91,7 @@ const useChatLimit = (visible, user, showAlert) => {
           onboardingDaysRemaining: 0
         });
       } finally {
+        console.log('🏁 [useChatLimit] Finally: Setting loadingServiceConfig to false');
         setLoadingServiceConfig(false);
       }
     };
