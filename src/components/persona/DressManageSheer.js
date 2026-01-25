@@ -53,6 +53,7 @@ const DressManageSheer = ({
   isOpen,
   personaKey,
   currentPersona, // ⭐ 현재 페르소나 정보 (selected_dress_image_url, history_key 확인용)
+  currentPersonaRef, // 🔥 NEW: Ref for immediate access to latest persona
   onClose,
   onCreateStart, // (data) => { file, name, gender }
   onDressUpdated, // ⭐ (dressData) => { selected_dress_image_url, selected_dress_video_url, history_key }
@@ -445,13 +446,16 @@ const DressManageSheer = ({
   const renderDress = useCallback(({ item, index }) => {
     console.log('[DressManageSheer] 🎨 Rendering dress:', item.memory_key, item.media_url, 'done_yn:', item.done_yn);
     
+    // 🔥 Use ref for latest persona data (bypasses React render cycle)
+    const latestPersona = currentPersonaRef?.current || currentPersona;
+    
     /*
     // Check if this dress is currently equipped
-    const isEquipped = currentPersona?.selected_dress_image_url === item.media_url ||
-                       currentPersona?.history_key === item.memory_key;
+    const isEquipped = latestPersona?.selected_dress_image_url === item.media_url ||
+                       latestPersona?.history_key === item.memory_key;
     */
 
-    const isEquipped = currentPersona?.history_key === item.memory_key;
+    const isEquipped = latestPersona?.history_key === item.memory_key;
     
     // Check if this dress is still being created
     const isCreating = item.done_yn === 'N';
@@ -549,7 +553,7 @@ const DressManageSheer = ({
       ref={bottomSheetRef}
       onClose={onClose}
       snapPoints={['70%']}
-      title={t('persona.dressing_room.title', { name: currentPersona?.persona_name })}
+      title={t('persona.dressing_room.title', { name: (currentPersonaRef?.current || currentPersona)?.persona_name })}
       showCloseButton={true}
       buttons={[
         {
@@ -605,7 +609,7 @@ const DressManageSheer = ({
         {/* ═════════════════════════════════════════════════════════════════ */}
         <View style={styles.dressListSection}>
           <CustomText type="middle"  style={[styles.sectionHeader, { fontSize: moderateScale(14), marginTop: verticalScale(-10), marginBottom: verticalScale(10) }]}>
-            {t('persona.dressing_room.subtitle', { name: currentPersona?.persona_name })}
+            {t('persona.dressing_room.subtitle', { name: (currentPersonaRef?.current || currentPersona)?.persona_name })}
           </CustomText>
           <View style={styles.sectionHeader}>
             <Icon name="dresser" size={moderateScale(24)} color={COLORS.DEEP_BLUE_LIGHT} />

@@ -120,7 +120,15 @@ const PersonaCardView = forwardRef(({
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const videoRef = useRef(null); // ⭐ NEW: Video ref for manual control (seek, etc.)
   const insets = useSafeAreaInsets();
-  const timerIntervalRef = useRef(null); // ⭐ NEW: Ref to store interval ID for cleanup
+  const timerIntervalRef = useRef(null);
+  
+  // 🔥 NEW: Create ref for immediate access to latest persona (for PostcardBack & MessageCreationBack)
+  const personaRef = useRef(persona);
+  
+  // 🔥 Keep ref in sync with props
+  useEffect(() => {
+    personaRef.current = persona;
+  }, [persona]); // ⭐ NEW: Ref to store interval ID for cleanup
   
   // ⭐ REMOVED: 로컬 높이 계산 제거 (prop으로 받은 availableHeight 사용!)
   // 이전에는 PersonaStudioScreen과 다르게 계산해서 10px 차이 발생
@@ -606,6 +614,7 @@ const PersonaCardView = forwardRef(({
         >
           <PostcardBack
             persona={persona}
+            personaRef={personaRef} // 🔥 NEW: Pass ref for immediate access
             onClose={flipToFront}
             isVisible={currentBackView === 'postcard'} // ⭐ FIXED: Use currentBackView instead of isFlipped
             user={user} // ⭐ Pass user for API call
@@ -626,6 +635,7 @@ const PersonaCardView = forwardRef(({
         >
           <MessageCreationBack
             persona={persona}
+            personaRef={personaRef} // 🔥 NEW: Pass ref for immediate access
             onClose={flipToFront}
             onUpgradeTier={onUpgradeTier} // ⭐ NEW: Pass callback for tier upgrade
             isVisible={currentBackView === 'message'} // ⭐ FIXED: Use currentBackView instead of isFlipped

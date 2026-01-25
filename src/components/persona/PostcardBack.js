@@ -40,6 +40,7 @@ import { setPersonaCommentRead, isPersonaCommentRead } from '../../utils/storage
 
 const PostcardBack = ({
   persona,
+  personaRef, // 🔥 NEW: Ref for immediate access to latest persona
   onClose,
   isVisible = false, // ⭐ Track visibility to trigger animation
   onMarkAsRead, // ⭐ NEW: Callback to notify parent that comment has been read
@@ -62,16 +63,19 @@ const PostcardBack = ({
   // 🔥 CRITICAL FIX: Force image reset on isVisible change!
   // This ensures images reload even with the same URL
   useEffect(() => {
-    if (isVisible && persona) {
+    // 🔥 Use ref for latest persona data (bypasses React render cycle)
+    const latestPersona = personaRef?.current || persona;
+    
+    if (isVisible && latestPersona) {
       // Step 1: Reset to null first (force unmount)
       setBackImage(null);
       
       // Step 2: Set new image on next tick (force remount)
       const timer = setTimeout(() => {
-        if (persona?.selected_dress_image_url) {
-          setBackImage(persona.selected_dress_image_url);
-        } else if (persona?.persona_url) {
-          setBackImage(persona.persona_url);
+        if (latestPersona?.selected_dress_image_url) {
+          setBackImage(latestPersona.selected_dress_image_url);
+        } else if (latestPersona?.persona_url) {
+          setBackImage(latestPersona.persona_url);
         }
       }, 0);
       
@@ -80,21 +84,24 @@ const PostcardBack = ({
       // Reset when closing (cleanup)
       setBackImage(null);
     }
-  }, [isVisible, persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url]);
+  }, [isVisible, persona?.persona_key, persona?.selected_dress_image_url, persona?.persona_url, personaRef]);
 
+  // 🔥 Use ref for latest persona data (bypasses React render cycle)
+  const latestPersona = personaRef?.current || persona;
+  
   // ⭐ Get persona data
-  const personaComment = persona?.selected_dress_persona_comment || '';
-  const personaName = persona?.persona_name || 'AI';
+  const personaComment = latestPersona?.selected_dress_persona_comment || '';
+  const personaName = latestPersona?.persona_name || 'AI';
   
   // ⭐ Image sources (priority order)
   const backgroundImage = 
-    persona?.selected_dress_image_url ||  // 1순위: 생성된 드레스 이미지
-    persona?.persona_url ||               // 2순위: 페르소나 기본 이미지
+    latestPersona?.selected_dress_image_url ||  // 1순위: 생성된 드레스 이미지
+    latestPersona?.persona_url ||               // 2순위: 페르소나 기본 이미지
     null;                                 // Fallback: null (어두운 배경)
   
   const personaThumbnail = 
-    persona?.selected_dress_image_url || 
-    persona?.persona_url || 
+    latestPersona?.selected_dress_image_url || 
+    latestPersona?.persona_url || 
     '';
   
   // ⭐ Fallback message if no comment
@@ -110,17 +117,20 @@ const PostcardBack = ({
   useEffect(() => {
     // ⭐ Define async function inside useEffect (React standard pattern)
     const markCommentAsRead = async () => {
-      if (isVisible && !hasMarkedAsRead.current && persona?.persona_key) {
+      // 🔥 Use ref for latest persona data (bypasses React render cycle)
+      const latestPersona = personaRef?.current || persona;
+      
+      if (isVisible && !hasMarkedAsRead.current && latestPersona?.persona_key) {
         // ⭐ Check if comment should be marked as read
         const hasComment = 
-          persona.selected_dress_persona_comment !== null &&
-          persona.selected_dress_persona_comment !== '' &&
-          persona.selected_dress_persona_comment.trim() !== '';
+          latestPersona.selected_dress_persona_comment !== null &&
+          latestPersona.selected_dress_persona_comment !== '' &&
+          latestPersona.selected_dress_persona_comment.trim() !== '';
         
         if (!hasComment) return;
 
         // ⭐ Check if ANIMA Core persona (SAGE/NEXUS - 1:N relationship)
-        const isAnimaCore = isAnimaCorePersona(persona.persona_key);
+        const isAnimaCore = isAnimaCorePersona(latestPersona.persona_key);
         
         // ⭐ CRITICAL: Use 'guest' as fallback for non-logged-in users
         // ANIMA_CORE personas (SAGE/NEXUS) are for ALL users, including free users!
@@ -128,12 +138,12 @@ const PostcardBack = ({
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📖 [PostcardBack] Checking comment read status...');
-        console.log('   persona_key:', persona.persona_key);
-        console.log('   persona_name:', persona.persona_name);
+        console.log('   persona_key:', latestPersona.persona_key);
+        console.log('   persona_name:', latestPersona.persona_name);
         console.log('   user_key:', user?.user_key);
         console.log('   effectiveUserKey:', effectiveUserKey);
         console.log('   is_anima_core:', isAnimaCore);
-        console.log(persona);
+        console.log(latestPersona);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         // ⭐ Determine if unread based on persona type
@@ -145,7 +155,7 @@ const PostcardBack = ({
           // because we don't call the DB API (only save to AsyncStorage)
           // So we only need to check if user has read it locally!
           
-          const alreadyReadLocally = await isPersonaCommentRead(effectiveUserKey, persona.persona_key);
+          const alreadyReadLocally = await isPersonaCommentRead(effectiveUserKey, latestPersona.persona_key);
           console.log('   📦 [AsyncStorage] Already read locally:', alreadyReadLocally);
           
           // ⭐ Not read locally = mark as unread!
@@ -158,8 +168,8 @@ const PostcardBack = ({
             console.log('   ⚠️ User-created persona but no user_key, skipping');
             isUnread = false;
           } else {
-            isUnread = persona.persona_comment_checked === 'N';
-            console.log('   🗄️ [Database] persona_comment_checked:', persona.persona_comment_checked);
+            isUnread = latestPersona.persona_comment_checked === 'N';
+            console.log('   🗄️ [Database] persona_comment_checked:', latestPersona.persona_comment_checked);
           }
         }
         
@@ -174,7 +184,7 @@ const PostcardBack = ({
           
           if (isAnimaCore) {
             // ⭐ ANIMA Core: Save to AsyncStorage
-            success = await setPersonaCommentRead(effectiveUserKey, persona.persona_key);
+            success = await setPersonaCommentRead(effectiveUserKey, latestPersona.persona_key);
             if (success) {
               console.log('✅ [AsyncStorage] Comment marked as read!');
             } else {
@@ -183,7 +193,7 @@ const PostcardBack = ({
           } else {
             // ⭐ User-created: Call DB API (requires actual user_key)
             if (user?.user_key) {
-              const response = await updatePersonaCommentChecked(persona.persona_key, user.user_key);
+              const response = await updatePersonaCommentChecked(latestPersona.persona_key, user.user_key);
               success = response.success;
               if (success) {
                 console.log('✅ [Database] Comment marked as read!');
@@ -198,7 +208,7 @@ const PostcardBack = ({
           
           // ⭐ Notify parent component
           if (success && onMarkAsRead) {
-            onMarkAsRead(persona.persona_key);
+            onMarkAsRead(latestPersona.persona_key);
           }
           
           // ⭐ Reset flag if failed

@@ -50,6 +50,7 @@ const QuickActionChipsAnimated = ({
   onDeleteClick,     // ⭐ 8. Delete
   isVideoConverting = false, // ⭐ NEW: Video converting state
   currentPersona = null,
+  currentPersonaRef = null, // 🔥 NEW: Ref for immediate access to latest persona
   currentDressState = { count: 0, hasCreating: false }, // ⭐ NEW: Dress state for badge
 }) => {
   // 🔥 PERFORMANCE DEBUG: Render counter with timestamp + prop tracking
@@ -254,7 +255,9 @@ const QuickActionChipsAnimated = ({
   
   // ⭐ NEW: Video chip animation controller (3 states)
   useEffect(() => {
-    const hasVideo = currentPersona?.selected_dress_video_url !== null;
+    // 🔥 Use ref for latest persona data (bypasses React render cycle)
+    const latestPersona = currentPersonaRef?.current || currentPersona;
+    const hasVideo = latestPersona?.selected_dress_video_url !== null;
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // State 1: WAITING (No video, not converting) - 강렬한 효과! 🔥
@@ -392,8 +395,10 @@ const QuickActionChipsAnimated = ({
   // ⭐ NEW: Check if history badge should be shown (async check for ANIMA Core personas)
   useEffect(() => {
     const checkBadgeVisibility = async () => {
+      // 🔥 Use ref for latest persona data (bypasses React render cycle)
+      const latestPersona = currentPersonaRef?.current || currentPersona;
       
-      if (!currentPersona) {
+      if (!latestPersona) {
         setShowHistoryBadge(false);
         return;
       }
@@ -404,9 +409,9 @@ const QuickActionChipsAnimated = ({
       
       // ⭐ Check if comment exists
       const hasComment = 
-        currentPersona.selected_dress_persona_comment !== null &&
-        currentPersona.selected_dress_persona_comment !== '' &&
-        currentPersona.selected_dress_persona_comment.trim() !== '';
+        latestPersona.selected_dress_persona_comment !== null &&
+        latestPersona.selected_dress_persona_comment !== '' &&
+        latestPersona.selected_dress_persona_comment.trim() !== '';
       
       if (!hasComment) {
         setShowHistoryBadge(false);
@@ -414,7 +419,7 @@ const QuickActionChipsAnimated = ({
       }
       
       // ⭐ Check if ANIMA Core persona (SAGE/NEXUS)
-      const isAnimaCore = isAnimaCorePersona(currentPersona.persona_key);
+      const isAnimaCore = isAnimaCorePersona(latestPersona.persona_key);
       
       let isUnread = false;
       
@@ -436,7 +441,7 @@ const QuickActionChipsAnimated = ({
 
           isUnread = false;
         } else {
-          isUnread = currentPersona.persona_comment_checked === 'N';
+          isUnread = latestPersona.persona_comment_checked === 'N';
 
         }
       }
@@ -499,8 +504,11 @@ const QuickActionChipsAnimated = ({
         const isDressChip = action.id === 'dress';
         const isVideoChip = action.id === 'video'; // ⭐ NEW: Video chip check
         
+        // 🔥 Use ref for latest persona data (bypasses React render cycle)
+        const latestPersona = currentPersonaRef?.current || currentPersona;
+        
         // ⭐ Video chip states
-        const hasVideo = currentPersona?.selected_dress_video_url !== null;
+        const hasVideo = latestPersona?.selected_dress_video_url !== null;
         const isWaitingState = isVideoChip && !hasVideo && !isVideoConverting; // State 1: 강렬한 효과
         const isConvertingState = isVideoChip && isVideoConverting; // State 2: 변환 중
         
@@ -529,7 +537,7 @@ const QuickActionChipsAnimated = ({
         
         return (
           <View key={action.id} style={[styles.chipWrapper, { display: action.id === 'video' ? 
-          currentPersona?.selected_dress_video_url === null ? 'flex' : isVideoConverting ? 'flex' : 'none' 
+          latestPersona?.selected_dress_video_url === null ? 'flex' : isVideoConverting ? 'flex' : 'none' 
           : 'flex' }]}>
             <AnimatedTouchable
               style={[

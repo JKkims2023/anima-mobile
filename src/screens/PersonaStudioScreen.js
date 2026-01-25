@@ -80,7 +80,7 @@ const PersonaStudioScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const { personas, setPersonas, selectedPersona: contextSelectedPersona, setSelectedIndex, setSelectedPersona, initializePersonas, error: personasError, isLoading: personasLoading } = usePersona();
+  const { personas, setPersonas, selectedPersona: contextSelectedPersona, selectedPersonaRef, setSelectedIndex, setSelectedPersona, initializePersonas, error: personasError, isLoading: personasLoading } = usePersona();
   const { user } = useUser();
   const { showToast, showAlert, setIsMessageCreationActive, showDefaultPersonas, clearHomeBadge } = useAnima(); // ⭐ Default Personas setting
   const insets = useSafeAreaInsets();
@@ -134,18 +134,39 @@ const PersonaStudioScreen = () => {
   const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentPersona, setCurrentPersonaInternal] = useState(null);
   
-  // 🔥 DEBUG: Wrapper to track setCurrentPersona calls
+  // 🔥 CRITICAL FIX: Add ref for immediate access (bypasses React render cycle)
+  // This ensures child components can always get the LATEST persona data
+  // even before React completes the re-render
+  const currentPersonaRef = useRef(null);
+  
+  // 🔥 DEBUG: Wrapper to track setCurrentPersona calls + update ref + sync with PersonaContext
   const setCurrentPersona = useCallback((valueOrUpdater) => {
+    // Calculate new value (handle both direct value and updater function)
+    const newValue = typeof valueOrUpdater === 'function' 
+      ? valueOrUpdater(currentPersonaRef.current)
+      : valueOrUpdater;
+    
     if (__DEV__) {
       const timestamp = Date.now();
-      if (typeof valueOrUpdater === 'function') {
-        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (updater function) @ ${timestamp}`);
-      } else {
-        console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called (direct value):`, valueOrUpdater?.persona_name, `@ ${timestamp}`);
+      console.log(`🔥 [PersonaStudioScreen] setCurrentPersona called @ ${timestamp}`);
+      console.log('   New persona:', newValue?.persona_name);
+      console.log('   persona_key:', newValue?.persona_key);
+    }
+    
+    // Step 1: Update ref IMMEDIATELY (synchronous - bypasses React render cycle!)
+    currentPersonaRef.current = newValue;
+    
+    // Step 2: Update state (asynchronous - triggers re-render)
+    setCurrentPersonaInternal(newValue);
+    
+    // Step 3: 🔥 CRITICAL: Sync with PersonaContext ref (for CustomTabBar & ManagerAI)
+    if (selectedPersonaRef && selectedPersonaRef.current !== newValue) {
+      selectedPersonaRef.current = newValue;
+      if (__DEV__) {
+        console.log('   ✅ Synced with PersonaContext ref');
       }
     }
-    setCurrentPersonaInternal(valueOrUpdater);
-  }, []);
+  }, [selectedPersonaRef]);
   // ❌ REMOVED: chipsRefreshKey (no longer needed - data is in persona list!)
   // ❌ REMOVED: isPanelVisible (PersonaSelectorPanel removed)
   const [isPersonaCreationOpen, setIsPersonaCreationOpen] = useState(false);
@@ -2282,6 +2303,7 @@ const PersonaStudioScreen = () => {
               onDeleteClick={handleDeleteClick}
               isVideoConverting={isVideoConverting} // ⭐ NEW: Pass video converting state
               currentPersona={currentPersona}
+              currentPersonaRef={currentPersonaRef} // 🔥 NEW: Pass ref for immediate access
               currentDressState={currentDressState} // ⭐ NEW: Dress state for badge
             />
           </View>
@@ -2333,6 +2355,7 @@ const PersonaStudioScreen = () => {
             onDressStateUpdate={handleDressStateUpdate} // ⭐ NEW: 드레스 상태 업데이트 (badge용)
             personaKey={currentPersona?.persona_key}
             currentPersona={currentPersona} // ⭐ 현재 페르소나 전체 정보
+            currentPersonaRef={currentPersonaRef} // 🔥 NEW: Pass ref for immediate access
           />
         </View>
       )}
