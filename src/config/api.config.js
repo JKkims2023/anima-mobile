@@ -243,6 +243,9 @@ export const GAME_ENDPOINTS = {
   TAROT_INTERPRET: API_BASE_URL + '/api/tarot/interpret', // 🎴 Tarot card interpretation
   TAROT_SAVE: API_BASE_URL + '/api/tarot/save-reading', // 💾 Save tarot reading
   TAROT_GIFT: API_BASE_URL + '/api/tarot/gift', // 🎁 Generate tarot gift (emotional gift)
+  // 🙏 Confession System Endpoints
+  CONFESSION_CHAT: API_BASE_URL + '/api/confession/chat', // 💬 Confession conversation (NEXUS deep listening)
+  CONFESSION_GIFT: API_BASE_URL + '/api/confession/gift', // 🎁 Generate confession gift (peace & hope)
 };
 
 /**

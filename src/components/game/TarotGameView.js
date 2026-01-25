@@ -2111,7 +2111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(10),
     borderRadius: scale(20),
-    backgroundColor: 'rgba(0, 0, 0, 0.65)', // ⚫ 다크 반투명 (통일!)
+    backgroundColor: 'rgba(0, 0, 0, 0.55)', // ⚫ 다크 반투명 (통일!)
     borderTopLeftRadius: scale(4),
     alignSelf: 'flex-start',
     minWidth: scale(60), // ✅ 최소 너비 (작게)
@@ -2148,7 +2148,7 @@ const styles = StyleSheet.create({
   },
   
   sageMessageBubbleNormal: {
-    backgroundColor: 'rgba(0, 0, 0, 0.65)', // ⚫ 다크 반투명 (생각 버블 통일)
+    backgroundColor: 'rgba(0, 0, 0, 0.55)', // ⚫ 다크 반투명 (생각 버블 통일)
     borderTopLeftRadius: scale(4),
   },
   

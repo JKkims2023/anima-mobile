@@ -425,6 +425,98 @@ export const generateTarotGift = async ({ user_key, interpretation, conversation
 
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 🙏 Confession System API (NEW)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ */
+
+/**
+ * Send confession chat message (deep listening conversation)
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key (NEXUS)
+ * @param {Array} params.conversation_history - [{role: 'user'|'assistant', content: string}, ...]
+ * @param {string} params.user_message - Current user message
+ * 
+ * @returns {Promise<Object>} Chat response
+ * @returns {boolean} response.success - Request success
+ * @returns {string} response.nexus_response - NEXUS's response
+ * @returns {boolean} response.is_ready - Ready for listening phase?
+ * @returns {string} [response.conversation_summary] - Summary if ready
+ * @returns {number} response.updated_count - Updated daily chat count
+ * @returns {number} response.daily_limit - Daily chat limit
+ */
+export const sendConfessionChat = async ({ user_key, persona_key, conversation_history, user_message }) => {
+  try {
+    console.log('🙏 [gameApi] Sending confession chat message...');
+    console.log('   Message:', user_message.substring(0, 50));
+    console.log('   History length:', conversation_history?.length || 0);
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.CONFESSION_CHAT, {
+      user_key,
+      persona_key,
+      conversation_history,
+      user_message,
+    });
+    
+    console.log('✅ [gameApi] NEXUS response received');
+    console.log('   Is ready:', response.data.is_ready);
+    console.log('   Updated count:', response.data.updated_count);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] sendConfessionChat error:', error);
+    return {
+      success: false,
+      nexus_response: '죄송합니다. 잠시 생각이 복잡해졌습니다. 다시 한번 말씀해 주시겠어요?',
+      is_ready: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Generate confession gift (emotional gift after confession)
+ * 
+ * @param {Object} params - Request parameters
+ * @param {string} params.user_key - User key
+ * @param {string} [params.conversation_summary] - Brief summary
+ * 
+ * @returns {Promise<Object>} Gift generation response
+ * @returns {boolean} response.success - Request success
+ * @returns {Object} response.gift - Gift object
+ * @returns {string} response.gift.gift_id - Unique gift ID
+ * @returns {string} response.gift.type - 'confession_hope'
+ * @returns {string} response.gift.message - Gift message from NEXUS
+ * @returns {string} response.gift.image_url - null (pending generation)
+ * @returns {string} response.gift.image_status - 'pending'
+ */
+export const generateConfessionGift = async ({ user_key, conversation_summary }) => {
+  try {
+    console.log('🎁 [gameApi] Generating confession gift...');
+    console.log('   Summary:', conversation_summary?.substring(0, 50));
+    
+    const response = await apiClient.post(GAME_ENDPOINTS.CONFESSION_GIFT, {
+      user_key,
+      conversation_summary,
+    });
+    
+    console.log('✅ [gameApi] Confession gift generated');
+    console.log('   Gift ID:', response.data.gift.gift_id);
+    console.log('   Message:', response.data.gift.message?.substring(0, 50));
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [gameApi] generateConfessionGift error:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * Export gameApi object (for consistency with other API services)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  */
@@ -437,7 +529,10 @@ const gameApi = {
   sendTarotChat,
   interpretTarotCards,
   saveTarotReading,
-  generateTarotGift,  // 🆕 Added tarot gift generation
+  generateTarotGift,
+  // 🙏 Confession API
+  sendConfessionChat,
+  generateConfessionGift,  // 🆕 Added confession gift
   // Future: getTattooStrategy, getNostradamusStrategy
 };
 
