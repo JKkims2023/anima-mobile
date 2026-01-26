@@ -34,7 +34,10 @@ import {
   Image, // 🆕 For image preview
   AppState, // 🎵 NEW: For background state detection
   BackHandler, // ⭐ NEW: For Android back button handling
+  Dimensions, // 🎮 NEW: For game alert dimensions
 } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window'); // 🎮 NEW: Screen width for game alert
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -42,6 +45,7 @@ import IconSearch from 'react-native-vector-icons/MaterialCommunityIcons';
 import ChatMessageList from './ChatMessageList';
 import ChatInputBar from './ChatInputBar';
 import CustomText from '../CustomText';
+import CustomButton from '../CustomButton'; // 🎮 NEW: For game alert buttons
 import IdentitySettingsSheet from './IdentitySettingsSheet'; // 🎭 NEW: Identity settings
 import SpeakingPatternSheet from './SpeakingPatternSheet'; // 🗣️ NEW: Speaking pattern settings
 import CreateMusicSheet from './CreateMusicSheet'; // 🎵 NEW: Create music sheet
@@ -369,6 +373,22 @@ const ManagerAIOverlay = ({
       console.log(`🔥 [STATE] showTierUpgrade changed: ${showTierUpgrade}`);
     }
   }, [showTierUpgrade]);
+  
+  // 🎮 NEW: Game Alert State (Internal Alert for iOS compatibility!)
+  const [gameAlertVisible, setGameAlertVisible] = useState(false);
+  const [gameAlertConfig, setGameAlertConfig] = useState({
+    title: '',
+    message: '',
+    image: null,
+    buttons: [],
+  });
+  
+  // 🔥 [STATE LOG] gameAlertVisible
+  useEffect(() => {
+    if (__DEV__) {
+      console.log(`🔥 [STATE] gameAlertVisible changed: ${gameAlertVisible}`);
+    }
+  }, [gameAlertVisible]);
   
   // 🎵 Music Player Hook (replaces floatingContent, showYouTubePlayer, currentVideo + handlers)
   const {
@@ -2031,9 +2051,9 @@ const ManagerAIOverlay = ({
 
       console.log('gameImages[gameName]: ', gameImages[gameName]);
 
-      if(Platform.OS === 'ios'){
-        console.log('showOverlayAlert');
-      showOverlayAlert({
+      // ✅ Use Internal Alert (iOS & Android compatible!)
+      console.log('🎮 [ManagerAIOverlay] Showing internal game alert');
+      setGameAlertConfig({
         title: t('game.game_title'),
         image: gameImages[gameName] || gameImages.fortress,
         message: gameMessages[gameName] || gameMessages.fortress,
@@ -2043,52 +2063,25 @@ const ManagerAIOverlay = ({
             style: 'cancel',
             onPress: () => {
               console.log('❌ [ManagerAIOverlay] Game select cancelled');
+              setGameAlertVisible(false);
             }
           },
           { 
-          text: t('common.confirm'), 
-          style: 'primary', 
-          onPress: () => {
-            if(canPlay){
-              onGameSelect(gameName);
-            }else{
-
-              console.log('limitCheck.data: ', limitCheck.data);
-              handleLimitFailed(gameName, limitCheck.data);
-            }
-
-          } }],
-      });
-      }else{
-
-        console.log('showAlert');
-        showAlert({
-          title: t('game.game_title'),
-          image: gameImages[gameName] || gameImages.fortress,
-          message: gameMessages[gameName] || gameMessages.fortress,
-          buttons: [
-            {
-              text: t('common.cancel'),
-              style: 'cancel',
-              onPress: () => {
-                console.log('❌ [ManagerAIOverlay] Game select cancelled');
-              }
-            },
-            { 
             text: t('common.confirm'), 
             style: 'primary', 
             onPress: () => {
+              setGameAlertVisible(false);
               if(canPlay){
                 onGameSelect(gameName);
               }else{
-
                 console.log('limitCheck.data: ', limitCheck.data);
                 handleLimitFailed(gameName, limitCheck.data);
               }
-
-            } }],
-        });
-      }
+            }
+          }
+        ],
+      });
+      setGameAlertVisible(true);
 
     }catch(error){
       console.log('❌ [ManagerAIOverlay] Game select failed:', error);
@@ -2433,6 +2426,87 @@ const ManagerAIOverlay = ({
         <IdentityEvolutionOverlay evolution={identityEvolutionDisplay} />
       )}
       
+      {/* 🎮 NEW: Internal Game Alert (iOS Compatible!) */}
+      {gameAlertVisible && (
+        <View style={styles.gameAlertOverlay}>
+          {/* Backdrop */}
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              // Close on backdrop press if there's a cancel button
+              const hasCancelButton = gameAlertConfig.buttons.some(btn => btn.style === 'cancel');
+              if (hasCancelButton) {
+                setGameAlertVisible(false);
+              }
+            }}
+            style={styles.gameAlertBackdrop}
+          />
+          
+          {/* Alert Container */}
+          <View style={styles.gameAlertContainer}>
+            <View style={styles.gameAlertWrapper}>
+              {/* Glow Layer */}
+              <View style={styles.gameAlertGlow} />
+              
+              {/* Alert Content */}
+              <View style={styles.gameAlert}>
+                {/* Title */}
+                {gameAlertConfig.title && (
+                  <CustomText type="title" bold style={styles.gameAlertTitle}>
+                    {gameAlertConfig.title}
+                  </CustomText>
+                )}
+                
+                {/* Image */}
+                {gameAlertConfig.image && (
+                  <View style={styles.gameAlertImageContainer}>
+                    <Image source={{ uri: gameAlertConfig.image }} style={styles.gameAlertImage} />
+                  </View>
+                )}
+                
+                {/* Message */}
+                {gameAlertConfig.message && (
+                  <CustomText type="normal" style={styles.gameAlertMessage}>
+                    {gameAlertConfig.message}
+                  </CustomText>
+                )}
+                
+                {/* Buttons */}
+                <View style={styles.gameAlertButtons}>
+                  {gameAlertConfig.buttons.map((button, index) => {
+                    const isCancel = button.style === 'cancel';
+                    const isPrimary = button.style === 'primary' || button.style === 'destructive';
+                    const isDestructive = button.style === 'destructive';
+                    
+                    return (
+                      <CustomButton
+                        key={index}
+                        title={button.text}
+                        type={isPrimary ? 'primary' : 'outline'}
+                        onPress={() => {
+                          if (button.onPress) {
+                            button.onPress();
+                          }
+                        }}
+                        style={[
+                          styles.gameAlertButton,
+                          gameAlertConfig.buttons.length === 2 && styles.gameAlertButtonHalf,
+                          isDestructive && styles.gameAlertButtonDestructive,
+                        ]}
+                        textStyle={[
+                          isCancel && styles.gameAlertButtonCancelText,
+                          isDestructive && styles.gameAlertButtonDestructiveText,
+                        ]}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+      
       </View>
     </Modal>
     
@@ -2739,6 +2813,109 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginVertical: verticalScale(8),
     marginHorizontal: moderateScale(12),
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎮 Game Alert (Internal Alert for iOS compatibility!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  gameAlertOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10000, // Above everything!
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gameAlertBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  gameAlertContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  gameAlertWrapper: {
+    width: Math.min(SCREEN_WIDTH - scale(64), scale(340)),
+    position: 'relative',
+  },
+  gameAlertGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DEEP_BLUE,
+    shadowColor: COLORS.DEEP_BLUE,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: scale(16),
+    elevation: 0,
+    opacity: 0.7,
+  },
+  gameAlert: {
+    backgroundColor: 'rgba(30, 30, 46, 0.95)',
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    paddingHorizontal: platformPadding(24),
+    paddingTop: platformPadding(28),
+    paddingBottom: platformPadding(24),
+  },
+  gameAlertTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    textAlign: 'center',
+    marginBottom: scale(12),
+    fontSize: Platform.OS === 'ios' ? scale(16) : scale(16),
+  },
+  gameAlertImageContainer: {
+    alignItems: 'center',
+    marginTop: scale(12),
+    marginBottom: scale(20),
+    borderWidth: 1,
+    alignSelf: 'center',
+    width: scale(100),
+    height: scale(100),
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    borderRadius: moderateScale(50),
+    overflow: 'hidden',
+  },
+  gameAlertImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  gameAlertMessage: {
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    marginBottom: scale(24),
+    lineHeight: scale(22),
+    fontSize: Platform.OS === 'ios' ? scale(14) : scale(14),
+  },
+  gameAlertButtons: {
+    flexDirection: 'row',
+    gap: scale(12),
+  },
+  gameAlertButton: {
+    flex: 1,
+  },
+  gameAlertButtonHalf: {
+    flex: 1,
+  },
+  gameAlertButtonCancelText: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  gameAlertButtonDestructive: {
+    backgroundColor: '#EF4444',
+    borderColor: '#EF4444',
+  },
+  gameAlertButtonDestructiveText: {
+    color: '#FFFFFF',
   },
   
 });
