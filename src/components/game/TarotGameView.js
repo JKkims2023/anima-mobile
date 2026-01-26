@@ -604,15 +604,43 @@ const TarotGameView = ({
         user_message: message,
       });
       
-      console.log('✅ [Tarot] SAGE response:', response.sage_response);
-      console.log('   Is ready:', response.is_ready);
+      console.log('✅ [Tarot] SAGE response (NEW STRUCTURE):');
+      console.log('   question:', response.question);
+      console.log('   reason:', response.reason);
+      console.log('   status:', response.status);
       
-      // Add SAGE response (🔮 Remove {{TAROT_READY}} marker)
-      const sageMessage = {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 💙 Sequential Display (Like Confession) - question → ... → reason
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      // 1️⃣ Display 'question' bubble
+      const questionMessage = {
         role: 'assistant',
-        content: response.sage_response.replace(/\{\{TAROT_READY\}\}/g, '').trim(),
+        content: response.question,
       };
-      setConversationHistory(prev => [...prev, sageMessage]);
+      setConversationHistory(prev => [...prev, questionMessage]);
+      setIsWaitingForSage(false); // Stop initial typing indicator
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+      
+      // 2️⃣ Wait 800ms + show typing indicator
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setIsWaitingForSage(true);
+      
+      // 3️⃣ Display 'reason' bubble
+      await new Promise(resolve => setTimeout(resolve, 400));
+      const reasonMessage = {
+        role: 'assistant',
+        content: response.reason,
+      };
+      setConversationHistory(prev => [...prev, reasonMessage]);
+      setIsWaitingForSage(false);
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 💰 CRITICAL: Increment chat count after successful response (Phase 1 & 2만!)
@@ -622,33 +650,32 @@ const TarotGameView = ({
         console.log('💰 [Tarot] Chat count incremented');
       }
       
-      // Check if ready
-      if (response.is_ready) {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 4️⃣ Check if ready for card selection (status: true)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      if (response.status) {
         console.log('🎴 [Tarot] Ready for card selection!');
-        setConversationSummary(response.conversation_summary || message); // ✅ 서버: conversation_summary
+        setConversationSummary(response.conversation_summary || message);
         setIsTarotReady(true); // 🔮 활성화: 버튼 반짝이기 시작!
         
         // ⚠️ 자동 진행 제거! 사용자가 버튼 클릭할 때까지 대기
         // (버튼 클릭 핸들러에서 처리)
       }
       
-      setIsWaitingForSage(false);
-      
-      // Scroll to bottom
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-      
     } catch (error) {
       console.error('❌ [Tarot] sendTarotChat error:', error);
       setIsWaitingForSage(false);
       
-      // Fallback response
-      const fallbackMessage = {
+      // Fallback response (NEW STRUCTURE)
+      const questionMessage = {
         role: 'assistant',
-        content: '음... 잠시 카드들이 조용하네. 다시 한번 말해줄래?',
+        content: '음... 잠시 카드들이 조용하네.',
       };
-      setConversationHistory(prev => [...prev, fallbackMessage]);
+      const reasonMessage = {
+        role: 'assistant',
+        content: '다시 한번 말씀해 주시겠어요?',
+      };
+      setConversationHistory(prev => [...prev, questionMessage, reasonMessage]);
     }
   }, [gamePhase, user, persona, conversationHistory, stopMonologue]);
   
