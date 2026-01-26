@@ -1951,7 +1951,8 @@ const ManagerAIOverlay = ({
       setTimeout(() => {
 
       if(Platform.OS === 'ios'){
-        showOverlayAlert({
+        
+        setGameAlertConfig({
           title: t('game.limit_modal.title'),
           emoji: '🔒',
           message: 
@@ -1966,6 +1967,8 @@ const ManagerAIOverlay = ({
             } }
           ]
         });
+        setGameAlertVisible(true);
+        
       }else{
         showAlert({
           title: t('game.limit_modal.title'),
@@ -2053,35 +2056,68 @@ const ManagerAIOverlay = ({
 
       // ✅ Use Internal Alert (iOS & Android compatible!)
       console.log('🎮 [ManagerAIOverlay] Showing internal game alert');
-      setGameAlertConfig({
-        title: t('game.game_title'),
-        image: gameImages[gameName] || gameImages.fortress,
-        message: gameMessages[gameName] || gameMessages.fortress,
-        buttons: [
-          {
-            text: t('common.cancel'),
-            style: 'cancel',
-            onPress: () => {
-              console.log('❌ [ManagerAIOverlay] Game select cancelled');
-              setGameAlertVisible(false);
-            }
-          },
-          { 
-            text: t('common.confirm'), 
-            style: 'primary', 
-            onPress: () => {
-              setGameAlertVisible(false);
-              if(canPlay){
-                onGameSelect(gameName);
-              }else{
-                console.log('limitCheck.data: ', limitCheck.data);
-                handleLimitFailed(gameName, limitCheck.data);
+
+      if(Platform.OS === 'ios'){
+        setGameAlertConfig({
+          title: t('game.game_title'),
+          image: gameImages[gameName] || gameImages.fortress,
+          message: gameMessages[gameName] || gameMessages.fortress,
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+              onPress: () => {
+                console.log('❌ [ManagerAIOverlay] Game select cancelled');
+                setGameAlertVisible(false);
+              }
+            },
+            { 
+              text: t('common.confirm'), 
+              style: 'primary', 
+              onPress: () => {
+                setGameAlertVisible(false);
+                if(canPlay){
+                  onGameSelect(gameName);
+                }else{
+                  console.log('limitCheck.data: ', limitCheck.data);
+                  handleLimitFailed(gameName, limitCheck.data);
+                }
               }
             }
-          }
-        ],
-      });
-      setGameAlertVisible(true);
+          ],
+        });
+        setGameAlertVisible(true);
+      }else{
+
+        showAlert({
+          title: t('game.game_title'),
+          image: gameImages[gameName] || gameImages.fortress,
+          message: gameMessages[gameName] || gameMessages.fortress,
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+              onPress: () => {
+                console.log('❌ [ManagerAIOverlay] Game select cancelled');
+                setGameAlertVisible(false);
+              }
+            },
+            { 
+              text: t('common.confirm'), 
+              style: 'primary', 
+              onPress: () => {
+                setGameAlertVisible(false);
+                if(canPlay){
+                  onGameSelect(gameName);
+                }else{
+                  console.log('limitCheck.data: ', limitCheck.data);
+                  handleLimitFailed(gameName, limitCheck.data);
+                }
+              }
+            }
+          ],
+        });
+      }
 
     }catch(error){
       console.log('❌ [ManagerAIOverlay] Game select failed:', error);
