@@ -36,7 +36,8 @@ import { scale, moderateScale, platformPadding } from '../utils/responsive-utils
 import { COLORS } from '../styles/commonstyles';
 import Modal from 'react-native-modal'; // ✨ react-native-modal에서 import
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// ⭐ Use 'screen' not 'window' for Modal-in-Modal support!
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('screen');
 const ALERT_WIDTH = Math.min(SCREEN_WIDTH - scale(64), scale(340));
 
 /**
@@ -129,6 +130,14 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
       animationOutTiming={200}
       useNativeDriver={true}
       hideModalContentWhileAnimating={true}
+      // 🔥 CRITICAL for iOS Modal-in-Modal!
+      coverScreen={true} // ⭐ Cover entire screen (including status bar)
+      hasBackdrop={true} // ⭐ Ensure backdrop is rendered
+      backdropTransitionInTiming={200}
+      backdropTransitionOutTiming={200}
+      statusBarTranslucent={true} // ⭐ Android: Overlay status bar
+      deviceHeight={SCREEN_HEIGHT} // ⭐ Use screen height (not window)
+      deviceWidth={SCREEN_WIDTH}
     >
       {/* ⭐ Direct Alert Wrapper (No extra containers!) */}
       <Animated.View style={[styles.alertWrapper, alertStyle]}>
