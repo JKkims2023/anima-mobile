@@ -69,6 +69,7 @@ import useChatLimit from '../../hooks/useChatLimit'; // 💰 Chat limit hook
 import FloatingChatLimitButton from '../chat/FloatingChatLimitButton'; // 💰 Floating chat limit button
 import ChatLimitSheet from '../chat/ChatLimitSheet'; // 💰 Limit reached sheet
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 💰 Tier upgrade sheet
+import DisclaimerOverlay, { checkDisclaimerAgreement } from './DisclaimerOverlay'; // 💙 Legal disclaimer
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -225,6 +226,12 @@ const ConfessionView = ({
     });
   }, [serviceConfig, loadingServiceConfig, showLimitSheet, limitReachedData]);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Legal Disclaimer State
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const [disclaimerVisible, setDisclaimerVisible] = useState(false);
+  const disclaimerChecked = useRef(false); // Prevent re-check
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase State (고해성사: monologue → conversation → listening)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const [gamePhase, setGamePhase] = useState('monologue');
@@ -376,6 +383,31 @@ const ConfessionView = ({
       }
     };
   }, [visible, startMonologue, stopMonologue, backgroundOpacity, backButtonOpacity, backButtonTranslateX, titleOpacity, titleScale, helpButtonOpacity, helpButtonTranslateX, monologueBubbleOpacity, monologueBubbleTranslateY, inputBarOpacity, inputBarTranslateY]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Check and Show Legal Disclaimer (입장 애니메이션 후 1초 뒤)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (visible && !disclaimerChecked.current) {
+      disclaimerChecked.current = true;
+      
+      // Check if user has agreed before
+      checkDisclaimerAgreement('confession').then(agreed => {
+        if (!agreed) {
+          // Show disclaimer after animation completes (1400ms) + 1s = 2400ms
+          setTimeout(() => {
+            console.log('💙 [ConfessionView] Showing legal disclaimer');
+            setDisclaimerVisible(true);
+          }, 2400);
+        }
+      });
+    }
+    
+    if (!visible) {
+      disclaimerChecked.current = false;
+      setDisclaimerVisible(false);
+    }
+  }, [visible]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animate new messages (신비로운 Fade-in)
@@ -638,6 +670,13 @@ const ConfessionView = ({
     // 🎯 PRIORITY ORDER (Top to Bottom) - ManagerAI와 동일!
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
+    // 💙 PRIORITY -1: Legal Disclaimer (Block until agreement!)
+    if (disclaimerVisible) {
+      console.log('⚠️ [Confession] Cannot close during disclaimer!');
+      HapticService.warning();
+      return; // ⭐ Block close!
+    }
+    
     // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
     if (isLimitTooltipOpen) {
       if (limitTooltipRef.current?.closeTooltip) {
@@ -694,7 +733,24 @@ const ConfessionView = ({
     hasCompletedConfessionRef.current = false; // Reset gift flag
     
     onClose();
-  }, [onClose, stopMonologue, isLimitTooltipOpen, showTierUpgrade, user]);
+  }, [onClose, stopMonologue, isLimitTooltipOpen, showTierUpgrade, user, disclaimerVisible]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Disclaimer Handlers
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleDisclaimerAgree = useCallback(() => {
+    console.log('💙 [ConfessionView] User agreed to disclaimer');
+    setDisclaimerVisible(false);
+    HapticService.success();
+  }, []);
+  
+  const handleDisclaimerCancel = useCallback(() => {
+    console.log('💙 [ConfessionView] User declined disclaimer - closing confession');
+    setDisclaimerVisible(false);
+    HapticService.light();
+    // Close confession immediately
+    handleClose();
+  }, [handleClose]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animated Styles (신비로운 진입 효과)
@@ -974,6 +1030,16 @@ const ConfessionView = ({
         }}
       />
     )}
+    
+    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        💙 Legal Disclaimer Overlay (법적 동의 오버레이)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+    <DisclaimerOverlay
+      visible={disclaimerVisible}
+      type="confession"
+      onAgree={handleDisclaimerAgree}
+      onCancel={handleDisclaimerCancel}
+    />
   </>
   );
 };
