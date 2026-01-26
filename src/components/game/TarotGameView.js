@@ -1242,9 +1242,21 @@ const TarotGameView = ({
     console.log('💙 [TarotGameView] User declined disclaimer - closing tarot');
     setDisclaimerVisible(false);
     HapticService.light();
-    // Close tarot immediately
-    handleClose();
-  }, [handleClose]);
+    
+    // Reset all state
+    setGamePhase('monologue');
+    setMonologueMessage('');
+    setConversationHistory([]);
+    setConversationSummary('');
+    setConversationTurns(0);
+    setAvailableCards([]);
+    setSelectedCards([]);
+    setRevealedCards([]);
+    setInterpretation(null);
+    
+    // Close tarot immediately (bypass handleClose checks)
+    onClose();
+  }, [onClose]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Background

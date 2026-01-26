@@ -748,9 +748,19 @@ const ConfessionView = ({
     console.log('💙 [ConfessionView] User declined disclaimer - closing confession');
     setDisclaimerVisible(false);
     HapticService.light();
-    // Close confession immediately
-    handleClose();
-  }, [handleClose]);
+    
+    // Reset all state
+    setGamePhase('monologue');
+    setMonologueMessage('');
+    setConversationHistory([]);
+    setConversationSummary('');
+    conversationSummaryRef.current = ''; // ✅ Reset ref
+    setConversationTurns(0);
+    hasCompletedConfessionRef.current = false; // Reset gift flag
+    
+    // Close confession immediately (bypass handleClose checks)
+    onClose();
+  }, [onClose]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animated Styles (신비로운 진입 효과)
