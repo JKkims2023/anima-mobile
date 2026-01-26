@@ -22,7 +22,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Modal, Dimensions, Platform, BackHandler, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, Platform, BackHandler, Image } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -34,6 +34,7 @@ import CustomText from './CustomText';
 import CustomButton from './CustomButton';
 import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
+import Modal from 'react-native-modal'; // ✨ react-native-modal에서 import
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ALERT_WIDTH = Math.min(SCREEN_WIDTH - scale(64), scale(340));
@@ -131,8 +132,16 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
   };
 
   return (
+    <Modal
+      isVisible={visible}
+      visible={visible}
+      transparent={true}
+      animationType="none"
+      onBackdropPress={handleBackdropPress}
+
+    >
     <View
-      style={[styles.container, { display: visible ? 'flex' : 'none' }]}
+      style={[styles.container, ]}
     >
       {/* Backdrop */}
       <TouchableOpacity
@@ -217,6 +226,7 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
         </Animated.View>
       </View>
     </View>
+    </Modal>
   );
 };
 

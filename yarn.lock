@@ -3832,6 +3832,7 @@ __metadata:
     react-native-image-picker: ^8.2.1
     react-native-linear-gradient: ^2.8.3
     react-native-localize: ^3.6.0
+    react-native-modal: ^14.0.0-rc.1
     react-native-progress: ^5.0.1
     react-native-reanimated: ^3.6.3
     react-native-safe-area-context: ^5.6.2
@@ -9303,6 +9304,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-animatable@npm:1.4.0":
+  version: 1.4.0
+  resolution: "react-native-animatable@npm:1.4.0"
+  dependencies:
+    prop-types: ^15.8.1
+  checksum: a1b211aff745b97351d78643d641fa298f7d71524eaf22fee8a69257ce52e85d6b3caf8e7fd26a521af34984fba7402b7c632c35ea69d618769387d1dcb6b32a
+  languageName: node
+  linkType: hard
+
 "react-native-confetti-cannon@npm:^1.5.2":
   version: 1.5.2
   resolution: "react-native-confetti-cannon@npm:1.5.2"
@@ -9415,6 +9425,18 @@ __metadata:
     react-native-macos:
       optional: true
   checksum: 4d3da51c8ed69d067c1dc512597fa622d4d59c33d3f5627ab228693ec49e8536a57e634357fe0d26e1658d447bc91d854fcc4eeb69fd69b3aad7f8d9aa1b5e67
+  languageName: node
+  linkType: hard
+
+"react-native-modal@npm:^14.0.0-rc.1":
+  version: 14.0.0-rc.1
+  resolution: "react-native-modal@npm:14.0.0-rc.1"
+  dependencies:
+    react-native-animatable: 1.4.0
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.70.0"
+  checksum: 19bca96dde148c14ed4cc0e52fedd0a12ca952815e4dcbea31d0a98962d75dc3c011c677f5f9cd15f2b88f78ccd03134647b280724bc6de148c25e28eea1a7e4
   languageName: node
   linkType: hard
 

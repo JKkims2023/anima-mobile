@@ -35,6 +35,7 @@ import CustomButton from './CustomButton';
 import { scale, moderateScale, platformPadding } from '../utils/responsive-utils';
 import { COLORS } from '../styles/commonstyles';
 
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ALERT_WIDTH = Math.min(SCREEN_WIDTH - scale(64), scale(340));
 
@@ -136,6 +137,7 @@ const AnimaAlert = ({ visible, title, message, emoji, image, buttons = [], onClo
       visible={visible}
       animationType="none"
       onRequestClose={handleBackdropPress}
+
     >
       {/* Backdrop */}
       <TouchableOpacity

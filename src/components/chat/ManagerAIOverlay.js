@@ -1929,27 +1929,46 @@ const ManagerAIOverlay = ({
 
       console.log(user);
       setTimeout(() => {
-      showOverlayAlert({
-        title: t('game.limit_modal.title'),
-        emoji: '🔒',
-        message: 
-        gameName === 'fortress' ? t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
-        gameName === 'tarot' ? t('game.limit_modal.tarot_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
-        gameName === 'confession' ? t('game.limit_modal.confession_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) : '',
-        buttons: [
-          { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
-          { text: t('common.confirm'), style: 'primary', onPress: () => {
-            onTierUpgrade();
-            onClose();
-          } }
-        ]
-      });
+
+      if(Platform.OS === 'ios'){
+        showOverlayAlert({
+          title: t('game.limit_modal.title'),
+          emoji: '🔒',
+          message: 
+          gameName === 'fortress' ? t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+          gameName === 'tarot' ? t('game.limit_modal.tarot_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+          gameName === 'confession' ? t('game.limit_modal.confession_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) : '',
+          buttons: [
+            { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+            { text: t('common.confirm'), style: 'primary', onPress: () => {
+              onTierUpgrade();
+              onClose();
+            } }
+          ]
+        });
+      }else{
+        showAlert({
+          title: t('game.limit_modal.title'),
+          emoji: '🔒',
+          message: 
+          gameName === 'fortress' ? t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+          gameName === 'tarot' ? t('game.limit_modal.tarot_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+          gameName === 'confession' ? t('game.limit_modal.confession_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) : '',
+          buttons: [
+            { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+            { text: t('common.confirm'), style: 'primary', onPress: () => {
+              onTierUpgrade();
+              onClose();
+            } }
+          ]
+        });
+      }
     }, 100);
 
     }catch(error){
       console.log('❌ [ManagerAIOverlay] Limit failed:', error);
     }
-  }, [t, user, showOverlayAlert, onTierUpgrade, onClose]);
+  }, [t, user, showAlert, showOverlayAlert, onTierUpgrade, onClose]);
 
   const handleGameSelect = async (gameName) => {
   
@@ -2011,7 +2030,9 @@ const ManagerAIOverlay = ({
       };
 
       console.log('gameImages[gameName]: ', gameImages[gameName]);
-      
+
+      if(Platform.OS === 'ios'){
+        console.log('showOverlayAlert');
       showOverlayAlert({
         title: t('game.game_title'),
         image: gameImages[gameName] || gameImages.fortress,
@@ -2038,6 +2059,36 @@ const ManagerAIOverlay = ({
 
           } }],
       });
+      }else{
+
+        console.log('showAlert');
+        showAlert({
+          title: t('game.game_title'),
+          image: gameImages[gameName] || gameImages.fortress,
+          message: gameMessages[gameName] || gameMessages.fortress,
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+              onPress: () => {
+                console.log('❌ [ManagerAIOverlay] Game select cancelled');
+              }
+            },
+            { 
+            text: t('common.confirm'), 
+            style: 'primary', 
+            onPress: () => {
+              if(canPlay){
+                onGameSelect(gameName);
+              }else{
+
+                console.log('limitCheck.data: ', limitCheck.data);
+                handleLimitFailed(gameName, limitCheck.data);
+              }
+
+            } }],
+        });
+      }
 
     }catch(error){
       console.log('❌ [ManagerAIOverlay] Game select failed:', error);

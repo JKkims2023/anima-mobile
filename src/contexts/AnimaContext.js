@@ -51,6 +51,14 @@ export const AnimaProvider = ({ children }) => {
     buttons: [],
   });
 
+  // ✅ Overlay Alert state
+  const [overlayAlert, setOverlayAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    emoji: null,
+    buttons: [],
+  });
   // ⭐ New Message Badge state
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [createdMessageUrl, setCreatedMessageUrl] = useState('');
@@ -360,7 +368,10 @@ export const AnimaProvider = ({ children }) => {
   }, []);
 
   const showOverlayAlert = useCallback((config) => {
-    setAlert({
+
+    console.log('inside showOverlayAlert');
+    console.log('showOverlayAlert: ', config);
+    setOverlayAlert({
       visible: true,
       title: config.title || '',
       message: config.message || '',
@@ -374,7 +385,7 @@ export const AnimaProvider = ({ children }) => {
    * Hide Alert
    */
   const hideOverlayAlert = useCallback(() => {
-    setAlert((prev) => ({ ...prev, visible: false }));
+    setOverlayAlert((prev) => ({ ...prev, visible: false }));
   }, []);
 
   // ✅ Context value (🔥 PERFORMANCE FIX: Memoized to prevent unnecessary re-renders!)
@@ -459,12 +470,12 @@ export const AnimaProvider = ({ children }) => {
 
       {/* Global Alert */}
       <AnimaOverlayAlert
-        visible={alert.visible}
-        title={alert.title}
-        image={alert.image}
-        message={alert.message}
-        emoji={alert.emoji}
-        buttons={alert.buttons}
+        visible={overlayAlert.visible}
+        title={overlayAlert.title}
+        image={overlayAlert.image}
+        message={overlayAlert.message}
+        emoji={overlayAlert.emoji}
+        buttons={overlayAlert.buttons}
         onClose={hideOverlayAlert}
       />
     </AnimaContext.Provider>
