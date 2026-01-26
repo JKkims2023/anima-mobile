@@ -995,6 +995,16 @@ const ConfessionView = ({
           </View>
         </KeyboardAvoidingView>
       </View>
+      
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          💙 Legal Disclaimer Overlay (Modal 내부 최상위!)
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <DisclaimerOverlay
+        visible={disclaimerVisible}
+        type="confession"
+        onAgree={handleDisclaimerAgree}
+        onCancel={handleDisclaimerCancel}
+      />
     </Modal>
     
     {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1030,16 +1040,6 @@ const ConfessionView = ({
         }}
       />
     )}
-    
-    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        💙 Legal Disclaimer Overlay (법적 동의 오버레이)
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-    <DisclaimerOverlay
-      visible={disclaimerVisible}
-      type="confession"
-      onAgree={handleDisclaimerAgree}
-      onCancel={handleDisclaimerCancel}
-    />
   </>
   );
 };

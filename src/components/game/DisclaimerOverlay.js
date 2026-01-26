@@ -210,7 +210,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 9999,
+    zIndex: 99999,
+    elevation: 99999,
   },
   card: {
     width: width * 0.85,

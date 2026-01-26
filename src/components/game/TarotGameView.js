@@ -1839,6 +1839,16 @@ const TarotGameView = ({
           </View>
         </Animated.View>
       )}
+      
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          💙 Legal Disclaimer Overlay (Modal 내부 최상위!)
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <DisclaimerOverlay
+        visible={disclaimerVisible}
+        type="tarot"
+        onAgree={handleDisclaimerAgree}
+        onCancel={handleDisclaimerCancel}
+      />
     </Modal>
     
     {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1874,16 +1884,6 @@ const TarotGameView = ({
         }}
       />
     )}
-    
-    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        💙 Legal Disclaimer Overlay (법적 동의 오버레이)
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-    <DisclaimerOverlay
-      visible={disclaimerVisible}
-      type="tarot"
-      onAgree={handleDisclaimerAgree}
-      onCancel={handleDisclaimerCancel}
-    />
   </>
   );
 };
