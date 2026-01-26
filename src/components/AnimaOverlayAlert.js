@@ -43,18 +43,14 @@ const ALERT_WIDTH = Math.min(SCREEN_WIDTH - scale(64), scale(340));
  * AnimaOverlayAlert Component
  */
 const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = [], onClose }) => {
-  // ✅ Animated values
-  const backdropOpacity = useSharedValue(0);
+  // ✅ Animated values (Alert scale animation only, backdrop handled by react-native-modal)
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
 
   // ✅ Show/Hide animation
   useEffect(() => {
     if (visible) {
-      // Show
-      backdropOpacity.value = withTiming(1, {
-        duration: 200,
-      });
+      // Show - Scale up animation for alert
       scale.value = withSpring(1, {
         damping: 15,
         stiffness: 150,
@@ -63,10 +59,7 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
         duration: 200,
       });
     } else {
-      // Hide
-      backdropOpacity.value = withTiming(0, {
-        duration: 200,
-      });
+      // Hide - Scale down animation for alert
       scale.value = withTiming(0.8, {
         duration: 200,
         easing: Easing.in(Easing.cubic),
@@ -99,13 +92,6 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
   
   }, [visible]);
 
-  // ✅ Backdrop animated style
-  const backdropStyle = useAnimatedStyle(() => {
-    return {
-      opacity: backdropOpacity.value,
-    };
-  });
-
   // ✅ Alert animated style
   const alertStyle = useAnimatedStyle(() => {
     return {
@@ -134,24 +120,20 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
   return (
     <Modal
       isVisible={visible}
-      visible={visible}
-      transparent={true}
-      animationType="none"
       onBackdropPress={handleBackdropPress}
-
+      onBackButtonPress={onClose} // ⭐ Android back button support
+      backdropOpacity={0.7}
+      animationIn="fadeIn"
+      animationOut="fadeOut"
+      animationInTiming={200}
+      animationOutTiming={200}
+      useNativeDriver={true}
+      hideModalContentWhileAnimating={true}
+      style={styles.modal} // ⭐ NEW: Modal wrapper style
     >
     <View
-      style={[styles.container, ]}
+      style={styles.container}
     >
-      {/* Backdrop */}
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={handleBackdropPress}
-        style={styles.backdrop}
-      >
-        <Animated.View style={[styles.backdropOverlay, backdropStyle]} />
-      </TouchableOpacity>
-
       {/* Alert Container */}
       <View style={styles.alertContainer} pointerEvents="box-none">
         <Animated.View style={[styles.alertWrapper, alertStyle]}>
@@ -232,34 +214,29 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
 
 const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Backdrop
+  // Modal (react-native-modal wrapper)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  modal: {
+    margin: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Container (내부 컨테이너)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   container: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 9999,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 9998,
-  },
-  backdropOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Alert Container
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   alertContainer: {
-    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 9999,
   },
   alertWrapper: {
     width: ALERT_WIDTH,
