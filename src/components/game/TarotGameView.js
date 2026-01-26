@@ -69,6 +69,7 @@ import useChatLimit from '../../hooks/useChatLimit'; // 💰 Chat limit hook
 import FloatingChatLimitButton from '../chat/FloatingChatLimitButton'; // 💰 Floating chat limit button
 import ChatLimitSheet from '../chat/ChatLimitSheet'; // 💰 Limit reached sheet
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 💰 Tier upgrade sheet
+import DisclaimerOverlay, { checkDisclaimerAgreement } from './DisclaimerOverlay'; // 💙 Legal disclaimer
 
 // 🎴 Data
 import TAROT_CARDS from '../../data/tarotCards.json';
@@ -240,6 +241,12 @@ const TarotGameView = ({
     });
   }, [serviceConfig, loadingServiceConfig, showLimitSheet, limitReachedData]);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Legal Disclaimer State
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const [disclaimerVisible, setDisclaimerVisible] = useState(false);
+  const disclaimerChecked = useRef(false); // Prevent re-check
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Phase State
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const [gamePhase, setGamePhase] = useState('monologue');
@@ -406,6 +413,31 @@ const TarotGameView = ({
       }
     };
   }, [visible, startMonologue, stopMonologue, backgroundOpacity, backButtonOpacity, backButtonTranslateX, titleOpacity, titleScale, helpButtonOpacity, helpButtonTranslateX, monologueBubbleOpacity, monologueBubbleTranslateY, inputBarOpacity, inputBarTranslateY]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Check and Show Legal Disclaimer (입장 애니메이션 후 1초 뒤)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (visible && !disclaimerChecked.current) {
+      disclaimerChecked.current = true;
+      
+      // Check if user has agreed before
+      checkDisclaimerAgreement('tarot').then(agreed => {
+        if (!agreed) {
+          // Show disclaimer after animation completes (1400ms) + 1s = 2400ms
+          setTimeout(() => {
+            console.log('💙 [TarotGameView] Showing legal disclaimer');
+            setDisclaimerVisible(true);
+          }, 2400);
+        }
+      });
+    }
+    
+    if (!visible) {
+      disclaimerChecked.current = false;
+      setDisclaimerVisible(false);
+    }
+  }, [visible]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animate new messages (신비로운 Fade-in)
@@ -1123,6 +1155,13 @@ const TarotGameView = ({
     // 🎯 PRIORITY ORDER (Top to Bottom) - ManagerAI와 동일!
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
+    // 💙 PRIORITY -1: Legal Disclaimer (Block until agreement!)
+    if (disclaimerVisible) {
+      console.log('⚠️ [Tarot] Cannot close during disclaimer!');
+      HapticService.warning();
+      return; // ⭐ Block close!
+    }
+    
     // 💰 PRIORITY 0: FloatingChatLimitButton Tooltip (HIGHEST PRIORITY!)
     if (isLimitTooltipOpen) {
       if (limitTooltipRef.current?.closeTooltip) {
@@ -1188,7 +1227,24 @@ const TarotGameView = ({
     setInterpretation(null);
     
     onClose();
-  }, [onClose, stopMonologue, isLoadingInterpretation, isLimitTooltipOpen, showTierUpgrade]);
+  }, [onClose, stopMonologue, isLoadingInterpretation, isLimitTooltipOpen, showTierUpgrade, disclaimerVisible]);
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💙 Disclaimer Handlers
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleDisclaimerAgree = useCallback(() => {
+    console.log('💙 [TarotGameView] User agreed to disclaimer');
+    setDisclaimerVisible(false);
+    HapticService.success();
+  }, []);
+  
+  const handleDisclaimerCancel = useCallback(() => {
+    console.log('💙 [TarotGameView] User declined disclaimer - closing tarot');
+    setDisclaimerVisible(false);
+    HapticService.light();
+    // Close tarot immediately
+    handleClose();
+  }, [handleClose]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Background
@@ -1818,6 +1874,16 @@ const TarotGameView = ({
         }}
       />
     )}
+    
+    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        💙 Legal Disclaimer Overlay (법적 동의 오버레이)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+    <DisclaimerOverlay
+      visible={disclaimerVisible}
+      type="tarot"
+      onAgree={handleDisclaimerAgree}
+      onCancel={handleDisclaimerCancel}
+    />
   </>
   );
 };
@@ -2109,9 +2175,10 @@ const styles = StyleSheet.create({
   },
   
   conversationContent: {
-    paddingHorizontal: scale(16),
+//    paddingHorizontal: scale(16),
     paddingVertical: verticalScale(20),
     gap: verticalScale(12),
+    paddingRight: scale(10),
   },
   
   // ✅ Message Row (SAGE 아바타 + 버블)
@@ -2199,7 +2266,8 @@ const styles = StyleSheet.create({
   
   interpretationContent: {
     flexGrow: 1, 
-    paddingHorizontal: scale(16),
+//    paddingHorizontal: scale(16),
+    paddingRight: scale(10),
     paddingVertical: verticalScale(0),
     paddingBottom: verticalScale(100), // ✅ 하단 여백 확보 (키보드 영역)
   },
