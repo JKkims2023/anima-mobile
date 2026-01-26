@@ -255,9 +255,7 @@ const ConfessionView = ({
   const hasCompletedConfessionRef = useRef(false); // is_ready: true 도달 여부
   const conversationSummaryRef = useRef(''); // 🎁 Store summary for gift generation
   
-  // 🔄 NEW: NEXUS Continue State (능동적 대화)
-  const [isNexusContinuing, setIsNexusContinuing] = useState(false);
-  const nexusContinueCountRef = useRef(0); // Max 5 times
+  // ❌ [CONTINUE] state removed - 3-step structure handles everything!
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // UI State
@@ -543,14 +541,52 @@ const ConfessionView = ({
         user_message: message,
       });
       
-      console.log('✅ [Confession] NEXUS response:', response.nexus_response);
+      console.log('✅ [Confession] NEXUS 3-step response:', {
+        start: response.start?.substring(0, 40),
+        middle: response.middle?.substring(0, 40),
+        end: response.end?.substring(0, 40),
+        is_ready: response.is_ready,
+      });
       
-      // Add NEXUS response
-      const nexusMessage = {
-        role: 'assistant',
-        content: response.nexus_response,
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 📱 STEP-BY-STEP BUBBLE DISPLAY (like Tarot interpretation!)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      // Helper function to add bubble and scroll
+      const addBubbleAndScroll = (content) => {
+        setConversationHistory(prev => [...prev, {
+          role: 'assistant',
+          content,
+        }]);
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
       };
-      setConversationHistory(prev => [...prev, nexusMessage]);
+      
+      // STEP 1: Display 'start' bubble
+      if (response.start) {
+        addBubbleAndScroll(response.start);
+        await new Promise(resolve => setTimeout(resolve, 800)); // Brief pause
+      }
+      
+      // STEP 2: Display 'middle' bubble (if exists)
+      if (response.middle && response.middle.trim() !== '') {
+        setIsWaitingForNexus(true); // Show ... typing indicator
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Typing pause
+        setIsWaitingForNexus(false);
+        
+        addBubbleAndScroll(response.middle);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Read pause
+      }
+      
+      // STEP 3: Display 'end' bubble
+      if (response.end) {
+        setIsWaitingForNexus(true); // Show ... typing indicator
+        await new Promise(resolve => setTimeout(resolve, 1200)); // Typing pause
+        setIsWaitingForNexus(false);
+        
+        addBubbleAndScroll(response.end);
+      }
       
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 💰 CRITICAL: Increment chat count after successful response
@@ -569,21 +605,12 @@ const ConfessionView = ({
         hasCompletedConfessionRef.current = true; // 🎁 Mark for gift generation
       }
       
-      // 🔄 NEW: Check if NEXUS wants to continue speaking (능동적 선택)
-      if (response.continue_conversation) {
-        console.log('🔄 [Confession] NEXUS wants to continue speaking!');
-        // Wait 1 second, then call handleNexusContinue
-        setTimeout(() => {
-          handleNexusContinue();
-        }, 1000);
-      } else {
-        setIsWaitingForNexus(false);
-      }
+      setIsWaitingForNexus(false);
       
-      // Scroll to bottom
+      // Final scroll to bottom
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      }, 200);
       
     } catch (error) {
       console.error('❌ [Confession] sendConfessionChat error:', error);
@@ -596,101 +623,12 @@ const ConfessionView = ({
       };
       setConversationHistory(prev => [...prev, fallbackMessage]);
     }
-  }, [gamePhase, user, conversationHistory, stopMonologue, checkLimit, showLimitReachedSheet, incrementChatCount, handleNexusContinue]);
+  }, [gamePhase, user, conversationHistory, stopMonologue, checkLimit, showLimitReachedSheet, incrementChatCount]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 🔄 NEW: NEXUS Continue (능동적 대화 - NEXUS가 더 이야기하고 싶을 때)
+  // ❌ [CONTINUE] logic removed - Now using 3-step structure (start/middle/end)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const handleNexusContinue = useCallback(async () => {
-    console.log('🔄 [NEXUS Continue] Starting...', {
-      count: nexusContinueCountRef.current,
-      isNexusContinuing,
-    });
-    
-    // ⭐ Max 5 times (JK님의 철학)
-    if (nexusContinueCountRef.current >= 5) {
-      console.log('⚠️ [NEXUS Continue] Max count reached (5)');
-      setIsNexusContinuing(false);
-      nexusContinueCountRef.current = 0;
-      setIsWaitingForNexus(false);
-      return;
-    }
-    
-    nexusContinueCountRef.current += 1;
-    setIsNexusContinuing(true);
-    
-    // ✅ Show ... dot effect (typing indicator)
-    setIsWaitingForNexus(true);
-    
-    try {
-      console.log('🔄 [NEXUS Continue] Calling API with [CONTINUE] marker...');
-      
-      const response = await gameApi.sendConfessionChat({
-        user_key: user.user_key,
-        persona_key: NEXUS_PERSONA_KEY,
-        conversation_history: conversationHistory,
-        user_message: '[CONTINUE]', // 🔑 Special marker!
-      });
-      
-      console.log('🔄 [NEXUS Continue] Response:', {
-        hasResponse: !!response.nexus_response,
-        continue: response.continue_conversation,
-        count: nexusContinueCountRef.current,
-      });
-      
-      if (response.nexus_response) {
-        // Add NEXUS's continued message
-        const nexusMessage = {
-          role: 'assistant',
-          content: response.nexus_response,
-        };
-        setConversationHistory(prev => [...prev, nexusMessage]);
-        
-        // 💰 NO CHAT LIMIT DEDUCTION (NEXUS의 능동적 발언)
-        console.log('💰 [NEXUS Continue] No chat count deduction (NEXUS active choice)');
-        
-        // 🙏 Check if ready for listening phase (may happen during continue)
-        if (response.is_ready) {
-          console.log('🙏 [NEXUS Continue] Ready for listening phase!');
-          setConversationSummary(response.conversation_summary || '');
-          conversationSummaryRef.current = response.conversation_summary || '';
-          setGamePhase('listening');
-          hasCompletedConfessionRef.current = true;
-        }
-        
-        // ⭐ Recursive call if NEXUS wants to continue
-        if (response.continue_conversation) {
-          console.log('🔄 [NEXUS Continue] NEXUS wants to continue again...');
-          // Wait 1 second (with ... dot effect)
-          setTimeout(() => {
-            handleNexusContinue();
-          }, 1000);
-        } else {
-          console.log('✅ [NEXUS Continue] NEXUS finished speaking');
-          setIsNexusContinuing(false);
-          nexusContinueCountRef.current = 0;
-          setIsWaitingForNexus(false);
-        }
-      } else {
-        console.log('⚠️ [NEXUS Continue] No response');
-        setIsNexusContinuing(false);
-        nexusContinueCountRef.current = 0;
-        setIsWaitingForNexus(false);
-      }
-    } catch (error) {
-      console.error('❌ [NEXUS Continue] Error:', error);
-      setIsNexusContinuing(false);
-      nexusContinueCountRef.current = 0;
-      setIsWaitingForNexus(false);
-      
-      // Fallback message
-      const fallbackMessage = {
-        role: 'assistant',
-        content: '음... 생각이 깊어지네요. 다시 천천히 이야기해 보겠습니다.',
-      };
-      setConversationHistory(prev => [...prev, fallbackMessage]);
-    }
-  }, [user, conversationHistory]);
+  // All conversation extension is handled by LLM's 'middle' field decision!
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle Close
@@ -753,8 +691,6 @@ const ConfessionView = ({
     setConversationSummary('');
     conversationSummaryRef.current = ''; // ✅ Reset ref
     setConversationTurns(0);
-    setIsNexusContinuing(false); // ✅ Reset NEXUS continue state
-    nexusContinueCountRef.current = 0; // ✅ Reset NEXUS continue count
     hasCompletedConfessionRef.current = false; // Reset gift flag
     
     onClose();
