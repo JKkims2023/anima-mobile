@@ -123,25 +123,20 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
       onBackdropPress={handleBackdropPress}
       onBackButtonPress={onClose} // ⭐ Android back button support
       backdropOpacity={0.7}
-      animationIn="fadeIn"
-      animationOut="fadeOut"
+      animationIn="zoomIn"
+      animationOut="zoomOut"
       animationInTiming={200}
       animationOutTiming={200}
       useNativeDriver={true}
       hideModalContentWhileAnimating={true}
-      style={styles.modal} // ⭐ NEW: Modal wrapper style
     >
-    <View
-      style={styles.container}
-    >
-      {/* Alert Container */}
-      <View style={styles.alertContainer} pointerEvents="box-none">
-        <Animated.View style={[styles.alertWrapper, alertStyle]}>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {}}
-            style={styles.alertTouchable}
-          >
+      {/* ⭐ Direct Alert Wrapper (No extra containers!) */}
+      <Animated.View style={[styles.alertWrapper, alertStyle]}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => {}}
+          style={styles.alertTouchable}
+        >
             {/* Glow Layer */}
             <View style={styles.glowLayer} />
 
@@ -204,42 +199,19 @@ const AnimaOverlayAlert = ({ visible, title, message, emoji, image, buttons = []
                 })}
               </View>
             </View>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </View>
+        </TouchableOpacity>
+      </Animated.View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Modal (react-native-modal wrapper)
+  // Alert Wrapper (Direct child of Modal!)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  modal: {
-    margin: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Container (내부 컨테이너)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Alert Container
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  alertContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   alertWrapper: {
     width: ALERT_WIDTH,
+    alignSelf: 'center', // ⭐ Center horizontally
   },
   alertTouchable: {
     position: 'relative',

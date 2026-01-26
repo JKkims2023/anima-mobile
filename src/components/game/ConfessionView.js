@@ -70,6 +70,7 @@ import FloatingChatLimitButton from '../chat/FloatingChatLimitButton'; // 💰 F
 import ChatLimitSheet from '../chat/ChatLimitSheet'; // 💰 Limit reached sheet
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 💰 Tier upgrade sheet
 
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -209,6 +210,7 @@ const ConfessionView = ({
   // 💰 FloatingChatLimitButton Tooltip State (Back button 우선순위!)
   const [isLimitTooltipOpen, setIsLimitTooltipOpen] = useState(false);
   const limitTooltipRef = useRef(null);
+
   
   // 💰 Tier Upgrade Sheet State
   const [showTierUpgrade, setShowTierUpgrade] = useState(false);
@@ -847,7 +849,7 @@ const ConfessionView = ({
               <View style={styles.headerCenter}>
                 <Animated.View style={titleAnimatedStyle}>
                   <CustomText type="title" bold style={styles.headerTitle}>
-                    고해성사
+                    {t('game.confession.title')}
                   </CustomText>
                 </Animated.View>
               </View>
