@@ -2881,7 +2881,7 @@
 
   },
   "game": {
-    "game_title": "🎮 매일 함께 놀아요!",
+    "game_title": "🤝  매일 함께 하기",
     "width_persona" : "{{persona_name}}와 양말 던지기를 시작 하시겠습니까?",
     "tarot_message": "SAGE와 함께 타로카드를 이용하여 미래에 대하여 대화를 시작 하시겠습니까?",
     "confession_message": "NEXUS와 함께 당신의 속마음을 고백하고 대화를 시작 하시겠습니까?",
@@ -2895,10 +2895,10 @@
       "title": "🔮 SAGE - 타로 예언가"
     },
     "limit_modal": {
-      "title": "오늘의 게임 한도 초과",
+      "title": "오늘은 그만!",
       "message": "{{tier}} 티어는 하루 {{count}}회의 양말던지기 게임을 플레이 할 수 있습니다.\n\n{{time_until_reset}}\n남은시간\n\nTier 를 업그레이드 하시겠습니까?",
-      "tarot_message": "{{persona_name}}와 타로 게임을 시작 하시겠습니까?",
-      "confession_message": "{{persona_name}}와 고해 게임을 시작 하시겠습니까?"
+      "tarot_message": "{{tier}} 티어는 하루 {{count}}회의 타로 서비스를 이용할 수 있습니다.\n\n{{time_until_reset}}\n남은시간\n\nTier 를 업그레이드 하시겠습니까?",
+      "confession_message": "{{tier}} 티어는 하루 {{count}}회의 고해성사 서비스를 이용할 수 있습니다.\n\n{{time_until_reset}}\n남은시간\n\nTier 를 업그레이드 하시겠습니까?"
     }
   }
 }

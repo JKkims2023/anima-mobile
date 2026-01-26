@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceEventEmitter } from 'react-native';
 import AnimaToast from '../components/AnimaToast';
 import AnimaAlert from '../components/AnimaAlert';
+import AnimaOverlayAlert from '../components/AnimaOverlayAlert';
 
 // ✅ Create Context
 const AnimaContext = createContext();
@@ -358,12 +359,32 @@ export const AnimaProvider = ({ children }) => {
     setAlert((prev) => ({ ...prev, visible: false }));
   }, []);
 
+  const showOverlayAlert = useCallback((config) => {
+    setAlert({
+      visible: true,
+      title: config.title || '',
+      message: config.message || '',
+      emoji: config.emoji || null,
+      image: config.image || null,
+      buttons: config.buttons || [{ text: 'OK', style: 'primary' }],
+    });
+  }, []);
+
+  /**
+   * Hide Alert
+   */
+  const hideOverlayAlert = useCallback(() => {
+    setAlert((prev) => ({ ...prev, visible: false }));
+  }, []);
+
   // ✅ Context value (🔥 PERFORMANCE FIX: Memoized to prevent unnecessary re-renders!)
   const value = React.useMemo(() => ({
     showToast,
     hideToast,
     showAlert,
     hideAlert,
+    showOverlayAlert,
+    hideOverlayAlert,
     hasNewMessage,
     setHasNewMessage,
     createdMessageUrl,
@@ -389,6 +410,8 @@ export const AnimaProvider = ({ children }) => {
     hideToast,
     showAlert,
     hideAlert,
+    showOverlayAlert,
+    hideOverlayAlert,
     hasNewMessage,
     setHasNewMessage,
     createdMessageUrl,
@@ -433,6 +456,17 @@ export const AnimaProvider = ({ children }) => {
         buttons={alert.buttons}
         onClose={hideAlert}
       />
+
+      {/* Global Alert */}
+      <AnimaOverlayAlert
+        visible={alert.visible}
+        title={alert.title}
+        image={alert.image}
+        message={alert.message}
+        emoji={alert.emoji}
+        buttons={alert.buttons}
+        onClose={hideOverlayAlert}
+      />
     </AnimaContext.Provider>
   );
 };
@@ -440,7 +474,7 @@ export const AnimaProvider = ({ children }) => {
 /**
  * useAnima Hook
  * 
- * @returns {{ showToast, hideToast, showAlert, hideAlert }}
+ * @returns {{ showToast, hideToast, showAlert, hideAlert, showOverlayAlert, hideOverlayAlert }}
  */
 export const useAnima = () => {
   const context = useContext(AnimaContext);

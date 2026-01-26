@@ -159,7 +159,7 @@ const ManagerAIOverlay = ({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user } = useUser(); // ✅ Get user info from context
-  const { showAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
+  const { showAlert, showOverlayAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
   const { currentTheme } = useTheme();
   const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
   
@@ -403,7 +403,7 @@ const ManagerAIOverlay = ({
     checkLimit,
     incrementChatCount,
     showLimitReachedSheet,
-  } = useChatLimit(visible, user, showAlert);
+  } = useChatLimit(visible, user, showAlert, showOverlayAlert);
   
   // 🔥 [HOOK LOG] useChatLimit
   useEffect(() => {
@@ -1923,16 +1923,19 @@ const ManagerAIOverlay = ({
   }, [onClose, isAIContinuing, isLoading, isTyping, isLimitTooltipOpen, isSettingsMenuOpen, showTierUpgrade, showIdentitySettings, showSpeakingPattern, showCreateMusic, isHelpOpen]); // ✅ FIXED BUG 2: Removed handleClose from its own dependencies!
   
 
-  const handleLimitFailed = useCallback((data) => {
+  const handleLimitFailed = useCallback((gameName, data) => {
 
     try{
 
       console.log(user);
       setTimeout(() => {
-      showAlert({
+      showOverlayAlert({
         title: t('game.limit_modal.title'),
         emoji: '🔒',
-        message: t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }),
+        message: 
+        gameName === 'fortress' ? t('game.limit_modal.message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+        gameName === 'tarot' ? t('game.limit_modal.tarot_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
+        gameName === 'confession' ? t('game.limit_modal.confession_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) : '',
         buttons: [
           { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
           { text: t('common.confirm'), style: 'primary', onPress: () => {
@@ -1946,7 +1949,7 @@ const ManagerAIOverlay = ({
     }catch(error){
       console.log('❌ [ManagerAIOverlay] Limit failed:', error);
     }
-  }, [t, user, showAlert, onTierUpgrade, onClose]);
+  }, [t, user, showOverlayAlert, onTierUpgrade, onClose]);
 
   const handleGameSelect = async (gameName) => {
   
@@ -1970,6 +1973,7 @@ const ManagerAIOverlay = ({
         game_type: gameName,
       });
       
+      console.log('what gameName: ', gameName);
       console.log('limitCheck: ', limitCheck);
 
       if (limitCheck.success && limitCheck.data.can_play) {
@@ -1984,16 +1988,18 @@ const ManagerAIOverlay = ({
         console.log(`✅ [Fortress] Stats loaded: ${response.data.record_text}`);
       }
 
+      /*
       if(Platform.OS === 'ios'){
 
         onGameSelect(gameName);
         return;
       }
+      */
 
       // 🎮 Game Images
       const gameImages = {
         fortress: persona?.selected_dress_image_url || persona?.original_url,
-        tarot: 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b3d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png', // SAGE
+        tarot: 'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png', // SAGE
         confession: 'https://babi-cdn.logbrix.ai/babi/real/babi/344c4082-0cbb-4271-bb85-c3762e1516b2_00001_.png', // NEXUS
       };
       
@@ -2003,8 +2009,10 @@ const ManagerAIOverlay = ({
         tarot: t('game.tarot_message'),
         confession: t('game.confession_message'),
       };
+
+      console.log('gameImages[gameName]: ', gameImages[gameName]);
       
-      showAlert({
+      showOverlayAlert({
         title: t('game.game_title'),
         image: gameImages[gameName] || gameImages.fortress,
         message: gameMessages[gameName] || gameMessages.fortress,
@@ -2025,7 +2033,7 @@ const ManagerAIOverlay = ({
             }else{
 
               console.log('limitCheck.data: ', limitCheck.data);
-              handleLimitFailed(limitCheck.data);
+              handleLimitFailed(gameName, limitCheck.data);
             }
 
           } }],
