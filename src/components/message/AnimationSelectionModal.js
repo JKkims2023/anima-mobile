@@ -27,6 +27,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  runOnJS,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
@@ -162,7 +163,7 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   // ═══════════════════════════════════════════════════════════════════════════
   // Reanimated Shared Values (✅ react-native-reanimated 사용)
   // ═══════════════════════════════════════════════════════════════════════════
-  const scale = useSharedValue(0.8);
+  const scale_info = useSharedValue(0.8);
   const opacity = useSharedValue(0);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -185,13 +186,13 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
 
   const handleClose = useCallback(() => {
     HapticService.light();
-    scale.value = withTiming(0.8, { duration: 200 });
+    scale_info.value = withTiming(0.8, { duration: 200 });
     opacity.value = withTiming(0, { duration: 200 }, (finished) => {
       if (finished) {
-        onClose();
+        runOnJS(onClose)(); // ✅ UI 쓰레드 → JS 쓰레드로 전환
       }
     });
-  }, [onClose, scale, opacity]);
+  }, [onClose, scale_info, opacity]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Effects
@@ -200,13 +201,13 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   // Entrance animation
   useEffect(() => {
     if (visible) {
-      scale.value = withSpring(1, {
+      scale_info.value = withSpring(1, {
         damping: 15,
         stiffness: 150,
       });
       opacity.value = withTiming(1, { duration: 200 });
     }
-  }, [visible, scale, opacity]);
+  }, [visible, scale_info, opacity]);
 
   // Back button handler
   useEffect(() => {
@@ -229,7 +230,7 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   }));
   
   const modalContentStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: scale_info.value }],
     opacity: opacity.value,
   }));
 
