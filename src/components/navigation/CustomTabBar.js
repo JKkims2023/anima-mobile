@@ -215,6 +215,9 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   };
 
   const handleTierUpgrade = () => {
+
+    console.log('✅ [CustomTabBar] Tier upgrade pressed');
+    setIsManagerOverlayVisible(false);
     setIsShowTierUpgrade(true);
   };
 
@@ -523,8 +526,8 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
          <TierUpgradeSheet
          isOpen={isShowTierUpgrade}
          onClose={() => {setIsShowTierUpgrade(false);}}
-         currentTier={user.user_level || 'basic'}
-         userKey={user.user_key}
+         currentTier={user?.user_level || 'basic'}
+         userKey={user?.user_key || ''}
          onUpgradeSuccess={(newTier) => {
            console.log('✅ [ManagerAIOverlay] Tier upgraded to:', newTier);
            // ⭐ Reload service config to update chat limits

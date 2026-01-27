@@ -54,7 +54,7 @@ const TIER_CONFIG = {
   },
 };
 
-const FloatingChatLimitButton = ({
+const FloatingGameLimitButton = ({
   currentCount = 0,
   dailyLimit = 20,
   tier = 'free',
@@ -168,7 +168,7 @@ const FloatingChatLimitButton = ({
   const styles = StyleSheet.create({
     container: {
       position: 'absolute',
-      top: Platform.OS === 'ios' ? insets.top + verticalScale(12) : verticalScale(10),
+      top: Platform.OS === 'ios' ? verticalScale(10) : verticalScale(10),
       right: scale(12),
       zIndex: 1000,
     },
@@ -471,5 +471,5 @@ const FloatingChatLimitButton = ({
   );
 };
 
-export default memo(FloatingChatLimitButton);
+export default memo(FloatingGameLimitButton);
 

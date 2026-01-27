@@ -71,6 +71,7 @@ import uuid from 'react-native-uuid';
 import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
 import { gameApi } from '../../services/api'; // 🎮 NEW: Game API for LLM
+import { useNavigation } from '@react-navigation/native';
 // ⭐ NEW: Chat helpers and constants
 import { 
   AI_BEHAVIOR, 
@@ -166,7 +167,7 @@ const ManagerAIOverlay = ({
   const { showAlert, showOverlayAlert } = useAnima(); // ⭐ NEW: Alert function for chat limit warnings
   const { currentTheme } = useTheme();
   const { initializePersonas } = usePersona(); // 🎭 NEW: For identity update sync
-  
+  const navigation = useNavigation();
   // 🔥 PERFORMANCE DEBUG: Render counter
   const renderCountRef = useRef(0);
   renderCountRef.current++;
@@ -1960,7 +1961,9 @@ const ManagerAIOverlay = ({
           gameName === 'tarot' ? t('game.limit_modal.tarot_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) :
           gameName === 'confession' ? t('game.limit_modal.confession_message', { tier: user?.user_level, count: data.daily_limit, time_until_reset: data.time_until_reset }) : '',
           buttons: [
-            { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+            { text: t('common.cancel'), style: 'cancel', onPress: () => {
+              setGameAlertVisible(false);
+            } },
             { text: t('common.confirm'), style: 'primary', onPress: () => {
               onTierUpgrade();
               onClose();
@@ -1993,6 +1996,39 @@ const ManagerAIOverlay = ({
     }
   }, [t, user, showAlert, showOverlayAlert, onTierUpgrade, onClose]);
 
+  const handleNeedLogin = () => {
+    
+    if(Platform.OS === 'ios'){
+      setGameAlertConfig({
+        title: t('common.login_guide.title'),
+        emoji: '🔒',
+        message: t('common.login_guide.description'),
+        buttons: [
+          { text: t('common.cancel'), style: 'cancel', onPress: () => {
+            setGameAlertVisible(false);
+          } },
+          { text: t('common.confirm'), style: 'primary', onPress: () => {
+            navigation.navigate('Settings');
+            setGameAlertVisible(false);
+          } }
+        ]
+      });
+    }else{
+      showAlert({
+        title: t('common.login_guide.title'),
+        emoji: '🔒',
+        message: t('common.login_guide.description'),
+        buttons: [
+          { text: t('common.cancel'), style: 'cancel', onPress: () => {} },
+          { text: t('common.confirm'), style: 'primary', onPress: () => {
+            onClose();
+            navigation.navigate('Settings');
+          } }
+        ]
+      });
+    }
+  }
+
   const handleGameSelect = async (gameName) => {
   
     try{
@@ -2001,6 +2037,11 @@ const ManagerAIOverlay = ({
       let status = '';
 
       setIsSettingsMenuOpen(false);
+
+      if(!user || user?.user_key === undefined || user?.user_key === null || user?.user_key === ''){
+        handleNeedLogin();
+        return;
+      }
 
       const response = await gameApi.getGameStats({
         user_key: user.user_key,
@@ -2404,7 +2445,13 @@ const ManagerAIOverlay = ({
                 onUpgradePress={() => {
                   // ⭐ Open TierUpgradeSheet directly
                   HapticService.light();
-                  setShowTierUpgrade(true);
+
+                  if(Platform.OS === 'ios'){
+                    onClose();
+                    onTierUpgrade();
+                  }else{
+                    setShowTierUpgrade(true);
+                  }
                 }}
                 onBuyPointPress={() => {
                   console.log('💰 [ManagerAIOverlay] Buy point button pressed');
@@ -2827,7 +2874,7 @@ const styles = StyleSheet.create({
     marginHorizontal: moderateScale(4),
   },
   menuIcon: {
-    fontSize: moderateScale(18),
+    fontSize: Platform.OS === 'ios' ? moderateScale(18) * 0.6 : moderateScale(18),
     marginRight: moderateScale(8),
   },
   menuText: {

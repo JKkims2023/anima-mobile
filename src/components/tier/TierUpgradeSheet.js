@@ -691,7 +691,20 @@ const TierUpgradeSheet = ({
   const activeTierConfig = TIER_CONFIG[activeTab];
 
   return (
-    <Modal visible={isOpen} transparent animationType="none" presentationStyle="overFullScreen" statusBarTranslucent onRequestClose={handleClose}>
+    <Modal 
+    /*
+    visible={isOpen} 
+    transparent 
+    animationType="none" 
+    presentationStyle="overFullScreen" 
+    statusBarTranslucent 
+    onRequestClose={handleClose}
+    */
+    visible={isOpen}
+    transparent={true}
+    animationType="fade"
+    onRequestClose={handleClose} // ⭐ FIX: Use unified back press handler!
+    >
       {/* Backdrop */}
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose}>
         <Animated.View

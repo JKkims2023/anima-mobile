@@ -37,6 +37,7 @@ import {
   Modal,
   StatusBar,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -58,12 +59,15 @@ import { useUser } from '../../contexts/UserContext';
 import memoryService from '../../services/api/memoryService';
 import amountService from '../../services/api/amountService'; // ⭐ NEW: For video conversion cost
 import HapticService from '../../utils/HapticService';
-import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
+import { scale, verticalScale, moderateScale, platformPadding } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
 import { useTranslation } from 'react-i18next';
+import CustomButton from '../CustomButton';
+
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window'); // 🎮 NEW: Screen width for game alert
 /**
  * Format date helper
  */
@@ -88,6 +92,13 @@ const BackgroundViewerOverlay = ({
   // ⭐ NEW: Video converting state
   const [isVideoConverting, setIsVideoConverting] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [gameAlertVisible, setGameAlertVisible] = useState(false);
+  const [gameAlertConfig, setGameAlertConfig] = useState({
+    title: '',
+    message: '',
+    image: null,
+    buttons: [],
+  });
 
   // Animation values
   const fadeAnim = useSharedValue(0);
@@ -274,56 +285,114 @@ const BackgroundViewerOverlay = ({
   const handleDelete = () => {
     HapticService.light();
 
-    showAlert({
-      title: '배경 삭제',
-      emoji: '🗑️',
-      message: '이 배경을 삭제하시겠습니까?\n삭제된 배경은 복구할 수 없습니다.',
-      buttons: [
-        {
-          text: t('common.cancel') || '취소',
-          style: 'cancel',
-          onPress: () => HapticService.light(),
-        },
-        {
-          text: t('common.delete') || '삭제',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('🗑️ [BackgroundViewerOverlay] Deleting background:', background.memory_key);
-              
-              const result = await memoryService.deleteMemory(background.memory_key);
-              
-              if (result.success) {
-                HapticService.success();
-                showToast({
-                  type: 'success',
-                  message: '배경이 삭제되었습니다',
-                  emoji: '✅',
-                });
-                
-                // Notify parent to update list
-                onBackgroundUpdate?.(background, 'delete');
-                
-                // Close overlay
-                setTimeout(() => {
-                  onClose?.();
-                }, 300);
-              } else {
-                throw new Error(result.error || '삭제에 실패했습니다');
-              }
-            } catch (error) {
-              console.error('[BackgroundViewerOverlay] Delete error:', error);
-              showAlert({
-                title: '삭제 실패',
-                emoji: '❌',
-                message: error.message || '배경 삭제에 실패했습니다',
-                buttons: [{ text: t('common.confirm')}],
-              });
-            }
+    if(Platform.OS === 'android'){
+        showAlert({
+          title: '배경 삭제',
+          emoji: '🗑️',
+          message: '이 배경을 삭제하시겠습니까?\n삭제된 배경은 복구할 수 없습니다.',
+          buttons: [
+            {
+              text: t('common.cancel') || '취소',
+              style: 'cancel',
+              onPress: () => HapticService.light(),
+            },
+            {
+              text: t('common.delete') || '삭제',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  console.log('🗑️ [BackgroundViewerOverlay] Deleting background:', background.memory_key);
+                  
+                  const result = await memoryService.deleteMemory(background.memory_key);
+                  
+                  if (result.success) {
+                    HapticService.success();
+                    showToast({
+                      type: 'success',
+                      message: '배경이 삭제되었습니다',
+                      emoji: '✅',
+                    });
+                    
+                    // Notify parent to update list
+                    onBackgroundUpdate?.(background, 'delete');
+                    
+                    // Close overlay
+                    setTimeout(() => {
+                      onClose?.();
+                    }, 300);
+                  } else {
+                    throw new Error(result.error || '삭제에 실패했습니다');
+                  }
+                } catch (error) {
+                  console.error('[BackgroundViewerOverlay] Delete error:', error);
+                  showAlert({
+                    title: '삭제 실패',
+                    emoji: '❌',
+                    message: error.message || '배경 삭제에 실패했습니다',
+                    buttons: [{ text: t('common.confirm')}],
+                  });
+                }
+              },
+            },
+          ],
+        });
+    }else{
+
+      setGameAlertConfig({
+        title: '배경 삭제',
+        emoji: '🗑️',
+        message: '이 배경을 삭제하시겠습니까?\n삭제된 배경은 복구할 수 없습니다.',
+        buttons: [
+          {
+            text: t('common.cancel') || '취소',
+            style: 'cancel',
+            onPress: () => {
+              setGameAlertVisible(false);
+              HapticService.light();
+            },
           },
-        },
-      ],
-    });
+          {
+            text: t('common.delete') || '삭제',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                console.log('🗑️ [BackgroundViewerOverlay] Deleting background:', background.memory_key);
+                
+                const result = await memoryService.deleteMemory(background.memory_key);
+                
+                if (result.success) {
+                  HapticService.success();
+                  showToast({
+                    type: 'success',
+                    message: '배경이 삭제되었습니다',
+                    emoji: '✅',
+                  });
+                  
+                  // Notify parent to update list
+                  onBackgroundUpdate?.(background, 'delete');
+                  
+                  // Close overlay
+                  setTimeout(() => {
+                    onClose?.();
+                  }, 300);
+                } else {
+                  throw new Error(result.error || '삭제에 실패했습니다');
+                }
+              } catch (error) {
+                console.error('[BackgroundViewerOverlay] Delete error:', error);
+                showAlert({
+                  title: '삭제 실패',
+                  emoji: '❌',
+                  message: error.message || '배경 삭제에 실패했습니다',
+                  buttons: [{ text: t('common.confirm')}],
+                });
+              }
+            },
+          },
+        ],
+      });
+      setGameAlertVisible(true);
+    }
   };
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -363,81 +432,164 @@ const BackgroundViewerOverlay = ({
       
       const video_amount = serviceData.data.video_amount;
       
-      // ⭐ Confirm with user
-      showAlert({
-        title: '영상 변환 확인',
-        message: `이 배경을 영상으로 변환하시겠습니까?\n${video_amount.toLocaleString()} 포인트가 차감됩니다.`,
-        emoji: '🎬',
-        buttons: [
-          {
-            text: t('common.cancel') || '취소',
-            style: 'cancel',
-          },
-          {
-            text: t('common.confirm') || '확인',
-            style: 'primary',
-            onPress: async () => {
-              try {
-                console.log('🎬 [BackgroundViewerOverlay] Starting video conversion...');
-                
-                // ⭐ Call API (will be created)
-                const result = await memoryService.convertBackgroundVideo(
-                  background.memory_key,
-                  user.user_key,
-                  background.media_url
-                );
-
-                if (result.success) {
-                  // ⭐ Update local state
-                  setIsVideoConverting(true);
+      if(Platform.OS === 'android'){
+        showAlert({
+          title: '영상 변환 확인',
+          message: `이 배경을 영상으로 변환하시겠습니까?\n${video_amount.toLocaleString()} 포인트가 차감됩니다.`,
+          emoji: '🎬',
+          buttons: [
+            {
+              text: t('common.cancel') || '취소',
+              style: 'cancel',
+            },
+            {
+              text: t('common.confirm') || '확인',
+              style: 'primary',
+              onPress: async () => {
+                try {
+                  console.log('🎬 [BackgroundViewerOverlay] Starting video conversion...');
                   
-                  HapticService.success();
-                  showToast({
-                    type: 'success',
-                    message: '영상 변환이 시작되었습니다.\n완료되면 알림을 보내드립니다.',
-                    emoji: '🎬',
-                  });
-                  
-                  // ⭐ Update parent (HistoryScreen)
-                  onBackgroundUpdate?.(
-                    { 
-                      ...background, 
-                      video_url: result.data.video_url,
-                      convert_done_yn: 'N',
-                      bric_convert_key: result.data.request_key,
-                    }, 
-                    'video_converting'
+                  // ⭐ Call API (will be created)
+                  const result = await memoryService.convertBackgroundVideo(
+                    background.memory_key,
+                    user.user_key,
+                    background.media_url
                   );
-                  
-                  console.log('✅ [BackgroundViewerOverlay] Video conversion started:', result.data.request_key);
-                } else {
-                  // ⭐ Handle errors
-                  switch(result.errorCode) {
-                    case 'INSUFFICIENT_POINT':
-                      showAlert({
-                        title: t('common.not_enough_point_title') || '포인트 부족',
-                        message: t('common.not_enough_point') || '포인트가 부족합니다.',
-                        buttons: [{ text: t('common.confirm') || '확인' }],
-                      });
-                      break;
-                    default:
-                      throw new Error(result.message || '영상 변환에 실패했습니다');
+
+                  if (result.success) {
+                    // ⭐ Update local state
+                    setIsVideoConverting(true);
+                    
+                    HapticService.success();
+                    showToast({
+                      type: 'success',
+                      message: '영상 변환이 시작되었습니다.\n완료되면 알림을 보내드립니다.',
+                      emoji: '🎬',
+                    });
+                    
+                    // ⭐ Update parent (HistoryScreen)
+                    onBackgroundUpdate?.(
+                      { 
+                        ...background, 
+                        video_url: result.data.video_url,
+                        convert_done_yn: 'N',
+                        bric_convert_key: result.data.request_key,
+                      }, 
+                      'video_converting'
+                    );
+                    
+                    console.log('✅ [BackgroundViewerOverlay] Video conversion started:', result.data.request_key);
+                  } else {
+                    // ⭐ Handle errors
+                    switch(result.errorCode) {
+                      case 'INSUFFICIENT_POINT':
+                        showAlert({
+                          title: t('common.not_enough_point_title') || '포인트 부족',
+                          message: t('common.not_enough_point') || '포인트가 부족합니다.',
+                          buttons: [{ text: t('common.confirm') || '확인' }],
+                        });
+                        break;
+                      default:
+                        throw new Error(result.message || '영상 변환에 실패했습니다');
+                    }
                   }
+                } catch (error) {
+                  console.error('❌ [BackgroundViewerOverlay] Video convert error:', error);
+                  HapticService.warning();
+                  showAlert({
+                    title: '변환 실패',
+                    emoji: '❌',
+                    message: error.message || '영상 변환에 실패했습니다',
+                    buttons: [{ text: t('common.confirm')}],
+                  });
                 }
-              } catch (error) {
-                console.error('❌ [BackgroundViewerOverlay] Video convert error:', error);
-                HapticService.warning();
-                showAlert({
-                  title: '변환 실패',
-                  emoji: '❌',
-                  message: error.message || '영상 변환에 실패했습니다',
-                  buttons: [{ text: t('common.confirm')}],
-                });
+              },
+            },
+          ],
+        });
+      }else{
+
+        setGameAlertConfig({
+          title: '영상 변환 확인',
+          message: `이 배경을 영상으로 변환하시겠습니까?\n${video_amount.toLocaleString()} 포인트가 차감됩니다.`,
+          emoji: '🎬',
+          buttons: [
+            {
+              text: t('common.cancel') || '취소',
+              style: 'cancel',
+              onPress: () => {
+                setGameAlertVisible(false);
               }
             },
-          },
-        ],
-      });
+            {
+              text: t('common.confirm') || '확인',
+              style: 'primary',
+              onPress: async () => {
+                try {
+                  console.log('🎬 [BackgroundViewerOverlay] Starting video conversion...');
+                  
+                  // ⭐ Call API (will be created)
+                  const result = await memoryService.convertBackgroundVideo(
+                    background.memory_key,
+                    user.user_key,
+                    background.media_url
+                  );
+
+                  if (result.success) {
+                    // ⭐ Update local state
+                    setIsVideoConverting(true);
+
+                    setGameAlertVisible(false);
+                    HapticService.success();
+                    showToast({
+                      type: 'success',
+                      message: '영상 변환이 시작되었습니다.\n완료되면 알림을 보내드립니다.',
+                      emoji: '🎬',
+                    });
+                    
+                    // ⭐ Update parent (HistoryScreen)
+                    onBackgroundUpdate?.(
+                      { 
+                        ...background, 
+                        video_url: result.data.video_url,
+                        convert_done_yn: 'N',
+                        bric_convert_key: result.data.request_key,
+                      }, 
+                      'video_converting'
+                    );
+                    
+                    console.log('✅ [BackgroundViewerOverlay] Video conversion started:', result.data.request_key);
+                  } else {
+                    // ⭐ Handle errors
+                    switch(result.errorCode) {
+                      case 'INSUFFICIENT_POINT':
+                        showAlert({
+                          title: t('common.not_enough_point_title') || '포인트 부족',
+                          message: t('common.not_enough_point') || '포인트가 부족합니다.',
+                          buttons: [{ text: t('common.confirm') || '확인' }],
+                        });
+                        break;
+                      default:
+                        throw new Error(result.message || '영상 변환에 실패했습니다');
+                    }
+                  }
+                } catch (error) {
+                  console.error('❌ [BackgroundViewerOverlay] Video convert error:', error);
+                  HapticService.warning();
+                  showAlert({
+                    title: '변환 실패',
+                    emoji: '❌',
+                    message: error.message || '영상 변환에 실패했습니다',
+                    buttons: [{ text: t('common.confirm')}],
+                  });
+                }
+              },
+            },
+          ],
+        });
+        setGameAlertVisible(true);
+      }
+
     } catch (error) {
       console.error('[BackgroundViewerOverlay] Video convert error:', error);
       HapticService.warning();
@@ -612,6 +764,88 @@ const BackgroundViewerOverlay = ({
             </CustomText>
           </View>
         </Animated.View>
+
+        {/* 🎮 NEW: Internal Game Alert (iOS Compatible!) */}
+        {gameAlertVisible && (
+          <View style={styles.gameAlertOverlay}>
+            {/* Backdrop */}
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {
+                // Close on backdrop press if there's a cancel button
+                const hasCancelButton = gameAlertConfig.buttons.some(btn => btn.style === 'cancel');
+                if (hasCancelButton) {
+                  setGameAlertVisible(false);
+                }
+              }}
+              style={styles.gameAlertBackdrop}
+            />
+            
+            {/* Alert Container */}
+            <View style={styles.gameAlertContainer}>
+              <View style={styles.gameAlertWrapper}>
+                {/* Glow Layer */}
+                <View style={styles.gameAlertGlow} />
+                
+                {/* Alert Content */}
+                <View style={styles.gameAlert}>
+                  {/* Title */}
+                  {gameAlertConfig.title && (
+                    <CustomText type="title" bold style={styles.gameAlertTitle}>
+                      {gameAlertConfig.title}
+                    </CustomText>
+                  )}
+                  
+                  {/* Image */}
+                  {gameAlertConfig.image && (
+                    <View style={styles.gameAlertImageContainer}>
+                      <Image source={{ uri: gameAlertConfig.image }} style={styles.gameAlertImage} />
+                    </View>
+                  )}
+                  
+                  {/* Message */}
+                  {gameAlertConfig.message && (
+                    <CustomText type="normal" style={styles.gameAlertMessage}>
+                      {gameAlertConfig.message}
+                    </CustomText>
+                  )}
+                  
+                  {/* Buttons */}
+                  <View style={styles.gameAlertButtons}>
+                    {gameAlertConfig.buttons.map((button, index) => {
+                      const isCancel = button.style === 'cancel';
+                      const isPrimary = button.style === 'primary' || button.style === 'destructive';
+                      const isDestructive = button.style === 'destructive';
+                      
+                      return (
+                        <CustomButton
+                          key={index}
+                          title={button.text}
+                          type={isPrimary ? 'primary' : 'outline'}
+                          onPress={() => {
+                            if (button.onPress) {
+                              button.onPress();
+                            }
+                          }}
+                          style={[
+                            styles.gameAlertButton,
+                            gameAlertConfig.buttons.length === 2 && styles.gameAlertButtonHalf,
+                            isDestructive && styles.gameAlertButtonDestructive,
+                          ]}
+                          textStyle={[
+                            isCancel && styles.gameAlertButtonCancelText,
+                            isDestructive && styles.gameAlertButtonDestructiveText,
+                          ]}
+                        />
+                      );
+                    })}
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
       </Animated.View>
     </Modal>
   );
@@ -790,6 +1024,108 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
     borderLeftWidth: 8,
     borderLeftColor: 'rgba(0, 0, 0, 0.9)',
+  },
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎮 Game Alert (Internal Alert for iOS compatibility!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  gameAlertOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10000, // Above everything!
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gameAlertBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  gameAlertContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  gameAlertWrapper: {
+    width: Math.min(SCREEN_WIDTH - scale(64), scale(340)),
+    position: 'relative',
+  },
+  gameAlertGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.DEEP_BLUE,
+    shadowColor: COLORS.DEEP_BLUE,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: scale(16),
+    elevation: 0,
+    opacity: 0.7,
+  },
+  gameAlert: {
+    backgroundColor: 'rgba(30, 30, 46, 0.95)',
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    paddingHorizontal: platformPadding(24),
+    paddingTop: platformPadding(28),
+    paddingBottom: platformPadding(24),
+  },
+  gameAlertTitle: {
+    color: COLORS.TEXT_PRIMARY,
+    textAlign: 'center',
+    marginBottom: scale(12),
+    fontSize: Platform.OS === 'ios' ? scale(16) : scale(16),
+  },
+  gameAlertImageContainer: {
+    alignItems: 'center',
+    marginTop: scale(12),
+    marginBottom: scale(20),
+    borderWidth: 1,
+    alignSelf: 'center',
+    width: scale(100),
+    height: scale(100),
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    borderRadius: moderateScale(50),
+    overflow: 'hidden',
+  },
+  gameAlertImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  gameAlertMessage: {
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    marginBottom: scale(24),
+    lineHeight: scale(22),
+    fontSize: Platform.OS === 'ios' ? scale(14) : scale(14),
+  },
+  gameAlertButtons: {
+    flexDirection: 'row',
+    gap: scale(12),
+  },
+  gameAlertButton: {
+    flex: 1,
+  },
+  gameAlertButtonHalf: {
+    flex: 1,
+  },
+  gameAlertButtonCancelText: {
+    color: COLORS.TEXT_SECONDARY,
+  },
+  gameAlertButtonDestructive: {
+    backgroundColor: '#EF4444',
+    borderColor: '#EF4444',
+  },
+  gameAlertButtonDestructiveText: {
+    color: '#FFFFFF',
   },
 });
 

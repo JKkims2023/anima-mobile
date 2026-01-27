@@ -99,80 +99,86 @@ const NEXUS_MONOLOGUES = [
 // 🎨 TypingIndicator - Animated Dots (신비로운 ... 효과)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const TypingIndicator = () => {
-  const dot1Opacity = useRef(new RNAnimated.Value(0.3)).current;
-  const dot2Opacity = useRef(new RNAnimated.Value(0.3)).current;
-  const dot3Opacity = useRef(new RNAnimated.Value(0.3)).current;
-  
-  useEffect(() => {
-    const duration = 600; // 느리고 우아하게
-    const delay = 200;
+  try{
+    const dot1Opacity = useRef(new RNAnimated.Value(0.3)).current;
+    const dot2Opacity = useRef(new RNAnimated.Value(0.3)).current;
+    const dot3Opacity = useRef(new RNAnimated.Value(0.3)).current;
     
-    const animate = () => {
-      RNAnimated.sequence([
-        RNAnimated.parallel([
-          RNAnimated.timing(dot1Opacity, {
-            toValue: 1,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot2Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot3Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-        ]),
-        RNAnimated.parallel([
-          RNAnimated.timing(dot1Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot2Opacity, {
-            toValue: 1,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot3Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-        ]),
-        RNAnimated.parallel([
-          RNAnimated.timing(dot1Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot2Opacity, {
-            toValue: 0.3,
-            duration,
-            useNativeDriver: true,
-          }),
-          RNAnimated.timing(dot3Opacity, {
-            toValue: 1,
-            duration,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]).start(() => animate()); // Loop infinitely
-    };
+    useEffect(() => {
+      const duration = 600; // 느리고 우아하게
+      const delay = 200;
+      
+      const animate = () => {
+        RNAnimated.sequence([
+          RNAnimated.parallel([
+            RNAnimated.timing(dot1Opacity, {
+              toValue: 1,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot2Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot3Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+          ]),
+          RNAnimated.parallel([
+            RNAnimated.timing(dot1Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot2Opacity, {
+              toValue: 1,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot3Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+          ]),
+          RNAnimated.parallel([
+            RNAnimated.timing(dot1Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot2Opacity, {
+              toValue: 0.3,
+              duration,
+              useNativeDriver: true,
+            }),
+            RNAnimated.timing(dot3Opacity, {
+              toValue: 1,
+              duration,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]).start(() => animate()); // Loop infinitely
+      };
+      
+      animate();
+    }, [dot1Opacity, dot2Opacity, dot3Opacity]);
     
-    animate();
-  }, [dot1Opacity, dot2Opacity, dot3Opacity]);
-  
-  return (
-    <View style={styles.typingIndicatorContainer}>
-      <RNAnimated.View style={[styles.typingDot, { opacity: dot1Opacity }]} />
-      <RNAnimated.View style={[styles.typingDot, { opacity: dot2Opacity }]} />
-      <RNAnimated.View style={[styles.typingDot, { opacity: dot3Opacity }]} />
-    </View>
-  );
+    return (
+      <View style={styles.typingIndicatorContainer}>
+        <RNAnimated.View style={[styles.typingDot, { opacity: dot1Opacity }]} />
+        <RNAnimated.View style={[styles.typingDot, { opacity: dot2Opacity }]} />
+        <RNAnimated.View style={[styles.typingDot, { opacity: dot3Opacity }]} />
+      </View>
+    );
+
+  }catch(error){
+    console.log('❌ [TypingIndicator] Error:', error);
+    return <></>
+  }
 };
 
 /**
@@ -398,7 +404,7 @@ const ConfessionView = ({
           setTimeout(() => {
             console.log('💙 [ConfessionView] Showing legal disclaimer');
             setDisclaimerVisible(true);
-          }, 2400);
+          }, 1400);
         }
       });
     }

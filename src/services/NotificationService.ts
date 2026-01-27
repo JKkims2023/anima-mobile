@@ -351,7 +351,7 @@ class NotificationService {
           
           // ⭐ NEW: Set tab badge based on order_type
           const orderType = remoteMessage.data.type;
-          if (orderType === 'gift_image' || orderType === 'gift_music') {
+          if (orderType === 'gift_image' || orderType === 'gift_music' || orderType === 'confession_gift' || orderType === 'tarot_gift') {
             await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
             console.log('[FCM] 🔔 Memory tab badge activated!');
           } else if (orderType === 'create_music' || orderType === 'convert_background') {
@@ -635,7 +635,7 @@ class NotificationService {
         
         // ⭐ NEW: Set tab badge based on order_type
         const orderType = remoteMessage.data.type;
-        if (orderType === 'gift_image' || orderType === 'gift_music') {
+        if (orderType === 'gift_image' || orderType === 'gift_music' || orderType === 'confession_gift' || orderType === 'tarot_gift') {
           await AsyncStorage.setItem('@anima_memory_tab_badge', 'true');
           console.log('[FCM] 🔔 Memory tab badge activated! (background)');
         } else if (orderType === 'create_music') {

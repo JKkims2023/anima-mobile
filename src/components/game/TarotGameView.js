@@ -66,7 +66,7 @@ import gameApi from '../../services/api/gameApi';
 import { useTranslation } from 'react-i18next';
 import { useAnima } from '../../contexts/AnimaContext'; // 💰 For chat limit alerts
 import useChatLimit from '../../hooks/useChatLimit'; // 💰 Chat limit hook
-import FloatingChatLimitButton from '../chat/FloatingChatLimitButton'; // 💰 Floating chat limit button
+import FloatingGameLimitButton from '../chat/FloatinGameLimitButton'; // 💰 Floating game limit button
 import ChatLimitSheet from '../chat/ChatLimitSheet'; // 💰 Limit reached sheet
 import TierUpgradeSheet from '../tier/TierUpgradeSheet'; // 💰 Tier upgrade sheet
 import DisclaimerOverlay, { checkDisclaimerAgreement } from './DisclaimerOverlay'; // 💙 Legal disclaimer
@@ -428,7 +428,7 @@ const TarotGameView = ({
           setTimeout(() => {
             console.log('💙 [TarotGameView] Showing legal disclaimer');
             setDisclaimerVisible(true);
-          }, 2400);
+          }, 1400);
         }
       });
     }
@@ -1396,7 +1396,7 @@ const TarotGameView = ({
             
             {/* 💰 FloatingChatLimitButton (ManagerAI와 100% 동일!) */}
             {serviceConfig && (
-              <FloatingChatLimitButton
+              <FloatingGameLimitButton
                 currentCount={serviceConfig.dailyChatCount || 0}
                 dailyLimit={serviceConfig.dailyChatLimit || 0}
                 tier={user?.user_level || 'free'}

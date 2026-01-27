@@ -31,6 +31,7 @@ import {
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { moderateScale } from '../../utils/responsive-utils';
 
 const { width } = Dimensions.get('window');
 
@@ -213,10 +214,11 @@ const styles = StyleSheet.create({
     zIndex: 99999,
     elevation: 99999,
   },
+  /*
   card: {
     width: width * 0.85,
     maxWidth: 400,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderRadius: 16,
     padding: 28,
     shadowColor: '#000',
@@ -225,10 +227,11 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 10,
   },
+  */
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFF',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -236,8 +239,8 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   contentLine: {
-    fontSize: 15,
-    color: '#666',
+    fontSize: Platform.OS === 'ios' ? moderateScale(14) * 0.9 : moderateScale(14),
+    color: '#FFF',
     textAlign: 'center',
     lineHeight: 27, // 1.8 line-height
     marginBottom: 2,
