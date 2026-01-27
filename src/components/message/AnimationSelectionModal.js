@@ -10,7 +10,7 @@
  * @date 2026-01-27
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -232,6 +232,23 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   }, [visible, handleClose]);
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Memoized Animated Styles (⚠️ useInsertionEffect 에러 방지)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  const backdropStyle = useMemo(() => [styles.backdrop, { opacity: opacityAnim }], [opacityAnim]);
+  
+  const modalContentStyle = useMemo(
+    () => [
+      styles.modalContent,
+      {
+        transform: [{ scale: scaleAnim }],
+        opacity: opacityAnim,
+      },
+    ],
+    [scaleAnim, opacityAnim]
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Render
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -241,20 +258,12 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
     <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose}>
       {/* Backdrop */}
       <TouchableWithoutFeedback onPress={handleClose}>
-        <Animated.View style={[styles.backdrop, { opacity: opacityAnim }]} />
+        <Animated.View style={backdropStyle} />
       </TouchableWithoutFeedback>
 
       {/* Modal Container */}
       <View style={styles.modalContainer}>
-        <Animated.View
-          style={[
-            styles.modalContent,
-            {
-              transform: [{ scale: scaleAnim }],
-              opacity: opacityAnim,
-            },
-          ]}
-        >
+        <Animated.View style={modalContentStyle}>
           <LinearGradient
             colors={['#1a1a2e', '#16213e']}
             start={{ x: 0, y: 0 }}
