@@ -10,7 +10,7 @@
  * @date 2026-01-27
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -155,10 +155,10 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   const { t } = useTranslation();
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // State
+  // Animation Refs (⚠️ useRef로 변경 - useInsertionEffect 경고 해결)
   // ═══════════════════════════════════════════════════════════════════════════
-  const [scaleAnim] = useState(new Animated.Value(0.8));
-  const [opacityAnim] = useState(new Animated.Value(0));
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers
