@@ -194,7 +194,7 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
     ]).start(() => {
       onClose();
     });
-  }, [onClose, scaleAnim, opacityAnim]);
+  }, [onClose]); // ✅ useRef 값은 의존성 배열에서 제거
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Effects
@@ -217,7 +217,7 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
         }),
       ]).start();
     }
-  }, [visible, scaleAnim, opacityAnim]);
+  }, [visible]); // ✅ useRef 값은 의존성 배열에서 제거
 
   // Back button handler
   useEffect(() => {
