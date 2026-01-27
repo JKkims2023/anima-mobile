@@ -96,6 +96,9 @@ const MemoryScreen = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
+  // ⭐ NEW: Tab state (emotion, tarot, confession)
+  const [activeTab, setActiveTab] = useState('emotion');
+
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS.ALL);
@@ -224,10 +227,19 @@ const MemoryScreen = () => {
   }, [loadGiftList, showToast, t]);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Filter music list by search and filter
+  // ⭐ Filter gift list by tab (action_type) and search
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
     let filtered = [...giftList];
+
+    // ⭐ Filter by tab (action_type)
+    if (activeTab === 'emotion') {
+      filtered = filtered.filter(g => g.action_type === 'emotion' || !g.action_type);
+    } else if (activeTab === 'tarot') {
+      filtered = filtered.filter(g => g.action_type === 'tarot');
+    } else if (activeTab === 'confession') {
+      filtered = filtered.filter(g => g.action_type === 'confession');
+    }
 
     // Filter by search query
     if (searchQuery.trim()) {
@@ -240,7 +252,7 @@ const MemoryScreen = () => {
     }
 
     setFilteredGiftList(filtered);
-  }, [giftList, selectedFilter, searchQuery]);
+  }, [giftList, activeTab, searchQuery]);
 
   useEffect(() => {
     if(!user){
@@ -470,11 +482,56 @@ const MemoryScreen = () => {
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Handle tab change
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const handleTabChange = (tab) => {
+    HapticService.light();
+    setActiveTab(tab);
+    
+    // Reset search when switching tabs
+    setSearchQuery('');
+    
+    // Scroll to top
+    if (flashListRef.current) {
+      flashListRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Handle help press
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const handleHelpPress = () => {
     HapticService.light();
     setIsHelpOpen(true);
+  };
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⭐ NEW: Render tab button
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const renderTabButton = (tab, label, icon) => {
+    const isActive = activeTab === tab;
+    
+    return (
+      <TouchableOpacity
+        key={tab}
+        style={[
+          styles.tabButton,
+          isActive && styles.tabButtonActive,
+        ]}
+        onPress={() => handleTabChange(tab)}
+        activeOpacity={0.7}
+      >
+
+        <CustomText
+          style={[
+            styles.tabButtonText,
+            { color: isActive ? '#FFFFFF' : currentTheme.textSecondary }
+          ]}
+        >
+          {label}
+        </CustomText>
+      </TouchableOpacity>
+    );
   };
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -597,6 +654,13 @@ const MemoryScreen = () => {
       {/* Custom Header */}
       {renderHeader()}
 
+      {/* ⭐ NEW: Tab Buttons */}
+      <View style={styles.tabContainer}>
+        {renderTabButton('emotion', '💕 공감', 'heart')}
+        {renderTabButton('tarot', '🔮 타로', 'sparkles')}
+        {renderTabButton('confession', '🕊️ 고해', 'rose')}
+      </View>
+
       {/* memory List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -699,6 +763,35 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     marginLeft: scale(0),
 
+  },
+
+  // ⭐ NEW: Tab Buttons (✨ ANIMA: Glassmorphic with pink tint)
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(10),
+    paddingBottom: verticalScale(12),
+    gap: scale(12),
+    paddingTop: verticalScale(15),
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(255, 107, 157, 0.08)', // ✨ ANIMA: Pink tint
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 157, 0.15)', // ✨ ANIMA: Pink border
+    gap: scale(8),
+  },
+  tabButtonActive: {
+    backgroundColor: COLORS.neonBlue,
+    borderColor: COLORS.neonBlue,
+  },
+  tabButtonText: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
   },
 
   // Filter Chips

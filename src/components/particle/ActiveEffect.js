@@ -47,6 +47,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import LottieView from 'lottie-react-native'; // ⭐ NEW: Lottie animations
+import LottieAnimation from './LottieAnimation'; // 🎬 NEW: Infinite loop Lottie animations
 import Confetti from './Confetti';
 import Fireworks from './Fireworks'; // ⭐ NEW: Dynamic fireworks
 import Hearts from './Hearts';
@@ -157,6 +158,25 @@ const ActiveEffect = ({ type = 'none', isActive = true, customWords = [] }) => {
   if (type === 'none' || !isActive) {
     console.log('🌙 [ParticleEffect] No effect or inactive');
     return null;
+  }
+
+  // 🎬 NEW: Lottie Animation Types (Infinite Loop)
+  const LOTTIE_TYPES = [
+    'birthday_cupcake',
+    'cheers_toast',
+    'confetti_lottie', // Renamed to avoid conflict with existing 'confetti'
+    'fiery_passion',
+    'food_beverage',
+    'love_hearts_lottie', // Renamed to avoid conflict with existing 'hearts'
+    'martini',
+    'mug_beer',
+    'sushi',
+  ];
+
+  // 🎬 Check if type is Lottie animation
+  if (LOTTIE_TYPES.includes(type)) {
+    console.log('🎬 [ActiveEffect] Rendering Lottie Animation:', type);
+    return <LottieAnimation type={type} />;
   }
 
   // Render appropriate particle effect

@@ -1462,7 +1462,7 @@ const styles = StyleSheet.create({
   // ⭐ NEW: Tab Buttons (✨ ANIMA: Glassmorphic with pink tint)
   tabContainer: {
     flexDirection: 'row',
-    paddingHorizontal: scale(16),
+    paddingHorizontal: scale(10),
     paddingBottom: verticalScale(12),
     gap: scale(12),
     backgroundColor:'black',

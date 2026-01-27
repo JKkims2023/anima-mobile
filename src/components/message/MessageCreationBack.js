@@ -122,6 +122,7 @@ import FloatingMusicPlayer from './FloatingMusicPlayer'; // 🎵 P0: Music Syste
 import CustomBottomSheet from '../CustomBottomSheet'; // 🎵 P0: Music System - Player
 import MessageHistorySheet from './MessageHistorySheet'; // 📜 NEW: Message history selection
 import BackgroundSelectionSheet from './BackgroundSelectionSheet'; // 🖼️ NEW: Background selection
+import AnimationSelectionModal from './AnimationSelectionModal'; // 🎬 NEW: Lottie animation selection
 import { useTheme } from '../../contexts/ThemeContext';
 import Video from 'react-native-video';
 import Image from 'react-native-fast-image';
@@ -191,6 +192,10 @@ const MessageCreationBack = ({
   // 🎵 P0: Music System - 2-Step Selection States
   const [isMusicCategorySheetVisible, setIsMusicCategorySheetVisible] = useState(false); // Step 1: Category selection
   const [isUserMusicListVisible, setIsUserMusicListVisible] = useState(false); // Step 2: Custom music list
+  
+  // 🎬 NEW: Lottie Animation Selection State
+  const [lottieAnimation, setLottieAnimation] = useState('none'); // Selected lottie animation
+  const [isAnimationModalVisible, setIsAnimationModalVisible] = useState(false); // Animation selection modal
   
   // 📜 NEW: Message History Selection State
   const [isMessageHistorySheetVisible, setIsMessageHistorySheetVisible] = useState(false); // Message history list
@@ -503,6 +508,7 @@ const MessageCreationBack = ({
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎨 [MessageCreationBack] Category selected!');
     console.log('   Category:', category.name, category.emoji);
+    console.log('   Category ID:', category.id);
     console.log('   Type:', category.type);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
@@ -511,13 +517,27 @@ const MessageCreationBack = ({
       console.log('   Direct type - applying immediately');
       setActiveEffect('none');
       setCustomWords([]);
+      setLottieAnimation('none'); // 🎬 Reset lottie
       setIsCategorySheetVisible(false);
       HapticService.success();
       return;
     }
     
-    // ⭐ Type: 'modal' → 상세 모달 열기
-    console.log('   Modal type - opening detail modal');
+    // 🎬 Special: 'lottie' category → AnimationSelectionModal
+    if (category.id === 'lottie') {
+      console.log('   🎬 Lottie category - opening AnimationSelectionModal');
+      setSelectedCategory(category);
+      setIsCategorySheetVisible(false);
+      
+      setTimeout(() => {
+        console.log('   Opening AnimationSelectionModal (after parent closed)');
+        setIsAnimationModalVisible(true);
+      }, 250);
+      return;
+    }
+    
+    // ⭐ Type: 'modal' → 상세 모달 열기 (EffectDetailModal)
+    console.log('   Modal type - opening EffectDetailModal');
     console.log('   Platform:', Platform.OS);
     
     setSelectedCategory(category);
@@ -721,6 +741,33 @@ const MessageCreationBack = ({
   const handleCloseUserMusicList = useCallback(() => {
     console.log('🎵 [MessageCreationBack] Closing User Music List Modal');
     setIsUserMusicListVisible(false);
+  }, []);
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎬 NEW: Lottie Animation Selection Handlers
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Handle animation selection
+  const handleSelectAnimation = useCallback((animation) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎬 [MessageCreationBack] Animation selected!');
+    console.log('   Name:', animation.name);
+    console.log('   DB Value:', animation.dbValue);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    setLottieAnimation(animation.dbValue);
+    setActiveEffect(animation.dbValue); // ✅ ActiveEffect에 전달
+    setCustomWords([]); // Clear custom words (애니메이션은 단어 불필요)
+    setIsAnimationModalVisible(false);
+    setSelectedCategory(null);
+    HapticService.success();
+  }, []);
+  
+  // Close animation modal
+  const handleCloseAnimationModal = useCallback(() => {
+    console.log('🎬 [MessageCreationBack] Closing Animation Modal');
+    setIsAnimationModalVisible(false);
+    setSelectedCategory(null);
   }, []);
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1687,6 +1734,16 @@ const MessageCreationBack = ({
         category={selectedCategory}
         currentEffect={getEffectById(activeEffect)}
         onSelectEffect={handleSelectEffect}
+      />
+      
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 🎬 NEW: Lottie Animation Selection Modal */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <AnimationSelectionModal
+        visible={isAnimationModalVisible}
+        onClose={handleCloseAnimationModal}
+        onSelectAnimation={handleSelectAnimation}
+        currentAnimation={lottieAnimation}
       />
 
       {/* ═══════════════════════════════════════════════════════════════ */}

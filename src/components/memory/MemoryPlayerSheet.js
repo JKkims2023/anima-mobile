@@ -680,7 +680,11 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           <View style={styles.infoContainer}>
             
             <Image
-              source={{ uri: memory?.persona_url }}
+              source={{ uri: 
+                memory?.action_type === 'emotion' ? 
+                memory?.persona_url : 
+                memory?.action_type === 'confession' ? 'https://babi-cdn.logbrix.ai/babi/real/babi/9be066da-1a9b-408b-b4d8-bf600923a3cd_00001_.png' : 
+                'https://babi-cdn.logbrix.ai/babi/real/babi/e832b7d9-4ff2-41f1-8c5f-0b08b055fe9d_00001_.png' }}
               style={styles.personaImage}
               resizeMode="cover"
             />
@@ -689,7 +693,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
               {/* Persona Name */}
               {memory?.persona_name && (
                 <CustomText style={styles.personaName}>
-                  - {memory.persona_name}
+                  - {memory.action_type === 'emotion' ? memory.persona_name : memory.action_type === 'confession' ? 'NEXUS' : 'SAGE'}
                 </CustomText>
               )}
               

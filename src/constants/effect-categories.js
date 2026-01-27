@@ -245,7 +245,140 @@ export const TEXT_EFFECTS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🎯 Main Category Definitions (4개 카테고리)
+// 🎬 Category 4: Lottie Animations (로티 애니메이션)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const LOTTIE_ANIMATIONS = [
+  {
+    id: 'birthday_cupcake',
+    name: '생일 케이크',
+    emoji: '🎂',
+    description: '생일 축하 케이크 애니메이션 (무한 반복)',
+    colorScheme: {
+      primary: '#FF69B4',
+      secondary: '#FFB6C1',
+      gradient: ['#FF69B4', '#FFB6C1', '#FFC0CB'],
+    },
+    viewerCompatible: true,
+    dbValue: 'birthday_cupcake',
+    isNew: true,
+  },
+  {
+    id: 'cheers_toast',
+    name: '건배',
+    emoji: '🍻',
+    description: '축하의 건배 애니메이션 (무한 반복)',
+    colorScheme: {
+      primary: '#F4A460',
+      secondary: '#DEB887',
+      gradient: ['#F4A460', '#DEB887', '#FFE4B5'],
+    },
+    viewerCompatible: true,
+    dbValue: 'cheers_toast',
+    isNew: true,
+  },
+  {
+    id: 'confetti_lottie',
+    name: '색종이',
+    emoji: '🎉',
+    description: '알록달록 색종이 축하 (무한 반복)',
+    colorScheme: {
+      primary: '#FFD700',
+      secondary: '#FF6347',
+      gradient: ['#FFD700', '#FF6347', '#FF69B4'],
+    },
+    viewerCompatible: true,
+    dbValue: 'confetti_lottie',
+    isNew: true,
+  },
+  {
+    id: 'fiery_passion',
+    name: '불타는 열정',
+    emoji: '🔥',
+    description: '뜨거운 열정의 불꽃 (무한 반복)',
+    colorScheme: {
+      primary: '#FF4500',
+      secondary: '#FF6347',
+      gradient: ['#FF4500', '#FF6347', '#FFA500'],
+    },
+    viewerCompatible: true,
+    dbValue: 'fiery_passion',
+    isNew: true,
+  },
+  {
+    id: 'food_beverage',
+    name: '음식 & 음료',
+    emoji: '🍽️',
+    description: '맛있는 음식과 음료 (무한 반복)',
+    colorScheme: {
+      primary: '#32CD32',
+      secondary: '#3CB371',
+      gradient: ['#32CD32', '#3CB371', '#90EE90'],
+    },
+    viewerCompatible: true,
+    dbValue: 'food_beverage',
+    isNew: true,
+  },
+  {
+    id: 'love_hearts_lottie',
+    name: '사랑의 하트',
+    emoji: '💕',
+    description: '사랑스러운 하트 애니메이션 (무한 반복)',
+    colorScheme: {
+      primary: '#FF1493',
+      secondary: '#FF69B4',
+      gradient: ['#FF1493', '#FF69B4', '#FFB6C1'],
+    },
+    viewerCompatible: true,
+    dbValue: 'love_hearts_lottie',
+    isNew: true,
+  },
+  {
+    id: 'martini',
+    name: '마티니',
+    emoji: '🍸',
+    description: '세련된 마티니 글라스 (무한 반복)',
+    colorScheme: {
+      primary: '#00CED1',
+      secondary: '#40E0D0',
+      gradient: ['#00CED1', '#40E0D0', '#AFEEEE'],
+    },
+    viewerCompatible: true,
+    dbValue: 'martini',
+    isNew: true,
+  },
+  {
+    id: 'mug_beer',
+    name: '맥주',
+    emoji: '🍺',
+    description: '시원한 맥주 (무한 반복)',
+    colorScheme: {
+      primary: '#DAA520',
+      secondary: '#F0E68C',
+      gradient: ['#DAA520', '#F0E68C', '#FFFACD'],
+    },
+    viewerCompatible: true,
+    dbValue: 'mug_beer',
+    isNew: true,
+  },
+  {
+    id: 'sushi',
+    name: '초밥',
+    emoji: '🍣',
+    description: '신선한 초밥 (무한 반복)',
+    colorScheme: {
+      primary: '#FF6347',
+      secondary: '#FF7F50',
+      gradient: ['#FF6347', '#FF7F50', '#FFA07A'],
+    },
+    viewerCompatible: true,
+    dbValue: 'sushi',
+    isNew: true,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🎯 Main Category Definitions (5개 카테고리)
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const EFFECT_CATEGORIES = [
@@ -287,6 +420,19 @@ export const EFFECT_CATEGORIES = [
     },
     effects: TEXT_EFFECTS,
     type: 'modal', // 모달 열림 (선택 후 WordInputOverlay)
+  },
+  {
+    id: 'lottie',
+    name: '애니메이션',
+    emoji: '🎬',
+    description: '무한 반복 로티 애니메이션',
+    colorScheme: {
+      primary: '#FFD700',
+      secondary: '#FFA500',
+      gradient: ['#FFD700', '#FFA500', '#FF8C00'],
+    },
+    effects: LOTTIE_ANIMATIONS,
+    type: 'modal', // 모달 열림 (AnimationSelectionModal)
   },
   {
     id: 'none',
