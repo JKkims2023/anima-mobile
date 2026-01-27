@@ -35,6 +35,7 @@ import {
   AppState, // 🎵 NEW: For background state detection
   BackHandler, // ⭐ NEW: For Android back button handling
   Dimensions, // 🎮 NEW: For game alert dimensions
+  Switch, // 💫 NEW: For emotion effects toggle
 } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // 🎮 NEW: Screen width for game alert
@@ -72,6 +73,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ChatHelpSheet from './ChatHelpSheet';
 import { gameApi } from '../../services/api'; // 🎮 NEW: Game API for LLM
 import { useNavigation } from '@react-navigation/native';
+import ChatEmotionBurstEffect from './ChatEmotionBurstEffect'; // 💫 NEW: Emotion burst effects
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 💫 NEW: For emotion effects settings
 // ⭐ NEW: Chat helpers and constants
 import { 
   AI_BEHAVIOR, 
@@ -185,6 +188,29 @@ const ManagerAIOverlay = ({
   
   // 😴 NEW (2026-01-13): Real-time emotion from LLM
   const [currentEmotion, setCurrentEmotion] = useState('sleeping');
+  
+  // 💫 NEW (2026-01-27): Emotion burst effects
+  const [emotionEffectsEnabled, setEmotionEffectsEnabled] = useState(true); // ⭐ Settings (on/off)
+  const [emotionBurstTrigger, setEmotionBurstTrigger] = useState(null); // ⭐ Trigger { emotion, timestamp }
+  
+  // 💫 Load emotion effects settings from AsyncStorage
+  useEffect(() => {
+    const loadEmotionEffectsSettings = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('emotion_effects_enabled');
+        if (stored !== null) {
+          setEmotionEffectsEnabled(JSON.parse(stored));
+          console.log('💫 [Emotion Effects] Settings loaded:', JSON.parse(stored));
+        }
+      } catch (error) {
+        console.error('💫 [Emotion Effects] Failed to load settings:', error);
+      }
+    };
+    
+    if (visible) {
+      loadEmotionEffectsSettings();
+    }
+  }, [visible]);
   
   // 😴 Reset emotion when chat opens/closes
   useEffect(() => {
@@ -1383,8 +1409,18 @@ const ManagerAIOverlay = ({
         
         // 😴 NEW (2026-01-13): Update emotion indicator
         if (response.data?.user_emotion?.primary) {
-          setCurrentEmotion(response.data.user_emotion.primary);
-          console.log('😴 [Emotion] Updated:', response.data.user_emotion.primary);
+          const newEmotion = response.data.user_emotion.primary;
+          setCurrentEmotion(newEmotion);
+          console.log('😴 [Emotion] Updated:', newEmotion);
+          
+          // 💫 NEW (2026-01-27): Trigger emotion burst effect
+          if (emotionEffectsEnabled) {
+            console.log('💫 [Emotion Burst] Triggering effect:', newEmotion);
+            setEmotionBurstTrigger({
+              emotion: newEmotion,
+              timestamp: Date.now(), // ⭐ 고유 트리거 식별
+            });
+          }
         }
         
         // 🔍 DEBUG: Log parsed content
@@ -2350,6 +2386,43 @@ const ManagerAIOverlay = ({
                     </TouchableOpacity>
                   )}
 
+                  {/* 💫 NEW: Emotion Effects Section */}
+                  <>
+                    {/* 구분선 */}
+                    <View style={styles.menuDivider} />
+
+                    {/* 💫 Effects Title */}
+                    <CustomText type='middle' bold style={styles.settingsMenuTitle}>
+                      💫 감정 효과
+                    </CustomText>
+
+                    {/* 💫 Emotion Effects Toggle */}
+                    <View style={styles.menuItemToggle}>
+                      <View style={styles.menuItemLeft}>
+                        <CustomText type='middle' style={styles.menuIcon}>✨</CustomText>
+                        <CustomText type='middle' style={styles.menuText}>
+                          감정 시각 효과
+                        </CustomText>
+                      </View>
+                      <Switch
+                        value={emotionEffectsEnabled}
+                        onValueChange={async (value) => {
+                          setEmotionEffectsEnabled(value);
+                          // ⭐ Save to AsyncStorage
+                          try {
+                            await AsyncStorage.setItem('emotion_effects_enabled', JSON.stringify(value));
+                            console.log('💫 [Emotion Effects] Settings saved:', value);
+                            HapticService.light();
+                          } catch (error) {
+                            console.error('💫 [Emotion Effects] Failed to save settings:', error);
+                          }
+                        }}
+                        trackColor={{ false: '#767577', true: '#3B82F6' }}
+                        thumbColor={emotionEffectsEnabled ? '#FFFFFF' : '#f4f3f4'}
+                      />
+                    </View>
+                  </>
+
                   {/* 🎮 NEW: Games Section */}
                   {persona && onGameSelect && (
                     <>
@@ -2587,6 +2660,21 @@ const ManagerAIOverlay = ({
               </View>
             </View>
           </View>
+        </View>
+      )}
+      
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 💫 NEW: Emotion Burst Effect (iOS Compatible!) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {emotionBurstTrigger && emotionEffectsEnabled && (
+        <View style={styles.emotionBurstOverlay}>
+          <ChatEmotionBurstEffect
+            emotionType={emotionBurstTrigger.emotion}
+            onComplete={() => {
+              console.log('💫 [Emotion Burst] Effect completed');
+              setEmotionBurstTrigger(null); // ⭐ 트리거 초기화
+            }}
+          />
         </View>
       )}
       
@@ -2897,6 +2985,21 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(8),
     marginHorizontal: moderateScale(12),
   },
+  // 💫 NEW: Menu item with toggle (for Switch)
+  menuItemToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: moderateScale(12),
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
+    marginHorizontal: moderateScale(4),
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎮 Game Alert (Internal Alert for iOS compatibility!)
@@ -2999,6 +3102,18 @@ const styles = StyleSheet.create({
   },
   gameAlertButtonDestructiveText: {
     color: '#FFFFFF',
+  },
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💫 Emotion Burst Effect (iOS Compatible!)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  emotionBurstOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999, // ⭐ Below close button (10000), above content
+    ...Platform.select({
+      android: { elevation: 9999 },
+    }),
+    pointerEvents: 'none', // ⭐ 터치 이벤트 통과
   },
   
 });

@@ -1,33 +1,65 @@
 /**
  * EmotionIndicator Component
  * 
- * Real-time user emotion display with smooth animation
+ * Real-time persona emotion display with smooth animation
  * 
  * Features:
- * - 11 emotion types + sleeping (default)
+ * - 18 emotion types + sleeping (default) = 19 total
  * - Spring animation on emotion change
  * - Consistent size with other input buttons
+ * - Unified emotion list (matches ChatEmotionBurstEffect & Prompt)
  * 
  * @author JK & Hero NEXUS
  * @date 2026-01-13
+ * @updated 2026-01-27 (Unified Emotion Mapping)
  */
 
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { moderateScale } from '../../utils/responsive-utils';
 
-// 🎭 Emotion to Emoji Mapping
+// 🎭 Emotion to Emoji Mapping (Unified - v2.0)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Matches: ChatEmotionBurstEffect.js & minimalistPromptBuilder.js
+// Total: 19 emotions (18 active + 1 default)
+// Updated: 2026-01-27 (Unified Emotion Mapping)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const EMOTION_EMOJI_MAP = {
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🔥 Core Emotions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   happy: '😊',
   sad: '😢',
-  angry: '😠',
-  anxious: '😰',
   excited: '🤩',
   calm: '😌',
-  confused: '😕',
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💕 Affective Emotions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  caring: '💝', // 🆕 Added
+  love: '💕', // 🆕 Added
+  joyful: '🎊', // 🆕 Added
   grateful: '🙏',
-  hopeful: '🌟',
   affectionate: '💖',
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🎭 Complex Emotions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  anxious: '😰',
+  worried: '😟', // 🆕 Added
+  confused: '😕',
+  hopeful: '🌟',
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ⚡ Intense Emotions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  angry: '😠',
+  surprised: '😲', // 🆕 Added
+  playful: '😜', // 🆕 Added
+  
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🌙 Neutral/Default
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   neutral: '😐',
   sleeping: '😴', // Default
 };
