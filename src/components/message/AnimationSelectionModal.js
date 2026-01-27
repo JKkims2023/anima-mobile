@@ -10,7 +10,7 @@
  * @date 2026-01-27
  */
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -18,11 +18,16 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
-  Animated,
   BackHandler,
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+} from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '../CustomText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -155,10 +160,10 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   const { t } = useTranslation();
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Animation Refs (⚠️ useRef로 변경 - useInsertionEffect 경고 해결)
+  // Reanimated Shared Values (✅ react-native-reanimated 사용)
   // ═══════════════════════════════════════════════════════════════════════════
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const scale = useSharedValue(0.8);
+  const opacity = useSharedValue(0);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Handlers
@@ -180,21 +185,13 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
 
   const handleClose = useCallback(() => {
     HapticService.light();
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 0.8,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onClose();
+    scale.value = withTiming(0.8, { duration: 200 });
+    opacity.value = withTiming(0, { duration: 200 }, (finished) => {
+      if (finished) {
+        onClose();
+      }
     });
-  }, [onClose]); // ✅ useRef 값은 의존성 배열에서 제거
+  }, [onClose, scale, opacity]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Effects
@@ -203,21 +200,13 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   // Entrance animation
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 50,
-          friction: 7,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      scale.value = withSpring(1, {
+        damping: 15,
+        stiffness: 150,
+      });
+      opacity.value = withTiming(1, { duration: 200 });
     }
-  }, [visible]); // ✅ useRef 값은 의존성 배열에서 제거
+  }, [visible, scale, opacity]);
 
   // Back button handler
   useEffect(() => {
@@ -232,21 +221,17 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
   }, [visible, handleClose]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Memoized Animated Styles (⚠️ useInsertionEffect 에러 방지)
+  // Animated Styles (✅ useAnimatedStyle 사용)
   // ═══════════════════════════════════════════════════════════════════════════
   
-  const backdropStyle = useMemo(() => [styles.backdrop, { opacity: opacityAnim }], [opacityAnim]);
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
   
-  const modalContentStyle = useMemo(
-    () => [
-      styles.modalContent,
-      {
-        transform: [{ scale: scaleAnim }],
-        opacity: opacityAnim,
-      },
-    ],
-    [scaleAnim, opacityAnim]
-  );
+  const modalContentStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Render
@@ -258,12 +243,12 @@ const AnimationSelectionModal = ({ visible, onClose, onSelectAnimation, currentA
     <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose}>
       {/* Backdrop */}
       <TouchableWithoutFeedback onPress={handleClose}>
-        <Animated.View style={backdropStyle} />
+        <Animated.View style={[styles.backdrop, backdropStyle]} />
       </TouchableWithoutFeedback>
 
       {/* Modal Container */}
       <View style={styles.modalContainer}>
-        <Animated.View style={modalContentStyle}>
+        <Animated.View style={[styles.modalContent, modalContentStyle]}>
           <LinearGradient
             colors={['#1a1a2e', '#16213e']}
             start={{ x: 0, y: 0 }}
