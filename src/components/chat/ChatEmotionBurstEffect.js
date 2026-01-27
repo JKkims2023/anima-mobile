@@ -275,17 +275,33 @@ const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
   const config = EMOTION_CONFIG[emotionType];
   const completedCountRef = useRef(0);
 
-  // ⚠️ Unknown emotion
+  // ⚠️ Unknown emotion - useEffect로 onComplete 지연 호출
+  useEffect(() => {
+    if (!config) {
+      console.log(`💫 [ChatEmotionBurstEffect] Unknown emotion: ${emotionType} - no effect`);
+      if (onComplete) {
+        // ✅ 다음 렌더 사이클로 지연
+        setTimeout(() => onComplete(), 0);
+      }
+    }
+  }, [config, emotionType, onComplete]);
+
   if (!config) {
-    console.log(`💫 [ChatEmotionBurstEffect] Unknown emotion: ${emotionType} - no effect`);
-    if (onComplete) onComplete();
     return null;
   }
 
-  // ⚠️ No effect (type: null) - 이모지만 표시, 효과 없음
+  // ⚠️ No effect (type: null) - 이모지만 표시, 효과 없음 - useEffect로 onComplete 지연 호출
+  useEffect(() => {
+    if (!config.type || config.count === 0) {
+      console.log(`💫 [ChatEmotionBurstEffect] ${emotionType} has no visual effect (type: ${config.type}, count: ${config.count})`);
+      if (onComplete) {
+        // ✅ 다음 렌더 사이클로 지연
+        setTimeout(() => onComplete(), 0);
+      }
+    }
+  }, [config, emotionType, onComplete]);
+
   if (!config.type || config.count === 0) {
-    console.log(`💫 [ChatEmotionBurstEffect] ${emotionType} has no visual effect (type: ${config.type}, count: ${config.count})`);
-    if (onComplete) onComplete();
     return null;
   }
 
@@ -304,7 +320,8 @@ const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
     if (completedCountRef.current === config.count) {
       console.log('✅ [ChatEmotionBurstEffect] All particles completed');
       if (onComplete) {
-        onComplete();
+        // ✅ 다음 렌더 사이클로 지연하여 상태 업데이트 충돌 방지
+        setTimeout(() => onComplete(), 0);
       }
     }
   };
