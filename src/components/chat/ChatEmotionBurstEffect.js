@@ -62,7 +62,7 @@ const EMOTION_CONFIG = {
   
   sad: {
     type: 'pulse', // ✅ rain → pulse (큰 이모지로 감정 전달)
-    emoji: '💧',
+    emoji: '😢', // ✅ 💧 → 😢 (우는 얼굴이 더 직관적!)
     color: '#4682B4',
     count: 1, // 1개의 큰 이모지
     duration: 2500,
@@ -508,9 +508,9 @@ const styles = StyleSheet.create({
       android: { elevation: 9999 },
     }),
   },
-  // 🔴 DEBUG: Red background to verify rendering (최적화 테스트용)
+  // 🔴 DEBUG: Red background to verify rendering (프로덕션 준비 - 투명)
   debugBackground: {
-    backgroundColor: 'rgba(255, 0, 0, 0.05)', // ⭐ 매우 연한 빨간색 (영역 확인용)
+    // backgroundColor: 'rgba(255, 0, 0, 0.05)', // ⭐ 디버깅용 (필요시 주석 해제)
   },
   particle: {
     position: 'absolute',
