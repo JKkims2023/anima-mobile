@@ -57,7 +57,7 @@ const EMOTION_CONFIG = {
     emoji: '🎉',
     color: '#FFA500',
     count: 20,
-    duration: 800,
+    duration: 1400, // ✅ 800 → 1400ms (더 길게, 눈에 잘 보이게)
   },
   
   sad: {
@@ -73,7 +73,7 @@ const EMOTION_CONFIG = {
     emoji: '✨',
     color: '#FFD700',
     count: 25,
-    duration: 700,
+    duration: 1200, // ✅ 700 → 1200ms
   },
   
   calm: {
@@ -92,7 +92,7 @@ const EMOTION_CONFIG = {
     emoji: '💝',
     color: '#FF69B4',
     count: 18,
-    duration: 800,
+    duration: 1400, // ✅ 800 → 1400ms
   },
   
   love: {
@@ -100,7 +100,7 @@ const EMOTION_CONFIG = {
     emoji: '💕',
     color: '#FF1493',
     count: 20,
-    duration: 800,
+    duration: 1400, // ✅ 800 → 1400ms
   },
   
   joyful: {
@@ -108,7 +108,7 @@ const EMOTION_CONFIG = {
     emoji: '🎊',
     color: '#FFD700',
     count: 22,
-    duration: 700,
+    duration: 1200, // ✅ 700 → 1200ms
   },
   
   grateful: {
@@ -124,7 +124,7 @@ const EMOTION_CONFIG = {
     emoji: '💖',
     color: '#FF69B4',
     count: 18,
-    duration: 800,
+    duration: 1400, // ✅ 800 → 1400ms
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -170,7 +170,7 @@ const EMOTION_CONFIG = {
     emoji: '💢',
     color: '#FF4500',
     count: 25,
-    duration: 700,
+    duration: 1200, // ✅ 700 → 1200ms
   },
   
   surprised: {
@@ -178,7 +178,7 @@ const EMOTION_CONFIG = {
     emoji: '⚡',
     color: '#FFD700',
     count: 25,
-    duration: 700,
+    duration: 1200, // ✅ 700 → 1200ms
   },
   
   playful: {
@@ -186,7 +186,7 @@ const EMOTION_CONFIG = {
     emoji: '😜',
     color: '#FF69B4',
     count: 20,
-    duration: 800,
+    duration: 1400, // ✅ 800 → 1400ms
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -223,46 +223,46 @@ const EMOTION_CONFIG = {
 const Particle = ({ emoji, startX, startY, targetX, targetY, delay, duration, onComplete }) => {
   const translateX = useSharedValue(startX);
   const translateY = useSharedValue(startY);
-  const opacity = useSharedValue(1); // 🔴 DEBUG: 즉시 보이게
-  const scale = useSharedValue(3); // 🔴 DEBUG: 매우 크게 시작
+  const opacity = useSharedValue(0.3); // ✅ 0.3에서 시작 (부드러운 페이드 인)
+  const scale = useSharedValue(0.8); // ✅ 0.8에서 시작 (부드러운 스케일 업)
 
   useEffect(() => {
     console.log(`🚀 [Particle] Starting animation: ${emoji}, delay: ${delay}ms, duration: ${duration}ms`);
     console.log(`   Start: (${startX}, ${startY}) → Target: (${targetX}, ${targetY})`);
     
-    // 🔴 DEBUG: 페이드 인 제거, 즉시 표시
-    // opacity.value = withDelay(delay, withTiming(1, { duration: 200 }));
+    // ✅ 페이드 인 (부드럽게)
+    opacity.value = withDelay(
+      delay,
+      withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) })
+    );
     
-    // 🔴 DEBUG: 스케일 애니메이션 제거, 고정 크기
-    // scale.value = withDelay(delay, withSpring(1, { damping: 10, stiffness: 100 }));
+    // ✅ 스케일 업 (부드럽게)
+    scale.value = withDelay(
+      delay,
+      withSpring(1.2, { damping: 12, stiffness: 80 }) // 1.2배로 약간 크게
+    );
 
-    // Step 2: 이동 애니메이션 (3초로 증가)
+    // ✅ 이동 애니메이션 (설정된 duration 사용)
     translateX.value = withDelay(
       delay,
-      withTiming(targetX, { duration: 3000, easing: Easing.out(Easing.ease) })
+      withTiming(targetX, { duration, easing: Easing.out(Easing.ease) })
     );
     
     translateY.value = withDelay(
       delay,
-      withTiming(targetY, { duration: 3000, easing: Easing.out(Easing.ease) })
+      withTiming(targetY, { duration, easing: Easing.out(Easing.ease) })
     );
 
-    // 🔴 DEBUG: 페이드 아웃 제거 (계속 보이게)
-    // opacity.value = withDelay(
-    //   delay + duration - 300,
-    //   withTiming(0, { duration: 300 }, (finished) => {
-    //     if (finished && onComplete) {
-    //       runOnJS(onComplete)();
-    //     }
-    //   })
-    // );
-    
-    // 🔴 DEBUG: 즉시 onComplete 호출 (3초 후)
-    setTimeout(() => {
-      if (onComplete) {
-        onComplete();
-      }
-    }, 3000 + delay);
+    // ✅ 페이드 아웃 (마지막 500ms, 더 길게)
+    const fadeOutDelay = delay + duration - 500;
+    opacity.value = withDelay(
+      fadeOutDelay,
+      withTiming(0, { duration: 500 }, (finished) => {
+        if (finished && onComplete) {
+          runOnJS(onComplete)();
+        }
+      })
+    );
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -441,16 +441,15 @@ const styles = StyleSheet.create({
       android: { elevation: 9999 },
     }),
   },
-  // 🔴 DEBUG: Red background to verify rendering
+  // 🔴 DEBUG: Red background to verify rendering (주석 처리 - 프로덕션)
   debugBackground: {
-    backgroundColor: 'rgba(255, 0, 0, 0.5)', // ⭐ 50% 불투명 빨간색
+    // backgroundColor: 'rgba(255, 0, 0, 0.1)', // ⭐ 디버깅용 (필요시 주석 해제)
   },
   particle: {
     position: 'absolute',
-    fontSize: scale(60), // 🔴 DEBUG: 24 → 60 (매우 크게)
-    backgroundColor: 'rgba(255, 255, 0, 0.8)', // 🔴 DEBUG: 노란색 배경
-    padding: scale(8), // 🔴 DEBUG: 패딩 추가
-    borderRadius: scale(8), // 🔴 DEBUG: 둥근 모서리
+    fontSize: scale(40), // ✅ 24 → 40 (크지만 적당하게)
+    // 🔴 DEBUG: 배경 제거 (프로덕션에서는 주석 처리)
+    // backgroundColor: 'rgba(255, 255, 0, 0.3)', // 디버깅용 (반투명)
     // ⚠️ iOS 텍스트 렌더링 최적화
     ...Platform.select({
       ios: {

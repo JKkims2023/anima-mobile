@@ -2276,6 +2276,7 @@ const ManagerAIOverlay = ({
         {/* ═══════════════════════════════════════════════════════════════ */}
         {emotionBurstTrigger && emotionEffectsEnabled && (
           <View style={styles.emotionBurstOverlay} pointerEvents="box-none">
+            {console.log('🔴 [DEBUG] Rendering ChatEmotionBurstEffect:', emotionBurstTrigger.emotion)}
             <ChatEmotionBurstEffect
               emotionType={emotionBurstTrigger.emotion}
               onComplete={() => {
