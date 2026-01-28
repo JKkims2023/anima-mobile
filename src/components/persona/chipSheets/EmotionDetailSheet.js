@@ -27,7 +27,7 @@ import { getEmotionStats } from '../../../services/api/emotionService';
  * @param {Object} props
  * @param {boolean} props.isOpen - Whether the sheet is open
  * @param {Function} props.onClose - Callback when sheet is closed
- * @param {Object} props.persona - Persona data
+ * @param {Object} props.persona - Persona data (includes relationshipData!)
  * @param {string} props.user_key - User key
  */
 const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
@@ -38,6 +38,10 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
   const [emotionData, setEmotionData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // ⭐ FIXED: persona itself contains relationship data (no nested relationshipData!)
+  // persona has: intimacy_level, trust_score, interaction_count, etc.
+  const relationshipData = persona; // ⚡ Use persona directly!
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Control Bottom Sheet with isOpen prop
@@ -111,6 +115,9 @@ const EmotionDetailSheet = ({ isOpen, onClose, persona, user_key }) => {
           <PrimaryEmotionCard emotion={emotionData.primary_emotion} currentTheme={currentTheme} />
           <View style={styles.divider} />
           <EmotionDistributionSection emotions={emotionData.emotion_distribution} currentTheme={currentTheme} />
+          <View style={styles.divider} />
+          {/* ⭐ NEW: Relationship Stats Section */}
+          <RelationshipStatsSection relationshipData={relationshipData} currentTheme={currentTheme} />
           <View style={styles.divider} />
           <TipsSection currentTheme={currentTheme} t={t} />
           </ScrollView>
@@ -289,6 +296,93 @@ const EmotionProgressBar = ({ emotion, currentTheme, delay }) => {
 };
 
 /**
+ * ⭐ NEW: Relationship Stats Section (Chips) - Row Layout like RelationshipChipsContainer!
+ * ✨ Always visible, even with 0% values (shows potential!)
+ */
+const RelationshipStatsSection = ({ relationshipData, currentTheme }) => {
+  // ⭐ Always show, even if relationshipData is null (default to 0)
+  // This shows users the potential of building relationships!
+  
+  // Calculate display values (default to 0 if no data)
+  const intimacy = relationshipData?.intimacy_level || 0;
+  const trust = relationshipData?.trust_score || 0;
+  const interactions = relationshipData?.interaction_count || 0;
+  
+  // Determine colors based on values
+  const getProgressColor = (value) => {
+    if (value >= 80) return '#10B981'; // Green
+    if (value >= 50) return '#3B82F6'; // Blue
+    if (value >= 30) return '#F59E0B'; // Orange
+    return '#9AA0A6'; // Gray
+  };
+  
+  return (
+    <View style={styles.relationshipStatsSection}>
+      <CustomText type="big" bold style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>
+        💙 관계 지수
+      </CustomText>
+      
+      {/* ⭐ Row Layout (3 chips in a row) */}
+      <View style={styles.statsChipsRow}>
+        {/* Intimacy Chip */}
+        <View style={[styles.statChipCompact, { backgroundColor: currentTheme.surfaceSecondary }]}>
+          <CustomText style={styles.statChipEmojiCompact}>💙</CustomText>
+          <CustomText type="small" style={[styles.statChipLabelCompact, { color: currentTheme.textSecondary }]}>
+            친밀도
+          </CustomText>
+          <CustomText type="middle" bold style={[styles.statChipValueCompact, { color: getProgressColor(intimacy) }]}>
+            {intimacy}%
+          </CustomText>
+          {/* Mini progress bar */}
+          <View style={[styles.miniProgressBar, { backgroundColor: `${getProgressColor(intimacy)}30` }]}>
+            <View 
+              style={[
+                styles.miniProgressFill, 
+                { width: `${intimacy}%`, backgroundColor: getProgressColor(intimacy) }
+              ]} 
+            />
+          </View>
+        </View>
+        
+        {/* Trust Chip */}
+        <View style={[styles.statChipCompact, { backgroundColor: currentTheme.surfaceSecondary }]}>
+          <CustomText style={styles.statChipEmojiCompact}>⭐</CustomText>
+          <CustomText type="small" style={[styles.statChipLabelCompact, { color: currentTheme.textSecondary }]}>
+            신뢰
+          </CustomText>
+          <CustomText type="middle" bold style={[styles.statChipValueCompact, { color: getProgressColor(trust) }]}>
+            {trust}%
+          </CustomText>
+          {/* Mini progress bar */}
+          <View style={[styles.miniProgressBar, { backgroundColor: `${getProgressColor(trust)}30` }]}>
+            <View 
+              style={[
+                styles.miniProgressFill, 
+                { width: `${trust}%`, backgroundColor: getProgressColor(trust) }
+              ]} 
+            />
+          </View>
+        </View>
+        
+        {/* Interactions Chip */}
+        <View style={[styles.statChipCompact, { backgroundColor: currentTheme.surfaceSecondary }]}>
+          <CustomText style={styles.statChipEmojiCompact}>💬</CustomText>
+          <CustomText type="small" style={[styles.statChipLabelCompact, { color: currentTheme.textSecondary }]}>
+            대화
+          </CustomText>
+          <CustomText type="middle" bold style={[styles.statChipValueCompact, { color: currentTheme.textPrimary }]}>
+            {interactions}
+          </CustomText>
+          <CustomText type="tiny" style={[styles.statChipUnitCompact, { color: currentTheme.textSecondary }]}>
+            회
+          </CustomText>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+/**
  * Tips Section
  */
 const TipsSection = ({ currentTheme, t }) => (
@@ -309,11 +403,7 @@ const TipsSection = ({ currentTheme, t }) => (
       </CustomText>
     </View>
     
-    <View style={styles.divider} />
-    
-    <CustomText type="normal" bold style={[styles.bottomTipText, { color: currentTheme.textSecondary, fontStyle: 'italic' }]}>
-      💙 당신과의 모든 대화가 소중해요
-    </CustomText>
+
   </View>
 );
 
@@ -386,9 +476,11 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(12),
   },
   primaryEmotionContainer: {
-    padding: scale(20),
+    padding: scale(24), // ⭐ More padding
+    paddingVertical: verticalScale(28), // ⭐ Extra vertical space for iOS
     borderRadius: scale(16),
     alignItems: 'center',
+    minHeight: verticalScale(160), // ⭐ Prevent content clipping
   },
   primaryEmoji: {
     fontSize: scale(64),
@@ -396,12 +488,14 @@ const styles = StyleSheet.create({
     display: 'none',
   },
   primaryLabel: {
-    marginTop: verticalScale(16),
-    fontSize: scale(24),
+    marginTop: verticalScale(8), // ⭐ Reduced (was 16)
+    fontSize: scale(22), // ⭐ Slightly smaller for iOS safety
+    lineHeight: scale(28), // ⭐ Proper line height
     marginBottom: verticalScale(8),
   },
   primaryDescription: {
     fontSize: scale(14),
+    lineHeight: scale(20), // ⭐ Better readability
     marginBottom: verticalScale(16),
     textAlign: 'center',
   },
@@ -490,17 +584,19 @@ const styles = StyleSheet.create({
 
   },
   emptyCard: {
-    padding: scale(10),
+    padding: scale(24), // ⭐ More padding for breathing room
+    paddingVertical: verticalScale(32), // ⭐ Extra vertical space
     borderRadius: scale(16),
     alignItems: 'center',
-
+    justifyContent: 'center',
+    minHeight: verticalScale(120), // ⭐ Minimum height to prevent clipping
   },
   emptyEmoji: {
-    marginTop: Platform.OS === 'ios' ? verticalScale(46) : verticalScale(0),
-    fontSize: scale(40),
-    width: scale(80),
-    height: scale(80),
+    fontSize: scale(48), // ⭐ Slightly larger
+    lineHeight: scale(56), // ⭐ Center vertically
     textAlign: 'center',
+    textAlignVertical: 'center', // Android
+    // ⭐ Removed fixed width/height (causes clipping on iOS!)
     textAlignVertical: 'center',
     justifyContent: 'center',
     alignItems: 'center',
@@ -518,6 +614,58 @@ const styles = StyleSheet.create({
   },
   emptyCTAText: {
     fontSize: scale(16),
+  },
+  
+  // ⭐ NEW: Relationship Stats Section (Row Layout like RelationshipChipsContainer!)
+  relationshipStatsSection: {
+    marginBottom: verticalScale(16),
+  },
+  statsChipsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: scale(8),
+  },
+  statChipCompact: {
+    flex: 1, // Equal width for all chips
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(8),
+    borderRadius: scale(12),
+    minHeight: verticalScale(110),
+  },
+  statChipEmojiCompact: {
+    fontSize: scale(28),
+    lineHeight: scale(32),
+    marginBottom: verticalScale(6),
+  },
+  statChipLabelCompact: {
+    fontSize: scale(11),
+    marginBottom: verticalScale(4),
+    textAlign: 'center',
+  },
+  statChipValueCompact: {
+    fontSize: scale(20),
+    lineHeight: scale(24),
+    textAlign: 'center',
+    marginBottom: verticalScale(6),
+  },
+  statChipUnitCompact: {
+    fontSize: scale(10),
+    textAlign: 'center',
+    marginTop: verticalScale(2),
+  },
+  miniProgressBar: {
+    width: '100%',
+    height: verticalScale(4),
+    borderRadius: scale(2),
+    overflow: 'hidden',
+    marginTop: verticalScale(6),
+  },
+  miniProgressFill: {
+    height: '100%',
+    borderRadius: scale(2),
   },
   
   // Common
