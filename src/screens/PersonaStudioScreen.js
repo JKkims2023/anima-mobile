@@ -94,6 +94,11 @@ const PersonaStudioScreen = () => {
   const animaLogoOpacity = useRef(new Animated.Value(0)).current;
   const soulConnectionTranslateX = useRef(new Animated.Value(-100)).current;
   const soulConnectionOpacity = useRef(new Animated.Value(0)).current;
+  
+  // ✨ Header Search Bar Animation Values (3가지 검색바 전환 애니메이션)
+  const searchBarOpacity = useRef(new Animated.Value(1)).current; // 페르소나 필터링 (기본 visible)
+  const postcardBarOpacity = useRef(new Animated.Value(0)).current; // 포스트카드 (기본 hidden)
+  const messageBarOpacity = useRef(new Animated.Value(0)).current; // 메시지 (기본 hidden)
   const helpFeedbackSheetRef = useRef(null);
   const helpMessageSheetRef = useRef(null);
   const helpSheetRef = useRef(null);
@@ -293,6 +298,78 @@ const PersonaStudioScreen = () => {
       }),
     ]).start();
   }, []); // ✅ 빈 dependency array = 마운트 시 1회만 실행
+  
+  // ✨ Header Search Bar Animation (3가지 검색바 전환 - Fade In/Out)
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('💫 [PersonaStudioScreen] Search bar transition animation');
+      console.log('   isBackViewVisible:', isBackViewVisible);
+      console.log('   refFiipType.current:', refFiipType.current);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+    
+    const duration = 300; // 300ms - 빠르고 감성적인 전환
+    
+    if (!isBackViewVisible) {
+      // ⭐ 페르소나 필터링 모드 (Search Bar)
+      Animated.parallel([
+        Animated.timing(searchBarOpacity, {
+          toValue: 1,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(postcardBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(messageBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (refFiipType.current === 'postcard') {
+      // ⭐ 포스트카드 모드 (Postcard Bar)
+      Animated.parallel([
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(postcardBarOpacity, {
+          toValue: 1,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(messageBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (refFiipType.current === 'message') {
+      // ⭐ 메시지 작성 모드 (Message Bar)
+      Animated.parallel([
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(postcardBarOpacity, {
+          toValue: 0,
+          duration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(messageBarOpacity, {
+          toValue: 1,
+          duration,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isBackViewVisible, refFiipType.current]); // ⭐ 의존성: isBackViewVisible, refFiipType
   
   useEffect(() => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -2205,11 +2282,21 @@ const PersonaStudioScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* ⭐ Search Bar + Category Dropdown (Row layout) */}
+        {/* ⭐ Search Bar + Category Dropdown (Row layout) - Animated Transition */}
         <View style={styles.searchRow}>
-          {/* Search Bar */}
-          <View style={[styles.searchBar, {display: isBackViewVisible ? 'none' : 'flex', backgroundColor: currentTheme.cardBackground }]}>
-          <IconSearch name="search" size={scale(20)} color={currentTheme.textSecondary} />
+          {/* Search Bar (페르소나 필터링) */}
+          <Animated.View 
+            style={[
+              styles.searchBar, 
+              styles.searchBarAbsolute, // ⭐ 절대 위치 (겹쳐서 표시)
+              { 
+                opacity: searchBarOpacity, 
+                backgroundColor: currentTheme.cardBackground 
+              }
+            ]}
+            pointerEvents={!isBackViewVisible ? 'auto' : 'none'} // ⭐ 보이지 않을 때 터치 차단
+          >
+            <IconSearch name="search" size={scale(20)} color={currentTheme.textSecondary} style={{ marginRight: scale(-4) }} />
             <TextInput
               ref={searchInputRef}
               style={[styles.searchInput, { color: currentTheme.textPrimary }]}
@@ -2225,25 +2312,45 @@ const PersonaStudioScreen = () => {
                 <IconSearch name="close-circle" size={scale(18)} color={currentTheme.textSecondary} />
               </TouchableOpacity>
             )}
-          </View>
-          {/* postcard Bar */}
-          <View style={[styles.searchBar, {display: isBackViewVisible && refFiipType.current === 'postcard' ? 'flex' : 'none', backgroundColor: currentTheme.cardBackground }]}>
-            
+          </Animated.View>
+          
+          {/* Postcard Bar (포스트카드 뷰) */}
+          <Animated.View 
+            style={[
+              styles.searchBar, 
+              styles.searchBarAbsolute, // ⭐ 절대 위치 (겹쳐서 표시)
+              { 
+                opacity: postcardBarOpacity, 
+                backgroundColor: currentTheme.cardBackground 
+              }
+            ]}
+            pointerEvents={isBackViewVisible && refFiipType.current === 'postcard' ? 'auto' : 'none'} // ⭐ 보이지 않을 때 터치 차단
+          >
             <CustomText
               style={[styles.searchInput, { fontSize: scale(16), color: currentTheme.textPrimary }]}
             >
               {t('main_header_title.postcard', { persona_name: currentPersona?.persona_name })}
             </CustomText>
-
-          </View>
-          {/* Message Bar */}
-          <View style={[styles.searchBar, {display: isBackViewVisible && refFiipType.current === 'message' ? 'flex' : 'none', backgroundColor: currentTheme.cardBackground }]}>
+          </Animated.View>
+          
+          {/* Message Bar (메시지 작성 뷰) */}
+          <Animated.View 
+            style={[
+              styles.searchBar, 
+              styles.searchBarAbsolute, // ⭐ 절대 위치 (겹쳐서 표시)
+              { 
+                opacity: messageBarOpacity, 
+                backgroundColor: currentTheme.cardBackground 
+              }
+            ]}
+            pointerEvents={isBackViewVisible && refFiipType.current === 'message' ? 'auto' : 'none'} // ⭐ 보이지 않을 때 터치 차단
+          >
             <CustomText              
               style={[styles.searchInput, { fontSize: scale(16), color: currentTheme.textPrimary }]}
             >
               {t('main_header_title.message')}
             </CustomText>
-          </View>
+          </Animated.View>
         </View>
 
 
@@ -2683,21 +2790,24 @@ const styles = StyleSheet.create({
     marginLeft: scale(-20), // ✅ 좌측으로 20px 이동
   },
   helpButton: {
-    marginLeft: platformPadding(12),
+    marginRight: scale(-10),
     padding: platformPadding(8),
   },
   // ⭐ NEW: Hamburger Menu Button
   menuButton: {
-    marginLeft: platformPadding(0),
+    marginRight: scale(-10),
     padding: platformPadding(8),
+
   },
   
   // ⭐ NEW: Search Row (Search Bar + Category Button)
   searchRow: {
+    position: 'relative', // ⭐ 절대 위치 컨테이너
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: verticalScale(-10),
     marginBottom: verticalScale(10),
+    height: verticalScale(40), // ⭐ 명시적 높이 (애니메이션이 겹쳐서 표시되므로)
   },
   
   // Search Bar (reduced height)
@@ -2709,6 +2819,15 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(0),
     paddingTop: verticalScale(-4),
     gap: scale(8),
+  },
+  
+  // ⭐ NEW: Absolute positioning for animated search bars (3개가 겹쳐서 표시)
+  searchBarAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   searchInput: {
     flex: 1,
