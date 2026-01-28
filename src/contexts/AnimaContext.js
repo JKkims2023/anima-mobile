@@ -69,6 +69,9 @@ export const AnimaProvider = ({ children }) => {
   // ⭐ NEW: Message Create Handler (from MessageCreationOverlay)
   const [messageCreateHandler, setMessageCreateHandler] = useState(null);
   
+  // ⭐ NEW: Message Content State (for CenterAI Button icon change)
+  const [hasMessageContent, setHasMessageContent] = useState(false);
+  
   // ⭐ NEW: Show Default Personas setting
   const [showDefaultPersonas, setShowDefaultPersonas] = useState(true); // Default: true (show all 3 modes)
   
@@ -404,6 +407,8 @@ export const AnimaProvider = ({ children }) => {
     setIsMessageCreationActive,
     messageCreateHandler,
     setMessageCreateHandler,
+    hasMessageContent, // ⭐ NEW: Message content state
+    setHasMessageContent, // ⭐ NEW: Message content setter
     showDefaultPersonas,
     updateShowDefaultPersonas,
     // Tab Badges
@@ -431,6 +436,8 @@ export const AnimaProvider = ({ children }) => {
     setIsMessageCreationActive,
     messageCreateHandler,
     setMessageCreateHandler,
+    hasMessageContent, // ⭐ NEW
+    setHasMessageContent, // ⭐ NEW (setter는 stable하지만 명시적으로 추가)
     showDefaultPersonas,
     updateShowDefaultPersonas,
     hasMemoryBadge,

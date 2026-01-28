@@ -55,7 +55,7 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
   const actionSheetRef = useRef(null);
   const { setSelectedIndex, selectedPersona, selectedPersonaRef, selectedIndex, mode, switchMode } = usePersona(); // 🔥 NEW: Add selectedPersonaRef
   const { isQuickMode, toggleQuickMode } = useQuickAction();
-  const { hasNewMessage, isMessageCreationActive, messageCreateHandler, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state, message creation state, and handler from Context
+  const { hasNewMessage, isMessageCreationActive, hasMessageContent, messageCreateHandler, showAlert, hasMemoryBadge, hasMusicBadge, hasHomeBadge } = useAnima(); // ⭐ Get badge state, message creation state, message content state, and handler from Context
   const [isManagerOverlayVisible, setIsManagerOverlayVisible] = useState(false);
   const [activeGame, setActiveGame] = useState(null); // 🎮 NEW: 'fortress' | 'tattoo' | 'nostradamus'
 
@@ -297,7 +297,11 @@ const CustomTabBar = ({ state, descriptors, navigation, ...props }) => {
       {/* Center AI Button (elevated, positioned absolutely) */}
       <View style={styles.centerButtonContainer}>
         <CenterAIButton
-          state={isMessageCreationActive ? 'message' : (selectedPersona?.isManager ? 'sage' : 'persona')}
+          state={
+            isMessageCreationActive 
+              ? (hasMessageContent ? 'message' : 'pencil') // ⭐ 3단계: 메시지 있으면 'message', 없으면 'pencil'
+              : (selectedPersona?.isManager ? 'sage' : 'persona')
+          }
           personaVideoUrl={
             selectedPersona?.selected_dress_video_url && 
             selectedPersona?.selected_dress_video_convert_yn === 'Y' 

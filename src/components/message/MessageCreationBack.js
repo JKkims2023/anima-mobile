@@ -135,7 +135,7 @@ const MessageCreationBack = ({
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { setMessageCreateHandler, showAlert, setHasNewMessage, setCreatedMessageUrl, setIsMessageCreationActive } = useAnima(); // ⭐ NEW: Context integration
+  const { setMessageCreateHandler, showAlert, setHasNewMessage, setCreatedMessageUrl, setIsMessageCreationActive, setHasMessageContent } = useAnima(); // ⭐ NEW: Context integration + hasMessageContent
   const { user } = useUser(); // ⭐ NEW: User 
   const { theme,currentTheme } = useTheme();
   const validationFeedbackSheetRef = useRef(null); // ⭐ NEW: Validation feedback with persona voice 💙
@@ -482,8 +482,9 @@ const MessageCreationBack = ({
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     setMessageContent(value);
     messageContentRef.current = value; // 🔧 FIX: Update ref immediately!
+    setHasMessageContent(value.trim().length > 0); // ⭐ NEW: Update CenterAI Button state!
     contentInputRef.current?.dismiss();
-  }, []);
+  }, [setHasMessageContent]);
 
   // 🎨 P1: 2-Step Selection Handlers
   
@@ -955,6 +956,16 @@ const MessageCreationBack = ({
     console.log('   messageContent:', messageContent);
     messageContentRef.current = messageContent;
   }, [messageContent]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ⭐ NEW: Cleanup hasMessageContent when component closes
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!isVisible) {
+      console.log('[MessageCreationBack] 🧹 Cleaning up - resetting hasMessageContent');
+      setHasMessageContent(false); // ⭐ Reset CenterAI Button state
+    }
+  }, [isVisible, setHasMessageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🎨 NEW: 감성적 텍스트 애니메이션 (좌→우 슬라이드 + 페이드 인)

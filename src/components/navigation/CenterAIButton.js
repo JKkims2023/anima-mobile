@@ -190,6 +190,21 @@ const CenterAIButton = ({
           </View>
         );
         
+      case 'pencil':
+        return (
+          <View style={styles.contentContainer}>
+            <View style={[styles.pencilIcon, { 
+              backgroundColor: '#8E44AD', // ⭐ Purple (이모지와 겹치지 않는 색상)
+              borderColor: '#FFFFFF', // ✅ White border for contrast
+            }]}>
+              <CustomText style={styles.pencilEmoji}>✏️</CustomText>
+            </View>
+            <CustomText style={[styles.label, { color: currentTheme.text }]}>
+              메시지
+            </CustomText>
+          </View>
+        );
+        
       case 'message':
         return (
           <View style={styles.contentContainer}>
@@ -334,7 +349,26 @@ const styles = StyleSheet.create({
   },
   
   // ═══════════════════════════════════════════════════════════════════════════
-  // Message State
+  // Pencil State (Writing)
+  // ═══════════════════════════════════════════════════════════════════════════
+  pencilIcon: {
+    width: TAB_BAR.CENTER_BUTTON_ICON_SIZE,
+    height: TAB_BAR.CENTER_BUTTON_ICON_SIZE,
+    borderRadius: TAB_BAR.CENTER_BUTTON_ICON_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: verticalScale(2),
+    // ✅ Border for visual clarity (color applied dynamically)
+    borderWidth: 2,
+  },
+  
+  pencilEmoji: {
+    fontSize: scale(26),
+    lineHeight: scale(26),
+  },
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Message State (Completed)
   // ═══════════════════════════════════════════════════════════════════════════
   messageIcon: {
     width: TAB_BAR.CENTER_BUTTON_ICON_SIZE,
