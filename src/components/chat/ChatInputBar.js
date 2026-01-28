@@ -43,6 +43,7 @@ const ChatInputBar = memo(({
   hasSelectedImage = false, // 🆕 NEW: Parent tells us if image is selected
   persona = null, // 🗣️ NEW: Persona info for speaking pattern visibility
   currentEmotion = 'sleeping', // 😴 NEW: Current user emotion from LLM
+  personaThought = null, // 💭 NEW: Persona's thought (want_to_ask)
 }) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
@@ -53,6 +54,10 @@ const ChatInputBar = memo(({
   const [iosContentHeight, setIosContentHeight] = useState(0);
   const minHeight = verticalScale(40);
   const maxHeight = verticalScale(120);
+  
+  // 💭 NEW: Persona thought tooltip
+  const [showThought, setShowThought] = useState(false);
+  const [thoughtOpacity] = useState(new Animated.Value(0));
   
   // 🎯 PERFORMANCE DEBUG: Render tracking
   if (__DEV__) {
@@ -176,6 +181,44 @@ const ChatInputBar = memo(({
     }
   }, [visionMode, disabled, onImageSelect]);
 
+  // 💭 Handle persona thought tooltip
+  const handleEmotionPress = useCallback(() => {
+    if (!personaThought) return;
+    
+    // 🎯 Haptic feedback
+    HapticService.light();
+    
+    setShowThought(true);
+    Animated.spring(thoughtOpacity, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 10,
+    }).start();
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      Animated.timing(thoughtOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowThought(false);
+      });
+    }, 5000);
+  }, [personaThought, thoughtOpacity]);
+
+  // 💭 Handle thought dismiss
+  const handleThoughtDismiss = useCallback(() => {
+    Animated.timing(thoughtOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowThought(false);
+    });
+  }, [thoughtOpacity]);
+
   // 🎯 OPTIMIZATION: Memoize EmotionIndicator to prevent TextInput re-render
   // When currentEmotion changes, only EmotionIndicator updates
   const emotionIndicator = useMemo(() => {
@@ -183,18 +226,28 @@ const ChatInputBar = memo(({
       console.log('🎭 [ChatInputBar] EmotionIndicator rendering:', currentEmotion);
     }
     return (
-      <View
+      <TouchableOpacity
+        onPress={handleEmotionPress}
+        disabled={!personaThought}
+        activeOpacity={personaThought ? 0.6 : 1}
         style={[
           styles.emotionButton,
           {
             backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
+            // 💭 Subtle hint that it's tappable
+            opacity: personaThought ? 1 : 0.8,
           },
         ]}
       >
         <EmotionIndicator emotion={currentEmotion} animated={true} />
-      </View>
+        {personaThought && (
+          <View style={styles.thoughtBadge}>
+            <Text style={styles.thoughtBadgeText}>💭</Text>
+          </View>
+        )}
+      </TouchableOpacity>
     );
-  }, [currentEmotion, currentTheme.backgroundColor]);
+  }, [currentEmotion, currentTheme.backgroundColor, personaThought, handleEmotionPress]);
 
   return (
     <View style={styles.wrapper}>
@@ -317,6 +370,55 @@ const ChatInputBar = memo(({
           <Icon name="settings" size={moderateScale(22)} color="#FFF" />
         </TouchableOpacity>
       </View>
+
+      {/* 💭 Persona Thought Tooltip */}
+      {showThought && personaThought && (
+        <Animated.View
+          style={[
+            styles.thoughtTooltip,
+            {
+              opacity: thoughtOpacity,
+              transform: [
+                {
+                  translateY: thoughtOpacity.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [10, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={handleThoughtDismiss}
+            style={styles.thoughtTooltipContent}
+          >
+            <View style={styles.thoughtHeader}>
+              <Text style={styles.thoughtHeaderText}>💭 페르소나의 생각</Text>
+              <TouchableOpacity onPress={handleThoughtDismiss} style={styles.thoughtCloseButton}>
+                <Text style={styles.thoughtCloseText}>×</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.thoughtQuestion}>{personaThought.question}</Text>
+            
+            {personaThought.topic && (
+              <View style={styles.thoughtFooter}>
+                <Text style={styles.thoughtTopic}>🏷️ {personaThought.topic}</Text>
+                {personaThought.timestamp && (
+                  <Text style={styles.thoughtTime}>
+                    {new Date(personaThought.timestamp).toLocaleTimeString('ko-KR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                )}
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </View>
   );
 });
@@ -389,6 +491,87 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  // 💭 Persona Thought Tooltip Styles
+  thoughtBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: moderateScale(16),
+    height: moderateScale(16),
+    borderRadius: moderateScale(8),
+    backgroundColor: 'rgba(255, 105, 180, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thoughtBadgeText: {
+    fontSize: moderateScale(10),
+  },
+  thoughtTooltip: {
+    position: 'absolute',
+    bottom: verticalScale(70),
+    left: moderateScale(15),
+    right: moderateScale(15),
+    zIndex: 9999,
+  },
+  thoughtTooltipContent: {
+    backgroundColor: 'rgba(30, 30, 30, 0.98)',
+    borderRadius: moderateScale(16),
+    padding: moderateScale(16),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 105, 180, 0.5)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  thoughtHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: moderateScale(12),
+  },
+  thoughtHeaderText: {
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  thoughtCloseButton: {
+    width: moderateScale(24),
+    height: moderateScale(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  thoughtCloseText: {
+    fontSize: moderateScale(20),
+    color: 'rgba(255, 255, 255, 0.7)',
+    lineHeight: moderateScale(20),
+  },
+  thoughtQuestion: {
+    fontSize: moderateScale(16),
+    color: '#FFF',
+    lineHeight: moderateScale(24),
+    marginBottom: moderateScale(12),
+  },
+  thoughtFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: moderateScale(8),
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  thoughtTopic: {
+    fontSize: moderateScale(12),
+    color: 'rgba(255, 105, 180, 0.9)',
+    fontWeight: '500',
+  },
+  thoughtTime: {
+    fontSize: moderateScale(11),
+    color: 'rgba(255, 255, 255, 0.5)',
   },
 });
 

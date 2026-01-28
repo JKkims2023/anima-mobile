@@ -193,40 +193,6 @@ const ManagerAIOverlay = ({
   const [emotionEffectsEnabled, setEmotionEffectsEnabled] = useState(true); // ⭐ Settings (on/off)
   const [emotionBurstTrigger, setEmotionBurstTrigger] = useState(null); // ⭐ Trigger { emotion, timestamp }
   
-  // 🎨 OPTIMIZATION: Sequential emotion test for UX refinement
-  useEffect(() => {
-    if (visible) {
-      console.log('🎨 [EMOTION TEST] Starting sequential emotion tests...');
-      console.log('   🔥 burst = 폭발 효과');
-      console.log('   💓 pulse = 맥박 효과 (큰 이모지)');
-      
-      const emotions = [
-        { name: 'caring', delay: 2000, label: '💝 Caring (따뜻함) - 🔥 burst' },
-        { name: 'happy', delay: 6000, label: '😊 Happy (기쁨) - 🔥 burst' },
-        { name: 'sad', delay: 10000, label: '😢 Sad (슬픔) - 💓 pulse NEW!' },
-        { name: 'excited', delay: 14000, label: '🎉 Excited (흥분) - 🔥 burst' },
-        { name: 'calm', delay: 18000, label: '😌 Calm (평온) - 💓 pulse NEW!' },
-        { name: 'love', delay: 22000, label: '💕 Love (사랑) - 🔥 burst' },
-        { name: 'grateful', delay: 26000, label: '🙏 Grateful (감사) - 💓 pulse NEW!' },
-        { name: 'anxious', delay: 30000, label: '😰 Anxious (불안) - 💓 pulse NEW!' },
-      ];
-      
-      const timeouts = emotions.map(({ name, delay, label }) => 
-        setTimeout(() => {
-          console.log(`🎨 [EMOTION TEST] Triggering: ${label}`);
-          setEmotionBurstTrigger({
-            emotion: name,
-            timestamp: Date.now(),
-          });
-        }, delay)
-      );
-      
-      return () => {
-        timeouts.forEach(clearTimeout);
-      };
-    }
-  }, [visible]);
-  
   // 💫 Load emotion effects settings from AsyncStorage
   useEffect(() => {
     const loadEmotionEffectsSettings = async () => {
