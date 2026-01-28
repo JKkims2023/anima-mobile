@@ -78,10 +78,10 @@ const EMOTION_CONFIG = {
   
   calm: {
     type: 'pulse', // ✅ ascend → pulse (평온한 느낌)
-    emoji: '☁️',
+    emoji: '😌', // ✅ ☁️ → 😌 (편안한 얼굴이 훨씬 직관적!)
     color: '#87CEEB',
     count: 1, // 1개의 큰 이모지
-    duration: 3000, // 천천히
+    duration: 3000, // 천천히 (평온함)
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
