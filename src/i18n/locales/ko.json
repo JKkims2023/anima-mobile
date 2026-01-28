@@ -75,7 +75,7 @@
     "back": "뒤로가기",
     "notification": "알림",
     "messageHistory": "메시지 기록",
-    "diary": "다이어리",
+    "diary": "속마음",
     "food": "특별한 식사",
     "memory": "추억 선물",
     "meet": "첫만남",
@@ -1744,7 +1744,7 @@
       "password_mismatch": "비밀번호가 일치하지 않습니다",
       "creation_failed": "메시지 생성에 실패했습니다",
       "network_error": "네트워크 오류가 발생했습니다",
-      "content_required_description": "감성적인 메세지를 작성 후, 메신저에 공유가능합니다!"
+      "content_required_description": "메세지 내용에 ANIMA 서비스에 위배되는 내용을(음란, 폭력, 기타 불법적 내용) 작성시, 실시간 필터링에 의해 생성이 불가능하고 서비스 이용이 제한될 수 입니다!"
     },
     "history": {
       "title": "이전 메시지 불러오기",
@@ -1770,7 +1770,7 @@
       "delete_success": "메시지가 삭제되었습니다"
     },
     "validation": {
-      "content_required": "메시지 내용을 입력해주세요",
+      "content_required": "감성적인 메세지를 작성해주세요",
       "confirm_title": "메시지 생성 확인",
       "confirm_partial": "현재 상태로 생성하시겠습니까?",
       "status_content": "메시지",
@@ -2030,7 +2030,7 @@
     "favorite": "즐겨찾기", 
     "emotion_titile" : "감정",
     "emotion": "♥️ {{name}}의 감정",
-    "diary": "다이어리",
+    "diary": "속마음",
     "remove_relationship": "헤어지기",
     "favorite_added": "즐겨찾기에 추가되었습니다",
     "favorite_removed": "즐겨찾기에서 제거되었습니다",

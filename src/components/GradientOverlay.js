@@ -24,7 +24,8 @@ const GradientOverlay = ({ children, height = 200, darkness = '0.7', style, cont
     <LinearGradient
       colors={gradientColors}
       style={[styles.gradient, { height: height }, style]} // ⭐ style prop 적용
-      pointerEvents="box-none" // ⭐ CRITICAL: Allow swipe gestures to pass through!
+    //  pointerEvents="none"
+       pointerEvents="box-none" // ⭐ CRITICAL: Allow swipe gestures to pass through!
     >
       <View style={[styles.contentContainer, containerStyle]} pointerEvents="box-none">
         {children}

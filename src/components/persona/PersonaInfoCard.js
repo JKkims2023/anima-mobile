@@ -341,6 +341,7 @@ const PersonaInfoCard = React.memo(({ persona, onChatPress, onFavoriteToggle, cu
       {/* ⭐ Pagination Indicator (Clickable when index >= 3) */}
       {totalCount > 1 && (
         <Pressable
+//        pointerEvents="box-none" // ⭐ CRITICAL: Allow swipe gestures to pass through!
           style={[
             styles.paginationContainer,
             { 

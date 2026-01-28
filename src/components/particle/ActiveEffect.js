@@ -120,6 +120,7 @@ const CheersToastEffect = ({ onComplete }) => {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 100,
+        backgroundColor: 'red',
       }}
     >
       <LottieView
@@ -127,8 +128,10 @@ const CheersToastEffect = ({ onComplete }) => {
         source={require('../../assets/animations/cheers-toast.json')}
         loop={false}
         style={{
+
           width: SCREEN_WIDTH * 0.8,
           height: SCREEN_HEIGHT * 0.6,
+
         }}
         onAnimationFinish={handleAnimationFinish}
       />

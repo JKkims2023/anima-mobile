@@ -86,13 +86,6 @@ const ANIMATIONS = [
     dbValue: 'love_hearts_lottie',
   },
   {
-    id: 'martini',
-    name: '마티니',
-    emoji: '🍸',
-    description: '세련된 마티니 글라스',
-    dbValue: 'martini',
-  },
-  {
     id: 'mug_beer',
     name: '맥주',
     emoji: '🍺',

@@ -458,6 +458,47 @@ export const createTestGift = async ({ user_key, persona_key, emotion, personalM
 
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 💭 Persona Curiosity APIs (2026-01-28)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ */
+
+/**
+ * Mark question as 'asked' when user views persona's thought
+ * 
+ * @param {Object} params
+ * @param {string} params.question_id - Question ID (from ai_next_questions)
+ * @param {string} params.user_key - User key
+ * @param {string} params.persona_key - Persona key
+ * @returns {Promise<Object>} - Success response with status update
+ */
+export const markQuestionAsAsked = async ({ question_id, user_key, persona_key }) => {
+  try {
+    console.log('💭 [ChatAPI] Marking question as asked:', question_id);
+    
+    const response = await apiClient.post('/api/anima/mark-question-asked', {
+      question_id,
+      user_key,
+      persona_key,
+    });
+    
+    console.log('✅ [ChatAPI] Question marked as asked');
+    
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  } catch (error) {
+    logError('Mark Question As Asked', error);
+    // Non-critical error - don't block UI
+    return {
+      success: false,
+      error: error.response?.data || { error_code: 'MARK_QUESTION_ERROR' },
+    };
+  }
+};
+
+/**
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * Real-time Chat Content Generation APIs
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  */
@@ -519,6 +560,7 @@ export default {
   getPendingGifts, // 🎁 Emotional Gifts
   reactToGift, // 🎁 Emotional Gifts
   createTestGift, // 🎁 Emotional Gifts (for testing)
+  markQuestionAsAsked, // 💭 NEW: Persona Curiosity
   checkChatContentLimit, // 🎨 NEW: Real-time Content
   getChatContentStatus, // 🎨 NEW: Real-time Content
   markContentAsClicked, // 🎨 NEW: Real-time Content

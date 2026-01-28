@@ -26,6 +26,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import HapticService from '../../utils/HapticService';
 import CustomText from '../CustomText';
 import EmotionIndicator from './EmotionIndicator';
+import { markQuestionAsAsked } from '../../services/api/chatApi'; // 💭 NEW: Mark question as asked
 
 const ChatInputBar = memo(({ 
   onSend, 
@@ -182,7 +183,7 @@ const ChatInputBar = memo(({
   }, [visionMode, disabled, onImageSelect]);
 
   // 💭 Handle persona thought tooltip
-  const handleEmotionPress = useCallback(() => {
+  const handleEmotionPress = useCallback(async () => {
     // 🎯 Haptic feedback
     HapticService.light();
     
@@ -193,6 +194,31 @@ const ChatInputBar = memo(({
       tension: 100,
       friction: 10,
     }).start();
+    
+    // 💭 Mark question as 'asked' if present
+    if (personaThought && personaThought.question_id && persona) {
+      try {
+        console.log('💭 [ChatInputBar] Marking question as asked:', personaThought.question_id);
+        
+        // Call API to update status (async, don't wait)
+        markQuestionAsAsked({
+          question_id: personaThought.question_id,
+          user_key: persona.user_key,
+          persona_key: persona.persona_key,
+        }).then((result) => {
+          if (result.success) {
+            console.log('✅ [ChatInputBar] Question marked as asked');
+          } else {
+            console.warn('⚠️  [ChatInputBar] Failed to mark question:', result.error);
+          }
+        }).catch((error) => {
+          console.error('❌ [ChatInputBar] Error marking question:', error);
+        });
+      } catch (error) {
+        // Non-critical error - don't block UI
+        console.error('❌ [ChatInputBar] Exception marking question:', error);
+      }
+    }
     
     // Auto-hide after 5 seconds (longer if no thought)
     const autoHideDelay = personaThought ? 5000 : 3000;
@@ -205,7 +231,7 @@ const ChatInputBar = memo(({
         setShowThought(false);
       });
     }, autoHideDelay);
-  }, [personaThought, thoughtOpacity]);
+  }, [personaThought, thoughtOpacity, persona]);
 
   // 💭 Handle thought dismiss
   const handleThoughtDismiss = useCallback(() => {

@@ -38,6 +38,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
+import { verticalScale } from '../../utils/responsive-utils';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -124,8 +125,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100, // Above background, below UI
+
   },
   lottie: {
+    marginTop: verticalScale(-300),
     width: SCREEN_WIDTH * 0.8,
     height: SCREEN_HEIGHT * 0.6,
   },

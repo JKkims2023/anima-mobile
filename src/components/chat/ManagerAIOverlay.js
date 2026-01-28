@@ -193,6 +193,9 @@ const ManagerAIOverlay = ({
   const [emotionEffectsEnabled, setEmotionEffectsEnabled] = useState(true); // ⭐ Settings (on/off)
   const [emotionBurstTrigger, setEmotionBurstTrigger] = useState(null); // ⭐ Trigger { emotion, timestamp }
   
+  // 💭 NEW (2026-01-28): Persona's thought (from DB pending questions)
+  const [personaThought, setPersonaThought] = useState(null); // ⭐ { question_id, question, topic, ... }
+  
   // 💫 Load emotion effects settings from AsyncStorage
   useEffect(() => {
     const loadEmotionEffectsSettings = async () => {
@@ -1408,6 +1411,12 @@ const ManagerAIOverlay = ({
           wantToAsk, // 💭 NEW (2026-01-28): Persona's curiosity
         } = parseRichContent(response.data);
         
+        // 💭 NEW (2026-01-28): Update persona thought state
+        if (wantToAsk && wantToAsk.question_id) {
+          setPersonaThought(wantToAsk);
+          console.log('💭 [Persona Thought] Updated:', wantToAsk.question.substring(0, 50) + '...');
+        }
+        
         // 😴 NEW (2026-01-13): Update emotion indicator
         if (response.data?.user_emotion?.primary) {
           const newEmotion = response.data.user_emotion.primary;
@@ -2556,6 +2565,7 @@ const ManagerAIOverlay = ({
                 hasSelectedImage={!!selectedImage} // 🆕 FIX: Tell ChatInputBar if image is selected
                 persona={persona} // 🗣️ NEW: Pass persona for speaking pattern visibility
                 currentEmotion={currentEmotion} // 😴 NEW (2026-01-13): Real-time emotion indicator
+                personaThought={personaThought} // 💭 NEW (2026-01-28): Persona's thought (from DB pending questions)
               />
             </View>
             

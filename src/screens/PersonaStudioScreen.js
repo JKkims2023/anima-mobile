@@ -2807,7 +2807,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: verticalScale(-10),
     marginBottom: verticalScale(10),
-    height: verticalScale(40), // ⭐ 명시적 높이 (애니메이션이 겹쳐서 표시되므로)
+    height: verticalScale(20), // ⭐ 명시적 높이 (애니메이션이 겹쳐서 표시되므로)
   },
   
   // Search Bar (reduced height)

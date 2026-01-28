@@ -63,6 +63,7 @@ import { useAnima } from '../../contexts/AnimaContext';
 import HapticService from '../../utils/HapticService';
 import { scale, verticalScale, moderateScale } from '../../utils/responsive-utils';
 import { COLORS } from '../../styles/commonstyles';
+import Video from 'react-native-video';
 
 // ⚙️ Sound 설정 (백그라운드 재생 허용)
 Sound.setCategory('Playback', true);
@@ -108,7 +109,7 @@ const EMOTION_LABEL = {
 /**
  * MemoryPlayerSheet Component
  */
-const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) => {
+const MemoryPlayerSheet = forwardRef(({isOpen, memory, onMemoryUpdate, onClose }, ref) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const { showAlert, showToast } = useAnima();
@@ -128,7 +129,11 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7); // ⭐ Volume control
   const [showControls, setShowControls] = useState(false); // ⭐ NEW: Expand/Collapse state (default: collapsed)
-  
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoKey, setVideoKey] = useState(null);
+  const [isScreenFocused, setIsScreenFocused] = useState(false);
+  const [videoRef, setVideoRef] = useState(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🎨 Animation values (Enhanced for emotional presentation)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -153,7 +158,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   // Slides from right with fade-in effect (더 천천히, 더 우아하게)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   useEffect(() => {
-    if (imageLoaded) {
+    if (isOpen) {
       // 🎭 Fade in effect (천천히 나타나기)
       messageOpacity.value = withTiming(1, {
         duration: 1800, // ⭐ Slower (was 800ms)
@@ -172,7 +177,8 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         easing: Easing.out(Easing.cubic),
       });
     }
-  }, [imageLoaded]);
+  }, [isOpen]);
+
   
   // Animated message style
   const animatedMessageStyle = useAnimatedStyle(() => ({
@@ -387,6 +393,10 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     messageScale.value = 0.95;
     messageTranslateX.value = 100;
     setImageLoaded(false);
+    setVideoUrl(null);
+    setVideoKey(null);
+    setIsScreenFocused(false);
+    setIsVideoPlaying(false);
     
     // Reset music state
     setCurrentTime(0);
@@ -406,7 +416,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     const isMusicGift = memory?.gift_type === 'music';
     const hasMusicUrl = !!memory?.music_url;
     
-    if (isMusicGift && hasMusicUrl && imageLoaded) {
+    if (isMusicGift && hasMusicUrl && isOpen) {
       console.log('🎵 [MemoryPlayerSheet] Auto-playing music...');
       loadAndPlayMusic(memory.music_url);
     }
@@ -419,7 +429,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
       }
       stopProgressTracking();
     };
-  }, [memory?.gift_type, memory?.music_url, imageLoaded, loadAndPlayMusic, stopProgressTracking]);
+  }, [memory?.gift_type, memory?.music_url, isOpen, loadAndPlayMusic, stopProgressTracking]);
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Render
@@ -458,7 +468,8 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
   const isMusicGift = giftType === 'music';
   
   // For music gifts, use persona image as background
-  const displayImageUrl = isMusicGift ? memory?.persona_url : memory?.image_url;
+const displayImageUrl = isMusicGift ? memory?.persona_url : memory?.image_url;
+const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_video_convert_done === 'Y';
   
   return (
     <CustomBottomSheet
@@ -479,18 +490,54 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
     >
       {/* Full-Screen Gift Image (or Persona Image for Music) */}
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: displayImageUrl }}
-          style={styles.giftImage}
-          resizeMode="cover"
-          onLoad={() => {
-            setImageLoaded(true);
-            HapticService.light();
-          }}
-        />
         
+        {isMusicGift ? (
+          <>
+          {hasVideo ? (
+            <Video
+              key={memory?.gift_id} // ⭐ Force remount when videoKey changes
+              ref={videoRef}
+              source={{ uri: memory?.persona_video_url }}
+              style={styles.video}
+              resizeMode="contain"
+              repeat
+              muted
+              paused={!isOpen || !isVideoPlaying}
+              onError={()=>{ console.log('video error'); }}
+              onLoad={()=>{ setIsVideoPlaying(true); }}
+              playInBackground={false}
+              playWhenInactive={false}
+            />
+          ) : (
+            <>
+            <Image
+              source={{ uri: displayImageUrl }}
+              style={styles.giftImage}
+              resizeMode="cover"
+              onLoad={() => {
+                setImageLoaded(true);
+                HapticService.light();
+              }}
+            />
+          </>
+          )}
+        </>
+        ):(
+        <>
+          <Image
+              source={{ uri: displayImageUrl }}
+              style={styles.giftImage}
+              resizeMode="cover"
+              onLoad={() => {
+                setImageLoaded(true);
+                HapticService.light();
+              }}
+            />
+        </>
+        )}
+          
         {/* ⭐ NEW: Top Music Player (Glassmorphic) - Only for music gifts */}
-        {isMusicGift && memory?.music_url && imageLoaded && (
+        {isMusicGift && memory?.music_url && isOpen && (
           <View style={styles.topMusicPlayer}>
             {/* Glassmorphic Background */}
             <View style={styles.musicPlayerGlass}>
@@ -623,7 +670,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           >
             <GiftBackgroundEffect 
               type={memory?.background_effect}
-              isActive={imageLoaded} 
+              isActive={isOpen} 
             />
           </View>
         )}
@@ -655,7 +702,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
           >
             <GiftActiveEffect 
               type={memory?.active_effect}
-              isActive={imageLoaded}
+              isActive={isOpen}
             />
           </View>
         )}
@@ -709,7 +756,7 @@ const MemoryPlayerSheet = forwardRef(({ memory, onMemoryUpdate, onClose }, ref) 
         </Animated.View>
         
         {/* Loading Indicator (while image loads) */}
-        {!imageLoaded && (
+        {false && (
           <View style={styles.loadingOverlay}>
             <CustomText style={styles.loadingText}>
               {t('common.loading') || '불러오는 중'}...
@@ -1014,6 +1061,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   
+  },
+  video: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
 

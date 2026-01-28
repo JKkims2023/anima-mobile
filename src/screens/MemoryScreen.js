@@ -111,6 +111,7 @@ const MemoryScreen = () => {
   // Selected music for player
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Load music list from API
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -288,6 +289,7 @@ const MemoryScreen = () => {
     // Otherwise, open player sheet
     console.log('🎁 [MemoryScreen] Opening player sheet...');
     setSelectedMemory(memory);
+    setIsOpen(true);
     
     // Give state time to update, then open
     setTimeout(() => {
@@ -693,12 +695,17 @@ const MemoryScreen = () => {
         </View>
       )}
 
-      {/* Music Player Sheet */}
+      {isOpen && (
       <MemoryPlayerSheet
+        isOpen={isOpen}
         ref={playerSheetRef}
         memory={selectedMemory}
         onMemoryUpdate={handleMemoryUpdate}
+        onClose={() => { 
+          setIsOpen(false);   
+          setSelectedMemory(null); }}
       />
+      )}
 
       {/* Processing Loading Overlay (Music Generation) */}
       <ProcessingLoadingOverlay
@@ -761,7 +768,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: moderateScale(15),
     paddingVertical: 0,
-    marginLeft: scale(0),
+    marginLeft: scale(-4),
 
   },
 

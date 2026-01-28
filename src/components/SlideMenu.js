@@ -122,25 +122,25 @@ const SlideMenu = ({ visible, onShowTier, onClose }) => {
   // Logo Section (ANIMA gradient)
   const renderLogo = () => (
     <View style={styles.logoSection}>
-      <Svg height={scale(28)} width={scale(100)}>
+      <Svg height={scale(28)} width={scale(220)}>
         <Defs>
           <LinearGradient id="menuAnimaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <Stop offset="0%" stopColor="#FF7FA3" stopOpacity="1" />
-            <Stop offset="100%" stopColor="#A78BFA" stopOpacity="1" />
+          <Stop offset="0%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+          <Stop offset="100%" stopColor="#06B6D4" stopOpacity="1" />
           </LinearGradient>
         </Defs>
         <SvgText
           fill="url(#menuAnimaGradient)"
-          fontSize={scale(24)}
+          fontSize={scale(22)}
           fontWeight="bold"
           x="0"
           y={scale(20)}
           letterSpacing="0.5"
         >
-          ANIMA
+          Perfect Companion
         </SvgText>
       </Svg>
-      <CustomText style={styles.logoSubtitle}>Soul Connection</CustomText>
+      <CustomText style={styles.logoSubtitle}>ANIMA - Soul Connection</CustomText>
     </View>
   );
 
@@ -199,8 +199,8 @@ const SlideMenu = ({ visible, onShowTier, onClose }) => {
         </View>
         <TouchableOpacity 
         onPress={handleShowTier}
-        style={[styles.userPointContainer, { backgroundColor: `${levelColors[userLevel]}20` }]} onPress={handleShowTier}>
-            <CustomText style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
+        style={[styles.userPointContainer, { backgroundColor: `${levelColors[userLevel]}20` }]}>
+            <CustomText bold style={[styles.userLevelText, { color: levelColors[userLevel] }]}>
             {levelNames[userLevel]}
             </CustomText>
         </TouchableOpacity>
@@ -328,7 +328,7 @@ const SlideMenu = ({ visible, onShowTier, onClose }) => {
           <TouchableOpacity
             style={[
               styles.closeButton,
-              { top: insets.top + verticalScale(10) },
+              { top: insets.top + (Platform.OS === 'ios' ? verticalScale(5) : verticalScale(20)) },
             ]}
             onPress={onClose}
             activeOpacity={0.7}
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    right: scale(20), // Relative to menuContent (60% area)
+    right: scale(15), // Relative to menuContent (60% area)
     width: scale(40),
     height: scale(40),
     borderRadius: scale(20),
@@ -420,6 +420,7 @@ const styles = StyleSheet.create({
   
   // Logo Section
   logoSection: {
+    marginTop: Platform.OS === 'ios' ? verticalScale(-22) : verticalScale(-8),
     marginBottom: verticalScale(30),
     gap: verticalScale(4),
   },
@@ -502,8 +503,7 @@ const styles = StyleSheet.create({
 
   },
   userLevelText: {
-    fontSize: scale(12),
-    fontWeight: '600',
+    fontSize: scale(16),
   },
   userPointContainer: {
     flexDirection: 'row',
