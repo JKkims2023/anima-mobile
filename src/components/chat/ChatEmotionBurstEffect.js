@@ -227,6 +227,9 @@ const Particle = ({ emoji, startX, startY, targetX, targetY, delay, duration, on
   const scale = useSharedValue(0.5);
 
   useEffect(() => {
+    console.log(`🚀 [Particle] Starting animation: ${emoji}, delay: ${delay}ms, duration: ${duration}ms`);
+    console.log(`   Start: (${startX}, ${startY}) → Target: (${targetX}, ${targetY})`);
+    
     // Step 1: 페이드 인 + 스케일 업
     opacity.value = withDelay(
       delay,
@@ -317,13 +320,21 @@ const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
   console.log('💫 [ChatEmotionBurstEffect] Rendering effect');
   console.log('   emotionType:', emotionType);
   console.log('   type:', config.type);
+  console.log('   emoji:', config.emoji);
   console.log('   count:', config.count);
   console.log('   duration:', config.duration);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
+  // 🔴 Reset completed count on mount
+  useEffect(() => {
+    completedCountRef.current = 0;
+    console.log('🔄 [ChatEmotionBurstEffect] Reset completedCountRef to 0');
+  }, [emotionType]);
+
   // ⭐ 파티클 완료 핸들러
   const handleParticleComplete = () => {
     completedCountRef.current += 1;
+    console.log(`🎯 [Particle Complete] ${completedCountRef.current}/${config.count}`);
     
     if (completedCountRef.current === config.count) {
       console.log('✅ [ChatEmotionBurstEffect] All particles completed');
@@ -392,13 +403,16 @@ const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
         targetY={targetY}
         delay={delay}
         duration={config.duration}
-        onComplete={i === config.count - 1 ? handleParticleComplete : undefined} // ⭐ 마지막 파티클만
+        onComplete={handleParticleComplete} // ⭐ 모든 파티클에 onComplete 전달 (카운터로 추적)
       />
     );
   }
 
+  console.log(`🎨 [ChatEmotionBurstEffect] Generated ${particles.length} particles`);
+
   return (
-    <View style={styles.container} pointerEvents="none">
+    <View style={[styles.container, styles.debugBackground]} pointerEvents="none">
+      {console.log('🔴 [DEBUG] Rendering particles container with', particles.length, 'particles')}
       {particles}
     </View>
   );
@@ -417,6 +431,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: { elevation: 9999 },
     }),
+  },
+  // 🔴 DEBUG: Red background to verify rendering
+  debugBackground: {
+    backgroundColor: 'rgba(255, 0, 0, 0.5)', // ⭐ 50% 불투명 빨간색
   },
   particle: {
     position: 'absolute',
