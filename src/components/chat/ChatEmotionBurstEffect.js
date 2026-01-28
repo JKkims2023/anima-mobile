@@ -61,11 +61,11 @@ const EMOTION_CONFIG = {
   },
   
   sad: {
-    type: 'rain',
+    type: 'pulse', // ✅ rain → pulse (큰 이모지로 감정 전달)
     emoji: '💧',
     color: '#4682B4',
-    count: 15,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 2500,
   },
   
   excited: {
@@ -77,11 +77,11 @@ const EMOTION_CONFIG = {
   },
   
   calm: {
-    type: 'ascend',
+    type: 'pulse', // ✅ ascend → pulse (평온한 느낌)
     emoji: '☁️',
     color: '#87CEEB',
-    count: 10,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 3000, // 천천히
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -112,11 +112,11 @@ const EMOTION_CONFIG = {
   },
   
   grateful: {
-    type: 'ascend',
+    type: 'pulse', // ✅ ascend → pulse (감사의 마음)
     emoji: '🙏',
     color: '#FFD700',
-    count: 12,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 2500,
   },
   
   affectionate: {
@@ -131,19 +131,19 @@ const EMOTION_CONFIG = {
   // 🎭 Complex Emotions
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   anxious: {
-    type: 'rain',
+    type: 'pulse', // ✅ rain → pulse (불안함 전달)
     emoji: '😰',
     color: '#FFB6C1',
-    count: 12,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 2000, // 빠르게 맥박 (불안감)
   },
   
   worried: {
-    type: 'rain',
+    type: 'pulse', // ✅ rain → pulse (걱정스러움)
     emoji: '😟',
     color: '#B0C4DE',
-    count: 12,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 2500,
   },
   
   confused: {
@@ -155,11 +155,11 @@ const EMOTION_CONFIG = {
   },
   
   hopeful: {
-    type: 'ascend',
+    type: 'pulse', // ✅ ascend → pulse (희망찬 느낌)
     emoji: '✨',
     color: '#FFE66D',
-    count: 12,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 2500,
   },
   
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -193,11 +193,11 @@ const EMOTION_CONFIG = {
   // 🌙 Neutral/Default
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   tired: {
-    type: 'rain',
+    type: 'pulse', // ✅ rain → pulse (피곤함)
     emoji: '😴',
     color: '#B0C4DE',
-    count: 10,
-    duration: 3000,
+    count: 1, // 1개의 큰 이모지
+    duration: 3000, // 느리게 (피곤함)
   },
   
   neutral: {
@@ -289,6 +289,58 @@ const Particle = ({ emoji, startX, startY, targetX, targetY, delay, duration, on
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
+// 💫 Pulse 이모지 컴포넌트 (큰 이모지가 맥박치듯 나타남)
+// ═══════════════════════════════════════════════════════════════════════════
+const PulseEmoji = ({ emoji, duration, onComplete }) => {
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.5);
+
+  useEffect(() => {
+    console.log(`💓 [PulseEmoji] Starting pulse animation: ${emoji}, duration: ${duration}ms`);
+    
+    // Step 1: Fade in + Scale up (0 → 2.5)
+    opacity.value = withTiming(1, { duration: 400, easing: Easing.out(Easing.ease) });
+    scale.value = withTiming(2.5, { duration: 400, easing: Easing.out(Easing.back(1.2)) });
+
+    // Step 2: 맥박 효과 (2.5 ↔ 2.8, 3회 반복)
+    setTimeout(() => {
+      scale.value = withSequence(
+        withTiming(2.8, { duration: 300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(2.5, { duration: 300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(2.8, { duration: 300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(2.5, { duration: 300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(2.8, { duration: 300, easing: Easing.inOut(Easing.ease) }),
+        withTiming(2.5, { duration: 300, easing: Easing.inOut(Easing.ease) })
+      );
+    }, 400);
+
+    // Step 3: Fade out (마지막 500ms)
+    const fadeOutDelay = duration - 500;
+    setTimeout(() => {
+      opacity.value = withTiming(0, { duration: 500 }, (finished) => {
+        if (finished && onComplete) {
+          runOnJS(onComplete)();
+        }
+      });
+      scale.value = withTiming(3.0, { duration: 500, easing: Easing.in(Easing.ease) });
+    }, fadeOutDelay);
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  console.log(`💓 [PulseEmoji Render] ${emoji}`);
+
+  return (
+    <Animated.Text style={[styles.pulseEmoji, animatedStyle]}>
+      {emoji}
+    </Animated.Text>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // 메인 컴포넌트
 // ═══════════════════════════════════════════════════════════════════════════
 const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
@@ -354,7 +406,22 @@ const ChatEmotionBurstEffect = ({ emotionType, onComplete }) => {
     }
   };
 
-  // ⭐ 파티클 생성
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 💓 PULSE 효과: 큰 이모지가 맥박치듯 나타남 (rain, ascend 대체)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  if (config.type === 'pulse') {
+    return (
+      <View style={[styles.container, styles.debugBackground]} pointerEvents="none">
+        <PulseEmoji
+          emoji={config.emoji}
+          duration={config.duration}
+          onComplete={onComplete}
+        />
+      </View>
+    );
+  }
+
+  // ⭐ 파티클 생성 (burst, rain, ascend)
   const particles = [];
   
   for (let i = 0; i < config.count; i++) {
@@ -456,6 +523,19 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
+      },
+    }),
+  },
+  // 💓 Pulse 이모지 스타일 (큰 이모지)
+  pulseEmoji: {
+    fontSize: scale(80), // ✅ 매우 크게 (파티클의 2배)
+    textAlign: 'center',
+    // ⚠️ iOS 텍스트 렌더링 최적화
+    ...Platform.select({
+      ios: {
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
       },
     }),
   },
