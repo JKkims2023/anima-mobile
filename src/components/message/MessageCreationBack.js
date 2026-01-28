@@ -958,14 +958,23 @@ const MessageCreationBack = ({
   }, [messageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ⭐ NEW: Cleanup hasMessageContent when component closes
+  // ⭐ NEW: Cleanup all message states when component closes
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (!isVisible) {
-      console.log('[MessageCreationBack] 🧹 Cleaning up - resetting hasMessageContent');
-      setHasMessageContent(false); // ⭐ Reset CenterAI Button state
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[MessageCreationBack] 🧹 Cleaning up - resetting ALL message states');
+      console.log('   Current messageContent:', messageContent);
+      console.log('   Current messageContentRef:', messageContentRef.current);
+      console.log('   → Resetting to empty...');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // ⭐ Reset ALL message-related states
+      setHasMessageContent(false); // CenterAI Button state
+      setMessageContent(''); // ⭐ Message content state
+      messageContentRef.current = ''; // ⭐ Message content ref (stale closure prevention)
     }
-  }, [isVisible, setHasMessageContent]);
+  }, [isVisible, messageContent, setHasMessageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🎨 NEW: 감성적 텍스트 애니메이션 (좌→우 슬라이드 + 페이드 인)
