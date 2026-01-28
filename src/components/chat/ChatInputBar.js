@@ -268,13 +268,13 @@ const ChatInputBar = memo(({
         ]}
       >
         <EmotionIndicator emotion={currentEmotion} animated={true} />
-        {/* 💭 Badge: Active (pink) vs Inactive (gray) */}
+        {/* 💭 Badge: Active (강렬한 핑크) vs Inactive (진한 회색) */}
         <View style={[
           styles.thoughtBadge,
           {
             backgroundColor: isActive 
-              ? 'rgba(255, 105, 180, 0.9)' // 💭 Active: Pink
-              : 'rgba(128, 128, 128, 0.7)', // 💤 Inactive: Gray
+              ? 'rgba(255, 105, 180, 1)' // 💭 Active: 강렬한 핑크 (100% opacity)
+              : 'rgba(128, 128, 128, 0.9)', // 💤 Inactive: 진한 회색 (90% opacity)
           }
         ]}>
           <Text style={styles.thoughtBadgeText}>
@@ -554,17 +554,25 @@ const styles = StyleSheet.create({
   // 💭 Persona Thought Tooltip Styles
   thoughtBadge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
-    width: moderateScale(18),
-    height: moderateScale(18),
-    borderRadius: moderateScale(9),
+    top: -4, // ⬆️ 더 위로 (눈에 띄게)
+    right: -4, // ➡️ 더 오른쪽으로
+    width: moderateScale(24), // ⬆️ 18 → 24 (크게)
+    height: moderateScale(24),
+    borderRadius: moderateScale(12),
     justifyContent: 'center',
     alignItems: 'center',
+    // 🔥 Option C: 강화된 시각 효과
+    borderWidth: 2, // ⭐ 테두리 추가
+    borderColor: 'rgba(255, 255, 255, 0.8)', // ⭐ 흰색 테두리 (눈에 띄게)
+    shadowColor: '#000', // ⭐ 그림자
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 8, // ⭐ Android elevation (glow 효과)
     // backgroundColor: inline style로 동적 설정 (Active: pink, Inactive: gray)
   },
   thoughtBadgeText: {
-    fontSize: moderateScale(10),
+    fontSize: moderateScale(14), // ⬆️ 10 → 14 (크게)
   },
   thoughtTooltip: {
     position: 'absolute',
