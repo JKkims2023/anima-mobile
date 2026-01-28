@@ -958,23 +958,27 @@ const MessageCreationBack = ({
   }, [messageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ⭐ NEW: Cleanup all message states when component closes
+  // ⭐ NEW: Initialize on open, Cleanup on close
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
-    if (!isVisible) {
+    if (isVisible) {
+      // ⭐ OPEN: 명시적 초기화 (이전 상태 완전 제거)
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('[MessageCreationBack] 🧹 Cleaning up - resetting ALL message states');
-      console.log('   Current messageContent:', messageContent);
-      console.log('   Current messageContentRef:', messageContentRef.current);
-      console.log('   → Resetting to empty...');
+      console.log('[MessageCreationBack] 🎬 Opening - FORCE RESET all states');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
-      // ⭐ Reset ALL message-related states
-      setHasMessageContent(false); // CenterAI Button state
-      setMessageContent(''); // ⭐ Message content state
-      messageContentRef.current = ''; // ⭐ Message content ref (stale closure prevention)
+      setMessageContent('');
+      messageContentRef.current = '';
+      setHasMessageContent(false); // ⭐ CRITICAL: Context도 초기화!
+    } else {
+      // ⭐ CLOSE: Cleanup
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[MessageCreationBack] 🧹 Closing - cleanup');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      setMessageContent('');
+      messageContentRef.current = '';
+      setHasMessageContent(false);
     }
-  }, [isVisible, messageContent, setHasMessageContent]);
+  }, [isVisible, setHasMessageContent]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🎨 NEW: 감성적 텍스트 애니메이션 (좌→우 슬라이드 + 페이드 인)
