@@ -193,6 +193,37 @@ const ManagerAIOverlay = ({
   const [emotionEffectsEnabled, setEmotionEffectsEnabled] = useState(true); // ⭐ Settings (on/off)
   const [emotionBurstTrigger, setEmotionBurstTrigger] = useState(null); // ⭐ Trigger { emotion, timestamp }
   
+  // 🎨 OPTIMIZATION: Sequential emotion test for UX refinement
+  useEffect(() => {
+    if (visible) {
+      console.log('🎨 [EMOTION TEST] Starting sequential emotion tests...');
+      
+      const emotions = [
+        { name: 'caring', delay: 2000, label: '💝 Caring (따뜻함)' },
+        { name: 'happy', delay: 6000, label: '😊 Happy (기쁨)' },
+        { name: 'excited', delay: 10000, label: '🎉 Excited (흥분)' },
+        { name: 'love', delay: 14000, label: '💕 Love (사랑)' },
+        { name: 'sad', delay: 18000, label: '💧 Sad (슬픔)' },
+        { name: 'calm', delay: 24000, label: '☁️ Calm (평온)' },
+        { name: 'grateful', delay: 30000, label: '🙏 Grateful (감사)' },
+      ];
+      
+      const timeouts = emotions.map(({ name, delay, label }) => 
+        setTimeout(() => {
+          console.log(`🎨 [EMOTION TEST] Triggering: ${label}`);
+          setEmotionBurstTrigger({
+            emotion: name,
+            timestamp: Date.now(),
+          });
+        }, delay)
+      );
+      
+      return () => {
+        timeouts.forEach(clearTimeout);
+      };
+    }
+  }, [visible]);
+  
   // 💫 Load emotion effects settings from AsyncStorage
   useEffect(() => {
     const loadEmotionEffectsSettings = async () => {

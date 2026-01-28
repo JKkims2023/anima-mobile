@@ -441,9 +441,9 @@ const styles = StyleSheet.create({
       android: { elevation: 9999 },
     }),
   },
-  // 🔴 DEBUG: Red background to verify rendering (주석 처리 - 프로덕션)
+  // 🔴 DEBUG: Red background to verify rendering (최적화 테스트용)
   debugBackground: {
-    // backgroundColor: 'rgba(255, 0, 0, 0.1)', // ⭐ 디버깅용 (필요시 주석 해제)
+    backgroundColor: 'rgba(255, 0, 0, 0.05)', // ⭐ 매우 연한 빨간색 (영역 확인용)
   },
   particle: {
     position: 'absolute',
