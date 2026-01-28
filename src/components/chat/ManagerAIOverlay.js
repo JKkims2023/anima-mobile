@@ -2236,6 +2236,21 @@ const ManagerAIOverlay = ({
       <View style={styles.container}>
         <View style={styles.backdrop} />
         
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* 💫 NEW: Emotion Burst Effect (Highest Priority - Top Level!) */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {emotionBurstTrigger && emotionEffectsEnabled && (
+          <View style={styles.emotionBurstOverlay} pointerEvents="box-none">
+            <ChatEmotionBurstEffect
+              emotionType={emotionBurstTrigger.emotion}
+              onComplete={() => {
+                console.log('💫 [Emotion Burst] Effect completed');
+                setEmotionBurstTrigger(null); // ⭐ 트리거 초기화
+              }}
+            />
+          </View>
+        )}
+        
         {/* ✅ KeyboardAvoidingView (Stable & Simple) */}
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -2660,21 +2675,6 @@ const ManagerAIOverlay = ({
               </View>
             </View>
           </View>
-        </View>
-      )}
-      
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* 💫 NEW: Emotion Burst Effect (iOS Compatible!) */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {emotionBurstTrigger && emotionEffectsEnabled && (
-        <View style={styles.emotionBurstOverlay}>
-          <ChatEmotionBurstEffect
-            emotionType={emotionBurstTrigger.emotion}
-            onComplete={() => {
-              console.log('💫 [Emotion Burst] Effect completed');
-              setEmotionBurstTrigger(null); // ⭐ 트리거 초기화
-            }}
-          />
         </View>
       )}
       
