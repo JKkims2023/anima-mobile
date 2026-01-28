@@ -223,57 +223,66 @@ const EMOTION_CONFIG = {
 const Particle = ({ emoji, startX, startY, targetX, targetY, delay, duration, onComplete }) => {
   const translateX = useSharedValue(startX);
   const translateY = useSharedValue(startY);
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.5);
+  const opacity = useSharedValue(1); // 🔴 DEBUG: 즉시 보이게
+  const scale = useSharedValue(3); // 🔴 DEBUG: 매우 크게 시작
 
   useEffect(() => {
     console.log(`🚀 [Particle] Starting animation: ${emoji}, delay: ${delay}ms, duration: ${duration}ms`);
     console.log(`   Start: (${startX}, ${startY}) → Target: (${targetX}, ${targetY})`);
     
-    // Step 1: 페이드 인 + 스케일 업
-    opacity.value = withDelay(
-      delay,
-      withTiming(1, { duration: 200 })
-    );
+    // 🔴 DEBUG: 페이드 인 제거, 즉시 표시
+    // opacity.value = withDelay(delay, withTiming(1, { duration: 200 }));
     
-    scale.value = withDelay(
-      delay,
-      withSpring(1, { damping: 10, stiffness: 100 })
-    );
+    // 🔴 DEBUG: 스케일 애니메이션 제거, 고정 크기
+    // scale.value = withDelay(delay, withSpring(1, { damping: 10, stiffness: 100 }));
 
-    // Step 2: 이동 애니메이션
+    // Step 2: 이동 애니메이션 (3초로 증가)
     translateX.value = withDelay(
       delay,
-      withTiming(targetX, { duration, easing: Easing.out(Easing.ease) })
+      withTiming(targetX, { duration: 3000, easing: Easing.out(Easing.ease) })
     );
     
     translateY.value = withDelay(
       delay,
-      withTiming(targetY, { duration, easing: Easing.out(Easing.ease) })
+      withTiming(targetY, { duration: 3000, easing: Easing.out(Easing.ease) })
     );
 
-    // Step 3: 페이드 아웃 (마지막 300ms)
-    opacity.value = withDelay(
-      delay + duration - 300,
-      withTiming(0, { duration: 300 }, (finished) => {
-        if (finished && onComplete) {
-          runOnJS(onComplete)();
-        }
-      })
-    );
+    // 🔴 DEBUG: 페이드 아웃 제거 (계속 보이게)
+    // opacity.value = withDelay(
+    //   delay + duration - 300,
+    //   withTiming(0, { duration: 300 }, (finished) => {
+    //     if (finished && onComplete) {
+    //       runOnJS(onComplete)();
+    //     }
+    //   })
+    // );
+    
+    // 🔴 DEBUG: 즉시 onComplete 호출 (3초 후)
+    setTimeout(() => {
+      if (onComplete) {
+        onComplete();
+      }
+    }, 3000 + delay);
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-    opacity: opacity.value,
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    // 🔴 DEBUG: 애니메이션 프레임마다 로그 (너무 많아서 주석)
+    // console.log(`🎨 [Particle Style] translateX: ${translateX.value}, translateY: ${translateY.value}, scale: ${scale.value}, opacity: ${opacity.value}`);
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { scale: scale.value },
+      ],
+      opacity: opacity.value,
+    };
+  });
+
+  console.log(`🔴 [Particle Render] ${emoji} at (${startX}, ${startY}) → (${targetX}, ${targetY})`);
 
   return (
     <Animated.Text style={[styles.particle, animatedStyle]}>
+      {console.log(`🎨 [Particle JSX] Rendering Text element: ${emoji}`)}
       {emoji}
     </Animated.Text>
   );
@@ -438,7 +447,10 @@ const styles = StyleSheet.create({
   },
   particle: {
     position: 'absolute',
-    fontSize: scale(24),
+    fontSize: scale(60), // 🔴 DEBUG: 24 → 60 (매우 크게)
+    backgroundColor: 'rgba(255, 255, 0, 0.8)', // 🔴 DEBUG: 노란색 배경
+    padding: scale(8), // 🔴 DEBUG: 패딩 추가
+    borderRadius: scale(8), // 🔴 DEBUG: 둥근 모서리
     // ⚠️ iOS 텍스트 렌더링 최적화
     ...Platform.select({
       ios: {
