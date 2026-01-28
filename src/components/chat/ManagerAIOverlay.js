@@ -1405,6 +1405,7 @@ const ManagerAIOverlay = ({
           youtubeData,
           identityEvolution,
           identityDraftPending,
+          wantToAsk, // 💭 NEW (2026-01-28): Persona's curiosity
         } = parseRichContent(response.data);
         
         // 😴 NEW (2026-01-13): Update emotion indicator
@@ -1554,6 +1555,40 @@ const ManagerAIOverlay = ({
         // 🛑 Check if cancelled during typing
         if (!aiMessage) {
           return; // Component was closed during typing
+        }
+        
+        // 💭 NEW (2026-01-28): Add persona's question as separate bubble
+        if (wantToAsk && wantToAsk.question) {
+          console.log('💭 [Persona Question] Adding question bubble:', wantToAsk.question);
+          
+          // ✅ Small delay before showing question (natural conversation flow)
+          await cancelableDelay(TIMING.BUBBLE_DELAY || 500, timeoutManagerRef.current);
+          
+          // 🛑 Check if cancelled during delay
+          if (timeoutManagerRef.current?.isCancelledStatus()) {
+            return;
+          }
+          
+          // ✅ Create question message
+          const questionMessage = {
+            id: uuid.v4(),
+            role: 'assistant',
+            content: wantToAsk.question,
+            type: 'question', // ⭐ Special type for question bubbles
+            metadata: {
+              topic: wantToAsk.topic,
+              reason: wantToAsk.reason,
+              emotional_motivation: wantToAsk.emotional_motivation,
+              related_to_previous: wantToAsk.related_to_previous,
+            },
+            timestamp: new Date().toISOString(),
+            isStreaming: false,
+          };
+          
+          // ✅ Add to messages
+          setMessages(prev => [...prev, questionMessage]);
+          
+          console.log('✅ [Persona Question] Question bubble added');
         }
         
         // 💰 Update chat count after successful message

@@ -42,11 +42,11 @@ import { scale, verticalScale } from '../../utils/responsive-utils';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 🎭 감정-효과 매핑 (Unified v2.0)
+// 🎭 감정-효과 매핑 (Unified v2.1)
 // ═══════════════════════════════════════════════════════════════════════════
 // Matches: EmotionIndicator.js & minimalistPromptBuilder.js
-// Total: 19 emotions (18 active + 1 default)
-// Updated: 2026-01-27 (Unified Emotion Mapping)
+// Total: 20 emotions (18 active + tired + 1 default)
+// Updated: 2026-01-28 (Added tired emotion for server compatibility)
 // ═══════════════════════════════════════════════════════════════════════════
 const EMOTION_CONFIG = {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -192,6 +192,14 @@ const EMOTION_CONFIG = {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🌙 Neutral/Default
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tired: {
+    type: 'rain',
+    emoji: '😴',
+    color: '#B0C4DE',
+    count: 10,
+    duration: 3000,
+  },
+  
   neutral: {
     type: null, // No effect (emoji only in EmotionIndicator)
     emoji: '😐',
@@ -201,7 +209,7 @@ const EMOTION_CONFIG = {
   },
   
   sleeping: {
-    type: null, // Default - no effect
+    type: null, // Default/Fallback - no effect
     emoji: '😴',
     color: '#B0C4DE',
     count: 0,

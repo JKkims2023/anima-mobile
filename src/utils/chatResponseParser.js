@@ -21,6 +21,7 @@ export const parseRichContent = (responseData) => {
       generatedContent: null,
       identityEvolution: null,
       identityDraftPending: null,
+      wantToAsk: null, // 💭 NEW (2026-01-28): Persona's curiosity
     };
   }
 
@@ -33,6 +34,7 @@ export const parseRichContent = (responseData) => {
     generated_content = null,
     identity_evolution = null,
     identity_draft_pending = null,
+    want_to_ask = null, // 💭 NEW (2026-01-28): Persona's question
   } = responseData;
 
   // Normalize rich content
@@ -94,6 +96,7 @@ export const parseRichContent = (responseData) => {
     generatedContent: generated_content,
     identityEvolution: identity_evolution,
     identityDraftPending: identity_draft_pending,
+    wantToAsk: want_to_ask, // 💭 NEW (2026-01-28): Persona's curiosity
   };
 };
 
