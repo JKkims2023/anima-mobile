@@ -200,7 +200,7 @@ const PersonaHeartDisplay = ({ persona }) => {
       )}
       
       {/* Layer 3: Persona's Thoughts (Next Questions) - aiNextQuestions && aiNextQuestions.length > 0 */}
-      {true && (
+      {false && (
         <View style={[styles.layer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderColor }]}>
           <View style={styles.layerHeader}>
             <CustomText type="title" bold style={{ color: theme.textPrimary, marginLeft: scale(0) }}>

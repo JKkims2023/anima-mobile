@@ -129,6 +129,9 @@ export const sendManagerAIMessage = async ({
         // 😴 NEW (2026-01-13): Real-time user emotion from LLM
         user_emotion: response.data.data?.user_emotion || null,
         
+        // 💭 NEW (2026-01-28): Persona's curiosity (what they want to ask)
+        want_to_ask: response.data.data?.want_to_ask || null,
+        
         // Performance metrics
         response_time_ms: response.data.metadata?.response_time_ms,
         tokens: response.data.metadata?.tokens,

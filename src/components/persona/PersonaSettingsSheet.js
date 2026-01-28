@@ -121,7 +121,10 @@ const PersonaSettingsSheet = ({
       isOpen={isOpen}
       onClose={onClose}
       title={t('persona.settings.title', { name: persona?.persona_name })}
-      snapPoints={['80%']}
+      snapPoints={[Platform.OS === 'ios' ? 
+        persona?.conversation_count == 0 ? '70%' : '68%'
+        : 
+        persona?.conversation_count == 0 ? '75%' : '65%']}
 
       
       buttons={
