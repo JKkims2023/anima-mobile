@@ -183,8 +183,6 @@ const ChatInputBar = memo(({
 
   // 💭 Handle persona thought tooltip
   const handleEmotionPress = useCallback(() => {
-    if (!personaThought) return;
-    
     // 🎯 Haptic feedback
     HapticService.light();
     
@@ -196,7 +194,8 @@ const ChatInputBar = memo(({
       friction: 10,
     }).start();
     
-    // Auto-hide after 5 seconds
+    // Auto-hide after 5 seconds (longer if no thought)
+    const autoHideDelay = personaThought ? 5000 : 3000;
     setTimeout(() => {
       Animated.timing(thoughtOpacity, {
         toValue: 0,
@@ -205,7 +204,7 @@ const ChatInputBar = memo(({
       }).start(() => {
         setShowThought(false);
       });
-    }, 5000);
+    }, autoHideDelay);
   }, [personaThought, thoughtOpacity]);
 
   // 💭 Handle thought dismiss
@@ -225,26 +224,37 @@ const ChatInputBar = memo(({
     if (__DEV__) {
       console.log('🎭 [ChatInputBar] EmotionIndicator rendering:', currentEmotion);
     }
+    
+    // 💭 State: Active (has thought) vs Inactive (no thought yet)
+    const isActive = !!personaThought;
+    
     return (
       <TouchableOpacity
         onPress={handleEmotionPress}
-        disabled={!personaThought}
-        activeOpacity={personaThought ? 0.6 : 1}
+        activeOpacity={0.6}
         style={[
           styles.emotionButton,
           {
             backgroundColor: currentTheme.backgroundColor || 'rgba(255, 255, 255, 0.1)',
-            // 💭 Subtle hint that it's tappable
-            opacity: personaThought ? 1 : 0.8,
+            // 💭 Visual state: Active (full opacity) vs Inactive (dimmed)
+            opacity: isActive ? 1 : 0.5,
           },
         ]}
       >
         <EmotionIndicator emotion={currentEmotion} animated={true} />
-        {personaThought && (
-          <View style={styles.thoughtBadge}>
-            <Text style={styles.thoughtBadgeText}>💭</Text>
-          </View>
-        )}
+        {/* 💭 Badge: Active (pink) vs Inactive (gray) */}
+        <View style={[
+          styles.thoughtBadge,
+          {
+            backgroundColor: isActive 
+              ? 'rgba(255, 105, 180, 0.9)' // 💭 Active: Pink
+              : 'rgba(128, 128, 128, 0.7)', // 💤 Inactive: Gray
+          }
+        ]}>
+          <Text style={styles.thoughtBadgeText}>
+            {isActive ? '💭' : '💤'}
+          </Text>
+        </View>
       </TouchableOpacity>
     );
   }, [currentEmotion, currentTheme.backgroundColor, personaThought, handleEmotionPress]);
@@ -372,7 +382,7 @@ const ChatInputBar = memo(({
       </View>
 
       {/* 💭 Persona Thought Tooltip */}
-      {showThought && personaThought && (
+      {showThought && (
         <Animated.View
           style={[
             styles.thoughtTooltip,
@@ -394,27 +404,50 @@ const ChatInputBar = memo(({
             onPress={handleThoughtDismiss}
             style={styles.thoughtTooltipContent}
           >
-            <View style={styles.thoughtHeader}>
-              <Text style={styles.thoughtHeaderText}>💭 페르소나의 생각</Text>
-              <TouchableOpacity onPress={handleThoughtDismiss} style={styles.thoughtCloseButton}>
-                <Text style={styles.thoughtCloseText}>×</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.thoughtQuestion}>{personaThought.question}</Text>
-            
-            {personaThought.topic && (
-              <View style={styles.thoughtFooter}>
-                <Text style={styles.thoughtTopic}>🏷️ {personaThought.topic}</Text>
-                {personaThought.timestamp && (
-                  <Text style={styles.thoughtTime}>
-                    {new Date(personaThought.timestamp).toLocaleTimeString('ko-KR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
+            {personaThought ? (
+              // ✅ Active: Persona has a thought
+              <>
+                <View style={styles.thoughtHeader}>
+                  <Text style={styles.thoughtHeaderText}>💭 페르소나의 생각</Text>
+                  <TouchableOpacity onPress={handleThoughtDismiss} style={styles.thoughtCloseButton}>
+                    <Text style={styles.thoughtCloseText}>×</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <Text style={styles.thoughtQuestion}>{personaThought.question}</Text>
+                
+                {personaThought.topic && (
+                  <View style={styles.thoughtFooter}>
+                    <Text style={styles.thoughtTopic}>🏷️ {personaThought.topic}</Text>
+                    {personaThought.timestamp && (
+                      <Text style={styles.thoughtTime}>
+                        {new Date(personaThought.timestamp).toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    )}
+                  </View>
                 )}
-              </View>
+              </>
+            ) : (
+              // 💤 Inactive: Persona doesn't have a thought yet
+              <>
+                <View style={styles.thoughtHeader}>
+                  <Text style={styles.thoughtHeaderText}>💤 페르소나의 생각</Text>
+                  <TouchableOpacity onPress={handleThoughtDismiss} style={styles.thoughtCloseButton}>
+                    <Text style={styles.thoughtCloseText}>×</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <Text style={styles.thoughtQuestion}>
+                  아직 {persona?.persona_name || '페르소나'}는 궁금한게 없어요
+                </Text>
+                
+                <Text style={styles.thoughtHint}>
+                  더 대화를 나누면 궁금한게 생길 거예요! 💬
+                </Text>
+              </>
             )}
           </TouchableOpacity>
         </Animated.View>
@@ -497,12 +530,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -2,
     right: -2,
-    width: moderateScale(16),
-    height: moderateScale(16),
-    borderRadius: moderateScale(8),
-    backgroundColor: 'rgba(255, 105, 180, 0.9)',
+    width: moderateScale(18),
+    height: moderateScale(18),
+    borderRadius: moderateScale(9),
     justifyContent: 'center',
     alignItems: 'center',
+    // backgroundColor: inline style로 동적 설정 (Active: pink, Inactive: gray)
   },
   thoughtBadgeText: {
     fontSize: moderateScale(10),
@@ -555,6 +588,12 @@ const styles = StyleSheet.create({
     color: '#FFF',
     lineHeight: moderateScale(24),
     marginBottom: moderateScale(12),
+  },
+  thoughtHint: {
+    fontSize: moderateScale(14),
+    color: 'rgba(255, 255, 255, 0.6)',
+    lineHeight: moderateScale(20),
+    fontStyle: 'italic',
   },
   thoughtFooter: {
     flexDirection: 'row',
