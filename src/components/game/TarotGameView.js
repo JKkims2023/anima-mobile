@@ -2151,7 +2151,6 @@ const styles = StyleSheet.create({
   },
   
   mainBubble: {
-    minWidth: scale(200), // ✅ 최소 너비 (약 20글자)
     maxWidth: '80%', // ✅ 최대 너비 (화면의 80%)
     alignSelf: 'center', // ✅ 중앙 정렬
     backgroundColor: 'rgba(0, 0, 0, 0.65)',
