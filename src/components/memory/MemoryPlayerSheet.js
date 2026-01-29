@@ -498,6 +498,16 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
   const tarotCardInfo = isTarotGift ? parseTarotData(memory?.tarot_card_info) : [];
   const tarotCardDesc = isTarotGift ? parseTarotData(memory?.tarot_card_desc) : [];
   
+  // 🔍 DEBUG: Log tarot data (개발용)
+  useEffect(() => {
+    if (isTarotGift && isOpen) {
+      console.log('🔮 [MemoryPlayerSheet] Tarot Gift Data:');
+      console.log('   tarotCardInfo:', tarotCardInfo);
+      console.log('   tarotCardDesc:', tarotCardDesc);
+      console.log('   isFlipped:', isFlipped);
+    }
+  }, [isTarotGift, isOpen, tarotCardInfo, tarotCardDesc, isFlipped]);
+  
   return (
     <CustomBottomSheet
       ref={bottomSheetRef}
@@ -825,10 +835,25 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
               />
               
               {/* Dark Overlay */}
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.7)' }]} />
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.7)', zIndex: 10 }]} />
               
               {/* Tarot Cards Row (3 cards) */}
               <View style={styles.tarotBackContainer}>
+                {/* 🔮 Back to Front Button (상단 우측) */}
+                <TouchableOpacity
+                  style={styles.tarotFlipChipBack}
+                  onPress={() => {
+                    HapticService.light();
+                    setIsFlipped(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Icon name="arrow-back-outline" size={scale(18)} color="#FFFFFF" />
+                  <CustomText style={styles.tarotFlipText}>
+                    앞면
+                  </CustomText>
+                </TouchableOpacity>
+                
                 <View style={styles.tarotCardsRow}>
                   {tarotCardInfo.map((card, index) => (
                     <TouchableOpacity
@@ -1498,6 +1523,25 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   
+  tarotFlipChipBack: {
+    position: 'absolute',
+    top: verticalScale(20), // ⭐ tarotBackContainer padding 고려
+    right: scale(20), // ⭐ tarotBackContainer padding 고려
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(168, 237, 234, 0.9)', // 청록색 (뒷면은 다른 색상)
+    paddingHorizontal: scale(14),
+    paddingVertical: verticalScale(8),
+    borderRadius: moderateScale(24),
+    gap: scale(6),
+    shadowColor: '#A8EDEA',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 100, // ⭐ 최상위
+  },
+  
   tarotFlipText: {
     fontSize: moderateScale(13),
     fontWeight: '700',
@@ -1506,11 +1550,15 @@ const styles = StyleSheet.create({
   },
   
   tarotBackContainer: {
-    flex: 1,
+    position: 'absolute', // ⭐ absolute positioning
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     padding: scale(20),
     paddingTop: verticalScale(40),
     justifyContent: 'space-between',
-    zIndex: 10,
+    zIndex: 20, // ⭐ Above dark overlay (10)
   },
   
   tarotCardsRow: {
