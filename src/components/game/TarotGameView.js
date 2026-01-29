@@ -1198,12 +1198,20 @@ const TarotGameView = ({
       try {
         console.log('🎁 [Tarot] User closing - Generating tarot gift...');
         console.log('🎴 [Tarot] Selected cards:', selectedCards?.length || 0);
+
+        console.log('🎴 [Tarot] Selected cards:', selectedCards);
+        console.log('🎴 [Tarot] Interpretation:', interpretation);
+        console.log('🎴 [Tarot] Conversation summary:', conversationSummary);
+        console.log('🎴 [Tarot] Conversation history:', conversationHistory);
+        console.log('🎴 [Tarot] Conversation turns:', conversationTurns);
         
         // ⚠️ Don't await - let it run in background
         gameApi.generateTarotGift({
           user_key: user?.user_key,
           interpretation: interpretation,
           conversation_summary: conversationSummary,
+          conversation_history: conversationHistory,
+          conversation_turns: conversationTurns,
           selected_cards: selectedCards, // 🔮 Pass cards for image generation!
         }).then(() => {
           console.log('✅ [Tarot] Tarot gift generated successfully (background)!');

@@ -403,7 +403,7 @@ const PostcardBack = ({
           showsVerticalScrollIndicator={false}
           backgroundColor="transparent" // ⚠️ CRITICAL: Android 이중 반투명 방지!
         >
-          <CustomText type="middle" style={styles.messageText}>
+          <CustomText type="middle" whiteSpace="pre-wrap" style={styles.messageText}>
             {displayComment}
           </CustomText>
         </Animated.ScrollView>
@@ -559,6 +559,7 @@ const styles = StyleSheet.create({
     borderRadius: 0, // ⚠️ Android: NO border radius on ScrollView!
     alignContent: 'flex-start',
 
+
     textAlign: 'left',
     marginTop: scale(-40),
   },
@@ -568,6 +569,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(4),
     backgroundColor: 'transparent', // ⚠️ CRITICAL: Android 이중 반투명 방지!
     borderRadius: 0, // ⚠️ Android: NO border radius!
+    whiteSpace: 'pre-wrap',
   },
   messageText: {
    // fontSize: moderateScale(17),
@@ -575,6 +577,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     fontWeight: '400',
+    whiteSpace: 'pre-wrap',
     // ✅ Stronger text shadow for better readability on all backgrounds
     textShadowColor: 'rgba(0, 0, 0, 0.8)', // ⭐ Increased from 0.5 to 0.8
     textShadowOffset: { width: 0, height: 2 }, // ⭐ Increased offset

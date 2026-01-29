@@ -399,7 +399,7 @@ export const saveTarotReading = async ({
  * @returns {string} response.gift.message - Gift message from SAGE
  * @returns {string} response.gift.image_url - SAGE's image URL (Tarot card + background)
  */
-export const generateTarotGift = async ({ user_key, interpretation, conversation_summary, selected_cards }) => {
+export const generateTarotGift = async ({ user_key, interpretation, conversation_summary, conversation_history, conversation_turns, selected_cards }) => {
   try {
     console.log('🎁 [gameApi] Generating tarot gift...');
     console.log('   Judgment:', interpretation?.judgment?.outcome || 'none');
@@ -409,6 +409,8 @@ export const generateTarotGift = async ({ user_key, interpretation, conversation
       user_key,
       interpretation,
       conversation_summary,
+      conversation_history,
+      conversation_turns,
       selected_cards,
     });
     
