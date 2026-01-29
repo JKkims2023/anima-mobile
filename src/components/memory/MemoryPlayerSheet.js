@@ -57,6 +57,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CustomBottomSheet from '../CustomBottomSheet';
 import CustomText from '../CustomText';
 import FlipCard from '../message/FlipCard'; // 🔮 NEW: For tarot card flip animation
+import TAROT_IMAGES from '../../assets/tarot'; // 🔮 NEW: Tarot card images (local)
 import GiftBackgroundEffect from '../particle/GiftBackgroundEffect'; // 🎨 NEW: Visual effects Layer 1
 import GiftActiveEffect from '../particle/GiftActiveEffect'; // 🎨 NEW: Visual effects Layer 2
 import { useTheme } from '../../contexts/ThemeContext';
@@ -498,13 +499,6 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
   const tarotCardInfo = isTarotGift ? parseTarotData(memory?.tarot_card_info) : [];
   const tarotCardDesc = isTarotGift ? parseTarotData(memory?.tarot_card_desc) : [];
   
-  // 🔮 Generate card image URLs (from image filename)
-  const getTarotCardImageUrl = (card) => {
-    if (!card || !card.image) return null;
-    // CDN base URL for tarot cards
-    return `https://babi-cdn.logbrix.ai/babi/real/tarot/${card.image}`;
-  };
-  
   // 🔍 DEBUG: Log tarot data (개발용)
   useEffect(() => {
     if (isTarotGift && isOpen) {
@@ -877,7 +871,7 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                       activeOpacity={0.8}
                     >
                       <Image
-                        source={{ uri: getTarotCardImageUrl(card) }}
+                        source={TAROT_IMAGES[card?.image]}
                         style={styles.tarotCardImage}
                         resizeMode="contain"
                       />
