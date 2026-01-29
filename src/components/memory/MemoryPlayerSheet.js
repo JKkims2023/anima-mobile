@@ -498,15 +498,23 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
   const tarotCardInfo = isTarotGift ? parseTarotData(memory?.tarot_card_info) : [];
   const tarotCardDesc = isTarotGift ? parseTarotData(memory?.tarot_card_desc) : [];
   
+  // 🔮 Generate card image URLs (from image filename)
+  const getTarotCardImageUrl = (card) => {
+    if (!card || !card.image) return null;
+    // CDN base URL for tarot cards
+    return `https://babi-cdn.logbrix.ai/babi/real/tarot/${card.image}`;
+  };
+  
   // 🔍 DEBUG: Log tarot data (개발용)
   useEffect(() => {
     if (isTarotGift && isOpen) {
       console.log('🔮 [MemoryPlayerSheet] Tarot Gift Data:');
       console.log('   tarotCardInfo:', tarotCardInfo);
       console.log('   tarotCardDesc:', tarotCardDesc);
+      console.log('   priority_reason:', memory?.priority_reason);
       console.log('   isFlipped:', isFlipped);
     }
-  }, [isTarotGift, isOpen, tarotCardInfo, tarotCardDesc, isFlipped]);
+  }, [isTarotGift, isOpen, tarotCardInfo, tarotCardDesc, isFlipped, memory?.priority_reason]);
   
   return (
     <CustomBottomSheet
@@ -869,7 +877,7 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                       activeOpacity={0.8}
                     >
                       <Image
-                        source={{ uri: card.image_url }}
+                        source={{ uri: getTarotCardImageUrl(card) }}
                         style={styles.tarotCardImage}
                         resizeMode="contain"
                       />
@@ -882,6 +890,21 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                   ))}
                 </View>
                 
+                {/* 🔮 Priority Reason (타로점을 본 목적) */}
+                {memory?.priority_reason && (
+                  <View style={styles.tarotPriorityReasonBox}>
+                    <View style={styles.tarotPriorityHeader}>
+                      <Icon name="help-circle-outline" size={scale(20)} color="#FFD700" />
+                      <CustomText style={styles.tarotPriorityTitle}>
+                        궁금했던 점
+                      </CustomText>
+                    </View>
+                    <CustomText style={styles.tarotPriorityText}>
+                      {memory.priority_reason}
+                    </CustomText>
+                  </View>
+                )}
+                
                 {/* Selected Card Interpretation */}
                 {tarotCardDesc[selectedCardIndex] && (
                   <View style={styles.tarotInterpretationBox}>
@@ -892,10 +915,35 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                       {tarotCardInfo[selectedCardIndex]?.name_en}
                       {tarotCardInfo[selectedCardIndex]?.is_reversed && ' (역방향)'}
                     </CustomText>
+                    
+                    {/* 🔮 카드 기본 의미 (Upright/Reversed) */}
+                    {tarotCardInfo[selectedCardIndex] && (
+                      <>
+                        <View style={styles.tarotInterpretationDivider} />
+                        <View style={styles.tarotCardMeaningSection}>
+                          <CustomText style={styles.tarotCardMeaningLabel}>
+                            📖 카드 의미
+                          </CustomText>
+                          <CustomText style={styles.tarotCardMeaningText}>
+                            {tarotCardInfo[selectedCardIndex].is_reversed
+                              ? tarotCardInfo[selectedCardIndex].reversed_meaning
+                              : tarotCardInfo[selectedCardIndex].upright_meaning}
+                          </CustomText>
+                        </View>
+                      </>
+                    )}
+                    
                     <View style={styles.tarotInterpretationDivider} />
-                    <CustomText style={styles.tarotInterpretationText}>
-                      {tarotCardDesc[selectedCardIndex]?.meaning}
-                    </CustomText>
+                    
+                    {/* 🔮 SAGE의 해석 */}
+                    <View style={styles.tarotSageInterpretationSection}>
+                      <CustomText style={styles.tarotSageInterpretationLabel}>
+                        🔮 SAGE의 해석
+                      </CustomText>
+                      <CustomText style={styles.tarotInterpretationText}>
+                        {tarotCardDesc[selectedCardIndex]?.meaning}
+                      </CustomText>
+                    </View>
                   </View>
                 )}
               </View>
@@ -1613,6 +1661,36 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   
+  tarotPriorityReasonBox: {
+    backgroundColor: 'rgba(255, 215, 0, 0.15)', // 골드 배경
+    borderRadius: moderateScale(12),
+    padding: scale(16),
+    marginBottom: verticalScale(16),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  
+  tarotPriorityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+    marginBottom: verticalScale(8),
+  },
+  
+  tarotPriorityTitle: {
+    fontSize: moderateScale(15),
+    fontWeight: '700',
+    color: '#FFD700',
+    letterSpacing: 0.5,
+  },
+  
+  tarotPriorityText: {
+    fontSize: moderateScale(14),
+    lineHeight: moderateScale(22),
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '400',
+  },
+  
   tarotInterpretationBox: {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: moderateScale(16),
@@ -1649,6 +1727,38 @@ const styles = StyleSheet.create({
     lineHeight: moderateScale(24),
     color: 'rgba(255, 255, 255, 0.95)',
     fontWeight: '400',
+  },
+  
+  tarotCardMeaningSection: {
+    marginTop: verticalScale(8),
+  },
+  
+  tarotCardMeaningLabel: {
+    fontSize: moderateScale(13),
+    fontWeight: '600',
+    color: 'rgba(168, 237, 234, 0.9)',
+    marginBottom: verticalScale(6),
+    letterSpacing: 0.3,
+  },
+  
+  tarotCardMeaningText: {
+    fontSize: moderateScale(14),
+    lineHeight: moderateScale(22),
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '400',
+    fontStyle: 'italic',
+  },
+  
+  tarotSageInterpretationSection: {
+    marginTop: verticalScale(8),
+  },
+  
+  tarotSageInterpretationLabel: {
+    fontSize: moderateScale(13),
+    fontWeight: '600',
+    color: 'rgba(138, 43, 226, 0.9)',
+    marginBottom: verticalScale(6),
+    letterSpacing: 0.3,
   },
 });
 
