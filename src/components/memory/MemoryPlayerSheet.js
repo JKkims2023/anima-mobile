@@ -479,12 +479,24 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
   
   // 🔮 NEW: Parse tarot data (only for action_type === 'tarot')
   const isTarotGift = memory?.action_type === 'tarot';
-  const tarotCardInfo = isTarotGift && memory?.tarot_card_info 
-    ? JSON.parse(memory.tarot_card_info) 
-    : [];
-  const tarotCardDesc = isTarotGift && memory?.tarot_card_desc 
-    ? JSON.parse(memory.tarot_card_desc) 
-    : [];
+  
+  // 🛡️ Safe JSON parsing (handle both string and already-parsed object)
+  const parseTarotData = (data) => {
+    if (!data) return [];
+    if (typeof data === 'string') {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        console.error('[MemoryPlayerSheet] JSON parse error:', e);
+        return [];
+      }
+    }
+    // Already parsed (array or object)
+    return data;
+  };
+  
+  const tarotCardInfo = isTarotGift ? parseTarotData(memory?.tarot_card_info) : [];
+  const tarotCardDesc = isTarotGift ? parseTarotData(memory?.tarot_card_desc) : [];
   
   return (
     <CustomBottomSheet
