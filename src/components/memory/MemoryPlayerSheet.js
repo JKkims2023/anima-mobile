@@ -39,6 +39,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  BackHandler,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -510,6 +511,30 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
     }
   }, [isTarotGift, isOpen, tarotCardInfo, tarotCardDesc, isFlipped, memory?.priority_reason]);
   
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 📱 Android Back Button Handler (Tarot Flip)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (!isOpen || Platform.OS !== 'android') {
+      return;
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // 🔮 If Tarot gift is flipped (showing back), flip to front
+      if (isTarotGift && isFlipped) {
+        console.log('📱 [MemoryPlayerSheet] Android back button: Flipping to front');
+        HapticService.light();
+        setIsFlipped(false);
+        return true; // ✅ Prevent default (don't close sheet)
+      }
+
+      // Otherwise, let default behavior (close sheet)
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [isOpen, isTarotGift, isFlipped]);
+  
   return (
     <CustomBottomSheet
       ref={bottomSheetRef}
@@ -873,7 +898,7 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                       <Image
                         source={TAROT_IMAGES[card?.image]}
                         style={styles.tarotCardImage}
-                        resizeMode="contain"
+                        resizeMode="cover"
                       />
                       <View style={styles.tarotCardLabelContainer}>
                         <CustomText style={styles.tarotCardLabel}>
@@ -885,7 +910,7 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                 </View>
                 
                 {/* 🔮 Priority Reason (타로점을 본 목적) */}
-                {memory?.priority_reason && (
+                {memory?.priority_reason && false && (
                   <View style={styles.tarotPriorityReasonBox}>
                     <View style={styles.tarotPriorityHeader}>
                       <Icon name="help-circle-outline" size={scale(20)} color="#FFD700" />
@@ -916,7 +941,10 @@ const hasVideo = memory?.persona_video_url != null && memory?.selected_dress_vid
                         <View style={styles.tarotInterpretationDivider} />
                         <View style={styles.tarotCardMeaningSection}>
                           <CustomText style={styles.tarotCardMeaningLabel}>
-                            📖 카드 의미
+                            📖  카드 의미
+                          </CustomText>
+                          <CustomText style={styles.tarotCardMeaningLabel}>
+                            :
                           </CustomText>
                           <CustomText style={styles.tarotCardMeaningText}>
                             {tarotCardInfo[selectedCardIndex].is_reversed
@@ -1692,7 +1720,9 @@ const styles = StyleSheet.create({
     gap: verticalScale(10),
     borderWidth: 1,
     borderColor: 'rgba(168, 237, 234, 0.3)',
-    maxHeight: verticalScale(300),
+
+    marginBottom: verticalScale(100),
+
   },
   
   tarotCardTitle: {
@@ -1724,15 +1754,18 @@ const styles = StyleSheet.create({
   },
   
   tarotCardMeaningSection: {
-    marginTop: verticalScale(8),
+
+
+    flexDirection: 'row',
   },
   
   tarotCardMeaningLabel: {
-    fontSize: moderateScale(13),
+    fontSize: moderateScale(15),
     fontWeight: '600',
     color: 'rgba(168, 237, 234, 0.9)',
-    marginBottom: verticalScale(6),
+
     letterSpacing: 0.3,
+    marginRight: scale(10),
   },
   
   tarotCardMeaningText: {
